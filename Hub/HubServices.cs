@@ -35,6 +35,11 @@ public class HubServices : Hub
     {
         await Clients.Caller.SendAsync(method, user, message.ToString());
     }
+    public async Task WorkerStatusUpdate(string status)
+    {
+        //await Clients.All.SendAsync("WorkerStatusUpdate", status);
+        Console.WriteLine("Worker Status : " + Context.ConnectionId);
+    }
 
     public override async Task OnConnectedAsync()
     {
