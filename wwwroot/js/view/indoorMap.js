@@ -9,6 +9,8 @@ let mainfloor = L.imageOverlay(null, [0, 0], { id: -1, zIndex: -1 }).addTo(mainf
 let baseLayers = {
     "Main Floor": mainfloor
 };
+
+let overlayMaps = {};
 let layersSelected = [mainfloor];
 //setup map
 let OSLmap = L.map('map', {
@@ -45,15 +47,28 @@ sidebar.on('content', function (ev) {
             //LoadNotification("vehicle", "agvnotificationtable");
             break;
         case 'notificationsetup':
-           // LoadNotificationsetup({}, "notificationsetuptable");
+            // LoadNotificationsetup({}, "notificationsetuptable");
             break;
         case 'tripsnotificationinfo':
-           // LoadNotification("routetrip", "tripsnotificationtable");
+            // LoadNotification("routetrip", "tripsnotificationtable");
             break;
         default:
             sidebar.options.autopan = false;
             break;
     }
+}).addTo(OSLmap);
+// Add Layer Popover - Proposed
+let layersControl = L.control.layers(baseLayers, overlayMaps, {
+    sortLayers: true, sortFunction: function (layerA, layerB, nameA, nameB) {
+        if (/FLOOR/i.test(nameA)) {
+            if (/MAIN/i.test(nameA)) {
+                return -1;
+            }
+            else {
+                return nameA < nameB ? -1 : (nameB < nameA ? 1 : 0);
+            }
+        }
+    }, position: 'bottomright', collapsed: false
 }).addTo(OSLmap);
 function UpdateOSLattribution() {
     OSLmap.attributionControl.setPrefix("USPS " + ApplicationInfo.name + " (" + ApplicationInfo.version + ") | " + ApplicationInfo.siteName);
@@ -91,6 +106,11 @@ async function init_backgroundImages(MapData) {
                     }
                 }
             });
+            //join Tags group 
+            connection.invoke("AddToGroup", "Tags").catch(function (err) {
+                return console.error(err.toString());
+            });
+
         }
         else {
             let trackingarea = L.polygon([[100, 150]], [[500, 5000]]);

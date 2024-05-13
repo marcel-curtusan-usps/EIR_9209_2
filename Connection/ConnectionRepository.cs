@@ -9,31 +9,31 @@ public class ConnectionRepository : IConnectionRepository
     {
         _connection = context.Database.GetCollection<Connection>("connectionList");
     }
-    public async Task Add(Connection image)
+    public async Task Add(Connection con)
     {
-        await _connection.InsertOneAsync(image);
+        await _connection.InsertOneAsync(con);
     }
 
     public async Task Delete(string id)
     {
-        var filter = Builders<Connection>.Filter.Eq("_id", new ObjectId(id));
+        var filter = Builders<Connection>.Filter.Eq("Id", id);
         await _connection.DeleteOneAsync(filter);
     }
 
     public async Task<Connection> Get(string id)
     {
-        var filter = Builders<Connection>.Filter.Eq("_id", new ObjectId(id));
-        return await _connection.Find(filter).FirstOrDefaultAsync();
+        var filter = Builders<Connection>.Filter.Eq("Id", id);
+        return await _connection.Find(filter).FirstOrDefaultAsync().ConfigureAwait(false);
     }
 
     public async Task<List<Connection>> GetAll()
     {
-        return await _connection.Find(_ => true).ToListAsync();
+        return await _connection.Find(_ => true).ToListAsync().ConfigureAwait(false);
     }
 
-    public async Task Update(Connection image)
+    public async Task Update(Connection con)
     {
-        var filter = Builders<Connection>.Filter.Eq("_id", new ObjectId(image.Id));
-        await _connection.ReplaceOneAsync(filter, image);
+        var filter = Builders<Connection>.Filter.Eq("Id", con.Id);
+        await _connection.ReplaceOneAsync(filter, con).ConfigureAwait(false);
     }
 }

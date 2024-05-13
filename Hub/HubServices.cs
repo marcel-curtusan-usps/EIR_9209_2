@@ -1,24 +1,29 @@
 ﻿using EIR_9209_2.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Security.Claims;
 
 public class HubServices : Hub
 {
-    public static ConcurrentDictionary<string, string> _connectionIds = new ConcurrentDictionary<string, string>();
+    public readonly static ConcurrentDictionary<string, string> _connectionIds = new ConcurrentDictionary<string, string>();
 
     private readonly IBackgroundImageRepository _backgroundImages;
-    private ILogger<BackgroundImageRepository> _logger;
-    public HubServices(ILogger<BackgroundImageRepository> logger, IBackgroundImageRepository backgroundImages)
+    private readonly IConnectionRepository _connections;
+    private ILogger<HubServices> _logger;
+    public HubServices(ILogger<HubServices> logger, IBackgroundImageRepository backgroundImages, IConnectionRepository connectionList)
     {
         _logger = logger;
         _backgroundImages = backgroundImages;
+        _connections = connectionList;
     }
     public async Task AddToGroup(string groupName)
     {
+        _logger.LogInformation($"{Context.ConnectionId} Joined the {groupName} group");
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
     }
 
@@ -35,11 +40,7 @@ public class HubServices : Hub
     {
         await Clients.Caller.SendAsync(method, user, message.ToString());
     }
-    public async Task WorkerStatusUpdate(string status)
-    {
-        //await Clients.All.SendAsync("WorkerStatusUpdate", status);
-        Console.WriteLine("Worker Status : " + Context.ConnectionId);
-    }
+
 
     public override async Task OnConnectedAsync()
     {
@@ -73,10 +74,22 @@ public class HubServices : Hub
         _connectionIds.TryRemove(Context.ConnectionId, out removedConnectionId);
         await base.OnDisconnectedAsync(exception);
     }
-    //worker status
-    public async Task ReceiveStatusUpdate(string status)
+    // worker request for data of connection list
+    public async Task GetConnectionList()
     {
-        await Clients.All.SendAsync("WorkerStatusUpdate", status);
-        Console.WriteLine("Worker Status : " + Context.ConnectionId);
+        var conList = await _connections.GetAll();
+        await CallerMessage(Context.ConnectionId, JsonConvert.SerializeObject(conList), "WorkerConnectionList");
+    }
+    public async Task WorkerStatusUpdate(string status)
+    {
+        //await Clients.All.SendAsync("WorkerStatusUpdate", status);
+        // _logger.LogInformation($"Worker Status :  {Context.ConnectionId}  <-->  {status}");
+    }
+    public async Task WorkerData(byte[] data)
+    {
+        //await Clients.All.SendAsync("WorkerStatusUpdate", status);
+        string workerData = System.Text.Encoding.UTF8.GetString(data);
+        await SendMessageToGroup("Tags", workerData, "tags");
+        // _logger.LogInformation($"Worker Data for QPE :  {Context.ConnectionId}  <-->  {workerData}");
     }
 }

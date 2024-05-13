@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using EIR_9209_2.Models;
 using EIR_9209_2.Controllers;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 
 public class Startup
 {
@@ -33,7 +34,7 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
 
-        //setup mongodb 
+        //setup mongodb and check health status
         services.Configure<MongoDBSettings>(Configuration.GetSection("MongoDB"));
         services.AddSingleton<MongoDBContext>();
         services.AddSingleton(provider => provider.GetRequiredService<MongoDBContext>().Database);
@@ -42,61 +43,11 @@ public class Startup
 
         services.AddSingleton<IBackgroundImageRepository, BackgroundImageRepository>();
         services.AddSingleton<IConnectionRepository, ConnectionRepository>();
-        services.AddSingleton<BackgroundServiceManager>();
-        //Read configuration data from ConnectionList.json file from the Configuration folder
-        //var connectionLists = new ConfigurationBuilder()
-        //    .SetBasePath(Directory.GetCurrentDirectory())
-        //    .AddJsonFile("Configuration/ConnectionList.json", optional: false, reloadOnChange: true)
-        //    .Build();
-        //var connectionList = connectionLists.GetSection("ConnectionList").Get<Connection[]>();
-        //if (connectionList != null)
-        //{
-        //    foreach (var conn in connectionList)
-        //    {
-        //        var ConnectionRepository = services.BuildServiceProvider().GetRequiredService<IConnectionRepository>();
-        //        ConnectionRepository.Add(conn).Wait();
-        //    }
-        //}
-        //load background images in memory
-        // var backgroundImageRepository = new BackgroundImageRepository();
-        // services.AddSingleton<IBackgroundImageRepository>(backgroundImageRepository);
-
-        //Read configuration data from ConnectionList.json file from the Configuration folder
-        //var backgroundImages = new ConfigurationBuilder()
-        //    .SetBasePath(Directory.GetCurrentDirectory())
-        //    .AddJsonFile("Configuration/BackgroundImage.json", optional: false, reloadOnChange: true)
-        //    .Build();
-        //var backgroundImage = backgroundImages.GetSection("BackgroundImages").Get<BackgroundImage[]>();
-        //if (backgroundImage != null)
-        //{
-        //    foreach (var image in backgroundImage)
-        //    {
-        //        var backgroundImageRepository = services.BuildServiceProvider().GetRequiredService<IBackgroundImageRepository>();
-        //        backgroundImageRepository.Add(image).Wait();
-        //    }
-        //}
-        // Start a new service for each record in the connection list
-        //var ConnectionRepository = services.BuildServiceProvider().GetRequiredService<IConnectionRepository>();
-        //var connectionList = ConnectionRepository.GetAll().Result;
-        //if (connectionList != null)
-        //{
-        //    foreach (var connection in connectionList)
-        //    {
-        //        services.AddHttpClient(connection.Name);
-        //        services.AddHostedService(provider =>
-        //        {
-        //            HttpClient httpClient = provider.GetRequiredService<IHttpClientFactory>().CreateClient(connection.Name);
-        //            return new ConnectionBackgroundService(provider.GetRequiredService<ILogger<ConnectionBackgroundService>>(), httpClient, connection, provider.GetRequiredService<IHubContext<HubServices>>(), provider.GetRequiredService<BackgroundServiceManager>(), connection.Id);
-        //        });
-
-        //    }
-        //}
         //add SignalR to the services
-        services.AddSignalR().AddJsonProtocol(options =>
-        {
-            options.PayloadSerializerOptions.PropertyNamingPolicy = null;
-            options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        }); ;
+        services.AddSignalR(options =>
+            {
+                options.MaximumReceiveMessageSize = 250 * 1024;
+            });
         services.AddSingleton<HubServices, HubServices>();
         // Add framework services.
         services
@@ -154,7 +105,6 @@ public class Startup
         // app.UseStaticFiles();
         app.UseHealthChecks("/health");
         app.UseAuthorization();
-
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {

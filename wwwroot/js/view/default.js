@@ -1,5 +1,6 @@
 ﻿
 let ApplicationInfo = {};
+let baselayerid = "";
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/hubServics")
     .withAutomaticReconnect()
@@ -10,6 +11,7 @@ async function start() {
     try {
         await connection.start().then(function () {
             console.log("SignalR Connected.");
+            
         }).catch(function (err) {
             setTimeout(start, 5000);
             return console.error(err.toString());
@@ -32,6 +34,9 @@ connection.on("backgroundImages", async (id, data) => {
 connection.on("getTagData", async (id, data) => {
     console.log(data);
     // Promise.all([init_backgroundImages($.parseJSON(data))]);
+});
+connection.on("tags", async (data) => {
+    Promise.all([addFeature($.parseJSON(data))]);
 });
 connection.on("applicationInfo", async (id, data) => {
     ApplicationInfo = $.parseJSON(data);
