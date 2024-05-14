@@ -1,19 +1,24 @@
 using Amazon.Runtime.Internal.Util;
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver.GeoJsonObjectModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System.Text;
 
-public class WorkerService : IHostedService, IWorkerService
+public class WorkerService : IHostedService, IWorkerService, IDisposable
 {
     private readonly ILogger<WorkerService> _logger;
     private readonly HubServices _hubServices;
     private readonly List<Connection> _endPointList;
     private readonly Dictionary<string, CancellationTokenSource> _endPointCancellations;
     private readonly Dictionary<string, PeriodicTimer> _endPointTimers;
+    private readonly JsonSerializerSettings _serializerSettings = new()
+    {
+        ContractResolver = new CamelCasePropertyNamesContractResolver(),
+        Formatting = Formatting.Indented
+    };
     private CancellationTokenSource _cts = new();
-    private TaskCompletionSource _workerServiceStartupTcs = new();
     private readonly IConnectionRepository _connections;
     private EWorkerServiceState _state;
     public EWorkerServiceState State
@@ -44,6 +49,13 @@ public class WorkerService : IHostedService, IWorkerService
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
+
+        // remove endpoint from list 
+        _endPointList.ForEach(endPoint => StopEndPoint(endPoint.Id));
+        _endPointList.ForEach(endPoint => RemoveEndPoint(endPoint));
+        _endPointList.Clear();
+        _endPointCancellations.Clear();
+        _endPointTimers.Clear();
         _cts.Cancel();
         return Task.CompletedTask;
     }
@@ -51,7 +63,6 @@ public class WorkerService : IHostedService, IWorkerService
     {
         State = EWorkerServiceState.Starting;
         _cts = new CancellationTokenSource();
-        _workerServiceStartupTcs = new TaskCompletionSource();
         (await _connections.GetAll())?.ToList().ForEach(endPoint => AddAndStartEndPoint(endPoint));
         _ = RunWorkerServiceAsync();
     }
@@ -60,18 +71,19 @@ public class WorkerService : IHostedService, IWorkerService
     {
         while (!_cts.IsCancellationRequested)
         {
+            State = EWorkerServiceState.Running;
             try
             {
                 if (_endPointList != null && _endPointList.Any())
                 {
-                    foreach (var Connection in _endPointList)
+                    foreach (var endPoint in _endPointList)
                     {
-                        _endPointTimers[Connection.Id] = new PeriodicTimer(TimeSpan.FromMilliseconds(Connection.Interval));
-                        _endPointCancellations[Connection.Id] = new CancellationTokenSource();
+                        endPoint.Status = EWorkerServiceState.Starting;
+                        _endPointTimers[endPoint.Id] = new PeriodicTimer(TimeSpan.FromMilliseconds(endPoint.Interval));
+                        _endPointCancellations[endPoint.Id] = new CancellationTokenSource();
 
                     }
                     while (!_cts.IsCancellationRequested)
-
                     {
                         try
                         {
@@ -79,14 +91,13 @@ public class WorkerService : IHostedService, IWorkerService
                             {
                                 foreach (var endPoint in _endPointList)
                                 {
+                                    EWorkerServiceState CurrentStatus = endPoint.Status;
                                     if (!_endPointCancellations[endPoint.Id].IsCancellationRequested && await _endPointTimers[endPoint.Id].WaitForNextTickAsync())
                                     {
                                         try
                                         {
-                                            // Send a status update
-                                            State = EWorkerServiceState.Producing;
-                                            //endPoint.StatusMessge = $"Collecting Data from {endPoint.Name}";
-                                            //await _connection.SendAsync("WorkerStatusUpdate", JsonConvert.SerializeObject(endPoint));
+                                            endPoint.Status = EWorkerServiceState.Running;
+
                                             using HttpClient _httpClient = new();
                                             var result = new JObject();
                                             try
@@ -102,7 +113,7 @@ public class WorkerService : IHostedService, IWorkerService
                                                     //process tag data
                                                     if (endPoint.MessageType == "getTagData")
                                                     {
-                                                        await ProcessData(result);
+                                                        await ProcessTagData(result);
                                                     }
                                                 }
                                                 else
@@ -113,16 +124,14 @@ public class WorkerService : IHostedService, IWorkerService
                                                     //process tag data
                                                     if (endPoint.MessageType == "getTagData")
                                                     {
-                                                        await ProcessData(result);
+                                                        await ProcessTagData(result);
                                                     }
                                                 }
 
                                             }
                                             catch (Exception e)
                                             {
-                                                endPoint.Status = "Error";
-                                                //endPoint.StatusMessge = e.Message;
-                                                //await _connection.SendAsync("WorkerStatusUpdate", JsonConvert.SerializeObject(endPoint));
+                                                endPoint.Status = EWorkerServiceState.ErrorPullingData;
                                                 _logger.LogError(e, "Error Pulling data from URL Retrying...");
                                             }
                                             finally
@@ -132,17 +141,17 @@ public class WorkerService : IHostedService, IWorkerService
                                         }
                                         catch (Exception ex)
                                         {
+                                            endPoint.Status = EWorkerServiceState.ErrorPullingData;
                                             _logger.LogError(ex, "Error while starting Pulling from URL Retrying...");
                                         }
-                                        finally
-                                        {
-                                            // Send a status update
-                                            endPoint.Status = "Idle";
-                                            //endPoint.StatusMessge = $"Completed Collected Data From {endPoint.Name}";
-
-                                            //await _connection.SendAsync("WorkerStatusUpdate", JsonConvert.SerializeObject(endPoint));
-
-                                        }
+                                    }
+                                    else
+                                    {
+                                        endPoint.Status = EWorkerServiceState.Stopped;
+                                    }
+                                    if (CurrentStatus != endPoint.Status)
+                                    {
+                                        await _hubServices.SendMessageToGroup("Connections", JsonConvert.SerializeObject(endPoint, _serializerSettings), "connection");
                                     }
                                 }
                             }
@@ -156,12 +165,13 @@ public class WorkerService : IHostedService, IWorkerService
             }
             catch (Exception ex)
             {
+                State = EWorkerServiceState.Stopping;
                 _logger.LogError(ex, "Error while connecting to the Main Application. Retrying in 60 seconds...");
 
             }
         }
     }
-    private async Task ProcessData(JObject result)
+    private async Task ProcessTagData(JObject result)
     {
         try
         {
@@ -236,23 +246,27 @@ public class WorkerService : IHostedService, IWorkerService
 
                 }
             }
+            else
+            {
+                _logger.LogError("No Tags Found");
+            }
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
         }
     }
-    public bool IsEndPointRunning(Connection endPoint)
+    public bool IsEndPointRunning(string Id)
     {
         // If the endpoint has a CancellationTokenSource and its token has not been cancelled, the endpoint is running
-        return _endPointCancellations.ContainsKey(endPoint.Id) && !_endPointCancellations[endPoint.Id].Token.IsCancellationRequested;
+        return _endPointCancellations.ContainsKey(Id) && !_endPointCancellations[Id].Token.IsCancellationRequested;
     }
     public void RemoveEndPoint(Connection endPoint)
     {
         // If the endpoint is running, stop it
-        if (IsEndPointRunning(endPoint))
+        if (IsEndPointRunning(endPoint.Id))
         {
-            StopEndPoint(endPoint);
+            StopEndPoint(endPoint.Id);
         }
 
         // Remove the endpoint from the list
@@ -275,9 +289,9 @@ public class WorkerService : IHostedService, IWorkerService
         // Create a new CancellationTokenSource for the endpoint
         _endPointCancellations[endPoint.Id] = new CancellationTokenSource();
     }
-    public void StopEndPoint(Connection endPoint)
+    public void StopEndPoint(string Id)
     {
-        _endPointCancellations[endPoint.Id].Cancel();
+        _endPointCancellations[Id].Cancel();
     }
     public void AddAndStartEndPoint(Connection endPoint)
     {
@@ -292,7 +306,13 @@ public class WorkerService : IHostedService, IWorkerService
             _endPointTimers[endPoint.Id] = new PeriodicTimer(TimeSpan.FromMilliseconds(endPoint.Interval));
         }
     }
-    internal static JsonSerializerSettings jsonSettings = new JsonSerializerSettings
+
+    public void Dispose()
+    {
+        ((IDisposable)_cts).Dispose();
+    }
+
+    internal static JsonSerializerSettings jsonSettings = new()
     {
         //keep this
         Error = (sender, args) =>

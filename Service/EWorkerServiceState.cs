@@ -3,6 +3,7 @@
     Stopped,
     Starting,
     StartFailedWaitingToRestart,
-    Producing,
-    Stopping
+    Running,
+    Stopping,
+    ErrorPullingData,
 }

@@ -7,6 +7,22 @@ public class Connection
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public required string _id { get; set; }
+    [JsonIgnore]
+    [BsonIgnore]
+    private EWorkerServiceState _status;
+    [BsonIgnore]
+    public EWorkerServiceState Status
+    {
+        get => _status;
+        set
+        {
+            if (_status != value)
+            {
+                _status = value;
+                // Update status in database or notify listeners of status change
+            }
+        }
+    }
     public bool ActiveConnection { get; set; } = false;
     public string AdminEmailRecepient { get; set; } = "";
     public bool ApiConnected { get; set; } = false;
@@ -33,7 +49,6 @@ public class Connection
     public bool WsConnection { get; set; } = false;
     public bool ApiConnection { get; set; } = false;
     public string Url { get; set; } = "";
-    public string Status { get; set; } = "";
     public string OAuthUrl { get; set; } = "";
     public string UserName { get; set; } = "";
     public string Password { get; set; } = "";

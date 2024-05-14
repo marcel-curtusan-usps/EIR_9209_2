@@ -27,6 +27,18 @@ async function start() {
                 // handle error
                 console.error(err);
             });
+            //load GeoZones MPE
+            connection.invoke("GetConnectionList").then(function (data) {
+                Promise.all([init_connection(data)]).then(function () {
+                    connection.invoke("AddToGroup", "Connections").catch(function (err) {
+                        return console.error(err.toString());
+                    });
+
+                });
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
             //load background images
             connection.invoke("GetBackgroundImages").then(function (data) {
                 Promise.all([init_backgroundImages(data)]).then(function () {
@@ -63,6 +75,7 @@ async function start() {
                 console.error(err);
             });
 
+
         }).catch(function (err) {
             setTimeout(start, 5000);
             return console.error(err.toString());
@@ -85,6 +98,9 @@ connection.on("backgroundImages", async (id, data) => {
 connection.on("getTagData", async (id, data) => {
     console.log(data);
     // Promise.all([init_backgroundImages($.parseJSON(data))]);
+});
+connection.on("connection", async (data) => {
+    Promise.all([updateConnection(JSON.parse(data))]);
 });
 connection.on("tags", async (data) => {
     let tagdata = JSON.parse(data);
@@ -128,3 +144,8 @@ connection.on("siteInfo", async (id, data) => {
 
 // Start the connection.
 start();
+function capitalize_Words(str) {
+    return str.replace(/\w\S*/g, function (txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+}
