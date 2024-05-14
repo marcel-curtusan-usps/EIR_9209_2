@@ -37,7 +37,7 @@ public class GeneratePathParamsValidationFilter : IOperationFilter
                 var regexAttr = attributes.FirstOrDefault(p => p.AttributeType == typeof(RegularExpressionAttribute));
                 if (regexAttr != null)
                 {
-                    string regex = (string)regexAttr.ConstructorArguments[0].Value;
+                    string? regex = regexAttr.ConstructorArguments[0].Value as string;
                     if (swaggerParam is OpenApiParameter)
                     {
                         ((OpenApiParameter)swaggerParam).Schema.Pattern = regex;

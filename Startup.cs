@@ -1,14 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.DependencyInjection;
 using EIR_9209_2.Models;
-using EIR_9209_2.Controllers;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Options;
 
 public class Startup
 {
@@ -43,11 +36,23 @@ public class Startup
 
         services.AddSingleton<IBackgroundImageRepository, BackgroundImageRepository>();
         services.AddSingleton<IConnectionRepository, ConnectionRepository>();
+        services.AddSingleton<ITagsRepository, TagsRepository>();
         //add SignalR to the services
         services.AddSignalR(options =>
             {
                 options.MaximumReceiveMessageSize = 250 * 1024;
+                // Faster pings for testing
+                options.KeepAliveInterval = TimeSpan.FromSeconds(5);
             });
+        services.AddCors(o =>
+        {
+            o.AddPolicy("Everything", p =>
+            {
+                p.AllowAnyHeader()
+                 .AllowAnyMethod()
+                 .AllowAnyOrigin();
+            });
+        });
         services.AddSingleton<HubServices, HubServices>();
         // Add framework services.
         services
@@ -125,9 +130,6 @@ public class Startup
             endpoints.MapControllers();
             endpoints.MapHub<HubServices>("/hubServics");
         });
-
-
-
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
@@ -136,7 +138,6 @@ public class Startup
         {
             //TODO: Enable production exception handling (https://docs.microsoft.com/en-us/aspnet/core/fundamentals/error-handling)
             app.UseExceptionHandler("/Error");
-
             app.UseHsts();
         }
     }

@@ -1,5 +1,5 @@
 ﻿
-let ApplicationInfo = {};
+let appData = {};
 let baselayerid = "";
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/hubServics")
@@ -10,8 +10,59 @@ const connection = new signalR.HubConnectionBuilder()
 async function start() {
     try {
         await connection.start().then(function () {
-            console.log("SignalR Connected.");
-            
+            //load Application Info
+            connection.invoke("GetApplicationInfo").then(function (data) {
+                let appData = JSON.parse(data);
+                if (/^(Admin|OIE)/i.test(appData.role)) {
+                    Promise.all([init_geoman_editing()]);
+                    sidebar.addPanel({
+                        id: 'setting',
+                        tab: '<span class="iconCenter"><i class="pi-iconGearFill"></i></span>',
+                        position: 'bottom',
+                    });
+                }
+                Promise.all([UpdateOSLattribution(appData)]);
+                $(`span[id="fotf-site-facility-name"]`).text(appData.name);
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
+           //load background images
+            connection.invoke("GetBackgroundImages") .then(function (data) {
+                    Promise.all([init_backgroundImages(data)]).then(function () {
+                        connection.invoke("AddToGroup", "BackgroundImage").catch(function (err) {
+                            return console.error(err.toString());
+                        });
+                    });
+                }).catch(function (err) {
+                    // handle error
+                    console.error(err);
+                });
+            //load Person Tags
+            connection.invoke("GetPersonTags").then(function (data) {
+                    Promise.all([init_tagsEmployees(data)]).then(function () {
+                        connection.invoke("AddToGroup", "Tags").catch(function (err) {
+                            return console.error(err.toString());
+                        });
+
+                    });
+                }).catch(function (err) {
+                    // handle error
+                    console.error(err);
+                });
+            //load GeoZones MPE
+            connection.invoke("GetGeoZoneMPE").then(function (data) {
+                Promise.all([init_geoZoneMPE(data)]).then(function () {
+                    connection.invoke("AddToGroup", "MPEZones").catch(function (err) {
+                        return console.error(err.toString());
+                    });
+
+                });
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
+         
         }).catch(function (err) {
             setTimeout(start, 5000);
             return console.error(err.toString());
@@ -29,17 +80,25 @@ connection.onclose(async () => {
 });
 connection.on("backgroundImages", async (id, data) => {
     // console.log(data);
-    Promise.all([init_backgroundImages($.parseJSON(data))]);
+    Promise.all([init_backgroundImages(JSON.parse(data))]);
 });
 connection.on("getTagData", async (id, data) => {
     console.log(data);
     // Promise.all([init_backgroundImages($.parseJSON(data))]);
 });
 connection.on("tags", async (data) => {
-    Promise.all([addFeature($.parseJSON(data))]);
+    let tagdata = JSON.parse(data);
+    if (tagdata.properties.visible) {
+        Promise.all([addFeature(JSON.parse(data))]);
+    }
+    else {
+        Promise.all([deleteFeature(JSON.parse(data))]);
+    }
+
 });
+
 connection.on("applicationInfo", async (id, data) => {
-    ApplicationInfo = $.parseJSON(data);
+    ApplicationInfo = JSON.parse(data);
     UpdateOSLattribution();
     $(`span[id="fotf-site-facility-name"]`).text(ApplicationInfo.name);
     //add setting icon to the bottom side panel

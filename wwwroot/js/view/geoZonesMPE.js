@@ -1,0 +1,71 @@
+﻿let geoZoneMPE = new L.GeoJSON(null, {
+    style: function (feature) {
+        return {
+            weight: 1,
+            opacity: 1,
+            color: '#3573b1',
+            fillOpacity: 0.2,
+            fillColor: GetMacineBackground(feature.properties.MPEWatchData),
+            lastOpacity: 0.2
+        };
+    },
+    onEachFeature: function (feature, layer) {
+
+        layer.zoneId = feature.properties.id;
+    },
+    filter: function (feature, layer) {
+        return feature.properties.visible;
+    }
+});
+
+// add to the map and layers control
+let geoZoneMPEoverlayLayer = L.layerGroup().addTo(OSLmap);
+layersControl.addOverlay(geoZoneMPEoverlayLayer, "MPE Zones");
+geoZoneMPE.addTo(geoZoneMPEoverlayLayer);
+
+async function init_geoZoneMPE() {
+    $(document).on('change', '.leaflet-control-layers-selector', function (e) {
+        let sp = this.nextElementSibling;
+        if (/^(MPE Zones)$/ig.test(sp.innerHTML.trim())) {
+            if (this.checked) {
+                connection.invoke("AddToGroup", "MPEZones").catch(function (err) {
+                    return console.error(err.toString());
+                });
+            }
+            else {
+                connection.invoke("RemoveFromGroup", "MPEZones").catch(function (err) {
+                    return console.error(err.toString());
+                });
+            }
+        }
+
+    });
+}
+function GetMacineBackground(mpeWatchData) {
+    let NotRunningbkColor = '#989ea4';
+    let RunningColor = '#3573b1';
+    let WarningColor = '#ffc107';
+    let AlertColor = '#dc3545';
+    try {
+        if (mpeWatchData.cur_sortplan === "0" || mpeWatchData.cur_sortplan === '') {
+            return NotRunningbkColor;
+        }
+        else {
+
+            if (mpeWatchData.throughput_status === 3) {
+                return AlertColor;
+            }
+            if (mpeWatchData.unplan_maint_sp_status === 2 || mpeWatchData.op_started_late_status === 2 || mpeWatchData.op_running_late_status === 2 || mpeWatchData.sortplan_wrong_status === 2 || mpeWatchData.throughput_status === 2) {
+                return AlertColor;
+            }
+            if (mpeWatchData.unplan_maint_sp_status === 1 || mpeWatchData.op_started_late_status === 1 || mpeWatchData.op_running_late_status === 1 || mpeWatchData.sortplan_wrong_status === 1) {
+                return WarningColor;
+            }
+            return RunningColor;
+        }
+    }
+    catch (e) {
+
+    }
+
+}

@@ -1,3 +1,5 @@
+// Ignore Spelling: Mongo
+
 using EIR_9209_2.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;

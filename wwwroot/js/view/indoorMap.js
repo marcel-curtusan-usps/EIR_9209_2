@@ -70,13 +70,16 @@ let layersControl = L.control.layers(baseLayers, overlayMaps, {
         }
     }, position: 'bottomright', collapsed: false
 }).addTo(OSLmap);
-function UpdateOSLattribution() {
-    OSLmap.attributionControl.setPrefix("USPS " + ApplicationInfo.name + " (" + ApplicationInfo.version + ") | " + ApplicationInfo.siteName);
+async function UpdateOSLattribution(data) {
+    return new Promise((resolve, reject) => {
+        OSLmap.attributionControl.setPrefix("USPS " + data.name + " (" + data.version + ") | " + data.siteName);
+        resolve();
+        return false;
+    });
 }
 async function init_backgroundImages(MapData) {
     try {
         if (MapData.length > 0) {
-
             $.each(MapData, function (index, backgroundImages) {
                 if (!!backgroundImages) {
                     //Promise.all([loadFloorPlanDatatable([this], "backgroundimagetable")]);
@@ -97,8 +100,6 @@ async function init_backgroundImages(MapData) {
                         mainfloor.setBounds(trackingarea.getBounds());
                         //center image
                         OSLmap.setView(trackingarea.getBounds().getCenter(), 1.5);
-                        //Promise.all([init_zones(this.zones, baselayerid)]);
-                        //Promise.all([init_locators(this.locators, baselayerid)]);
                     }
                     else if (!!this.backgroundImages) {
                         layersControl.addBaseLayer(L.imageOverlay(img.src, trackingarea.getBounds(), { id: this.id, zindex: index }), this.backgroundImages.name);
@@ -106,10 +107,7 @@ async function init_backgroundImages(MapData) {
                     }
                 }
             });
-            //join Tags group 
-            connection.invoke("AddToGroup", "Tags").catch(function (err) {
-                return console.error(err.toString());
-            });
+
 
         }
         else {

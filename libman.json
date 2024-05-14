@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "defaultProvider": "unpkg",
+  "libraries": [
+    {
+      "library": "leaflet.marker.slideto@0.3.0",
+      "destination": "wwwroot/lib/leaflet.marker.slideto/"
+    },
+    {
+      "library": "@geoman-io/leaflet-geoman-free@2.16.0",
+      "destination": "wwwroot/lib/geoman-io/leaflet-geoman-free/"
+    }
+  ]
+}
