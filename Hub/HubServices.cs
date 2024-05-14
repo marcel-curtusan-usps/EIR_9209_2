@@ -44,7 +44,10 @@ public class HubServices : Hub
 
     public async Task SendMessageToGroup(string groupName, string message, string method)
     {
-        await Clients.Group(groupName).SendAsync(method, message);
+        if (Clients != null)
+        {
+            await Clients.Group(groupName).SendAsync(method, message);
+        }
     }
     public async Task CallerMessage(string user, object message, string method)
     {

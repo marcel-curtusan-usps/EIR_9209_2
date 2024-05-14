@@ -27,29 +27,29 @@ async function start() {
                 // handle error
                 console.error(err);
             });
-           //load background images
-            connection.invoke("GetBackgroundImages") .then(function (data) {
-                    Promise.all([init_backgroundImages(data)]).then(function () {
-                        connection.invoke("AddToGroup", "BackgroundImage").catch(function (err) {
-                            return console.error(err.toString());
-                        });
+            //load background images
+            connection.invoke("GetBackgroundImages").then(function (data) {
+                Promise.all([init_backgroundImages(data)]).then(function () {
+                    connection.invoke("AddToGroup", "BackgroundImage").catch(function (err) {
+                        return console.error(err.toString());
                     });
-                }).catch(function (err) {
-                    // handle error
-                    console.error(err);
                 });
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
             //load Person Tags
             connection.invoke("GetPersonTags").then(function (data) {
-                    Promise.all([init_tagsEmployees(data)]).then(function () {
-                        connection.invoke("AddToGroup", "Tags").catch(function (err) {
-                            return console.error(err.toString());
-                        });
-
+                Promise.all([init_tagsEmployees(data)]).then(function () {
+                    connection.invoke("AddToGroup", "Tags").catch(function (err) {
+                        return console.error(err.toString());
                     });
-                }).catch(function (err) {
-                    // handle error
-                    console.error(err);
+
                 });
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
             //load GeoZones MPE
             connection.invoke("GetGeoZoneMPE").then(function (data) {
                 Promise.all([init_geoZoneMPE(data)]).then(function () {
@@ -62,7 +62,7 @@ async function start() {
                 // handle error
                 console.error(err);
             });
-         
+
         }).catch(function (err) {
             setTimeout(start, 5000);
             return console.error(err.toString());

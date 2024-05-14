@@ -1,4 +1,6 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using EIR_9209_2.Models;
@@ -26,7 +28,8 @@ public class Startup
     /// <param name="services"></param>
     public void ConfigureServices(IServiceCollection services)
     {
-
+        // Configure logging
+        services.AddLogging();
         //setup mongodb and check health status
         services.Configure<MongoDBSettings>(Configuration.GetSection("MongoDB"));
         services.AddSingleton<MongoDBContext>();
@@ -55,13 +58,11 @@ public class Startup
         });
         services.AddSingleton<HubServices, HubServices>();
         // Add framework services.
-        services
-            .AddMvc(options =>
+        services.AddMvc(options =>
             {
                 options.InputFormatters.RemoveType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonInputFormatter>();
                 options.OutputFormatters.RemoveType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonOutputFormatter>();
-            })
-            .AddNewtonsoftJson(opts =>
+            }).AddNewtonsoftJson(opts =>
             {
                 opts.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 opts.SerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
@@ -69,8 +70,7 @@ public class Startup
             .AddXmlSerializerFormatters();
 
 
-        services
-            .AddSwaggerGen(c =>
+        services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("1.0.11", new OpenApiInfo
                 {
@@ -94,6 +94,8 @@ public class Startup
                 // Use [ValidateModelState] on Actions to actually validate it in C# as well!
                 //c.OperationFilter<GeneratePathParamsValidationFilter>();
             });
+        services.AddSingleton<WorkerService>();
+        services.AddHostedService(provider => (WorkerService)provider.GetRequiredService<WorkerService>());
     }
 
     /// <summary>
@@ -105,7 +107,6 @@ public class Startup
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
     {
         app.UseRouting();
-
         //TODO: Uncomment this if you need wwwroot folder
         // app.UseStaticFiles();
         app.UseHealthChecks("/health");
