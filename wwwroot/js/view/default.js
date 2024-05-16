@@ -2,7 +2,7 @@
 let appData = {};
 let baselayerid = "";
 const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/hubServics")
+    .withUrl(SiteURLconstructor(window.location) + "hubServics")
     .withAutomaticReconnect()
     .configureLogging(signalR.LogLevel.Information)
     .build();
@@ -148,4 +148,12 @@ function capitalize_Words(str) {
     return str.replace(/\w\S*/g, function (txt) {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
     });
+}
+function SiteURLconstructor(winLoc) {
+    if (/^(.CF)/i.test(winLoc.pathname)) {
+        return winLoc.origin + "/CF/";
+    }
+    else {
+        return winLoc.origin + "/";
+    }
 }

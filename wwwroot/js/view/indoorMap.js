@@ -18,12 +18,12 @@ let OSLmap = L.map('map', {
     renderer: L.canvas({ padding: 0.5 }),
     preferCanvas: true,
     pmIgnore: false,
-    markerZoomAnimation: false,
+    markerZoomAnimation: true,
     minZoom: 0,
     maxZoom: 18,
     zoomControl: false,
     measureControl: true,
-    tap: false,
+    tap: true,
     layers: layersSelected
 });
 
@@ -68,8 +68,12 @@ let layersControl = L.control.layers(baseLayers, overlayMaps, {
                 return nameA < nameB ? -1 : (nameB < nameA ? 1 : 0);
             }
         }
-    }, position: 'bottomright', collapsed: false
+    },
+    position: 'bottomright',
+    collapsed: true
 }).addTo(OSLmap);
+//Add zoom button
+new L.Control.Zoom({ position: 'bottomright' }).addTo(OSLmap);
 async function UpdateOSLattribution(data) {
     return new Promise((resolve, reject) => {
         OSLmap.attributionControl.setPrefix("USPS " + data.name + " (" + data.version + ") | " + data.siteName);

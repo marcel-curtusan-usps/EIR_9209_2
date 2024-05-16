@@ -1,6 +1,7 @@
 ﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections;
@@ -15,14 +16,18 @@ public class HubServices : Hub
 
     private readonly IBackgroundImageRepository _backgroundImages;
     private readonly IConnectionRepository _connections;
+    private readonly IGeoZonesRepository _geoZones;
     private readonly ITagsRepository _tags;
+    private readonly IOptions<SiteIdentitySettings> _siteSettings;
     private readonly ILogger<HubServices> _logger;
-    public HubServices(ILogger<HubServices> logger, IBackgroundImageRepository backgroundImages, IConnectionRepository connectionList, ITagsRepository tags)
+    public HubServices(ILogger<HubServices> logger, IBackgroundImageRepository backgroundImages, IConnectionRepository connectionList, ITagsRepository tags, IGeoZonesRepository geoZones, IOptions<SiteIdentitySettings> siteSettings)
     {
         _logger = logger;
         _backgroundImages = backgroundImages;
         _connections = connectionList;
         _tags = tags;
+        _geoZones = geoZones;
+        _siteSettings = siteSettings;
     }
     public async Task AddToGroup(string groupName)
     {
@@ -99,12 +104,12 @@ public class HubServices : Hub
             ["name"] = "Connected Facilities",
             ["version"] = "1.0.0.1",
             ["description"] = "EIR-9209 is a web application for EIR-9209",
-            ["siteName"] = "",
+            ["siteName"] = _siteSettings.Value.DisplayName,
             ["user"] = await GetUserName(Context.User),
             ["role"] = "Admin"
         });
     }
-    public async Task<List<TagGeoJson>> GetPersonTags()
+    public async Task<List<GeoMarker>> GetPersonTags()
     {
         return await _tags.GetAllPersonTag();
     }
@@ -123,6 +128,11 @@ public class HubServices : Hub
     public async Task<List<Connection>> GetConnectionList()
     {
         return await _connections.GetAll();
+    }
+    // client get all zones
+    public async Task<List<GeoZone>> GetGeoZoneList()
+    {
+        return await _geoZones.GetAll();
     }
     public async Task WorkerStatusUpdate(string status)
     {

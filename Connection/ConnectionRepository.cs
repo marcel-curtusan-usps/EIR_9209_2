@@ -11,13 +11,13 @@ public class ConnectionRepository : IConnectionRepository
     }
     public async Task Add(Connection con)
     {
-        await _connection.InsertOneAsync(con);
+        await _connection.InsertOneAsync(con).ConfigureAwait(false);
     }
 
     public async Task Delete(string id)
     {
         var filter = Builders<Connection>.Filter.Eq("Id", id);
-        await _connection.DeleteOneAsync(filter);
+        await _connection.DeleteOneAsync(filter).ConfigureAwait(false);
     }
 
     public async Task<Connection> Get(string id)

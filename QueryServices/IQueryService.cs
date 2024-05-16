@@ -1,6 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using EIR_9209_2.Models;
+using Newtonsoft.Json.Linq;
 
 public interface IQueryService
 {
-    Task<JObject> GetData(CancellationToken token);
+    Task<QuuppaTag> GetData(CancellationToken token);
 }

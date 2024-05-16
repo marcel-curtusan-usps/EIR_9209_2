@@ -1,9 +1,15 @@
-﻿using Newtonsoft.Json;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson;
+using Newtonsoft.Json;
 
 namespace EIR_9209_2.Models
 {
     public class GeoZone
     {
+        [BsonId]
+        [JsonIgnore]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public required string _id { get; set; }
         [JsonProperty("type")]
         public string Type { get; set; } = "Feature";
 

@@ -1,10 +1,14 @@
 using Amazon.Runtime.Internal.Util;
+using EIR_9209_2.Models;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.GeoJsonObjectModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using System.Security.Cryptography;
 using System.Text;
+using ZstdSharp.Unsafe;
+using static EIR_9209_2.Models.GeoMarker;
 
 public class WorkerService : IHostedService, IWorkerService, IDisposable
 {
@@ -20,6 +24,7 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
     };
     private CancellationTokenSource _cts = new();
     private readonly IConnectionRepository _connections;
+    private readonly ITagsRepository _tags;
     private EWorkerServiceState _state;
     public EWorkerServiceState State
     {
@@ -31,7 +36,7 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
             _logger.LogInformation("Worker Service changed to state [{NewState}]", value);
         }
     }
-    public WorkerService(ILogger<WorkerService> logger, IConnectionRepository connectionList, HubServices hubServices)
+    public WorkerService(ILogger<WorkerService> logger, IConnectionRepository connectionList, ITagsRepository tagList, HubServices hubServices)
     {
         _logger = logger;
         _connections = connectionList;
@@ -39,6 +44,7 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
         _endPointList = [];
         _endPointCancellations = [];
         _endPointTimers = [];
+        _tags = tagList;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -79,7 +85,7 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
                     foreach (var endPoint in _endPointList)
                     {
                         endPoint.Status = EWorkerServiceState.Starting;
-                        _endPointTimers[endPoint.Id] = new PeriodicTimer(TimeSpan.FromMilliseconds(endPoint.Interval));
+                        _endPointTimers[endPoint.Id] = new PeriodicTimer(TimeSpan.FromMilliseconds(endPoint.MillisecondsInterval));
                         _endPointCancellations[endPoint.Id] = new CancellationTokenSource();
 
                     }
@@ -99,7 +105,7 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
                                             endPoint.Status = EWorkerServiceState.Running;
 
                                             using HttpClient _httpClient = new();
-                                            var result = new JObject();
+
                                             try
                                             {
                                                 if (!string.IsNullOrEmpty(endPoint.OAuthUrl))
@@ -109,22 +115,27 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
                                                     authService = new OAuth2AuthenticationService(_httpClient, new OAuth2AuthenticationServiceSettings(endPoint.OAuthUrl, endPoint.UserName, endPoint.Password, endPoint.ClientId), jsonSettings);
                                                     IQueryService queryService;
                                                     queryService = new QueryService(_httpClient, authService, jsonSettings, new QueryServiceSettings(new Uri(endPoint.Url)));
-                                                    result = await queryService.GetData(_endPointCancellations[endPoint.Id].Token);
+                                                    var result = await queryService.GetData(_endPointCancellations[endPoint.Id].Token);
                                                     //process tag data
                                                     if (endPoint.MessageType == "getTagData")
                                                     {
-                                                        await ProcessTagData(result);
+                                                        // Process tag data in a separate thread
+                                                        _ = Task.Run(() => ProcessTagMovementData(result));
+                                                        _ = Task.Run(() => ProcessTagStorageData(result));
                                                     }
                                                 }
                                                 else
                                                 {
                                                     IQueryService queryService;
                                                     queryService = new QueryService(_httpClient, jsonSettings, new QueryServiceSettings(new Uri(endPoint.Url)));
-                                                    result = await queryService.GetData(_endPointCancellations[endPoint.Id].Token);
+                                                    var result = await queryService.GetData(_endPointCancellations[endPoint.Id].Token);
                                                     //process tag data
                                                     if (endPoint.MessageType == "getTagData")
                                                     {
-                                                        await ProcessTagData(result);
+                                                        // Process tag data in a separate thread
+                                                        _ = Task.Run(() => ProcessTagMovementData(result));
+                                                        // _ = Task.Run(() => ProcessTagStorageData(result));
+                                                        // await ProcessTagData(result);
                                                     }
                                                 }
 
@@ -134,10 +145,7 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
                                                 endPoint.Status = EWorkerServiceState.ErrorPullingData;
                                                 _logger.LogError(e, "Error Pulling data from URL Retrying...");
                                             }
-                                            finally
-                                            {
-                                                result = null;
-                                            }
+
                                         }
                                         catch (Exception ex)
                                         {
@@ -171,85 +179,124 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
             }
         }
     }
-    private async Task ProcessTagData(JObject result)
+    private async Task ProcessTagMovementData(QuuppaTag result)
     {
         try
         {
-            if (result.HasValues && result.ContainsKey("tags"))
+
+            foreach (Tags qtitem in result.Tags)
             {
-                long serverTime = (long)result["responseTS"];
-
-                foreach (JObject item in result["tags"].OfType<JObject>())
+                long posAge = -1;
+                qtitem.ServerTS = result.ResponseTS;
+                if (qtitem.LocationTS == 0)
                 {
-                    long posAge = (long)item["locationTS"] > 0 ? (long)result["responseTS"] - (long)item["locationTS"] : 0;
-                    bool visable = posAge < 150000 ? true : false;
-                    JObject GeoJson = new JObject
+                    posAge = -1;
+                }
+                else
+                {
+                    posAge = qtitem.ServerTS - qtitem.LocationTS;
+                }
+                bool visable = posAge > 1 && posAge < 150000 ? true : false;
+                JObject PositionGeoJson = new JObject
+                {
+                    ["type"] = "Feature",
+                    ["geometry"] = new JObject
                     {
-                        ["type"] = "Feature",
-                        ["geometry"] = new JObject
-                        {
-                            ["type"] = "Point",
-                            ["coordinates"] = new JArray(item["location"][0], item["location"][1])
-                        },
-                        ["properties"] = new JObject
-                        {
-                            ["locationTS"] = item["locationTS"],
-                            ["serverTS"] = result["responseTS"],
-                            ["id"] = item["tagId"],
-                            ["color"] = item["color"],
-                            ["floorId"] = item["locationCoordSysId"],
-                            ["locationZoneIds"] = item["locationZoneIds"],
-                            ["locationZoneNames"] = item["locationZoneNames"],
-                            ["locationMovementStatus"] = item["locationMovementStatus"],
-                            ["locationType"] = item["locationType"],
-                            ["posAge"] = posAge,
-                            ["visible"] = visable
-                        }
-                    };
-                    JObject PositionGeoJson = new JObject
+                        ["type"] = "Point",
+                        ["coordinates"] = qtitem.Location.Any() ? new JArray(qtitem.Location[0], qtitem.Location[1]) : new JArray(0, 0)
+                    },
+                    ["properties"] = new JObject
                     {
-                        ["type"] = "Feature",
-                        ["geometry"] = new JObject
-                        {
-                            ["type"] = "Point",
-                            ["coordinates"] = new JArray(item["location"][0], item["location"][1])
-                        },
-                        ["properties"] = new JObject
-                        {
-                            ["id"] = item["tagId"],
-                            ["floorId"] = item["locationCoordSysId"]?.ToString(),
-                            ["posAge"] = posAge,
-                            ["visible"] = visable
-                        }
-                    };
-                    //try
-                    //{
-                    //    byte[] data = Encoding.ASCII.GetBytes(GeoJson.ToString());
-                    //    //_ = _connection.InvokeAsync("WorkerData", data);
-                    //    //await _hubServices.SendMessageToGroup("Tags", GeoJson.ToString(), "tags");
-                    //}
-                    //catch (Exception ed)
-                    //{
-                    //    _logger.LogError(ed.Message);
-                    //}
-                    try
-                    {
-                        byte[] positiondata = Encoding.ASCII.GetBytes(PositionGeoJson.ToString());
-                        //_ = _connection.InvokeAsync("WorkerPositionData", positiondata);
-                        await _hubServices.SendMessageToGroup("Tags", GeoJson.ToString(), "tags");
+                        ["id"] = qtitem.TagId,
+                        ["floorId"] = qtitem.LocationCoordSysId,
+                        ["posAge"] = posAge,
+                        ["visible"] = visable
                     }
-                    catch (Exception ep)
+                };
+                try
+                {
+                    if (visable)
                     {
-                        _logger.LogError(ep.Message);
+                        await _hubServices.SendMessageToGroup("Tags", PositionGeoJson.ToString(), "tags");
                     }
-
 
                 }
+                catch (Exception ep)
+                {
+                    _logger.LogError(ep.Message);
+                }
             }
-            else
+
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+        }
+    }
+    private async Task ProcessTagStorageData(QuuppaTag result)
+    {
+        try
+        {
+
+            foreach (Tags qtitem in result.Tags)
             {
-                _logger.LogError("No Tags Found");
+                long posAge = -1;
+                qtitem.ServerTS = result.ResponseTS;
+                if (qtitem.LocationTS == 0)
+                {
+                    posAge = -1;
+                }
+                else
+                {
+                    posAge = qtitem.ServerTS - qtitem.LocationTS;
+                }
+                bool visable = posAge > 1 && posAge < 150000 ? true : false;
+
+                var marker = await _tags.Get(qtitem.TagId);
+                if (marker != null)
+                {
+                    marker.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
+                    marker.Properties.PositionTS = qtitem.LocationTS;
+                    marker.Properties.ServerTS = qtitem.ServerTS;
+                    marker.Properties.posAge = posAge;
+                    marker.Properties.Visible = visable;
+                    marker.Properties.Color = qtitem.Color;
+                    marker.Properties.Zones = qtitem.LocationZoneIds;
+                    marker.Properties.ZonesNames = qtitem.LocationZoneNames.ToString();
+                    marker.Properties.LocationType = qtitem.LocationType;
+                    marker.Geometry.Coordinates = qtitem.Location;
+                    await _tags.Update(marker);
+
+                }
+                else
+                {
+                    marker = new GeoMarker
+                    {
+                        _id = qtitem.TagId,
+                        Geometry = new MarkerGeometry
+                        {
+                            Coordinates = qtitem.Location
+                        },
+                        Properties = new Marker
+                        {
+                            Id = qtitem.TagId,
+                            Name = !string.IsNullOrEmpty(qtitem.TagName) ? qtitem.TagName : "",
+                            PositionTS = qtitem.LocationTS,
+                            ServerTS = qtitem.ServerTS,
+                            LastSeenTS = qtitem.LastSeenTS,
+                            FloorId = qtitem.LocationCoordSysId,
+                            Zones = qtitem.LocationZoneIds,
+                            Color = qtitem.Color,
+                            posAge = posAge,
+                            Visible = visable
+
+                        }
+                    };
+                    await _tags.Add(marker);
+                }
+
             }
+
         }
         catch (Exception e)
         {
@@ -303,7 +350,7 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
             _endPointCancellations[endPoint.Id] = new CancellationTokenSource();
 
             // Create a new PeriodicTimer for the endpoint
-            _endPointTimers[endPoint.Id] = new PeriodicTimer(TimeSpan.FromMilliseconds(endPoint.Interval));
+            _endPointTimers[endPoint.Id] = new PeriodicTimer(TimeSpan.FromMilliseconds(endPoint.MillisecondsInterval));
         }
     }
 

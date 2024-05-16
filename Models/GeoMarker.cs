@@ -6,15 +6,14 @@ using System.Reflection;
 
 namespace EIR_9209_2.Models
 {
-    public class TagGeoJson
+    public class GeoMarker
     {
         [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
         public required string _id { get; set; }
         [JsonProperty("type")]
         public string Type { get; set; } = "Feature";
         [JsonProperty("geometry")]
-        public Geometry Geometry { get; set; } = new Geometry();
+        public MarkerGeometry Geometry { get; set; } = new MarkerGeometry();
         [JsonProperty("properties")]
         public Marker Properties { get; set; } = new Marker();
 
@@ -100,6 +99,14 @@ namespace EIR_9209_2.Models
             public DateTime LastSeenTS_txt { get; internal set; } = DateTime.MinValue;
             [JsonProperty("lastSeenTS")]
             public long LastSeenTS { get; internal set; } = 0;
+        }
+        public class MarkerGeometry
+        {
+            [JsonProperty("type")]
+            public string Type { get; set; } = "Point";
+
+            [JsonProperty("coordinates")]
+            public List<double> Coordinates { get; set; }
         }
     }
 }

@@ -4,6 +4,8 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using EIR_9209_2.Models;
+using EIR_9209_2.SiteIdentity;
+using FileContextCore;
 
 public class Startup
 {
@@ -29,17 +31,20 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         // Configure logging
-        services.AddLogging();
+        //services.AddLogging();
+        AddOptions(services);
         //setup mongodb and check health status
         services.Configure<MongoDBSettings>(Configuration.GetSection("MongoDB"));
         services.AddSingleton<MongoDBContext>();
         services.AddSingleton(provider => provider.GetRequiredService<MongoDBContext>().Database);
         services.AddSingleton<MongoDbHealthCheck>();
         services.AddHealthChecks().AddCheck<MongoDbHealthCheck>("mongodb");
-
+        services.AddSingleton<IFileService, FileService>();
+        services.AddSingleton<ISiteDetailsProvider, SiteDetailsProvider>();
         services.AddSingleton<IBackgroundImageRepository, BackgroundImageRepository>();
         services.AddSingleton<IConnectionRepository, ConnectionRepository>();
         services.AddSingleton<ITagsRepository, TagsRepository>();
+        services.AddSingleton<IGeoZonesRepository, GeoZonesRepository>();
         //add SignalR to the services
         services.AddSignalR(options =>
             {
@@ -72,30 +77,34 @@ public class Startup
 
         services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("1.0.11", new OpenApiInfo
+                c.SwaggerDoc("1.0.0.1", new OpenApiInfo
                 {
-                    Version = "1.0.11",
-                    Title = "Swagger - OpenAPI 3.0",
-                    Description = "Swagger - OpenAPI 3.0 (ASP.NET Core 8.0)",
+                    Version = "1.0.0.1",
+                    Title = "Connected Facilities (CF)",
+                    Description = "Swagger - OpenAPI 3.0",
                     Contact = new OpenApiContact()
                     {
-                        Name = "Swagger Codegen Contributors",
-                        Url = new Uri("https://github.com/swagger-api/swagger-codegen"),
-                        Email = "apiteam@swagger.io"
+                        Name = "Connected Facilities API Support",
+                        Email = "cf-sels_support@usps.gov"
                     },
-                    TermsOfService = new Uri("http://swagger.io/terms/")
+
                 });
                 c.CustomSchemaIds(type => type.FullName);
                 // c.IncludeXmlComments($"{AppContext.BaseDirectory}{Path.DirectorySeparatorChar}{_hostingEnv.ApplicationName}.xml");
                 // Sets the basePath property in the Swagger document generated
-                c.DocumentFilter<BasePathFilter>("/api/v3");
+                // c.DocumentFilter<BasePathFilter>("/api/v3");
 
                 // Include DataAnnotation attributes on Controller Action parameters as Swagger validation rules (e.g required, pattern, ..)
                 // Use [ValidateModelState] on Actions to actually validate it in C# as well!
-                //c.OperationFilter<GeneratePathParamsValidationFilter>();
+                c.OperationFilter<GeneratePathParamsValidationFilter>();
             });
         services.AddSingleton<WorkerService>();
         services.AddHostedService(provider => (WorkerService)provider.GetRequiredService<WorkerService>());
+    }
+
+    private void AddOptions(IServiceCollection services)
+    {
+        services.Configure<SiteIdentitySettings>(Configuration.GetSection("SiteIdentity"));
     }
 
     /// <summary>
@@ -115,7 +124,7 @@ public class Startup
         app.UseSwaggerUI(c =>
         {
             //TODO: Either use the SwaggerGen generated Swagger contract (generated from C# classes)
-            c.SwaggerEndpoint("/swagger/1.0.11/swagger.json", "Swagger - OpenAPI 3.0");
+            c.SwaggerEndpoint("/swagger/1.0.0.1/swagger.json", "Swagger");
 
             //TODO: Or alternatively use the original Swagger contract that's included in the static files
             // c.SwaggerEndpoint("/swagger-original.json", "Swagger  - OpenAPI 3.0 Original");
@@ -131,6 +140,7 @@ public class Startup
             endpoints.MapControllers();
             endpoints.MapHub<HubServices>("/hubServics");
         });
+
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();

@@ -4,36 +4,36 @@ using MongoDB.Driver;
 
 public class TagsRepository : ITagsRepository
 {
-    private readonly IMongoCollection<TagGeoJson> _tags;
+    private readonly IMongoCollection<GeoMarker> _tags;
     public TagsRepository(MongoDBContext context)
     {
-        _tags = context.Database.GetCollection<TagGeoJson>("tags");
+        _tags = context.Database.GetCollection<GeoMarker>("tagsList");
     }
-    public async Task Add(TagGeoJson tag)
+    public async Task Add(GeoMarker tag)
     {
-        await _tags.InsertOneAsync(tag);
+        await _tags.InsertOneAsync(tag).ConfigureAwait(false);
     }
 
     public async Task Delete(string id)
     {
-        var filter = Builders<TagGeoJson>.Filter.Eq("_id", new ObjectId(id));
-        await _tags.DeleteOneAsync(filter);
+        var filter = Builders<GeoMarker>.Filter.Eq("Id", new ObjectId(id));
+        await _tags.DeleteOneAsync(filter).ConfigureAwait(false); ;
     }
 
-    public async Task<TagGeoJson> Get(string id)
+    public async Task<GeoMarker> Get(string id)
     {
-        var filter = Builders<TagGeoJson>.Filter.Eq("id", new ObjectId(id));
-        return await _tags.Find(filter).FirstOrDefaultAsync();
+        var filter = Builders<GeoMarker>.Filter.Eq(x => x.Properties.Id, id);
+        return await _tags.Find(filter).FirstOrDefaultAsync().ConfigureAwait(false);
     }
 
-    public async Task<List<TagGeoJson>> GetAllPersonTag()
+    public async Task<List<GeoMarker>> GetAllPersonTag()
     {
-        return await _tags.Find(_ => true).ToListAsync();
+        return await _tags.Find(_ => true).ToListAsync().ConfigureAwait(false);
     }
 
-    public async Task Update(TagGeoJson tag)
+    public async Task Update(GeoMarker tag)
     {
-        var filter = Builders<TagGeoJson>.Filter.Eq("_id", new ObjectId(tag.Properties.Id));
-        await _tags.ReplaceOneAsync(filter, tag);
+        var filter = Builders<GeoMarker>.Filter.Eq(x => x.Properties.Id, tag._id);
+        await _tags.ReplaceOneAsync(filter, tag).ConfigureAwait(false);
     }
 }

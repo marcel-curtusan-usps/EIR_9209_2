@@ -29,7 +29,7 @@ public class Connection
     public string Name { get; set; } = "";
     public string CreatedByUsername { get; set; } = "";
     public DateTime CreatedDate { get; set; } = DateTime.Now;
-    public int Interval { get; set; } = 10;
+    public long MillisecondsInterval { get; set; } = 1000;
     public string DeactivatedByUsername { get; set; } = "";
     public DateTime DeactivatedDate { get; set; }
     public string Hostname { get; set; } = "";

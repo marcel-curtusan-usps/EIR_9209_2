@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using EIR_9209_2.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Text;
 
@@ -24,20 +25,18 @@ internal class QueryService : IQueryService
         this._fullUrl = new Uri(settings.FullUrl);
     }
 
-    public async Task<JObject> GetData(CancellationToken ct)
+    public async Task<QuuppaTag> GetData(CancellationToken ct)
     {
         var query = "";
-        var result = new JObject();
+
         if (!string.IsNullOrEmpty(query))
         {
-            result = (await GetPostQueryResults<JObject>(_fullUrl.AbsoluteUri, query, ct).ConfigureAwait(false));
+            return (await GetPostQueryResults<QuuppaTag>(_fullUrl.AbsoluteUri, query, ct).ConfigureAwait(false));
         }
         else
         {
-            result = (await GetQueryResults<JObject>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+            return (await GetQueryResults<QuuppaTag>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
         }
-
-        return result;
     }
 
     private async Task<T> GetQueryResults<T>(string queryUrl, CancellationToken ct)

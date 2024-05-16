@@ -3,6 +3,7 @@
     "http": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": "http://localhost:5008/OSL/default.html",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
