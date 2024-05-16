@@ -1,11 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using EIR_9209_2.Models;
 using EIR_9209_2.SiteIdentity;
-using FileContextCore;
 
 public class Startup
 {
@@ -61,7 +58,7 @@ public class Startup
                  .AllowAnyOrigin();
             });
         });
-        services.AddSingleton<HubServices, HubServices>();
+        services.AddSingleton<HubServices>();
         // Add framework services.
         services.AddMvc(options =>
             {

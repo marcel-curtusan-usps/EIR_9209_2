@@ -128,7 +128,7 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
                                                 {
                                                     IQueryService queryService;
                                                     queryService = new QueryService(_httpClient, jsonSettings, new QueryServiceSettings(new Uri(endPoint.Url)));
-                                                    var result = await queryService.GetData(_endPointCancellations[endPoint.Id].Token);
+                                                    var result = (await queryService.GetData(_endPointCancellations[endPoint.Id].Token));
                                                     //process tag data
                                                     if (endPoint.MessageType == "getTagData")
                                                     {
@@ -170,6 +170,10 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
                         }
                     }
                 }
+                else
+                {
+                    (await _connections.GetAll())?.ToList().ForEach(endPoint => AddAndStartEndPoint(endPoint));
+                }
             }
             catch (Exception ex)
             {
@@ -184,7 +188,7 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
         try
         {
 
-            foreach (Tags qtitem in result.Tags)
+            foreach (Tags qtitem in result.Tags.Where(r => r.LocationTS > 5))
             {
                 long posAge = -1;
                 qtitem.ServerTS = result.ResponseTS;

@@ -11,29 +11,41 @@ public class MongoDBContext
     internal static MongoDbRunner? _runner;
     public IMongoDatabase Database { get; }
     private IFileService FileService { get; }
+    private IMongoClient mongoClient { get; }
 
     public MongoDBContext(IOptions<MongoDBSettings> settings, IConfiguration configuration, IFileService fileService)
     {
-        // Start the MongoDB Memory Server
-        //_runner = MongoDbRunner.Start(singleNodeReplSet: true, singleNodeReplSetWaitTimeout: 10);
-        //var client = new MongoClient(_runner.ConnectionString);
 
-        var client = new MongoClient(settings.Value.ConnectionString);
-        Database = client.GetDatabase(configuration[key: "MongoDB:DatabaseName"]) as IMongoDatabase;
-        //FileService = fileService;
-        //string BuildConnectionPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "MongoDB:CollectionConnections"]}.json");
-        //// Load data from the first file into the first collection
-        //LoadDataFromFile<Connection>(BuildConnectionPath, ConnectionList);
-        //string BuildBackgroundImagePath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "MongoDB:CollectionBackgroundImages"]}.json");
-        //// Load data from the second file into the second collection
-        //LoadDataFromFile<BackgroundImage>(BuildBackgroundImagePath, BackgroundImages);
+        // Start the MongoDB Memory Server
+        if (configuration[key: "MongoDB:RemoteDBConnection"] == false.ToString())
+        {
+            FileService = fileService;
+            _runner = MongoDbRunner.Start(singleNodeReplSet: false);
+            mongoClient = new MongoClient(_runner.ConnectionString);
+            Database = mongoClient.GetDatabase(configuration[key: "MongoDB:DatabaseName"]) as IMongoDatabase;
+
+            string BuildConnectionPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "MongoDB:CollectionConnections"]}.json");
+            // Load data from the first file into the first collection
+            Task.Run(async () => await LoadDataFromFile<Connection>(BuildConnectionPath, ConnectionList));
+
+            string BuildBackgroundImagePath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "MongoDB:CollectionBackgroundImages"]}.json");
+            // Load data from the second file into the second collection
+            Task.Run(async () => await LoadDataFromFile<BackgroundImage>(BuildBackgroundImagePath, BackgroundImages));
+        }
+        else
+        {
+            mongoClient = new MongoClient(settings.Value.ConnectionString);
+            Database = mongoClient.GetDatabase(configuration[key: "MongoDB:DatabaseName"]) as IMongoDatabase;
+        }
+
+
     }
-    private void LoadDataFromFile<T>(string filePath, IMongoCollection<T> collection)
+    private async Task LoadDataFromFile<T>(string filePath, IMongoCollection<T> collection)
     {
         try
         {
             // Read data from file
-            var fileContent = FileService.ReadFile(filePath);
+            var fileContent = await FileService.ReadFile(filePath);
 
             // Parse the file content to get the data. This depends on the format of your file.
             // Here's an example if your file was in JSON format and contained an array of T objects:

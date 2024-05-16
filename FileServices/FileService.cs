@@ -2,9 +2,18 @@
 
 public class FileService : IFileService
 {
-    public string ReadFile(string path)
+    public async Task<string> ReadFile(string path)
     {
-        return File.ReadAllText(path);
+        if (File.Exists(path))
+        {
+            // File exists, safe to read
+            return await File.ReadAllTextAsync(path);
+        }
+        else
+        {
+            // File does not exist
+            throw new FileNotFoundException("File does not exist: " + path);
+        }
     }
 
     public void WriteFile(string path, string content)
