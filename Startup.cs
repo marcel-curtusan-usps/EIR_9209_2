@@ -3,6 +3,9 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using EIR_9209_2.Models;
 using EIR_9209_2.SiteIdentity;
+using EIR_9209_2.Utilities;
+using EIR_9209_2.InMemory;
+using EIR_9209_2.Service;
 
 public class Startup
 {
@@ -31,17 +34,21 @@ public class Startup
         //services.AddLogging();
         AddOptions(services);
         //setup mongodb and check health status
-        services.Configure<MongoDBSettings>(Configuration.GetSection("MongoDB"));
-        services.AddSingleton<MongoDBContext>();
-        services.AddSingleton(provider => provider.GetRequiredService<MongoDBContext>().Database);
-        services.AddSingleton<MongoDbHealthCheck>();
-        services.AddHealthChecks().AddCheck<MongoDbHealthCheck>("mongodb");
+        //services.Configure<MongoDBSettings>(Configuration.GetSection("MongoDB"));
+        //services.AddSingleton<MongoDBContext>();
+        //services.AddSingleton(provider => provider.GetRequiredService<MongoDBContext>().Database);
+        //services.AddSingleton<MongoDbHealthCheck>();
+        //services.AddHealthChecks().AddCheck<MongoDbHealthCheck>("mongodb");
         services.AddSingleton<IFileService, FileService>();
-        services.AddSingleton<ISiteDetailsProvider, SiteDetailsProvider>();
-        services.AddSingleton<IBackgroundImageRepository, BackgroundImageRepository>();
-        services.AddSingleton<IConnectionRepository, ConnectionRepository>();
-        services.AddSingleton<ITagsRepository, TagsRepository>();
-        services.AddSingleton<IGeoZonesRepository, GeoZonesRepository>();
+        //services.AddSingleton<ISiteDetailsProvider, SiteDetailsProvider>();
+        //services.AddSingleton<IBackgroundImageRepository, BackgroundImageRepository>();
+        //services.AddSingleton<IConnectionRepository, ConnectionRepository>();
+        services.AddSingleton<IInMemoryConnectionRepository, InMemoryConnectionRepository>();
+        services.AddSingleton<IInMemoryTagsRepository, InMemoryTagsRepository>();
+        services.AddSingleton<IInMemoryGeoZonesRepository, InMemoryGeoZonesRepository>();
+        services.AddSingleton<IInMemoryTagsBackgroundImageRepository, InMemoryBackgroundImageRepository>();
+        //services.AddSingleton<ITagsRepository, TagsRepository>();
+        //services.AddSingleton<IGeoZonesRepository, GeoZonesRepository>();
         //add SignalR to the services
         services.AddSignalR(options =>
             {
@@ -95,13 +102,29 @@ public class Startup
                 // Use [ValidateModelState] on Actions to actually validate it in C# as well!
                 c.OperationFilter<GeneratePathParamsValidationFilter>();
             });
-        services.AddSingleton<WorkerService>();
-        services.AddHostedService(provider => (WorkerService)provider.GetRequiredService<WorkerService>());
+        services.AddSingleton<BackgroundWorkerService>();
+        services.AddHostedService(provider => provider.GetRequiredService<BackgroundWorkerService>());
     }
 
     private void AddOptions(IServiceCollection services)
     {
         services.Configure<SiteIdentitySettings>(Configuration.GetSection("SiteIdentity"));
+        try
+        {
+            var logFilePath = Path.Combine(Configuration[key: "ApplicationConfiguration:BaseDrive"], Configuration[key: "ApplicationConfiguration:BaseDirectory"], Configuration[key: "SiteIdentity:NassCode"]);
+            if (!Directory.Exists(logFilePath))
+            {
+                Directory.CreateDirectory(logFilePath);
+            }
+            var appHasPermissionToLogToSpecifiedFolder = FileAccessTester.CanCreateFilesAndWriteInFolder(logFilePath);
+            if (!appHasPermissionToLogToSpecifiedFolder)
+            {
+            }
+        }
+        catch (Exception e)
+        {
+
+        }
     }
 
     /// <summary>
@@ -115,7 +138,7 @@ public class Startup
         app.UseRouting();
         //TODO: Uncomment this if you need wwwroot folder
         // app.UseStaticFiles();
-        app.UseHealthChecks("/health");
+        //app.UseHealthChecks("/health");
         app.UseAuthorization();
         app.UseSwagger();
         app.UseSwaggerUI(c =>

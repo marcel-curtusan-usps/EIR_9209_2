@@ -1,13 +1,7 @@
-using Amazon.Runtime.Internal.Util;
 using EIR_9209_2.Models;
-using Microsoft.Extensions.Logging;
-using MongoDB.Driver.GeoJsonObjectModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using System.Security.Cryptography;
-using System.Text;
-using ZstdSharp.Unsafe;
 using static EIR_9209_2.Models.GeoMarker;
 
 public class WorkerService : IHostedService, IWorkerService, IDisposable
@@ -23,8 +17,8 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
         Formatting = Formatting.Indented
     };
     private CancellationTokenSource _cts = new();
-    private readonly IConnectionRepository _connections;
-    private readonly ITagsRepository _tags;
+    private readonly IInMemoryConnectionRepository _connections;
+    private readonly IInMemoryTagsRepository _tags;
     private EWorkerServiceState _state;
     public EWorkerServiceState State
     {
@@ -36,24 +30,24 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
             _logger.LogInformation("Worker Service changed to state [{NewState}]", value);
         }
     }
-    public WorkerService(ILogger<WorkerService> logger, IConnectionRepository connectionList, ITagsRepository tagList, HubServices hubServices)
+    public WorkerService(ILogger<WorkerService> logger, IInMemoryConnectionRepository connectionList, IInMemoryTagsRepository tagList, HubServices hubServices)
     {
         _logger = logger;
         _connections = connectionList;
+        _tags = tagList;
         _hubServices = hubServices;
         _endPointList = [];
         _endPointCancellations = [];
         _endPointTimers = [];
-        _tags = tagList;
+
     }
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
         StartWorkerService();
-        return Task.CompletedTask;
     }
 
-    public Task StopAsync(CancellationToken cancellationToken)
+    public async Task StopAsync(CancellationToken cancellationToken)
     {
 
         // remove endpoint from list 
@@ -63,23 +57,22 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
         _endPointCancellations.Clear();
         _endPointTimers.Clear();
         _cts.Cancel();
-        return Task.CompletedTask;
     }
-    private async void StartWorkerService()
+    private void StartWorkerService()
     {
         State = EWorkerServiceState.Starting;
         _cts = new CancellationTokenSource();
-        (await _connections.GetAll())?.ToList().ForEach(endPoint => AddAndStartEndPoint(endPoint));
-        _ = RunWorkerServiceAsync();
+        //_connections.GetAll() .ForEach(endPoint => AddAndStartEndPoint(endPoint));
+        RunWorkerServiceAsync();
     }
 
-    private async Task RunWorkerServiceAsync()
+    private void RunWorkerServiceAsync()
     {
-        while (!_cts.IsCancellationRequested)
+        Task.Run(async () =>
         {
-            State = EWorkerServiceState.Running;
             try
             {
+                State = EWorkerServiceState.Starting;
                 if (_endPointList != null && _endPointList.Any())
                 {
                     foreach (var endPoint in _endPointList)
@@ -98,7 +91,7 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
                                 foreach (var endPoint in _endPointList)
                                 {
                                     EWorkerServiceState CurrentStatus = endPoint.Status;
-                                    if (!_endPointCancellations[endPoint.Id].IsCancellationRequested && await _endPointTimers[endPoint.Id].WaitForNextTickAsync())
+                                    if (!_endPointCancellations[endPoint.Id].IsCancellationRequested && await _endPointTimers[endPoint.Id].WaitForNextTickAsync(_endPointCancellations[endPoint.Id].Token))
                                     {
                                         try
                                         {
@@ -172,7 +165,8 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
                 }
                 else
                 {
-                    (await _connections.GetAll())?.ToList().ForEach(endPoint => AddAndStartEndPoint(endPoint));
+                    (_connections.GetAll())?.ToList().ForEach(endPoint => AddAndStartEndPoint(endPoint));
+                    RunWorkerServiceAsync();
                 }
             }
             catch (Exception ex)
@@ -181,7 +175,8 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
                 _logger.LogError(ex, "Error while connecting to the Main Application. Retrying in 60 seconds...");
 
             }
-        }
+        });
+
     }
     private async Task ProcessTagMovementData(QuuppaTag result)
     {
@@ -256,7 +251,7 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
                 }
                 bool visable = posAge > 1 && posAge < 150000 ? true : false;
 
-                var marker = await _tags.Get(qtitem.TagId);
+                var marker = _tags.Get(qtitem.TagId);
                 if (marker != null)
                 {
                     marker.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
@@ -269,7 +264,7 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
                     marker.Properties.ZonesNames = qtitem.LocationZoneNames.ToString();
                     marker.Properties.LocationType = qtitem.LocationType;
                     marker.Geometry.Coordinates = qtitem.Location;
-                    await _tags.Update(marker);
+                    _tags.Update(marker);
 
                 }
                 else
@@ -296,7 +291,7 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
 
                         }
                     };
-                    await _tags.Add(marker);
+                    _tags.Add(marker);
                 }
 
             }

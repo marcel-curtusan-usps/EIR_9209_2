@@ -14,19 +14,19 @@ public class HubServices : Hub
     public readonly static ConcurrentDictionary<string, string> _connectionIds = new();
     private readonly static ConcurrentDictionary<string, List<string>> _groups = new();
 
-    private readonly IBackgroundImageRepository _backgroundImages;
-    private readonly IConnectionRepository _connections;
-    private readonly IGeoZonesRepository _geoZones;
-    private readonly ITagsRepository _tags;
+    private readonly IInMemoryTagsBackgroundImageRepository _backgroundImages;
+    private readonly IInMemoryConnectionRepository _connections;
+    private readonly IInMemoryTagsRepository _tags;
+    private readonly IInMemoryGeoZonesRepository _geoZones;
     private readonly IOptions<SiteIdentitySettings> _siteSettings;
     private readonly ILogger<HubServices> _logger;
-    public HubServices(ILogger<HubServices> logger, IBackgroundImageRepository backgroundImages, IConnectionRepository connectionList, ITagsRepository tags, IGeoZonesRepository geoZones, IOptions<SiteIdentitySettings> siteSettings)
+    public HubServices(ILogger<HubServices> logger, IInMemoryTagsBackgroundImageRepository backgroundImages, IInMemoryConnectionRepository connectionList, IInMemoryTagsRepository tags, IInMemoryGeoZonesRepository zones, IOptions<SiteIdentitySettings> siteSettings)
     {
         _logger = logger;
         _backgroundImages = backgroundImages;
         _connections = connectionList;
         _tags = tags;
-        _geoZones = geoZones;
+        _geoZones = zones;
         _siteSettings = siteSettings;
     }
     public async Task AddToGroup(string groupName)
@@ -93,9 +93,9 @@ public class HubServices : Hub
     {
         return _groups.Keys.ToList();
     }
-    public async Task<List<BackgroundImage>> GetBackgroundImages()
+    public async Task<IEnumerable<BackgroundImage>> GetBackgroundImages()
     {
-        return await _backgroundImages.GetAll();
+        return _backgroundImages.GetAll();
     }
     public async Task<string> GetApplicationInfo()
     {
@@ -109,9 +109,9 @@ public class HubServices : Hub
             ["role"] = "Admin"
         });
     }
-    public async Task<List<GeoMarker>> GetPersonTags()
+    public async Task<IEnumerable<GeoMarker>> GetPersonTags()
     {
-        return await _tags.GetAllPersonTag();
+        return _tags.GetAll();
     }
     public async Task<List<GeoZone>> GetGeoZoneMPE()
     {
@@ -125,14 +125,14 @@ public class HubServices : Hub
 
 
     // worker request for data of connection list
-    public async Task<List<Connection>> GetConnectionList()
+    public async Task<IEnumerable<Connection>> GetConnectionList()
     {
-        return await _connections.GetAll();
+        return _connections.GetAll();
     }
     // client get all zones
-    public async Task<List<GeoZone>> GetGeoZoneList()
+    public async Task<IEnumerable<GeoZone>> GetGeoZoneList()
     {
-        return await _geoZones.GetAll();
+        return _geoZones.GetAll();
     }
     public async Task WorkerStatusUpdate(string status)
     {
