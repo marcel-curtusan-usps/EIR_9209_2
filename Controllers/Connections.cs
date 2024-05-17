@@ -13,9 +13,9 @@ namespace EIR_9209_2.Controllers
     [ApiController]
     public class Connections : ControllerBase
     {
-        private readonly IConnectionRepository _connectionRepository;
+        private readonly IInMemoryConnectionRepository _connectionRepository;
         private IHubContext<HubServices> _hubContext;
-        public Connections(IConnectionRepository connectionRepository, IHubContext<HubServices> hubContext)
+        public Connections(IInMemoryConnectionRepository connectionRepository, IHubContext<HubServices> hubContext)
         {
             _connectionRepository = connectionRepository;
             _hubContext = hubContext;
@@ -29,7 +29,7 @@ namespace EIR_9209_2.Controllers
             {
                 return BadRequest(ModelState);
             }
-            return await _connectionRepository.GetAll();
+            return _connectionRepository.GetAll();
         }
         // GET api/<Connection>/5
         [HttpGet("{id}")]
@@ -40,7 +40,7 @@ namespace EIR_9209_2.Controllers
             {
                 return Task.FromResult(BadRequest(ModelState));
             }
-            return await _connectionRepository.Get(id);
+            return _connectionRepository.Get(id);
         }
 
         // POST api/<Connection>
@@ -59,9 +59,9 @@ namespace EIR_9209_2.Controllers
             connection.CreatedDate = DateTime.Now;
 
             //add to the connection repository
-            await _connectionRepository.Add(connection);
+            _connectionRepository.Add(connection);
             //return the connection id
-            connection = await _connectionRepository.Get(connection.Id);
+            connection = _connectionRepository.Get(connection.Id);
             await _hubContext.Clients.All.SendAsync("AddConnection", connection);
             return connection;
         }
@@ -76,7 +76,7 @@ namespace EIR_9209_2.Controllers
                 return Task.FromResult(BadRequest(ModelState));
             }
             await _hubContext.Clients.All.SendAsync("UpdateConnection", id);
-            return await _connectionRepository.Get(id);
+            return _connectionRepository.Get(id);
         }
 
         // DELETE api/<Connection>/5
@@ -88,9 +88,9 @@ namespace EIR_9209_2.Controllers
             {
                 return Task.FromResult(BadRequest(ModelState));
             }
-            await _connectionRepository.Delete(id);
-            await _hubContext.Clients.All.SendAsync("DeleteConnection", id);
-            return await _connectionRepository.Get(id);
+            _connectionRepository.Remove(id);
+            _hubContext.Clients.All.SendAsync("DeleteConnection", id);
+            return _connectionRepository.Get(id);
 
         }
     }

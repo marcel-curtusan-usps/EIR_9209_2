@@ -31,24 +31,15 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         // Configure logging
-        //services.AddLogging();
+        services.AddLogging();
         AddOptions(services);
-        //setup mongodb and check health status
-        //services.Configure<MongoDBSettings>(Configuration.GetSection("MongoDB"));
-        //services.AddSingleton<MongoDBContext>();
-        //services.AddSingleton(provider => provider.GetRequiredService<MongoDBContext>().Database);
-        //services.AddSingleton<MongoDbHealthCheck>();
-        //services.AddHealthChecks().AddCheck<MongoDbHealthCheck>("mongodb");
         services.AddSingleton<IFileService, FileService>();
-        //services.AddSingleton<ISiteDetailsProvider, SiteDetailsProvider>();
-        //services.AddSingleton<IBackgroundImageRepository, BackgroundImageRepository>();
-        //services.AddSingleton<IConnectionRepository, ConnectionRepository>();
+
         services.AddSingleton<IInMemoryConnectionRepository, InMemoryConnectionRepository>();
         services.AddSingleton<IInMemoryTagsRepository, InMemoryTagsRepository>();
         services.AddSingleton<IInMemoryGeoZonesRepository, InMemoryGeoZonesRepository>();
         services.AddSingleton<IInMemoryBackgroundImageRepository, InMemoryBackgroundImageRepository>();
-        //services.AddSingleton<ITagsRepository, TagsRepository>();
-        //services.AddSingleton<IGeoZonesRepository, GeoZonesRepository>();
+
         //add SignalR to the services
         services.AddSignalR(options =>
             {
