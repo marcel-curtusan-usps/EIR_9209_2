@@ -11,7 +11,7 @@ namespace EIR_9209_2.InMemory
         public InMemoryTagsRepository(ILogger<InMemoryConnectionRepository> logger, IConfiguration configuration, IFileService fileService)
         {
             FileService = fileService;
-            string BuildConnectionPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "MongoDB:CollectionBackgroundImages"]}.json");
+            string BuildConnectionPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "MongoDB:Tags"]}.json");
             // Load data from the first file into the first collection
             Task.Run(async () => await LoadDataFromFile(BuildConnectionPath));
 
