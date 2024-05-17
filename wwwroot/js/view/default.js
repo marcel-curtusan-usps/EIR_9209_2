@@ -30,7 +30,7 @@ async function start() {
             //load GeoZones MPE
             connection.invoke("GetConnectionList").then(function (data) {
                 Promise.all([init_connection(data)]).then(function () {
-                    connection.invoke("AddToGroup", "Connections").catch(function (err) {
+                    connection.invoke("JoinGroup", "Connections").catch(function (err) {
                         return console.error(err.toString());
                     });
 
@@ -42,7 +42,7 @@ async function start() {
             //load background images
             connection.invoke("GetBackgroundImages").then(function (data) {
                 Promise.all([init_backgroundImages(data)]).then(function () {
-                    connection.invoke("AddToGroup", "BackgroundImage").catch(function (err) {
+                    connection.invoke("JoinGroup", "BackgroundImage").catch(function (err) {
                         return console.error(err.toString());
                     });
                 });
@@ -53,7 +53,7 @@ async function start() {
             //load Person Tags
             connection.invoke("GetPersonTags").then(function (data) {
                 Promise.all([init_tagsEmployees(data)]).then(function () {
-                    connection.invoke("AddToGroup", "Tags").catch(function (err) {
+                    connection.invoke("JoinGroup", "Tags").catch(function (err) {
                         return console.error(err.toString());
                     });
 
@@ -65,7 +65,7 @@ async function start() {
             //load GeoZones MPE
             connection.invoke("GetGeoZoneMPE").then(function (data) {
                 Promise.all([init_geoZoneMPE(data)]).then(function () {
-                    connection.invoke("AddToGroup", "MPEZones").catch(function (err) {
+                    connection.invoke("JoinGroup", "MPEZones").catch(function (err) {
                         return console.error(err.toString());
                     });
 

@@ -45,34 +45,31 @@ async function findLeafletIds(markerId) {
     });
 }
 async function init_tagsEmployees(data) {
-    try {
-        $(document).on('change', '.leaflet-control-layers-selector', function () {
-            let sp = this.nextElementSibling;
-            if (/^badges$/ig.test(sp.innerHTML.trim())) {
-                if (this.checked) {
-                    connection.invoke("AddToGroup", "Tags").catch(function (err) {
-                        return console.error(err.toString());
-                    });
+    return new Promise((resolve, reject) => {
+        try {
+            $(document).on('change', '.leaflet-control-layers-selector', function () {
+                let sp = this.nextElementSibling;
+                if (/^badges$/ig.test(sp.innerHTML.trim())) {
+                    if (this.checked) {
+                        connection.invoke("JoinGroup", "Tags").catch(function (err) {
+                            return console.error(err.toString());
+                        });
+                    }
+                    else {
+                        connection.invoke("LeaveGroup", "Tags").catch(function (err) {
+                            return console.error(err.toString());
+                        });
+                    }
                 }
-                else {
-                    connection.invoke("RemoveFromGroup", "Tags").catch(function (err) {
-                        return console.error(err.toString());
-                    });
-                }
-            }
-        });
-        $('.leaflet-control-layers-selector').map(function () {
-            let sp = this.nextElementSibling;
-            if (/^(badges$)$/ig.test(sp.innerHTML.trim())) {
-                connection.invoke("AddToGroup", "Tags").catch(function (err) {
-                    return console.error(err.toString());
-                });
-            }
-        })
-    }
-    catch (e) {
-        throw new Error(e.toString());
-    }
+            });
+            resolve();
+            return false;
+        }
+        catch (e) {
+            throw new Error(e.toString());
+            reject();
+        }
+    });
 }
 async function deleteFeature(data, floorId) {
     try {

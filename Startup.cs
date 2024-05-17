@@ -46,16 +46,19 @@ public class Startup
         services.AddSingleton<IInMemoryConnectionRepository, InMemoryConnectionRepository>();
         services.AddSingleton<IInMemoryTagsRepository, InMemoryTagsRepository>();
         services.AddSingleton<IInMemoryGeoZonesRepository, InMemoryGeoZonesRepository>();
-        services.AddSingleton<IInMemoryTagsBackgroundImageRepository, InMemoryBackgroundImageRepository>();
+        services.AddSingleton<IInMemoryBackgroundImageRepository, InMemoryBackgroundImageRepository>();
         //services.AddSingleton<ITagsRepository, TagsRepository>();
         //services.AddSingleton<IGeoZonesRepository, GeoZonesRepository>();
         //add SignalR to the services
         services.AddSignalR(options =>
             {
-                options.MaximumReceiveMessageSize = 250 * 1024;
-                // Faster pings for testing
-                options.KeepAliveInterval = TimeSpan.FromSeconds(5);
-            });
+                options.MaximumReceiveMessageSize = 100_000;
+                options.MaximumParallelInvocationsPerClient = 5;
+            }).AddJsonProtocol(options =>
+            {
+                options.PayloadSerializerOptions.PropertyNameCaseInsensitive = true;
+            })
+    .AddMessagePackProtocol();
         services.AddCors(o =>
         {
             o.AddPolicy("Everything", p =>

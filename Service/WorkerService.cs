@@ -152,7 +152,7 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
                                     }
                                     if (CurrentStatus != endPoint.Status)
                                     {
-                                        await _hubServices.SendMessageToGroup("Connections", JsonConvert.SerializeObject(endPoint, _serializerSettings), "connection");
+                                        // await _hubServices.SendMessageToGroup("Connections", JsonConvert.SerializeObject(endPoint, _serializerSettings), "connection");
                                     }
                                 }
                             }
@@ -216,7 +216,7 @@ public class WorkerService : IHostedService, IWorkerService, IDisposable
                 {
                     if (visable)
                     {
-                        await _hubServices.SendMessageToGroup("Tags", PositionGeoJson.ToString(), "tags");
+                        //await _hubServices.SendMessageToGroup("Tags", PositionGeoJson.ToString(), "tags");
                     }
 
                 }

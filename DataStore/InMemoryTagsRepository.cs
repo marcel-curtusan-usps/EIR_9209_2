@@ -22,9 +22,9 @@ namespace EIR_9209_2.InMemory
             return tag;
         }
 
-        public IEnumerable<GeoMarker> GetAll()
+        public List<GeoMarker> GetAll()
         {
-            return _tagList.Values;
+            return _tagList.Values.Where(r => r.Properties.posAge > 1 && r.Properties.posAge < 100000 && r.Properties.Visible).Select(y => y).ToList();
         }
 
         public void Update(GeoMarker tag)

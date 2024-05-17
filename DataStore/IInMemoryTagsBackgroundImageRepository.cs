@@ -1,6 +1,6 @@
 ﻿using EIR_9209_2.Models;
 
-public interface IInMemoryTagsBackgroundImageRepository
+public interface IInMemoryBackgroundImageRepository
 {
     void Add(BackgroundImage backgroundImage);
     void Remove(BackgroundImage backgroundImage);

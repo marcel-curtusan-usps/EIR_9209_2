@@ -5,6 +5,6 @@ public interface IInMemoryTagsRepository
     void Add(GeoMarker connection);
     void Remove(string connectionId);
     GeoMarker Get(string id);
-    IEnumerable<GeoMarker> GetAll();
+    List<GeoMarker> GetAll();
     void Update(GeoMarker connection);
 }

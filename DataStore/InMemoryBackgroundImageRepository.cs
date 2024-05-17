@@ -1,7 +1,7 @@
 ﻿using EIR_9209_2.Models;
 using System.Collections.Concurrent;
 
-public class InMemoryBackgroundImageRepository : IInMemoryTagsBackgroundImageRepository
+public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageRepository
 {
     private readonly static ConcurrentDictionary<string, BackgroundImage> _backgroundImages = new();
 

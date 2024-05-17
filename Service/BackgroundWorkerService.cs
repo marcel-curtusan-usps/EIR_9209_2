@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 using EIR_9209_2.Models;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.SignalR;
+using static EIR_9209_2.Models.GeoMarker;
+using MongoDB.Driver;
 
 namespace EIR_9209_2.Service
 {
@@ -13,17 +15,19 @@ namespace EIR_9209_2.Service
         private readonly ILogger<BackgroundWorkerService>? _logger;
         private readonly Dictionary<string, CancellationTokenSource>? _endPointCancellations;
         private readonly Dictionary<string, PeriodicTimer>? _endPointTimers;
-        private readonly HubServices _hubServices;
+        private readonly IHubContext<HubServices> _hubServices;
         private readonly List<Connection>? _endPointList; // List of endpoints
         private readonly IInMemoryConnectionRepository _connections;
+        private readonly IInMemoryTagsRepository _tags;
 
-        public BackgroundWorkerService(ILogger<BackgroundWorkerService> logger, IInMemoryConnectionRepository connectionList, HubServices hubServices)
+        public BackgroundWorkerService(ILogger<BackgroundWorkerService> logger, IInMemoryConnectionRepository connectionList, IInMemoryTagsRepository tags, IHubContext<HubServices> hubServices)
         {
             _logger = logger;
             _connections = connectionList;
-            _endPointList = new List<Connection>();
-            _endPointCancellations = new Dictionary<string, CancellationTokenSource>();
-            _endPointTimers = new Dictionary<string, PeriodicTimer>();
+            _tags = tags;
+            _endPointList = [];
+            _endPointCancellations = [];
+            _endPointTimers = [];
             _hubServices = hubServices;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -139,34 +143,86 @@ namespace EIR_9209_2.Service
                         posAge = qtitem.ServerTS - qtitem.LocationTS;
                     }
                     bool visable = posAge > 1 && posAge < 150000 ? true : false;
-                    JObject PositionGeoJson = new JObject
+                    //find tag in the list
+                    GeoMarker currentitem = _tags.Get(qtitem.TagId);
+                    if (currentitem != null)
                     {
-                        ["type"] = "Feature",
-                        ["geometry"] = new JObject
+                        var update = false;
+                        if (currentitem.Geometry.Coordinates != qtitem.Location)
                         {
-                            ["type"] = "Point",
-                            ["coordinates"] = qtitem.Location.Any() ? new JArray(qtitem.Location[0], qtitem.Location[1]) : new JArray(0, 0)
-                        },
-                        ["properties"] = new JObject
-                        {
-                            ["id"] = qtitem.TagId,
-                            ["floorId"] = qtitem.LocationCoordSysId,
-                            ["posAge"] = posAge,
-                            ["visible"] = visable
+                            currentitem.Geometry.Coordinates = qtitem.Location;
+                            update = true;
                         }
-                    };
-                    try
-                    {
-                        if (visable)
+                        //check if the tag is visable
+                        if (currentitem.Properties.Visible != visable)
                         {
-
-                            _ = Task.Run(async () => await _hubServices.SendMessageToGroup("Tags", PositionGeoJson.ToString(), "tags")).ConfigureAwait(false);
+                            currentitem.Properties.Visible = visable;
+                            update = true;
+                        }
+                        //check if the tag is on the same floor
+                        if (currentitem.Properties.FloorId != qtitem.LocationCoordSysId)
+                        {
+                            currentitem.Properties.FloorId = qtitem.LocationCoordSysId;
+                            update = true;
+                        }
+                        //check if tag posAge is different
+                        if (currentitem.Properties.posAge != posAge)
+                        {
+                            currentitem.Properties.posAge = posAge;
+                            update = true;
+                        }
+                        //check if the server timestamp is different
+                        if (currentitem.Properties.ServerTS != qtitem.ServerTS)
+                        {
+                            currentitem.Properties.ServerTS = qtitem.ServerTS;
+                            update = true;
+                        }
+                        if (update)
+                        {
+                            _tags.Update(currentitem);
                         }
 
                     }
-                    catch (Exception ep)
+                    else
                     {
-                        _logger.LogError(ep.Message);
+                        GeoMarker NewMarker = new GeoMarker
+                        {
+                            _id = qtitem.TagId,
+                            Geometry = new MarkerGeometry { Coordinates = qtitem.Location },
+                            Properties = new Marker
+                            {
+                                Id = qtitem.TagId,
+                                FloorId = qtitem.LocationCoordSysId,
+                                ServerTS = qtitem.ServerTS,
+                                posAge = posAge,
+                                Visible = posAge > 1 && posAge < 150000 ? true : false
+                            }
+                        };
+
+                        _tags.Add(NewMarker);
+
+                    }
+
+                    if (qtitem.Location.Any())
+                    {
+                        JObject PositionGeoJson = new JObject
+                        {
+                            ["type"] = "Feature",
+                            ["geometry"] = new JObject
+                            {
+                                ["type"] = "Point",
+                                ["coordinates"] = qtitem.Location.Any() ? new JArray(qtitem.Location[0], qtitem.Location[1]) : new JArray(0, 0)
+                            },
+                            ["properties"] = new JObject
+                            {
+                                ["id"] = qtitem.TagId,
+                                ["floorId"] = qtitem.LocationCoordSysId,
+                                ["posAge"] = posAge,
+                                ["visible"] = visable
+                            }
+                        };
+
+                        await _hubServices.Clients.Group("Tags").SendAsync("tags", PositionGeoJson.ToString());
                     }
                 }
 

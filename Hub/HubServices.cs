@@ -11,16 +11,13 @@ using System.Security.Claims;
 
 public class HubServices : Hub
 {
-    public readonly static ConcurrentDictionary<string, string> _connectionIds = new();
-    private readonly static ConcurrentDictionary<string, List<string>> _groups = new();
-
-    private readonly IInMemoryTagsBackgroundImageRepository _backgroundImages;
+    private readonly IInMemoryBackgroundImageRepository _backgroundImages;
     private readonly IInMemoryConnectionRepository _connections;
     private readonly IInMemoryTagsRepository _tags;
     private readonly IInMemoryGeoZonesRepository _geoZones;
     private readonly IOptions<SiteIdentitySettings> _siteSettings;
     private readonly ILogger<HubServices> _logger;
-    public HubServices(ILogger<HubServices> logger, IInMemoryTagsBackgroundImageRepository backgroundImages, IInMemoryConnectionRepository connectionList, IInMemoryTagsRepository tags, IInMemoryGeoZonesRepository zones, IOptions<SiteIdentitySettings> siteSettings)
+    public HubServices(ILogger<HubServices> logger, IInMemoryBackgroundImageRepository backgroundImages, IInMemoryConnectionRepository connectionList, IInMemoryTagsRepository tags, IInMemoryGeoZonesRepository zones, IOptions<SiteIdentitySettings> siteSettings)
     {
         _logger = logger;
         _backgroundImages = backgroundImages;
@@ -29,70 +26,66 @@ public class HubServices : Hub
         _geoZones = zones;
         _siteSettings = siteSettings;
     }
-    public async Task AddToGroup(string groupName)
+    public async Task JoinGroup(string groupName)
     {
         _logger.LogInformation($"{Context.ConnectionId} Joined the {groupName} group");
-        await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-        // Add the connection to the group in the _groups dictionary
-        _groups.AddOrUpdate(groupName, new List<string> { Context.ConnectionId }, (_, connections) =>
-        {
-            connections.Add(Context.ConnectionId);
-            return connections;
-        });
+
+        string userId = Context.ConnectionId;
+        await Groups.AddToGroupAsync(userId, groupName);
     }
 
-    public async Task RemoveFromGroup(string groupName)
+    public async Task LeaveGroup(string groupName)
     {
-        _logger.LogInformation($"{Context.ConnectionId} Has been Removed from the {groupName} group");
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-    }
+        _logger.LogInformation($"{Context.ConnectionId} is Leaving the Group: {groupName}");
 
-    public async Task SendMessageToGroup(string groupName, string message, string method)
-    {
-        if (Clients != null)
-        {
-            await Clients.Group(groupName).SendAsync(method, message);
-        }
+        string userId = Context.ConnectionId;
+
+        await Groups.RemoveFromGroupAsync(userId, groupName);
+
     }
     public async Task CallerMessage(string user, object message, string method)
     {
         await Clients.Caller.SendAsync(method, user, message.ToString());
     }
-    public override async Task OnConnectedAsync()
-    {
-        Console.WriteLine("Client connected: " + Context.ConnectionId);
-        _connectionIds.TryAdd(Context.ConnectionId, Context.ConnectionId);
-        await base.OnConnectedAsync();
-    }
+    //public override async Task OnConnectedAsync()
+    //{
+    //    Console.WriteLine("Client connected: " + Context.ConnectionId);
+    //    _connectionIds.TryAdd(Context.ConnectionId, Context.ConnectionId);
+    //    await base.OnConnectedAsync();
+    //}
     public override async Task OnDisconnectedAsync(Exception exception)
     {
-        string removedConnectionId;
-        _connectionIds.TryRemove(Context.ConnectionId, out removedConnectionId);
-        // Remove the connection from the group in the _groups dictionary
-        foreach (var group in _groups)
-        {
-            if (group.Value.Contains(Context.ConnectionId))
-            {
-                group.Value.Remove(Context.ConnectionId);
-                break;
-            }
-        }
+        //string removedConnectionId;
+        //_connectionIds.TryRemove(Context.ConnectionId, out removedConnectionId);
+        //// Remove the connection from the group in the _groups dictionary
+        //foreach (var group in _groups)
+        //{
+        //    if (group.Value.Contains(Context.ConnectionId))
+        //    {
+        //        group.Value.Remove(Context.ConnectionId);
+        //        break;
+        //    }
+        //}
+        string userId = Context.ConnectionId;
+
+        // await Groups.RemoveFromGroupAsync(userId, groupName);
+
         await base.OnDisconnectedAsync(exception);
     }
-    public async Task<List<string>> GetConnectedClientsInGroup(string groupName)
-    {
-        if (_groups.TryGetValue(groupName, out var connections))
-        {
-            return connections;
-        }
+    //public async Task<List<string>> GetConnectedClientsInGroup(string groupName)
+    //{
+    //    if (_groups.TryGetValue(groupName, out var connections))
+    //    {
+    //        return connections.ToList();
+    //    }
 
-        return new List<string>();
-    }
+    //    return new List<string>();
+    //}
 
-    public async Task<List<string>> GetAllGroups()
-    {
-        return _groups.Keys.ToList();
-    }
+    //public async Task<List<string>> GetAllGroups()
+    //{
+    //    return Clients.All;
+    //}
     public async Task<IEnumerable<BackgroundImage>> GetBackgroundImages()
     {
         return _backgroundImages.GetAll();
@@ -109,9 +102,9 @@ public class HubServices : Hub
             ["role"] = "Admin"
         });
     }
-    public async Task<IEnumerable<GeoMarker>> GetPersonTags()
+    public async Task<List<GeoMarker>> GetPersonTags()
     {
-        return _tags.GetAll();
+        return _tags.GetAll().ToList();
     }
     public async Task<List<GeoZone>> GetGeoZoneMPE()
     {
@@ -150,7 +143,7 @@ public class HubServices : Hub
     {
         //await Clients.All.SendAsync("WorkerStatusUpdate", status);
         string workerData = System.Text.Encoding.UTF8.GetString(data);
-        await SendMessageToGroup("Tags", workerData, "tags");
+        // await SendMessageToGroup("Tags", workerData, "tags");
         // _logger.LogInformation($"Worker Data for QPE :  {Context.ConnectionId}  <-->  {workerData}");
     }
 }
