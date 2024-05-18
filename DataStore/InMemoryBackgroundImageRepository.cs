@@ -5,13 +5,17 @@ using System.Collections.Concurrent;
 public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageRepository
 {
     private readonly static ConcurrentDictionary<string, BackgroundImage> _backgroundImages = new();
+    private readonly ILogger<InMemoryBackgroundImageRepository> _logger;
+    private readonly IConfiguration _configuration;
     private readonly IFileService FileService;
-    public InMemoryBackgroundImageRepository(ILogger<InMemoryConnectionRepository> logger, IConfiguration configuration, IFileService fileService)
+    public InMemoryBackgroundImageRepository(ILogger<InMemoryBackgroundImageRepository> logger, IConfiguration configuration, IFileService fileService)
     {
         FileService = fileService;
+        _logger = logger;
+        _configuration = configuration;
         string BuildConnectionPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "MongoDB:CollectionBackgroundImages"]}.json");
         // Load data from the first file into the first collection
-        Task.Run(async () => await LoadDataFromFile(BuildConnectionPath));
+        _ = LoadDataFromFile(BuildConnectionPath);
 
     }
     public void Add(BackgroundImage backgroundImage)
@@ -48,25 +52,25 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
             {
                 foreach (BackgroundImage item in data.Select(r => r).ToList())
                 {
-                    Add(item);
+                    _backgroundImages.TryAdd(item.id, item);
                 }
             }
         }
         catch (FileNotFoundException ex)
         {
             // Handle the FileNotFoundException here
-            Console.WriteLine($"File not found: {ex.FileName}");
+            _logger.LogError($"File not found: {ex.FileName}");
             // You can choose to throw an exception or take any other appropriate action
         }
         catch (IOException ex)
         {
             // Handle errors when reading the file
-            Console.WriteLine($"An error occurred when reading the file: {ex.Message}");
+            _logger.LogError($"An error occurred when reading the file: {ex.Message}");
         }
         catch (JsonException ex)
         {
             // Handle errors when parsing the JSON
-            Console.WriteLine($"An error occurred when parsing the JSON: {ex.Message}");
+            _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
         }
     }
 }

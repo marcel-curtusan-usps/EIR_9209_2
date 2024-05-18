@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-public class SiteIdentitySettings
+public class SiteInformation
 {
     [JsonProperty("siteId")]
     public string SiteId { get; set; } = "";

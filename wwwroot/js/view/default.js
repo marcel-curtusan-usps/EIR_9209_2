@@ -63,11 +63,9 @@ async function start() {
                 console.error(err);
             });
             //load GeoZones MPE
-            connection.invoke("GetGeoZoneMPE").then(function (data) {
-                Promise.all([init_geoZoneMPE(data)]).then(function () {
-                    connection.invoke("JoinGroup", "MPEZones").catch(function (err) {
-                        return console.error(err.toString());
-                    });
+            connection.invoke("GetGeoZones").then(function (data) {
+                Promise.all([init_geoZone(data)]).then(function () {
+
 
                 });
             }).catch(function (err) {
@@ -144,6 +142,7 @@ connection.on("siteInfo", async (id, data) => {
 
 // Start the connection.
 start();
+
 function capitalize_Words(str) {
     return str.replace(/\w\S*/g, function (txt) {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();

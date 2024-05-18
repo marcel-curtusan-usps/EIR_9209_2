@@ -3,5 +3,5 @@ using Newtonsoft.Json.Linq;
 
 public interface IQueryService
 {
-    Task<QuuppaTag> GetData(CancellationToken token);
+    Task<QuuppaTag> GetQuuppaTagData(CancellationToken token);
 }

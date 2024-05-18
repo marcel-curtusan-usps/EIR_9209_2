@@ -1,6 +1,7 @@
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore;
 using Serilog;
+using EIR_9209_2.Controllers;
 
 
 // read configuration from appsettings.json

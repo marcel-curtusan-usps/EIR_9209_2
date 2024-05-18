@@ -16,6 +16,28 @@ let tagsEmployees = new L.GeoJSON(null, {
 
         let classname = getmarkerType(feature.properties.craftName) + VisiblefillOpacity;
         layer.on('click', function (e) {
+            //makea ajax call to get the employee details
+            $.ajax({
+                url: '/api/Tag/' + feature.properties.id,
+                type: 'GET',
+                success: function (data) {
+                    $('#content').html(data);
+                    sidebar.open('employee');
+                },
+                error: function (error) {
+                    console.log(error);
+                },
+                faulure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    console.log(complete);
+                }
+
+
+
+            });
+
             sidebar.open('reports');
         });
         layer.bindTooltip("", {

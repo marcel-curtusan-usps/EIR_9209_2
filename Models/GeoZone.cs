@@ -39,6 +39,12 @@ namespace EIR_9209_2.Models
 
         [JsonProperty("type")]
         public string Type { get; set; } = "";
+
+        [JsonProperty("zoneType")]
+        public string ZoneType { get; set; } = "";
+
+        [JsonProperty("mpeType")]
+        public string MpeType { get; set; } = "";
     }
 
     public class Geometry

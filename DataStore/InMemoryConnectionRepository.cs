@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 using Newtonsoft.Json;
+using NuGet.Protocol.Plugins;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,9 +17,11 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     public InMemoryConnectionRepository(ILogger<InMemoryConnectionRepository> logger, IConfiguration configuration, IFileService fileService)
     {
         FileService = fileService;
-        string BuildConnectionPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "MongoDB:CollectionConnections"]}.json");
+        _logger = logger;
+        _configuration = configuration;
+        string BuildPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "MongoDB:CollectionConnections"]}.json");
         // Load data from the first file into the first collection
-        Task.Run(async () => await LoadDataFromFile(BuildConnectionPath));
+        _ = LoadDataFromFile(BuildPath);
 
     }
     public void Add(Connection connection)
@@ -59,29 +62,29 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
             List<Connection> data = JsonConvert.DeserializeObject<List<Connection>>(fileContent);
 
             // Insert the data into the MongoDB collection
-            if (data.Any())
+            if (data.Count != 0)
             {
                 foreach (Connection item in data.Select(r => r).ToList())
                 {
-                    Add(item);
+                    _connectionList.TryAdd(item.Id, item);
                 }
             }
         }
         catch (FileNotFoundException ex)
         {
             // Handle the FileNotFoundException here
-            Console.WriteLine($"File not found: {ex.FileName}");
+            _logger.LogError($"File not found: {ex.FileName}");
             // You can choose to throw an exception or take any other appropriate action
         }
         catch (IOException ex)
         {
             // Handle errors when reading the file
-            Console.WriteLine($"An error occurred when reading the file: {ex.Message}");
+            _logger.LogError($"An error occurred when reading the file: {ex.Message}");
         }
         catch (JsonException ex)
         {
             // Handle errors when parsing the JSON
-            Console.WriteLine($"An error occurred when parsing the JSON: {ex.Message}");
+            _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
         }
     }
 

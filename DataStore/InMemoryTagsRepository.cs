@@ -7,13 +7,17 @@ namespace EIR_9209_2.InMemory
     public class InMemoryTagsRepository : IInMemoryTagsRepository
     {
         private readonly static ConcurrentDictionary<string, GeoMarker> _tagList = new();
+        private readonly ILogger<InMemoryTagsRepository> _logger;
+        private readonly IConfiguration _configuration;
         private readonly IFileService FileService;
-        public InMemoryTagsRepository(ILogger<InMemoryConnectionRepository> logger, IConfiguration configuration, IFileService fileService)
+        public InMemoryTagsRepository(ILogger<InMemoryTagsRepository> logger, IConfiguration configuration, IFileService fileService)
         {
             FileService = fileService;
-            string BuildConnectionPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "MongoDB:Tags"]}.json");
+            _logger = logger;
+            _configuration = configuration;
+            string BuildPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "MongoDB:Tags"]}.json");
             // Load data from the first file into the first collection
-            Task.Run(async () => await LoadDataFromFile(BuildConnectionPath));
+            _ = LoadDataFromFile(BuildPath);
 
         }
         public void Add(GeoMarker tag)
@@ -56,29 +60,29 @@ namespace EIR_9209_2.InMemory
                 List<GeoMarker> data = JsonConvert.DeserializeObject<List<GeoMarker>>(fileContent);
 
                 // Insert the data into the MongoDB collection
-                if (data.Any())
+                if (data.Count != 0)
                 {
                     foreach (GeoMarker item in data.Select(r => r).ToList())
                     {
-                        Add(item);
+                        _tagList.TryAdd(item.Properties.Id, item);
                     }
                 }
             }
             catch (FileNotFoundException ex)
             {
                 // Handle the FileNotFoundException here
-                Console.WriteLine($"File not found: {ex.FileName}");
+                _logger.LogError($"File not found: {ex.FileName}");
                 // You can choose to throw an exception or take any other appropriate action
             }
             catch (IOException ex)
             {
                 // Handle errors when reading the file
-                Console.WriteLine($"An error occurred when reading the file: {ex.Message}");
+                _logger.LogError($"An error occurred when reading the file: {ex.Message}");
             }
             catch (JsonException ex)
             {
                 // Handle errors when parsing the JSON
-                Console.WriteLine($"An error occurred when parsing the JSON: {ex.Message}");
+                _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
             }
         }
     }

@@ -2,10 +2,10 @@
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using EIR_9209_2.Models;
-using EIR_9209_2.SiteIdentity;
 using EIR_9209_2.Utilities;
 using EIR_9209_2.InMemory;
 using EIR_9209_2.Service;
+using EIR_9209_2.DataStore;
 
 public class Startup
 {
@@ -32,13 +32,14 @@ public class Startup
     {
         // Configure logging
         services.AddLogging();
-        AddOptions(services);
+        //AddOptions(services);
         services.AddSingleton<IFileService, FileService>();
-
+        services.AddSingleton<IInMemorySiteInfoRepository, InMemorySiteInfoRepository>();
+        services.AddSingleton<IInMemoryBackgroundImageRepository, InMemoryBackgroundImageRepository>();
         services.AddSingleton<IInMemoryConnectionRepository, InMemoryConnectionRepository>();
         services.AddSingleton<IInMemoryTagsRepository, InMemoryTagsRepository>();
         services.AddSingleton<IInMemoryGeoZonesRepository, InMemoryGeoZonesRepository>();
-        services.AddSingleton<IInMemoryBackgroundImageRepository, InMemoryBackgroundImageRepository>();
+
 
         //add SignalR to the services
         services.AddSignalR(options =>
@@ -100,26 +101,26 @@ public class Startup
         services.AddHostedService(provider => provider.GetRequiredService<BackgroundWorkerService>());
     }
 
-    private void AddOptions(IServiceCollection services)
-    {
-        services.Configure<SiteIdentitySettings>(Configuration.GetSection("SiteIdentity"));
-        try
-        {
-            var logFilePath = Path.Combine(Configuration[key: "ApplicationConfiguration:BaseDrive"], Configuration[key: "ApplicationConfiguration:BaseDirectory"], Configuration[key: "SiteIdentity:NassCode"]);
-            if (!Directory.Exists(logFilePath))
-            {
-                Directory.CreateDirectory(logFilePath);
-            }
-            var appHasPermissionToLogToSpecifiedFolder = FileAccessTester.CanCreateFilesAndWriteInFolder(logFilePath);
-            if (!appHasPermissionToLogToSpecifiedFolder)
-            {
-            }
-        }
-        catch (Exception e)
-        {
+    //private void AddOptions(IServiceCollection services)
+    //{
+    //    services.Configure<SiteIdentitySettings>(Configuration.GetSection("SiteIdentity"));
+    //    try
+    //    {
+    //        var logFilePath = Path.Combine(Configuration[key: "ApplicationConfiguration:BaseDrive"], Configuration[key: "ApplicationConfiguration:BaseDirectory"], Configuration[key: "SiteIdentity:NassCode"]);
+    //        if (!Directory.Exists(logFilePath))
+    //        {
+    //            Directory.CreateDirectory(logFilePath);
+    //        }
+    //        var appHasPermissionToLogToSpecifiedFolder = FileAccessTester.CanCreateFilesAndWriteInFolder(logFilePath);
+    //        if (!appHasPermissionToLogToSpecifiedFolder)
+    //        {
+    //        }
+    //    }
+    //    catch (Exception e)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
     /// <summary>
     /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

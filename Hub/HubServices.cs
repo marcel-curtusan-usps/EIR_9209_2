@@ -1,4 +1,5 @@
-﻿using EIR_9209_2.Models;
+﻿using EIR_9209_2.DataStore;
+using EIR_9209_2.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
@@ -15,16 +16,24 @@ public class HubServices : Hub
     private readonly IInMemoryConnectionRepository _connections;
     private readonly IInMemoryTagsRepository _tags;
     private readonly IInMemoryGeoZonesRepository _geoZones;
-    private readonly IOptions<SiteIdentitySettings> _siteSettings;
+    private readonly IInMemorySiteInfoRepository _siteInfo;
     private readonly ILogger<HubServices> _logger;
-    public HubServices(ILogger<HubServices> logger, IInMemoryBackgroundImageRepository backgroundImages, IInMemoryConnectionRepository connectionList, IInMemoryTagsRepository tags, IInMemoryGeoZonesRepository zones, IOptions<SiteIdentitySettings> siteSettings)
+    private readonly IConfiguration _configuration;
+    public HubServices(ILogger<HubServices> logger,
+        IInMemoryBackgroundImageRepository backgroundImages,
+        IInMemoryConnectionRepository connectionList,
+        IInMemoryTagsRepository tags,
+        IInMemoryGeoZonesRepository zones,
+        IInMemorySiteInfoRepository siteInfo,
+        IConfiguration configuration)
     {
         _logger = logger;
         _backgroundImages = backgroundImages;
         _connections = connectionList;
         _tags = tags;
         _geoZones = zones;
-        _siteSettings = siteSettings;
+        _siteInfo = siteInfo;
+        _configuration = configuration;
     }
     public async Task JoinGroup(string groupName)
     {
@@ -92,12 +101,13 @@ public class HubServices : Hub
     }
     public async Task<string> GetApplicationInfo()
     {
+        var siteInfo = _siteInfo.GetByNASSCode(_configuration[key: "SiteIdentity:NassCode"].ToString());
         return JsonConvert.SerializeObject(new JObject
         {
             ["name"] = "Connected Facilities",
             ["version"] = "1.0.0.1",
             ["description"] = "EIR-9209 is a web application for EIR-9209",
-            ["siteName"] = _siteSettings.Value.DisplayName,
+            ["siteName"] = siteInfo?.DisplayName,
             ["user"] = await GetUserName(Context.User),
             ["role"] = "Admin"
         });
@@ -106,9 +116,9 @@ public class HubServices : Hub
     {
         return _tags.GetAll().ToList();
     }
-    public async Task<List<GeoZone>> GetGeoZoneMPE()
+    public async Task<List<GeoZone>> GetGeoZones()
     {
-        return new List<GeoZone>();
+        return _geoZones.GetAll().ToList();
     }
 
     private Task<string> GetUserName(ClaimsPrincipal? user)

@@ -1,6 +1,7 @@
 ﻿using EIR_9209_2.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 
 internal class QueryService : IQueryService
@@ -25,7 +26,7 @@ internal class QueryService : IQueryService
         this._fullUrl = new Uri(settings.FullUrl);
     }
 
-    public async Task<QuuppaTag> GetData(CancellationToken ct)
+    public async Task<QuuppaTag> GetQuuppaTagData(CancellationToken ct)
     {
         var query = "";
 
@@ -41,8 +42,10 @@ internal class QueryService : IQueryService
 
     private async Task<T> GetQueryResults<T>(string queryUrl, CancellationToken ct)
     {
-        using (var request = new HttpRequestMessage(HttpMethod.Get, queryUrl))
+        try
         {
+            using var request = new HttpRequestMessage(HttpMethod.Get, queryUrl);
+            request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true, NoStore = true };
             if (_authService != null)
             {
                 await _authService.AddAuthHeader(request, ct);
@@ -53,6 +56,19 @@ internal class QueryService : IQueryService
             var responseBody = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<T>(responseBody, _jsonSettings);
         }
+        catch (HttpRequestException ex)
+        {
+            // Log the exception or handle it in some other way
+            // For example, you might want to rethrow the exception to let the caller handle it
+            throw new Exception("An error occurred while sending the HTTP request.", ex);
+        }
+        catch (JsonException ex)
+        {
+            // Log the exception or handle it in some other way
+            // For example, you might want to rethrow the exception to let the caller handle it
+            throw new Exception("An error occurred while deserializing the response body.", ex);
+        }
+
     }
 
     private async Task<T> GetPostQueryResults<T>(string queryUrl, string query, CancellationToken ct)

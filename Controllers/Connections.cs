@@ -11,15 +11,11 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class Connections : ControllerBase
+    public class Connections(IInMemoryConnectionRepository connectionRepository, IHubContext<HubServices> hubContext) : ControllerBase
     {
-        private readonly IInMemoryConnectionRepository _connectionRepository;
-        private IHubContext<HubServices> _hubContext;
-        public Connections(IInMemoryConnectionRepository connectionRepository, IHubContext<HubServices> hubContext)
-        {
-            _connectionRepository = connectionRepository;
-            _hubContext = hubContext;
-        }
+        private readonly IInMemoryConnectionRepository _connectionRepository = connectionRepository;
+        private readonly IHubContext<HubServices> _hubContext = hubContext;
+
         // GET: api/<Connection>
         [HttpGet]
         public async Task<object> Get()

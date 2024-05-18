@@ -60,7 +60,7 @@ namespace EIR_9209_2.Service
                                             authService = new OAuth2AuthenticationService(_httpClient, new OAuth2AuthenticationServiceSettings(endPoint.OAuthUrl, endPoint.UserName, endPoint.Password, endPoint.ClientId), jsonSettings);
                                             IQueryService queryService;
                                             queryService = new QueryService(_httpClient, authService, jsonSettings, new QueryServiceSettings(new Uri(endPoint.Url)));
-                                            var result = await queryService.GetData(_endPointCancellations[endPoint.Id].Token);
+                                            var result = await queryService.GetQuuppaTagData(_endPointCancellations[endPoint.Id].Token);
                                             //process tag data
                                             if (endPoint.MessageType == "getTagData")
                                             {
@@ -72,14 +72,13 @@ namespace EIR_9209_2.Service
                                         {
                                             IQueryService queryService;
                                             queryService = new QueryService(_httpClient, jsonSettings, new QueryServiceSettings(new Uri(endPoint.Url)));
-                                            var result = (await queryService.GetData(_endPointCancellations[endPoint.Id].Token));
+                                            var result = (await queryService.GetQuuppaTagData(_endPointCancellations[endPoint.Id].Token));
                                             //process tag data
                                             if (endPoint.MessageType == "getTagData")
                                             {
                                                 // Process tag data in a separate thread
-                                                await ProcessTagMovementData(result);
-                                                // _ = Task.Run(() => ProcessTagStorageData(result));
-                                                // await ProcessTagData(result);
+                                                _ = Task.Run(async () => await ProcessTagMovementData(result), stoppingToken);
+
                                             }
                                         }
 
@@ -113,10 +112,9 @@ namespace EIR_9209_2.Service
             catch (Exception e)
             {
 
-                _logger.LogInformation(e.Message);
+                _logger.LogError(e.Message);
             }
         }
-
 
 
         public async Task Start()
@@ -125,6 +123,8 @@ namespace EIR_9209_2.Service
             ExecuteAsync(CancellationToken.None);
             Task.FromResult(true);
         }
+        public void Stop() { }
+
         private async Task ProcessTagMovementData(QuuppaTag result)
         {
             try
@@ -232,7 +232,6 @@ namespace EIR_9209_2.Service
                 _logger.LogError(e.Message);
             }
         }
-        public void Stop() { }
 
         public bool IsEndPointRunning(string Id)
         {

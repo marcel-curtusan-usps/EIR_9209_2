@@ -23,6 +23,17 @@ let geoZoneMPEoverlayLayer = L.layerGroup().addTo(OSLmap);
 layersControl.addOverlay(geoZoneMPEoverlayLayer, "MPE Zones");
 geoZoneMPE.addTo(geoZoneMPEoverlayLayer);
 
+async function findMpeZoneLeafletIds(zoneId) {
+    return new Promise((resolve, reject) => {
+        geoZoneMPE.eachLayer(function (layer) {
+            if (layer.zoneId === zoneId) {
+                resolve(layer._leaflet_id);
+                return false;
+            }
+        });
+        reject(new Error('No layer found with the given markerId'));
+    });
+}
 async function init_geoZoneMPE() {
     $(document).on('change', '.leaflet-control-layers-selector', function (e) {
         let sp = this.nextElementSibling;
@@ -40,6 +51,23 @@ async function init_geoZoneMPE() {
         }
 
     });
+    connection.invoke("JoinGroup", "MPEZones").catch(function (err) {
+        return console.error(err.toString());
+    });
+}
+async function addMPEFeature(data) {
+    try {
+        await findMpeZoneLeafletIds(data.properties.id)
+            .then(leafletIds => {
+
+            })
+            .catch(error => {
+                geoZoneMPE.addData(data);
+            });
+    }
+    catch (e) {
+        throw new Error(e.toString());
+    }
 }
 function GetMacineBackground(mpeWatchData) {
     let NotRunningbkColor = '#989ea4';
