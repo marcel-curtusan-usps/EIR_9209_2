@@ -16,7 +16,7 @@ namespace EIR_9209_2.DataStore
             FileService = fileService;
             _logger = logger;
             _configuration = configuration;
-            string BuildPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "MongoDB:CollectionSiteInformation"]}.json");
+            string BuildPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "InMemoryCollection:CollectionSiteInformation"]}.json");
             // Load data from the first file into the first collection
             _ = LoadDataFromFile(BuildPath);
 

@@ -14,7 +14,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         FileService = fileService;
         _logger = logger;
         _configuration = configuration;
-        string BuildPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "MongoDB:CollectionZones"]}.json");
+        string BuildPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "InMemoryCollection:CollectionZones"]}.json");
         // Load data from the first file into the first collection
         _ = LoadDataFromFile(BuildPath);
 
