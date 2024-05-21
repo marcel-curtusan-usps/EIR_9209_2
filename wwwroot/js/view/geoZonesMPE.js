@@ -12,6 +12,28 @@
     onEachFeature: function (feature, layer) {
 
         layer.zoneId = feature.properties.id;
+        layer.on('click', function (e) {
+            //makea ajax call to get the employee details
+            $.ajax({
+                url: '/api/Zone/' + feature.properties.id,
+                type: 'GET',
+                success: function (data) {
+                    //$('#content').html(data);
+                    sidebar.open('reports');
+                },
+                error: function (error) {
+                    console.log(error);
+                },
+                faulure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    console.log(complete);
+                }
+            });
+            sidebar.open('reports');
+        });
+
     },
     filter: function (feature, layer) {
         return feature.properties.visible;
@@ -55,6 +77,14 @@ async function init_geoZoneMPE() {
         return console.error(err.toString());
     });
 }
+connection.on("UpdateGeoZone", async (data) => {
+    let mpeZonedata = JSON.parse(data);
+    await findMpeZoneLeafletIds(mpeZonedata.properties.id)
+        .then(leafletIds => {
+            geoZoneMPE._layers[leafletIds].properties = mpeZonedata.properties;
+        });
+
+});
 async function addMPEFeature(data) {
     try {
         await findMpeZoneLeafletIds(data.properties.id)

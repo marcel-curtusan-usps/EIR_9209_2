@@ -89,4 +89,10 @@ internal class QueryService : IQueryService
         var responseBody = await response.Content.ReadAsStringAsync();
         return JsonConvert.DeserializeObject<T>(responseBody, _jsonSettings);
     }
+
+    public async Task<JToken> GetMPEWatchData(CancellationToken ct)
+    {
+        return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+
+    }
 }

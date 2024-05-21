@@ -43,6 +43,10 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     {
         return _connectionList.Values;
     }
+    public IEnumerable<Connection> GetbyType(string type)
+    {
+        return _connectionList.Where(r => r.Value.Name == type).Select(y => y.Value);
+    }
     public void Update(Connection connection)
     {
         if (_connectionList.TryGetValue(connection.Id, out Connection currentConnection))

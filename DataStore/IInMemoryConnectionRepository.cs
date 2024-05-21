@@ -6,4 +6,5 @@
     IEnumerable<Connection> GetAll();
 
     void Update(Connection connection);
+    IEnumerable<Connection> GetbyType(string type);
 }

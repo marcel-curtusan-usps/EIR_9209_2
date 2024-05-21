@@ -3,5 +3,6 @@ using Newtonsoft.Json.Linq;
 
 public interface IQueryService
 {
+    Task<JToken> GetMPEWatchData(CancellationToken token);
     Task<QuuppaTag> GetQuuppaTagData(CancellationToken token);
 }

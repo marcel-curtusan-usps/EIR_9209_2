@@ -5,6 +5,7 @@
                 const geoZone = goeZones[i];
                 if (geoZone.properties.zoneType === 'MPEZone') {
                     Promise.all([addMPEFeature(goeZones[i])]);
+                
                     // Handle type1 geoZone
                 } else if (geoZone.properties.zoneType === 'DockDoorZone') {
                     Promise.all([addDockDoorFeature(goeZones[i])]);

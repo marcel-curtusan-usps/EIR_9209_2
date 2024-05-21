@@ -45,6 +45,9 @@ namespace EIR_9209_2.Models
 
         [JsonProperty("mpeType")]
         public string MpeType { get; set; } = "";
+
+        [JsonProperty("MPEWatchData")]
+        public MPERunPerformance? MPERunPerformance { get; set; } = new();
     }
 
     public class Geometry

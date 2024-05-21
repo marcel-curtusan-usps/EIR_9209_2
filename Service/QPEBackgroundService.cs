@@ -10,9 +10,9 @@ using MongoDB.Driver;
 namespace EIR_9209_2.Service
 {
 
-    public class BackgroundWorkerService : BackgroundService
+    public class QPEBackgroundService : BackgroundService
     {
-        private readonly ILogger<BackgroundWorkerService>? _logger;
+        private readonly ILogger<QPEBackgroundService>? _logger;
         private readonly Dictionary<string, CancellationTokenSource>? _endPointCancellations;
         private readonly Dictionary<string, PeriodicTimer>? _endPointTimers;
         private readonly IHubContext<HubServices> _hubServices;
@@ -20,7 +20,7 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryConnectionRepository _connections;
         private readonly IInMemoryTagsRepository _tags;
 
-        public BackgroundWorkerService(ILogger<BackgroundWorkerService> logger, IInMemoryConnectionRepository connectionList, IInMemoryTagsRepository tags, IHubContext<HubServices> hubServices)
+        public QPEBackgroundService(ILogger<QPEBackgroundService> logger, IInMemoryConnectionRepository connectionList, IInMemoryTagsRepository tags, IHubContext<HubServices> hubServices)
         {
             _logger = logger;
             _connections = connectionList;
@@ -29,20 +29,18 @@ namespace EIR_9209_2.Service
             _endPointCancellations = [];
             _endPointTimers = [];
             _hubServices = hubServices;
+            (_connections.GetbyType("QPE"))?.ToList().ForEach(endPoint => AddAndStartEndPoint(endPoint));
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             try
             {
-                //allow time to load from file before starting the service
-                await Task.Delay(1000, stoppingToken);
                 while (!stoppingToken.IsCancellationRequested)
                 {
                     if (_endPointList != null && _endPointList.Any())
                     {
                         foreach (var endPoint in _endPointList)
                         {
-                            EWorkerServiceState CurrentStatus = endPoint.Status;
                             if (!_endPointCancellations[endPoint.Id].IsCancellationRequested && await _endPointTimers[endPoint.Id].WaitForNextTickAsync(_endPointCancellations[endPoint.Id].Token))
                             {
                                 try
@@ -50,50 +48,52 @@ namespace EIR_9209_2.Service
                                     endPoint.Status = EWorkerServiceState.Running;
 
                                     using HttpClient _httpClient = new();
+                                    string FormatUrl = "";
 
-                                    try
+                                    if (!string.IsNullOrEmpty(endPoint.OAuthUrl))
                                     {
-                                        if (!string.IsNullOrEmpty(endPoint.OAuthUrl))
+                                        if (endPoint.MessageType == "getTagData")
                                         {
                                             //oauth2 token
                                             IOAuth2AuthenticationService authService;
                                             authService = new OAuth2AuthenticationService(_httpClient, new OAuth2AuthenticationServiceSettings(endPoint.OAuthUrl, endPoint.UserName, endPoint.Password, endPoint.ClientId), jsonSettings);
+                                            FormatUrl = string.Format(endPoint.Url, endPoint.MessageType);
                                             IQueryService queryService;
-                                            queryService = new QueryService(_httpClient, authService, jsonSettings, new QueryServiceSettings(new Uri(endPoint.Url)));
+                                            queryService = new QueryService(_httpClient, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                                             var result = await queryService.GetQuuppaTagData(_endPointCancellations[endPoint.Id].Token);
                                             //process tag data
-                                            if (endPoint.MessageType == "getTagData")
-                                            {
-                                                // Process tag data in a separate thread
 
-                                            }
+                                            // Process tag data in a separate thread
+
                                         }
-                                        else
-                                        {
-                                            IQueryService queryService;
-                                            queryService = new QueryService(_httpClient, jsonSettings, new QueryServiceSettings(new Uri(endPoint.Url)));
-                                            var result = (await queryService.GetQuuppaTagData(_endPointCancellations[endPoint.Id].Token));
-                                            //process tag data
-                                            if (endPoint.MessageType == "getTagData")
-                                            {
-                                                // Process tag data in a separate thread
-                                                _ = Task.Run(async () => await ProcessTagMovementData(result), stoppingToken);
-
-                                            }
-                                        }
-
                                     }
-                                    catch (Exception e)
+                                    else
                                     {
-                                        endPoint.Status = EWorkerServiceState.ErrorPullingData;
-                                        _logger.LogError(e, "Error Pulling data from URL Retrying...");
+
+                                        //process tag data
+                                        if (endPoint.MessageType == "getTagData")
+                                        {
+                                            FormatUrl = string.Format(endPoint.Url, endPoint.MessageType);
+                                            IQueryService queryService;
+                                            queryService = new QueryService(_httpClient, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                                            var result = (await queryService.GetQuuppaTagData(_endPointCancellations[endPoint.Id].Token));
+                                            // Process tag data in a separate thread
+                                            _ = Task.Run(async () => await ProcessTagMovementData(result), stoppingToken);
+
+                                        }
                                     }
 
                                 }
-                                catch (Exception ex)
+                                catch (Exception e)
                                 {
                                     endPoint.Status = EWorkerServiceState.ErrorPullingData;
-                                    _logger.LogError(ex, "Error while starting Pulling from URL Retrying...");
+                                    _logger.LogError(e, "Error Pulling data from URL Retrying...");
+                                }
+
+
+                                if (_endPointTimers[endPoint.Id].Period.TotalMilliseconds != endPoint.MillisecondsInterval)
+                                {
+                                    _endPointTimers[endPoint.Id] = new PeriodicTimer(TimeSpan.FromMilliseconds(endPoint.MillisecondsInterval));
                                 }
                             }
                             else
@@ -104,7 +104,7 @@ namespace EIR_9209_2.Service
                     }
                     else
                     {
-                        (_connections.GetAll())?.ToList().ForEach(endPoint => AddAndStartEndPoint(endPoint));
+                        (_connections.GetbyType("QPE"))?.ToList().ForEach(endPoint => AddAndStartEndPoint(endPoint));
                         await Task.Delay(1000, stoppingToken);
                     }
                 }
@@ -280,7 +280,9 @@ namespace EIR_9209_2.Service
                 _endPointCancellations[endPoint.Id] = new CancellationTokenSource();
 
                 // Create a new PeriodicTimer for the endpoint
-                _endPointTimers[endPoint.Id] = new PeriodicTimer(TimeSpan.FromMilliseconds(endPoint.MillisecondsInterval));
+                endPoint.LasttimeApiConnected = DateTime.Now;
+                //this will run the endpoint every 100 milliseconds, we want to start the data pull right away then change the interval to the endpoint's interval after it the first pull
+                _endPointTimers[endPoint.Id] = new PeriodicTimer(TimeSpan.FromMilliseconds(100));
             }
         }
         internal static JsonSerializerSettings jsonSettings = new()

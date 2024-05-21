@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 
 public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 {
-    public readonly static ConcurrentDictionary<string, GeoZone> _geoZoneList = new();
+    public static readonly ConcurrentDictionary<string, GeoZone> _geoZoneList = new();
     private readonly IConfiguration _configuration;
     private readonly ILogger<InMemoryGeoZonesRepository> _logger;
     private readonly IFileService FileService;
@@ -33,6 +33,10 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     {
         _geoZoneList.TryGetValue(id, out GeoZone geoZone);
         return geoZone;
+    }
+    public GeoZone GetMPEName(string MPEName)
+    {
+        return _geoZoneList.Where(r => r.Value.Properties.ZoneType == "MPEZone" && r.Value.Properties.Name == MPEName).Select(y => y.Value).FirstOrDefault();
     }
 
     public IEnumerable<GeoZone> GetAll() => _geoZoneList.Values;

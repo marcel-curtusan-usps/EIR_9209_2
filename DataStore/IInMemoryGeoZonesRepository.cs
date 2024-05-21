@@ -8,4 +8,5 @@ public interface IInMemoryGeoZonesRepository
     IEnumerable<GeoZone> GetAll();
 
     void Update(GeoZone geoZone);
+    GeoZone GetMPEName(string MPEName);
 }

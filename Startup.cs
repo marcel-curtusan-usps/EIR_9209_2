@@ -97,8 +97,12 @@ public class Startup
                 // Use [ValidateModelState] on Actions to actually validate it in C# as well!
                 c.OperationFilter<GeneratePathParamsValidationFilter>();
             });
-        services.AddSingleton<BackgroundWorkerService>();
-        services.AddHostedService(provider => provider.GetRequiredService<BackgroundWorkerService>());
+        //init QPE data pull
+        services.AddSingleton<QPEBackgroundService>();
+        services.AddHostedService(provider => provider.GetRequiredService<QPEBackgroundService>());
+        //init MPE data pull
+        services.AddSingleton<MPEWatchBackgroundService>();
+        services.AddHostedService(provider => provider.GetRequiredService<MPEWatchBackgroundService>());
     }
 
     //private void AddOptions(IServiceCollection services)

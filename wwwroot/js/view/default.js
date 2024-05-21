@@ -65,7 +65,7 @@ async function start() {
             //load GeoZones MPE
             connection.invoke("GetGeoZones").then(function (data) {
                 Promise.all([init_geoZone(data)]).then(function () {
-
+                    Promise.all([init_geoZoneMPE]);
 
                 });
             }).catch(function (err) {
@@ -103,10 +103,10 @@ connection.on("connection", async (data) => {
 connection.on("tags", async (data) => {
     let tagdata = JSON.parse(data);
     if (tagdata.properties.visible) {
-        Promise.all([addFeature(JSON.parse(data))]);
+        Promise.all([addFeature(tagdata)]);
     }
     else {
-        Promise.all([deleteFeature(JSON.parse(data))]);
+        Promise.all([deleteFeature(tagdata)]);
     }
 
 });

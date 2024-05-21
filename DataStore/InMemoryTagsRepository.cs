@@ -6,7 +6,7 @@ namespace EIR_9209_2.InMemory
 {
     public class InMemoryTagsRepository : IInMemoryTagsRepository
     {
-        private readonly static ConcurrentDictionary<string, GeoMarker> _tagList = new();
+        private static readonly ConcurrentDictionary<string, GeoMarker> _tagList = new();
         private readonly ILogger<InMemoryTagsRepository> _logger;
         private readonly IConfiguration _configuration;
         private readonly IFileService FileService;
