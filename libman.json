@@ -9,6 +9,14 @@
     {
       "library": "@geoman-io/leaflet-geoman-free@2.16.0",
       "destination": "wwwroot/lib/geoman-io/leaflet-geoman-free/"
+    },
+    {
+      "library": "leaflet-easybutton@2.4.0",
+      "destination": "wwwroot/lib/leaflet-easybutton/",
+      "files": [
+        "src/easy-button.js",
+        "src/easy-button.css"
+      ]
     }
   ]
 }

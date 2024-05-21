@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using EIR_9209_2.Models;
 using static EIR_9209_2.Models.GeoMarker;
+using NuGet.Protocol.Core.Types;
 
 namespace EIR_9209_2.Service
 {
@@ -14,16 +15,19 @@ namespace EIR_9209_2.Service
         private readonly ILogger<EndpointService> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IHubContext<HubServices> _hubServices;
+        private readonly IInMemoryConnectionRepository _repository;
+        private readonly IInMemoryGeoZonesRepository _geoZones;
         private readonly Connection _endpointConfig;
         private CancellationTokenSource _cancellationTokenSource;
         private Task _task;
 
-        public EndpointService(ILogger<EndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices)
+        public EndpointService(ILogger<EndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IInMemoryConnectionRepository connections, IHubContext<HubServices> hubServices)
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
             _endpointConfig = endpointConfig;
             _hubServices = hubServices;
+            _repository = connections;
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
@@ -70,6 +74,10 @@ namespace EIR_9209_2.Service
                 while (await timer.WaitForNextTickAsync(stoppingToken))
                 {
                     await FetchDataFromEndpoint(stoppingToken);
+                    if (timer.Period.TotalMilliseconds != _endpointConfig.MillisecondsInterval)
+                    {
+                        timer = new PeriodicTimer(TimeSpan.FromMilliseconds(_endpointConfig.MillisecondsInterval));
+                    }
                 }
             }
             catch (OperationCanceledException)
@@ -98,6 +106,9 @@ namespace EIR_9209_2.Service
                 //process tag data
                 if (_endpointConfig.MessageType == "getTagData")
                 {
+                    _endpointConfig.Status = EWorkerServiceState.Running;
+                    _endpointConfig.LasttimeApiConnected = DateTime.Now;
+                    _repository.Update(_endpointConfig);
                     FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType);
                     queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                     var result = (await queryService.GetQuuppaTagData(stoppingToken));
@@ -106,9 +117,11 @@ namespace EIR_9209_2.Service
                     //_logger.LogInformation("Data from {Url}: {Data}", _endpointConfig.Url, result);
                 }
                 //process zone data
-                if (_endpointConfig.MessageType == "rpg_run_perf" && _endpointConfig.MessageType == "rpg_plan")
+                if (_endpointConfig.MessageType == "rpg_run_perf" || _endpointConfig.MessageType == "rpg_plan")
                 {
-
+                    _endpointConfig.Status = EWorkerServiceState.Running;
+                    _endpointConfig.LasttimeApiConnected = DateTime.Now;
+                    _repository.Update(_endpointConfig);
                     string MpeWatch_id = "1";
                     string start_time = string.Concat(DateTime.Now.AddHours(-_endpointConfig.HoursBack).ToString("MM/dd/yyyy_"), "00:00:00");
                     string end_time = string.Concat(DateTime.Now.AddHours(_endpointConfig.HoursForward).ToString("MM/dd/yyyy_"), "23:59:59");
@@ -239,7 +252,90 @@ namespace EIR_9209_2.Service
 
         private async Task ProcessMPEWatchData(JToken result)
         {
-            throw new NotImplementedException();
+            try
+            {
+                //loop through the results and process them
+                //this is where you would save the data to the database
+                //or send it to the front end
+                //or do whatever you need to do with the data
+                if (result is not null && ((JObject)result).ContainsKey("data"))
+                {
+                    var data = result.SelectToken("data");
+                    if (data != null)
+                    {
+                        var mpeList = data.ToObject<List<MPERunPerformance>>();
+
+                        foreach (var mpe in mpeList)
+                        {
+                            var mpeName = string.Concat(mpe.MpeType, "-", mpe.MpeNumber.ToString().PadLeft(3, '0'));
+                            // get geozone that matched the mpe watch id
+                            var geoZone = _geoZones.GetMPEName(mpeName);
+                            if (geoZone != null)
+                            {
+                                bool pushUIUpdate = false;
+                                //update the geozone with the new data
+                                //geoZone.Properties.MPERunPerformance = mpe;
+                                //check  mpe run performance data and update the geozone
+                                if (geoZone.Properties.MPERunPerformance.UnplanMaintSpStatus != mpe.UnplanMaintSpStatus)
+                                {
+                                    geoZone.Properties.MPERunPerformance.UnplanMaintSpStatus = mpe.UnplanMaintSpStatus;
+                                    pushUIUpdate = true;
+                                }
+                                if (geoZone.Properties.MPERunPerformance.OpRunningLateStatus != mpe.OpRunningLateStatus)
+                                {
+                                    geoZone.Properties.MPERunPerformance.OpRunningLateStatus = mpe.OpRunningLateStatus;
+                                    pushUIUpdate = true;
+                                }
+                                if (geoZone.Properties.MPERunPerformance.OpRunningLateTimer != mpe.OpRunningLateTimer)
+                                {
+                                    geoZone.Properties.MPERunPerformance.OpRunningLateTimer = mpe.OpRunningLateTimer;
+                                    pushUIUpdate = true;
+                                }
+                                if (geoZone.Properties.MPERunPerformance.SortplanWrongStatus != mpe.SortplanWrongStatus)
+                                {
+                                    geoZone.Properties.MPERunPerformance.SortplanWrongStatus = mpe.SortplanWrongStatus;
+                                    pushUIUpdate = true;
+                                }
+                                if (geoZone.Properties.MPERunPerformance.OpStartedLateStatus != mpe.OpStartedLateStatus)
+                                {
+                                    geoZone.Properties.MPERunPerformance.OpStartedLateStatus = mpe.OpStartedLateStatus;
+                                    pushUIUpdate = true;
+                                }
+                                if (geoZone.Properties.MPERunPerformance.ThroughputStatus != mpe.ThroughputStatus)
+                                {
+                                    geoZone.Properties.MPERunPerformance.ThroughputStatus = mpe.ThroughputStatus;
+                                    pushUIUpdate = true;
+                                }
+                                if (geoZone.Properties.MPERunPerformance.UnplanMaintSpTimer != mpe.UnplanMaintSpTimer)
+                                {
+                                    geoZone.Properties.MPERunPerformance.UnplanMaintSpTimer = mpe.UnplanMaintSpTimer;
+                                    pushUIUpdate = true;
+                                }
+                                if (geoZone.Properties.MPERunPerformance.BinFullStatus != mpe.BinFullStatus)
+                                {
+                                    geoZone.Properties.MPERunPerformance.BinFullStatus = mpe.BinFullStatus;
+                                    pushUIUpdate = true;
+                                }
+                                if (geoZone.Properties.MPERunPerformance.BinFullBins != mpe.BinFullBins)
+                                {
+                                    geoZone.Properties.MPERunPerformance.BinFullBins = mpe.BinFullBins;
+                                    pushUIUpdate = true;
+                                }
+
+                                if (pushUIUpdate)
+                                {
+                                    _hubServices.Clients.Group("MPEZones").SendAsync("UpdateGeoZone", geoZone);
+                                }
+                                _geoZones.Update(geoZone);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
         }
 
         internal static JsonSerializerSettings jsonSettings = new()

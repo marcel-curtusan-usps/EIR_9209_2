@@ -74,6 +74,14 @@ let layersControl = L.control.layers(baseLayers, overlayMaps, {
 }).addTo(OSLmap);
 //Add zoom button
 new L.Control.Zoom({ position: 'bottomright' }).addTo(OSLmap);
+//add View Ports
+L.easyButton({
+    position: 'bottomright',
+    states: [{
+        stateName: 'viewport',
+        icon: '<div id="viewportsToggle" data-toggle="popover"><i class="pi-iconViewport align-self-center" title="Viewports"></i></div>'
+    }]
+}).addTo(OSLmap);
 async function UpdateOSLattribution(data) {
     return new Promise((resolve, reject) => {
         OSLmap.attributionControl.setPrefix("USPS " + data.name + " (" + data.version + ") | " + data.siteName);

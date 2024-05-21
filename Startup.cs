@@ -4,7 +4,6 @@ using Newtonsoft.Json.Serialization;
 using EIR_9209_2.Models;
 using EIR_9209_2.Utilities;
 using EIR_9209_2.InMemory;
-using EIR_9209_2.Service;
 using EIR_9209_2.DataStore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

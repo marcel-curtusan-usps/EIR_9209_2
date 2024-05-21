@@ -65,7 +65,7 @@ async function start() {
             //load GeoZones MPE
             connection.invoke("GetGeoZones").then(function (data) {
                 Promise.all([init_geoZone(data)]).then(function () {
-                    Promise.all([init_geoZoneMPE]);
+                    Promise.all([init_geoZoneMPE()]);
 
                 });
             }).catch(function (err) {
@@ -155,4 +155,20 @@ function SiteURLconstructor(winLoc) {
     else {
         return winLoc.origin + "/";
     }
+}
+function hideSidebarLayerDivs() {
+
+    $('div[id=agvlocation_div]').css('display', 'none');
+    $('div[id=area_div]').css('display', 'none');
+    $('div[id=bullpen_div]').css('display', 'none');
+    $('div[id=dockdoor_div]').css('display', 'none');
+    $('div[id=trailer_div]').css('display', 'none');
+    $('div[id=machine_div]').css('display', 'none');
+    $('div[id=staff_div]').css('display', 'none');
+    $('div[id=ctstabs_div]').css('display', 'none');
+    $('div[id=vehicle_div]').css('display', 'none');
+    $('div[id=dps_div]').css('display', 'none');
+    $('div[id=layer_div]').css('display', 'none');
+    $('div[id=dockdoor_tripdiv]').css('display', 'none');
+
 }

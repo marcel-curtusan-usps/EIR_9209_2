@@ -1,4 +1,165 @@
-﻿let geoZoneMPE = new L.GeoJSON(null, {
+﻿//on close clear all inputs
+$('#Zone_Modal').on('hidden.bs.modal', function () {
+    $(this)
+        .find("input[type=text],textarea,select")
+        .css({ "border-color": "#D3D3D3" })
+        .val('')
+        .end()
+        .find("span[class=text]")
+        .css("border-color", "#FF0000")
+        .val('')
+        .text("")
+        .end()
+        .find('input[type=checkbox]')
+        .prop('checked', false).change();
+});
+//on open set rules
+$('#Zone_Modal').on('shown.bs.modal', function () {
+    $('span[id=error_machinesubmitBtn]').text("");
+    $('button[id=machinesubmitBtn]').prop('disabled', true);
+    //Request Type Keyup
+    $('input[type=text][name=machine_name]').keyup(function () {
+        if (!checkValue($('input[type=text][name=machine_name]').val())) {
+            $('input[type=text][name=machine_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_machine_name]').text("Please Enter Machine Name");
+        }
+        else {
+            $('input[type=text][name=machine_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_machine_name]').text("");
+        }
+
+        enablezoneSubmit();
+    });
+    //Connection name Validation
+    if (!checkValue($('input[type=text][name=machine_name]').val())) {
+        $('input[type=text][name=machine_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_machine_name]').text("Please Enter Machine Name");
+    }
+    else {
+        $('input[type=text][name=machine_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_machine_name]').text("");
+    }
+    //Request Type Keyup
+    $('input[type=text][name=machine_number]').keyup(function () {
+        if (!checkValue($('input[type=text][name=machine_number]').val())) {
+            $('input[type=text][name=machine_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_machine_number]').text("Please Enter Machine Number");
+        }
+        else {
+            $('input[type=text][name=machine_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_machine_number]').text("");
+        }
+
+        enablezoneSubmit();
+    });
+    //ipaddress 
+    $('input[type=text][name=machine_ip]').keyup(function () {
+        if (IPAddress_validator($('input[type=text][name=machine_ip]').val()) === 'Invalid IP Address') {
+            $('input[type=text][name=machine_ip]').css("border-color", "#FF0000");
+            $('span[id=error_machine_ip]').text("Please Enter Valid IP Address!");
+        }
+        else {
+            $('input[type=text][name=machine_ip]').css({ "border-color": "#2eb82e" }).removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_machine_ip]').text("");
+        }
+
+        enablezoneSubmit();
+    });
+    $('select[name=zonePayLocationColor]').change(function () {
+        if ($('select[name=zonePayLocationColor]').val() === "") {
+            $('span[id=error_zonePayLocationColor]').text("Pleas select a Color");
+            $('select[name=zonePayLocationColor]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        }
+        else {
+            $('span[id=error_zonePayLocationColor]').text("");
+            $('select[name=zonePayLocationColor]').css({ "border-color": "#2eb82e" }).removeClass('is-invalid').addClass('is-valid');
+        }
+        enablezoneSubmit();
+    });
+    if ($('select[name=zonePayLocationColor]').val() === "") {
+        $('select[name=zonePayLocationColor]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_zonePayLocationColor]').text("Please Enter select color");
+    }
+    else {
+        $('select[name=zonePayLocationColor]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_zonePayLocationColor]').text("");
+    }
+
+    //GPIO
+    //$('input[type=text][name=GPIO]').keyup(function () {
+    //    if (!checkValue($('input[type=text][name=GPIO]').val())) {
+    //        $('input[type=text][name=GPIO]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+    //        $('span[id=errorgpio]').text("Please Enter GPIO ");
+    //    }
+    //    else {
+    //        $('input[type=text][name=GPIO]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+    //        $('span[id=errorgpio]').text("");
+    //    }
+
+    //    enablezoneSubmit();
+    //});
+    //if (!checkValue($('input[type=text][name=GPIO]').val())) {
+    //    $('input[type=text][name=GPIO]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+    //    $('span[id=errorgpio]').text("Please Enter Machine Number");
+    //}
+    //else {
+    //    $('input[type=text][name=GPIO]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+    //    $('span[id=errorgpio]').text("");
+    //}
+    //Request Type Validation
+    if (!checkValue($('input[type=text][name=machine_number]').val())) {
+        $('input[type=text][name=machine_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_machine_number]').text("Please Enter Machine Number");
+    }
+    else {
+        $('input[type=text][name=machine_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_machine_number]').text("");
+    }
+    //zone LDC Validation
+    if (checkValue($('input[type=text][name=zone_ldc]').val())) {
+        $('input[type=text][name=zone_ldc]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=errorzone_ldc]').text("");
+    }
+    else {
+        $('input[type=text][name=zone_ldc]').css("border-color", "#D3D3D3").removeClass('is-invalid').removeClass('is-valid');
+        $('span[id=errorzone_ldc]').text("");
+    }
+    //Request zone LDC Keyup
+    $('input[type=text][name=zone_ldc]').keyup(function () {
+        if (checkValue($('input[type=text][name=zone_ldc]').val())) {
+            $('input[type=text][name=zone_ldc]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=errorzone_ldc]').text("");
+        }
+        else {
+            $('input[type=text][name=zone_ldc]').css("border-color", "#D3D3D3").removeClass('is-invalid').removeClass('is-valid');
+            $('span[id=errorzone_ldc]').text("");
+        }
+    });
+    //Zone Pay Location Validation
+    if (!checkValue($('input[type=text][name=zone_paylocation]').val())) {
+        $('input[type=text][name=zone_paylocation]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=errorzone_paylocation]').text("Please Enter Pay Location");
+    }
+    else {
+        $('input[type=text][name=zone_paylocation]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=errorzone_paylocation]').text("");
+    }
+    //Request zone LDC Keyup
+    $('input[type=text][name=zone_paylocation]').keyup(function () {
+        if (!checkValue($('input[type=text][name=zone_paylocation]').val())) {
+            $('input[type=text][name=zone_paylocation]').css("border-color", "#FF0000").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=errorzone_paylocation]').text("");
+        }
+        else {
+            $('input[type=text][name=zone_paylocation]').css("border-color", "#2eb82e").removeClass('is-invalid').removeClass('is-valid');
+            $('span[id=errorzone_paylocation]').text("");
+        }
+        enablezoneSubmit();
+    });
+});
+
+
+let geoZoneMPE = new L.GeoJSON(null, {
     style: function (feature) {
         return {
             weight: 1,
@@ -12,7 +173,9 @@
     onEachFeature: function (feature, layer) {
 
         layer.zoneId = feature.properties.id;
+     
         layer.on('click', function (e) {
+            OSLmap.setView(e.sourceTarget.getCenter(), 3);
             //makea ajax call to get the employee details
             $.ajax({
                 url: '/api/Zone/' + feature.properties.id,
@@ -28,10 +191,16 @@
                     console.log(fail);
                 },
                 complete: function (complete) {
-                    console.log(complete);
+                    $('div[id=machine_div]').attr("data-id", feature.properties.id);
+                    $('div[id=machine_div]').css('display', 'block');
+                    $('div[id=ctstabs_div]').css('display', 'block');
+
+                    sidebar.open('home');
+
+
                 }
             });
-            sidebar.open('reports');
+         
         });
         layer.bindTooltip(feature.properties.name + "<br/>" + "Staffing: " + (feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0"), {
             permanent: true,

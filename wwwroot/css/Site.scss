@@ -108,7 +108,13 @@ tr.shown td.details-control {
     font-size: 0.75rem;
     line-height: 1.5;
 }
-
+.leaflet-pm-toolbar .leaflet-buttons-control-button {
+    padding: 5px;
+    box-sizing: border-box;
+    position: relative;
+    background-color: #336;
+    z-index: 3
+}
 .leaflet-bar a:hover,
 .leaflet-bar a:focus {
     background-color: #f4f4f4;
