@@ -6,19 +6,19 @@ using System.Text;
 
 internal class QueryService : IQueryService
 {
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory _httpClient;
     private readonly IOAuth2AuthenticationService _authService;
     private readonly JsonSerializerSettings _jsonSettings;
     private readonly Uri _fullUrl;
 
-    public QueryService(HttpClient httpClient, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
+    public QueryService(IHttpClientFactory httpClient, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
     {
         this._httpClient = httpClient;
         this._jsonSettings = jsonSettings;
         this._fullUrl = new Uri(settings.FullUrl);
     }
 
-    public QueryService(HttpClient httpClient, IOAuth2AuthenticationService authService, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
+    public QueryService(IHttpClientFactory httpClient, IOAuth2AuthenticationService authService, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
     {
         this._httpClient = httpClient;
         this._authService = authService;
@@ -44,13 +44,14 @@ internal class QueryService : IQueryService
     {
         try
         {
+            var client = _httpClient.CreateClient();
             using var request = new HttpRequestMessage(HttpMethod.Get, queryUrl);
             request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true, NoStore = true };
             if (_authService != null)
             {
                 await _authService.AddAuthHeader(request, ct);
             }
-            var response = await _httpClient.SendAsync(request, ct);
+            var response = await client.SendAsync(request, ct);
 
             response.EnsureSuccessStatusCode();
             var responseBody = await response.Content.ReadAsStringAsync();
@@ -73,6 +74,7 @@ internal class QueryService : IQueryService
 
     private async Task<T> GetPostQueryResults<T>(string queryUrl, string query, CancellationToken ct)
     {
+        var client = _httpClient.CreateClient();
         using var request = new HttpRequestMessage(HttpMethod.Post, queryUrl);
         if (_authService != null)
         {
@@ -83,7 +85,7 @@ internal class QueryService : IQueryService
             request.Content = new StringContent(JsonConvert.SerializeObject(query, _jsonSettings), Encoding.UTF8, "application/json");
         }
 
-        var response = await _httpClient.SendAsync(request, ct);
+        var response = await client.SendAsync(request, ct);
 
         response.EnsureSuccessStatusCode();
         var responseBody = await response.Content.ReadAsStringAsync();

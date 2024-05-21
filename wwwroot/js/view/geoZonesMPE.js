@@ -33,6 +33,13 @@
             });
             sidebar.open('reports');
         });
+        layer.bindTooltip(feature.properties.name + "<br/>" + "Staffing: " + (feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0"), {
+            permanent: true,
+            interactive: true,
+            direction: "center",
+            opacity: 1,
+            className: 'location '
+        }).openTooltip();
 
     },
     filter: function (feature, layer) {

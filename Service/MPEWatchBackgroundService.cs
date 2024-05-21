@@ -43,24 +43,24 @@ namespace EIR_9209_2.Service
                             {
                                 try
                                 {
-                                    endPoint.Status = EWorkerServiceState.Running;
-                                    string FormatUrl = "";
-                                    string MpeWatch_id = "1";
-                                    string start_time = string.Concat(DateTime.Now.AddHours(-endPoint.HoursBack).ToString("MM/dd/yyyy_"), "00:00:00");
-                                    string end_time = string.Concat(DateTime.Now.AddHours(endPoint.HoursForward).ToString("MM/dd/yyyy_"), "23:59:59");
-                                    using HttpClient _httpClient = new();
+                                    //endPoint.Status = EWorkerServiceState.Running;
+                                    //string FormatUrl = "";
+                                    //string MpeWatch_id = "1";
+                                    //string start_time = string.Concat(DateTime.Now.AddHours(-endPoint.HoursBack).ToString("MM/dd/yyyy_"), "00:00:00");
+                                    //string end_time = string.Concat(DateTime.Now.AddHours(endPoint.HoursForward).ToString("MM/dd/yyyy_"), "23:59:59");
+                                    //using HttpClient _httpClient = new();
 
 
-                                    IQueryService queryService;
-                                    FormatUrl = string.Format(endPoint.Url, MpeWatch_id, endPoint.MessageType, start_time, end_time);
-                                    queryService = new QueryService(_httpClient, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
-                                    var result = (await queryService.GetMPEWatchData(_endPointCancellations[endPoint.Id].Token));
+                                    //IQueryService queryService;
+                                    //FormatUrl = string.Format(endPoint.Url, MpeWatch_id, endPoint.MessageType, start_time, end_time);
+                                    //queryService = new QueryService(_httpClient, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                                    //var result = (await queryService.GetMPEWatchData(_endPointCancellations[endPoint.Id].Token));
 
-                                    if (endPoint.MessageType == "rpg_run_perf")
-                                    {
-                                        //process MPEWatch data
-                                        _ = Task.Run(() => ProcessMPEWatchData(result), stoppingToken);
-                                    }
+                                    //if (endPoint.MessageType == "rpg_run_perf")
+                                    //{
+                                    //    //process MPEWatch data
+                                    //    _ = Task.Run(() => ProcessMPEWatchData(result), stoppingToken);
+                                    //}
                                 }
                                 catch (Exception ex)
                                 {

@@ -9,17 +9,18 @@ using System.Diagnostics;
 
 public class InMemoryConnectionRepository : IInMemoryConnectionRepository
 {
-    public readonly ConcurrentDictionary<string, Connection> _connectionList = new();
+    public static readonly ConcurrentDictionary<string, Connection> _connectionList = new();
     private readonly ILogger<InMemoryConnectionRepository> _logger;
     private readonly IConfiguration _configuration;
     private readonly IFileService FileService;
+
 
     public InMemoryConnectionRepository(ILogger<InMemoryConnectionRepository> logger, IConfiguration configuration, IFileService fileService)
     {
         FileService = fileService;
         _logger = logger;
         _configuration = configuration;
-        string BuildPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "MongoDB:CollectionConnections"]}.json");
+        string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"], _configuration[key: "ApplicationConfiguration:BaseDirectory"], _configuration[key: "SiteIdentity:NassCode"], _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{_configuration[key: "MongoDB:CollectionConnections"]}.json");
         // Load data from the first file into the first collection
         _ = LoadDataFromFile(BuildPath);
 
@@ -30,7 +31,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     }
     public void Remove(string connectionId)
     {
-        _connectionList.TryRemove(connectionId, out _);
+        _connectionList.TryRemove(connectionId, out _); ;
     }
 
     public Connection Get(string id)

@@ -55,12 +55,12 @@ namespace EIR_9209_2.Service
                                         if (endPoint.MessageType == "getTagData")
                                         {
                                             //oauth2 token
-                                            IOAuth2AuthenticationService authService;
-                                            authService = new OAuth2AuthenticationService(_httpClient, new OAuth2AuthenticationServiceSettings(endPoint.OAuthUrl, endPoint.UserName, endPoint.Password, endPoint.ClientId), jsonSettings);
-                                            FormatUrl = string.Format(endPoint.Url, endPoint.MessageType);
-                                            IQueryService queryService;
-                                            queryService = new QueryService(_httpClient, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
-                                            var result = await queryService.GetQuuppaTagData(_endPointCancellations[endPoint.Id].Token);
+                                            //IOAuth2AuthenticationService authService;
+                                            //authService = new OAuth2AuthenticationService(_httpClient, new OAuth2AuthenticationServiceSettings(endPoint.OAuthUrl, endPoint.UserName, endPoint.Password, endPoint.ClientId), jsonSettings);
+                                            //FormatUrl = string.Format(endPoint.Url, endPoint.MessageType);
+                                            //IQueryService queryService;
+                                            //queryService = new QueryService(_httpClient, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                                            //var result = await queryService.GetQuuppaTagData(_endPointCancellations[endPoint.Id].Token);
                                             //process tag data
 
                                             // Process tag data in a separate thread
@@ -73,12 +73,12 @@ namespace EIR_9209_2.Service
                                         //process tag data
                                         if (endPoint.MessageType == "getTagData")
                                         {
-                                            FormatUrl = string.Format(endPoint.Url, endPoint.MessageType);
-                                            IQueryService queryService;
-                                            queryService = new QueryService(_httpClient, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
-                                            var result = (await queryService.GetQuuppaTagData(_endPointCancellations[endPoint.Id].Token));
-                                            // Process tag data in a separate thread
-                                            _ = Task.Run(async () => await ProcessTagMovementData(result), stoppingToken);
+                                            //FormatUrl = string.Format(endPoint.Url, endPoint.MessageType);
+                                            //IQueryService queryService;
+                                            //queryService = new QueryService(_httpClient, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                                            //var result = (await queryService.GetQuuppaTagData(_endPointCancellations[endPoint.Id].Token));
+                                            //// Process tag data in a separate thread
+                                            //_ = Task.Run(async () => await ProcessTagMovementData(result), stoppingToken);
 
                                         }
                                     }

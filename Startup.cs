@@ -6,6 +6,10 @@ using EIR_9209_2.Utilities;
 using EIR_9209_2.InMemory;
 using EIR_9209_2.Service;
 using EIR_9209_2.DataStore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
+using static EIR_9209_2.Models.GeoMarker;
 
 public class Startup
 {
@@ -39,7 +43,9 @@ public class Startup
         services.AddSingleton<IInMemoryConnectionRepository, InMemoryConnectionRepository>();
         services.AddSingleton<IInMemoryTagsRepository, InMemoryTagsRepository>();
         services.AddSingleton<IInMemoryGeoZonesRepository, InMemoryGeoZonesRepository>();
-
+        services.AddHttpClient();
+        services.AddSingleton<Worker>();
+        services.AddHostedService(p => p.GetRequiredService<Worker>());
 
         //add SignalR to the services
         services.AddSignalR(options =>
@@ -97,12 +103,14 @@ public class Startup
                 // Use [ValidateModelState] on Actions to actually validate it in C# as well!
                 c.OperationFilter<GeneratePathParamsValidationFilter>();
             });
-        //init QPE data pull
-        services.AddSingleton<QPEBackgroundService>();
-        services.AddHostedService(provider => provider.GetRequiredService<QPEBackgroundService>());
-        //init MPE data pull
-        services.AddSingleton<MPEWatchBackgroundService>();
-        services.AddHostedService(provider => provider.GetRequiredService<MPEWatchBackgroundService>());
+
+
+        ////init QPE data pull
+        //services.AddSingleton<QPEBackgroundService>();
+        //services.AddHostedService(provider => provider.GetRequiredService<QPEBackgroundService>());
+        ////init MPE data pull
+        //services.AddSingleton<MPEWatchBackgroundService>();
+        //services.AddHostedService(provider => provider.GetRequiredService<MPEWatchBackgroundService>());
     }
 
     //private void AddOptions(IServiceCollection services)
