@@ -4,6 +4,9 @@ namespace EIR_9209_2.Models
 {
     public class MPERunPerformance
     {
+        [JsonProperty("id")]
+        public string ZoneId { get; set; } = "";
+
         [JsonProperty("mpe_type")]
         public string MpeType { get; set; } = "";
 
@@ -112,8 +115,8 @@ namespace EIR_9209_2.Models
         public string Hour { get; set; } = "";
 
         [JsonProperty("count")]
-        public string Count { get; set; } = "";
-        public string Sorted { get; set; } = "";
-        public string Rejected { get; set; } = "";
+        public int Count { get; set; } = 0;
+        public int Sorted { get; set; } = 0;
+        public int Rejected { get; set; } = 0;
     }
 }

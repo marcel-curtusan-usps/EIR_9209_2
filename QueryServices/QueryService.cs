@@ -39,7 +39,16 @@ internal class QueryService : IQueryService
             return (await GetQueryResults<QuuppaTag>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
         }
     }
-
+    public async Task<JToken> GetIDSData(string messageType, int startHours, int endHours, CancellationToken ct)
+    {
+        var query = new ReportQueryIDSBuilder()
+         .WithQueryName(messageType)
+         .WithstartHour(startHours)
+         .WithendHour(endHours)
+         .Build();
+        var queryResults = (await GetPostQueryResults<dynamic>(_fullUrl.AbsoluteUri, query, ct).ConfigureAwait(false));
+        return queryResults;
+    }
     private async Task<T> GetQueryResults<T>(string queryUrl, CancellationToken ct)
     {
         try
@@ -72,7 +81,7 @@ internal class QueryService : IQueryService
 
     }
 
-    private async Task<T> GetPostQueryResults<T>(string queryUrl, string query, CancellationToken ct)
+    private async Task<T> GetPostQueryResults<T>(string queryUrl, object query, CancellationToken ct)
     {
         var client = _httpClient.CreateClient();
         using var request = new HttpRequestMessage(HttpMethod.Post, queryUrl);
@@ -80,11 +89,7 @@ internal class QueryService : IQueryService
         {
             await _authService.AddAuthHeader(request, ct);
         }
-        if (!string.IsNullOrEmpty(query))
-        {
-            request.Content = new StringContent(JsonConvert.SerializeObject(query, _jsonSettings), Encoding.UTF8, "application/json");
-        }
-
+        request.Content = new StringContent(JsonConvert.SerializeObject(query, _jsonSettings), Encoding.UTF8, "application/json");
         var response = await client.SendAsync(request, ct);
 
         response.EnsureSuccessStatusCode();
@@ -97,4 +102,5 @@ internal class QueryService : IQueryService
         return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
 
     }
+
 }

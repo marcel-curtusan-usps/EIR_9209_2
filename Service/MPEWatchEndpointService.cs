@@ -201,7 +201,10 @@ internal class MPEWatchEndpointService
                             //update the geozone with the new data
                             //geoZone.Properties.MPERunPerformance = mpe;
                             //check  mpe run performance data and update the geozone
-
+                            if (geoZone.Properties.MPERunPerformance.ZoneId != geoZone.Properties.Id)
+                            {
+                                geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
+                            }
                             if (geoZone.Properties.DataSource != "IDS")
                             {
                                 if (geoZone.Properties.MPERunPerformance.HourlyData != mpe.HourlyData)
@@ -291,9 +294,10 @@ internal class MPEWatchEndpointService
 
                             if (pushUIUpdate)
                             {
-                                _hubServices.Clients.Group("MPEZones").SendAsync("UpdateGeoZone", geoZone);
+                                await _hubServices.Clients.Group("MPEZones").SendAsync("MPEPerformanceUpdateGeoZone", geoZone.Properties.MPERunPerformance);
+                                _geoZones.Update(geoZone);
                             }
-                            _geoZones.Update(geoZone);
+
                         }
                     }
                 }

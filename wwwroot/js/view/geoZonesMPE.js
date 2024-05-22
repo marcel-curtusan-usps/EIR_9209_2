@@ -164,16 +164,16 @@ let geoZoneMPE = new L.GeoJSON(null, {
         return {
             weight: 1,
             opacity: 1,
-            color: '#3573b1',
+            color: '#989ea4',
             fillOpacity: 0.2,
-            fillColor: GetMacineBackground(feature.properties.MPEWatchData),
+            fillColor: GetMacineBackground(feature.properties.mpeRunPerformance),
             lastOpacity: 0.2
         };
     },
     onEachFeature: function (feature, layer) {
 
         layer.zoneId = feature.properties.id;
-     
+
         layer.on('click', function (e) {
             OSLmap.setView(e.sourceTarget.getCenter(), 3);
             //makea ajax call to get the employee details
@@ -200,7 +200,7 @@ let geoZoneMPE = new L.GeoJSON(null, {
 
                 }
             });
-         
+
         });
         layer.bindTooltip(feature.properties.name + "<br/>" + "Staffing: " + (feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0"), {
             permanent: true,
@@ -253,13 +253,25 @@ async function init_geoZoneMPE() {
         return console.error(err.toString());
     });
 }
-connection.on("UpdateGeoZone", async (data) => {
-    let mpeZonedata = JSON.parse(data);
+connection.on("UpdateGeoZone", async (mpeZonedata) => {
     await findMpeZoneLeafletIds(mpeZonedata.properties.id)
         .then(leafletIds => {
             geoZoneMPE._layers[leafletIds].properties = mpeZonedata.properties;
         });
 
+});
+connection.on("MPEPerformanceUpdateGeoZone", async (mpeZonedata) => {
+    await findMpeZoneLeafletIds(mpeZonedata.zoneId)
+        .then(leafletIds => {
+            geoZoneMPE._layers[leafletIds].feature.properties.mpeRunPerformance = mpeZonedata;
+            geoZoneMPE._layers[leafletIds].setStyle({
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.2,
+                fillColor: GetMacineBackground(mpeZonedata),
+                lastOpacity: 0.2
+            });
+        });
 });
 async function addMPEFeature(data) {
     try {
@@ -281,18 +293,18 @@ function GetMacineBackground(mpeWatchData) {
     let WarningColor = '#ffc107';
     let AlertColor = '#dc3545';
     try {
-        if (mpeWatchData.cur_sortplan === "0" || mpeWatchData.cur_sortplan === '') {
+        if (mpeWatchData.curSortplan === "0" || mpeWatchData.curSortplan === '') {
             return NotRunningbkColor;
         }
         else {
 
-            if (mpeWatchData.throughput_status === 3) {
+            if (mpeWatchData.throughputStatus === 3) {
                 return AlertColor;
             }
-            if (mpeWatchData.unplan_maint_sp_status === 2 || mpeWatchData.op_started_late_status === 2 || mpeWatchData.op_running_late_status === 2 || mpeWatchData.sortplan_wrong_status === 2 || mpeWatchData.throughput_status === 2) {
+            if (mpeWatchData.unplanMaintSpStatus === 2 || mpeWatchData.opStartedLateStatus === 2 || mpeWatchData.opRunningLateStatus === 2 || mpeWatchData.sortplanWrongStatus === 2 || mpeWatchData.throughputStatus === 2) {
                 return AlertColor;
             }
-            if (mpeWatchData.unplan_maint_sp_status === 1 || mpeWatchData.op_started_late_status === 1 || mpeWatchData.op_running_late_status === 1 || mpeWatchData.sortplan_wrong_status === 1) {
+            if (mpeWatchData.unplanMaintSpStatus === 1 || mpeWatchData.opStartedLateStatus === 1 || mpeWatchData.opRunningLateStatus === 1 || mpeWatchData.sortplanWrongStatus === 1) {
                 return WarningColor;
             }
             return RunningColor;

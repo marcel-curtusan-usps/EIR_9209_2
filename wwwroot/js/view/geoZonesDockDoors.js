@@ -3,7 +3,7 @@
         return {
             weight: 1,
             opacity: 1,
-            color: '#3573b1',
+            color: '#989ea4',
             fillOpacity: 0.2,
             lastOpacity: 0.2
         };

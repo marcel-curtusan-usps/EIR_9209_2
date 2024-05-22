@@ -14,6 +14,7 @@ public class Worker : BackgroundService, IHostedService
     private readonly IInMemoryTagsRepository _tags;
     private readonly ConcurrentDictionary<string, QPEEndpointService> _QPEendpointServices = new();
     private readonly ConcurrentDictionary<string, MPEWatchEndpointService> _MPEWatchendpointServices = new();
+    private readonly ConcurrentDictionary<string, IDSEndpointService> _IDSendpointServices = new();
 
     public Worker(ILogger<Worker> logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory,
         IInMemoryConnectionRepository connections,
@@ -75,6 +76,21 @@ public class Worker : BackgroundService, IHostedService
             endpointConfig.LasttimeApiConnected = DateTime.Now;
             _MPEWatchendpointServices[endpointConfig.Id] = _MPEWatchendpointService;
             _MPEWatchendpointService.Start();
+        }
+        //MPE Watch Engine
+        if (endpointConfig.Name == "IDS")
+        {
+            if (_MPEWatchendpointServices.ContainsKey(endpointConfig.Id))
+            {
+                _logger.LogWarning("Endpoint {Url} already exists.", endpointConfig.Id);
+                return;
+            }
+            var _IDSendpointLogger = _loggerFactory.CreateLogger<IDSEndpointService>();
+            var _IDSendpointService = new IDSEndpointService(_IDSendpointLogger, _httpClientFactory, endpointConfig, _connections, _geoZones, _hubServices);
+            endpointConfig.Status = EWorkerServiceState.Starting;
+            endpointConfig.LasttimeApiConnected = DateTime.Now;
+            _IDSendpointServices[endpointConfig.Id] = _IDSendpointService;
+            _IDSendpointService.Start();
         }
 
         endpointConfig.Status = EWorkerServiceState.Starting;

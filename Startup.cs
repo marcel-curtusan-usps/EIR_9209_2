@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using static EIR_9209_2.Models.GeoMarker;
+using EIR_9209_2.DatabaseCalls.IDS;
 
 public class Startup
 {
@@ -37,11 +38,14 @@ public class Startup
         services.AddLogging();
         //AddOptions(services);
         services.AddSingleton<IFileService, FileService>();
+        services.AddSingleton<IFileAccessTester, FileAccessTester>();
+        services.AddSingleton<IEncryptDecrypt, EncryptDecrypt>();
         services.AddSingleton<IInMemorySiteInfoRepository, InMemorySiteInfoRepository>();
         services.AddSingleton<IInMemoryBackgroundImageRepository, InMemoryBackgroundImageRepository>();
         services.AddSingleton<IInMemoryConnectionRepository, InMemoryConnectionRepository>();
         services.AddSingleton<IInMemoryTagsRepository, InMemoryTagsRepository>();
         services.AddSingleton<IInMemoryGeoZonesRepository, InMemoryGeoZonesRepository>();
+        services.AddSingleton<IIDS, IDS>();
         services.AddHttpClient();
         services.AddSingleton<Worker>();
         services.AddHostedService(p => p.GetRequiredService<Worker>());

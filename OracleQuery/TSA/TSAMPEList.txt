@@ -1,0 +1,9 @@
+﻿Select 
+impename, 
+impeid, 
+createdon as createdon, 
+lastmodifiedon as lastmodifiedon,  
+aliasname,
+sv_aliasname,
+sv_push_flag
+FROM IMPEMASTER order by impename asc

@@ -4,11 +4,7 @@ using Newtonsoft.Json;
 
 public class Connection
 {
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
-    public required string _id { get; set; }
     [JsonIgnore]
-    [BsonIgnore]
     private EWorkerServiceState _status;
     [BsonIgnore]
     public EWorkerServiceState Status

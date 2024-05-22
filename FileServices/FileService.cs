@@ -1,7 +1,20 @@
 ﻿// Ignore Spelling: Mongo
 
+using EIR_9209_2.Utilities;
+using System.Text;
+
 public class FileService : IFileService
 {
+    private readonly ILogger _logger;
+    private readonly IConfiguration _configuration;
+    private readonly IFileAccessTester _accessTester;
+    public FileService(ILogger<FileService> logger, IConfiguration configuration, IFileAccessTester accessTester)
+    {
+        _logger = logger;
+        _configuration = configuration;
+        _accessTester = accessTester;
+
+    }
     public async Task<string> ReadFile(string path)
     {
         if (File.Exists(path))
@@ -16,8 +29,24 @@ public class FileService : IFileService
         }
     }
 
-    public void WriteFile(string path, string content)
+    public void WriteFile(string fileName, string content)
     {
-        File.WriteAllText(path, content);
+        string baseDrive = _configuration[key: "ApplicationConfiguration:BaseDrive"];
+        string siteid = _configuration[key: "SiteIdentity:NassCode"];
+
+        if (!string.IsNullOrEmpty(baseDrive) && !string.IsNullOrEmpty(siteid))
+        {
+            string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"], _configuration[key: "ApplicationConfiguration:BaseDirectory"], siteid, _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{fileName}");
+            if (_accessTester.CanCreateFilesAndWriteInFolder(BuildPath))
+            {
+                using (FileStream file = new FileStream(BuildPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
+                using (StreamWriter sr = new StreamWriter(file, Encoding.UTF8))
+                {
+
+                    sr.WriteLine(content);
+                }
+            }
+
+        }
     }
 }

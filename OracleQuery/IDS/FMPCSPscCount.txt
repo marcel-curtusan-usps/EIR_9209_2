@@ -1,0 +1,124 @@
+﻿-- Update: Exclude ULX phantom
+-- Update: Separate ULX Rejected/Indfail/Missing
+SELECT
+    MPE_NAME,
+    HR
+    ||':00'                                                         AS HOUR,
+    NVL(SORTED, 0)                                                  AS SORTED,
+    NVL(REJECTED, 0)                                                AS REJECTED,
+    NVL(SORTED, 0)+NVL(REJECTED, 0)+NVL(MISSING, 0)+NVL(INDFAIL, 0) AS INDUCTED
+FROM
+    (
+        SELECT
+            S.MPE_NAME,
+            S.HR,
+            S.RESULT,
+            SUM(S.COUNT) AS TOTAL
+        FROM
+            (
+                SELECT
+                    M.MPE_NAME,
+                    CASE M.RESULT
+                        WHEN 'Normal' THEN
+                            REPLACE(M.RESULT, 'Normal', 'Sorted')
+                        WHEN 'Processed' THEN
+                            REPLACE(M.RESULT, 'Processed', 'Sorted')
+                        WHEN 'Missent' THEN
+                            REPLACE(M.RESULT, 'Missent', 'Rejected')
+                        ELSE
+                            M.RESULT -- For all other values, leave unchanged
+                    END        AS RESULT,
+                    M.HR,
+                    M.COUNT
+                FROM
+                    (
+                        SELECT /*+ PARALLEL(F, 8)*/
+                            L.MPE_NAME,
+                            F.RESULT,
+                            TO_CHAR(F.DATA_DATE, 'yyyy-mm-dd hh24') AS HR,
+                            COUNT(*)                                AS COUNT
+                        FROM
+                            DCSDBA.FMPCSMP               F,
+                            DCSDBA.MPE_LIST              L
+                        WHERE
+                            F.MPE_ID IN (
+                                SELECT
+                                    MPE_ID
+                                FROM
+                                    DCSDBA.MPE_LIST
+                                WHERE
+                                    SOFTWARE_VERSION LIKE 'FMPCS%'
+                            )
+                            AND F.DATA_DATE>= TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24
+                            AND F.DATA_DATE< TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24 +(:ENDHOUR)/24
+                            AND F.MPE_ID = L.MPE_ID
+                        GROUP BY
+                            L.MPE_NAME,
+                            F.RESULT,
+                            TO_CHAR(F.DATA_DATE, 'yyyy-mm-dd hh24')
+                        UNION
+                        ALL
+                        SELECT /*+ PARALLEL(U, 5)*/
+                            L.MPE_NAME,
+                            CASE
+                                WHEN U.PROC_ACTION_REASON = 'Processed' THEN
+                                    'Sorted'
+                                WHEN U.RT_DESTNAME IS NULL THEN
+                                    'IndFail'
+                                WHEN U.ULX_MESSAGE NOT LIKE '%RunoutNum%' THEN
+                                    'Missing'
+                                ELSE
+                                    'Rejected'
+                            END                                     AS Result,
+                            TO_CHAR(U.DATA_DATE, 'yyyy-mm-dd hh24') AS HR,
+                            COUNT(*)
+                        FROM
+                            DCSDBA.UNIT_LOAD_TRANSACTION U,
+                            DCSDBA.MPE_LIST              L
+                        WHERE
+                            U.MPE_ID IN (
+                                SELECT
+                                    MPE_ID
+                                FROM
+                                    DCSDBA.MPE_LIST
+                                WHERE
+                                    SOFTWARE_VERSION LIKE 'FMPCS%'
+                            )
+                            AND U.DATA_DATE>= TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24
+                            AND U.DATA_DATE< TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24 +(:ENDHOUR)/24
+                            AND U.MPE_ID = L.MPE_ID
+                            AND TO_NUMBER(RT_OPERATIONNUM) != 0
+                        GROUP BY
+                            L.MPE_NAME,
+                            CASE
+                                WHEN U.PROC_ACTION_REASON = 'Processed' THEN
+                                    'Sorted'
+                                WHEN U.RT_DESTNAME IS NULL THEN
+                                    'IndFail'
+                                WHEN U.ULX_MESSAGE NOT LIKE '%RunoutNum%' THEN
+                                    'Missing'
+                                ELSE
+                                    'Rejected'
+                            END,
+                            TO_CHAR(U.DATA_DATE, 'yyyy-mm-dd hh24')
+                        ORDER BY
+                            HR
+                    )M                            
+                ORDER BY
+                    M.HR
+            )S
+        GROUP BY
+            MPE_NAME,
+            HR,
+            RESULT
+        ORDER BY
+            MPE_NAME,
+            HR,
+            RESULT
+    ) PIVOT ( MIN(TOTAL) FOR (RESULT) IN ('Sorted' AS SORTED,
+    'Rejected' AS REJECTED,
+    'Missing' AS MISSING,
+    'IndFail' AS INDFAIL) )
+ORDER BY
+    MPE_NAME,
+    HOUR

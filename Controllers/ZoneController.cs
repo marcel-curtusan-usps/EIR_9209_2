@@ -12,14 +12,20 @@ namespace EIR_9209_2.Controllers
 
         // GET: api/<ZoneController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        [Route("/AllZones")]
+        public async Task<object> GetAllZones()
         {
-            return new string[] { "value1", "value2" };
+            if (!ModelState.IsValid)
+            {
+                return await Task.FromResult(BadRequest(ModelState));
+            }
+            return _zonesRepository.GetAll().Select(r => r.Properties);
         }
 
         // GET api/<ZoneController>/5
-        [HttpGet("{id}")]
-        public async Task<object> Get(string id)
+        [HttpGet]
+        [Route("/ZoneId")]
+        public async Task<object> GetByZoneId(string id)
         {
             if (!ModelState.IsValid)
             {
@@ -27,23 +33,33 @@ namespace EIR_9209_2.Controllers
             }
             return _zonesRepository.Get(id);
         }
-
-        // POST api/<ZoneController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpGet]
+        [Route("/MpeName")]
+        public async Task<object> GetByMpeName(string id)
         {
+            if (!ModelState.IsValid)
+            {
+                return await Task.FromResult(BadRequest(ModelState));
+            }
+            return _zonesRepository.GetMPEName(id);
         }
 
-        // PUT api/<ZoneController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+        //// POST api/<ZoneController>
+        //[HttpPost]
+        //public void Post([FromBody] string value)
+        //{
+        //}
 
-        // DELETE api/<ZoneController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        //// PUT api/<ZoneController>/5
+        //[HttpPut("{id}")]
+        //public void Put(int id, [FromBody] string value)
+        //{
+        //}
+
+        //// DELETE api/<ZoneController>/5
+        //[HttpDelete("{id}")]
+        //public void Delete(int id)
+        //{
+        //}
     }
 }

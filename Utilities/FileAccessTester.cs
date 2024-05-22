@@ -3,9 +3,9 @@ using System.Security.Principal;
 
 namespace EIR_9209_2.Utilities
 {
-    public class FileAccessTester
+    public class FileAccessTester : IFileAccessTester
     {
-        public static bool CanCreateFilesAndWriteInFolder(string folderPath)
+        public bool CanCreateFilesAndWriteInFolder(string folderPath)
         {
             try
             {

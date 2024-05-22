@@ -41,7 +41,13 @@ namespace EIR_9209_2.Controllers
 
         // POST api/<Connection>
         [HttpPost]
-        public async Task<object> Post([FromBody] JObject value)
+        [Route("/AddConnection")]
+        /// <summary>
+        /// Adds a new connection.
+        /// </summary>
+        /// <param name="value">The connection details.</param>
+        /// <returns>The added connection.</returns>
+        public async Task<object> PostAddNewConnection([FromBody] JObject value)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -76,7 +82,8 @@ namespace EIR_9209_2.Controllers
         }
 
         // DELETE api/<Connection>/5
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("/DeleteConnection")]
         public async Task<object> Delete(string id)
         {
             //handle bad requests

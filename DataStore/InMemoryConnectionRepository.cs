@@ -12,12 +12,12 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     public static readonly ConcurrentDictionary<string, Connection> _connectionList = new();
     private readonly ILogger<InMemoryConnectionRepository> _logger;
     private readonly IConfiguration _configuration;
-    private readonly IFileService FileService;
+    private readonly IFileService _fileService;
 
 
     public InMemoryConnectionRepository(ILogger<InMemoryConnectionRepository> logger, IConfiguration configuration, IFileService fileService)
     {
-        FileService = fileService;
+        _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
         string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"], _configuration[key: "ApplicationConfiguration:BaseDirectory"], _configuration[key: "SiteIdentity:NassCode"], _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{_configuration[key: "InMemoryCollection:CollectionConnections"]}.json");
@@ -27,11 +27,17 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     }
     public void Add(Connection connection)
     {
-        _connectionList.TryAdd(connection.Id, connection);
+        if (_connectionList.TryAdd(connection.Id, connection))
+        {
+            _fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+        }
     }
     public void Remove(string connectionId)
     {
-        _connectionList.TryRemove(connectionId, out _); ;
+        if (_connectionList.TryRemove(connectionId, out _))
+        {
+            _fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+        }
     }
 
     public Connection Get(string id)
@@ -48,11 +54,18 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     {
         return _connectionList.Where(r => r.Value.Name == type).Select(y => y.Value);
     }
+    /// <summary>
+    /// Updates a connection in the in-memory connection repository.
+    /// </summary>
+    /// <param name="connection">The connection to update.</param>
     public void Update(Connection connection)
     {
-        if (_connectionList.TryGetValue(connection.Id, out Connection currentConnection))
+        if (_connectionList.TryGetValue(connection.Id, out Connection? currentConnection))
         {
-            _connectionList.TryUpdate(connection.Id, connection, currentConnection);
+            if (_connectionList.TryUpdate(connection.Id, connection, currentConnection))
+            {
+                _fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+            }
         }
     }
     private async Task LoadDataFromFile(string filePath)
@@ -60,7 +73,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         try
         {
             // Read data from file
-            var fileContent = await FileService.ReadFile(filePath);
+            var fileContent = await _fileService.ReadFile(filePath);
 
             // Parse the file content to get the data. This depends on the format of your file.
             // Here's an example if your file was in JSON format and contained an array of T objects:
