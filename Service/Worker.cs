@@ -12,7 +12,7 @@ public class Worker : BackgroundService, IHostedService
     private readonly IInMemoryConnectionRepository _connections;
     private readonly IInMemoryGeoZonesRepository _geoZones;
     private readonly IInMemoryTagsRepository _tags;
-    private readonly ConcurrentDictionary<string, QREEndpointService> _QPEendpointServices = new();
+    private readonly ConcurrentDictionary<string, QPEEndpointService> _QPEendpointServices = new();
     private readonly ConcurrentDictionary<string, MPEWatchEndpointService> _MPEWatchendpointServices = new();
 
     public Worker(ILogger<Worker> logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory,
@@ -54,8 +54,8 @@ public class Worker : BackgroundService, IHostedService
                 _logger.LogWarning("Endpoint {Url} already exists.", endpointConfig.Id);
                 return;
             }
-            var _QPEendpointLogger = _loggerFactory.CreateLogger<QREEndpointService>();
-            var _QPEendpointService = new QREEndpointService(_QPEendpointLogger, _httpClientFactory, endpointConfig, _connections, _tags, _hubServices);
+            var _QPEendpointLogger = _loggerFactory.CreateLogger<QPEEndpointService>();
+            var _QPEendpointService = new QPEEndpointService(_QPEendpointLogger, _httpClientFactory, endpointConfig, _connections, _tags, _hubServices);
             endpointConfig.Status = EWorkerServiceState.Starting;
             endpointConfig.LasttimeApiConnected = DateTime.Now;
             _QPEendpointServices[endpointConfig.Id] = _QPEendpointService;

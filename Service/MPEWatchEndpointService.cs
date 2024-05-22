@@ -115,19 +115,19 @@ internal class MPEWatchEndpointService
             //process zone data
             if (_endpointConfig.MessageType.ToLower() == "rpg_run_perf")
             {
-                // Process zone data in a separate thread
+                // Process MPE data in a separate thread
                 _ = Task.Run(async () => await ProcessMPEWatchRunPerfData(result), stoppingToken);
                 //_logger.LogInformation("Data from {Url}: {Data}", _endpointConfig.Url, result);
             }
             if (_endpointConfig.MessageType.ToLower() == "rpg_plan")
             {
-                // Process zone data in a separate thread
+                // Process MPE data in a separate thread
                 _ = Task.Run(async () => await ProcessMPEWatchRpgPlanData(result), stoppingToken);
                 //_logger.LogInformation("Data from {Url}: {Data}", _endpointConfig.Url, result);
             }
             if (_endpointConfig.MessageType.ToLower() == "dps_run_estm")
             {
-                // Process zone data in a separate thread
+                // Process MPE data in a separate thread
                 _ = Task.Run(async () => await ProcessMPEWatchDPSRunData(result), stoppingToken);
                 //_logger.LogInformation("Data from {Url}: {Data}", _endpointConfig.Url, result);
             }

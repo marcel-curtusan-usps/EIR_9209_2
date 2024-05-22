@@ -6,9 +6,9 @@ using Newtonsoft.Json.Serialization;
 using NuGet.Protocol.Core.Types;
 using System.Threading;
 
-public class QREEndpointService
+public class QPEEndpointService
 {
-    private readonly ILogger<QREEndpointService> _logger;
+    private readonly ILogger<QPEEndpointService> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IInMemoryConnectionRepository _connections;
     private readonly IInMemoryTagsRepository _tags;
@@ -17,7 +17,7 @@ public class QREEndpointService
     private CancellationTokenSource _cancellationTokenSource;
     private Task _task;
 
-    public QREEndpointService(ILogger<QREEndpointService> logger,
+    public QPEEndpointService(ILogger<QPEEndpointService> logger,
         IHttpClientFactory httpClientFactory,
         Connection endpointConfig,
         IInMemoryConnectionRepository connections,
