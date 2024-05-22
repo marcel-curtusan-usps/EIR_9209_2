@@ -113,16 +113,22 @@ internal class MPEWatchEndpointService
             queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
             var result = (await queryService.GetMPEWatchData(stoppingToken));
             //process zone data
-            if (_endpointConfig.MessageType == "rpg_run_perf")
+            if (_endpointConfig.MessageType.ToLower() == "rpg_run_perf")
             {
                 // Process zone data in a separate thread
                 _ = Task.Run(async () => await ProcessMPEWatchRunPerfData(result), stoppingToken);
                 //_logger.LogInformation("Data from {Url}: {Data}", _endpointConfig.Url, result);
             }
-            if (_endpointConfig.MessageType == "rpg_plan")
+            if (_endpointConfig.MessageType.ToLower() == "rpg_plan")
             {
                 // Process zone data in a separate thread
                 _ = Task.Run(async () => await ProcessMPEWatchRpgPlanData(result), stoppingToken);
+                //_logger.LogInformation("Data from {Url}: {Data}", _endpointConfig.Url, result);
+            }
+            if (_endpointConfig.MessageType.ToLower() == "dps_run_estm")
+            {
+                // Process zone data in a separate thread
+                _ = Task.Run(async () => await ProcessMPEWatchDPSRunData(result), stoppingToken);
                 //_logger.LogInformation("Data from {Url}: {Data}", _endpointConfig.Url, result);
             }
         }
@@ -133,6 +139,24 @@ internal class MPEWatchEndpointService
     }
 
     private async Task ProcessMPEWatchRpgPlanData(JToken result)
+    {
+        try
+        {
+            if (result is not null && ((JObject)result).ContainsKey("data"))
+            {
+                var data = result.SelectToken("data");
+                if (data != null)
+                {
+
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+        }
+    }
+    private async Task ProcessMPEWatchDPSRunData(JToken result)
     {
         try
         {
@@ -177,12 +201,15 @@ internal class MPEWatchEndpointService
                             //update the geozone with the new data
                             //geoZone.Properties.MPERunPerformance = mpe;
                             //check  mpe run performance data and update the geozone
-                            if (geoZone.Properties.MPERunPerformance.HourlyData != mpe.HourlyData)
-                            {
-                                geoZone.Properties.MPERunPerformance.HourlyData = mpe.HourlyData;
-                                pushUIUpdate = true;
-                            }
 
+                            if (geoZone.Properties.DataSource != "IDS")
+                            {
+                                if (geoZone.Properties.MPERunPerformance.HourlyData != mpe.HourlyData)
+                                {
+                                    geoZone.Properties.MPERunPerformance.HourlyData = mpe.HourlyData;
+                                    pushUIUpdate = true;
+                                }
+                            }
                             if (geoZone.Properties.MPERunPerformance.CurSortplan != mpe.CurSortplan)
                             {
                                 geoZone.Properties.MPERunPerformance.CurSortplan = mpe.CurSortplan;
