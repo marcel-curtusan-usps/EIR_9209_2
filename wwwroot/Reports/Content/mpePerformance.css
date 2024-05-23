@@ -1,7 +1,9 @@
-﻿@import url("../../content/bootstrap.css");
-@import url("../../content/bootstrap-grid.css");
-@import url("../../content/bootstrap-icons.css");
-@import url("../../content/bootstrap-reboot.css");
+﻿@import url('../../js/bootstrap/dist/css/bootstrap.css');
+@import url('../../js/bootstrap/dist/css/bootstrap-grid.css');
+@import url('../../js/bootstrap/dist/css/bootstrap-reboot.css');
+@import url('../../js/bootstrap/dist/css/bootstrap-utilities.css');
+
+
 html, body {
   min-height: 100%;
   width: 100%;

@@ -2,5 +2,9 @@
   {
     "outputFile": "wwwroot/css/Site.css",
     "inputFile": "wwwroot/css/Site.scss"
+  },
+  {
+    "outputFile": "wwwroot/lib/luxon/src/luxon.es5.js",
+    "inputFile": "wwwroot/lib/luxon/src/luxon.js"
   }
 ]
