@@ -103,6 +103,7 @@ public class IDSEndpointService
 
             _endpointConfig.Status = EWorkerServiceState.Running;
             _endpointConfig.LasttimeApiConnected = DateTime.Now;
+            _endpointConfig.ApiConnected = true;
             _connections.Update(_endpointConfig);
             FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType);
             queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));

@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>CF Site Performance</title>
+
+    <link href="Content/siteRollUp.css" rel="stylesheet" />
+</head>
+<body>
+
+    <div>
+        <div class="d-flex align-items-cetner justify-content-between small mb-1">
+            <div class="col">
+                <div class="card mb-4">
+                    <div class="card-header py-1 text-center">
+                        <h5 class="m-0">Site Hourly Summary Report Data</h5>
+                    </div>
+                    <div class="card-body p-1">
+                        <div class="row">
+                            <div class="col-1">
+                                <select class="form-control form-inline" style="width: auto; vertical-align: baseline; margin: 15px; position: absolute; bottom: 0px;" id="ddlTourSelect">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <div class="col-11 lineChartPerf" id="lineperf">
+                                <canvas id="sitePerformanceChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="table-responsive" id="div_sitePerformanceData" style="padding-right: 36px;">
+                            <table class="table table-sm table-hover mb-0 border-bottom" id="sitePerformanceData">
+                                <thead class="thead-dark">
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex align-items-cetner justify-content-between small mb-1">
+            <div class="col">
+                <div class="card mb-4">
+                    <div class="card-header py-1 text-center">
+                        <h5 class="m-0">Packages Report Data</h5>
+                    </div>
+                    <div class="card-body p-1">
+
+                        <div class="row">
+                            <div class="col-1">
+                            </div>
+                            <div class="col-11 lineChartPerf" id="linePackagessperf">
+                                <canvas id="sitePackagesPerformanceChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="table-responsive" id="div_sitePackagesPerformanceData" style="padding-right: 36px;">
+                            <table class="table table-sm table-hover mb-0 border-bottom" id="sitePackagesPerformanceData">
+                                <thead class="thead-dark">
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="d-flex align-items-cetner justify-content-between small mb-1">
+
+            <div class="col">
+                <div class="card mb-4">
+                    <div class="card-header py-1 text-center">
+                        <h5 class="m-0">Letters Report Data</h5>
+                    </div>
+                    <div class="card-body p-1">
+                        <div class="row">
+                            <div class="col-1">
+                            </div>
+                            <div class="col-11 lineChartPerf" id="linelettersperf">
+                                <canvas id="siteLettersPerformanceChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="table-responsive" id="div_siteLettersPerformanceData" style="padding-right: 36px;">
+                            <table class="table table-sm table-hover mb-0 border-bottom" id="siteLettersPerformanceData">
+                                <thead class="thead-dark">
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="d-flex align-items-cetner justify-content-between small mb-1">
+
+            <div class="col">
+                <div class="card mb-4">
+                    <div class="card-header py-1 text-center">
+                        <h5 class="m-0">Flats Report Data</h5>
+                    </div>
+                    <div class="card-body p-1">
+                        <div class="row">
+                            <div class="col-1">
+                            </div>
+                            <div class="col-11 lineChartPerf" id="lineflatsperf">
+                                <canvas id="siteflatsPerformanceChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="table-responsive" id="div_siteflatsPerformanceData" style="padding-right: 36px;">
+                            <table class="table table-sm table-hover mb-0 border-bottom" id="siteflatsPerformanceData">
+                                <thead class="thead-dark">
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script src="../lib/jquery/jquery.min.js"></script>
+    <script src="../lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="../lib/bootstrap/bootstrap.bundle.js"></script>
+    <script src="Scripts/siteRollUp.js"></script>
+    <script src="Scripts/siteRollUpLineChart.js"></script>
+    <script src="Scripts/siteRollUpTable.js"></script>
+</body>
+</html>

@@ -14,6 +14,1160 @@
 </head>
 <body>
     <div id="map"></div>
+    <!-- Modal Section -->
+
+    <div class="modal fade" id="siteSummaryModal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="siteSummaryModal_Label">
+        <div class="modal-dialog" style="max-width: 95%;">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h4 class="modal-title" id="siteSummaryHeader"><span aria-hidden="true">Site Performance</span></h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0 border-bottom" id="sitePerformanceData">
+                            <thead class="thead-dark">
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="API_Connection_Modal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="API_Connection_Modal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col">
+                        <h4 class="modal-title" id="modalHeader_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="btn-close float-right" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label class="control-label">Connection Name</label>
+                            <select id="connection_name" class="form-control pb-1" title="Connection Names" name="connection_name">
+                            </select>
+                            <span id="error_connection_name" class="text-danger"></span>
+                        </div>
+                        <div class="col">
+                            <label class="control-label">Connection Options</label>
+                            <div class="custom-control custom-switch">
+                                <div class="custom-control custom-switch">
+                                    <input id="active_connection" type="checkbox" class="custom-control-input" name="active_connection" />
+                                    <label class="custom-control-label" for="active_connection">Active Connection</label>
+                                </div>
+                                <div class="custom-control custom-switch">
+                                    <input id="hour_range" type="checkbox" class="custom-control-input" name="hour_range" />
+                                    <label class="custom-control-label" for="hour_range">Hour Range</label>
+
+                                </div>
+                            </div>
+                            <div class="custom-control custom-switch">
+                            </div>
+                        </div>
+                        <div class="col mt-3">
+                            <div class="custom-control custom-switch">
+                                <input id="api_connection" type="radio" class="custom-control-input" name="connectionType" />
+                                <label class="custom-control-label" for="api_connection">API</label>
+                            </div>
+                            <div class="custom-control custom-switch">
+                                <input id="udp_connection" type="radio" class="custom-control-input" name="connectionType" />
+                                <label class="custom-control-label" for="udp_connection">UDP Connection</label>
+                            </div>
+                            <div class="custom-control custom-switch">
+                                <input id="tcpip_connection" type="radio" class="custom-control-input" name="connectionType" />
+                                <label class="custom-control-label" for="tcpip_connection">TCP/IP Server</label>
+                            </div>
+                            <div class="custom-control custom-switch">
+                                <input id="ws_connection" type="radio" class="custom-control-input" name="connectionType" />
+                                <label class="custom-control-label" for="ws_connection">WS Connection</label>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row mb-3" id="serveripmenu">
+                        <div class="form-group col-4">
+                            <label class="control-label">Host Name</label>
+                            <input id="hostanme" type="text" class="form-control" name="hostanme" />
+                            <span id="error_hostanme" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-4">
+                            <label class="control-label">IP Address</label>
+                            <input id="ip_address" type="text" class="form-control" name="ip_address" />
+                            <span id="error_ip_address" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-4">
+                            <label class="control-label">Port Number</label>
+                            <input id="port_number" type="text" class="form-control" name="port_number" />
+                            <span id="error_port_number" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-3" id="endpointurl">
+                        <div class="form-group col">
+                            <label class="control-label">URL</label>
+                            <input id="url" type="text" class="form-control" name="url" />
+                            <span id="error_url" class="text-danger"></span>
+                        </div>
+                        <!--<div class="form-group col-6">
+                            <label class="control-label">API Key</label><input id="outgoingapikey" type="text" class="form-control" name="outgoingapikey"><span id="error_outgoingapikey" class="text-danger"></span>
+                        </div>-->
+                    </div>
+                    <div class="row hours_range_row" style="display: none">
+                        <div class="col-6">
+                            <div class="d-flex justify-content-center my-2">
+                                <div class="w-100">
+                                    <label class="control-label" for="hoursback_range">Hours Backwards: <span class="font-weight-bold text-primary ml-2 hoursbackvalue"></span></label>
+                                    <input type="range" title="Hours Backwards" class="custom-range" id="hoursback_range" min="0" max="60" value="0" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="d-flex justify-content-center my-2">
+                                <div class="w-100">
+                                    <label class="control-label" for="hoursforward_range">Hours Forward: <span class="font-weight-bold text-primary ml-2 hoursforwardvalue"></span></label>
+                                    <input type="range" title="Hours Forward" class="custom-range" id="hoursforward_range" min="0" max="60" value="0" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="form-group col">
+                            <label class="control-label" for="message_type">Message Type</label>
+                            <select id="message_type" class="form-control pb-1" titel="Message Type" name="message_type">
+                            </select>
+                            <span id="option-container" style="visibility: hidden; position: absolute;"></span>
+                            <span id="error_message_type" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col">
+                            <label class="control-label">Retrieve Occurrences</label>
+                            <select id="data_retrieve" class="form-control pb-1" name="data_retrieve">
+                                <option value=""></option>
+                                <option value="0">Listener</option>
+                                <option value="250">250 Millisecond</option>
+                                <option value="500">500 Millisecond</option>
+                                <option value="1000">1 Second</option>
+                                <option value="3000">3 Second</option>
+                                <option value="5000">5 Second</option>
+                                <option value="30000">30 Second</option>
+                                <option value="60000">1 Minute</option>
+                                <option value="180000">3 Minute</option>
+                                <option value="300000">5 Minute</option>
+                                <option value="900000">15 Minute</option>
+                                <option value="1200000">20 Minute</option>
+                                <option value="1500000">25 Minute</option>
+                                <option value="1800000">30 Minute</option>
+                                <option value="3600000">1 Hour</option>
+                                <option value="86400000">1 Day</option>
+                            </select>
+                            <span id="error_data_retrieve" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary float-right" type="button" data-bs-dismiss="modal" aria-label="Close">Close</button>
+                    <div class="col text-center"><span class="text-info" id="error_apisubmitBtn"></span></div>
+                    <button class="btn btn-primary float-right" type="button" id="apisubmitBtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="FloorPlan_Modal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="FloorPlan_Modal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h4 class="modal-title" id="floormodalHeader_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="col-4">
+                            <label class="control-label" for="BckImageName_txt">Name</label>
+                            <input type="text" class="form-control" id="BckImageName_txt" aria-describedby="BckImageName" />
+                        </div>
+                    </div>
+                    <div id="bckImageDetailsForm" style="display: none;">
+                        <div class="row flex">
+                            <div class="col-6">
+                                <label class="control-label" for="BckImageId_txt">Id</label>
+                                <input type="text" class="form-control" id="BckImageId_txt" aria-describedby="BckImageId" />
+                            </div>
+                            <div class="col-6">
+                                <label class="control-label" for="CoordinateSystemId_txt">Coordinate System Id</label>
+                                <input type="text" class="form-control" id="CoordinateSystemId_txt" aria-describedby="coordinateSystemId" />
+                            </div>
+                            <div class="col-2">
+                                <label class="control-label" for="WidthMeter_txt">Width Meter</label>
+                                <input type="text" class="form-control" id="WidthMeter_txt" aria-describedby="widthMeter" />
+                            </div>
+                            <div class="col-2">
+                                <label class="control-label" for="HeightMeter_txt">Height Meter</label>
+                                <input type="text" class="form-control" id="HeightMeter_txt" aria-describedby="heightMeter" />
+                            </div>
+
+                            <div class="col-2">
+                                <label class="control-label">Origin X</label>
+                                <input class="form-control" id="OrigoX_txt" type="text" placeholder="Origo X" />
+                            </div>
+                            <div class="col-2">
+                                <label class="control-label">Origin Y</label>
+                                <input class="form-control" id="OrigoY_txt" type="text" placeholder="Origo Y" />
+                            </div>
+                            <div class="col-2">
+                                <label class="control-label">Y Meter</label>
+                                <input class="form-control" id="YMeter_txt" type="text" placeholder="Y Meter" />
+                            </div>
+                            <div class="col-2">
+                                <label class="control-label">XMeter</label>
+                                <input class="form-control" id="XMeter_txt" type="text" placeholder="X Meter" />
+                            </div>
+                            <div class="col-2">
+                                <label class="control-label">Y Meters Per Pixel</label>
+                                <input class="form-control" id="MetersPerPixelY_txt" type="text" placeholder="Y MetersPerPixel" />
+                            </div>
+                            <div class="col-2">
+                                <label class="control-label">X Meters Per Pixel</label>
+                                <input class="form-control" id="MetersPerPixelX_txt" type="text" placeholder="X MetersPerPixel" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row" id="bckImageUploadForm" style="display: none">
+                        <div class="col-6">
+                            <label class="control-label" for="floorname">Image</label>
+                            <div class="input-group">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="fupload" aria-describedby="fupload" />
+                                    <label class="custom-file-label" for="fupload">Choose file</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <label class="control-label">Pixel Per Meters</label>
+                            <select id="metersPerPixel" class="form-control pb-1" name="metersPerPixel">
+                                <option value=""></option>
+                                <option value="0.0529166667">0.01 Pixel Per Meter</option>
+                                <option value="0.0002645833">0.1 Pixel Per Meter</option>
+                                <option value="0.0264583333">1 Pixel Per Meter</option>
+                                <option value="0.0529166667">2 Pixel Per Meter</option>
+                                <option value="0.079375">3 Pixel Per Meter</option>
+                                <option value="0.1322916667">5 Pixel Per Meter</option>
+                                <option value="0.2645833333">10 Pixel Per Meter</option>
+                                <option value="0.5291666667">20 Pixel Per Meter</option>
+                                <option value="1.3229166667">50 Pixel Per Meter</option>
+                                <option value="2.6458333333">100 Pixel Per Meter</option>
+                                <option value="26.4583333333">1000 Pixel Per Meter</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row" style="padding-top: 10px; display: none;" id="progresbarrow">
+                        <div class="col">
+                            <div class="progress">
+                                <div id="file_upload_progressbar" class="progress-bar rogress-bar-striped bg-success" role="progressbar" style="width: 10%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info" id="error_bckImageUploadbtn"></span></div>
+                    <div class="col">
+                        <button class="btn btn-outline-success float-right" type="button" id="bckImageUploadbtn">Upload</button>
+                        <button class="btn btn-outline-success float-right" type="button" id="bckImageSubmitbtn" style="display: none">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="webEOR_Modal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="FloorPlan_Modal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h4 class="modal-title" id="webEORmodalHeader_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row" id="webEORUploadForm" style="display: none">
+                        <div class="col-6">
+                            <label class="control-label" for="filename">File</label>
+                            <div class="input-group">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="webEORfupload" aria-describedby="webEORfupload" />
+                                    <label class="custom-file-label" for="webEORfupload">Choose file</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row" style="padding-top: 10px; display: none;" id="webEORprogresbarrow">
+                        <div class="col">
+                            <div class="progress">
+                                <div id="webEORfile_upload_progressbar" class="progress-bar rogress-bar-striped bg-success" role="progressbar" style="width: 10%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info" id="error_WebEORUploadbtn"></span></div>
+                    <div class="col">
+                        <button class="btn btn-outline-success float-right" type="button" id="WebEORUploadbtn">Upload</button>
+                        <button class="btn btn-outline-success float-right" type="button" id="WebEORSubmitbtn" style="display: none">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="Notification_Setup_Modal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="Notification_Setup_Modal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h4 class="modal-title" id="notification_SetupHeader">Add New Notification</h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close">
+                        <i class="pi-iconExit float-right mt-2 mr-2"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="control-label">Name</label>
+                            <input id="condition_name" type="text" class="form-control" name="condition_name" />
+                            <span id="error_condition_name" class="text-danger"></span>
+                        </div>
+                        <div class="col-6">
+                            <label class="control-label">Condition Options</label><div class="custom-control custom-switch">
+                                <div class="custom-control custom-switch">
+                                    <input id="condition_active" type="checkbox" class="custom-control-input" name="condition_active" />
+                                    <label class="custom-control-label" for="condition_active">Active Condition</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="form-group col-6">
+                            <label class="control-label">Condition</label>
+                            <input id="condition" type="text" class="form-control" name="condition" />
+                            <span id="error_condition" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-6">
+                            <label class="control-label">Condition Type</label>
+                            <select id="condition_type" class="form-control" name="condition_type">
+                                <option value=""></option>
+                                <!--<option value="automation">Automation</option>-->
+                                <option value="apiconnection">API Connection</option>
+                                <option value="dockdoor">Dock Door</option>
+                                <option value="mpe">MPE</option>
+                                <option value="vehicle">Vehicle</option>
+                                <option value="routetrip">RouteTrip</option>
+                            </select>
+                            <span id="error_condition_type" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-6">
+                            <div class="d-flex justify-content-center my-2">
+                                <div class="w-75">
+                                    <label class="control-label">Warning Condition: <span class="font-weight-bold text-primary ml-2 warning_conditionpickvalue"></span></label>
+                                    <input type="range" class="custom-range" id="warning_condition" min="0" max="60" value="0" />
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <label class="control-label">Warning Action</label><textarea id="warning_action" type="text" rows="3" class="form-control"></textarea><span id="error_warning_action" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-6 form-group">
+                            <div class="d-flex justify-content-center my-2">
+                                <div class="w-75">
+                                    <label class="control-label">Critical Condition: <span class="font-weight-bold text-primary ml-2 critical_conditionpickvalue"></span></label>
+                                    <input type="range" class="custom-range" id="critical_condition" min="0" max="60" value="0" />
+                                </div>
+                            </div>
+                            <div class="col">
+                                <label class="control-label">Critical Action</label><textarea id="critical_action" type="text" rows="3" class="form-control"></textarea><span id="error_critical_action" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info" id="error_notificationsubmitBtn"></span></div>
+                    <div class="col">
+                        <button class="btn btn-primary float-right" type="button" style="display: block;" id="notificationsubmitBtn">Save</button>
+                        <button class="btn btn-primary float-right" type="button" style="display: none" id="editnotificationsubmitBtn">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="RemoveNotificationModal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="RemoveNotificationModal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h4 class="modal-title" id="removeNotificationHeader"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h4 class="remove-body" style="color: red"></h4>
+                            <h4 style="color: red">Do you want to proceed ?</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info " id="error_removeNotification"></span></div>
+                    <div class="col">
+                        <button class=" btn btn-primary float-right" type="button" id="removeNotification">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="AppSetting_value_Modal" tabindex="-1" role="dialog" style="z-index: 12000;" data-backdrop="static">
+        <div class="modal-dialog" style="max-width: 50%;">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h4 class="modal-title" id="appsettingvaluemodalHeader"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label class="col-form-label">Attribute:</label>
+                                    <input class="form-control" disabled="disabled" id="modalKeyID" />
+                                </div>
+                            </div>
+                            <div class="form-group row valuediv" style="display: block">
+                                <div class="col">
+                                    <label class="col-form-label">Value:</label>
+                                    <input class="form-control" id="modalValueID" />
+                                    <span class="text-info" id="error_modalValueID"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row timezonediv" style="display: none">
+                                <div class="col">
+                                    <label class="col-form-label">Value:</label>
+                                    <select class="form-control" id="timezoneValueID"></select>
+                                    <span class="text-info" id="error_timezoneValueID"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row value_row_toggle" style="display: none;">
+                                <div class="col-sm text-center">
+                                    <label runat="server" class="control-label" for="vendor_prefix">Value</label>
+                                    <input type="checkbox" name="appsetting_value" data-toggle="toggle" data-on="True" data-off="False" data-width="100" data-height="25" />
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info" id="error_appsettingvalue"></span></div>
+                    <div class="col">
+                        <button class=" btn btn-primary float-right" type="button" id="appsettingvalue">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="ConnectionType_value_Modal" tabindex="-1" role="dialog" style="z-index: 12000;" data-backdrop="static">
+        <div class="modal-dialog" style="max-width: 50%;">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h4 class="modal-title" id="conntypevaluemodalHeader"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label class="col-form-label" id="conntype_label">Value:</label>
+                                    <input type="text" class="form-control" id="modalConnTypeID" />
+                                    <span class="text-info" id="error_modalConnTypeID"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row valuediv" style="display: block">
+                                <div class="col">
+                                    <label class="col-form-label">Description:</label>
+                                    <input type="text" class="form-control" id="descValueID" />
+                                    <span class="text-info" id="error_descValueID"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info" id="error_conntypevalue"></span></div>
+                    <div class="col">
+                        <button class=" btn btn-primary float-right" type="button" id="conntypevalue">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="RemoveConfirmationModal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="RemoveConfirmationModal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col">
+                        <h4 class="modal-title" id="removeAPImodalHeader_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal_Add_AppSettingInfo_modalbody">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h4 class="remove-body" style="color: red"></h4>
+                            <h4 style="color: red">Do you want to proceed ?</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
+                    <div class="col text-center"><span class="text-info " id="error_remove_server_connection"></span></div> 
+                    <button class=" btn btn-primary float-right" type="button" id="remove_server_connection">Remove</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="RemoveConfirmationConTypeModal" tabindex="-1" role="dialog" style="z-index: 12000;" data-backdrop="static" aria-labelledby="RemoveConfirmationConTypeModal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="coll-11">
+                        <h4 class="modal-title" id="removeConTypeHeader_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body" id="modalConTypebody">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h4 class="remove-body" style="color: red"></h4>
+                            <h4 style="color: red">Do you want to proceed ?</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info " id="error_removeConType"></span></div>
+                    <div class="col">
+                        <button class=" btn btn-primary float-right" type="button" id="remove_ConType">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="Remove_Layer_Modal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="Remove_Layer_Modal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="coll-11">
+                        <h4 class="modal-title" id="removeLayermodalHeader_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close">
+                        <i class="pi-iconExit float-right mt-2 mr-2"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h4 class="remove-body" style="color: red"></h4>
+                            <h4 style="color: red">Do you want to proceed ?</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info " id="error_remove_layer"></span></div>
+                    <div class="col">
+                        <button class=" btn btn-primary float-right" type="button" id="remove_layer">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="CTS_Details_Modal" tabindex="-1" role="dialog" style="z-index: 12000;" data-backdrop="static">
+        <div class="modal-dialog" style="max-width: 97%;">
+            <div class="modal-content bg-white">
+
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h4 class="modal-title" id="ctsdetailsmodalHeader"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body pt-0">
+                    <!-- Preloader -->
+                    <div id="modal-preloader">
+                        <div class="modal-preloader_status">
+                            <div class="modal-preloader_spinner">
+                                <div class="d-flex justify-content-center">
+                                    <div class="spinner-border" role="status"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Preloader -->
+                    <div class="table-responsive">
+                        <table class="table table-striped table-sm table-hover" id="ctsdetailstable">
+                            <thead class="thead-dark"></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info" id="error_ctsdetails"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Camera Modal-->
+    <div class="modal fade" id="Camera_Modal" tabindex="-1" role="dialog" style="z-index: 12000;" data-backdrop="static">
+        <div class="modal-dialog" style="max-width: 75%;">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-3">
+                        <h4 class="modal-title" id="cameramodalHeader"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <div class="col-2">
+                        <div class="row">
+                            <span>Camera Direction:</span><div id="cameraViewDirectionArrow" class="bi-arrow-up ml-2"></div>
+                            <span id="cameraViewDirectionNotice">(Not Set)</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="countDown" id="countDownView">
+                            <p>You may view these images for <span id="counter" class="badge badge-info font-weight-bold">0</span> seconds to conserve bandwidth.</p>
+                        </div>
+                    </div>
+                    <div class="col-1">
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    </div>
+                </div>
+                <div class="modal-body pt-0 text-center" id="camera_modalbody">
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info" id="error_camera"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Add Camera Modal-->
+    <div class="modal fade" id="AddEdit_Camera_Modal" tabindex="-1" role="dialog" style="z-index: 12000;" data-backdrop="static">
+        <div class="modal-dialog" style="max-width: 75%;">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-4 float-left">
+                        <h4 class="modal-title" id="addedit_cameramodalHeader"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <div class="col-6 text-center">
+                        <h4 id="cameradescription"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body pt-0 text-center" id="addedit_camera_modalbody">
+                    <div class="row mb-3">
+                        <div class="form-group col-4">
+                            <label class="control-label">Camera Name</label>
+                            <input id="camera_name" type="text" class="form-control" name="camera_name" />
+                            <span id="error_camera_name" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-8">
+                            <label class="control-label">Description</label>
+                            <input id="camera_description" type="text" class="form-control" name="camera_description" />
+                            <span id="error_camera_description" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="form-group col-4">
+                            <label class="control-label">Camera Model</label>
+                            <input id="camera_model" type="text" class="form-control" name="camera_model" />
+                            <span id="error_camera_model" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info" id="error_camera_submitBtn"></span></div>
+                    <div class="col">
+                        <button class="btn btn-primary float-right" type="button" id="camera_submitBtn">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="UserTag_Modal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="UserTag_Modal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h4 class="modal-title" id="modaluserHeader_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mr-0 ml-0" id="personform" style="display: none">
+                        <div class="row mr-0 ml-0">
+                            <div class="form-group col-3">
+                                <label class="control-label">First Name</label>
+                                <input id="empFirstName" type="text" class="form-control" name="empFirstName" />
+                                <span id="error_empFirstName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-3">
+                                <label class="control-label">Last Name</label>
+                                <input id="empLastName" type="text" class="form-control" name="empLastName" />
+                                <span id="error_empLastName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-3">
+                                <label class="control-label">EIN</label>
+                                <input id="employeeEIN" type="text" class="form-control" name="employeeEIN" />
+                                <span id="error_employeeEIN" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row mr-0 ml-0">
+                            <div class="form-group col-3">
+                                <label class="control-label">EncodedID</label>
+                                <input id="tagEncodedID" type="text" class="form-control" name="tagEncodedID" />
+                                <span id="error_tagEncodedID" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-3">
+                                <label class="control-label">Pay Location</label>
+                                <input id="paylocation" type="text" class="form-control" name="paylocation" />
+                                <span id="error_paylocation" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-3">
+                                <label class="control-label">Craft Type</label>
+                                <select id="tagCraftName_select" title="Craft Type" class="form-control" name="tagCraftName_select">
+                                    <option value=""></option>
+                                    <option value="Clerk">Clerk</option>
+                                    <option value="Supervisor">Supervisor</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                    <option value="Mail Handler">Mail Handler</option>
+                                    <option value="Custodial">Custodial</option>
+                                </select>
+                                <span id="error_tagCraftName_select" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mr-0 ml-0">
+                        <div class="form-group col-3">
+                            <label class="control-label">Tag BLE MAC</label>
+                            <input id="tag_id" type="text" class="form-control" name="tag_id" disabled="disabled" />
+                            <span id="error_tag_id" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="control-label">TAG Name</label>
+                            <input id="tag_name" type="text" class="form-control" name="tag_name" />
+                            <span id="error_tag_name" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="control-label">Type</label>
+                            <select id="tagType_select" title="Tag Type" class="form-control" name="tagType_select">
+                                <option value=""></option>
+                                <option value="Vehicle">Vehicle</option>
+                                <option value="Locator">Locater</option>
+                                <option value="HVI">High Value Item</option>
+                                <option value="Person">Person</option>
+                                <option value="Autonomous Vehicle">Autonomous Vehicle</option>
+                            </select>
+                            <span id="error_tagType_select" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class=" close btn btn-outline-secondary float-left" type="button" data-dismiss="modal" aria-label="Close">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info" id="error_usertagsubmitBtn"></span></div>
+                    <div class="col">
+                        <button class="btn btn-primary float-right" type="button" id="usertagsubmitBtn">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="Zone_Modal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="Zone_Modal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h4 class="modal-title" id="modalZoneHeader_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mr-0 ml-0">
+                        <div class="form-group col-4">
+                            <label class="control-label">Zone ID</label>
+                            <input id="machine_id" type="text" class="form-control" name="machine_id" disabled="disabled" /><span id="error_machine_id" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="control-label">IP Address</label>
+                            <input id="machine_ip" type="text" class="form-control" name="machine_ip" disabled="disabled" /><span id="error_machine_ip" class="text-danger"></span>
+                            <%--       <select id="select_machine_ip" title="Zone IP Address" class="form-control" style="display:none" name="select_machine_ip">
+                                <option value=""></option>
+                            </select>
+                            <span id="error_select_machine_ip" class="text-danger"></span>--%>
+                        </div>
+                    </div>
+                    <div class="row mr-0 ml-0" id="machine_select_row">
+                        <div class="form-group col-3">
+                            <label class="control-label">Name</label>
+                            <%--<input id="machine_zone_name" type="text" class="form-control" name="machine_zone_name" style="display:block;">--%>
+                            <select id="machine_zone_select_name" title="Zone Select Name" class="form-control" name="machine_zone_select_name">
+                                <option value=""></option>
+                            </select>
+                            <span id="error_machine_zone_name" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row mr-0 ml-0" id="machine_manual_row">
+                        <div class="form-group col-2">
+                            <label class="control-label">Name</label><input id="machine_name" type="text" class="form-control" name="machine_name" /><span id="errormachine_name" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-2">
+                            <label class="control-label">Number</label><input id="machine_number" type="text" class="form-control" name="machine_number" /><span id="error_machine_number" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row mr-0 ml-0">
+                        <div class="form-group col-2">
+                            <label class="control-label">Zone LDC</label><input id="zone_ldc" type="text" class="form-control" name="zone_ldc" /><span id="errorzone_ldc" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="control-label">Pay Location</label><input id="zone_paylocation" type="text" class="form-control" name="zone_paylocation" /><span id="errorzone_paylocation" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="control-label">Pay Location Color</label>
+                            <select id="zonePayLocationColor" title="Select Pay Location Color" class="form-control pb-1" name="zonePayLocationColor">
+                                <option value="">Choose a color:</option>
+                                <option value="#FF0000">Red</option>
+                                <option value="#FFA500">Orange</option>
+                                <option value="#FFFF00">Yellow</option>
+                                <option value="#008000">Green</option>
+                                <option value="#0000FF">Blue</option>
+                                <option value="#4B0082">Indigo</option>
+                                <option value="#EE82EE">Violet</option>
+                                <option value="#A0522D">Sienna</option>
+                                <option value="#FF4500">OrangeRed</option>
+                                <option value="#008080">Teal</option>
+                                <option value="#FFC0CB">Pink</option>
+                                <option value="#800080">Purple</option>
+                                <option value="#696969">DimGray</option>
+                                <option value="#DCDCDC">Gainsboro</option>
+                                <option value="#F5DEB3">Wheat</option>
+                                <option value="#2E8B57">SeaGreen</option>
+                                <option value="#FFD700">Gold</option>
+
+                            </select>
+                            <span id="error_zonePayLocationColor" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="control-label">Group</label>
+                            <select id="mpe_group_select" title="Select Group Name" class="form-control pb-1" name="mpe_group_select">
+                            </select>
+                        </div>
+                        <div id="mpegroupname_div" class="form-group col-4">
+                            <label class="control-label">Enter New Group Name</label>
+                            <input id="mpegroupname" title="New Group Name" type="text" class="form-control" name="mpegroupname" placeholder="Ex. Parcels North" />
+                            <span id="error_mpegroupname" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mr-0 ml-0" style="padding: 15px;">
+                        <div class="form-group col-12">
+                            <h4 id="mpestandard_h2" class="d-inline">MPE Standard </h4>
+                            <input type="button" class="btn btn-outline-success float-right d-inline" id="mpestandard_btn" value="Add" />
+                        </div>
+
+                        <div id="mpestandard_row_template" class="hidden">
+
+                            <div class="row flex">
+                                <div class="col-4">
+                                    <label class="control-label">Name</label>
+                                    <input class="form-control name_txt" id="" type="text" placeholder="Run Name" />
+                                </div>
+                                <div class="col-2">
+                                    <label class="control-label">OPN</label>
+                                    <input class="form-control GUID_txt" id="" type="hidden" />
+                                    <input class="form-control OPN_txt" id="" type="text" placeholder="000" />
+                                </div>
+                                <div class="col-2">
+                                    <label class="control-label">Start Time</label>
+                                    <input class="form-control starttime_txt 24hr_txt" id="" type="text" placeholder="00:00" />
+                                </div>
+                                <div class="col-2">
+                                    <label class="control-label">End Time</label>
+                                    <input class="form-control endtime_txt 24hr_txt" id="" type="text" placeholder="00:00" />
+                                </div>
+                                <div class="col-2">
+                                    <label class="control-label">&nbsp;</label>
+                                    <input type="button" class="btn btn-outline-danger float-right d-inline mpestandard_btn_delete" style="margin-top: 20px;" id="" value="Delete" />
+                                    <input type="button" class="btn btn-outline-success float-right d-inline mpestandard_btn_save" style="margin-top: 20px; margin-right: 10px;" id="" value="Save" />
+                                </div>
+                            </div>
+                            <div class="row flex">
+                                <div class="col-2">
+                                    <label class="control-label">Setup (min)</label>
+                                    <input class="form-control setuptime_txt number_txt" id="" type="text" placeholder="00" />
+                                </div>
+                                <div class="col-2">
+                                    <label class="control-label">Tear Down (min)</label>
+                                    <input class="form-control teardowntime_txt number_txt" id="" type="text" placeholder="00" />
+                                </div>
+                                <div class="col-2">
+                                    <label class="control-label">Changeover (min)</label>
+                                    <input class="form-control changeovertime_txt number_txt" id="" type="text" placeholder="00" />
+                                </div>
+                                <div class="col-2">
+                                    <label class="control-label">Pcs/Hr</label>
+                                    <input class="form-control psc_hr_txt number_txt" id="" type="text" placeholder="00" />
+                                </div>
+                                <div class="col-2">
+                                    <label class="control-label">Staffing Per Hour</label>
+                                    <input class="form-control staff_hr_txt number_txt" id="" type="text" placeholder="00" />
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="mpestandard_div">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info" id="error_machinesubmitBtn"></span></div>
+                    <div class="col">
+                        <button class="btn btn-primary float-right" type="button" id="machinesubmitBtn">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="DockDoorZone_Modal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="Zone_Modal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h4 class="modal-title" id="modalDockDoorZoneHeader_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mr-0 ml-0">
+                        <div class="form-group col-4">
+                            <label class="control-label">Zone ID</label>
+                            <input id="dockdoor_id" type="text" class="form-control" name="dockdoor_id" disabled="disabled" /><span id="error_dockdoor_id" class="text-danger"></span>
+                        </div>
+
+                    </div>
+                    <div class="row mr-0 ml-0">
+                        <div class="form-group col">
+                            <label class="control-label">External URL</label>
+                            <input id="dockdoorexternalUrl" type="text" class="form-control" name="dockdoorexternalUrl" /><span id="error_dockdoorexternalUrl" class="text-danger"></span>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info" id="error_dockdoorubmitBtn"></span></div>
+                    <div class="col">
+                        <button class="btn btn-primary float-right" type="button" id="dockdoorubmitBtn">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="TagName_Modal" tabindex="-1" role="dialog" style="z-index: 12000;"
+         data-backdrop="static" aria-labelledby="TagName_Modal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h4 class="modal-title" id="TagName_Modal_Header_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mr-0 ml-0">
+                        <div class="form-group col">
+                            <label class="control-label">Tag ID</label><span id="modal_tag_id" class="form-control" name="tag_id"></span>
+                        </div>
+                    </div>
+                    <div class="row mr-0 ml-0">
+                        <div class="form-group col">
+                            <label class="control-label">Tag Name</label><input id="edit_tag_name" type="text" class="form-control" name="tag_name" val="" />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info" id="error_edittagsubmitBtn"></span></div>
+                    <div class="col">
+                        <button class="btn btn-primary float-right" type="button" id="edittagsubmitBtn">Save</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="ContainerDetails_Modal" tabindex="-1" style="z-index: 12000;" role="dialog" data-backdrop="static" aria-labelledby="ContainerDetails_Modal_Label">
+        <div class="modal-dialog" style="max-width: 85%;">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h4 class="modal-title" id="modalContainerDetailsHeader_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card-body pb-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-sm table-hover mb-0 border-bottom" id="containerdetailstable">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th style="width: 4%;">Site</th>
+                                        <th style="width: 10%;">Site Name</th>
+                                        <th style="width: 9%;">Site Type</th>
+                                        <th style="width: 7%;">Event</th>
+                                        <th style="width: 15%;">Event Time</th>
+                                        <th style="width: 10%;">Location</th>
+                                        <th style="width: 5%;">Bin</th>
+                                        <th style="width: 10%;">Trailer</th>
+                                        <th style="width: 5%;">Route</th>
+                                        <th style="width: 5%;">Trip</th>
+                                        <th style="width: 10%;">Source</th>
+                                        <th style="width: 10%;">User</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info" id="error_containerdetailsubmitBtn"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="RouteTripDetails_Modal" tabindex="-1" style="z-index: 12000;" role="dialog" data-backdrop="static" aria-labelledby="RouteTrip_Modal_Label">
+        <div class="modal-dialog" style="max-width: 85%;">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h3 class="modal-title" id="modalRouteTripDetailsHeader_ID"><span aria-hidden="true"></span></h3>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card-body pb-0" id="RouteTripDetailscard">
+                    </div>
+                    <div class="card-body pb-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-sm table-hover mb-0 border-bottom" id="detailscontainertable">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th style="width: 4%;">Site</th>
+                                        <th style="width: 10%;">Site Name</th>
+                                        <th style="width: 9%;">Site Type</th>
+                                        <th style="width: 7%;">Event</th>
+                                        <th style="width: 15%;">Event Time</th>
+                                        <th style="width: 10%;">Location</th>
+                                        <th style="width: 5%;">Bin</th>
+                                        <th style="width: 10%;">Trailer</th>
+                                        <th style="width: 5%;">Route</th>
+                                        <th style="width: 5%;">Trip</th>
+                                        <th style="width: 10%;">Source</th>
+                                        <th style="width: 10%;">User</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Sidebar panel content -->
     <div class="leaflet-sidebar leaflet-control leaflet-sidebar-left leaflet-touch collapsed" id="sidebar">
         <!-- Sidebar panel Vertical Navigation Tab -->
@@ -1076,32 +2230,23 @@
                     <span class="leaflet-sidebar-close"><i class="bi-caret-left"></i></span>
                 </h1>
                 <i class="leaflet-sidebar-close pt-1 pi-iconExit"></i>
-                <div class="btn-toolbar" role="toolbar" id="connection_div">
-                    <div id="div_connectionNotification" class="container-fluid">
-                        <button type="button" class="btn btn-primary mb-sm-2 ml-p5rem" name="connectionbtn">Add</button>
-                        <div class="card w-100 mb-3">
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <div id="connectiontable_wrapper" class="dataTables_wrapper no-footer">
-                                        <table class="table table-sm table-hover table-condensed mb-1 dataTable no-footer" id="connectiontable" style="border-collapse:collapse;">
-                                            <thead class="thead-dark">
-                                                <tr>
-                                                    <th class="row-connection-name sorting sorting_asc" tabindex="0" aria-controls="connectiontable" rowspan="1" colspan="1" aria-label="Name: activate to sort column descending" aria-sort="ascending" style="width: 60%;">Name</th>
-                                                    <th class="row-connection-type sorting" tabindex="0" aria-controls="connectiontable" rowspan="1" colspan="1" aria-label="Message Type: activate to sort column ascending" style="width: 40%;">Message Type</th>
-                                                    <th class="row-connection-port sorting" tabindex="0" aria-controls="connectiontable" rowspan="1" colspan="1" aria-label="Port: activate to sort column ascending" style="width: 10%;">Port</th>
-                                                    <th class="row-connection-status sorting" tabindex="0" aria-controls="connectiontable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 0%;">Status</th>
-                                                    <th class="row-connection-action sorting" tabindex="0" aria-controls="connectiontable" rowspan="1" colspan="1" aria-label="Action: activate to sort column ascending" style="width: 30%;">Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
+                <div class="card w-100">
+                    <div class="card-header pl-1 d-flex justify-content-between">
+                        <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Data Endpoints</h6>
+                        <button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem" name="connectionbtn" onclick="Add_Connection()">Add</button>
+                    </div>
+                    <div class="table-responsive">
+                        <div id="backgroundimagetable">
+                            <table class="table table-sm table-hover table-condensed" id="connectiontable">
+                                <thead class="thead-dark">
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
+            
             </div>
             <!-- Sidebar panel setting -->
             <div class="leaflet-sidebar-pane overflow-auto" id="setting">
@@ -1162,13 +2307,13 @@
                     </div>
                     <div class="card w-100">
                         <div class="card-header pl-1 d-flex justify-content-between">
-                            <h6 class="control-label ml-1 mb-1 d-flex justify-content-between">Connection Type</h6>
+                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Connection Type</h6>
                             <button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem" name="addConnectionType" title="Add New Connection Type">Add</button>
                         </div>
                         <div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <div id="connectiontypetable">
+                                    <div>
                                         <table class="table table-sm table-hover table-condensed" id="connectiontypetable">
                                             <thead class="thead-dark">
 
@@ -1374,10 +2519,12 @@
     <script src="../lib/leaflet-easybutton/src/easy-button.js"></script>
     <script src="../js/view/default.js"></script>
     <script src="../js/view/connections.js"></script>
+    <script src="../js/view/connectionTypes.js"></script>
     <script src="../js/view/indoorMap.js"></script>
     <script src="../js/view/tagsEmployee.js"></script>
     <script src="../js/view/geoZonesMPE.js"></script>
     <script src="../js/view/geoZonesDockDoors.js"></script>
+    <script src="../js/view/geoZonesMPEBin.js"></script>
     <script src="../js/view/geoZones.js"></script>
     <script src="../js/view/geoman.js"></script>
 </body>

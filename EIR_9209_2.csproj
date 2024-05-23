@@ -8,7 +8,6 @@
 
 	<ItemGroup>
 	  <Compile Remove="BackgroundImage\**" />
-	  <Compile Remove="Configuration\**" />
 	  <Compile Remove="Connection\**" />
 	  <Compile Remove="GeoZones\**" />
 	  <Compile Remove="Logs\**" />
@@ -16,7 +15,6 @@
 	  <Compile Remove="SiteIdentity\**" />
 	  <Compile Remove="Tags\**" />
 	  <Content Remove="BackgroundImage\**" />
-	  <Content Remove="Configuration\**" />
 	  <Content Remove="Connection\**" />
 	  <Content Remove="GeoZones\**" />
 	  <Content Remove="Logs\**" />
@@ -24,7 +22,6 @@
 	  <Content Remove="SiteIdentity\**" />
 	  <Content Remove="Tags\**" />
 	  <EmbeddedResource Remove="BackgroundImage\**" />
-	  <EmbeddedResource Remove="Configuration\**" />
 	  <EmbeddedResource Remove="Connection\**" />
 	  <EmbeddedResource Remove="GeoZones\**" />
 	  <EmbeddedResource Remove="Logs\**" />
@@ -32,7 +29,6 @@
 	  <EmbeddedResource Remove="SiteIdentity\**" />
 	  <EmbeddedResource Remove="Tags\**" />
 	  <None Remove="BackgroundImage\**" />
-	  <None Remove="Configuration\**" />
 	  <None Remove="Connection\**" />
 	  <None Remove="GeoZones\**" />
 	  <None Remove="Logs\**" />

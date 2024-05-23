@@ -30,7 +30,7 @@ async function findDockDoorZoneLeafletIds(zoneId) {
                 return false;
             }
         });
-        reject(new Error('No layer found with the given markerId'));
+        reject(new Error('No layer found with the given DockDoor Zone Id'));
     });
 }
 async function init_geoZoneDockDoor() {

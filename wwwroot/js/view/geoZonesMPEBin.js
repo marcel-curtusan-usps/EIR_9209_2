@@ -158,22 +158,25 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
     });
 });
 
-
-let geoZoneMPE = new L.GeoJSON(null, {
+let flash = "";
+let geoZoneMPEBin = new L.GeoJSON(null, {
     style: function (feature) {
         return {
             weight: 1,
             opacity: 1,
-            color: '#989ea4',
+            color: '#3573b1',
             fillOpacity: 0.2,
-            fillColor: GetMacineBackground(feature.properties.mpeRunPerformance),
+            fillColor: '#989ea4',
+            label: feature.properties.name,
             lastOpacity: 0.2
         };
     },
     onEachFeature: function (feature, layer) {
 
         layer.zoneId = feature.properties.id;
-
+        if (feature.properties.MPE_Bins !== null && feature.properties.MPE_Bins.length > 0) {
+            flash = "doorflash";
+        }
         layer.on('click', function (e) {
             OSLmap.setView(e.sourceTarget.getCenter(), 3);
             //makea ajax call to get the employee details
@@ -202,12 +205,12 @@ let geoZoneMPE = new L.GeoJSON(null, {
             });
 
         });
-        layer.bindTooltip(feature.properties.name + "<br/>" + "Staffing: " + (feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0"), {
+        layer.bindTooltip("", {
             permanent: true,
             interactive: true,
             direction: "center",
             opacity: 1,
-            className: 'location '
+            className: 'dockdooknumber ' + flash
         }).openTooltip();
 
     },
@@ -217,101 +220,79 @@ let geoZoneMPE = new L.GeoJSON(null, {
 });
 
 // add to the map and layers control
-let geoZoneMPEoverlayLayer = L.layerGroup().addTo(OSLmap);
-layersControl.addOverlay(geoZoneMPEoverlayLayer, "MPE Zones");
-geoZoneMPE.addTo(geoZoneMPEoverlayLayer);
+let geoZoneMPEBinoverlayLayer = L.layerGroup().addTo(OSLmap);
+layersControl.addOverlay(geoZoneMPEBinoverlayLayer, "MPE Bin Zones");
+geoZoneMPEBin.addTo(geoZoneMPEBinoverlayLayer);
 
-async function findMpeZoneLeafletIds(zoneId) {
+async function findMpeBinZoneLeafletIds(zoneId) {
     return new Promise((resolve, reject) => {
-        geoZoneMPE.eachLayer(function (layer) {
+        geoZoneMPEBin.eachLayer(function (layer) {
             if (layer.zoneId === zoneId) {
                 resolve(layer._leaflet_id);
                 return false;
             }
         });
-        reject(new Error('No layer found with the given MPE Zone Id'));
+        reject(new Error('No layer found with the given MPE Bin Zone Id'));
     });
 }
-async function init_geoZoneMPE() {
+async function init_geoZoneMPEBin() {
     $(document).on('change', '.leaflet-control-layers-selector', function (e) {
         let sp = this.nextElementSibling;
-        if (/^(MPE Zones)$/ig.test(sp.innerHTML.trim())) {
+        if (/^(MPE Bin Zones)$/ig.test(sp.innerHTML.trim())) {
             if (this.checked) {
-                connection.invoke("AddToGroup", "MPEZones").catch(function (err) {
+                connection.invoke("AddToGroup", "MPEBinZones").catch(function (err) {
                     return console.error(err.toString());
                 });
             }
             else {
-                connection.invoke("RemoveFromGroup", "MPEZones").catch(function (err) {
+                connection.invoke("RemoveFromGroup", "MPEBinZones").catch(function (err) {
                     return console.error(err.toString());
                 });
             }
         }
 
     });
-    connection.invoke("JoinGroup", "MPEZones").catch(function (err) {
+    connection.invoke("JoinGroup", "MPEBinZones").catch(function (err) {
         return console.error(err.toString());
     });
 }
-connection.on("UpdateGeoZone", async (mpeZonedata) => {
-    await findMpeZoneLeafletIds(mpeZonedata.properties.id)
-        .then(leafletIds => {
-            geoZoneMPE._layers[leafletIds].properties = mpeZonedata.properties;
-        });
 
-});
-connection.on("MPEPerformanceUpdateGeoZone", async (mpeZonedata) => {
-    await findMpeZoneLeafletIds(mpeZonedata.zoneId)
+connection.on("MPEBinUpdateGeoZone", async (mpeZonedata) => {
+    await findMpeBinZoneLeafletIds(mpeZonedata.zoneId)
         .then(leafletIds => {
-            geoZoneMPE._layers[leafletIds].feature.properties.mpeRunPerformance = mpeZonedata;
-            geoZoneMPE._layers[leafletIds].setStyle({
-                weight: 1,
-                opacity: 1,
-                fillOpacity: 0.2,
-                fillColor: GetMacineBackground(mpeZonedata),
-                lastOpacity: 0.2
-            });
+            if (mpeZonedata.bin_full_status > 0) {
+                geoZoneMPEBin._layers[leafletIds]._tooltip._container.classList.add('doorflash');
+                geoZoneMPEBin._layers[leafletIds].setStyle({
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.5,
+                    fillColor: "#ff8855",
+                    lastOpacity: 0.5
+                });
+            }
+            else {
+                geoZoneMPEBin._layers[layerindex]._tooltip._container.classList.remove('doorflash');
+                geoZoneMPEBin._layers[layerindex].setStyle({
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.2,
+                    fillColor: "#989ea4",
+                    lastOpacity: 0.2
+                });
+            }
         });
 });
-async function addMPEFeature(data) {
+async function addMPEBinFeature(data) {
     try {
-        await findMpeZoneLeafletIds(data.properties.id)
+        await findMpeBinZoneLeafletIds(data.properties.id)
             .then(leafletIds => {
 
             })
             .catch(error => {
-                geoZoneMPE.addData(data);
+                geoZoneMPEBin.addData(data);
             });
     }
     catch (e) {
         throw new Error(e.toString());
     }
-}
-function GetMacineBackground(mpeWatchData) {
-    let NotRunningbkColor = '#989ea4';
-    let RunningColor = '#3573b1';
-    let WarningColor = '#ffc107';
-    let AlertColor = '#dc3545';
-    try {
-        if (mpeWatchData.curSortplan === "0" || mpeWatchData.curSortplan === '') {
-            return NotRunningbkColor;
-        }
-        else {
-
-            if (mpeWatchData.throughputStatus === 3) {
-                return AlertColor;
-            }
-            if (mpeWatchData.unplanMaintSpStatus === 2 || mpeWatchData.opStartedLateStatus === 2 || mpeWatchData.opRunningLateStatus === 2 || mpeWatchData.sortplanWrongStatus === 2 || mpeWatchData.throughputStatus === 2) {
-                return AlertColor;
-            }
-            if (mpeWatchData.unplanMaintSpStatus === 1 || mpeWatchData.opStartedLateStatus === 1 || mpeWatchData.opRunningLateStatus === 1 || mpeWatchData.sortplanWrongStatus === 1) {
-                return WarningColor;
-            }
-            return RunningColor;
-        }
-    }
-    catch (e) {
-
-    }
-
 }

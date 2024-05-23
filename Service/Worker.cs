@@ -47,7 +47,7 @@ public class Worker : BackgroundService, IHostedService
     public void AddEndpoint(Connection endpointConfig)
     {
         //Quuppa Position Engine (QPE)
-        if (endpointConfig.Name == "QPE")
+        if (endpointConfig.Name == "QPE" && endpointConfig.ActiveConnection)
         {
 
             if (_QPEendpointServices.ContainsKey(endpointConfig.Id))
@@ -63,7 +63,7 @@ public class Worker : BackgroundService, IHostedService
             _QPEendpointService.Start();
         }
         //MPE Watch Engine
-        if (endpointConfig.Name == "MPEWatch")
+        else if (endpointConfig.Name == "MPEWatch" && endpointConfig.ActiveConnection)
         {
             if (_MPEWatchendpointServices.ContainsKey(endpointConfig.Id))
             {
@@ -78,7 +78,7 @@ public class Worker : BackgroundService, IHostedService
             _MPEWatchendpointService.Start();
         }
         //MPE Watch Engine
-        if (endpointConfig.Name == "IDS")
+        else if (endpointConfig.Name == "IDS")
         {
             if (_MPEWatchendpointServices.ContainsKey(endpointConfig.Id))
             {
@@ -92,13 +92,15 @@ public class Worker : BackgroundService, IHostedService
             _IDSendpointServices[endpointConfig.Id] = _IDSendpointService;
             _IDSendpointService.Start();
         }
+        else
+        {
+            endpointConfig.Status = EWorkerServiceState.InActive;
+            endpointConfig.LasttimeApiConnected = DateTime.Now;
+            _logger.LogInformation("Endpoint {ID} is {status}.", endpointConfig.Id, endpointConfig.Status);
 
-        endpointConfig.Status = EWorkerServiceState.Starting;
-        endpointConfig.LasttimeApiConnected = DateTime.Now;
-        _logger.LogInformation("Started endpoint {Url}.", endpointConfig.Id);
-
-        // Add or update in the repository
-        _connections.Update(endpointConfig);
+            // Add or update in the repository
+            _connections.Update(endpointConfig);
+        }
     }
 
     public void RemoveEndpoint(string id)

@@ -132,6 +132,11 @@ public class HubServices : Hub
     {
         return _connections.GetAll();
     }
+    // worker request for data of connectionType list
+    public async Task<IEnumerable<ConnectionType>> GetConnectionTypeList()
+    {
+        return _connections.GetTypeAll();
+    }
     // client get all zones
     public async Task<IEnumerable<GeoZone>> GetGeoZoneList()
     {

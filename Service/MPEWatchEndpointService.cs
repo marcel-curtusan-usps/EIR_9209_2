@@ -105,6 +105,7 @@ internal class MPEWatchEndpointService
             string FormatUrl = "";
             _endpointConfig.Status = EWorkerServiceState.Running;
             _endpointConfig.LasttimeApiConnected = DateTime.Now;
+            _endpointConfig.ApiConnected = true;
             _connections.Update(_endpointConfig);
             string MpeWatch_id = "1";
             string start_time = string.Concat(DateTime.Now.AddHours(-_endpointConfig.HoursBack).ToString("MM/dd/yyyy_"), "00:00:00");

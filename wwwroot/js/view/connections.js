@@ -248,12 +248,44 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
 });
 async function Add_Connection() {
     try {
-        sidebar.open('connection');
+        $('div[id="serveripmenu"]').css("display", "");
+        $('div[id="endpointurl"]').css("display", "");
+        $('#modalHeader_ID').text('Add Connection');
+        $('button[id=apisubmitBtn]').off().on('click', function () {
+            $('button[id=apisubmitBtn]').prop('disabled', true);
+            $('input[type=checkbox][name=ws_connection]').prop('disabled', false);
+            $('input[type=checkbox][name=udp_connection]').prop('disabled', false);
+            $('input[type=checkbox][name=tcpip_connection]').prop('disabled', false);
+            let jsonObject = {
+                ActiveConnection: $('input[type=checkbox][name=active_connection]').prop('checked'),
+                ApiConnection: $('input[type=radio][id=api_connection]').prop('checked'),
+                UdpConnection: $('input[type=radio][id=udp_connection]').prop('checked'),
+                TcpIpConnection: $('input[type=radio][id=tcpip_connection]').prop('checked'),
+                WsConnection: $('input[type=radio][id=ws_connection]').prop('checked'),
+                HoursBack: parseInt($('input[id=hoursback_range]').val(), 10),
+                HoursForward: parseInt($('input[id=hoursforward_range]').val(), 10),
+                DataRetrieve: $('select[name=data_retrieve] option:selected').val(),
+                ConnectionName: $('select[name=connection_name] option:selected').val(),
+                IpAddress: $('input[type=text][name=ip_address]').val(),
+                Port: $.isNumeric($('input[type=text][name=port_number]').val()) ? parseInt($('input[id=hoursback_range]').val(), 10) : 0,
+                Url: $('input[type=text][name=url]').val(),
+                MessageType: $('select[name=message_type] option:selected').val(),
+                CreatedByUsername: User.UserId,
+                NassCode: User.Facility_NASS_Code
+            };
+            if (!$.isEmptyObject(jsonObject)) {
+                fotfmanager.server.addAPI(JSON.stringify(jsonObject)).done(function (Data) {
+                    $('span[id=error_apisubmitBtn]').text(jsonObject.ConnectionName + " " + jsonObject.MessageType + " Connection has been Added");
+                    setTimeout(function () { $("#API_Connection_Modal").modal('hide'); sidebar.open('connections'); }, 1500);
+                });
+            }
+        });
+        $('#API_Connection_Modal').modal('show');
     } catch (e) {
         throw new Error(e.toString());
     }
 }
-async function Edit_Connection(data) { };
+async function Edit_Connection(data) {};
 async function updateConnection(data) {
     try {
         return new Promise((resolve, reject) => {
@@ -271,7 +303,7 @@ async function init_connection(ConnectionList) {
             $('button[name=addconnection]').off().on('click', function () {
                 /* close the sidebar */
                 sidebar.close();
-                Add_Connection();
+                Promise.all([Add_Connection()]);
             });
             createConnectionDataTable("connectiontable");
             if (ConnectionList.length > 0) {
@@ -336,7 +368,27 @@ function createConnectionDataTable(table) {
             tempc = {
                 "title": "Status",
                 "width": "30%",
-                "mDataProp": key
+                "mDataProp": key,
+                "mRender": function (data, full) {
+                    switch (data) {
+                        case 0:
+                            return "Stopped"
+                        case 1:
+                            return "Starting"
+                        case 2:
+                            return "StartFailedWaitingToRestart"
+                        case 3:
+                            return "Running"
+                        case 4:
+                            return "Stopping"
+                        case 5:
+                            return "ErrorPullingData"
+                        case 6:
+                            return "InActive"
+                        default:
+                            return "No Status"
+                    }
+                }
 
             }
         }
@@ -346,15 +398,9 @@ function createConnectionDataTable(table) {
                 "width": "30%",
                 "mDataProp": key,
                 "mRender": function (data, type, full) {
-                    /* if (/^Admin/i.test(User.Role)) {*/
                     Actioncolumn = true;
                     return '<button class="btn btn-light btn-sm mx-1 pi-iconEdit connectionedit" name="connectionedit"></button>' +
                         '<button class="btn btn-light btn-sm mx-1 pi-trashFill connectiondelete" name="connectiondelete"></button>'
-                    //}
-                    //else {
-                    //    Actioncolumn = false;
-                    //    return "";
-                    //}
                 }
             }
         }
@@ -397,6 +443,7 @@ function createConnectionDataTable(table) {
         sorting: [[0, "asc"]],
         rowCallback: function (row, data) {
             $(row).find('td:eq(0)').css('text-align', 'left');
+            $(row).find('td:eq(3)').css('text-align', 'center');
             if (data.activeConnection) {
                 if (data.apiConnected) {
                     $(row).find('td:eq(3)').css('background-color', '#17C671');
@@ -483,4 +530,144 @@ async function addSideButton(name) {
     } else if (/^SV/i.test(name)) {
         $('#TripSideButton').css("display", "block");
     }
+}
+function Remove_Connection(data) {
+    try {
+        let ConnectionRemove = data;
+        $('#removeAPImodalHeader_ID').text('Removing Connection: ' + ConnectionRemove.name );
+        $('button[id=remove_server_connection]').off().on('click', function () {
+            fotfmanager.server.removeAPI(JSON.stringify(ConnectionRemove)).done(function (Data) {
+                setTimeout(function () {
+                    $("#RemoveConfirmationModal").modal('hide');
+                    sidebar.open('connections');
+                }, 800);
+            })
+        });
+        $('#RemoveConfirmationModal').modal('show');
+    } catch (e) {
+
+    }
+}
+function enabletcpipudpSubmit() {
+    if ($('select[name=message_type]').hasClass('is-valid') &&
+        $('select[name=data_retrieve]').hasClass('is-valid') &&
+        $('input[type=text][name=port_number]').hasClass('is-valid') &&
+        $('select[name=connection_name]').hasClass('is-valid')
+    ) {
+        $('button[id=apisubmitBtn]').prop('disabled', false);
+    }
+    else {
+        $('button[id=apisubmitBtn]').prop('disabled', true);
+    }
+}
+function enableaipSubmit() {
+    if ($('input[type=text][name=url]').hasClass('is-valid') &&
+        $('select[name=message_type]').hasClass('is-valid') &&
+        $('select[name=data_retrieve]').hasClass('is-valid') &&
+        $('select[name=connection_name]').hasClass('is-valid')
+    ) {
+        $('button[id=apisubmitBtn]').prop('disabled', false);
+    }
+    else {
+        $('button[id=apisubmitBtn]').prop('disabled', true);
+    }
+}
+function enableMessagetype() {
+    if (!checkValue($('select[name=message_type] option:selected').val())) {
+        $('select[name=message_type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_message_type]').text("Select Connection Name Frist");
+    }
+    else {
+        $('select[name=message_type]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_message_type]').text("");
+    }
+}
+function filtermessage_type(name, type) {
+    let conectionName = !!name ? name : $("#connection_name").find('option:selected').val();
+    $("#message_type").children().appendTo("#option-container");
+    let toMove = $("#option-container").children("[data-messagetype='" + conectionName + "']");
+    toMove.appendTo("#message_type");
+    let toBlankMove = $("#option-container").children("[data-messagetype='blank']");
+    toBlankMove.appendTo("#message_type");
+    $("#message_type").removeAttr("disabled");
+    if (!!name) {
+        $('select[id=connection_name]').val(name);
+        $('select[id=connection_name]').prop('disabled', true);
+    }
+    else {
+        $('select[id=connection_name]').prop('disabled', false);
+    }
+    if (!!type) {
+        $('select[id=message_type]').val(type);
+        $('select[id=message_type]').prop('disabled', true);
+    }
+    else {
+        if (type === "") {
+            $('select[id=message_type]').val("blank");
+        }
+        else {
+            $('select[id=message_type]').val(type);
+        }
+
+        $('select[id=message_type]').prop('disabled', false);
+    }
+};
+function onAPIConnection() {
+    $('div[id="serveripmenu"]').css("display", "none");
+    $('div[id="endpointurl"]').css("display", "");
+    $('input[type=text][name=url]').prop("disabled", false);
+    $('select[name=data_retrieve]').prop("disabled", false);
+    if (!checkValue($('input[type=text][name=url]').val())) {
+        $('input[type=text][name=url]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_url]').text("Please Enter API URL");
+    } else {
+        $('input[type=text][name=url]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_url]').text("");
+    }
+    if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
+        $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
+    }
+    else {
+        $('select[name=data_retrieve]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_data_retrieve]').text("");
+    }
+    enableaipSubmit();
+}
+function onudptcpipConnection() {
+    $('div[id="endpointurl"]').css("display", "none");
+    $('div[id="serveripmenu"]').css("display", "");
+    $('input[type=text][name=url]').prop("disabled", false);
+
+    $('input[type=text][name=hostanme]').prop("disabled", false);
+    $('input[type=text][name=hostanme]').val('');
+    $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+    $('span[id=error_hostanme]').text("");
+    if (!checkValue($('input[type=text][name=ip_address]').val())) {
+        $('input[type=text][name=ip_address]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_ip_address]').text("Please Enter Valid IP address");
+    }
+    else {
+        $('input[type=text][name=ip_address]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_ip_address]').text("");
+    }
+    if (!checkValue($('input[type=text][name=port_number]').val())) {
+        $('input[type=text][name=port_number]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_port_number]').text("Please Enter Port Number");
+    }
+    else {
+        $('input[type=text][name=port_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_port_number]').text("");
+    }
+    $('select[name=data_retrieve]').prop("disabled", true);
+    $('select[name=data_retrieve]').val('0');
+    if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
+        $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
+    }
+    else {
+        $('select[name=data_retrieve]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_data_retrieve]').text("");
+    }
+    enabletcpipudpSubmit();
 }

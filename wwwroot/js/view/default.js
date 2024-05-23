@@ -27,10 +27,22 @@ async function start() {
                 // handle error
                 console.error(err);
             });
-            //load GeoZones MPE
+            //load Connection
             connection.invoke("GetConnectionList").then(function (data) {
                 Promise.all([init_connection(data)]).then(function () {
                     connection.invoke("JoinGroup", "Connections").catch(function (err) {
+                        return console.error(err.toString());
+                    });
+
+                });
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
+            //load Connection Type
+            connection.invoke("GetConnectionTypeList").then(function (data) {
+                Promise.all([init_connectiontType(data)]).then(function () {
+                    connection.invoke("JoinGroup", "ConnectionTypes").catch(function (err) {
                         return console.error(err.toString());
                     });
 
@@ -142,7 +154,15 @@ connection.on("siteInfo", async (id, data) => {
 
 // Start the connection.
 start();
-
+function checkValue(value) {
+    switch (value) {
+        case "": return false;
+        case null: return false;
+        case "undefined": return false;
+        case undefined: return false;
+        default: return true;
+    }
+}
 function capitalize_Words(str) {
     return str.replace(/\w\S*/g, function (txt) {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();

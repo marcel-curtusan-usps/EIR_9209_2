@@ -6,4 +6,5 @@
     Running,
     Stopping,
     ErrorPullingData,
+    InActive
 }
