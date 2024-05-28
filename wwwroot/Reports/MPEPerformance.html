@@ -84,16 +84,7 @@
                             <div class="card mb-1">
                                 <div class="modsdate card-header border-bottom d-flex">
                                     <h6 class="modtext ms-auto">Date Range : <span id="moddatedisplay"></span></h6>
-                                    <%-- <ul role="tablist" class="nav nav-tabs card-header-tabs">
-                                        <li class="nav-item"><a data-toggle="tab" data-target="overview" role="tab" aria-controls="overview" class="nav-link active" aria-selected="true">Run Vs Plan</a></li>
-                                        <%--
-                                        <li class="nav-item"><a data-toggle="tab" role="tab" class="nav-link" aria-selected="false">Labor</a></li>--%>
-                                        <!---->
-                                        <%--
-                                    </ul>--%>
-                                    <!---->
-                                    <!---->
-                                    <!---->
+
                                 </div>
                                 <div class="card-body p-0">
                                     <div class="tab-content">
@@ -173,39 +164,9 @@
                                         </div>
                                     </div>
                                 </div>
-                                <%--    <div class="col-6">
-                                    <div class="card mb-4">
-                                        <div class="card-header py-1">
-                                            <h5 class="m-0">Planned Data</h5>
-                                        </div>
-                                        <div class="card-body p-1">
-                                            <div class="table-responsive">
-                                                <table class="table table-sm table-hover mb-0 border-bottom" id="planRunData">
-                                                    <thead class="thead-dark">
-                                                        <tr style="text-align: center; font-weight: bold; height: 25px;">
-                                                            <th>#</th>
-                                                            <th>Machine</th>
-                                                            <th>Sort Plan</th>
-                                                            <th>Operation</th>
-                                                            <th>Plan Start</th>
-                                                            <th>Act. Start</th>
-                                                            <th>Plan End</th>
-                                                            <th>Proj. End</th>
-                                                            <th>Act. End</th>
-                                                            <th>Act. Vol</th>
-                                                            <th>Tput</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody></tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>--%>
                             </div>
                         </div>
                         <div class="tab-pane fade show active" id="Labor" role="tabpanel" aria-labelledby="Labor-tab">
-
                         </div>
                     </div>
                 </div>
@@ -213,9 +174,14 @@
         </div>
     </div>
     <script src="../lib/jquery/jquery.min.js"></script>
+    <script src="../js/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="../js/microsoft/signalr-protocol-msgpack/dist/browser/signalr-protocol-msgpack.min.js"></script>
     <script src="../js/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../lib/chart.js/dist/chart.umd.js"></script>
-    <script src="../lib/chartjs-plugin-datalabels/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="../lib/luxon/luxon.min.js"></script>
+    <script src="../lib/chartjs/chart.umd.min.js"></script>
+    <script src="../lib/chartjs-plugin-datalabels/chartjs-plugin-datalabels.min.js"></script>
+    <script src="../lib/chartjs-adapter-luxon/chartjs-adapter-luxon.umd.min.js"></script>
     <script src="../lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="Scripts/mpePerformance.js"></script>
 </body>
 </html>

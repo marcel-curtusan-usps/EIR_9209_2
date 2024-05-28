@@ -97,11 +97,16 @@ public class HubServices : Hub
     //}
     public async Task<IEnumerable<BackgroundImage>> GetBackgroundImages()
     {
-        return _backgroundImages.GetAll();
+        return await Task.Run(_backgroundImages.GetAll);
+    }
+    public SiteInformation GetSiteInformation()
+    {
+        string nassCode = _configuration["SiteIdentity:NassCode"]?.ToString();
+        return _siteInfo.GetByNASSCode(nassCode);
     }
     public async Task<string> GetApplicationInfo()
     {
-        var siteInfo = _siteInfo.GetByNASSCode(_configuration[key: "SiteIdentity:NassCode"].ToString());
+        var siteInfo = _siteInfo.GetByNASSCode(_configuration["SiteIdentity:NassCode"].ToString());
         return JsonConvert.SerializeObject(new JObject
         {
             ["name"] = "Connected Facilities",
@@ -112,13 +117,13 @@ public class HubServices : Hub
             ["role"] = "Admin"
         });
     }
-    public async Task<List<GeoMarker>> GetPersonTags()
+    public async Task<IEnumerable<GeoMarker>> GetPersonTags()
     {
-        return _tags.GetAll().ToList();
+        return await Task.Run(_tags.GetAll);
     }
-    public async Task<List<GeoZone>> GetGeoZones()
+    public async Task<IEnumerable<GeoZone>> GetGeoZones()
     {
-        return _geoZones.GetAll().ToList();
+        return await Task.Run(_geoZones.GetAll);
     }
 
     private Task<string> GetUserName(ClaimsPrincipal? user)
@@ -130,35 +135,16 @@ public class HubServices : Hub
     // worker request for data of connection list
     public async Task<IEnumerable<Connection>> GetConnectionList()
     {
-        return _connections.GetAll();
+        return await Task.Run(_connections.GetAll);
     }
     // worker request for data of connectionType list
     public async Task<IEnumerable<ConnectionType>> GetConnectionTypeList()
     {
-        return _connections.GetTypeAll();
+        return await Task.Run(_connections.GetTypeAll);
     }
     // client get all zones
     public async Task<IEnumerable<GeoZone>> GetGeoZoneList()
     {
-        return _geoZones.GetAll();
-    }
-    public async Task WorkerStatusUpdate(string status)
-    {
-        //await Clients.All.SendAsync("WorkerStatusUpdate", status);
-        // _logger.LogInformation($"Worker Status :  {Context.ConnectionId}  <-->  {status}");
-    }
-    public async Task WorkerData(byte[] data)
-    {
-        //await Clients.All.SendAsync("WorkerStatusUpdate", status);
-        string workerData = System.Text.Encoding.UTF8.GetString(data);
-        //await SendMessageToGroup("Tags", workerData, "tags");
-        // _logger.LogInformation($"Worker Data for QPE :  {Context.ConnectionId}  <-->  {workerData}");
-    }
-    public async Task WorkerPositionData(byte[] data)
-    {
-        //await Clients.All.SendAsync("WorkerStatusUpdate", status);
-        string workerData = System.Text.Encoding.UTF8.GetString(data);
-        // await SendMessageToGroup("Tags", workerData, "tags");
-        // _logger.LogInformation($"Worker Data for QPE :  {Context.ConnectionId}  <-->  {workerData}");
+        return await Task.Run(_geoZones.GetAll);
     }
 }

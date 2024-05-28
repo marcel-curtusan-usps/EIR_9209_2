@@ -15,7 +15,12 @@ let MPEName = "";
 let RequestDate = "";
 let statDate = "";
 let endDate = "";
-let fotfmanager = $.connection.FOTFManager;
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl(SiteURLconstructor(window.location) + "hubServics")
+    .withAutomaticReconnect()
+    .configureLogging(signalR.LogLevel.Information)
+    .build();
+//let fotfmanager = $.connection.FOTFManager;
 let DateTimeNow = new Date();
 let CurrentTripMin = 0;
 let CountTimer = 0;
@@ -34,28 +39,6 @@ $.urlParam = function (name) {
     MPEName = (results !== null) ? results[1] || 0 : "";
     return MPEName;
 }
-$.extend(fotfmanager.client, {
-
-    updateMPESummary: (updatedata) => { Promise.all([updateSiteStatus(updatedata)]) },
-    updateMPEPerformanceSummary: async (updatedata) => {
-        //Gantt chart currently does not reload data when re initiated
-        //fotfmanager.server.getMPErunVsPlan(updatedata).done(async (data) => {
-        //    sortPlandata = data;
-        //    Promise.all([updateRunVsPlan(data, 'ganttRunVsPlan')]);
-        //    Promise.all([loadCurrentRun(data)]);
-        //});
-    },
-    siteInfo: async (data) => {
-        if (data.hasOwnProperty("timeZoneName")) {
-            timezone = data.timeZoneName;
-            localdateTime = luxon.DateTime.local().setZone(timezone).setZone("system", { keepLocalTime: true });
-
-            MPEdefaultMaxdate = localdateTime.plus({ hours: 2 }).startOf('hour');
-            MPEdefaultMindate = MPEdefaultMaxdate.minus({ hours: 24 }).startOf('hour');
-            Promise.all([LoadData()]);
-        }
-    }
-});
 $(function () {
     setHeight();
 
@@ -64,39 +47,67 @@ $(function () {
     $('span[id=headerIdSpan]').text(MPEName + " Machine Performance");
     /*    document.title = $.urlParam("SitePerformance");*/
     //start connection 
-    $.connection.hub.qs = { 'page_type': "MPEPerformance".toUpperCase() };
-    $.connection.hub.start({ waitForPageLoad: false })
-        .done(() => {
+    //$.connection.hub.qs = { 'page_type': "MPEPerformance".toUpperCase() };
+    //$.connection.hub.start({ waitForPageLoad: false })
+    //    .done(() => {
 
 
-        }).catch(
-            function (err) {
-                /* console.log(err.toString());*/
-                throw new Error(err.toString());
-            });
-    //handling Disconnect
-    $.connection.hub.disconnected(function () {
-        connecttimer = setTimeout(function () {
-            if (connectattp > 10) {
-                clearTimeout(connecttimer);
-            }
-            connectattp += 1;
-            $.connection.hub.start({ waitForPageLoad: false })
-                .done(() => {
-                    Promise.all([LoadData()])
-                })
-                .catch(function (err) {
-                    throw new Error(err.toString());
-                    //console.log(err.toString());
-                });
-        }, 10000); // Restart connection after 10 seconds.
-    });
-    //Raised when the underlying transport has reconnected.
-    $.connection.hub.reconnecting(function () {
-        clearTimeout(connecttimer);
-        fotfmanager.server.joinGroup("MPEPerformance");
-    });
+    //    }).catch(
+    //        function (err) {
+    //            /* console.log(err.toString());*/
+    //            throw new Error(err.toString());
+    //        });
+    ////handling Disconnect
+    //$.connection.hub.disconnected(function () {
+    //    connecttimer = setTimeout(function () {
+    //        if (connectattp > 10) {
+    //            clearTimeout(connecttimer);
+    //        }
+    //        connectattp += 1;
+    //        $.connection.hub.start({ waitForPageLoad: false })
+    //            .done(() => {
+    //                Promise.all([LoadData()])
+    //            })
+    //            .catch(function (err) {
+    //                throw new Error(err.toString());
+    //                //console.log(err.toString());
+    //            });
+    //    }, 10000); // Restart connection after 10 seconds.
+    //});
+    ////Raised when the underlying transport has reconnected.
+    //$.connection.hub.reconnecting(function () {
+    //    clearTimeout(connecttimer);
+    //    fotfmanager.server.joinGroup("MPEPerformance");
+    //});
 });
+
+async function start() {
+    try {
+        await connection.start().then(async () => {
+            //load siteinfo
+            await connection.invoke("GetSiteInformation").then(function (data) {
+                siteTours = data.tours;
+            }).catch(function (err) {
+                console.error(err);
+            });
+            await connection.invoke("GetMPESynopsis").then(async (data) => {
+                hourlyMPEdata = data.length > 0 ? data[0] : [];
+                Promise.all([updateMPEPerformanceSummaryStatus(data)]).then(function () {
+                    connection.invoke("JoinGroup", "MPESynopsis").catch(function (err) {
+                        return console.error(err.toString());
+                    });
+
+                });
+            }).catch(function (err) {
+                console.error(err);
+            });
+
+        });
+    } catch (err) {
+        console.log(err);
+        setTimeout(start, 5000);
+    }
+};
 async function LoadData() {
     //console.log("Connected time: " + new Date($.now()));
     if (!!MPEName) {
@@ -133,16 +144,16 @@ async function loadSpecificTimeData(startTime, endTime) {
 
     let baseendTime = endTime.plus({ hours: 1 }).startOf('hour').setZone(timezone);
     let basestartTime = startTime.minus({ hours: 1 }).startOf('hour').setZone(timezone);
-    
+
     $.each(valuesArray, (key, value) => {
         let keyDate = luxon.DateTime.fromISO(value.hour).setZone(timezone);
-        if ((keyDate.ts >= basestartTime.ts && keyDate.ts <= baseendTime.ts) 
+        if ((keyDate.ts >= basestartTime.ts && keyDate.ts <= baseendTime.ts)
         ) {
             let keyDateVal = keyDate.toFormat('yyyy-LL-dd') + "T" + keyDate.toFormat('HH:00:00')
             tempSpecificTimeData[keyDateVal] = value;
         }
         if (isDateInRange(keyDate, basestartTime, baseendTime)) {
-            
+
             /*  tempSpecificTimeData.push([keyDate] = value);*/
         }
     });
@@ -220,3 +231,13 @@ var getUrlParameter = function getUrlParameter(sParam) {
     }
     return false;
 };
+function SiteURLconstructor(winLoc) {
+    if (/^(.CF)/i.test(winLoc.pathname)) {
+        return winLoc.origin + "/CF/";
+    }
+    else {
+        return winLoc.origin + "/";
+    }
+}
+// Start the connection.
+start();

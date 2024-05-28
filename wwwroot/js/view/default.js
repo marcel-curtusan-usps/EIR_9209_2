@@ -1,4 +1,14 @@
-﻿
+﻿if (!String.prototype.supplant) {
+    String.prototype.supplant = function (o) {
+        return this.replace(/{([^{}]*)}/g,
+            function (a, b) {
+                let r = o[b];
+                return typeof r === 'string' || typeof r === 'number' ? r : a;
+            }
+        );
+    };
+}
+let DateTime = luxon.DateTime;
 let appData = {};
 let baselayerid = "";
 const connection = new signalR.HubConnectionBuilder()

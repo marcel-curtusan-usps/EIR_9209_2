@@ -36,6 +36,7 @@ namespace EIR_9209_2.DataStore
             _siteInfo.TryGetValue(id, out SiteInformation tag);
             return tag;
         }
+
         public SiteInformation GetByNASSCode(string id)
         {
             return _siteInfo.Where(t => t.Value.SiteId == id).Select(y => y.Value).FirstOrDefault();
@@ -87,6 +88,8 @@ namespace EIR_9209_2.DataStore
                 Console.WriteLine($"An error occurred when parsing the JSON: {ex.Message}");
             }
         }
+
+
     }
 }
 
