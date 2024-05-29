@@ -13,7 +13,7 @@ public class QPEEndpointService
     private readonly IInMemoryConnectionRepository _connections;
     private readonly IInMemoryTagsRepository _tags;
     private readonly IHubContext<HubServices> _hubServices;
-    private readonly Connection _endpointConfig;
+    public readonly Connection _endpointConfig;
     private CancellationTokenSource _cancellationTokenSource;
     private Task _task;
 
@@ -50,23 +50,17 @@ public class QPEEndpointService
             _cancellationTokenSource.Cancel();
         }
     }
-    public void UpdateInterval(long newIntervalSeconds)
+    public void Update(Connection updateCon)
     {
         Stop();
-        _endpointConfig.MillisecondsInterval = newIntervalSeconds;
-        Start();
-    }
-    public void UpdateActive(bool Active)
-    {
-        if (_endpointConfig.ActiveConnection != Active && Active)
+        _endpointConfig.MillisecondsInterval = updateCon.MillisecondsInterval;
+        _endpointConfig.HoursBack = updateCon.HoursBack;
+        _endpointConfig.HoursForward = updateCon.HoursForward;
+        _endpointConfig.ActiveConnection = updateCon.ActiveConnection;
+
+        if (updateCon.ActiveConnection)
         {
             Start();
-            _endpointConfig.ActiveConnection = Active;
-        }
-        if (_endpointConfig.ActiveConnection != Active && !Active)
-        {
-            Stop();
-            _endpointConfig.ActiveConnection = Active;
         }
     }
     private async Task RunAsync(CancellationToken stoppingToken)
@@ -107,7 +101,8 @@ public class QPEEndpointService
                 _connections.Update(_endpointConfig);
                 FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType);
                 queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
-                var result = (await queryService.GetQuuppaTagData(stoppingToken));
+                var result = (await queryService.GetQPETagData(stoppingToken));
+                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
                 // Process tag data in a separate thread
                 _ = Task.Run(async () => await ProcessTagMovementData(result), stoppingToken);
                 //_logger.LogInformation("Data from {Url}: {Data}", _endpointConfig.Url, result);

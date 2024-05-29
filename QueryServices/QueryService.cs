@@ -26,28 +26,17 @@ internal class QueryService : IQueryService
         this._fullUrl = new Uri(settings.FullUrl);
     }
 
-    public async Task<QuuppaTag> GetQuuppaTagData(CancellationToken ct)
+    public async Task<QuuppaTag> GetQPETagData(CancellationToken ct)
     {
-        var query = "";
-
-        if (!string.IsNullOrEmpty(query))
-        {
-            return (await GetPostQueryResults<QuuppaTag>(_fullUrl.AbsoluteUri, query, ct).ConfigureAwait(false));
-        }
-        else
-        {
-            return (await GetQueryResults<QuuppaTag>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
-        }
+        return (await GetQueryResults<QuuppaTag>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
     }
-    public async Task<JToken> GetIDSData(string messageType, int startHours, int endHours, CancellationToken ct)
+    public async Task<JToken> GetIDSData(CancellationToken ct)
     {
-        var query = new ReportQueryIDSBuilder()
-         .WithQueryName(messageType)
-         .WithstartHour(startHours)
-         .WithendHour(endHours)
-         .Build();
-        var queryResults = (await GetPostQueryResults<dynamic>(_fullUrl.AbsoluteUri, query, ct).ConfigureAwait(false));
-        return queryResults;
+        return (await GetQueryResults<dynamic>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+    }
+    public async Task<string> SendEmail(CancellationToken ct)
+    {
+        return (await GetPostQueryResults<dynamic>(_fullUrl.AbsoluteUri, new object(), ct).ConfigureAwait(false));
     }
     private async Task<T> GetQueryResults<T>(string queryUrl, CancellationToken ct)
     {
@@ -102,5 +91,6 @@ internal class QueryService : IQueryService
         return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
 
     }
+
 
 }

@@ -4,5 +4,7 @@
     {
         bool AddEndpoint(Connection connection);
         bool RemoveEndpoint(Connection connection);
+        bool UpdateEndpoint(Connection connection);
+
     }
 }

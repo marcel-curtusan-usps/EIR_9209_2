@@ -1,12 +1,6 @@
 ﻿using EIR_9209_2.Models;
-using Microsoft.Extensions.Configuration;
-using MongoDB.Driver;
 using Newtonsoft.Json;
-using NuGet.Protocol.Plugins;
-using SharpCompress.Common;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 public class InMemoryConnectionRepository : IInMemoryConnectionRepository
 {
@@ -30,18 +24,44 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         // Load ConnectionType data from the first file into the first collection
         _ = LoadConnectionTypeDataFromFile(conTypeFilePath);
     }
-    public void Add(Connection connection)
+    public Connection? Add(Connection connection)
     {
-        if (_connectionList.TryAdd(connection.Id, connection) && !_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented)))
+        if (_connectionList.TryAdd(connection.Id, connection))
         {
-            _logger.LogError($"ConnectionList.json was not update");
+            if (_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented)))
+            {
+                return connection;
+            }
+            else
+            {
+                _logger.LogError($"ConnectionList.json was not update");
+                return null;
+
+            }
+
+        }
+        else
+        {
+            return null;
         }
     }
-    public void Remove(string connectionId)
+    public Connection? Remove(string connectionId)
     {
-        if (_connectionList.TryRemove(connectionId, out _))
+        if (_connectionList.TryRemove(connectionId, out Connection conn))
         {
-            _fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+            if (_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented)))
+            {
+                return conn;
+            }
+            else
+            {
+                return null;
+            }
+
+        }
+        else
+        {
+            return null;
         }
     }
 
@@ -63,12 +83,27 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     /// Updates a connection in the in-memory connection repository.
     /// </summary>
     /// <param name="connection">The connection to update.</param>
-    public void Update(Connection connection)
+    public Connection? Update(Connection connection)
     {
+
+
         if (_connectionList.TryGetValue(connection.Id, out Connection? currentConnection) && _connectionList.TryUpdate(connection.Id, connection, currentConnection))
         {
-            _fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+            if (_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented)))
+            {
+                return Get(connection.Id);
+            }
+            else
+            {
+                return null;
+            }
+
         }
+        else
+        {
+            return null;
+        }
+
     }
     private async Task LoadDataFromFile(string filePath)
     {
@@ -82,7 +117,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
             List<Connection> data = JsonConvert.DeserializeObject<List<Connection>>(fileContent);
 
             // Insert the data into the MongoDB collection
-            if (data.Count != 0)
+            if (data != null && data.Count != 0)
             {
                 foreach (Connection item in data.Select(r => r).ToList())
                 {

@@ -1,13 +1,7 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
-using Newtonsoft.Json;
-
-namespace EIR_9209_2.Models
+﻿namespace EIR_9209_2.Models
 {
     public class BackgroundImage
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
         public required string _id { get; set; }
         public double widthMeter { get; set; } = 0.0;
         public double xMeter { get; set; } = 0.0;

@@ -1,12 +1,10 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
+﻿
 using Newtonsoft.Json;
 
 public class Connection
 {
     [JsonIgnore]
     private EWorkerServiceState _status;
-    [BsonIgnore]
     public EWorkerServiceState Status
     {
         get => _status;

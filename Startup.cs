@@ -1,14 +1,9 @@
 ﻿using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using EIR_9209_2.Models;
 using EIR_9209_2.Utilities;
 using EIR_9209_2.InMemory;
 using EIR_9209_2.DataStore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
-using static EIR_9209_2.Models.GeoMarker;
 using EIR_9209_2.DatabaseCalls.IDS;
 using EIR_9209_2.Service;
 
@@ -47,6 +42,8 @@ public class Startup
         services.AddSingleton<IInMemoryTagsRepository, InMemoryTagsRepository>();
         services.AddSingleton<IInMemoryGeoZonesRepository, InMemoryGeoZonesRepository>();
         services.AddSingleton<IIDS, IDS>();
+        services.AddSingleton<ScreenshotService>();
+        services.AddSingleton<EmailService>();
         services.AddHttpClient();
         services.AddSingleton<IWorker, Worker>();
         services.AddHostedService<Worker>();

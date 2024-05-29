@@ -23,6 +23,60 @@ namespace EIR_9209_2.Controllers
             _ids = ids;
             _geoZones = geoZones;
         }
+        // GET: api/<TagController>
+        [HttpGet]
+        [Route("/IDSData")]
+        public async Task<object> GetAsync(string queryName, int startHour, int endHour)
+        {
+            //handle bad requests
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!string.IsNullOrEmpty(queryName))
+            {
+                JObject data = new JObject
+                {
+                    ["startHour"] = startHour,
+                    ["endHour"] = endHour,
+                    ["queryName"] = queryName
+                };
+                if (data.HasValues && data.Type == JTokenType.Object)
+                {
+                    JToken result = await _ids.GetOracleIDSData(data);
+                    if (result.HasValues)
+                    {
+                        _ = Task.Run(() => ProcessIDSData(result));
+                    }
+                    if (result.Type == JTokenType.Array)
+                    {
+                        return await Task.FromResult(Ok(result));
+                    }
+                    else
+                    {
+                        if (((JObject)result).ContainsKey("Error"))
+                        {
+                            return await Task.FromResult(BadRequest(result));
+
+                        }
+                        else
+                        {
+                            return await Task.FromResult(Ok(result));
+                        }
+                    }
+
+                }
+                else
+                {
+                    return await Task.FromResult(BadRequest(new { message = "Invalid Object Type in the Request.", data_message = data }));
+                }
+            }
+            else
+            {
+                return await Task.FromResult(BadRequest(new { message = "Invalid Parameters in the Request.", Parameters = new { QueryName = queryName, StartHour = startHour, EndHour = endHour } }));
+            }
+        }
         // POST api/<IDSController>
         [HttpPost]
         [ApiExplorerSettings(IgnoreApi = true)]

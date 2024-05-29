@@ -2,12 +2,16 @@
 
 public interface IInMemoryConnectionRepository
 {
-    void Add(Connection connection);
-    void Remove(string connectionId);
+    //Connection 
     Connection Get(string id);
+    Connection Add(Connection connection);
+    Connection Remove(string connectionId);
+    Connection Update(Connection connection);
     IEnumerable<Connection> GetAll();
     IEnumerable<Connection> GetbyType(string type);
-    void Update(Connection connection);
+
+
+    //Connection types
     void AddType(ConnectionType connection);
     void RemoveType(string connectionId);
     ConnectionType GetType(string id);

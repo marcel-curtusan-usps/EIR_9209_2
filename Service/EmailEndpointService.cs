@@ -1,11 +1,6 @@
-﻿using EIR_9209_2.Models;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium;
-using System.Net.Mail;
-using System.Threading;
 
 namespace EIR_9209_2.Service
 {
@@ -79,20 +74,23 @@ namespace EIR_9209_2.Service
             try
             {
                 IQueryService queryService;
-                string FormatUrl = "";
-                //process tag data
-
                 _endpointConfig.Status = EWorkerServiceState.Running;
                 _endpointConfig.LasttimeApiConnected = DateTime.Now;
                 _endpointConfig.ApiConnected = true;
-                _connections.Update(_endpointConfig);
-                FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType);
 
-                _ = Task.Run(() => TakeScreenshotAndSendEmail(), stoppingToken);
+                var client = _httpClientFactory.CreateClient();
+                var response = await client.GetAsync(_endpointConfig.Url, stoppingToken);
+                //loop thought geozone and check if the email is in the geozone
+                foreach (var email in _geoZones.GetAll().Where(r => !string.IsNullOrEmpty(r.Properties.Emails)).Select(y => y.Properties).ToList())
+                {
 
-                //queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
-                // var result = (await queryService.GetIDSData(_endpointConfig.MessageType, _endpointConfig.HoursBack, _endpointConfig.HoursForward, stoppingToken));
-                // Process tag data in a separate thread
+                    string FormatUrl = "";
+                    //send email
+
+                    FormatUrl = string.Format(_endpointConfig.Url, email.MpeType);
+                    queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                    var result = (await queryService.SendEmail(stoppingToken));
+                }
 
 
 
@@ -103,41 +101,7 @@ namespace EIR_9209_2.Service
             }
         }
 
-        private void TakeScreenshotAndSendEmail()
-        {
-            try
-            {
-                IWebDriver driver = new ChromeDriver();
-                driver.Navigate().GoToUrl("http://www.example.com");
 
-                Screenshot screenshot = ((ITakesScreenshot)driver).GetScreenshot();
-                var screenshotStream = new MemoryStream(screenshot.AsByteArray);
-
-                driver.Quit();
-
-                MailMessage mail = new MailMessage();
-                SmtpClient SmtpServer = new SmtpClient("your_smtp_server");
-
-                mail.From = new MailAddress("your_email@example.com");
-                mail.To.Add("to_email@example.com");
-                mail.Subject = "Test Mail - 1";
-                mail.Body = "mail with attachment";
-
-                Attachment attachment = new Attachment(screenshotStream, "screenshot.png");
-                mail.Attachments.Add(attachment);
-
-                SmtpServer.Port = 587;
-                SmtpServer.Credentials = new System.Net.NetworkCredential("username", "password");
-                SmtpServer.EnableSsl = true;
-
-                SmtpServer.Send(mail);
-            }
-            catch (Exception e)
-            {
-
-                _logger.LogInformation("error", e.Message);
-            }
-        }
 
         internal static JsonSerializerSettings jsonSettings = new()
         {

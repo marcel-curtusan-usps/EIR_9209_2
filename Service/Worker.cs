@@ -14,9 +14,10 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryConnectionRepository _connections;
         private readonly IInMemoryGeoZonesRepository _geoZones;
         private readonly IInMemoryTagsRepository _tags;
-        private readonly ConcurrentDictionary<string, QPEEndpointService> _QPEendpointServices = new();
-        private readonly ConcurrentDictionary<string, MPEWatchEndpointService> _MPEWatchendpointServices = new();
-        private readonly ConcurrentDictionary<string, IDSEndpointService> _IDSendpointServices = new();
+        private readonly ConcurrentDictionary<string, QPEEndpointService> _QPEendpointServices;
+        private readonly ConcurrentDictionary<string, MPEWatchEndpointService> _MPEWatchendpointServices;
+        private readonly ConcurrentDictionary<string, IDSEndpointService> _IDSendpointServices;
+        private readonly ConcurrentDictionary<string, EmailEndpointService> _EmailendpointServices;
 
         public Worker(ILogger<Worker> logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory,
             IInMemoryConnectionRepository connections,
@@ -30,8 +31,15 @@ namespace EIR_9209_2.Service
             _tags = tags;
             _httpClientFactory = httpClientFactory;
             _connections = connections;
-            _loggerFactory = loggerFactory;
             _hubServices = hubServices;
+            if (_QPEendpointServices == null)
+            {
+                _QPEendpointServices = new();
+            }
+
+            _MPEWatchendpointServices = new();
+            _IDSendpointServices = new();
+            _EmailendpointServices = new();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -49,7 +57,7 @@ namespace EIR_9209_2.Service
         public bool AddEndpoint(Connection endpointConfig)
         {
             //Quuppa Position Engine (QPE)
-            if (endpointConfig.Name == "QPE" && endpointConfig.ActiveConnection)
+            if (endpointConfig.Name == "QPE")
             {
 
                 if (_QPEendpointServices.ContainsKey(endpointConfig.Id))
@@ -59,14 +67,13 @@ namespace EIR_9209_2.Service
                 }
                 var _QPEendpointLogger = _loggerFactory.CreateLogger<QPEEndpointService>();
                 var _QPEendpointService = new QPEEndpointService(_QPEendpointLogger, _httpClientFactory, endpointConfig, _connections, _tags, _hubServices);
-                endpointConfig.Status = EWorkerServiceState.Starting;
-                endpointConfig.LasttimeApiConnected = DateTime.Now;
+
                 _QPEendpointServices[endpointConfig.Id] = _QPEendpointService;
                 _QPEendpointService.Start();
                 return true;
             }
             //MPE Watch Engine
-            else if (endpointConfig.Name == "MPEWatch" && endpointConfig.ActiveConnection)
+            else if (endpointConfig.Name == "MPEWatch")
             {
                 if (_MPEWatchendpointServices.ContainsKey(endpointConfig.Id))
                 {
@@ -75,25 +82,38 @@ namespace EIR_9209_2.Service
                 }
                 var _MPEWatchendpointLogger = _loggerFactory.CreateLogger<MPEWatchEndpointService>();
                 var _MPEWatchendpointService = new MPEWatchEndpointService(_MPEWatchendpointLogger, _httpClientFactory, endpointConfig, _connections, _geoZones, _hubServices);
-                endpointConfig.Status = EWorkerServiceState.Starting;
-                endpointConfig.LasttimeApiConnected = DateTime.Now;
+
                 _MPEWatchendpointServices[endpointConfig.Id] = _MPEWatchendpointService;
                 _MPEWatchendpointService.Start();
             }
             //MPE Watch Engine
-            else if (endpointConfig.Name == "IDS" && endpointConfig.ActiveConnection)
+            else if (endpointConfig.Name == "IDS")
             {
-                if (_MPEWatchendpointServices.ContainsKey(endpointConfig.Id))
+                if (_IDSendpointServices.ContainsKey(endpointConfig.Id))
                 {
                     _logger.LogWarning("Endpoint {Url} already exists.", endpointConfig.Id);
-                    return false; 
+                    return false;
                 }
                 var _IDSendpointLogger = _loggerFactory.CreateLogger<IDSEndpointService>();
                 var _IDSendpointService = new IDSEndpointService(_IDSendpointLogger, _httpClientFactory, endpointConfig, _connections, _geoZones, _hubServices);
-                endpointConfig.Status = EWorkerServiceState.Starting;
-                endpointConfig.LasttimeApiConnected = DateTime.Now;
+
                 _IDSendpointServices[endpointConfig.Id] = _IDSendpointService;
                 _IDSendpointService.Start();
+                return true;
+            }
+            //MPE Watch Engine
+            else if (endpointConfig.Name == "Email")
+            {
+                if (_EmailendpointServices.ContainsKey(endpointConfig.Id))
+                {
+                    _logger.LogWarning("Endpoint {Url} already exists.", endpointConfig.Id);
+                    return false;
+                }
+                var _EmailendpointLogger = _loggerFactory.CreateLogger<EmailEndpointService>();
+                var _EmailendpointService = new EmailEndpointService(_EmailendpointLogger, _httpClientFactory, endpointConfig, _connections, _geoZones, _hubServices);
+
+                _EmailendpointServices[endpointConfig.Id] = _EmailendpointService;
+                _EmailendpointService.Start();
                 return true;
             }
             else
@@ -111,36 +131,43 @@ namespace EIR_9209_2.Service
 
         public bool RemoveEndpoint(Connection endpointConfig)
         {
-            if (endpointConfig.Name == "QPE")
+            if (endpointConfig != null)
             {
-                _QPEendpointServices[endpointConfig.Id].Stop();
-                if (_QPEendpointServices.TryRemove(endpointConfig.Id, out var endpointService))
+                if (endpointConfig.Name == "QPE")
                 {
-                    return true;
+                    _QPEendpointServices[endpointConfig.Id].Stop();
+                    if (_QPEendpointServices.TryRemove(endpointConfig.Id, out var endpointService))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
-                else
+                else if (endpointConfig.Name == "IDS")
                 {
-                    return false;
+                    _IDSendpointServices[endpointConfig.Id].Stop();
+                    if (_IDSendpointServices.TryRemove(endpointConfig.Id, out var endpointService))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
-            }
-            else if (endpointConfig.Name == "IDS")
-            {
-                _IDSendpointServices[endpointConfig.Id].Stop();
-                if (_IDSendpointServices.TryRemove(endpointConfig.Id, out var endpointService))
+                else if (endpointConfig.Name == "MPEWatch")
                 {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else if (endpointConfig.Name == "MPEWatch")
-            {
-                _MPEWatchendpointServices[endpointConfig.Id].Stop();
-                if (_MPEWatchendpointServices.TryRemove(endpointConfig.Id, out var endpointService))
-                {
-                    return true;
+                    _MPEWatchendpointServices[endpointConfig.Id].Stop();
+                    if (_MPEWatchendpointServices.TryRemove(endpointConfig.Id, out var endpointService))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
@@ -152,33 +179,38 @@ namespace EIR_9209_2.Service
                 return false;
             }
         }
-    
-        public void UpdateEndpointInterval(Connection updateConfig)
+
+        public bool UpdateEndpoint(Connection updateConfig)
         {
-            //if (_endpointServices.TryGetValue(updateConfig.Id, out var endpointService))
-            //{
-            //    endpointService.UpdateInterval(updateConfig.MillisecondsInterval);
 
-            //    _logger.LogInformation("Updated interval for endpoint {id} to {IntervalMilliseconds} Milliseconds.", updateConfig.Id, updateConfig.MillisecondsInterval);
-            //}
-            //else
-            //{
-            //    _logger.LogWarning("Endpoint {id} not found.", updateConfig.Id);
-            //}
-        }
+            if (updateConfig != null)
+            {
+                if (updateConfig.Name == "QPE")
+                {
+                    _QPEendpointServices[updateConfig.Id].Update(updateConfig);
+                    return true;
 
-        public void UpdateEndpointActive(Connection updateConfig)
-        {
-            //if (_endpointServices.TryGetValue(updateConfig.Id, out var endpointService))
-            //{
-            //    endpointService.UpdateActive(updateConfig.ActiveConnection);
+                }
+                else if (updateConfig.Name == "IDS")
+                {
+                    _IDSendpointServices[updateConfig.Id].Update(updateConfig);
+                    return true;
 
-            //    _logger.LogInformation("Updated active status for endpoint {id} to {active}.", updateConfig.Id, updateConfig.ActiveConnection);
-            //}
-            //else
-            //{
-            //    _logger.LogWarning("Endpoint {id} not found.", updateConfig.Id);
-            //}
+                }
+                else if (updateConfig.Name == "MPEWatch")
+                {
+                    _MPEWatchendpointServices[updateConfig.Id].Update(updateConfig);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public override async Task StopAsync(CancellationToken stoppingToken)

@@ -1,5 +1,22 @@
 [
   {
+    "Id": "6e5b0e92-ac49-467e-8069-0963082f4559",
+    "Name": "Email",
+    "Description": "Email",
+    "MessageTypes": [
+      {
+        "Id": "31289e3e-61e7-4c2b-9593-56e38de56716",
+        "Name": "SiteSynopsis",
+        "Description": "Site Synopsis"
+      },
+      {
+        "Id": "467b3c79-fe41-421d-89ff-5bbb3aa9daf9",
+        "Name": "MPESynopsis",
+        "Description": "MPE Synopsis"
+      }
+    ]
+  },
+  {
     "Id": "6e5b0e92-ac49-467e-8069-0963082f454a",
     "Name": "TSA",
     "Description": "Transportation Sweep-Side Assignment",

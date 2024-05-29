@@ -1,11 +1,8 @@
 ﻿using EIR_9209_2.Utilities;
-using Microsoft.CodeAnalysis.Elfie.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Oracle.ManagedDataAccess.Client;
-using SharpCompress.Common;
 using System.Data;
-using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace EIR_9209_2.DatabaseCalls.IDS

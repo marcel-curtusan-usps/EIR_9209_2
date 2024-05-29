@@ -47,24 +47,19 @@ internal class MPEWatchEndpointService
             _cancellationTokenSource.Cancel();
         }
     }
-    public void UpdateInterval(long newIntervalSeconds)
+    public void Update(Connection updateCon)
     {
         Stop();
-        _endpointConfig.MillisecondsInterval = newIntervalSeconds;
-        Start();
-    }
-    public void UpdateActive(bool Active)
-    {
-        if (_endpointConfig.ActiveConnection != Active && Active)
+        _endpointConfig.MillisecondsInterval = updateCon.MillisecondsInterval;
+        _endpointConfig.HoursBack = updateCon.HoursBack;
+        _endpointConfig.HoursForward = updateCon.HoursForward;
+        _endpointConfig.ActiveConnection = updateCon.ActiveConnection;
+
+        if (updateCon.ActiveConnection)
         {
             Start();
-            _endpointConfig.ActiveConnection = Active;
         }
-        if (_endpointConfig.ActiveConnection != Active && !Active)
-        {
-            Stop();
-            _endpointConfig.ActiveConnection = Active;
-        }
+
     }
     private async Task RunAsync(CancellationToken stoppingToken)
     {
@@ -106,13 +101,13 @@ internal class MPEWatchEndpointService
             _endpointConfig.Status = EWorkerServiceState.Running;
             _endpointConfig.LasttimeApiConnected = DateTime.Now;
             _endpointConfig.ApiConnected = true;
-            _connections.Update(_endpointConfig);
             string MpeWatch_id = "1";
             string start_time = string.Concat(DateTime.Now.AddHours(-_endpointConfig.HoursBack).ToString("MM/dd/yyyy_"), "00:00:00");
             string end_time = string.Concat(DateTime.Now.AddHours(_endpointConfig.HoursForward).ToString("MM/dd/yyyy_"), "23:59:59");
             FormatUrl = string.Format(_endpointConfig.Url, MpeWatch_id, _endpointConfig.MessageType, start_time, end_time);
             queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
             var result = (await queryService.GetMPEWatchData(stoppingToken));
+            await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
             //process zone data
             if (_endpointConfig.MessageType.ToLower() == "rpg_run_perf")
             {
