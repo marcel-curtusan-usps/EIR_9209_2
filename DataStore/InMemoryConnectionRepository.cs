@@ -30,14 +30,11 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         // Load ConnectionType data from the first file into the first collection
         _ = LoadConnectionTypeDataFromFile(conTypeFilePath);
     }
-
-
-
     public void Add(Connection connection)
     {
-        if (_connectionList.TryAdd(connection.Id, connection))
+        if (_connectionList.TryAdd(connection.Id, connection) && !_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented)))
         {
-            _fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+            _logger.LogError($"ConnectionList.json was not update");
         }
     }
     public void Remove(string connectionId)
@@ -68,12 +65,9 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     /// <param name="connection">The connection to update.</param>
     public void Update(Connection connection)
     {
-        if (_connectionList.TryGetValue(connection.Id, out Connection? currentConnection))
+        if (_connectionList.TryGetValue(connection.Id, out Connection? currentConnection) && _connectionList.TryUpdate(connection.Id, connection, currentConnection))
         {
-            if (_connectionList.TryUpdate(connection.Id, connection, currentConnection))
-            {
-                _fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
-            }
+            _fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
         }
     }
     private async Task LoadDataFromFile(string filePath)

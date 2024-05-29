@@ -1,5 +1,6 @@
 ﻿using EIR_9209_2.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
 
 namespace EIR_9209_2.InMemory
@@ -30,10 +31,18 @@ namespace EIR_9209_2.InMemory
             _tagList.TryRemove(connectionId, out _);
         }
 
-        public GeoMarker Get(string id)
+        public object Get(string id)
         {
-            _tagList.TryGetValue(id, out GeoMarker tag);
-            return tag;
+            if (_tagList.ContainsKey(id)&& _tagList.TryGetValue(id, out GeoMarker tag))
+            {
+                return tag;
+            }
+            else
+            {
+                return new JObject { ["Message"] = "Tag not Found" };
+            }
+            
+           
         }
 
         public List<GeoMarker> GetAll()

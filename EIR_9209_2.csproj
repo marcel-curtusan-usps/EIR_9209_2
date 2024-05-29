@@ -41,7 +41,6 @@
 	  <Compile Remove="Service\EndpointService.cs" />
 	  <Compile Remove="Service\IMPEWatchBackgroundService.cs" />
 	  <Compile Remove="Service\IQPEBackgroundService.cs" />
-	  <Compile Remove="Service\IWorker.cs" />
 	  <Compile Remove="Service\IWorkerService.cs" />
 	  <Compile Remove="Service\MPEWatchBackgroundService.cs" />
 	  <Compile Remove="Service\QPEBackgroundService.cs" />

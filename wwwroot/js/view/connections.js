@@ -274,6 +274,33 @@ async function Add_Connection() {
                 NassCode: User.Facility_NASS_Code
             };
             if (!$.isEmptyObject(jsonObject)) {
+
+                layer.on('click', function (e) {
+                    //makea ajax call to get the employee details
+                    $.ajax({
+                        url: '/api/AddConnection/',
+                         data : jsonObject,
+                        type: 'POST',
+                        success: function (data) {
+                            $('#content').html(data);
+                            sidebar.open('employee');
+                        },
+                        error: function (error) {
+                            console.log(error);
+                        },
+                        faulure: function (fail) {
+                            console.log(fail);
+                        },
+                        complete: function (complete) {
+                            console.log(complete);
+                        }
+
+
+
+                    });
+
+                    sidebar.open('reports');
+                });
                 fotfmanager.server.addAPI(JSON.stringify(jsonObject)).done(function (Data) {
                     $('span[id=error_apisubmitBtn]').text(jsonObject.ConnectionName + " " + jsonObject.MessageType + " Connection has been Added");
                     setTimeout(function () { $("#API_Connection_Modal").modal('hide'); sidebar.open('connections'); }, 1500);

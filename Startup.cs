@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using static EIR_9209_2.Models.GeoMarker;
 using EIR_9209_2.DatabaseCalls.IDS;
+using EIR_9209_2.Service;
 
 public class Startup
 {
@@ -47,8 +48,8 @@ public class Startup
         services.AddSingleton<IInMemoryGeoZonesRepository, InMemoryGeoZonesRepository>();
         services.AddSingleton<IIDS, IDS>();
         services.AddHttpClient();
-        services.AddSingleton<Worker>();
-        services.AddHostedService(p => p.GetRequiredService<Worker>());
+        services.AddSingleton<IWorker, Worker>();
+        services.AddHostedService<Worker>();
 
         //add SignalR to the services
         services.AddSignalR(options =>

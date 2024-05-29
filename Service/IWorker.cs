@@ -1,7 +1,8 @@
-﻿public interface IWorker
+﻿namespace EIR_9209_2.Service
 {
-    void AddEndpoint(Connection endpointConfig);
-    void RemoveEndpoint(string id);
-    void UpdateEndpointInterval(Connection updateConfig);
-    void UpdateEndpointActive(Connection updateConfig);
+    public interface IWorker
+    {
+        bool AddEndpoint(Connection connection);
+        bool RemoveEndpoint(Connection connection);
+    }
 }

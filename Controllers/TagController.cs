@@ -22,9 +22,9 @@ namespace EIR_9209_2.Controllers
             //handle bad requests
             if (!ModelState.IsValid)
             {
-                return await Task.FromResult(BadRequest(ModelState));
+                return BadRequest(ModelState);
             }
-            return _tagsRepository.GetAll();
+            return Ok(_tagsRepository.GetAll());
         }
 
         // GET api/<TagController>/5
@@ -36,7 +36,7 @@ namespace EIR_9209_2.Controllers
             {
                 return await Task.FromResult(BadRequest(ModelState));
             }
-            return _tagsRepository.Get(id);
+            return Ok(_tagsRepository.Get(id));
         }
         // PUT api/<TagController>/5
         [HttpPut("{id}")]
@@ -44,9 +44,9 @@ namespace EIR_9209_2.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await Task.FromResult(BadRequest(ModelState));
+                 BadRequest(ModelState);
             }
-            return _tagsRepository.Get(id);
+            return Ok(_tagsRepository.Get(id));
         }
 
         // DELETE api/<TagController>/5
@@ -56,11 +56,11 @@ namespace EIR_9209_2.Controllers
             //handle bad requests
             if (!ModelState.IsValid)
             {
-                await Task.FromResult(BadRequest(ModelState));
+               BadRequest(ModelState);
             }
             _tagsRepository.Remove(id);
-            _hubContext.Clients.All.SendAsync("DeleteTag", id);
-            return _tagsRepository.Get(id);
+            await _hubContext.Clients.All.SendAsync("DeleteTag", id);
+            return Ok(_tagsRepository.Get(id));
         }
     }
 }

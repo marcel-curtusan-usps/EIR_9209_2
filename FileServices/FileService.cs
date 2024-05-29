@@ -1,6 +1,7 @@
 ﻿// Ignore Spelling: Mongo
 
 using EIR_9209_2.Utilities;
+using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
 using System.Text;
 
 public class FileService : IFileService
@@ -29,24 +30,48 @@ public class FileService : IFileService
         }
     }
 
-    public void WriteFile(string fileName, string content)
+    public bool WriteFile(string fileName, string content)
     {
-        string baseDrive = _configuration[key: "ApplicationConfiguration:BaseDrive"];
-        string siteid = _configuration[key: "SiteIdentity:NassCode"];
-
-        if (!string.IsNullOrEmpty(baseDrive) && !string.IsNullOrEmpty(siteid))
+        try
         {
-            string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"], _configuration[key: "ApplicationConfiguration:BaseDirectory"], siteid, _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{fileName}");
-            if (_accessTester.CanCreateFilesAndWriteInFolder(BuildPath))
+            string baseDrive = _configuration[key: "ApplicationConfiguration:BaseDrive"];
+            string siteid = _configuration[key: "SiteIdentity:NassCode"];
+
+            if (!string.IsNullOrEmpty(baseDrive) && !string.IsNullOrEmpty(siteid))
             {
-                using (FileStream file = new FileStream(BuildPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
-                using (StreamWriter sr = new StreamWriter(file, Encoding.UTF8))
+                string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"], _configuration[key: "ApplicationConfiguration:BaseDirectory"], siteid, _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"]);
+                string BuildPathWithFileName = Path.Combine(BuildPath, fileName);
+                if (_accessTester.CanCreateFilesAndWriteInFolder(BuildPath))
                 {
+                    using var file = new FileStream(BuildPathWithFileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+                    using StreamWriter sr = new(file, Encoding.UTF8);
 
                     sr.WriteLine(content);
+                    return true;
                 }
-            }
 
+            }
+            return false;
         }
+        catch (FileNotFoundException ex)
+        {
+            // Handle the FileNotFoundException here
+            _logger.LogError($"File not found: {ex.FileName}");
+            // You can choose to throw an exception or take any other appropriate action
+            return false;
+        }
+        catch (IOException ex)
+        {
+            // Handle errors when reading the file
+            _logger.LogError($"An error occurred when reading the file: {ex.Message}");
+            return false;
+        }
+        catch (Exception e)
+        {
+
+            _logger.LogError($"error: {e.Message}");
+            return false;
+        }
+       
     }
 }
