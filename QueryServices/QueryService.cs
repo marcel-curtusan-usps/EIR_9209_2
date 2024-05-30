@@ -92,5 +92,8 @@ internal class QueryService : IQueryService
 
     }
 
-
+    public async Task<JToken> GetSVDoorData(CancellationToken ct)
+    {
+        return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+    }
 }

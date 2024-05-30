@@ -43,7 +43,16 @@ namespace EIR_9209_2.Controllers
             }
             return _zonesRepository.GetMPEName(id);
         }
-
+        [HttpGet]
+        [Route("/api/GetZoneNameList")]
+        public async Task<object> GetByZoneNameList(string ZoneType)
+        {
+            if (!ModelState.IsValid)
+            {
+                return await Task.FromResult(BadRequest(ModelState));
+            }
+            return _zonesRepository.GetZoneNameList(ZoneType);
+        }
         //// POST api/<ZoneController>
         //[HttpPost]
         //public void Post([FromBody] string value)

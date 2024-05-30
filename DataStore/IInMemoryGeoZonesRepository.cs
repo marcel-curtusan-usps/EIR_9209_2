@@ -9,4 +9,5 @@ public interface IInMemoryGeoZonesRepository
 
     void Update(GeoZone geoZone);
     GeoZone GetMPEName(string MPEName);
+    object GetZoneNameList(string type);
 }

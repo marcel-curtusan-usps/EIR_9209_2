@@ -1,6 +1,7 @@
 ﻿using EIR_9209_2.Models;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
+using static EIR_9209_2.Models.GeoMarker;
 
 public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 {
@@ -31,6 +32,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     public GeoZone Get(string id)
     {
         _geoZoneList.TryGetValue(id, out GeoZone geoZone);
+
         return geoZone;
     }
     public GeoZone GetMPEName(string MPEName)
@@ -83,5 +85,10 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             // Handle errors when parsing the JSON
             _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
         }
+    }
+
+    public object GetZoneNameList(string type)
+    {
+        return _geoZoneList.Where(r => r.Value.Properties.ZoneType.StartsWith(type)).Select(y => y.Value.Properties.Name).ToList();
     }
 }

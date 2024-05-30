@@ -7,4 +7,5 @@ public interface IQueryService
     Task<QuuppaTag> GetQPETagData(CancellationToken token);
     Task<JToken> GetIDSData(CancellationToken token);
     Task<string> SendEmail(CancellationToken stoppingToken);
+    Task<JToken> GetSVDoorData(CancellationToken stoppingToken);
 }

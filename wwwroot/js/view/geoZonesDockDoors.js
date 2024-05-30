@@ -11,6 +11,19 @@
     onEachFeature: function (feature, layer) {
 
         layer.zoneId = feature.properties.id;
+      
+        layer.on('click', function (e) {
+            OSLmap.setView(e.sourceTarget.getCenter(), 3);
+            Promise.all([LoadDockDoorTable(feature.properties)]);
+        });
+        layer.bindTooltip(feature.properties.name, {
+            permanent: true,
+            interactive: true,
+            direction: 'center',
+            opacity: 0.9,
+            className: 'dockdooknumber ' 
+        }).openTooltip();
+
     },
     filter: function (feature, layer) {
         return feature.properties.visible;
@@ -66,5 +79,34 @@ async function addDockDoorFeature(data) {
     }
     catch (e) {
         throw new Error(e.toString());
+    }
+}
+async function LoadDockDoorTable(data) {
+    try {
+        dockdoorloaddata = [];
+        hideSidebarLayerDivs();
+        $('div[id=dockdoor_div]').attr("data-id", data.id);
+        $('div[id=dockdoor_div]').css('display', 'block');
+        $('div[id=dockdoor_tripdiv]').css('display', 'block');
+        $('div[id=ctstabs_div]').css('display', 'none');
+        $('div[id=trailer_div]').css('display', 'block');
+        $('button[name=container_counts]').text(0 + "/" + 0);
+        $('span[name=doornumberid]').text(data.doorNumber);
+        $('select[id=tripSelector]').val("");
+        $('span[name=doorview]').empty();
+        $('button[name=dockdoorinfoedit]').attr('id', data.id);
+        $('span[name=doorstatus]').text("Unknown");
+        if (data.externalUrl) {
+            $("<a/>").attr({ target: "_blank", href: data.externalUrl, style: 'color:white;' }).html("View").appendTo($('span[name=doorview]'));
+        }
+        else {
+            $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + 'Dockdoor/Dockdoor.aspx?DockDoor=' + data.doorNumber, style: 'color:white;' }).html("View").appendTo($('span[name=doorview]'));
+        }
+        sidebar.open('home');
+
+
+    }
+    catch (e) {
+
     }
 }

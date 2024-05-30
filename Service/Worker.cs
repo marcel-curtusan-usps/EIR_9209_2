@@ -16,13 +16,15 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryConnectionRepository _connections;
         private readonly IInMemoryGeoZonesRepository _geoZones;
         private readonly IInMemoryTagsRepository _tags;
+        private readonly IConfiguration _configuration;
         private readonly ConcurrentDictionary<string, BaseEndpointService> _endPointServices = new();
 
         public Worker(ILogger<Worker> logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory,
             IInMemoryConnectionRepository connections,
             IInMemoryGeoZonesRepository geoZones,
             IInMemoryTagsRepository tags,
-            IHubContext<HubServices> hubServices)
+            IHubContext<HubServices> hubServices,
+            IConfiguration configuration)
         {
             _logger = logger;
             _loggerFactory = loggerFactory;
@@ -31,6 +33,8 @@ namespace EIR_9209_2.Service
             _httpClientFactory = httpClientFactory;
             _connections = connections;
             _hubServices = hubServices;
+            _configuration = configuration;
+
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -66,6 +70,9 @@ namespace EIR_9209_2.Service
                     break;
                 case "Email":
                     endpointService = new EmailEndPointServices(_loggerFactory.CreateLogger<EmailEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _geoZones);
+                    break;
+                case "SV":
+                    endpointService = new SVEndPointServices(_loggerFactory.CreateLogger<SVEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _geoZones, _configuration);
                     break;
                 default:
                     _logger.LogWarning("Unknown endpoint {Name}", endpointConfig.Name);
