@@ -17,11 +17,17 @@ namespace EIR_9209_2.Service
         private readonly IHubContext<HubServices> _hubServices;
         private readonly IInMemoryConnectionRepository _repository;
         private readonly IInMemoryGeoZonesRepository _geoZones;
+        private readonly IInMemoryTagsRepository _tags;
         private readonly Connection _endpointConfig;
         private CancellationTokenSource _cancellationTokenSource;
         private Task _task;
 
-        public EndpointService(ILogger<EndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IInMemoryConnectionRepository connections, IHubContext<HubServices> hubServices)
+        public EndpointService(ILogger<EndpointService> logger,
+            IHttpClientFactory httpClientFactory,
+            Connection endpointConfig,
+            IInMemoryConnectionRepository connections,
+                  IInMemoryTagsRepository tags,
+            IHubContext<HubServices> hubServices)
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;

@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using NuGet.Protocol.Core.Types;
+using System.Collections.Concurrent;
 using System.Threading;
 
 public class QPEEndpointService

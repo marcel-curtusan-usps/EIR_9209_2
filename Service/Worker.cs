@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using NuGet.Configuration;
+using NuGet.Protocol.Core.Types;
+using System;
 using System.Collections.Concurrent;
 
 namespace EIR_9209_2.Service
 {
-    public class Worker : BackgroundService, IWorker
+    public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
@@ -14,15 +16,12 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryConnectionRepository _connections;
         private readonly IInMemoryGeoZonesRepository _geoZones;
         private readonly IInMemoryTagsRepository _tags;
-        private readonly ConcurrentDictionary<string, QPEEndpointService> _QPEendpointServices;
-        private readonly ConcurrentDictionary<string, MPEWatchEndpointService> _MPEWatchendpointServices;
-        private readonly ConcurrentDictionary<string, IDSEndpointService> _IDSendpointServices;
-        private readonly ConcurrentDictionary<string, EmailEndpointService> _EmailendpointServices;
+        private readonly ConcurrentDictionary<string, BaseEndpointService> _endPointServices = new();
 
         public Worker(ILogger<Worker> logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory,
             IInMemoryConnectionRepository connections,
             IInMemoryGeoZonesRepository geoZones,
-             IInMemoryTagsRepository tags,
+            IInMemoryTagsRepository tags,
             IHubContext<HubServices> hubServices)
         {
             _logger = logger;
@@ -32,14 +31,6 @@ namespace EIR_9209_2.Service
             _httpClientFactory = httpClientFactory;
             _connections = connections;
             _hubServices = hubServices;
-            if (_QPEendpointServices == null)
-            {
-                _QPEendpointServices = new();
-            }
-
-            _MPEWatchendpointServices = new();
-            _IDSendpointServices = new();
-            _EmailendpointServices = new();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -56,159 +47,64 @@ namespace EIR_9209_2.Service
 
         public bool AddEndpoint(Connection endpointConfig)
         {
-            //Quuppa Position Engine (QPE)
-            if (endpointConfig.Name == "QPE")
+            if (_endPointServices.ContainsKey(endpointConfig.Id))
             {
-
-                if (_QPEendpointServices.ContainsKey(endpointConfig.Id))
-                {
-                    _logger.LogWarning("Endpoint {Url} already exists.", endpointConfig.Id);
-                    return false;
-                }
-                var _QPEendpointLogger = _loggerFactory.CreateLogger<QPEEndpointService>();
-                var _QPEendpointService = new QPEEndpointService(_QPEendpointLogger, _httpClientFactory, endpointConfig, _connections, _tags, _hubServices);
-
-                _QPEendpointServices[endpointConfig.Id] = _QPEendpointService;
-                _QPEendpointService.Start();
-                return true;
-            }
-            //MPE Watch Engine
-            else if (endpointConfig.Name == "MPEWatch")
-            {
-                if (_MPEWatchendpointServices.ContainsKey(endpointConfig.Id))
-                {
-                    _logger.LogWarning("Endpoint {Url} already exists.", endpointConfig.Id);
-                    return false;
-                }
-                var _MPEWatchendpointLogger = _loggerFactory.CreateLogger<MPEWatchEndpointService>();
-                var _MPEWatchendpointService = new MPEWatchEndpointService(_MPEWatchendpointLogger, _httpClientFactory, endpointConfig, _connections, _geoZones, _hubServices);
-
-                _MPEWatchendpointServices[endpointConfig.Id] = _MPEWatchendpointService;
-                _MPEWatchendpointService.Start();
-            }
-            //MPE Watch Engine
-            else if (endpointConfig.Name == "IDS")
-            {
-                if (_IDSendpointServices.ContainsKey(endpointConfig.Id))
-                {
-                    _logger.LogWarning("Endpoint {Url} already exists.", endpointConfig.Id);
-                    return false;
-                }
-                var _IDSendpointLogger = _loggerFactory.CreateLogger<IDSEndpointService>();
-                var _IDSendpointService = new IDSEndpointService(_IDSendpointLogger, _httpClientFactory, endpointConfig, _connections, _geoZones, _hubServices);
-
-                _IDSendpointServices[endpointConfig.Id] = _IDSendpointService;
-                _IDSendpointService.Start();
-                return true;
-            }
-            //MPE Watch Engine
-            else if (endpointConfig.Name == "Email")
-            {
-                if (_EmailendpointServices.ContainsKey(endpointConfig.Id))
-                {
-                    _logger.LogWarning("Endpoint {Url} already exists.", endpointConfig.Id);
-                    return false;
-                }
-                var _EmailendpointLogger = _loggerFactory.CreateLogger<EmailEndpointService>();
-                var _EmailendpointService = new EmailEndpointService(_EmailendpointLogger, _httpClientFactory, endpointConfig, _connections, _geoZones, _hubServices);
-
-                _EmailendpointServices[endpointConfig.Id] = _EmailendpointService;
-                _EmailendpointService.Start();
-                return true;
-            }
-            else
-            {
+                _logger.LogWarning("Endpoint {Id} already exists.", endpointConfig.Id);
                 return false;
-                //endpointConfig.Status = EWorkerServiceState.InActive;
-                //endpointConfig.LasttimeApiConnected = DateTime.Now;
-                //_logger.LogInformation("Endpoint {ID} is {status}.", endpointConfig.Id, endpointConfig.Status);
-
-                //// Add or update in the repository
-                //_connections.Update(endpointConfig);
             }
-            return false;
+            BaseEndpointService endpointService;
+            switch (endpointConfig.Name)
+            {
+                case "QPE":
+                    endpointService = new QPEEndPointServices(_loggerFactory.CreateLogger<QPEEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _tags);
+                    break;
+                case "MPEWatch":
+                    endpointService = new MPEWatchEndPointServices(_loggerFactory.CreateLogger<QPEEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _geoZones);
+                    break;
+                case "IDS":
+                    endpointService = new IDSEndPointServices(_loggerFactory.CreateLogger<IDSEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices);
+                    break;
+                case "Email":
+                    endpointService = new EmailEndPointServices(_loggerFactory.CreateLogger<EmailEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _geoZones);
+                    break;
+                default:
+                    _logger.LogWarning("Unknown endpoint {Name}", endpointConfig.Name);
+                    return false;
+
+            }
+            _endPointServices[endpointConfig.Id] = endpointService;
+            endpointService.Start();
+            _logger.LogInformation("Started endpoint {Id}.", endpointConfig.Id);
+            return true;
         }
 
         public bool RemoveEndpoint(Connection endpointConfig)
         {
-            if (endpointConfig != null)
+            if (_endPointServices.TryRemove(endpointConfig.Id, out var endpointService))
             {
-                if (endpointConfig.Name == "QPE")
-                {
-                    _QPEendpointServices[endpointConfig.Id].Stop();
-                    if (_QPEendpointServices.TryRemove(endpointConfig.Id, out var endpointService))
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else if (endpointConfig.Name == "IDS")
-                {
-                    _IDSendpointServices[endpointConfig.Id].Stop();
-                    if (_IDSendpointServices.TryRemove(endpointConfig.Id, out var endpointService))
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else if (endpointConfig.Name == "MPEWatch")
-                {
-                    _MPEWatchendpointServices[endpointConfig.Id].Stop();
-                    if (_MPEWatchendpointServices.TryRemove(endpointConfig.Id, out var endpointService))
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
+                endpointService.Stop();
+                _logger.LogInformation("Stopped and removed endpoint {Id}.", endpointConfig.Id);
+                return true;
             }
             else
             {
+                _logger.LogWarning("Endpoint {I} not found.", endpointConfig.Id);
                 return false;
             }
         }
 
         public bool UpdateEndpoint(Connection updateConfig)
         {
-
-            if (updateConfig != null)
+            if (_endPointServices.TryGetValue(updateConfig.Id, out var endpointService))
             {
-                if (updateConfig.Name == "QPE")
-                {
-                    _QPEendpointServices[updateConfig.Id].Update(updateConfig);
-                    return true;
+                endpointService.Update(updateConfig);
 
-                }
-                else if (updateConfig.Name == "IDS")
-                {
-                    _IDSendpointServices[updateConfig.Id].Update(updateConfig);
-                    return true;
-
-                }
-                else if (updateConfig.Name == "MPEWatch")
-                {
-                    _MPEWatchendpointServices[updateConfig.Id].Update(updateConfig);
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                _logger.LogInformation("Updated Configuration for endpoint {Id}", updateConfig.Id);
+                return true;
             }
             else
             {
+                _logger.LogWarning("Endpoint {Url} not found.", updateConfig.Id);
                 return false;
             }
         }

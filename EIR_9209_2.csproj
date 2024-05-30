@@ -38,12 +38,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Service\EmailEndpointService.cs" />
 	  <Compile Remove="Service\EndpointService.cs" />
+	  <Compile Remove="Service\IDSEndpointService.cs" />
 	  <Compile Remove="Service\IMPEWatchBackgroundService.cs" />
 	  <Compile Remove="Service\IQPEBackgroundService.cs" />
 	  <Compile Remove="Service\IWorkerService.cs" />
 	  <Compile Remove="Service\MPEWatchBackgroundService.cs" />
+	  <Compile Remove="Service\MPEWatchEndpointService.cs" />
 	  <Compile Remove="Service\QPEBackgroundService.cs" />
+	  <Compile Remove="Service\QPEEndpointService.cs" />
 	  <Compile Remove="Service\WorkerService.cs" />
 	</ItemGroup>
 

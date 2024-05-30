@@ -16,9 +16,9 @@ namespace EIR_9209_2.Controllers
     {
         private readonly IInMemoryConnectionRepository _connectionRepository;
         private readonly IHubContext<HubServices> _hubContext;
-        private readonly IWorker _worker;
+        private readonly Worker _worker;
 
-        public Connections(IInMemoryConnectionRepository connectionRepository, IHubContext<HubServices> hubContext, IWorker worker)
+        public Connections(IInMemoryConnectionRepository connectionRepository, IHubContext<HubServices> hubContext, Worker worker)
         {
             _connectionRepository = connectionRepository;
             _hubContext = hubContext;

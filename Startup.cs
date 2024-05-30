@@ -45,8 +45,8 @@ public class Startup
         services.AddSingleton<ScreenshotService>();
         services.AddSingleton<EmailService>();
         services.AddHttpClient();
-        services.AddSingleton<IWorker, Worker>();
-        services.AddHostedService<Worker>();
+        services.AddSingleton<Worker>();
+        services.AddHostedService(p => p.GetRequiredService<Worker>());
 
         //add SignalR to the services
         services.AddSignalR(options =>
