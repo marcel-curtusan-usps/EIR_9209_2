@@ -44,7 +44,7 @@ public class Connection
     public bool ApiConnection { get; set; } = false;
     public string Url { get; set; } = "";
     public string OAuthUrl { get; set; } = "";
-    public string UserName { get; set; } = "";
-    public string Password { get; set; } = "";
-    public string ClientId { get; set; } = "";
+    public string OAuthUserName { get; set; } = "";
+    public string OAuthPassword { get; set; } = "";
+    public string OAuthClientId { get; set; } = "";
 }

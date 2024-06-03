@@ -67,8 +67,6 @@
 
                                 </div>
                             </div>
-                            <div class="custom-control custom-switch">
-                            </div>
                         </div>
                         <div class="col mt-3">
                             <div class="custom-control custom-switch">
@@ -88,6 +86,15 @@
                                 <label class="custom-control-label" for="ws_connection">WS Connection</label>
                             </div>
 
+                        </div>
+                        <div class="col">
+                            <label class="control-label">Authentication Options</label>
+                            <div class="custom-control custom-switch">
+                                <div class="custom-control custom-switch">
+                                    <input id="OAuthconnection" type="checkbox" class="custom-control-input" name="OAuthconnection" />
+                                    <label class="custom-control-label" for="OAuthconnection">OAuth2</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="row mb-3" id="serveripmenu">
@@ -113,9 +120,29 @@
                             <input id="url" type="text" class="form-control" name="url" />
                             <span id="error_url" class="text-danger"></span>
                         </div>
-                        <!--<div class="form-group col-6">
-                            <label class="control-label">API Key</label><input id="outgoingapikey" type="text" class="form-control" name="outgoingapikey"><span id="error_outgoingapikey" class="text-danger"></span>
-                        </div>-->
+                    
+                    </div>
+                    <div class="row mb-3" id="OAuthmenu" style="display: none" >
+                        <div class="form-group col-12">
+                            <label class="control-label">Token URL</label>
+                            <input id="tokenurl" type="text" class="form-control" name="tokenurl" />
+                            <span id="error_tokenurl" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-4">
+                            <label class="control-label">UserName</label>
+                            <input id="tokenusername" type="text" class="form-control" name="tokenusername" />
+                            <span id="error_tokenusername" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-4">
+                            <label class="control-label">Password</label>
+                            <input id="tokenpassword" type="text" class="form-control" name="tokenpassword" />
+                            <span id="error_tokenpassword" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-4">
+                            <label class="control-label">Client Id</label>
+                            <input id="tokenclientId" type="text" class="form-control" name="tokenclientId" />
+                            <span id="error_tokenclientId" class="text-danger"></span>
+                        </div>
                     </div>
                     <div class="row hours_range_row" style="display: none">
                         <div class="col-6">

@@ -7,8 +7,8 @@ namespace EIR_9209_2.Service
     {
 
 
-        public IDSEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices)
-                : base(logger, httpClientFactory, endpointConfig, hubServices)
+        public IDSEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration)
+                : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
         {
 
         }

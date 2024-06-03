@@ -7,7 +7,8 @@ namespace EIR_9209_2.InMemory
 {
     public class InMemoryTagsRepository : IInMemoryTagsRepository
     {
-        private static readonly ConcurrentDictionary<string, GeoMarker> _tagList = new();
+        private readonly ConcurrentDictionary<string, GeoMarker> _tagList = new();
+        private readonly ConcurrentDictionary<DateTime, List<AreaDwell>> _QREAreaDwellResults = new();
         private readonly ILogger<InMemoryTagsRepository> _logger;
         private readonly IConfiguration _configuration;
         private readonly IFileService FileService;
@@ -25,6 +26,10 @@ namespace EIR_9209_2.InMemory
         {
             _tagList.TryAdd(tag.Properties.Id, tag);
         }
+        public void LocalAdd(GeoMarker tag)
+        {
+            _tagList.TryAdd(tag.Properties.Id, tag);
+        }
 
         public void Remove(string connectionId)
         {
@@ -33,7 +38,7 @@ namespace EIR_9209_2.InMemory
 
         public object Get(string id)
         {
-            if (_tagList.ContainsKey(id)&& _tagList.TryGetValue(id, out GeoMarker tag))
+            if (_tagList.ContainsKey(id) && _tagList.TryGetValue(id, out GeoMarker tag))
             {
                 return tag;
             }
@@ -41,8 +46,6 @@ namespace EIR_9209_2.InMemory
             {
                 return new JObject { ["Message"] = "Tag not Found" };
             }
-            
-           
         }
 
         public List<GeoMarker> GetAll()
@@ -56,6 +59,25 @@ namespace EIR_9209_2.InMemory
             {
                 _tagList.TryUpdate(tag.Properties.Id, tag, currentTag);
             }
+        }
+        //area Dwell
+        public bool ExiteingAreaDwell(DateTime hour)
+        {
+            return _QREAreaDwellResults.ContainsKey(hour);
+
+        }
+        public List<AreaDwell> GetAreaDwell(DateTime hour)
+        {
+            return _QREAreaDwellResults[hour];
+        }
+        public void UpdateAreaDwell(DateTime hour, List<AreaDwell> newValue, List<AreaDwell> currentvalue)
+        {
+            _QREAreaDwellResults.TryUpdate(hour, newValue, currentvalue);
+        }
+
+        public void AddAreaDwell(DateTime hour, List<AreaDwell> newValue)
+        {
+            _QREAreaDwellResults.TryAdd(hour, newValue);
         }
         private async Task LoadDataFromFile(string filePath)
         {
@@ -94,5 +116,7 @@ namespace EIR_9209_2.InMemory
                 _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
             }
         }
+
+
     }
 }

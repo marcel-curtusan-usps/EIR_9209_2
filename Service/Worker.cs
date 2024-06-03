@@ -60,19 +60,22 @@ namespace EIR_9209_2.Service
             switch (endpointConfig.Name)
             {
                 case "QPE":
-                    endpointService = new QPEEndPointServices(_loggerFactory.CreateLogger<QPEEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _tags);
+                    endpointService = new QPEEndPointServices(_loggerFactory.CreateLogger<QPEEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _tags);
+                    break;
+                case "QRE":
+                    endpointService = new QREEndPointServices(_loggerFactory.CreateLogger<QREEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _tags);
                     break;
                 case "MPEWatch":
-                    endpointService = new MPEWatchEndPointServices(_loggerFactory.CreateLogger<QPEEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _geoZones);
+                    endpointService = new MPEWatchEndPointServices(_loggerFactory.CreateLogger<MPEWatchEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _geoZones);
                     break;
                 case "IDS":
-                    endpointService = new IDSEndPointServices(_loggerFactory.CreateLogger<IDSEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices);
+                    endpointService = new IDSEndPointServices(_loggerFactory.CreateLogger<IDSEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration);
                     break;
                 case "Email":
-                    endpointService = new EmailEndPointServices(_loggerFactory.CreateLogger<EmailEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _geoZones);
+                    endpointService = new EmailEndPointServices(_loggerFactory.CreateLogger<EmailEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _geoZones);
                     break;
                 case "SV":
-                    endpointService = new SVEndPointServices(_loggerFactory.CreateLogger<SVEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _geoZones, _configuration);
+                    endpointService = new SVEndPointServices(_loggerFactory.CreateLogger<SVEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _geoZones);
                     break;
                 default:
                     _logger.LogWarning("Unknown endpoint {Name}", endpointConfig.Name);

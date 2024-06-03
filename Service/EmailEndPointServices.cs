@@ -6,8 +6,8 @@ namespace EIR_9209_2.Service
     {
         private readonly IInMemoryGeoZonesRepository _geoZones;
 
-        public EmailEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IInMemoryGeoZonesRepository geoZones)
-              : base(logger, httpClientFactory, endpointConfig, hubServices)
+        public EmailEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryGeoZonesRepository geoZones)
+              : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
         {
             _geoZones = geoZones;
         }

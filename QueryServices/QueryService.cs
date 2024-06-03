@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
 
 internal class QueryService : IQueryService
 {
@@ -89,11 +90,67 @@ internal class QueryService : IQueryService
     public async Task<JToken> GetMPEWatchData(CancellationToken ct)
     {
         return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
-
     }
 
     public async Task<JToken> GetSVDoorData(CancellationToken ct)
     {
         return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
     }
+    public async Task<List<AreaDwell>> GetTotalDwellTime(DateTime startTime, DateTime endTime, TimeSpan minEmployeeTimeInArea,
+        TimeSpan TimeStep, TimeSpan ActivationTime, TimeSpan DeactivationTime, TimeSpan DisappearTime, List<(string areaId, string areaName)> allAreaIds, int areaBatchCount, CancellationToken ct)
+    {
+        var queries = BreakUpAreasIntoBatches()
+              .Select(areasBatch => new ReportQueryBuilder()
+              .WithQueryType(ESelsReportQueryType.TotalDwellTimeByPersonByOperationalArea)
+              .WithStartLocalTime(startTime)
+              .WithEndLocalTime(endTime)
+              .WithMinTimeOnArea(minEmployeeTimeInArea)
+              .WithTimeStep(TimeStep)
+              .WithActivationTime(ActivationTime)
+              .WithDeactivationTime(DeactivationTime)
+              .WithDisappearTime(DisappearTime)
+              .WithAreaIds(areasBatch.Select(a => a.areaId).ToList())
+              .Build()
+              );
+
+        var queryTasks = queries.Select(query => GetPostQueryResults<List<TagDwellTimeInAreaQueryResult>>(_fullUrl.AbsoluteUri, query, ct));
+        var queryResults = (await Task.WhenAll(queryTasks).ConfigureAwait(false))
+            .SelectMany(x => x)
+            .Where(r => !r.User.Equals("Empty Time"))
+            .ToList();
+
+        var result = TransformQueryResults(queryResults);
+
+        return result;
+
+        IEnumerable<List<(string areaId, string areaName)>> BreakUpAreasIntoBatches()
+        {
+            return Enumerable.Range(0, (allAreaIds.Count + areaBatchCount - 1) / areaBatchCount).Select(i => allAreaIds.Skip(i * areaBatchCount).Take(areaBatchCount).ToList());
+        }
+    }
+
+    private List<AreaDwell> TransformQueryResults(List<TagDwellTimeInAreaQueryResult> results)
+    {
+        const string userRegexPattern = @"^(.+?)\s(.+?)\s\((\d+)\)$"; //expected pattern FIRSTNAME LASTNAME (EIN)
+        return results
+            .Where(r => Regex.Match(r.User, userRegexPattern).Success)
+            .Select(r => new AreaDwell
+            {
+                FirstName = Regex.Match(r.User, userRegexPattern).Groups[1].Value,
+                LastName = Regex.Match(r.User, userRegexPattern).Groups[2].Value,
+                EmployeeName = string.Concat(Regex.Match(r.User, userRegexPattern).Groups[1].Value, @" ", Regex.Match(r.User, userRegexPattern).Groups[2].Value),
+                Ein = Regex.Match(r.User, userRegexPattern).Groups[3].Value.PadLeft(8, '0'),
+                AreaName = r.Area,
+                DwellTimeDurationInArea = r.Duration,
+                Type = r.Type
+            }).ToList();
+    }
+
+    public async Task<List<(string areaId, string areaName)>> GetAreasAsync(CancellationToken ct)
+    {
+        string GetAreasUrlPath = "api/usps/area/list";
+        var areas = await GetQueryResults<IEnumerable<QREArea>>(new Uri(_fullUrl, GetAreasUrlPath).AbsoluteUri, ct);
+        return areas.Select(a => (a.Id, a.Name)).ToList();
+    }
+
 }

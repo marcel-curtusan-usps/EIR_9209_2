@@ -9,17 +9,20 @@ namespace EIR_9209_2.Service
         protected readonly ILogger<BaseEndpointService> Logger;
         protected readonly IHttpClientFactory _httpClientFactory;
         protected readonly IHubContext<HubServices> _hubServices;
+        protected readonly IConfiguration _configuration;
         protected Connection _endpointConfig;
         private CancellationTokenSource _cancellationTokenSource;
         private Task _task;
         private PeriodicTimer _timer;
-        protected BaseEndpointService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices)
+        protected BaseEndpointService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration)
         {
             Logger = logger;
             _httpClientFactory = httpClientFactory;
             _endpointConfig = endpointConfig;
             _cancellationTokenSource = new CancellationTokenSource();
             _hubServices = hubServices;
+            _configuration = configuration;
+
         }
         public void Start()
         {

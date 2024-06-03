@@ -18,7 +18,9 @@ $('#API_Connection_Modal').on('hidden.bs.modal', function () {
         .find('input[type=checkbox]')
         .prop('checked', false).change()
         .end();
+    offOAuthConnection();
     sidebar.open('connections');
+
 });
 //on open set rules
 $('#API_Connection_Modal').on('shown.bs.modal', function () {
@@ -207,6 +209,48 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         }
     });
 
+    //oAuth 
+    $('input[type=text][name=tokenurl]').keyup(function () {
+        if (!checkValue($('input[type=text][name=tokenurl]').val())) {
+            $('input[type=text][name=tokenurl]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_tokenurl]').text("Please Enter Token URL");
+        }
+        else {
+            $('input[type=text][name=tokenurl]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_tokenurl]').text("");
+        }
+    });
+    $('input[type=text][name=tokenusername]').keyup(function () {
+        if (!checkValue($('input[type=text][name=tokenusername]').val())) {
+            $('input[type=text][name=tokenusername]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_tokenusername]').text("Please Enter UserName");
+        }
+        else {
+            $('input[type=text][name=tokenusername]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_tokenusername]').text("");
+        }
+    })
+    $('input[type=text][name=tokenpassword]').keyup(function () {
+        if (!checkValue($('input[type=text][name=tokenpassword]').val())) {
+            $('input[type=text][name=tokenpassword]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_tokenpassword]').text("Please Enter Password");
+        }
+        else {
+            $('input[type=text][name=tokenpassword]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_tokenpassword]').text("");
+        }
+    })
+    $('input[type=text][name=tokenclientId]').keyup(function () {
+        if (!checkValue($('input[type=text][name=tokenclientId]').val())) {
+            $('input[type=text][name=tokenclientId]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_tokenclientId]').text("Please Enter Client Id");
+        }
+        else {
+            $('input[type=text][name=tokenclientId]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_tokenclientId]').text("");
+        }
+    })
+
     //Hour 
     $('input[type=checkbox][name=hour_range]').change(() => {
         if (!$('input[type=checkbox][id=hour_range]').is(':checked')) {
@@ -239,6 +283,18 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         }
         else if (/^(api)/i.test(connTypeRadio)) {
             onAPIConnection();
+        }
+    }));
+    if ($("input[type=checkbox][name='OAuthconnection']").change(() => {
+        connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
+        if (/^(api)/i.test(connTypeRadio)) {
+            if ($('input[type=checkbox][name=OAuthconnection]').is(':checked')) {
+                onOAuthConnection();
+            }
+            else
+            {
+                offOAuthConnection();
+            }
         }
     }));
 
@@ -307,6 +363,10 @@ async function Add_Connection() {
                 Port: $.isNumeric($('input[type=text][name=port_number]').val()) ? parseInt($('input[id=hoursback_range]').val(), 10) : 0,
                 Url: $('input[type=text][name=url]').val(),
                 MessageType: $('select[name=message_type] option:selected').val(),
+                OAuthUrl: $('input[type=text][name=tokenurl]').val(),
+                OAuthUserName: $('input[type=text][name=tokenusername]').val(),
+                OAuthPassword: $('input[type=text][name=tokenpassword]').val(),
+                OAuthClientId: $('input[type=text][name=tokenclientId]').val(),
                 //CreatedByUsername: User.UserId,
                 // NassCode: User.Facility_NASS_Code
             };
@@ -355,6 +415,10 @@ async function Edit_Connection(data) {
     filtermessage_type(data.name, data.messageType);
     $('select[name=data_retrieve]').val(data.millisecondsInterval);
     $('input[type=radio]').prop('disabled', true);
+    if (checkValue(data.oAuthUrl)) {
+        $('input[type=checkbox][id=OAuthconnection]').prop('checked', true);
+        onOAuthConnection();
+    }
     if (data.apiConnection) {
         $('input[type=radio][id=api_connection]').prop('checked', data.apiConnection);
         onAPIConnection();
@@ -413,7 +477,13 @@ async function Edit_Connection(data) {
                 id: data.id
             };
             if (!$.isEmptyObject(jsonObject)) {
-
+                //check if the OAuth is checked
+                if ($('input[type=checkbox][name=OAuthconnection]').is(':checked')) {
+                    jsonObject.OAuthUrl = $('input[type=text][name=tokenurl]').val();
+                    jsonObject.OAuthUserName = $('input[type=text][name=tokenusername]').val();
+                    jsonObject.OAuthPassword = $('input[type=text][name=tokenpassword]').val();
+                    jsonObject.OAuthClientId = $('input[type=text][name=tokenclientId]').val();
+                }
                 //make a ajax call to get the Connection details
                 $.ajax({
                     url: '/api/UpdateConnection?id=' + data.id,
@@ -809,6 +879,7 @@ function onAPIConnection() {
 }
 function onudptcpipConnection() {
     $('div[id="endpointurl"]').css("display", "none");
+    $('div[id="OAuthmenu"]').css("display", "none");
     $('div[id="serveripmenu"]').css("display", "");
     $('input[type=text][name=url]').prop("disabled", false);
 
@@ -844,3 +915,47 @@ function onudptcpipConnection() {
     }
     enabletcpipudpSubmit();
 }
+function onOAuthConnection() {
+    $('div[id="OAuthmenu"]').css("display", "");
+    if (!checkValue($('input[type=text][name=tokenurl]').val())) {
+        $('input[type=text][name=tokenurl]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_tokenurl]').text("Please Enter Token URL");
+    }
+    else {
+        $('input[type=text][name=tokenurl]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_tokenurl]').text("");
+    }
+    if (!checkValue($('input[type=text][name=tokenusername]').val())) {
+        $('input[type=text][name=tokenusername]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_tokenusername]').text("Please Enter UserName");
+    }
+    else {
+        $('input[type=text][name=tokenusername]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_tokenusername]').text("");
+    }
+    if (!checkValue($('input[type=text][name=tokenpassword]').val())) {
+        $('input[type=text][name=tokenpassword]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_tokenpassword]').text("Please Enter Password");
+    }
+    else {
+        $('input[type=text][name=tokenpassword]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_tokenpassword]').text("");
+    }
+    if (!checkValue($('input[type=text][name=tokenclientId]').val())) {
+        $('input[type=text][name=tokenclientId]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_tokenclientId]').text("Please Enter Client Id");
+    }
+    else {
+        $('input[type=text][name=tokenclientId]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_tokenclientId]').text("");
+    }
+   
+}
+function offOAuthConnection() {
+
+    $('div[id="OAuthmenu"]').css("display", "none");
+    $('input[type=text][name=tokenurl]').prop("disabled", false).val("");
+    $('input[type=text][name=tokenusername]').prop("disabled", false).val("");
+    $('input[type=text][name=tokenpassword]').prop("disabled", false).val("");
+    $('input[type=text][name=tokenclientId]').prop("disabled", false).val("");
+};

@@ -2,16 +2,18 @@
 using System.Net.Http;
 using System.Threading;
 
-internal class OAuth2AuthenticationService : IOAuth2AuthenticationService
+internal class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDisposable
 {
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory _httpClient;
     private readonly OAuth2AuthenticationServiceSettings _authSettings;
     private readonly JsonSerializerSettings _jsonSettings;
+
     private string _accessToken;
     private DateTime _refreshTokenUtcTime;
+    private bool disposedValue;
     private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
 
-    public OAuth2AuthenticationService(HttpClient httpClient, OAuth2AuthenticationServiceSettings oAuth2AuthenticationServiceSettings, JsonSerializerSettings jsonSettings)
+    public OAuth2AuthenticationService(IHttpClientFactory httpClient, OAuth2AuthenticationServiceSettings oAuth2AuthenticationServiceSettings, JsonSerializerSettings jsonSettings)
     {
         _httpClient = httpClient;
         _authSettings = oAuth2AuthenticationServiceSettings;
@@ -43,6 +45,7 @@ internal class OAuth2AuthenticationService : IOAuth2AuthenticationService
     }
     private async Task GetAccessTokenAsync(CancellationToken ct)
     {
+        var client = _httpClient.CreateClient();
         var content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     { "grant_type", "password" },
@@ -51,7 +54,7 @@ internal class OAuth2AuthenticationService : IOAuth2AuthenticationService
                     { "client_id", _authSettings.ClientId }
         });
 
-        var postResponse = await _httpClient.PostAsync(_authSettings.TokenUrl, content);
+        var postResponse = await client.PostAsync(_authSettings.TokenUrl, content);
         postResponse.EnsureSuccessStatusCode();
 
         var responseBody = await postResponse.Content.ReadAsStringAsync();
@@ -79,5 +82,27 @@ internal class OAuth2AuthenticationService : IOAuth2AuthenticationService
         }
 
         return json[keyName];
+    }
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                // TODO: dispose managed state (managed objects)
+            }
+
+            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+            // TODO: set large fields to null
+            disposedValue = true;
+            _semaphore.Release();
+        }
+    }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }

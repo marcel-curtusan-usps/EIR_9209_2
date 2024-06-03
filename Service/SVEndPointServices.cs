@@ -7,12 +7,10 @@ namespace EIR_9209_2.Service
     public class SVEndPointServices : BaseEndpointService
     {
         private readonly IInMemoryGeoZonesRepository _geoZones;
-        private readonly IConfiguration _configuration;
-        public SVEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IInMemoryGeoZonesRepository geozone, IConfiguration configuration)
-            : base(logger, httpClientFactory, endpointConfig, hubServices)
+        public SVEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryGeoZonesRepository geozone)
+            : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
         {
             _geoZones = geozone;
-            _configuration = configuration;
         }
         protected override async Task FetchDataFromEndpoint(CancellationToken stoppingToken)
         {
