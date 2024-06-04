@@ -8,17 +8,33 @@ namespace EIR_9209_2.Service
 {
     public class QREEndPointServices : BaseEndpointService
     {
-        private readonly IInMemoryTagsRepository _tags;
-        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryTagsRepository tags)
+        private readonly IInMemoryGeoZonesRepository _zones;
+        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryGeoZonesRepository zones)
             : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
         {
-            _tags = tags;
+            _zones = zones;
         }
 
         protected override async Task FetchDataFromEndpoint(CancellationToken stoppingToken)
         {
             try
             {
+                if (_endpointConfig.Status != EWorkerServiceState.Running)
+                {
+                    _endpointConfig.Status = EWorkerServiceState.Running;
+                    _endpointConfig.LasttimeApiConnected = DateTime.Now;
+                    if (_endpointConfig.ActiveConnection)
+                    {
+                        _endpointConfig.ApiConnected = true;
+                    }
+                    else
+                    {
+                        _endpointConfig.ApiConnected = false;
+                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                    }
+
+                    await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                }
                 if (!string.IsNullOrEmpty(_endpointConfig.OAuthUrl))
                 {
                     IOAuth2AuthenticationService authService;
@@ -29,10 +45,7 @@ namespace EIR_9209_2.Service
                     //process tag data
                     if (_endpointConfig.MessageType == "AREA_AGGREGATION")
                     {
-                        _endpointConfig.Status = EWorkerServiceState.Running;
-                        _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                        _endpointConfig.ApiConnected = true;
-                        FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType);
+                        FormatUrl = string.Format(_endpointConfig.Url);
                         queryService = new QueryService(_httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
 
                         var now = DateTime.Now;
@@ -40,6 +53,7 @@ namespace EIR_9209_2.Service
                         var startingHour = endingHour.AddHours(-1 * _endpointConfig.HoursBack);
                         var currentHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
                         var pastHour = currentHour.AddHours(-1);
+
                         var allAreaIds = await queryService.GetAreasAsync(stoppingToken);
 
                         int areasBatchCount = 10;
@@ -51,17 +65,17 @@ namespace EIR_9209_2.Service
 
                         for (var hour = endingHour; startingHour <= hour; hour = hour.AddHours(-1))
                         {
-                            if (_tags.ExiteingAreaDwell(hour))
+                            if (_zones.ExiteingAreaDwell(hour))
                             {
                                 if (currentHour == hour || pastHour == hour)
                                 {
-                                    var currentvalue = _tags.GetAreaDwell(hour);
+                                    var currentvalue = _zones.GetAreaDwell(hour);
                                     var newValue = await queryService.GetTotalDwellTime(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
                                         TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
                                          TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
                                         allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
                                     //add to the list
-                                    _tags.UpdateAreaDwell(hour, newValue, currentvalue);
+                                    _zones.UpdateAreaDwell(hour, newValue, currentvalue);
                                 }
                             }
                             else
@@ -71,7 +85,7 @@ namespace EIR_9209_2.Service
                                          TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
                                          allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
                                 //add to the list
-                                _tags.AddAreaDwell(hour, newValue);
+                                _zones.AddAreaDwell(hour, newValue);
                             }
                         }
 

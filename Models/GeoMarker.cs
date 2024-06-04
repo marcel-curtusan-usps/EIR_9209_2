@@ -37,6 +37,9 @@ namespace EIR_9209_2.Models
             public string PayLocation { get; set; } = "";
             public string EmpFirstName { get; set; } = "";
             public string EmpLastName { get; set; } = "";
+            public string EmpTitle { get; set; } = "";
+            public string EmpDesignationActivity { get; set; } = "";
+            public string EmpPayLocation { get; set; } = "";
             public string EncodedID { get; set; } = "";
             public DateTime Bdate { get; set; } = DateTime.MinValue;
             public string Blunch { get; set; } = "";

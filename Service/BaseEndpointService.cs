@@ -29,10 +29,17 @@ namespace EIR_9209_2.Service
             if (_task == null || _task.IsCompleted)
             {
                 _cancellationTokenSource = new CancellationTokenSource();
-                _timer = new PeriodicTimer(TimeSpan.FromMilliseconds(100));
-                _task = Task.Run(async () => await RunAsync(_cancellationTokenSource.Token));
+
                 if (_endpointConfig.ActiveConnection)
                 {
+                    _timer = new PeriodicTimer(TimeSpan.FromMilliseconds(100));
+                    _task = Task.Run(async () => await RunAsync(_cancellationTokenSource.Token));
+                    _endpointConfig.Status = EWorkerServiceState.Idel;
+                    _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                }
+                else
+                {
+                    _endpointConfig.Status = EWorkerServiceState.InActive;
                     _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
                 }
             }
@@ -53,6 +60,12 @@ namespace EIR_9209_2.Service
             _endpointConfig.HoursBack = updateCon.HoursBack;
             _endpointConfig.HoursForward = updateCon.HoursForward;
             _endpointConfig.ActiveConnection = updateCon.ActiveConnection;
+            _endpointConfig.Url = updateCon.Url;
+            _endpointConfig.OAuthUrl = updateCon.OAuthUrl;
+            _endpointConfig.OAuthClientId = updateCon.OAuthClientId;
+            _endpointConfig.OAuthPassword = updateCon.OAuthPassword;
+            _endpointConfig.OAuthUserName = updateCon.OAuthUserName;
+
             if (updateCon.ActiveConnection)
             {
                 Start();

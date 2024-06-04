@@ -18,18 +18,19 @@ namespace EIR_9209_2.Service
             {
                 if (_endpointConfig.ActiveConnection)
                 {
+                    if (_endpointConfig.Status != EWorkerServiceState.Running)
+                    {
+                        _endpointConfig.Status = EWorkerServiceState.Running;
+                        _endpointConfig.LasttimeApiConnected = DateTime.Now;
+                        _endpointConfig.ApiConnected = true;
+                        await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                    }
                     IQueryService queryService;
                     string FormatUrl = "";
                     //process tag data
-
-                    _endpointConfig.Status = EWorkerServiceState.Running;
-                    _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                    _endpointConfig.ApiConnected = true;
-
                     FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType, _endpointConfig.HoursBack, _endpointConfig.HoursForward);
                     queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                     var result = (await queryService.GetIDSData(stoppingToken));
-                    await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
                 }  // Process the data as needed
             }
 

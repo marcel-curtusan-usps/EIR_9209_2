@@ -11,17 +11,19 @@
     onEachFeature: function (feature, layer) {
 
         layer.zoneId = feature.properties.id;
-      
+        //extract number from feature.properties.name and remove leading zeros
+        let dockDoorNumber = parseInt(feature.properties.name.match(/\d+/g)[0], 10);
+
         layer.on('click', function (e) {
             OSLmap.setView(e.sourceTarget.getCenter(), 3);
             Promise.all([LoadDockDoorTable(feature.properties)]);
         });
-        layer.bindTooltip(feature.properties.name, {
+        layer.bindTooltip(dockDoorNumber.toString(), {
             permanent: true,
             interactive: true,
             direction: 'center',
             opacity: 0.9,
-            className: 'dockdooknumber ' 
+            className: 'dockdooknumber '
         }).openTooltip();
 
     },

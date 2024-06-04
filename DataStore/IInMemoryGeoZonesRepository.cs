@@ -2,12 +2,17 @@
 
 public interface IInMemoryGeoZonesRepository
 {
-    void Add(GeoZone geoZone);
-    void Remove(string geoZoneId);
+    GeoZone Add(GeoZone geoZone);
+    GeoZone Remove(string geoZoneId);
     GeoZone Get(string id);
     IEnumerable<GeoZone> GetAll();
-
-    void Update(GeoZone geoZone);
+    GeoZone Update(GeoZone geoZone);
     GeoZone GetMPEName(string MPEName);
     object GetZoneNameList(string type);
+    bool ExiteingAreaDwell(DateTime hour);
+    List<AreaDwell> GetAreaDwell(DateTime hour);
+    void UpdateAreaDwell(DateTime hour, List<AreaDwell> newValue, List<AreaDwell> currentvalue);
+    void AddAreaDwell(DateTime hour, List<AreaDwell> newValue);
+    Dictionary<DateTime, MPESummary> getMPESummary(string mpe);
+    void RunMPESummaryReport();
 }

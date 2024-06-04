@@ -6,5 +6,6 @@
     Running,
     Stopping,
     ErrorPullingData,
-    InActive
+    InActive,
+    Idel
 }

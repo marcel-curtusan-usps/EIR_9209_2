@@ -1,15 +1,13 @@
 ﻿using EIR_9209_2.Models;
+using Newtonsoft.Json.Linq;
 
 public interface IInMemoryTagsRepository
 {
-    void Add(GeoMarker connection);
-    void Remove(string connectionId);
+    void Add(GeoMarker tag);
+    void Remove(string tagId);
     object Get(string id);
     List<GeoMarker> GetAll();
-    void Update(GeoMarker connection);
-    void LocalAdd(GeoMarker connection);
-    bool ExiteingAreaDwell(DateTime hour);
-    List<AreaDwell> GetAreaDwell(DateTime hour);
-    void UpdateAreaDwell(DateTime hour, List<AreaDwell> newValue, List<AreaDwell> currentvalue);
-    void AddAreaDwell(DateTime hour, List<AreaDwell> newValue);
+    void Update(GeoMarker tag);
+    void LocalAdd(GeoMarker tag);
+    void UpdateEmployeeInfo(JObject emp);
 }

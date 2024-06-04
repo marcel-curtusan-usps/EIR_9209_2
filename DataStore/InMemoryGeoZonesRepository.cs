@@ -9,33 +9,85 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 {
     private readonly ConcurrentDictionary<string, GeoZone> _geoZoneList = new();
     private readonly ConcurrentDictionary<string, Dictionary<DateTime, MPESummary>> _mpeSummary = new();
+    private readonly ConcurrentDictionary<DateTime, List<AreaDwell>> _QREAreaDwellResults = new();
     private readonly IConfiguration _configuration;
     private readonly ILogger<InMemoryGeoZonesRepository> _logger;
-    private readonly IFileService FileService;
+    private readonly IFileService _fileService;
     private readonly IInMemoryTagsRepository _tags;
-    public InMemoryGeoZonesRepository(ILogger<InMemoryGeoZonesRepository> logger, IConfiguration configuration, IFileService fileService, IInMemoryTagsRepository tags)
+    public InMemoryGeoZonesRepository(ILogger<InMemoryGeoZonesRepository> logger, IConfiguration configuration, IFileService fileService)
     {
-        FileService = fileService;
+        _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
-        _tags = tags;
 
-        string BuildPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "InMemoryCollection:CollectionZones"]}.json");
+        string BuildPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"],
+            configuration[key: "ApplicationConfiguration:BaseDirectory"],
+            configuration[key: "SiteIdentity:NassCode"],
+            configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
+            $"{configuration[key: "InMemoryCollection:CollectionZones"]}.json");
         // Load data from the first file into the first collection
         _ = LoadDataFromFile(BuildPath);
 
     }
-    public void Add(GeoZone geoZone)
+    public GeoZone? Add(GeoZone geoZone)
     {
-        _geoZoneList.TryAdd(geoZone.Properties.Id, geoZone);
+        if (_geoZoneList.TryAdd(geoZone.Properties.Id, geoZone))
+        {
+            if (_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
+            {
+                return geoZone;
+            }
+            else
+            {
+                _logger.LogError($"Zones.json was not update");
+                return null;
+            }
+        }
+        else
+        {
+            return null;
+        }
     }
 
-    public void Remove(string geoZoneId)
+    public GeoZone? Remove(string geoZoneId)
     {
-        _geoZoneList.TryRemove(geoZoneId, out _);
-    }
+        if (_geoZoneList.TryRemove(geoZoneId, out GeoZone geoZone))
+        {
+            if (_fileService.WriteFile("Zones.json", JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
+            {
+                return geoZone;
+            }
+            else
+            {
+                return null;
+            }
 
-    public GeoZone Get(string id)
+        }
+        else
+        {
+            return null;
+        }
+    }
+    public GeoZone? Update(GeoZone geoZone)
+    {
+        if (_geoZoneList.TryGetValue(geoZone.Properties.Id, out GeoZone? currentConnection) && _geoZoneList.TryUpdate(geoZone.Properties.Id, geoZone, currentConnection))
+        {
+            if (_fileService.WriteFile("Zones.json", JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
+            {
+                return Get(geoZone.Properties.Id);
+            }
+            else
+            {
+                return null;
+            }
+
+        }
+        else
+        {
+            return null;
+        }
+    }
+    public GeoZone? Get(string id)
     {
         _geoZoneList.TryGetValue(id, out GeoZone geoZone);
 
@@ -48,12 +100,31 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 
     public IEnumerable<GeoZone> GetAll() => _geoZoneList.Values;
 
-    public void Update(GeoZone geoZone)
+    public Dictionary<DateTime, MPESummary> getMPESummary(string area)
     {
-        if (_geoZoneList.TryGetValue(geoZone.Properties.Id, out GeoZone currentGeoZone))
+        if (_mpeSummary.ContainsKey(area))
         {
-            _geoZoneList.TryUpdate(geoZone.Properties.Id, geoZone, currentGeoZone);
+            return _mpeSummary[area];
         }
+        return null;
+    }
+    public bool ExiteingAreaDwell(DateTime hour)
+    {
+        return _QREAreaDwellResults.ContainsKey(hour);
+
+    }
+    public List<AreaDwell> GetAreaDwell(DateTime hour)
+    {
+        return _QREAreaDwellResults[hour];
+    }
+    public void UpdateAreaDwell(DateTime hour, List<AreaDwell> newValue, List<AreaDwell> currentvalue)
+    {
+        _QREAreaDwellResults.TryUpdate(hour, newValue, currentvalue);
+    }
+
+    public void AddAreaDwell(DateTime hour, List<AreaDwell> newValue)
+    {
+        _QREAreaDwellResults.TryAdd(hour, newValue);
     }
 
     public void RunMPESummaryReport()
@@ -129,30 +200,30 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             var maintPresent = 0;
             var supervisorPresent = 0;
             var otherPresent = 0;
-            var entriesThisArea = _tags.GetAreaDwell(Dateandhour);
-            if (entriesThisArea != null)
-            {
-                //if where pieces Sorted is available the calculate the actual yield using the sorted pieces
-                var piecesForYield = piecesSortedThisHour != 0 ? piecesSortedThisHour : piecesCountThisHour;
-                var clerkAndMailHandlerCountThisHour = ((entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds)) / (1000 * 60 * 60));
-                actualYieldcal = piecesForYield != null && clerkAndMailHandlerCountThisHour > 0 ? piecesForYield.Value / clerkAndMailHandlerCountThisHour : 0.0;
-                if (mpe.HourlyData.Where(r => r.Hour == hour).Select(y => y.Count).Any())
-                {
-                    actualYieldcal = mpe.HourlyData.Where(r => r.Hour == hour).Select(y => y.Count).First() / ((entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds)) / (1000 * 60 * 60));
-                }
-                laborHrs = entriesThisArea.GroupBy(e => e.Type).ToDictionary(g => g.Key, g => g.Sum(e => e.DwellTimeDurationInArea.TotalMilliseconds));
-                laborCounts = entriesThisArea.GroupBy(e => e.Type).ToDictionary(g => g.Key, g => g.Count());
-                clerkDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
-                maintDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(maintenance)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
-                mhDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(mail handler)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
-                supervisorDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(supervisor)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
-                otherDwellTime = entriesThisArea.Where(e => !Regex.IsMatch(e.Type, "^(clerk|supervisor|mail handler|maintenance)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
-                clerkPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk)", RegexOptions.IgnoreCase)).Count();
-                mhPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(mail handler)", RegexOptions.IgnoreCase)).Count();
-                maintPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(maintenance)", RegexOptions.IgnoreCase)).Count();
-                supervisorPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(supervisor)", RegexOptions.IgnoreCase)).Count();
-                otherPresent = entriesThisArea.Where(e => !Regex.IsMatch(e.Type, "^(clerk|supervisor|mail handler|maintenance)", RegexOptions.IgnoreCase)).Count();
-            }
+            //var entriesThisArea = ;//_QREAreaDwellResults(Dateandhour);
+            //if (entriesThisArea != null)
+            //{
+            //    //if where pieces Sorted is available the calculate the actual yield using the sorted pieces
+            //    var piecesForYield = piecesSortedThisHour != 0 ? piecesSortedThisHour : piecesCountThisHour;
+            //    var clerkAndMailHandlerCountThisHour = ((entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds)) / (1000 * 60 * 60));
+            //    actualYieldcal = piecesForYield != null && clerkAndMailHandlerCountThisHour > 0 ? piecesForYield.Value / clerkAndMailHandlerCountThisHour : 0.0;
+            //    if (mpe.HourlyData.Where(r => r.Hour == hour).Select(y => y.Count).Any())
+            //    {
+            //        actualYieldcal = mpe.HourlyData.Where(r => r.Hour == hour).Select(y => y.Count).First() / ((entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds)) / (1000 * 60 * 60));
+            //    }
+            //    laborHrs = entriesThisArea.GroupBy(e => e.Type).ToDictionary(g => g.Key, g => g.Sum(e => e.DwellTimeDurationInArea.TotalMilliseconds));
+            //    laborCounts = entriesThisArea.GroupBy(e => e.Type).ToDictionary(g => g.Key, g => g.Count());
+            //    clerkDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+            //    maintDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(maintenance)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+            //    mhDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(mail handler)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+            //    supervisorDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(supervisor)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+            //    otherDwellTime = entriesThisArea.Where(e => !Regex.IsMatch(e.Type, "^(clerk|supervisor|mail handler|maintenance)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+            //    clerkPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk)", RegexOptions.IgnoreCase)).Count();
+            //    mhPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(mail handler)", RegexOptions.IgnoreCase)).Count();
+            //    maintPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(maintenance)", RegexOptions.IgnoreCase)).Count();
+            //    supervisorPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(supervisor)", RegexOptions.IgnoreCase)).Count();
+            //    otherPresent = entriesThisArea.Where(e => !Regex.IsMatch(e.Type, "^(clerk|supervisor|mail handler|maintenance)", RegexOptions.IgnoreCase)).Count();
+            //}
             return new MPESummary
             {
                 laborHrs = laborHrs,
@@ -190,7 +261,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         try
         {
             // Read data from file
-            var fileContent = await FileService.ReadFile(filePath);
+            var fileContent = await _fileService.ReadFile(filePath);
 
             // Parse the file content to get the data. This depends on the format of your file.
             // Here's an example if your file was in JSON format and contained an array of T objects:
@@ -227,4 +298,5 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     {
         return _geoZoneList.Where(r => r.Value.Properties.ZoneType.StartsWith(type)).Select(y => y.Value.Properties.Name).ToList();
     }
+
 }

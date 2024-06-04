@@ -17,18 +17,29 @@ namespace EIR_9209_2.Service
         {
             try
             {
+                if (_endpointConfig.Status != EWorkerServiceState.Running)
+                {
+                    _endpointConfig.Status = EWorkerServiceState.Running;
+                    _endpointConfig.LasttimeApiConnected = DateTime.Now;
+                    if (_endpointConfig.ActiveConnection)
+                    {
+                        _endpointConfig.ApiConnected = true;
+                    }
+                    else
+                    {
+                        _endpointConfig.ApiConnected = false;
+                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                    }
+                    await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                }
                 IQueryService queryService;
                 string FormatUrl = "";
-                _endpointConfig.Status = EWorkerServiceState.Running;
-                _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                _endpointConfig.ApiConnected = true;
                 string MpeWatch_id = "1";
                 string start_time = string.Concat(DateTime.Now.AddHours(-_endpointConfig.HoursBack).ToString("MM/dd/yyyy_"), "00:00:00");
                 string end_time = string.Concat(DateTime.Now.AddHours(_endpointConfig.HoursForward).ToString("MM/dd/yyyy_"), "23:59:59");
                 FormatUrl = string.Format(_endpointConfig.Url, MpeWatch_id, _endpointConfig.MessageType, start_time, end_time);
                 queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                 var result = (await queryService.GetMPEWatchData(stoppingToken));
-                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
                 //process zone data
                 if (_endpointConfig.MessageType.ToLower() == "rpg_run_perf")
                 {

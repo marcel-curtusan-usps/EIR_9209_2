@@ -22,13 +22,17 @@ namespace EIR_9209_2.Service
                 //process tag data
                 if (_endpointConfig.MessageType == "getTagData")
                 {
-                    _endpointConfig.Status = EWorkerServiceState.Running;
-                    _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                    _endpointConfig.ApiConnected = true;
+                    if (_endpointConfig.Status != EWorkerServiceState.Running)
+                    {
+                        _endpointConfig.Status = EWorkerServiceState.Running;
+                        _endpointConfig.LasttimeApiConnected = DateTime.Now;
+                        _endpointConfig.ApiConnected = true;
+                        await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                    }
                     FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType);
                     queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                     var result = (await queryService.GetQPETagData(stoppingToken));
-                    await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+
                     // Process tag data in a separate thread
                     _ = Task.Run(async () => await ProcessTagMovementData(result), stoppingToken);
                 }

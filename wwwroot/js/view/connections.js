@@ -417,7 +417,13 @@ async function Edit_Connection(data) {
     $('input[type=radio]').prop('disabled', true);
     if (checkValue(data.oAuthUrl)) {
         $('input[type=checkbox][id=OAuthconnection]').prop('checked', true);
+       
+        $('input[type=text][name=tokenurl]').prop("disabled", false).val(data.oAuthUrl);
+        $('input[type=text][name=tokenusername]').prop("disabled", false).val(data.oAuthUserName);
+        $('input[type=text][name=tokenpassword]').prop("disabled", false).val(data.oAuthPassword);
+        $('input[type=text][name=tokenclientId]').prop("disabled", false).val(data.oAuthClientId);
         onOAuthConnection();
+
     }
     if (data.apiConnection) {
         $('input[type=radio][id=api_connection]').prop('checked', data.apiConnection);
@@ -612,7 +618,7 @@ function createConnectionDataTable(table) {
         else if (/MessageType/i.test(key)) {
             tempc = {
                 "title": "Message Type",
-                "width": "10%",
+                "width": "20%",
                 "mDataProp": key
             }
         }
@@ -626,7 +632,7 @@ function createConnectionDataTable(table) {
         else if (/Status/i.test(key)) {
             tempc = {
                 "title": "Status",
-                "width": "30%",
+                "width": "20%",
                 "mDataProp": key,
                 "mRender": function (data, full) {
                     switch (data) {
@@ -644,6 +650,8 @@ function createConnectionDataTable(table) {
                             return "ErrorPullingData"
                         case 6:
                             return "InActive"
+                        case 7:
+                            return "Idle"
                         default:
                             return "No Status"
                     }
@@ -654,7 +662,7 @@ function createConnectionDataTable(table) {
         else if (/Action/i.test(key)) {
             tempc = {
                 "title": "Action",
-                "width": "30%",
+                "width": "20%",
                 "mDataProp": key,
                 "mRender": function (data, type, full) {
                     Actioncolumn = true;
@@ -732,7 +740,7 @@ function createConnectionDataTable(table) {
         let row = $(table).DataTable().row(td.closest('tr'));
         if (/connectionedit/ig.test(this.name)) {
             sidebar.close();
-            Edit_Connection(row.data());
+            Promise.all([Edit_Connection(row.data())]);
         }
         else if (/connectiondelete/ig.test(this.name)) {
             sidebar.close();

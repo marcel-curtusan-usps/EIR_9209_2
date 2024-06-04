@@ -10,6 +10,7 @@ internal class QueryService : IQueryService
     private readonly IHttpClientFactory _httpClient;
     private readonly IOAuth2AuthenticationService _authService;
     private readonly JsonSerializerSettings _jsonSettings;
+    private readonly Uri _baseQueryUrlWithPort;
     private readonly Uri _fullUrl;
 
     public QueryService(IHttpClientFactory httpClient, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
@@ -24,6 +25,7 @@ internal class QueryService : IQueryService
         this._httpClient = httpClient;
         this._authService = authService;
         this._jsonSettings = jsonSettings;
+        this._baseQueryUrlWithPort = new Uri(settings.BaseQueryUrlWithPort);
         this._fullUrl = new Uri(settings.FullUrl);
     }
 
@@ -39,6 +41,57 @@ internal class QueryService : IQueryService
     {
         return (await GetPostQueryResults<dynamic>(_fullUrl.AbsoluteUri, new object(), ct).ConfigureAwait(false));
     }
+    public async Task<JToken> GetSMSWrapperData(CancellationToken ct)
+    {
+        return (await GetQueryResults<dynamic>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+    }
+    public async Task<JToken> GetMPEWatchData(CancellationToken ct)
+    {
+        return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+    }
+    public async Task<JToken> GetSVDoorData(CancellationToken ct)
+    {
+        return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+    }
+    public async Task<List<(string areaId, string areaName)>> GetAreasAsync(CancellationToken ct)
+    {
+        string GetAreasUrlPath = "api/usps/area/list";
+        var areas = await GetQueryResults<IEnumerable<QREArea>>(new Uri(_baseQueryUrlWithPort, GetAreasUrlPath).AbsoluteUri, ct);
+        return areas.Select(a => (a.Id, a.Name)).ToList();
+    }
+    public async Task<List<AreaDwell>> GetTotalDwellTime(DateTime startTime, DateTime endTime, TimeSpan minEmployeeTimeInArea,
+    TimeSpan TimeStep, TimeSpan ActivationTime, TimeSpan DeactivationTime, TimeSpan DisappearTime, List<(string areaId, string areaName)> allAreaIds, int areaBatchCount, CancellationToken ct)
+    {
+        var queries = BreakUpAreasIntoBatches()
+              .Select(areasBatch => new ReportQueryBuilder()
+              .WithQueryType(ESelsReportQueryType.TotalDwellTimeByPersonByOperationalArea)
+              .WithStartLocalTime(startTime)
+              .WithEndLocalTime(endTime)
+              .WithMinTimeOnArea(minEmployeeTimeInArea)
+              .WithTimeStep(TimeStep)
+              .WithActivationTime(ActivationTime)
+              .WithDeactivationTime(DeactivationTime)
+              .WithDisappearTime(DisappearTime)
+              .WithAreaIds(areasBatch.Select(a => a.areaId).ToList())
+              .Build()
+              );
+
+        var queryTasks = queries.Select(query => GetPostQueryResults<List<TagDwellTimeInAreaQueryResult>>(_fullUrl.AbsoluteUri, query, ct));
+        var queryResults = (await Task.WhenAll(queryTasks).ConfigureAwait(false))
+            .SelectMany(x => x)
+            .Where(r => !r.User.Equals("Empty Time"))
+            .ToList();
+
+        var result = TransformQueryResults(queryResults);
+
+        return result;
+
+        IEnumerable<List<(string areaId, string areaName)>> BreakUpAreasIntoBatches()
+        {
+            return Enumerable.Range(0, (allAreaIds.Count + areaBatchCount - 1) / areaBatchCount).Select(i => allAreaIds.Skip(i * areaBatchCount).Take(areaBatchCount).ToList());
+        }
+    }
+
     private async Task<T> GetQueryResults<T>(string queryUrl, CancellationToken ct)
     {
         try
@@ -87,47 +140,6 @@ internal class QueryService : IQueryService
         return JsonConvert.DeserializeObject<T>(responseBody, _jsonSettings);
     }
 
-    public async Task<JToken> GetMPEWatchData(CancellationToken ct)
-    {
-        return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
-    }
-
-    public async Task<JToken> GetSVDoorData(CancellationToken ct)
-    {
-        return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
-    }
-    public async Task<List<AreaDwell>> GetTotalDwellTime(DateTime startTime, DateTime endTime, TimeSpan minEmployeeTimeInArea,
-        TimeSpan TimeStep, TimeSpan ActivationTime, TimeSpan DeactivationTime, TimeSpan DisappearTime, List<(string areaId, string areaName)> allAreaIds, int areaBatchCount, CancellationToken ct)
-    {
-        var queries = BreakUpAreasIntoBatches()
-              .Select(areasBatch => new ReportQueryBuilder()
-              .WithQueryType(ESelsReportQueryType.TotalDwellTimeByPersonByOperationalArea)
-              .WithStartLocalTime(startTime)
-              .WithEndLocalTime(endTime)
-              .WithMinTimeOnArea(minEmployeeTimeInArea)
-              .WithTimeStep(TimeStep)
-              .WithActivationTime(ActivationTime)
-              .WithDeactivationTime(DeactivationTime)
-              .WithDisappearTime(DisappearTime)
-              .WithAreaIds(areasBatch.Select(a => a.areaId).ToList())
-              .Build()
-              );
-
-        var queryTasks = queries.Select(query => GetPostQueryResults<List<TagDwellTimeInAreaQueryResult>>(_fullUrl.AbsoluteUri, query, ct));
-        var queryResults = (await Task.WhenAll(queryTasks).ConfigureAwait(false))
-            .SelectMany(x => x)
-            .Where(r => !r.User.Equals("Empty Time"))
-            .ToList();
-
-        var result = TransformQueryResults(queryResults);
-
-        return result;
-
-        IEnumerable<List<(string areaId, string areaName)>> BreakUpAreasIntoBatches()
-        {
-            return Enumerable.Range(0, (allAreaIds.Count + areaBatchCount - 1) / areaBatchCount).Select(i => allAreaIds.Skip(i * areaBatchCount).Take(areaBatchCount).ToList());
-        }
-    }
 
     private List<AreaDwell> TransformQueryResults(List<TagDwellTimeInAreaQueryResult> results)
     {
@@ -145,12 +157,4 @@ internal class QueryService : IQueryService
                 Type = r.Type
             }).ToList();
     }
-
-    public async Task<List<(string areaId, string areaName)>> GetAreasAsync(CancellationToken ct)
-    {
-        string GetAreasUrlPath = "api/usps/area/list";
-        var areas = await GetQueryResults<IEnumerable<QREArea>>(new Uri(_fullUrl, GetAreasUrlPath).AbsoluteUri, ct);
-        return areas.Select(a => (a.Id, a.Name)).ToList();
-    }
-
 }

@@ -16,7 +16,11 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
-        string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"], _configuration[key: "ApplicationConfiguration:BaseDirectory"], _configuration[key: "SiteIdentity:NassCode"], _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{_configuration[key: "InMemoryCollection:CollectionConnections"]}.json");
+        string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
+            _configuration[key: "ApplicationConfiguration:BaseDirectory"],
+            _configuration[key: "SiteIdentity:NassCode"],
+            _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
+            $"{_configuration[key: "InMemoryCollection:CollectionConnections"]}.json");
         // Load Connection data from the first file into the first collection
         _ = LoadDataFromFile(BuildPath);
 
@@ -64,25 +68,6 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
             return null;
         }
     }
-
-    public Connection Get(string id)
-    {
-        _connectionList.TryGetValue(id, out Connection connection);
-        return connection;
-    }
-
-    public IEnumerable<Connection> GetAll()
-    {
-        return _connectionList.Values;
-    }
-    public IEnumerable<Connection> GetbyType(string type)
-    {
-        return _connectionList.Where(r => r.Value.Name == type).Select(y => y.Value);
-    }
-    /// <summary>
-    /// Updates a connection in the in-memory connection repository.
-    /// </summary>
-    /// <param name="connection">The connection to update.</param>
     public Connection? Update(Connection connection)
     {
 
@@ -105,6 +90,25 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         }
 
     }
+    public Connection Get(string id)
+    {
+        _connectionList.TryGetValue(id, out Connection connection);
+        return connection;
+    }
+
+    public IEnumerable<Connection> GetAll()
+    {
+        return _connectionList.Values;
+    }
+    public IEnumerable<Connection> GetbyType(string type)
+    {
+        return _connectionList.Where(r => r.Value.Name == type).Select(y => y.Value);
+    }
+    /// <summary>
+    /// Updates a connection in the in-memory connection repository.
+    /// </summary>
+    /// <param name="connection">The connection to update.</param>
+
     private async Task LoadDataFromFile(string filePath)
     {
         try

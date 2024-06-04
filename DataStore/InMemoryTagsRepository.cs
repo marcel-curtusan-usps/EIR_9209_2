@@ -1,6 +1,8 @@
 ﻿using EIR_9209_2.Models;
+using Humanizer;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Ocsp;
 using System.Collections.Concurrent;
 
 namespace EIR_9209_2.InMemory
@@ -8,7 +10,7 @@ namespace EIR_9209_2.InMemory
     public class InMemoryTagsRepository : IInMemoryTagsRepository
     {
         private readonly ConcurrentDictionary<string, GeoMarker> _tagList = new();
-        private readonly ConcurrentDictionary<DateTime, List<AreaDwell>> _QREAreaDwellResults = new();
+        private readonly ConcurrentDictionary<string, DesignationActivityToCraftType> _designationActivityToCraftType = new();
         private readonly ILogger<InMemoryTagsRepository> _logger;
         private readonly IConfiguration _configuration;
         private readonly IFileService FileService;
@@ -17,11 +19,21 @@ namespace EIR_9209_2.InMemory
             FileService = fileService;
             _logger = logger;
             _configuration = configuration;
-            string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"], _configuration[key: "ApplicationConfiguration:BaseDirectory"], _configuration[key: "SiteIdentity:NassCode"], _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{_configuration[key: "InMemoryCollection:Tags"]}.json");
+            string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
+                _configuration[key: "ApplicationConfiguration:BaseDirectory"],
+                _configuration[key: "SiteIdentity:NassCode"],
+                _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
+                $"{_configuration[key: "InMemoryCollection:CollectionTags"]}.json");
             // Load data from the first file into the first collection
             _ = LoadDataFromFile(BuildPath);
 
+            string DACodeandCraftTypeFilePath = Path.Combine(Directory.GetCurrentDirectory(), _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{"DesignationActivityToCraftType"}.json");
+            // Load ConnectionType data from the first file into the first collection
+            _ = LoadDesignationActivityToCraftTypeDataFromFile(DACodeandCraftTypeFilePath);
         }
+
+
+
         public void Add(GeoMarker tag)
         {
             _tagList.TryAdd(tag.Properties.Id, tag);
@@ -47,7 +59,6 @@ namespace EIR_9209_2.InMemory
                 return new JObject { ["Message"] = "Tag not Found" };
             }
         }
-
         public List<GeoMarker> GetAll()
         {
             return _tagList.Values.Where(r => r.Properties.posAge > 1 && r.Properties.posAge < 100000 && r.Properties.Visible).Select(y => y).ToList();
@@ -61,24 +72,7 @@ namespace EIR_9209_2.InMemory
             }
         }
         //area Dwell
-        public bool ExiteingAreaDwell(DateTime hour)
-        {
-            return _QREAreaDwellResults.ContainsKey(hour);
 
-        }
-        public List<AreaDwell> GetAreaDwell(DateTime hour)
-        {
-            return _QREAreaDwellResults[hour];
-        }
-        public void UpdateAreaDwell(DateTime hour, List<AreaDwell> newValue, List<AreaDwell> currentvalue)
-        {
-            _QREAreaDwellResults.TryUpdate(hour, newValue, currentvalue);
-        }
-
-        public void AddAreaDwell(DateTime hour, List<AreaDwell> newValue)
-        {
-            _QREAreaDwellResults.TryAdd(hour, newValue);
-        }
         private async Task LoadDataFromFile(string filePath)
         {
             try
@@ -116,7 +110,131 @@ namespace EIR_9209_2.InMemory
                 _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
             }
         }
+        //dac
+        private async Task LoadDesignationActivityToCraftTypeDataFromFile(string filePath)
+        {
+            try
+            {
+                // Read data from file
+                var fileContent = await FileService.ReadFile(filePath);
 
+                // Parse the file content to get the data. This depends on the format of your file.
+                // Here's an example if your file was in JSON format and contained an array of T objects:
+                List<DesignationActivityToCraftType> data = JsonConvert.DeserializeObject<List<DesignationActivityToCraftType>>(fileContent);
 
+                // Insert the data into the MongoDB collection
+                if (data.Count != 0)
+                {
+                    foreach (DesignationActivityToCraftType item in data.Select(r => r).ToList())
+                    {
+                        _designationActivityToCraftType.TryAdd(item.DesignationActivity, item);
+                    }
+                }
+            }
+            catch (FileNotFoundException ex)
+            {
+                // Handle the FileNotFoundException here
+                _logger.LogError($"File not found: {ex.FileName}");
+                // You can choose to throw an exception or take any other appropriate action
+            }
+            catch (IOException ex)
+            {
+                // Handle errors when reading the file
+                _logger.LogError($"An error occurred when reading the file: {ex.Message}");
+            }
+            catch (JsonException ex)
+            {
+                // Handle errors when parsing the JSON
+                _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
+            }
+        }
+
+        public void UpdateEmployeeInfo(JObject empData)
+        {
+            GeoMarker? TagData = null;
+            if (empData.ContainsKey("tagId") && !string.IsNullOrEmpty(empData["tagId"].ToString()))
+            {
+                _tagList.TryGetValue(empData["tagId"].ToString(), out TagData);
+
+            }
+            else if (empData.ContainsKey("ein") && !string.IsNullOrEmpty(empData["ein"].ToString()))
+            {
+                TagData = _tagList.Where(r => r.Value.Properties.EIN == empData["ein"].ToString()).Select(y => y.Value).FirstOrDefault();
+            }
+
+            if (TagData != null)
+            {
+                //check EIN value is not null and update the EIN value
+                if (empData.ContainsKey("ein"))
+                {
+                    if (TagData.Properties.EIN != empData["ein"].ToString())
+                    {
+                        TagData.Properties.EIN = empData["ein"].ToString();
+                    }
+                }
+                //check FirstName value is not null and update the FirstName value
+                if (empData.ContainsKey("firstName"))
+                {
+                    if (TagData.Properties.EmpFirstName != empData["firstName"].ToString())
+                    {
+                        TagData.Properties.EmpFirstName = empData["firstName"].ToString();
+                    }
+                }
+                //check LastName value is not null and update the LastName value
+                if (empData.ContainsKey("lastName"))
+                {
+                    if (TagData.Properties.EmpLastName != empData["lastName"].ToString())
+                    {
+                        TagData.Properties.EmpLastName = empData["lastName"].ToString();
+                    }
+                }
+                //check title value is not null and update the title value
+                if (empData.ContainsKey("title"))
+                {
+                    if (TagData.Properties.EmpTitle != empData["title"].ToString())
+                    {
+                        TagData.Properties.EmpTitle = empData["title"].ToString();
+                    }
+                }
+                //check designationActivity value is not null and update the designationActivity value
+                if (empData.ContainsKey("designationActivity"))
+                {
+                    if (TagData.Properties.EmpDesignationActivity != empData["designationActivity"].ToString())
+                    {
+                        TagData.Properties.EmpDesignationActivity = empData["designationActivity"].ToString();
+                        TagData.Properties.CraftName = GetCraftName(empData["designationActivity"].ToString());
+                    }
+
+                }
+                //check paylocation value is not null and update the paylocation value
+                if (empData.ContainsKey("paylocation"))
+                {
+                    if (TagData.Properties.EmpPayLocation != empData["paylocation"].ToString())
+                    {
+                        TagData.Properties.EmpPayLocation = empData["paylocation"].ToString();
+                    }
+                }
+            }
+        }
+
+        private string GetCraftName(string dac)
+        {
+            try
+            {
+                if (_designationActivityToCraftType.ContainsKey(dac) && _designationActivityToCraftType.TryGetValue(dac, out DesignationActivityToCraftType Current))
+                {
+                    return Current.CraftType;
+                }
+                else
+                {
+                    return "NA";
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }

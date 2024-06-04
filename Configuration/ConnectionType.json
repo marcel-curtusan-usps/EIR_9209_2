@@ -92,7 +92,12 @@
       {
         "Id": "f5539389-2d82-45e5-ab4d-857263e37a21",
         "Name": "FDBIDEmployeeList",
-        "Description": "List of badgaes at site "
+        "Description": "List of badges at site "
+      },
+      {
+        "Id": "f5539389-2d82-45e5-ab4d-857263e37a51",
+        "Name": "NASSCodeEmployeeList",
+        "Description": "List of badges by Site NASS code "
       }
     ]
   },

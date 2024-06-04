@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Threading;
 
-internal class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDisposable
+public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDisposable
 {
     private readonly IHttpClientFactory _httpClient;
     private readonly OAuth2AuthenticationServiceSettings _authSettings;
@@ -36,6 +36,7 @@ internal class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDisp
             {
                 _semaphore.Release();
             }
+            Dispose();
         }
     }
     private async Task AddAuthHeaderCore(HttpRequestMessage request, CancellationToken ct)

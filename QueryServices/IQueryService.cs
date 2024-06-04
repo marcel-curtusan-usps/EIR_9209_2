@@ -11,4 +11,5 @@ public interface IQueryService
     Task<List<(string areaId, string areaName)>> GetAreasAsync(CancellationToken stoppingToken);
     Task<List<AreaDwell>> GetTotalDwellTime(DateTime hour, DateTime dateTime, TimeSpan timeSpan1, TimeSpan timeSpan2,
         TimeSpan timeSpan3, TimeSpan timeSpan4, TimeSpan timeSpan5, List<(string areaId, string areaName)> allAreaIds, int areasBatchCount, CancellationToken stoppingToken);
+    Task<JToken> GetSMSWrapperData(CancellationToken stoppingToken);
 }

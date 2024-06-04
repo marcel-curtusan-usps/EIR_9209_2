@@ -63,7 +63,7 @@ namespace EIR_9209_2.Service
                     endpointService = new QPEEndPointServices(_loggerFactory.CreateLogger<QPEEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _tags);
                     break;
                 case "QRE":
-                    endpointService = new QREEndPointServices(_loggerFactory.CreateLogger<QREEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _tags);
+                    endpointService = new QREEndPointServices(_loggerFactory.CreateLogger<QREEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _geoZones);
                     break;
                 case "MPEWatch":
                     endpointService = new MPEWatchEndPointServices(_loggerFactory.CreateLogger<MPEWatchEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _geoZones);
@@ -76,6 +76,9 @@ namespace EIR_9209_2.Service
                     break;
                 case "SV":
                     endpointService = new SVEndPointServices(_loggerFactory.CreateLogger<SVEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _geoZones);
+                    break;
+                case "SMS_Wrapper":
+                    endpointService = new SMSWrapperEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _tags);
                     break;
                 default:
                     _logger.LogWarning("Unknown endpoint {Name}", endpointConfig.Name);
