@@ -21,8 +21,13 @@ let tagsEmployees = new L.GeoJSON(null, {
                 url: '/api/Tag/' + feature.properties.id,
                 type: 'GET',
                 success: function (data) {
-                    $('#content').html(data);
-                    sidebar.open('employee');
+                    Promise.all([hidestafftables()]);
+                    $('div[id=div_taginfo]').css('display', '');
+                    data.properties.posAge = feature.properties.posAge;
+                    data.properties.locationMovementStatus = feature.properties.locationMovementStatus;
+                    updateTagDataTable(formattagdata(data.properties), "tagInfotable");
+                    sidebar.open('reports');
+
                 },
                 error: function (error) {
                     console.log(error);
@@ -31,14 +36,8 @@ let tagsEmployees = new L.GeoJSON(null, {
                     console.log(fail);
                 },
                 complete: function (complete) {
-                    console.log(complete);
                 }
-
-
-
             });
-
-            sidebar.open('reports');
         });
         layer.bindTooltip("", {
             permanent: true,
@@ -55,6 +54,13 @@ let tagsEmployees = new L.GeoJSON(null, {
 let overlayLayer = L.layerGroup().addTo(OSLmap);
 layersControl.addOverlay(overlayLayer, "Badges");
 tagsEmployees.addTo(overlayLayer);
+async function hidestafftables() {
+    $('div[id=div_taginfo]').css('display', '');
+    $('div[id=div_userinfo]').css('display', 'none');
+    $('div[id=div_overtimeinfo]').css('display', 'none');
+    $('div[id=div_staffinfo]').css('display', 'none');
+
+}
 async function findLeafletIds(markerId) {
     return new Promise((resolve, reject) => {
         tagsEmployees.eachLayer(function (layer) {
@@ -69,6 +75,8 @@ async function findLeafletIds(markerId) {
 async function init_tagsEmployees(data) {
     return new Promise((resolve, reject) => {
         try {
+            createStaffingDataTable("staffingtable");
+            createTagDataTable('tagInfotable');
             $(document).on('change', '.leaflet-control-layers-selector', function () {
                 let sp = this.nextElementSibling;
                 if (/^badges$/ig.test(sp.innerHTML.trim())) {
@@ -157,7 +165,7 @@ function getmarkerType(type) {
             return 'persontag ';
         }
         else if (type.length === 0) {
-            return 'persontag_blank ';
+            return 'persontag_unknown ';
         }
         else {
             return 'persontag_unknown ';
@@ -167,4 +175,270 @@ function getmarkerType(type) {
         return 'persontag ';
     }
 
+}
+function createTagDataTable(table) {
+    let arrayColums = [{
+        "INDEX": "",
+        "KEY_NAME": "",
+        "VALUE": ""
+    }]
+    let columns = [];
+    let tempc = {};
+    $.each(arrayColums[0], function (key) {
+        tempc = {};
+        if (/INDEX/i.test(key)) {
+            tempc = {
+                "title": "index",
+                "width": "5%",
+                "mDataProp": key
+            }
+        }
+        else if (/KEY_NAME/i.test(key)) {
+            tempc = {
+                "title": 'Name',
+                "width": "35%",
+                "mDataProp": key
+            }
+        }
+        else if (/VALUE/i.test(key)) {
+            tempc = {
+                "title": "Value",
+                "width": "60%",
+                "mDataProp": key
+            }
+        }
+
+        columns.push(tempc);
+
+    });
+    $('#' + table).DataTable({
+        dom: 'Bfrtip',
+        bFilter: false,
+        bdeferRender: true,
+        bpaging: false,
+        bPaginate: false,
+        autoWidth: false,
+        bInfo: false,
+        destroy: true,
+        language: {
+            zeroRecords: "No Data"
+        },
+        aoColumns: columns,
+        columnDefs: [
+            {
+                target: 0,
+                visible: false,
+                searchable: false
+            }
+        ],
+        sorting: [[0, "asc"], [1, "asc"]]
+
+    });
+}
+function updateTagDataTable(newdata, table) {
+    let loadnew = true;
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        $('#' + table).DataTable().rows(function (idx, data, node) {
+            loadnew = false;
+            for (const element of newdata) {
+                if (data.KEY_NAME === element.KEY_NAME) {
+                    $('#' + table).DataTable().row(node).data(element).draw().invalidate();
+                }
+            }
+        })
+        if (loadnew) {
+            loadStaffingDatatable(newdata, table);
+        }
+    }
+}
+function createStaffingDataTable(table) {
+    let arrayColums = [{
+        "icon": "",
+        "type": "",
+        "sche": "",
+        "in_building": "",
+        "epacs": ""
+    }];
+    let columns = [];
+    let tempc = {};
+    $.each(arrayColums[0], function (key) {
+        tempc = {};
+
+        if (/type/i.test(key)) {
+            tempc = {
+                "title": 'Type',
+                "width": "40%",
+                "mDataProp": key
+            };
+        }
+        else if (/sche/i.test(key)) {
+            tempc = {
+                "title": "Scheduled",
+                "width": "15%",
+                "mDataProp": key
+            };
+        }
+        else if (/in_building/i.test(key)) {
+            tempc = {
+                "title": "WorkZone",
+                "width": "15%",
+                "mDataProp": key
+            };
+        }
+        else if (/epacs/i.test(key)) {
+            tempc = {
+                "title": "ePACS",
+                "width": "15%",
+                "mDataProp": key
+            };
+        }
+        else if (/icon/i.test(key)) {
+            tempc = {
+                "title": 'Icon',
+                "width": "5%",
+                "mDataProp": key,
+                "mRender": function (data, type, full) {
+                    return '<i class="leaflet-tooltip ' + getmarkerType(full.type) + '"></i>';
+
+                }
+            };
+        }
+
+        columns.push(tempc);
+
+    });
+    $('#' + table).DataTable({
+        dom: 'Bfrtip',
+        bFilter: false,
+        bdeferRender: true,
+        bpaging: false,
+        bPaginate: false,
+        autoWidth: false,
+        bInfo: false,
+        destroy: true,
+        language: {
+            zeroRecords: "No Data"
+        },
+        aoColumns: columns,
+        columnDefs: [],
+        sorting: [[1, "asc"]],
+        rowCallback: function (row, data, index) {
+            $(row).find('td:eq(2)').css('text-align', 'center');
+            $(row).find('td:eq(3)').css('text-align', 'center');
+            $(row).find('td:eq(4)').css('text-align', 'center');
+        },
+        footerCallback: function (row, data, start, end, display) {
+            let api = this.api();
+            // converting to interger to find total
+            let intVal = function (i) {
+                return typeof i === 'string' ?
+                    i.replace(/[$,]/g, '') * 1 :
+                    typeof i === 'number' ?
+                        i : 0;
+            };
+            // computing column Total of the complete result 
+            let schetotal = api
+                .column(2)
+                .data()
+                .reduce(function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0);
+            let in_buildingtotal = api
+                .column(3)
+                .data()
+                .reduce(function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0);
+            let epacstotal = api
+                .column(4)
+                .data()
+                .reduce(function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0);
+            // Update footer by showing the total with the reference of the column index 
+            $(api.column(2).footer()).html(schetotal).css('text-align', 'center');
+            $(api.column(3).footer()).html(in_buildingtotal).css('text-align', 'center');
+            $(api.column(4).footer()).html(epacstotal).css('text-align', 'center');
+        }
+    });
+}
+function loadStaffingDatatable(data, table) {
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        $('#' + table).DataTable().rows.add(data).draw();
+    }
+}
+function updateStaffingDataTable(newdata, table) {
+    let loadnew = true;
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        $('#' + table).DataTable().rows(function (idx, data, node) {
+            loadnew = false;
+            for (const element of newdata) {
+                if (data.type === element.type) {
+                    $('#' + table).DataTable().row(node).data(element).draw().invalidate();
+                }
+            }
+
+        })
+        if (loadnew) {
+            loadStaffingDatatable(newdata, table);
+        }
+    }
+}
+function formattagdata(result) {
+    let reformatdata = [];
+    try {
+        for (let key in result) {
+            let temp = {
+                "INDEX": "",
+                "KEY_NAME": "",
+                "VALUE": ""
+            };
+            if (/^(admin)/i.test(appData.role) && !$.isPlainObject(result[key]) && /^(empFirstName|empLastName)/ig.test(key)) {
+                switch (key) {
+                    case "empFirstName":
+                        temp['INDEX'] = 0;
+                        break;
+                    case "empLastName":
+                        temp['INDEX'] = 0;
+                        break;
+                    default:
+                        temp['INDEX'] = 10;
+                        break;
+                }
+                temp['KEY_NAME'] = key;
+                temp['VALUE'] = result[key];
+                reformatdata.push(temp);
+            }
+
+            if (!$.isPlainObject(result[key]) && /^(id|ein|encodedID|craftName|tourNumber|daysOff|floorId|posAge|locationMovementStatus|payLocation|designationActivity)/ig.test(key)) {
+                switch (key) {
+                    case "craftName":
+                        temp['INDEX'] = 2;
+                        break;
+                    case "id":
+                        temp['INDEX'] = 1;
+                        break;
+                    case "ein":
+                        temp['INDEX'] = 1;
+                        break;
+                    case "encodedID":
+                        temp['INDEX'] = 1;
+                        break;
+                    default:
+                        temp['INDEX'] = 10;
+                        break;
+                }
+
+
+                temp['KEY_NAME'] = key;
+                temp['VALUE'] = result[key];
+                reformatdata.push(temp);
+            }
+        }
+
+    } catch (e) {
+        throw new Error(e.toString());
+    }
+
+    return reformatdata;
 }

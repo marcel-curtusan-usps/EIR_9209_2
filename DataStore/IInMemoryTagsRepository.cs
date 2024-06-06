@@ -10,4 +10,6 @@ public interface IInMemoryTagsRepository
     void Update(GeoMarker tag);
     void LocalAdd(GeoMarker tag);
     void UpdateEmployeeInfo(JObject emp);
+    void UpdateBadgeTransactionScan(JObject transaction);
+    string GetCraftType(string tagId);
 }

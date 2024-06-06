@@ -322,7 +322,6 @@ async function loadMachineData(data, table) {
     try {
         hideSidebarLayerDivs();
         let mpeData = data.mpeRunPerformance;
-        console.error(mpeData);
         $('span[name=mpeview]').empty();
         $('span[name=mpePerfomance]').empty();
         $('span[name=mpeSDO]').empty();
@@ -506,39 +505,46 @@ function formatmachinetoprow(properties) {
     });
 }
 function getstatebadge(properties) {
-    if (properties.hasOwnProperty("MPEWatchData")) {
-        if (properties.MPEWatchData.hasOwnProperty("currentRunEnd")) {
-            var endtime = properties.MPEWatchData.currentRunEnd == "0" ? "" : luxon.DateTime.fromISO(properties.MPEWatchData.currentRunEnd);
-
-            var starttime = function () {
-                if (data.length < 8) {
-                    return " ";
-                }
-                return luxon.DateTime.fromISO(properties.MPEWatchData.currentRunStart)
-            }
-            var sortPlan = properties.MPEWatchData.curSortplan;
-
-            if (starttime._isValid && !endtime._isValid) {
-                if (sortPlan !== "") {
-                    return "badge badge-success";
+    try {
+        if (properties.hasOwnProperty("mpeRunPerformance")) {
+            if (properties.mpeRunPerformance.hasOwnProperty("currentRunEnd")) {
+                let endtime, starttime;
+                if (properties.mpeRunPerformance.currentRunEnd !== '') {
+                    endtime = luxon.DateTime.fromFormat(properties.mpeRunPerformance.currentRunEnd, 'yyyy-MM-dd HH:mm:ss');
                 }
                 else {
-                    return "badge badge-info";
+                    endtime = luxon.DateTime.local().set({ isValid: false });
+                }
+                if (properties.mpeRunPerformance.currentRunStart !== '') {
+                    starttime = luxon.DateTime.fromFormat(properties.mpeRunPerformance.currentRunStart, 'yyyy-MM-dd HH:mm:ss');
+                }
+                var sortPlan = properties.mpeRunPerformance.curSortplan;
+
+                if (starttime.isValid && !endtime.isValid) {
+                    if (sortPlan !== "") {
+                        return "badge rounded-pill text-bg-success";
+                    }
+                    else {
+                        return "badge rounded-pill text-bg-info";
+                    }
+                }
+                else if (!starttime.isValid && !endtime.isValid) {
+                    return "badge rounded-pill text-bg-info";
+                }
+                else if (starttime.isValid && endtime.isValid) {
+                    return "badge rounded-pill text-bg-success";
                 }
             }
-            else if (!starttime._isValid && !endtime._isValid) {
-                return "badge badge-info";
-            }
-            else if (starttime._isValid && endtime._isValid) {
-                return "badge badge-info";
+            else {
+                return "badge rounded-pill text-bg-secondary";
             }
         }
         else {
-            return "badge badge-secondary";
+            return "badge rounded-pill text-bg-secondary";
         }
-    }
-    else {
-        return "badge badge-secondary";
+    } catch (e) {
+        return "badge rounded-pill text-bg-info";
+        console.log(e)
     }
 }
 function getstateText(properties) {
@@ -589,7 +595,7 @@ function VaildateMPEtime(data) {
         //how do use luxon to check if the date is valid
         let time = luxon.DateTime.fromFormat(data, "yyyy-LL-MM hh:mm:ss"); 
     
-        if (time.isValid && time.year() === luxon.DateTime.local().year()) {
+        if (time.isValid && time.year === luxon.DateTime.local().year) {
             return time.toFormat("yyyy-LL-MM hh:mm:ss");
         }
         else {

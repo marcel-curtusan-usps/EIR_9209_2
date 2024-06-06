@@ -1,15 +1,4 @@
-﻿/// A simple template method for replacing placeholders enclosed in curly braces.
-if (!String.prototype.supplant) {
-    String.prototype.supplant = function (o) {
-        return this.replace(/{([^{}]*)}/g,
-            function (a, b) {
-                let r = o[b];
-                return typeof r === 'string' || typeof r === 'number' ? r : a;
-            }
-        );
-    };
-}
-let connecttimer = 0;
+﻿let connecttimer = 0;
 let connectattp = 0;
 let MPEName = "";
 let RequestDate = "";
@@ -45,6 +34,42 @@ $(function () {
     document.title = $.urlParam("mpeStatus");
     RequestDate = getUrlParameter("Date");
     $('span[id=headerIdSpan]').text(MPEName + " Machine Performance");
+    localdateTime = luxon.DateTime.local();
+
+    MPEdefaultMaxdate = localdateTime.plus({ hours: 2 }).startOf('hour');
+    MPEdefaultMindate = MPEdefaultMaxdate.minus({ hours: 24 }).startOf('hour');
+    //makea ajax call to get the employee details
+    $.ajax({
+        url: '/MPESummary?mpe=' + MPEName,
+        type: 'GET',
+        success: function (data) {
+            hourlyMPEdata = data.length > 0 ? data[0] : [];
+            Promise.all([updateMPEPerformanceSummaryStatus(hourlyMPEdata, MPEdefaultMindate, MPEdefaultMaxdate)]);
+            
+        },
+        error: function (error) {
+            console.log(error);
+        },
+        faulure: function (fail) {
+            console.log(fail);
+        }
+    });
+    $.ajax({
+        url: '/MPERunActivity?mpe=' + MPEName,
+        type: 'GET',
+        success: function (data) {
+            sortPlandata = data;
+            Promise.all([updateRunVsPlan(data, 'ganttRunVsPlan')]);
+            Promise.all([loadCurrentRun(data)]);
+
+        },
+        error: function (error) {
+            console.log(error);
+        },
+        faulure: function (fail) {
+            console.log(fail);
+        }
+    });
     /*    document.title = $.urlParam("SitePerformance");*/
     //start connection 
     //$.connection.hub.qs = { 'page_type': "MPEPerformance".toUpperCase() };
@@ -83,58 +108,58 @@ $(function () {
 
 async function start() {
     try {
-        await connection.start().then(async () => {
-            //load siteinfo
-            await connection.invoke("GetSiteInformation").then(function (data) {
-                siteTours = data.tours;
-            }).catch(function (err) {
-                console.error(err);
-            });
-            await connection.invoke("GetMPESynopsis").then(async (data) => {
-                hourlyMPEdata = data.length > 0 ? data[0] : [];
-                Promise.all([updateMPEPerformanceSummaryStatus(data)]).then(function () {
-                    connection.invoke("JoinGroup", "MPESynopsis").catch(function (err) {
-                        return console.error(err.toString());
-                    });
+        //await connection.start().then(async () => {
+        //    //load siteinfo
+        //    await connection.invoke("GetSiteInformation").then(function (data) {
+        //        siteTours = data.tours;
+        //    }).catch(function (err) {
+        //        console.error(err);
+        //    });
+        //    await connection.invoke("GetMPESynopsis").then(async (data) => {
+        //        hourlyMPEdata = data.length > 0 ? data[0] : [];
+        //        Promise.all([updateMPEPerformanceSummaryStatus(data)]).then(function () {
+        //            connection.invoke("JoinGroup", "MPESynopsis").catch(function (err) {
+        //                return console.error(err.toString());
+        //            });
 
-                });
-            }).catch(function (err) {
-                console.error(err);
-            });
+        //        });
+        //    }).catch(function (err) {
+        //        console.error(err);
+        //    });
 
-        });
+        //});
     } catch (err) {
         console.log(err);
         setTimeout(start, 5000);
     }
 };
-async function LoadData() {
-    //console.log("Connected time: " + new Date($.now()));
-    if (!!MPEName) {
-        //load tours
-        fotfmanager.server.getSiteTours().done(async (data) => {
-            siteTours = data;
-        }).then(() => {
+//async function LoadData() {
+//    //console.log("Connected time: " + new Date($.now()));
+//    if (!!MPEName) {
+//        //load tours
+//        fotfmanager.server.getSiteTours().done(async (data) => {
+//            siteTours = data;
+//        }).then(() => {
 
-            //load gantt chart
-            fotfmanager.server.getMPErunVsPlan(MPEName).done(async (data) => {
-                sortPlandata = data;
-                Promise.all([updateRunVsPlan(data, 'ganttRunVsPlan')]);
-                Promise.all([loadCurrentRun(data)]);
-            });
+//            //load gantt chart
+//            fotfmanager.server.getMPErunVsPlan(MPEName).done(async (data) => {
+//                sortPlandata = data;
+//                Promise.all([updateRunVsPlan(data, 'ganttRunVsPlan')]);
+//                Promise.all([loadCurrentRun(data)]);
+//            });
 
-            //load hourly table
-            fotfmanager.server.getMPEPerformanceSummaryList(MPEName).done(async (data) => {
+//            //load hourly table
+//            fotfmanager.server.getMPEPerformanceSummaryList(MPEName).done(async (data) => {
 
-                hourlyMPEdata = data.length > 0 ? data[0] : [];
-                Promise.all([updateMPEPerformanceSummaryStatus(hourlyMPEdata, MPEdefaultMindate, MPEdefaultMaxdate)]);
+//                hourlyMPEdata = data.length > 0 ? data[0] : [];
+//                Promise.all([updateMPEPerformanceSummaryStatus(hourlyMPEdata, MPEdefaultMindate, MPEdefaultMaxdate)]);
 
-            });
-            //join the Mpe Performance group to get updates
-            fotfmanager.server.joinGroup("MPEPerformance_" + MPEName)
-        });
-    }
-};
+//            });
+//            //join the Mpe Performance group to get updates
+//            fotfmanager.server.joinGroup("MPEPerformance_" + MPEName)
+//        });
+//    }
+//};
 async function updateRunVsPlan(data, chartId) {
     GanttChart(chartId, data, MPEName)
 }

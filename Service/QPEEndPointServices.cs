@@ -76,7 +76,10 @@ namespace EIR_9209_2.Service
                                 ["id"] = qtitem.TagId,
                                 ["floorId"] = qtitem.LocationCoordSysId,
                                 ["posAge"] = posAge,
-                                ["visible"] = visable
+                                ["visible"] = visable,
+                                ["locationMovementStatus"] = qtitem.LocationMovementStatus,
+                                ["positionTS_txt"] = qtitem.LocationTS,
+                                ["craftName"] = _tags.GetCraftType(qtitem.TagId)
                             }
                         };
 

@@ -65,7 +65,7 @@ namespace EIR_9209_2.Service
 
                         for (var hour = endingHour; startingHour <= hour; hour = hour.AddHours(-1))
                         {
-                            if (_zones.ExiteingAreaDwell(hour))
+                            if (_zones.ExistingAreaDwell(hour))
                             {
                                 if (currentHour == hour || pastHour == hour)
                                 {
@@ -88,7 +88,7 @@ namespace EIR_9209_2.Service
                                 _zones.AddAreaDwell(hour, newValue);
                             }
                         }
-
+                        _ = Task.Run(() => _zones.RunMPESummaryReport());
                         //var result = (await queryService.GetQPETagData(stoppingToken));
                         //await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
                         //// Process tag data in a separate thread

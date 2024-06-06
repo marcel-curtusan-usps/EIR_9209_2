@@ -62,6 +62,7 @@ public class HubServices : Hub
     //    _connectionIds.TryAdd(Context.ConnectionId, Context.ConnectionId);
     //    await base.OnConnectedAsync();
     //}
+
     public override async Task OnDisconnectedAsync(Exception exception)
     {
         //string removedConnectionId;
@@ -117,6 +118,7 @@ public class HubServices : Hub
             ["role"] = "Admin"
         });
     }
+
     public async Task<IEnumerable<GeoMarker>> GetPersonTags()
     {
         return await Task.Run(_tags.GetAll);

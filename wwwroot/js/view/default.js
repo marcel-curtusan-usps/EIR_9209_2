@@ -22,7 +22,7 @@ async function start() {
         await connection.start().then(function () {
             //load Application Info
             connection.invoke("GetApplicationInfo").then(function (data) {
-                let appData = JSON.parse(data);
+                appData = JSON.parse(data);
                 if (/^(Admin|OIE)/i.test(appData.role)) {
                     Promise.all([init_geoman_editing()]);
                     sidebar.addPanel({

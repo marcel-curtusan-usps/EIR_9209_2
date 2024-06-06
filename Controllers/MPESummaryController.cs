@@ -6,61 +6,23 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MPESummaryController : ControllerBase
+    public class MPESummaryController(ILogger<MPESummaryController> logger, IInMemoryGeoZonesRepository zonesRepository) : ControllerBase
     {
-        private readonly IInMemoryGeoZonesRepository _zonesRepository;
+        private readonly IInMemoryGeoZonesRepository _zones = zonesRepository;
+        private readonly ILogger<MPESummaryController> _logger = logger;
 
-        public MPESummaryController(IInMemoryGeoZonesRepository zonesRepository)
-        {
-            _zonesRepository = zonesRepository;
-        }
         // GET: api/<MPESummaryController>
         [HttpGet]
+        [Route("/MPESummary")]
         public async Task<object> GetByMPE(string mpe)
         {
             if (!ModelState.IsValid)
             {
                 return await Task.FromResult(BadRequest(ModelState));
             }
-            return _zonesRepository.getMPESummary(mpe);
+            return _zones.getMPESummary(mpe);
         }
 
 
-        // GET api/<MPESummaryController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<MPESummaryController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // POST api/<MPESummaryController>
-        //[HttpPost]
-        //public async Task<object> PostByRunSummary()
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return await Task.FromResult(BadRequest(ModelState));
-        //    }
-        //    //_zonesRepository.RunMPESummaryReport();
-        //    return Ok();
-        //}
-
-        // PUT api/<MPESummaryController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<MPESummaryController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }

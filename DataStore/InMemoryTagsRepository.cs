@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Ocsp;
 using System.Collections.Concurrent;
+using System.Transactions;
 
 namespace EIR_9209_2.InMemory
 {
@@ -151,68 +152,96 @@ namespace EIR_9209_2.InMemory
 
         public void UpdateEmployeeInfo(JObject empData)
         {
-            GeoMarker? TagData = null;
-            if (empData.ContainsKey("tagId") && !string.IsNullOrEmpty(empData["tagId"].ToString()))
+            bool savetoFile = false;
+            try
             {
-                _tagList.TryGetValue(empData["tagId"].ToString(), out TagData);
+                GeoMarker? TagData = null;
+                if (empData.ContainsKey("tagId") && !string.IsNullOrEmpty(empData["tagId"].ToString()))
+                {
+                    _tagList.TryGetValue(empData["tagId"].ToString(), out TagData);
 
+                }
+                else if (empData.ContainsKey("ein") && !string.IsNullOrEmpty(empData["ein"].ToString()))
+                {
+                    TagData = _tagList.Where(r => r.Value.Properties.EIN == empData["ein"].ToString()).Select(y => y.Value).FirstOrDefault();
+                }
+
+                if (TagData != null)
+                {
+                    //check EIN value is not null and update the EIN value
+                    if (empData.ContainsKey("ein"))
+                    {
+                        if (TagData.Properties.EIN != empData["ein"].ToString())
+                        {
+                            TagData.Properties.EIN = empData["ein"].ToString();
+
+                            savetoFile = true;
+                        }
+                    }
+                    //check FirstName value is not null and update the FirstName value
+                    if (empData.ContainsKey("firstName"))
+                    {
+                        if (TagData.Properties.EmpFirstName != empData["firstName"].ToString())
+                        {
+                            TagData.Properties.EmpFirstName = empData["firstName"].ToString();
+                            savetoFile = true;
+                        }
+                    }
+                    //check LastName value is not null and update the LastName value
+                    if (empData.ContainsKey("lastName"))
+                    {
+                        if (TagData.Properties.EmpLastName != empData["lastName"].ToString())
+                        {
+                            TagData.Properties.EmpLastName = empData["lastName"].ToString();
+                            savetoFile = true;
+                        }
+                    }
+                    //check title value is not null and update the title value
+                    if (empData.ContainsKey("title"))
+                    {
+                        if (TagData.Properties.EmpTitle != empData["title"].ToString())
+                        {
+                            TagData.Properties.EmpTitle = empData["title"].ToString();
+                            savetoFile = true;
+                        }
+                    }
+                    //check designationActivity value is not null and update the designationActivity value
+                    if (empData.ContainsKey("designationActivity"))
+                    {
+                        if (TagData.Properties.EmpDesignationActivity != empData["designationActivity"].ToString())
+                        {
+                            TagData.Properties.EmpDesignationActivity = empData["designationActivity"].ToString();
+                            TagData.Properties.CraftName = GetCraftName(empData["designationActivity"].ToString());
+                            savetoFile = true;
+                        }
+
+                    }
+                    //check paylocation value is not null and update the paylocation value
+                    if (empData.ContainsKey("paylocation"))
+                    {
+                        if (TagData.Properties.EmpPayLocation != empData["paylocation"].ToString())
+                        {
+                            TagData.Properties.EmpPayLocation = empData["paylocation"].ToString();
+                            savetoFile = true;
+                        }
+                    }
+                }
             }
-            else if (empData.ContainsKey("ein") && !string.IsNullOrEmpty(empData["ein"].ToString()))
+            catch (Exception e)
             {
-                TagData = _tagList.Where(r => r.Value.Properties.EIN == empData["ein"].ToString()).Select(y => y.Value).FirstOrDefault();
+                _logger.LogError(e.Message);
             }
-
-            if (TagData != null)
+            finally
             {
-                //check EIN value is not null and update the EIN value
-                if (empData.ContainsKey("ein"))
+                if (savetoFile)
                 {
-                    if (TagData.Properties.EIN != empData["ein"].ToString())
-                    {
-                        TagData.Properties.EIN = empData["ein"].ToString();
-                    }
-                }
-                //check FirstName value is not null and update the FirstName value
-                if (empData.ContainsKey("firstName"))
-                {
-                    if (TagData.Properties.EmpFirstName != empData["firstName"].ToString())
-                    {
-                        TagData.Properties.EmpFirstName = empData["firstName"].ToString();
-                    }
-                }
-                //check LastName value is not null and update the LastName value
-                if (empData.ContainsKey("lastName"))
-                {
-                    if (TagData.Properties.EmpLastName != empData["lastName"].ToString())
-                    {
-                        TagData.Properties.EmpLastName = empData["lastName"].ToString();
-                    }
-                }
-                //check title value is not null and update the title value
-                if (empData.ContainsKey("title"))
-                {
-                    if (TagData.Properties.EmpTitle != empData["title"].ToString())
-                    {
-                        TagData.Properties.EmpTitle = empData["title"].ToString();
-                    }
-                }
-                //check designationActivity value is not null and update the designationActivity value
-                if (empData.ContainsKey("designationActivity"))
-                {
-                    if (TagData.Properties.EmpDesignationActivity != empData["designationActivity"].ToString())
-                    {
-                        TagData.Properties.EmpDesignationActivity = empData["designationActivity"].ToString();
-                        TagData.Properties.CraftName = GetCraftName(empData["designationActivity"].ToString());
-                    }
-
-                }
-                //check paylocation value is not null and update the paylocation value
-                if (empData.ContainsKey("paylocation"))
-                {
-                    if (TagData.Properties.EmpPayLocation != empData["paylocation"].ToString())
-                    {
-                        TagData.Properties.EmpPayLocation = empData["paylocation"].ToString();
-                    }
+                    //save date to local file
+                    string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
+                                       _configuration[key: "ApplicationConfiguration:BaseDirectory"],
+                                                      _configuration[key: "SiteIdentity:NassCode"],
+                                                                     _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
+                                                                                    $"{_configuration[key: "InMemoryCollection:CollectionTags"]}.json");
+                    FileService.WriteFile(BuildPath, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
             }
         }
@@ -235,6 +264,59 @@ namespace EIR_9209_2.InMemory
 
                 throw;
             }
+        }
+
+        public void UpdateBadgeTransactionScan(JObject transaction)
+        {
+            bool savetoFile = false;
+            try
+            {
+                GeoMarker? TagData = null;
+                if (transaction.ContainsKey("tagId") && !string.IsNullOrEmpty(transaction["tagId"].ToString()))
+                {
+                    _tagList.TryGetValue(transaction["tagId"].ToString(), out TagData);
+
+                }
+                else if (transaction.ContainsKey("ein") && !string.IsNullOrEmpty(transaction["ein"].ToString()))
+                {
+                    TagData = _tagList.Where(r => r.Value.Properties.EIN == transaction["ein"].ToString()).Select(y => y.Value).FirstOrDefault();
+                }
+                if (TagData != null)
+                {
+                    TagData.Properties.BadgeScan.Add(new ScanTransaction
+                    {
+
+                        controllerCaption = transaction["controllerCaption"].ToString(),
+                        deviceCaption = transaction["deviceCaption"].ToString(),
+                        scanDateTime = (DateTime)transaction["transactionOriginDateTime"],
+                        deviceTypeCaption = transaction["deviceTypeCaption"].ToString(),
+                        deviceID = transaction["deviceID"].ToString()
+                    });
+                    savetoFile = true;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
+            finally
+            {
+                if (savetoFile)
+                {
+                    //save date to loacl file
+                    string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
+                                       _configuration[key: "ApplicationConfiguration:BaseDirectory"],
+                                                      _configuration[key: "SiteIdentity:NassCode"],
+                                                                     _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
+                                                                                    $"{_configuration[key: "InMemoryCollection:CollectionTags"]}.json");
+                    FileService.WriteFile(BuildPath, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                }
+            }
+        }
+
+        public string GetCraftType(string tagId)
+        {
+            return _tagList.Where(r => r.Key == tagId).Select(y => y.Value.Properties.CraftName).FirstOrDefault();
         }
     }
 }

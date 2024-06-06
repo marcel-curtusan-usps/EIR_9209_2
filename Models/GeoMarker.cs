@@ -50,10 +50,11 @@ namespace EIR_9209_2.Models
             public string DaysOff { get; set; } = "";
             public string Source { get; set; } = "";
             public string NotificationId { get; set; } = "";
-            public string ZonesNames { get; internal set; } = "";
-            public string LocationMovementStatus { get; internal set; } = "";
+            public string ZonesNames { get; set; } = "";
+            public string LocationMovementStatus { get; set; } = "";
             public string LocationType { get; set; } = "";
-            public long LastSeenTS { get; internal set; } = 0;
+            public long LastSeenTS { get; set; } = 0;
+            public List<ScanTransaction> BadgeScan { get; set; } = new();
         }
         public class MarkerGeometry
         {

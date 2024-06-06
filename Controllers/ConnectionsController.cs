@@ -57,7 +57,7 @@ namespace EIR_9209_2.Controllers
         /// </summary>
         /// <param name="value">The connection details.</param>
         /// <returns>The added connection.</returns>
-        public async Task<IActionResult> PostAddNewConnection([FromBody] JObject value)
+        public async Task<object> PostAddNewConnection([FromBody] JObject value)
         {
             //handle bad requests
             if (!ModelState.IsValid)

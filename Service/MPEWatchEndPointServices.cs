@@ -1,6 +1,7 @@
 ﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Ocsp;
 using System.Net.Http;
 
 namespace EIR_9209_2.Service
@@ -59,6 +60,7 @@ namespace EIR_9209_2.Service
                     _ = Task.Run(async () => await ProcessMPEWatchDPSRunData(result), stoppingToken);
                     //_logger.LogInformation("Data from {Url}: {Data}", _endpointConfig.Url, result);
                 }
+                _ = Task.Run(() => _geoZones.RunMPESummaryReport());
             }
             catch (Exception ex)
             {
@@ -115,115 +117,14 @@ namespace EIR_9209_2.Service
                     var data = result.SelectToken("data");
                     if (data != null)
                     {
-                        var mpeList = data.ToObject<List<MPERunPerformance>>();
-
-                        foreach (var mpe in mpeList)
+                        List<MPERunPerformance>? mpeList = data.ToObject<List<MPERunPerformance>>();
+                        if (mpeList != null && mpeList.Any())
                         {
-                            var mpeName = string.Concat(mpe.MpeType, "-", mpe.MpeNumber.ToString().PadLeft(3, '0'));
-                            // get geozone that matched the mpe watch id
-                            var geoZone = _geoZones.GetMPEName(mpeName);
-                            if (geoZone != null)
+                            foreach (MPERunPerformance mpe in mpeList)
                             {
-                                bool pushUIUpdate = false;
-                                //update the geozone with the new data
-                                //geoZone.Properties.MPERunPerformance = mpe;
-                                //check  mpe run performance data and update the geozone
-                                if (geoZone.Properties.MPERunPerformance.ZoneId != geoZone.Properties.Id)
-                                {
-                                    geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
-                                }
-                                if (geoZone.Properties.DataSource != "IDS")
-                                {
-                                    if (geoZone.Properties.MPERunPerformance.HourlyData != mpe.HourlyData)
-                                    {
-                                        geoZone.Properties.MPERunPerformance.HourlyData = mpe.HourlyData;
-                                        pushUIUpdate = true;
-                                    }
-                                }
-                                if (geoZone.Properties.MPERunPerformance.CurSortplan != mpe.CurSortplan)
-                                {
-                                    geoZone.Properties.MPERunPerformance.CurSortplan = mpe.CurSortplan;
-                                    pushUIUpdate = true;
-
-                                }
-                                if (geoZone.Properties.MPERunPerformance.CurThruputOphr != mpe.CurThruputOphr)
-                                {
-                                    geoZone.Properties.MPERunPerformance.CurThruputOphr = mpe.CurThruputOphr;
-                                    pushUIUpdate = true;
-                                }
-                                if (geoZone.Properties.MPERunPerformance.TotSortplanVol != mpe.TotSortplanVol)
-                                {
-                                    geoZone.Properties.MPERunPerformance.TotSortplanVol = mpe.TotSortplanVol;
-                                    pushUIUpdate = true;
-                                }
-
-                                if (geoZone.Properties.MPERunPerformance.CurrentRunStart != mpe.CurrentRunStart)
-                                {
-                                    geoZone.Properties.MPERunPerformance.CurrentRunStart = mpe.CurrentRunStart;
-                                    pushUIUpdate = true;
-                                }
-                                if (geoZone.Properties.MPERunPerformance.CurrentRunEnd != mpe.CurrentRunEnd)
-                                {
-                                    geoZone.Properties.MPERunPerformance.CurrentRunEnd = mpe.CurrentRunEnd;
-                                    pushUIUpdate = true;
-                                }
-                                if (geoZone.Properties.MPERunPerformance.CurOperationId != mpe.CurOperationId)
-                                {
-                                    geoZone.Properties.MPERunPerformance.CurOperationId = mpe.CurOperationId;
-                                    pushUIUpdate = true;
-                                }
-
-                                if (geoZone.Properties.MPERunPerformance.UnplanMaintSpStatus != mpe.UnplanMaintSpStatus)
-                                {
-                                    geoZone.Properties.MPERunPerformance.UnplanMaintSpStatus = mpe.UnplanMaintSpStatus;
-                                    pushUIUpdate = true;
-                                }
-                                if (geoZone.Properties.MPERunPerformance.OpRunningLateStatus != mpe.OpRunningLateStatus)
-                                {
-                                    geoZone.Properties.MPERunPerformance.OpRunningLateStatus = mpe.OpRunningLateStatus;
-                                    pushUIUpdate = true;
-                                }
-                                if (geoZone.Properties.MPERunPerformance.OpRunningLateTimer != mpe.OpRunningLateTimer)
-                                {
-                                    geoZone.Properties.MPERunPerformance.OpRunningLateTimer = mpe.OpRunningLateTimer;
-                                    pushUIUpdate = true;
-                                }
-                                if (geoZone.Properties.MPERunPerformance.SortplanWrongStatus != mpe.SortplanWrongStatus)
-                                {
-                                    geoZone.Properties.MPERunPerformance.SortplanWrongStatus = mpe.SortplanWrongStatus;
-                                    pushUIUpdate = true;
-                                }
-                                if (geoZone.Properties.MPERunPerformance.OpStartedLateStatus != mpe.OpStartedLateStatus)
-                                {
-                                    geoZone.Properties.MPERunPerformance.OpStartedLateStatus = mpe.OpStartedLateStatus;
-                                    pushUIUpdate = true;
-                                }
-                                if (geoZone.Properties.MPERunPerformance.ThroughputStatus != mpe.ThroughputStatus)
-                                {
-                                    geoZone.Properties.MPERunPerformance.ThroughputStatus = mpe.ThroughputStatus;
-                                    pushUIUpdate = true;
-                                }
-                                if (geoZone.Properties.MPERunPerformance.UnplanMaintSpTimer != mpe.UnplanMaintSpTimer)
-                                {
-                                    geoZone.Properties.MPERunPerformance.UnplanMaintSpTimer = mpe.UnplanMaintSpTimer;
-                                    pushUIUpdate = true;
-                                }
-                                if (geoZone.Properties.MPERunPerformance.BinFullStatus != mpe.BinFullStatus)
-                                {
-                                    geoZone.Properties.MPERunPerformance.BinFullStatus = mpe.BinFullStatus;
-                                    pushUIUpdate = true;
-                                }
-                                if (geoZone.Properties.MPERunPerformance.BinFullBins != mpe.BinFullBins)
-                                {
-                                    geoZone.Properties.MPERunPerformance.BinFullBins = mpe.BinFullBins;
-                                    pushUIUpdate = true;
-                                }
-
-                                if (pushUIUpdate)
-                                {
-                                    await _hubServices.Clients.Group("MPEZones").SendAsync("MPEPerformanceUpdateGeoZone", geoZone.Properties.MPERunPerformance);
-                                    _geoZones.Update(geoZone);
-                                }
+                                mpe.MpeId = string.Concat(mpe.MpeType, "-", mpe.MpeNumber.ToString().PadLeft(3, '0'));
+                                await Task.Run(() => _geoZones.UpdateMPERunInfo(mpe));
+                                await Task.Run(() => _geoZones.UpdateMPERunActivity(mpe));
 
                             }
                         }

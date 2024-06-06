@@ -47,7 +47,7 @@ namespace EIR_9209_2.Controllers
                     JToken result = await _ids.GetOracleIDSData(data);
                     if (result.HasValues)
                     {
-                        _ = Task.Run(() => ProcessIDSData(result));
+                        _ = Task.Run(() => _geoZones.ProcessIDSData(result));
                     }
                     if (result.Type == JTokenType.Array)
                     {
@@ -136,7 +136,7 @@ namespace EIR_9209_2.Controllers
                     JToken result = await _ids.GetOracleIDSData(data);
                     if (result.HasValues)
                     {
-                        _ = Task.Run(() => ProcessIDSData(result));
+                        _ = Task.Run(() => _geoZones.ProcessIDSData(result));
                     }
                     if (result.Type == JTokenType.Array)
                     {
@@ -165,107 +165,6 @@ namespace EIR_9209_2.Controllers
             {
                 return await Task.FromResult(BadRequest(new { message = "Invalid Parameters in the Request.", Parameters = new { QueryName = queryName, StartHour = startHour, EndHour = endHour } }));
             }
-        }
-
-        private void ProcessIDSData(JToken result)
-        {
-            try
-            {
-                List<string> mpeNames = result.Select(item => item["MPE_NAME"]?.ToString()).Distinct().OrderBy(name => name).ToList();
-                foreach (string mpeName in mpeNames)
-                {
-                    bool pushDBUpdate = false;
-                    var geoZone = _geoZones.GetMPEName(mpeName);
-                    if (geoZone != null && geoZone.Properties.MPERunPerformance != null)
-                    {
-
-                        if (geoZone.Properties.DataSource != "IDS")
-                        {
-                            geoZone.Properties.DataSource = "IDS";
-                            pushDBUpdate = true;
-                        }
-                        List<string> hourslist = GetListofHours(24);
-                        foreach (string hr in hourslist)
-                        {
-                            var mpeData = result.Where(item => item["MPE_NAME"]?.ToString() == mpeName && item["HOUR"]?.ToString() == hr).FirstOrDefault();
-                            if (mpeData != null)
-                            {
-                                if (geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).Any())
-                                {
-                                    geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).ToList().ForEach(h =>
-                                    {
-                                        if (h.Sorted != (int)mpeData["SORTED"])
-                                        {
-                                            h.Sorted = (int)mpeData["SORTED"];
-                                            pushDBUpdate = true;
-                                        }
-
-                                        if (h.Rejected != (int)mpeData["REJECTED"])
-                                        {
-                                            h.Rejected = (int)mpeData["REJECTED"];
-                                            pushDBUpdate = true;
-                                        }
-                                        if (h.Count != (int)mpeData["INDUCTED"])
-                                        {
-                                            h.Count = (int)mpeData["INDUCTED"];
-                                            pushDBUpdate = true;
-                                        }
-
-                                    });
-                                }
-                                else
-                                {
-                                    geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
-                                    {
-                                        Hour = hr,
-                                        Sorted = (int)mpeData["SORTED"],
-                                        Rejected = (int)mpeData["REJECTED"],
-                                        Count = (int)mpeData["INDUCTED"]
-                                    });
-                                    pushDBUpdate = true;
-                                }
-                            }
-                            else
-                            {
-                                if (geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).Any())
-                                {
-                                    geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).ToList().ForEach(h =>
-                                    {
-                                        h.Sorted = 0;
-                                        h.Rejected = 0;
-                                        h.Count = 0;
-                                    });
-                                }
-                                else
-                                {
-                                    geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
-                                    {
-                                        Hour = hr,
-                                        Sorted = 0,
-                                        Rejected = 0,
-                                        Count = 0
-                                    });
-                                }
-                            }
-                        }
-                        if (pushDBUpdate)
-                        {
-                            _geoZones.Update(geoZone);
-                        }
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-
-                _logger.LogError(ex, "Error Processing data from");
-            }
-        }
-        private List<string> GetListofHours(int hours)
-        {
-            var localTime = DateTime.Now;
-            return Enumerable.Range(0, hours).Select(i => localTime.AddHours(-23).AddHours(i).ToString("yyyy-MM-dd HH:00")).ToList();
         }
     }
 }

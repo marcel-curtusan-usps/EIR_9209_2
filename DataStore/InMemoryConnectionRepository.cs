@@ -4,8 +4,8 @@ using System.Collections.Concurrent;
 
 public class InMemoryConnectionRepository : IInMemoryConnectionRepository
 {
-    public static readonly ConcurrentDictionary<string, Connection> _connectionList = new();
-    public static readonly ConcurrentDictionary<string, ConnectionType> _connectionTypeList = new();
+    private readonly ConcurrentDictionary<string, Connection> _connectionList = new();
+    private readonly ConcurrentDictionary<string, ConnectionType> _connectionTypeList = new();
     private readonly ILogger<InMemoryConnectionRepository> _logger;
     private readonly IConfiguration _configuration;
     private readonly IFileService _fileService;

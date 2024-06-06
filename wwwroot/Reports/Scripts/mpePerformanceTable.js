@@ -17,86 +17,93 @@ function isDateInRange(date, mindate, maxdate) {
     return date >= mindate && date <= maxdate;
 }
 function processMPEdata(data, mindate, maxdate) {
-    let newresult = [];
-    let counter = 0;
-    valuesArray = Object.values(data);
-    //for (let i = 1; i < 28; i++) {
-    let maxDateTemp = MPEdefaultMaxdate;
-    let minDateTemp = MPEdefaultMindate
-    while (minDateTemp <= maxDateTemp) {
-        var newObj = $.extend({}, valuesArray[0]);
-        let dateformat = minDateTemp.toFormat('yyyy-LL-dd') + "T" + minDateTemp.toFormat('HH:00:00ZZ')
-        if (!Object.keys(data).includes(dateformat)) {
+    try {
 
-            for (var prop in newObj) {
-                if (!/(mpeName|hour)/ig.test(prop)) {
-                    newObj[prop] = 0;
+
+        let newresult = [];
+        let counter = 0;
+        valuesArray = Object.values(data);
+        //for (let i = 1; i < 28; i++) {
+        let maxDateTemp = MPEdefaultMaxdate;
+        let minDateTemp = MPEdefaultMindate
+        while (minDateTemp <= maxDateTemp) {
+            var newObj = $.extend({}, valuesArray[0]);
+            let dateformat = minDateTemp.toFormat('yyyy-LL-dd') + "T" + minDateTemp.toFormat('HH:00:00ZZ')
+            if (!Object.keys(data).includes(dateformat)) {
+
+                for (var prop in newObj) {
+                    if (!/(mpeName|hour)/ig.test(prop)) {
+                        newObj[prop] = 0;
+                    }
+                    if (/(hour)/ig.test(prop)) {
+                        newObj[prop] = minDateTemp.toFormat('yyyy-LL-dd') + "T" + minDateTemp.toFormat('HH:00:00ZZ')
+                    }
+                    if (/(mpeName)/ig.test(prop)) {
+                        newObj[prop] = newObj.mpeName;
+                    }
                 }
-                if (/(hour)/ig.test(prop)) {
-                    newObj[prop] = minDateTemp.toFormat('yyyy-LL-dd') + "T" + minDateTemp.toFormat('HH:00:00ZZ')
-                }
-                if (/(mpeName)/ig.test(prop)) {
-                    newObj[prop] = newObj.mpeName;
-                }
+                valuesArray.push(newObj);
             }
-            valuesArray.push(newObj);
+            minDateTemp = minDateTemp.plus({ hours: 1 });
         }
-        minDateTemp = minDateTemp.plus({ hours: 1 });
-    }
-    let result = valuesArray.reduce((acc, curr) => {
-        Object.keys(curr).forEach(key => {
-            if (key !== 'hour') {
-                if (!acc[key]) {
-                    acc[key] = {};
-                    curr[`_${key}`] = key;
-                }
-                const dateObj = luxon.DateTime.fromISO(curr.hour).setZone(timezone);
+        let result = valuesArray.reduce((acc, curr) => {
 
-                if (isDateInRange(dateObj, mindate, maxdate)) {
-                    acc[key][curr.hour] = curr[key];
+            Object.keys(curr).forEach(key => {
+                if (key !== 'hour') {
+                    if (!acc[key]) {
+                        acc[key] = {};
+                        curr[`_${key}`] = key;
+                    }
+                    const dateObj = luxon.DateTime.fromISO(curr.hour);
+
+                    if (isDateInRange(dateObj, mindate, maxdate)) {
+                        acc[key][curr.hour] = curr[key];
+                    } else {
+                        acc[key][curr.hour] = 0;
+                    }
+                }
+            });
+            return acc;
+        }, {});
+        for (let key in result) {
+            if ("&,actualThroughput,laborCounts,laborHrs,mpeType,sortplan,laborCountsTotal,laborHrsTotal,laborPresent,mpeNumber,mpeName,operationNum,".indexOf(key) <= 0
+                && !/^_/.test(key)) {
+
+                if (key.toLowerCase().indexOf("dwell") > 0) {
+                    for (let skey in result[key]) {
+                        let ms = parseFloat(result[key][skey]); // represents 1 hour in milliseconds
+                        let hrs = ms / 3600000;
+                        let hrsFormatted = hrs.toFixed(1);
+                        result[key][skey] = hrsFormatted; // + ' hrs'
+                        result[key][skey] = result[key][skey] == 0 ? "-" : parseFloat(result[key][skey]).toLocaleString('en-US');
+                    }
+                    newresult[counter] = result[key];
+                } else if (key.toLowerCase().indexOf("yield") > 0) {
+                    for (let skey in result[key]) {
+                        let ms = parseFloat(result[key][skey]); // represents 1 hour in milliseconds
+                        result[key][skey] = ms.toFixed(1);
+                        result[key][skey] = result[key][skey] == 0 ? "-" : parseFloat(result[key][skey]).toLocaleString('en-US');
+                    }
+                    newresult[counter] = result[key];
                 } else {
-                    acc[key][curr.hour] = 0;
+                    for (let skey in result[key]) {
+                        let ms = parseFloat(result[key][skey]); // represents 1 hour in milliseconds
+                        result[key][skey] = result[key][skey] == 0 ? "-" : parseFloat(result[key][skey]).toLocaleString('en-US');
+                        //result[key][skey] = ms.toFixed(1);
+                    }
+                    newresult[counter] = result[key];
                 }
-            }
-        });
-        return acc;
-    }, {});
-    for (let key in result) {
-        if ("&,actualThroughput,laborCounts,laborHrs,mpeType,sortplan,laborCountsTotal,laborHrsTotal,laborPresent,mpeNumber,mpeName,operationNum,".indexOf(key) <= 0
-            && !/^_/.test(key)) {
+                result[key]["name"] = key;
+                result[key]["sortorder"] = tableKeyDisplay[key] == null ? 200 : tableKeyDisplay[key].sortorder;
+                counter++;
 
-            if (key.toLowerCase().indexOf("dwell") > 0) {
-                for (let skey in result[key]) {
-                    let ms = parseFloat(result[key][skey]); // represents 1 hour in milliseconds
-                    let hrs = ms / 3600000;
-                    let hrsFormatted = hrs.toFixed(1);
-                    result[key][skey] = hrsFormatted; // + ' hrs'
-                    result[key][skey] = result[key][skey] == 0 ? "-" : parseFloat(result[key][skey]).toLocaleString('en-US');
-                }
-                newresult[counter] = result[key];
-            } else if (key.toLowerCase().indexOf("yield") > 0) {
-                for (let skey in result[key]) {
-                    let ms = parseFloat(result[key][skey]); // represents 1 hour in milliseconds
-                    result[key][skey] = ms.toFixed(1);
-                    result[key][skey] = result[key][skey] == 0 ? "-" : parseFloat(result[key][skey]).toLocaleString('en-US');
-                }
-                newresult[counter] = result[key];
-            } else {
-                for (let skey in result[key]) {
-                    let ms = parseFloat(result[key][skey]); // represents 1 hour in milliseconds
-                    result[key][skey] = result[key][skey] == 0 ? "-" : parseFloat(result[key][skey]).toLocaleString('en-US');
-                    //result[key][skey] = ms.toFixed(1);
-                }
-                newresult[counter] = result[key];
             }
-            result[key]["name"] = key;
-            result[key]["sortorder"] = tableKeyDisplay[key] == null ? 200 : tableKeyDisplay[key].sortorder;
-            counter++;
-
         }
-    }
 
-    return newresult;
+        return newresult;
+    } catch (e) {
+        console.log(e);
+    }
 }
 
 let MPEDataTableList = [];
