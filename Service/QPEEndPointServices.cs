@@ -60,7 +60,14 @@ namespace EIR_9209_2.Service
                     }
                     bool visable = posAge > 1 && posAge < 150000 ? true : false;
 
-
+                    if (qtitem.LocationType == "presence" || qtitem.LocationType == "proximity" || qtitem.LocationType == "hidden")
+                    {
+                        visable = false;
+                    }
+                    if (qtitem.LocationMovementStatus == "hidden" || qtitem.LocationMovementStatus == "noData")
+                    {
+                        visable = false;
+                    }
                     if (qtitem.Location.Any())
                     {
                         JObject PositionGeoJson = new JObject

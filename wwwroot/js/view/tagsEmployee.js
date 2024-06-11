@@ -21,6 +21,7 @@ let tagsEmployees = new L.GeoJSON(null, {
                 url: '/api/Tag/' + feature.properties.id,
                 type: 'GET',
                 success: function (data) {
+                    $('button[name="tagEdit"]').attr('data-id', feature.properties.id);
                     Promise.all([hidestafftables()]);
                     $('div[id=div_taginfo]').css('display', '');
                     data.properties.posAge = feature.properties.posAge;
@@ -410,7 +411,7 @@ function formattagdata(result) {
                 reformatdata.push(temp);
             }
 
-            if (!$.isPlainObject(result[key]) && /^(id|ein|encodedID|craftName|tourNumber|daysOff|floorId|posAge|locationMovementStatus|payLocation|designationActivity)/ig.test(key)) {
+            if (!$.isPlainObject(result[key]) && /^(id|ein|encodedID|craftName|tourNumber|daysOff|floorId|posAge|locationMovementStatus|payLocation|title|designationActivity)/ig.test(key)) {
                 switch (key) {
                     case "craftName":
                         temp['INDEX'] = 2;
@@ -428,8 +429,6 @@ function formattagdata(result) {
                         temp['INDEX'] = 10;
                         break;
                 }
-
-
                 temp['KEY_NAME'] = key;
                 temp['VALUE'] = result[key];
                 reformatdata.push(temp);
@@ -441,4 +440,131 @@ function formattagdata(result) {
     }
 
     return reformatdata;
+}
+
+async function tagEditInfo() {
+
+    //get tag info from the tagEdit data-id
+
+    let tagid = $('button[name="tagEdit"]').data('id');
+    //makea ajax call to get the employee details
+    $.ajax({
+        url: '/api/Tag/' + tagid,
+        type: 'GET',
+        success: function (data) {
+            Promise.all([EditUserInfo(data.properties)]);
+        },
+        error: function (error) {
+            console.log(error);
+        },
+        faulure: function (fail) {
+            console.log(fail);
+        },
+        complete: function (complete) {
+        }
+    });
+}
+async function EditUserInfo(properties) {
+    //move to tag location 
+
+    // Set the header text of the modal
+    $('#modaluserHeader_ID').text('Edit Tag Info');
+    $('button[id=usertagsubmitBtn]').prop('disabled', false);
+    $('input[name=tag_id]').prop('disabled', true);
+    // Close the sidebar
+    sidebar.close();
+    // Populate the input fields with the feature properties
+    if (/Person/ig.test(properties.tagType)) {
+        $('#personform').css("display", "block");
+    }
+    $('input[id=employeeEIN]').val(properties.eIN);
+    $('input[id=empFirstName]').val(properties.empFirstName);
+    $('input[id=empLastName]').val(properties.empLastName);
+    $('input[id=tagEncodedID]').val(properties.encodedId);
+    $('input[id=paylocation]').val(properties.empPayLocation);
+    $('select[id=tagType_select]').val(properties.tagType);
+    if (!/^(Clerk|Supervisor|Maintenance|Mail Handler|Custodial)$/ig.test(properties.craftName)) {
+        $('select[id=tagCraftName_select]').val("");
+    }
+    else {
+        $('select[id=tagCraftName_select]').val(capitalize_Words(properties.craftName));
+    }
+
+    $('input[name=tag_name]').val(properties.name);
+    $('input[name=tag_id]').val(properties.id);
+
+    // Set up the click event for the submit button
+    $('button[id=usertagsubmitBtn]').off().on('click', function () {
+        try {
+            // Disable the submit button to prevent multiple submissions
+            $('button[id=usertagsubmitBtn]').prop('disabled', true);
+
+            // Create an object to store the updated properties
+            let updatedProperties = {};
+            updatedProperties.tagId = $('input[name=tag_id]').val();
+            updatedProperties.name = $('input[name=tag_name]').val();
+            if ($('select[name=tagType_select] option:selected').val() !== properties.tagType) {
+                updatedProperties.tagtype = $('select[name=tagType_select] option:selected').val();
+            }
+            if (/Person/ig.test($('select[id=tagType_select]').val())) {
+                updatedProperties.ein = $('input[name=empId]').val();
+                updatedProperties.empFirstName = $('input[name=empFirstName]').val();
+                updatedProperties.empLastName = $('input[name=empLastName]').val();
+                updatedProperties.encodedId = $('input[name=tagEncodedID]').val();
+                updatedProperties.title = $('select[name=tagCraftName_select] option:selected').val();
+                updatedProperties.empPayLocation = $('input[id=paylocation]').val();
+            }
+            else {
+                updatedProperties.ein = "";
+                updatedProperties.empFirstName = "";
+                updatedProperties.empLastName = "";
+                updatedProperties.encodedId = "";
+                updatedProperties.title = "";
+                updatedProperties.payLocation = "";
+            }
+            // Send the updated properties to the server
+
+            if (!$.isEmptyObject(updatedProperties)) {
+
+                let uri = APIURLconstructor(window.location) + "Tags/TagId";
+                $.ajax({
+                    url: uri,
+                    headers:
+                    {
+                        'APIAuthorization': APIAuth
+                    },
+                    type: 'POST',
+                    data: JSON.stringify([updatedProperties]),
+                    contentType: 'application/json',
+                    success: function (properties) {
+                        $('span[id=error_usertagsubmitBtn]').text("Tag Info has been updated");
+                    },
+                    error: function (error) {
+                        // Display user-friendly error message on the webpage
+                        $('span[id=error_usertagsubmitBtn]').text("Error retrieving data: " + error.responseText);
+
+                    },
+                    failure: function (response) {
+                        // Display user-friendly error message on the webpage
+                        $('span[id=error_usertagsubmitBtn]').text("Request failed: " + response.statusText);
+                    },
+                    complete: function (data) {
+                        setTimeout(function () {
+                            $("#UserTag_Modal").modal('hide');
+                            sidebar.open('userprofile');
+                        }, 1000);
+                    }
+                });
+
+            } else {
+                $('span[id=error_usertagsubmitBtn]').text("No Tag Data has been Updated");
+
+            }
+        } catch (error) {
+            $('span[id=error_usertagsubmitBtn]').text(error);
+        }
+    });
+
+    // Show the modal
+    $('#UserTag_Modal').modal('show');
 }

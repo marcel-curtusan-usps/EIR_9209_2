@@ -20,6 +20,10 @@ namespace EIR_9209_2.InMemory
             FileService = fileService;
             _logger = logger;
             _configuration = configuration;
+            string DACodeandCraftTypeFilePath = Path.Combine(Directory.GetCurrentDirectory(), _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{"DesignationActivityToCraftType"}.json");
+            // Load ConnectionType data from the first file into the first collection
+            _ = LoadDesignationActivityToCraftTypeDataFromFile(DACodeandCraftTypeFilePath);
+
             string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
                 _configuration[key: "ApplicationConfiguration:BaseDirectory"],
                 _configuration[key: "SiteIdentity:NassCode"],
@@ -28,9 +32,7 @@ namespace EIR_9209_2.InMemory
             // Load data from the first file into the first collection
             _ = LoadDataFromFile(BuildPath);
 
-            string DACodeandCraftTypeFilePath = Path.Combine(Directory.GetCurrentDirectory(), _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{"DesignationActivityToCraftType"}.json");
-            // Load ConnectionType data from the first file into the first collection
-            _ = LoadDesignationActivityToCraftTypeDataFromFile(DACodeandCraftTypeFilePath);
+
         }
 
 
@@ -90,6 +92,7 @@ namespace EIR_9209_2.InMemory
                 {
                     foreach (GeoMarker item in data.Select(r => r).ToList())
                     {
+                        item.Properties.CraftName = GetCraftName(item.Properties.DesignationActivity);
                         _tagList.TryAdd(item.Properties.Id, item);
                     }
                 }
@@ -168,6 +171,14 @@ namespace EIR_9209_2.InMemory
 
                 if (TagData != null)
                 {
+                    //check if tag type is not null and update the tag type
+
+                    if (TagData.Properties.TagType != "Person")
+                    {
+                        TagData.Properties.TagType = "Person";
+                        savetoFile = true;
+                    }
+
                     //check EIN value is not null and update the EIN value
                     if (empData.ContainsKey("ein"))
                     {
@@ -199,18 +210,18 @@ namespace EIR_9209_2.InMemory
                     //check title value is not null and update the title value
                     if (empData.ContainsKey("title"))
                     {
-                        if (TagData.Properties.EmpTitle != empData["title"].ToString())
+                        if (TagData.Properties.Title != empData["title"].ToString())
                         {
-                            TagData.Properties.EmpTitle = empData["title"].ToString();
+                            TagData.Properties.Title = empData["title"].ToString();
                             savetoFile = true;
                         }
                     }
                     //check designationActivity value is not null and update the designationActivity value
                     if (empData.ContainsKey("designationActivity"))
                     {
-                        if (TagData.Properties.EmpDesignationActivity != empData["designationActivity"].ToString())
+                        if (TagData.Properties.DesignationActivity != empData["designationActivity"].ToString())
                         {
-                            TagData.Properties.EmpDesignationActivity = empData["designationActivity"].ToString();
+                            TagData.Properties.DesignationActivity = empData["designationActivity"].ToString();
                             TagData.Properties.CraftName = GetCraftName(empData["designationActivity"].ToString());
                             savetoFile = true;
                         }

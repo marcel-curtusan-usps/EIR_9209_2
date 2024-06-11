@@ -32,15 +32,14 @@ namespace EIR_9209_2.Models
             public bool isPosition { get; set; }
             public int CardHolderId { get; set; } = 0;
             public string EIN { get; set; } = "";
-            public string DesignationActivity { get; set; } = "";
             public string LDC { get; set; } = "";
             public string PayLocation { get; set; } = "";
             public string EmpFirstName { get; set; } = "";
             public string EmpLastName { get; set; } = "";
-            public string EmpTitle { get; set; } = "";
-            public string EmpDesignationActivity { get; set; } = "";
+            public string Title { get; set; } = "";
+            public string DesignationActivity { get; set; } = "";
             public string EmpPayLocation { get; set; } = "";
-            public string EncodedID { get; set; } = "";
+            public string EncodedId { get; set; } = "";
             public DateTime Bdate { get; set; } = DateTime.MinValue;
             public string Blunch { get; set; } = "";
             public string Elunch { get; set; } = "";

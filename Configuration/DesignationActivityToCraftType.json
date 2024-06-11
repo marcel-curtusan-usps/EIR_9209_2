@@ -1,10 +1,79 @@
 [
   {
-    "designationActivity": "168",
-    "craftType": "Maintenance"
+    "designationActivity": "067",
+    "craftType": "EAS"
+  },
+  {
+    "designationActivity": "068",
+    "craftType": "EAS"
+  },
+  {
+    "designationActivity": "069",
+    "craftType": "EAS"
+  },
+  {
+    "designationActivity": "090",
+    "craftType": "Supervisor"
+  },
+  {
+    "designationActivity": "110",
+    "craftType": "Clerk"
+  },
+  {
+    "designationActivity": "115",
+    "craftType": "Clerk"
   },
   {
     "designationActivity": "120",
     "craftType": "Mail Handler"
+  },
+  {
+    "designationActivity": "166",
+    "craftType": "Maintenance"
+  },
+  {
+    "designationActivity": "167",
+    "craftType": "Maintenance"
+  },
+  {
+    "designationActivity": "168",
+    "craftType": "Maintenance"
+  },
+  {
+    "designationActivity": "745",
+    "craftType": "Maintenance"
+  },
+  {
+    "designationActivity": "190",
+    "craftType": "EAS"
+  },
+  {
+    "designationActivity": "320",
+    "craftType": "Mail Handler"
+  },
+  {
+    "designationActivity": "420",
+    "craftType": "Mail Handler"
+  },
+  {
+    "designationActivity": "590",
+    "craftType": "EAS"
+  },
+  {
+    "designationActivity": "812",
+    "craftType": "Clerk"
+  },
+  {
+    "designationActivity": "813",
+    "craftType": "Clerk"
+  },
+  {
+    "designationActivity": "814",
+    "craftType": "Clerk"
+  },
+  {
+    "designationActivity": "820",
+    "craftType": "Mail Handler"
   }
+
 ]
