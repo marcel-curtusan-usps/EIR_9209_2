@@ -1,10 +1,10 @@
-[
+﻿[
   {
-    "designationActivity": "168",
-    "craftType": "Maintenance"
+    "DesignationActivity": "120",
+    "CraftType": "Mail Handler"
   },
   {
-    "designationActivity": "120",
-    "craftType": "Mail Handler"
+    "DesignationActivity": "168",
+    "CraftType": "Maintenance"
   }
 ]

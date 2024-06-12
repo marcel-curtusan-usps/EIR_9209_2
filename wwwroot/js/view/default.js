@@ -61,6 +61,18 @@ async function start() {
                 // handle error
                 console.error(err);
             });
+            //load Designation Activity to Craft Type
+            connection.invoke("GetDacodeToCraftTypeList").then(function (data) {
+                Promise.all([init_dacodetocraftType(data)]).then(function () {
+                    connection.invoke("JoinGroup", "DacodeToCraftTypes").catch(function (err) {
+                        return console.error(err.toString());
+                    });
+
+                });
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
             //load background images
             connection.invoke("GetBackgroundImages").then(function (data) {
                 Promise.all([init_backgroundImages(data)]).then(function () {

@@ -1,4 +1,5 @@
 ﻿//on close clear all inputs
+
 $('#API_Connection_Modal').on('hidden.bs.modal', function () {
     $(this)
         .find("input[type=text],textarea,select")
@@ -22,6 +23,7 @@ $('#API_Connection_Modal').on('hidden.bs.modal', function () {
     sidebar.open('connections');
 
 });
+
 //on open set rules
 $('#API_Connection_Modal').on('shown.bs.modal', function () {
     sidebar.close('connections');

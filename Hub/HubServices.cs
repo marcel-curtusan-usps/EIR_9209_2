@@ -14,6 +14,7 @@ public class HubServices : Hub
 {
     private readonly IInMemoryBackgroundImageRepository _backgroundImages;
     private readonly IInMemoryConnectionRepository _connections;
+    private readonly IInMemoryDacodeRepository _dacodes;
     private readonly IInMemoryTagsRepository _tags;
     private readonly IInMemoryGeoZonesRepository _geoZones;
     private readonly IInMemorySiteInfoRepository _siteInfo;
@@ -22,6 +23,7 @@ public class HubServices : Hub
     public HubServices(ILogger<HubServices> logger,
         IInMemoryBackgroundImageRepository backgroundImages,
         IInMemoryConnectionRepository connectionList,
+        IInMemoryDacodeRepository dacodeList,
         IInMemoryTagsRepository tags,
         IInMemoryGeoZonesRepository zones,
         IInMemorySiteInfoRepository siteInfo,
@@ -30,6 +32,7 @@ public class HubServices : Hub
         _logger = logger;
         _backgroundImages = backgroundImages;
         _connections = connectionList;
+        _dacodes = dacodeList;
         _tags = tags;
         _geoZones = zones;
         _siteInfo = siteInfo;
@@ -143,6 +146,11 @@ public class HubServices : Hub
     public async Task<IEnumerable<ConnectionType>> GetConnectionTypeList()
     {
         return await Task.Run(_connections.GetTypeAll);
+    }
+    // worker request for data of connectionType list
+    public async Task<IEnumerable<DesignationActivityToCraftType>> GetDacodeToCraftTypeList()
+    {
+        return await Task.Run(_dacodes.GetAll);
     }
     // client get all zones
     public async Task<IEnumerable<GeoZone>> GetGeoZoneList()

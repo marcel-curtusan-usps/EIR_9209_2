@@ -39,6 +39,7 @@ public class Startup
         services.AddSingleton<IInMemorySiteInfoRepository, InMemorySiteInfoRepository>();
         services.AddSingleton<IInMemoryBackgroundImageRepository, InMemoryBackgroundImageRepository>();
         services.AddSingleton<IInMemoryConnectionRepository, InMemoryConnectionRepository>();
+        services.AddSingleton<IInMemoryDacodeRepository, InMemoryDacodeRepository>();
         services.AddSingleton<IInMemoryTagsRepository, InMemoryTagsRepository>();
         services.AddSingleton<IInMemoryGeoZonesRepository, InMemoryGeoZonesRepository>();
         services.AddSingleton<IIDS, IDS>();
