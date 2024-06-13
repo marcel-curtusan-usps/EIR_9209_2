@@ -573,6 +573,48 @@
         </div>
     </div>
 
+    <div class="modal fade" id="DacodetocraftType_value_Modal" tabindex="-1" role="dialog" style="z-index: 12000;" data-backdrop="static">
+        <div class="modal-dialog" style="max-width: 50%;">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h4 class="modal-title" id="dacodetypevaluemodalHeader"><span aria-hidden="true">Designation Activity to Craft Type</span></h4>
+                    </div>
+                    <button class="col-1 btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label class="col-form-label" id="dacodetype_label">Designation Activity:</label>
+                                    <input type="text" class="form-control" id="modalDacodeTypeID" />
+                                    <span class="text-info" id="error_modalDacodeTypeID"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row valuediv" style="display: block">
+                                <div class="col">
+                                    <label class="col-form-label">Craft Type:</label>
+                                    <input type="text" class="form-control" id="craftValueID" />
+                                    <span class="text-info" id="error_craftValueID"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-start" type="button" data-bs-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info" id="error_dacodetypevalue"></span></div>
+                    <div class="col">
+                        <button class=" btn btn-primary float-end" type="button" id="dacodetypebtn">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="RemoveConfirmationModal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="RemoveConfirmationModal_Label">
         <div class="modal-dialog modal-xl">
             <div class="modal-content bg-white">
@@ -622,6 +664,35 @@
                     <div class="col text-center"><span class="text-info " id="error_removeConType"></span></div>
                     <div class="col">
                         <button class=" btn btn-primary float-right" type="button" id="remove_ConType">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="RemoveConfirmationDacodeModal" tabindex="-1" role="dialog" style="z-index: 12000;" data-backdrop="static" aria-labelledby="RemoveConfirmationDacodeModal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="coll-11">
+                        <h4 class="modal-title" id="removeDacodeHeader_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalDacodebody">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h4 class="remove-body" style="color: red"></h4>
+                            <h4 style="color: red">Do you want to proceed ?</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-start" type="button" data-bs-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info " id="error_removeDacode"></span></div>
+                    <div class="col">
+                        <button class=" btn btn-primary float-end" type="button" id="remove_Dacode">Remove</button>
                     </div>
                 </div>
             </div>
@@ -2352,7 +2423,7 @@
                     <div class="card w-100">
                         <div class="card-header pl-1 d-flex justify-content-between">
                             <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Designation Activity to Craft Type</h6>
-                            <button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem" name="addConnectionType" title="Add New Designation Activity Type">Add</button>
+                            <button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem" name="dacodebtn">Add</button>
                         </div>
                         <div>
                             <div class="card-body">
@@ -2569,6 +2640,7 @@
     <script src="../js/view/default.js"></script>
     <script src="../js/view/connections.js"></script>
     <script src="../js/view/connectionTypes.js"></script>
+    <script src="../js/view/dacodetocraftTypes.js"></script>
     <script src="../js/view/indoorMap.js"></script>
     <script src="../js/view/tagsEmployee.js"></script>
     <script src="../js/view/tagsPIVVehicles.js"></script>
