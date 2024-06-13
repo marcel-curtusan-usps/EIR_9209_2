@@ -1,5 +1,6 @@
 ﻿using EIR_9209_2.Models;
 using Humanizer;
+using Microsoft.Build.Execution;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Ocsp;
@@ -15,23 +16,24 @@ namespace EIR_9209_2.InMemory
         private readonly ILogger<InMemoryTagsRepository> _logger;
         private readonly IConfiguration _configuration;
         private readonly IFileService FileService;
+        private readonly string BuildConfigurationPath = string.Empty;
+        private readonly string BaseDriveBuildPath = string.Empty;
         public InMemoryTagsRepository(ILogger<InMemoryTagsRepository> logger, IConfiguration configuration, IFileService fileService)
         {
             FileService = fileService;
             _logger = logger;
             _configuration = configuration;
-            string DACodeandCraftTypeFilePath = Path.Combine(Directory.GetCurrentDirectory(), _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{"DesignationActivityToCraftType"}.json");
+            BuildConfigurationPath = Path.Combine(Directory.GetCurrentDirectory(), _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{"DesignationActivityToCraftType"}.json");
             // Load ConnectionType data from the first file into the first collection
-            _ = LoadDesignationActivityToCraftTypeDataFromFile(DACodeandCraftTypeFilePath);
+            _ = LoadDesignationActivityToCraftTypeDataFromFile(BuildConfigurationPath);
 
-            string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
+            BaseDriveBuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
                 _configuration[key: "ApplicationConfiguration:BaseDirectory"],
                 _configuration[key: "SiteIdentity:NassCode"],
                 _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
                 $"{_configuration[key: "InMemoryCollection:CollectionTags"]}.json");
             // Load data from the first file into the first collection
-            _ = LoadDataFromFile(BuildPath);
-
+            _ = LoadDataFromFile(BaseDriveBuildPath);
 
         }
 
@@ -66,6 +68,18 @@ namespace EIR_9209_2.InMemory
         {
             return _tagList.Values.Where(r => r.Properties.posAge > 1 && r.Properties.posAge < 100000 && r.Properties.Visible).Select(y => y).ToList();
         }
+        public List<GeoMarker> GetAllPerson()
+        {
+            return _tagList.Values.Where(r => r.Properties.posAge > 1 && r.Properties.posAge < 100000 && r.Properties.Visible && r.Properties.TagType == "Person").Select(y => y).ToList();
+        }
+        public List<GeoMarker> GetAllPIV()
+        {
+            return _tagList.Values.Where(r => r.Properties.TagType == "PIV").Select(y => y).ToList();
+        }
+        public List<GeoMarker> GetAllAGV()
+        {
+            return _tagList.Values.Where(r => r.Properties.TagType == "AGV").Select(y => y).ToList();
+        }
 
         public void Update(GeoMarker tag)
         {
@@ -92,7 +106,11 @@ namespace EIR_9209_2.InMemory
                 {
                     foreach (GeoMarker item in data.Select(r => r).ToList())
                     {
-                        item.Properties.CraftName = GetCraftName(item.Properties.DesignationActivity);
+                        if (!string.IsNullOrEmpty(item.Properties.DesignationActivity) && string.IsNullOrEmpty(item.Properties.CraftName))
+                        {
+                            item.Properties.CraftName = GetCraftName(item.Properties.DesignationActivity);
+                        }
+
                         _tagList.TryAdd(item.Properties.Id, item);
                     }
                 }
@@ -153,87 +171,97 @@ namespace EIR_9209_2.InMemory
             }
         }
 
-        public void UpdateEmployeeInfo(JObject empData)
+        public void UpdateEmployeeInfo(JToken result)
         {
             bool savetoFile = false;
+            bool DesignationActivitysavetoFile = false;
             try
             {
-                GeoMarker? TagData = null;
-                if (empData.ContainsKey("tagId") && !string.IsNullOrEmpty(empData["tagId"].ToString()))
+                foreach (JObject empData in result.OfType<JObject>())
                 {
-                    _tagList.TryGetValue(empData["tagId"].ToString(), out TagData);
-
-                }
-                else if (empData.ContainsKey("ein") && !string.IsNullOrEmpty(empData["ein"].ToString()))
-                {
-                    TagData = _tagList.Where(r => r.Value.Properties.EIN == empData["ein"].ToString()).Select(y => y.Value).FirstOrDefault();
-                }
-
-                if (TagData != null)
-                {
-                    //check if tag type is not null and update the tag type
-
-                    if (TagData.Properties.TagType != "Person")
+                    GeoMarker? TagData = null;
+                    if (empData.ContainsKey("tagId") && !string.IsNullOrEmpty(empData["tagId"].ToString()))
                     {
-                        TagData.Properties.TagType = "Person";
-                        savetoFile = true;
+                        _tagList.TryGetValue(empData["tagId"].ToString(), out TagData);
+
+                    }
+                    else if (empData.ContainsKey("ein") && !string.IsNullOrEmpty(empData["ein"].ToString()))
+                    {
+                        TagData = _tagList.Where(r => r.Value.Properties.EIN == empData["ein"].ToString()).Select(y => y.Value).FirstOrDefault();
                     }
 
-                    //check EIN value is not null and update the EIN value
-                    if (empData.ContainsKey("ein"))
+                    if (TagData != null)
                     {
-                        if (TagData.Properties.EIN != empData["ein"].ToString())
-                        {
-                            TagData.Properties.EIN = empData["ein"].ToString();
+                        //check if tag type is not null and update the tag type
 
-                            savetoFile = true;
-                        }
-                    }
-                    //check FirstName value is not null and update the FirstName value
-                    if (empData.ContainsKey("firstName"))
-                    {
-                        if (TagData.Properties.EmpFirstName != empData["firstName"].ToString())
+                        if (TagData.Properties.TagType != "Person")
                         {
-                            TagData.Properties.EmpFirstName = empData["firstName"].ToString();
-                            savetoFile = true;
-                        }
-                    }
-                    //check LastName value is not null and update the LastName value
-                    if (empData.ContainsKey("lastName"))
-                    {
-                        if (TagData.Properties.EmpLastName != empData["lastName"].ToString())
-                        {
-                            TagData.Properties.EmpLastName = empData["lastName"].ToString();
-                            savetoFile = true;
-                        }
-                    }
-                    //check title value is not null and update the title value
-                    if (empData.ContainsKey("title"))
-                    {
-                        if (TagData.Properties.Title != empData["title"].ToString())
-                        {
-                            TagData.Properties.Title = empData["title"].ToString();
-                            savetoFile = true;
-                        }
-                    }
-                    //check designationActivity value is not null and update the designationActivity value
-                    if (empData.ContainsKey("designationActivity"))
-                    {
-                        if (TagData.Properties.DesignationActivity != empData["designationActivity"].ToString())
-                        {
-                            TagData.Properties.DesignationActivity = empData["designationActivity"].ToString();
-                            TagData.Properties.CraftName = GetCraftName(empData["designationActivity"].ToString());
+                            TagData.Properties.TagType = "Person";
                             savetoFile = true;
                         }
 
-                    }
-                    //check paylocation value is not null and update the paylocation value
-                    if (empData.ContainsKey("paylocation"))
-                    {
-                        if (TagData.Properties.EmpPayLocation != empData["paylocation"].ToString())
+                        //check EIN value is not null and update the EIN value
+                        if (empData.ContainsKey("ein"))
                         {
-                            TagData.Properties.EmpPayLocation = empData["paylocation"].ToString();
-                            savetoFile = true;
+                            if (!string.IsNullOrEmpty(empData["ein"].ToString()) && TagData.Properties.EIN != empData["ein"].ToString())
+                            {
+                                TagData.Properties.EIN = empData["ein"].ToString();
+
+                                savetoFile = true;
+                            }
+                        }
+                        //check FirstName value is not null and update the FirstName value
+                        if (empData.ContainsKey("firstName"))
+                        {
+                            if (!string.IsNullOrEmpty(empData["firstName"].ToString()) && TagData.Properties.EmpFirstName != empData["firstName"].ToString())
+                            {
+                                TagData.Properties.EmpFirstName = empData["firstName"].ToString();
+                                savetoFile = true;
+                            }
+                        }
+                        //check LastName value is not null and update the LastName value
+                        if (empData.ContainsKey("lastName"))
+                        {
+                            if (!string.IsNullOrEmpty(empData["lastName"].ToString()) && TagData.Properties.EmpLastName != empData["lastName"].ToString())
+                            {
+                                TagData.Properties.EmpLastName = empData["lastName"].ToString();
+                                savetoFile = true;
+                            }
+                        }
+                        //check title value is not null and update the title value
+                        if (empData.ContainsKey("title"))
+                        {
+                            if (!string.IsNullOrEmpty(empData["title"].ToString()) && TagData.Properties.Title != empData["title"].ToString())
+                            {
+                                TagData.Properties.Title = empData["title"].ToString();
+                                savetoFile = true;
+                            }
+                        }
+                        //check designationActivity value is not null and update the designationActivity value
+                        if (empData.ContainsKey("designationActivity"))
+                        {
+                            if (!string.IsNullOrEmpty(empData["designationActivity"].ToString()) && TagData.Properties.DesignationActivity != empData["designationActivity"].ToString())
+                            {
+                                TagData.Properties.DesignationActivity = empData["designationActivity"].ToString();
+                                TagData.Properties.CraftName = GetCraftName(empData["designationActivity"].ToString());
+                                savetoFile = true;
+                            }
+                            //check if da code exits in the designationActivityToCraftType dictionary
+                            if (!string.IsNullOrEmpty(empData["designationActivity"].ToString()) && !_designationActivityToCraftType.ContainsKey(empData["designationActivity"].ToString().Trim()))
+                            {
+                                DesignationActivitysavetoFile = UpdateDesignationActivityToCraftType(empData["designationActivity"].ToString().Trim(), empData["title"].ToString().Trim());
+
+                            }
+
+                        }
+                        //check paylocation value is not null and update the paylocation value
+                        if (empData.ContainsKey("paylocation"))
+                        {
+                            if (!string.IsNullOrEmpty(empData["paylocation"].ToString()) && TagData.Properties.EmpPayLocation != empData["paylocation"].ToString())
+                            {
+                                TagData.Properties.EmpPayLocation = empData["paylocation"].ToString();
+                                savetoFile = true;
+                            }
                         }
                     }
                 }
@@ -247,13 +275,31 @@ namespace EIR_9209_2.InMemory
                 if (savetoFile)
                 {
                     //save date to local file
-                    string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
-                                       _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-                                                      _configuration[key: "SiteIdentity:NassCode"],
-                                                                     _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-                                                                                    $"{_configuration[key: "InMemoryCollection:CollectionTags"]}.json");
-                    FileService.WriteFile(BuildPath, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    FileService.WriteFile(BaseDriveBuildPath, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
+                if (DesignationActivitysavetoFile)
+                {
+                    //save date to local file
+                    FileService.WriteFile(BuildConfigurationPath, JsonConvert.SerializeObject(_designationActivityToCraftType.Values, Formatting.Indented));
+                }
+            }
+        }
+
+        private bool UpdateDesignationActivityToCraftType(string daCode, string title)
+        {
+            try
+            {
+                _designationActivityToCraftType.TryAdd(daCode, new DesignationActivityToCraftType
+                {
+                    DesignationActivity = daCode,
+                    CraftType = title
+                });
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return false;
             }
         }
 
@@ -270,9 +316,9 @@ namespace EIR_9209_2.InMemory
                     return "NA";
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                _logger.LogError(e.Message);
                 throw;
             }
         }
@@ -328,6 +374,41 @@ namespace EIR_9209_2.InMemory
         public string GetCraftType(string tagId)
         {
             return _tagList.Where(r => r.Key == tagId).Select(y => y.Value.Properties.CraftName).FirstOrDefault();
+        }
+        public void UpdateTagInfo(List<Tags> tag)
+        {
+            bool savetoFile = false;
+            try
+            {
+                foreach (Tags qtitem in tag)
+                {
+                    GeoMarker? TagData = null;
+                    _tagList.TryGetValue(qtitem.TagId, out TagData);
+                    if (TagData != null)
+                    {
+                        TagData.Properties.Color = qtitem.Color;
+                        TagData.Properties.Zones = qtitem.LocationZoneIds;
+                        TagData.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
+                        if (!string.IsNullOrEmpty(qtitem.TagName))
+                        {
+
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
+            finally
+            {
+                if (savetoFile)
+                {
+                    //save date to local file
+                    FileService.WriteFile(BaseDriveBuildPath, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                }
+
+            }
         }
     }
 }

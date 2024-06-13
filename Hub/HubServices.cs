@@ -121,7 +121,15 @@ public class HubServices : Hub
 
     public async Task<IEnumerable<GeoMarker>> GetPersonTags()
     {
-        return await Task.Run(_tags.GetAll);
+        return await Task.Run(_tags.GetAllPerson);
+    }
+    public async Task<IEnumerable<GeoMarker>> GetPIVTags()
+    {
+        return await Task.Run(_tags.GetAllPIV);
+    }
+    public async Task<IEnumerable<GeoMarker>> GetAGVTags()
+    {
+        return await Task.Run(_tags.GetAllPIV);
     }
     public async Task<IEnumerable<GeoZone>> GetGeoZones()
     {

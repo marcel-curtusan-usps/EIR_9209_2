@@ -84,6 +84,30 @@ async function start() {
                 // handle error
                 console.error(err);
             });
+            //load PIV Tags
+            connection.invoke("GetPIVTags").then(function (data) {
+                Promise.all([init_tagsPIV(data)]).then(function () {
+                    connection.invoke("JoinGroup", "PIVTags").catch(function (err) {
+                        return console.error(err.toString());
+                    });
+
+                });
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
+            //load PIV Tags
+            connection.invoke("GetAGVTags").then(function (data) {
+                Promise.all([init_tagsAGV(data)]).then(function () {
+                    connection.invoke("JoinGroup", "AGVTags").catch(function (err) {
+                        return console.error(err.toString());
+                    });
+
+                });
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
             //load GeoZones MPE
             connection.invoke("GetGeoZones").then(function (data) {
                 Promise.all([init_geoZone(data)]).then(function () {

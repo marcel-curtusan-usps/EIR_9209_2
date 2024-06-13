@@ -1,6 +1,7 @@
 ﻿using EIR_9209_2.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -106,14 +107,27 @@ internal class QueryService : IQueryService
             var response = await client.SendAsync(request, ct);
 
             response.EnsureSuccessStatusCode();
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<T>(responseBody, _jsonSettings);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<T>(responseBody, _jsonSettings);
+            }
+            else
+            {
+                // Handle non-OK response codes here
+                // For example, you can log the response code or throw an exception
+
+                throw new Exception($"The response code is {response.StatusCode}.");
+            }
+
         }
         catch (HttpRequestException ex)
         {
             // Log the exception or handle it in some other way
             // For example, you might want to rethrow the exception to let the caller handle it
             throw new Exception("An error occurred while sending the HTTP request.", ex);
+
         }
         catch (JsonException ex)
         {
@@ -126,18 +140,41 @@ internal class QueryService : IQueryService
 
     private async Task<T> GetPostQueryResults<T>(string queryUrl, object query, CancellationToken ct)
     {
-        var client = _httpClient.CreateClient();
-        using var request = new HttpRequestMessage(HttpMethod.Post, queryUrl);
-        if (_authService != null)
+        try
         {
-            await _authService.AddAuthHeader(request, ct);
-        }
-        request.Content = new StringContent(JsonConvert.SerializeObject(query, _jsonSettings), Encoding.UTF8, "application/json");
-        var response = await client.SendAsync(request, ct);
 
-        response.EnsureSuccessStatusCode();
-        var responseBody = await response.Content.ReadAsStringAsync();
-        return JsonConvert.DeserializeObject<T>(responseBody, _jsonSettings);
+
+            var client = _httpClient.CreateClient();
+            using var request = new HttpRequestMessage(HttpMethod.Post, queryUrl);
+            if (_authService != null)
+            {
+                await _authService.AddAuthHeader(request, ct);
+            }
+            request.Content = new StringContent(JsonConvert.SerializeObject(query, _jsonSettings), Encoding.UTF8, "application/json");
+            var response = await client.SendAsync(request, ct);
+
+            response.EnsureSuccessStatusCode();
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<T>(responseBody, _jsonSettings);
+            }
+            else
+            {
+                // Handle non-OK response codes here
+                // For example, you can log the response code or throw an exception
+
+                throw new Exception($"The response code is {response.StatusCode}.");
+            }
+            //var responseBody = await response.Content.ReadAsStringAsync();
+            //return JsonConvert.DeserializeObject<T>(responseBody, _jsonSettings);
+        }
+        catch (Exception e)
+        {
+
+            throw new Exception("An error occurred while sending the HTTP request.", e);
+        }
     }
 
 

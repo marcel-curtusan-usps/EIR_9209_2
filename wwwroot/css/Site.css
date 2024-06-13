@@ -746,6 +746,17 @@ tr.shown td.details-control {
   clip-path: polygon(50% 0%, 90% 50%, 50% 100%, 10% 50%);
 }
 
+.leaflet-tooltip.persontag_custodial {
+  background-color: #720e9e;
+  height: 20px;
+  min-width: 20px;
+  box-shadow: none;
+  font-size: unset;
+  font-weight: bold;
+  text-align: center;
+  clip-path: polygon(34.2% 0%, 67.4% 0%, 85.2% 23%, 48.4% 99.2%, 15.6% 24.2%);
+}
+
 .leaflet-tooltip.persontag_pse {
   background-color: #F57200;
   height: 20px;

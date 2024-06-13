@@ -63,10 +63,8 @@ namespace EIR_9209_2.Service
             {
                 if (result is not null)
                 {
-                    foreach (JObject empData in result.OfType<JObject>())
-                    {
-                        await Task.Run(() => _tags.UpdateEmployeeInfo(empData));
-                    }
+                    await Task.Run(() => _tags.UpdateEmployeeInfo(result));
+
                 }
             }
             catch (Exception e)

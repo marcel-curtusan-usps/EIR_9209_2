@@ -69,7 +69,7 @@
                             </div>
                         </div>
                         <div class="col">
-                              <label class="control-label">Connection Type</label>
+                            <label class="control-label">Connection Type</label>
                             <div class="custom-control custom-switch">
                                 <input id="api_connection" type="radio" class="custom-control-input" name="connectionType" />
                                 <label class="custom-control-label" for="api_connection">API</label>
@@ -121,9 +121,9 @@
                             <input id="url" type="text" class="form-control" name="url" />
                             <span id="error_url" class="text-danger"></span>
                         </div>
-                    
+
                     </div>
-                    <div class="row mb-3" id="OAuthmenu" style="display: none" >
+                    <div class="row mb-3" id="OAuthmenu" style="display: none">
                         <div class="form-group col-12">
                             <label class="control-label">Token URL</label>
                             <input id="tokenurl" type="text" class="form-control" name="tokenurl" />
@@ -784,7 +784,7 @@
                     <div class="col-11">
                         <h4 class="modal-title" id="modaluserHeader_ID"><span aria-hidden="true"></span></h4>
                     </div>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    <button class="btn-close float-right" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row mr-0 ml-0" id="personform" style="display: none">
@@ -857,7 +857,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class=" close btn btn-outline-secondary float-left" type="button" data-dismiss="modal" aria-label="Close">Close</button>
+                        <button class=" close btn btn-outline-secondary float-left" data-bs-dismiss="modal" type="button" data-dismiss="modal" aria-label="Close">Close</button>
                     </div>
                     <div class="col text-center"><span class="text-info" id="error_usertagsubmitBtn"></span></div>
                     <div class="col">
@@ -2571,6 +2571,7 @@
     <script src="../js/view/connectionTypes.js"></script>
     <script src="../js/view/indoorMap.js"></script>
     <script src="../js/view/tagsEmployee.js"></script>
+    <script src="../js/view/tagsPIVVehicles.js"></script>
     <script src="../js/view/geoZonesMPE.js"></script>
     <script src="../js/view/geoZonesDockDoors.js"></script>
     <script src="../js/view/geoZonesMPEBin.js"></script>

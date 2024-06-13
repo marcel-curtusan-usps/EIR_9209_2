@@ -7,9 +7,12 @@ public interface IInMemoryTagsRepository
     void Remove(string tagId);
     object Get(string id);
     List<GeoMarker> GetAll();
+    List<GeoMarker> GetAllPerson();
+    List<GeoMarker> GetAllPIV();
     void Update(GeoMarker tag);
     void LocalAdd(GeoMarker tag);
-    void UpdateEmployeeInfo(JObject emp);
+    void UpdateEmployeeInfo(JToken emp);
     void UpdateBadgeTransactionScan(JObject transaction);
     string GetCraftType(string tagId);
+    void UpdateTagInfo(List<Tags> tags);
 }

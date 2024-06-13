@@ -46,6 +46,7 @@ namespace EIR_9209_2.Service
         {
             try
             {
+                _ = Task.Run(() => _tags.UpdateTagInfo(result.Tags));
                 foreach (Tags qtitem in result.Tags.Where(r => r.LocationTS > 5))
                 {
                     long posAge = -1;
@@ -68,6 +69,7 @@ namespace EIR_9209_2.Service
                     {
                         visable = false;
                     }
+
                     if (qtitem.Location.Any())
                     {
                         JObject PositionGeoJson = new JObject
@@ -84,6 +86,7 @@ namespace EIR_9209_2.Service
                                 ["floorId"] = qtitem.LocationCoordSysId,
                                 ["posAge"] = posAge,
                                 ["visible"] = visable,
+                                ["zones"] = qtitem.LocationZoneIds.ToString(),
                                 ["locationMovementStatus"] = qtitem.LocationMovementStatus,
                                 ["positionTS_txt"] = qtitem.LocationTS,
                                 ["craftName"] = _tags.GetCraftType(qtitem.TagId)

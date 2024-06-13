@@ -4,9 +4,9 @@ let tagsEmployees = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
         return new L.circleMarker(latlng, {
             class: "persontag",
-            radius: 4,
-            opacity: 2,
-            fillOpacity: 3
+            radius: 0,
+            opacity: 0,
+            fillOpacity: 0
         });
 
     },
@@ -153,7 +153,7 @@ function getmarkerType(type) {
         else if (/^maintenance/ig.test(type)) {
             return 'persontag_maintenance ';
         }
-        else if (/^(LABORER CUSTODIAL|CUSTODIAN|CUTODIAN)/ig.test(type)) {
+        else if (/^(LABORER CUSTODIAL|CUSTODIAN|CUTODIAN|Custodian)/ig.test(type)) {
             return 'persontag_custodial ';
         }
         //else if (/pse/ig.test(type)) {
