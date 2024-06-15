@@ -16,17 +16,16 @@ namespace EIR_9209_2.Controllers
     public class Dacodetocrafttypes : ControllerBase
     {
         private readonly IInMemoryDacodeRepository _dacodeRepository;
-        private readonly IHubContext<HubServices> _hubContext;
-        private readonly Worker _worker;
+        private readonly IInMemoryTagsRepository _tags;
 
-        public Dacodetocrafttypes(IInMemoryDacodeRepository dacodeRepository, IHubContext<HubServices> hubContext, Worker worker)
+
+        public Dacodetocrafttypes(IInMemoryDacodeRepository dacodeRepository, IInMemoryTagsRepository tags, IHubContext<HubServices> hubContext, Worker worker)
         {
             _dacodeRepository = dacodeRepository;
-            _hubContext = hubContext;
-            _worker = worker;
+            _tags = tags;
         }
 
-        // GET: api/<Connection>
+        // GET: api/<DAcode>
         [HttpGet]
         public async Task<object> Get()
         {
@@ -38,7 +37,7 @@ namespace EIR_9209_2.Controllers
             return Ok(_dacodeRepository.GetAll());
         }
 
-        // GET api/<Connection>/5
+        // GET api/<DAcode>/5
         [HttpGet("{id}")]
         public async Task<object> Get(string id)
         {
@@ -50,10 +49,10 @@ namespace EIR_9209_2.Controllers
             return Ok(_dacodeRepository.Get(id));
         }
 
-        // POST api/<Connection>
-        
+        // POST api/<DAcode>
+
         [HttpPost]
-        [Route("/api/AddDacodetocrafttype")]
+        [Route("/api/AddDAcodetoCraftType")]
         /// <summary>
         /// Adds a new connection.
         /// </summary>
@@ -72,6 +71,8 @@ namespace EIR_9209_2.Controllers
             DesignationActivityToCraftType loadedDacode = _dacodeRepository.Add(dacode);
             if (loadedDacode != null)
             {
+                //update all tag that have this da code
+                _ = Task.Run(() => _tags.UpdateTagDesignationActivity(loadedDacode));
                 return Ok(loadedDacode);
             }
             else
@@ -79,9 +80,9 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(new JObject { ["message"] = "Designation Activity Code was not Added " });
             }
         }
-        // PUT api/<Connection>/5
+        // PUT api/<DAcode>/5
         [HttpPut]
-        [Route("/api/UpdateDacodetocrafttype")]
+        [Route("/api/UpdateDAcodetocrafttype")]
         public async Task<object> Put(string id, [FromBody] JObject value)
         {
             //handle bad requests
@@ -98,6 +99,8 @@ namespace EIR_9209_2.Controllers
                 DesignationActivityToCraftType updatedDacode = _dacodeRepository.Update(dacode);
                 if (updatedDacode != null)
                 {
+                    //update all tag that have this da code
+                    _ = Task.Run(() => _tags.UpdateTagDesignationActivity(updatedDacode));
                     return Ok(updatedDacode);
                 }
                 else
@@ -110,11 +113,11 @@ namespace EIR_9209_2.Controllers
                 return new JObject { ["Message"] = $"Designation Activity Code:{id} was not Found" };
             }
         }
-    
 
-        // DELETE api/<Connection>/5
+
+        // DELETE api/<DAcode>/5
         [HttpDelete]
-        [Route("/api/DeleteDacodetocrafttype")]
+        [Route("/api/DeleteDAcodetoCraftType")]
         public async Task<object> Delete(string id)
         {
             //handle bad requests
@@ -132,6 +135,6 @@ namespace EIR_9209_2.Controllers
             {
                 return new JObject { ["Message"] = $"Designation Activity Code:{id} was not Found" };
             }
-            }
         }
+    }
 }

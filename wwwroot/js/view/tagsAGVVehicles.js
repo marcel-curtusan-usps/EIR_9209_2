@@ -1,4 +1,4 @@
-﻿let tagsPIVVehicles = new L.GeoJSON(null, {
+﻿let tagsAGVVehicles = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
         let vehicleIcon = L.divIcon({
             id: feature.properties.id,
@@ -66,12 +66,12 @@
     }
 });
 // add to the map and layers control
-let overPivLayLayer = L.layerGroup().addTo(OSLmap);
-layersControl.addOverlay(overPivLayLayer, "PIV Vehicles");
-tagsPIVVehicles.addTo(overPivLayLayer);
+let overAgvLayLayer = L.layerGroup().addTo(OSLmap);
+layersControl.addOverlay(overAgvLayLayer, "AGV Vehicles");
+tagsAGVVehicles.addTo(overAgvLayLayer);
 async function findPIVLeafletIds(markerId) {
     return new Promise((resolve, reject) => {
-        tagsPIVVehicles.eachLayer(function (layer) {
+        tagsAGVVehicles.eachLayer(function (layer) {
             if (layer.markerId === markerId) {
                 resolve(layer._leaflet_id);
                 return false;
@@ -80,7 +80,7 @@ async function findPIVLeafletIds(markerId) {
         reject(new Error('No layer found with the given markerId'));
     });
 }
-async function init_tagsPIV(data) {
+async function init_tagsAGV(data) {
     return new Promise((resolve, reject) => {
         try {
 
@@ -136,4 +136,3 @@ async function addFeature(data) {
         throw new Error(e.toString());
     }
 }
-

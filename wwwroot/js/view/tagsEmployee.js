@@ -1,4 +1,56 @@
 ﻿
+$('#UserTag_Modal').on('hidden.bs.modal', function () {
+    $(this)
+        .find("input[type=text],textarea,select")
+        .css({ "border-color": "#D3D3D3" })
+        .val('')
+        .prop('disabled', false)
+        .end()
+        .find("input[type=radio]")
+        .prop('disabled', false)
+        .prop('checked', false).change()
+        .end()
+        .find("span[class=text-info]")
+        .css("border-color", "#FF0000")
+        .val('')
+        .text("")
+        .end()
+        .find('input[type=checkbox]')
+        .prop('checked', false).change()
+        .end();
+    sidebar.open('userprofile');
+    $('#personform').css("display", "none");
+});
+$('#UserTag_Modal').on('shown.bs.modal', function () {
+    $('select[id=tagCraftName_select]').on('change', function () {
+        if ($(this).val() === "") {
+            $('span[id=error_tagCraftName_select]').text("Pleas select a Category");
+        }
+        else {
+            $('span[id=error_tagCraftName_select]').text("");
+        }
+    });
+
+    // on change of the tagType_select
+
+
+    $('#tagType_select').on('change', function () {
+        if ($(this).val() === "") {
+            $('#error_tagType_select').text("Please select a Category");
+        }
+        else {
+            $('#error_tagType_select').text("");
+
+            if (/Person/ig.test($(this).val())) {
+                //display the person form
+                $('#personform').css("display", "block");
+            }
+            else {
+                $('#personform').css("display", "none");
+            }
+        }
+    });
+});
 
 let tagsEmployees = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
@@ -21,13 +73,18 @@ let tagsEmployees = new L.GeoJSON(null, {
                 url: '/api/Tag/' + feature.properties.id,
                 type: 'GET',
                 success: function (data) {
-                    $('button[name="tagEdit"]').attr('data-id', feature.properties.id);
-                    Promise.all([hidestafftables()]);
-                    $('div[id=div_taginfo]').css('display', '');
-                    data.properties.posAge = feature.properties.posAge;
-                    data.properties.locationMovementStatus = feature.properties.locationMovementStatus;
-                    updateTagDataTable(formattagdata(data.properties), "tagInfotable");
-                    sidebar.open('reports');
+                    if ('Message' in data) {
+                        //display error message
+                    }
+                    else {
+                        $('button[name="tagEdit"]').attr('data-id', feature.properties.id);
+                        Promise.all([hidestafftables()]);
+                        $('div[id=div_taginfo]').css('display', '');
+                        data.properties.posAge = feature.properties.posAge;
+                        data.properties.locationMovementStatus = feature.properties.locationMovementStatus;
+                        updateTagDataTable(formattagdata(data.properties), "tagInfotable");
+                        sidebar.open('reports');
+                    }
 
                 },
                 error: function (error) {
@@ -447,22 +504,26 @@ async function tagEditInfo() {
     //get tag info from the tagEdit data-id
 
     let tagid = $('button[name="tagEdit"]').data('id');
-    //makea ajax call to get the employee details
-    $.ajax({
-        url: '/api/Tag/' + tagid,
-        type: 'GET',
-        success: function (data) {
-            Promise.all([EditUserInfo(data.properties)]);
-        },
-        error: function (error) {
-            console.log(error);
-        },
-        faulure: function (fail) {
-            console.log(fail);
-        },
-        complete: function (complete) {
-        }
-    });
+    //if tagid is not empty or undefined or null
+    let ty = SiteURLconstructor(window.location) + 'api/Tag/' + tagid;
+    if (!!tagid) {
+        //makea ajax call to get the employee details
+        $.ajax({
+            url: SiteURLconstructor(window.location) + 'api/Tag/' + tagid,
+            type: 'GET',
+            success: function (data) {
+                Promise.all([EditUserInfo(data.properties)]);
+            },
+            error: function (error) {
+                console.log(error);
+            },
+            faulure: function (fail) {
+                console.log(fail);
+            },
+            complete: function (complete) {
+            }
+        });
+    }
 }
 async function EditUserInfo(properties) {
     //move to tag location 
@@ -482,6 +543,8 @@ async function EditUserInfo(properties) {
     $('input[id=empLastName]').val(properties.empLastName);
     $('input[id=tagEncodedID]').val(properties.encodedId);
     $('input[id=paylocation]').val(properties.empPayLocation);
+    $('input[id=tagDACode]').val(properties.designationActivity);
+    $('input[id=tag_name]').val(properties.name);
     $('select[id=tagType_select]').val(properties.tagType);
     if (!/^(Clerk|Supervisor|Maintenance|Mail Handler|Custodial)$/ig.test(properties.craftName)) {
         $('select[id=tagCraftName_select]').val("");
@@ -503,16 +566,16 @@ async function EditUserInfo(properties) {
             let updatedProperties = {};
             updatedProperties.tagId = $('input[name=tag_id]').val();
             updatedProperties.name = $('input[name=tag_name]').val();
-            if ($('select[name=tagType_select] option:selected').val() !== properties.tagType) {
-                updatedProperties.tagtype = $('select[name=tagType_select] option:selected').val();
-            }
+                updatedProperties.tagType = $('select[name=tagType_select] option:selected').val();
+            
             if (/Person/ig.test($('select[id=tagType_select]').val())) {
-                updatedProperties.ein = $('input[name=empId]').val();
+                updatedProperties.ein = $('input[name=employeeEIN]').val();
                 updatedProperties.empFirstName = $('input[name=empFirstName]').val();
                 updatedProperties.empLastName = $('input[name=empLastName]').val();
                 updatedProperties.encodedId = $('input[name=tagEncodedID]').val();
                 updatedProperties.title = $('select[name=tagCraftName_select] option:selected').val();
                 updatedProperties.empPayLocation = $('input[id=paylocation]').val();
+                updatedProperties.designationActivity = $('input[id=tagDACode]').val();
             }
             else {
                 updatedProperties.ein = "";
@@ -520,24 +583,26 @@ async function EditUserInfo(properties) {
                 updatedProperties.empLastName = "";
                 updatedProperties.encodedId = "";
                 updatedProperties.title = "";
-                updatedProperties.payLocation = "";
+                updatedProperties.empPayLocation = "";
+                updatedProperties.designationActivity = "";
             }
             // Send the updated properties to the server
 
             if (!$.isEmptyObject(updatedProperties)) {
 
-                let uri = APIURLconstructor(window.location) + "Tags/TagId";
+                let uri = SiteURLconstructor(window.location) + "api/Tag/UpdateTagInfo?id=" + properties.id;
                 $.ajax({
                     url: uri,
-                    headers:
-                    {
-                        'APIAuthorization': APIAuth
-                    },
-                    type: 'POST',
-                    data: JSON.stringify([updatedProperties]),
-                    contentType: 'application/json',
+                    type: 'PUT',
+                    data: updatedProperties,
+                    data: JSON.stringify(updatedProperties), // Ensure the data is a JSON string
+                    contentType: 'application/json', // Correct content type
                     success: function (properties) {
                         $('span[id=error_usertagsubmitBtn]').text("Tag Info has been updated");
+                        setTimeout(function () {
+                            $("#UserTag_Modal").modal('hide');
+                            sidebar.open('userprofile');
+                        }, 500);
                     },
                     error: function (error) {
                         // Display user-friendly error message on the webpage
@@ -549,10 +614,7 @@ async function EditUserInfo(properties) {
                         $('span[id=error_usertagsubmitBtn]').text("Request failed: " + response.statusText);
                     },
                     complete: function (data) {
-                        setTimeout(function () {
-                            $("#UserTag_Modal").modal('hide');
-                            sidebar.open('userprofile');
-                        }, 1000);
+                    
                     }
                 });
 

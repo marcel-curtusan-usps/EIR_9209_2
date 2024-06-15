@@ -1,5 +1,6 @@
 ﻿using EIR_9209_2.Models;
 using Newtonsoft.Json.Linq;
+using static EIR_9209_2.Models.GeoMarker;
 
 public interface IInMemoryTagsRepository
 {
@@ -9,10 +10,14 @@ public interface IInMemoryTagsRepository
     List<GeoMarker> GetAll();
     List<GeoMarker> GetAllPerson();
     List<GeoMarker> GetAllPIV();
+    List<GeoMarker> GetAllAGV();
     void Update(GeoMarker tag);
     void LocalAdd(GeoMarker tag);
     void UpdateEmployeeInfo(JToken emp);
     void UpdateBadgeTransactionScan(JObject transaction);
     string GetCraftType(string tagId);
-    void UpdateTagInfo(List<Tags> tags);
+    object UpdateTagInfo(JObject tagInfo);
+    bool UpdateTagDesignationActivity(DesignationActivityToCraftType updatedDacode);
+    void UpdateTagQPEInfo(List<Tags> tags);
+    List<Marker> SearchTag(string searchValue);
 }

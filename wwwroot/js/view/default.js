@@ -32,6 +32,7 @@ async function start() {
                     });
                 }
                 Promise.all([UpdateOSLattribution(appData)]);
+                Promise.all([init_TagSearch()]);
                 $(`span[id="fotf-site-facility-name"]`).text(appData.name);
             }).catch(function (err) {
                 // handle error

@@ -8,6 +8,8 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
     private readonly ILogger<InMemoryDacodeRepository> _logger;
     private readonly IConfiguration _configuration;
     private readonly IFileService _fileService;
+    private readonly string dacodeTypeFilePath = "";
+    private readonly string fileName = "DesignationActivityToCraftType.json";
 
     public InMemoryDacodeRepository(ILogger<InMemoryDacodeRepository> logger, IConfiguration configuration, IFileService fileService)
     {
@@ -15,15 +17,17 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
         _logger = logger;
         _configuration = configuration;
 
-        string dacodeTypeFilePath = Path.Combine(Directory.GetCurrentDirectory(), _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{"DesignationActivityToCraftType"}.json");
+        dacodeTypeFilePath = Path.Combine(Directory.GetCurrentDirectory(),
+            _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
+            $"{fileName}");
         // Load ConnectionType data from the first file into the first collection
-        _ = LoadDacodeDataFromFile(dacodeTypeFilePath);
+        _ = LoadDataFromFile(dacodeTypeFilePath);
     }
     public DesignationActivityToCraftType? Add(DesignationActivityToCraftType dacode)
     {
         if (_dacodeList.TryAdd(dacode.DesignationActivity, dacode))
         {
-            if (_fileService.WriteFileConfig("DesignationActivityToCraftType.json", JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented)))
+            if (_fileService.WriteFileInAppConfig(fileName, JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented)))
             {
                 return dacode;
             }
@@ -42,7 +46,7 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
     {
         if (_dacodeList.TryRemove(dacodeId, out DesignationActivityToCraftType dacode))
         {
-            if (_fileService.WriteFileConfig("DesignationActivityToCraftType.json", JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented)))
+            if (_fileService.WriteFileInAppConfig(fileName, JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented)))
             {
                 return dacode;
             }
@@ -61,7 +65,7 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
     {
         if (_dacodeList.TryGetValue(dacode.DesignationActivity, out DesignationActivityToCraftType? currentDacode) && _dacodeList.TryUpdate(dacode.DesignationActivity, dacode, currentDacode))
         {
-            if (_fileService.WriteFileConfig("DesignationActivityToCraftType.json", JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented)))
+            if (_fileService.WriteFileInAppConfig(fileName, JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented)))
             {
                 return Get(dacode.DesignationActivity);
             }
@@ -88,7 +92,7 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
         return _dacodeList.Values;
     }
 
-    private async Task LoadDacodeDataFromFile(string dacodeTypeFilePath)
+    private async Task LoadDataFromFile(string dacodeTypeFilePath)
     {
         try
         {

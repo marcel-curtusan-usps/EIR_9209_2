@@ -53,12 +53,13 @@ namespace EIR_9209_2.Models
             public string LocationMovementStatus { get; set; } = "";
             public string LocationType { get; set; } = "";
             public long LastSeenTS { get; set; } = 0;
-            public List<ScanTransaction> BadgeScan { get; set; } = new();
+            public List<ScanTransaction> BadgeScan { get; set; } = [];
         }
         public class MarkerGeometry
         {
             public string Type { get; set; } = "Point";
-            public List<double> Coordinates { get; set; }
+            public List<double> Coordinates { get; set; } = [0, 0];
+
         }
     }
 }

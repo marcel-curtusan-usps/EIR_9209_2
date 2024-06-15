@@ -875,12 +875,17 @@
                                 <input id="employeeEIN" type="text" class="form-control" name="employeeEIN" />
                                 <span id="error_employeeEIN" class="text-danger"></span>
                             </div>
-                        </div>
-                        <div class="row mr-0 ml-0">
                             <div class="form-group col-3">
                                 <label class="control-label">EncodedID</label>
                                 <input id="tagEncodedID" type="text" class="form-control" name="tagEncodedID" />
                                 <span id="error_tagEncodedID" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row mr-0 ml-0">
+                            <div class="form-group col-3">
+                                <label class="control-label">Designation Activity Code</label>
+                                <input id="tagDACode" type="text" class="form-control" name="tagDACode" />
+                                <span id="error_tagDACode" class="text-danger"></span>
                             </div>
                             <div class="form-group col-3">
                                 <label class="control-label">Pay Location</label>
@@ -2206,13 +2211,13 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card w-100 mb-3" id="swaggercard" style="display: none">
+                    <div class="card w-100 mb-3" id="swaggercard">
                         <h6 class="card-header sectionHeader ml-2 mb-1 px-0">Swagger API </h6>
                         <div class="card-body ml-np5rem">
                             <div class="input-group mb-2 mx-3">
                                 <!-- API Buttons -->
                                 <div role="group" class="d-flex btn-block" aria-label="Connected Facilities API ">
-                                    <a type="button" class="btn btn-light flex-fill mr-3" href="./swagger/ui/index" target="_blank">Swagger API</a>
+                                    <a type="button" class="btn btn-light flex-fill mr-3" href="../swagger/index.html" target="_blank">Swagger API</a>
                                 </div>
                             </div>
                         </div>
@@ -2255,7 +2260,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card w-100 mb-3" id="BEsearch" style="display: none">
+                    <div class="card w-100 mb-3" id="BEsearch">
                         <div class="row mx-0 mb-2">
                             <h6 class="card-header sectionHeader ml-2 px-0 py-0 mt-3">Badge / Equipment Search</h6>
                             <div class="input-group flex-fill px-0 mt-2 mx-3 mr-p5rem">
@@ -2270,12 +2275,6 @@
                             <div class="table-responsive fixedHeader variableHeight">
                                 <table class="table table-sm table-hover mb-1 border-bottom" id="tagresulttable">
                                     <thead class="thead-dark">
-                                        <tr>
-                                            <th>
-                                                <span class="ml-p25rem">Badge / Equipment Name</span>
-                                            </th>
-                                            <th>Action</th>
-                                        </tr>
                                     </thead>
                                     <tbody></tbody>
                                 </table>
@@ -2407,7 +2406,6 @@
                         <div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <div>
                                         <table class="table table-sm table-hover table-condensed" id="connectiontypetable">
                                             <thead class="thead-dark">
 
@@ -2415,7 +2413,6 @@
                                             <tbody>
                                             </tbody>
                                         </table>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2427,16 +2424,13 @@
                         </div>
                         <div>
                             <div class="card-body">
-                                <div class="table-responsive">
-                                    <div>
-                                        <table class="table table-sm table-hover table-condensed" id="dacodetocrafttypetable">
+                                <div class="table-responsive fixedHeader variableHeight">
+                                        <table class="table table-sm table-hover mb-1 border-bottom" id="dacodetocrafttypetable">
                                             <thead class="thead-dark">
-
                                             </thead>
                                             <tbody>
                                             </tbody>
                                         </table>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2644,6 +2638,7 @@
     <script src="../js/view/indoorMap.js"></script>
     <script src="../js/view/tagsEmployee.js"></script>
     <script src="../js/view/tagsPIVVehicles.js"></script>
+    <script src="../js/view/tagsSearch.js"></script>
     <script src="../js/view/geoZonesMPE.js"></script>
     <script src="../js/view/geoZonesDockDoors.js"></script>
     <script src="../js/view/geoZonesMPEBin.js"></script>

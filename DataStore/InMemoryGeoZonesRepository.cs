@@ -282,6 +282,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             {
                 foreach (GeoZone item in data.Select(r => r).ToList())
                 {
+                    item.Properties.MPERunPerformance = new();
                     _geoZoneList.TryAdd(item.Properties.Id, item);
                 }
             }

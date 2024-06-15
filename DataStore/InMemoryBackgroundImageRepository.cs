@@ -13,7 +13,11 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         FileService = fileService;
         _logger = logger;
         _configuration = configuration;
-        string BuildConnectionPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "SiteIdentity:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "InMemoryCollection:CollectionBackgroundImages"]}.json");
+        string BuildConnectionPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
+            _configuration[key: "ApplicationConfiguration:BaseDirectory"],
+            _configuration[key: "SiteIdentity:NassCode"],
+            _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
+            $"{_configuration[key: "InMemoryCollection:CollectionBackgroundImages"]}.json");
         // Load data from the first file into the first collection
         _ = LoadDataFromFile(BuildConnectionPath);
 

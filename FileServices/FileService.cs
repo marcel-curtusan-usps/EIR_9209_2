@@ -34,13 +34,15 @@ public class FileService : IFileService
     {
         try
         {
-            string baseDrive = _configuration[key: "ApplicationConfiguration:BaseDrive"];
-            string siteid = _configuration[key: "SiteIdentity:NassCode"];
+            string? baseDrive = _configuration[key: "ApplicationConfiguration:BaseDrive"];
+            string? baseDirectory = _configuration[key: "ApplicationConfiguration:BaseDirectory"];
+            string? siteId = _configuration[key: "SiteIdentity:NassCode"];
+            string? configurationDirectory = _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"];
 
-            if (!string.IsNullOrEmpty(baseDrive) && !string.IsNullOrEmpty(siteid))
+            if (!string.IsNullOrEmpty(baseDrive) && !string.IsNullOrEmpty(siteId))
             {
-                string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"], _configuration[key: "ApplicationConfiguration:BaseDirectory"], siteid, _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"]);
-                string BuildPathWithFileName = Path.Combine(BuildPath, fileName);
+                var BuildPath = Path.Combine(baseDrive, baseDirectory, siteId, configurationDirectory);
+                var BuildPathWithFileName = Path.Combine(BuildPath, fileName);
                 if (_accessTester.CanCreateFilesAndWriteInFolder(BuildPath))
                 {
                     using var file = new FileStream(BuildPathWithFileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
@@ -72,19 +74,19 @@ public class FileService : IFileService
             _logger.LogError($"error: {e.Message}");
             return false;
         }
-       
+
     }
-    public bool WriteFileConfig(string fileName, string content)
+    public bool WriteFileInAppConfig(string fileName, string content)
     {
         try
         {
-            string baseDrive = _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"];
+            string? baseDrive = _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"];
 
             if (!string.IsNullOrEmpty(baseDrive))
             {
-                string BuildPath = Path.Combine(Directory.GetCurrentDirectory(), _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"]);
+                var BuildPath = Path.Combine(Directory.GetCurrentDirectory(), baseDrive);
 
-                string BuildPathWithFileName = Path.Combine(BuildPath, fileName);
+                var BuildPathWithFileName = Path.Combine(BuildPath, fileName);
                 if (_accessTester.CanCreateFilesAndWriteInFolder(BuildPath))
                 {
                     using var file = new FileStream(BuildPathWithFileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);

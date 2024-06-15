@@ -46,7 +46,7 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                _ = Task.Run(() => _tags.UpdateTagInfo(result.Tags));
+                _ = Task.Run(() => _tags.UpdateTagQPEInfo(result.Tags));
                 foreach (Tags qtitem in result.Tags.Where(r => r.LocationTS > 5))
                 {
                     long posAge = -1;

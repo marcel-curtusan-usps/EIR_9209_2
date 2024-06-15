@@ -132,7 +132,7 @@ public class HubServices : Hub
     }
     public async Task<IEnumerable<GeoMarker>> GetAGVTags()
     {
-        return await Task.Run(_tags.GetAllPIV);
+        return await Task.Run(_tags.GetAllAGV);
     }
     public async Task<IEnumerable<GeoZone>> GetGeoZones()
     {
