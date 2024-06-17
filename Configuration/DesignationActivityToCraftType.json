@@ -168,12 +168,12 @@
     "CraftType": "Clerk"
   },
   {
-    "DesignationActivity": "212",
-    "CraftType": "CUSTODIAN"
-  },
-  {
     "DesignationActivity": "747",
     "CraftType": "Custodian"
+  },
+  {
+    "DesignationActivity": "212",
+    "CraftType": "CUSTODIAN"
   },
   {
     "DesignationActivity": "593",
@@ -240,11 +240,11 @@
     "CraftType": "Clerk"
   },
   {
-    "DesignationActivity": "753",
+    "DesignationActivity": "166",
     "CraftType": "Maintenance"
   },
   {
-    "DesignationActivity": "166",
+    "DesignationActivity": "753",
     "CraftType": "Maintenance"
   },
   {

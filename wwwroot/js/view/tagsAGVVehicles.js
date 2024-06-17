@@ -88,16 +88,26 @@ async function init_tagsAGV(data) {
                 let sp = this.nextElementSibling;
                 if (/^badges$/ig.test(sp.innerHTML.trim())) {
                     if (this.checked) {
-                        connection.invoke("JoinGroup", "PIVTags").catch(function (err) {
+                        connection.invoke("JoinGroup", "AGVTags").catch(function (err) {
                             return console.error(err.toString());
                         });
                     }
                     else {
-                        connection.invoke("LeaveGroup", "PIVTags").catch(function (err) {
+                        connection.invoke("LeaveGroup", "AGVTags").catch(function (err) {
                             return console.error(err.toString());
                         });
                     }
                 }
+            });
+            connection.on("UpdateAGVTagInfo", async (data) => {
+                let tagdata = JSON.parse(data);
+                if (tagdata.properties.visible) {
+                    Promise.all([addAGVFeature(tagdata)]);
+                }
+                else {
+                    Promise.all([deleteAGVFeature(tagdata)]);
+                }
+
             });
             resolve();
             return false;
@@ -108,7 +118,7 @@ async function init_tagsAGV(data) {
         }
     });
 }
-async function deleteFeature(data, floorId) {
+async function deleteAGVFeature(data, floorId) {
     try {
 
         await findLeafletIds(data.properties.id)
@@ -122,7 +132,7 @@ async function deleteFeature(data, floorId) {
         throw new Error(e.toString());
     }
 }
-async function addFeature(data) {
+async function addAGVFeature(data) {
     try {
         await findLeafletIds(data.properties.id)
             .then(leafletIds => {

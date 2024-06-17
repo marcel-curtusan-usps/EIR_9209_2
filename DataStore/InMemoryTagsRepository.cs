@@ -1,5 +1,6 @@
 ﻿using EIR_9209_2.Models;
 using Humanizer;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Build.Execution;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -18,16 +19,18 @@ namespace EIR_9209_2.InMemory
     {
         private static readonly ConcurrentDictionary<string, GeoMarker> _tagList = new();
         private readonly ILogger<InMemoryTagsRepository> _logger;
+        protected readonly IHubContext<HubServices> _hubServices;
         private readonly IConfiguration _configuration;
         private readonly IFileService FileService;
         private readonly IInMemoryDacodeRepository _dacode;
         private readonly string filePath = "";
         private readonly string fileName = "";
-        public InMemoryTagsRepository(ILogger<InMemoryTagsRepository> logger, IConfiguration configuration, IInMemoryDacodeRepository dacode, IFileService fileService)
+        public InMemoryTagsRepository(ILogger<InMemoryTagsRepository> logger, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryDacodeRepository dacode, IFileService fileService)
         {
             FileService = fileService;
             _logger = logger;
             _configuration = configuration;
+            _hubServices = hubServices;
             _dacode = dacode;
             fileName = $"{_configuration[key: "InMemoryCollection:CollectionTags"]}.json";
             filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
@@ -458,22 +461,35 @@ namespace EIR_9209_2.InMemory
                                 savetoFile = true;
                             }
                         }
-                        return TagData;
+                        if (TagData.Properties.TagType.StartsWith("Person"))
+                        {
+                            _hubServices.Clients.Group("Tags").SendAsync("UpdatePersonTagInfo", TagData.ToString());
+                        }
+                        if (TagData.Properties.TagType.StartsWith("Vehicle"))
+                        {
+                            _hubServices.Clients.Group("PIVTags").SendAsync("UpdatePIVTagInfo", TagData.ToString());
+                        }
+                        if (TagData.Properties.TagType.StartsWith("Autonomous"))
+                        {
+                            _hubServices.Clients.Group("AGVTags").SendAsync("UpdateAGVTagInfo", TagData.ToString());
+                        }
+
+                        return Task.FromResult(TagData);
                     }
                     else
                     {
-                        return new JObject { ["Message"] = $"Tag: {tagInfo} not Found" };
+                        return Task.FromResult(new JObject { ["Message"] = $"Tag: {tagInfo} not Found" });
                     }
                 }
                 else
                 {
-                    return new JObject { ["Message"] = $"TagId Parameters missing" };
+                    return Task.FromResult(new JObject { ["Message"] = $"TagId Parameters missing" });
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return new JObject { ["Error"] = $"{e.Message}" };
+                return Task.FromResult(new JObject { ["Error"] = $"{e.Message}" });
             }
             finally
             {
