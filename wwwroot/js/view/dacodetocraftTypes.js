@@ -90,34 +90,26 @@ async function createDacodetocrafttypeDataTable(table) {
                 "Action": ""
             }]
             let columns = [];
-            let tempc = {};
-            tempc = {
-                "className": 'details-control',
-                "orderable": false,
-                "defaultContent": '',
-                "data": null
-            }
-            columns.push(tempc);
             $.each(arrayColums[0], function (key) {
                 tempc = {};
                 if (/Activity/i.test(key)) {
                     tempc = {
                         "title": 'Designation Activity',
-                        "width": "25%",
+                        "width": "30%",
                         "mDataProp": key
                     }
                 }
                 if (/Craft/i.test(key)) {
                     tempc = {
                         "title": "Craft Type",
-                        "width": "40%",
+                        "width": "50%",
                         "mDataProp": key
                     }
                 }
                 if (/Action/i.test(key)) {
                     tempc = {
                         "title": "Action",
-                        "width": "25%",
+                        "width": "20%",
                         "mDataProp": key,
                         "mRender": function (data, full) {
                             return '<button type="button" class="btn btn-light btn-sm mx-1 pi-iconEdit" data-toggle="modal" name="editdacodetocrafttype" data-id="' + full.id +
@@ -145,7 +137,7 @@ async function createDacodetocrafttypeDataTable(table) {
                 aoColumns: columns,
                 columnDefs: [
                 ],
-                sorting: [[1, "asc"]]
+                sorting: [[0, "asc"]]
 
             })
             

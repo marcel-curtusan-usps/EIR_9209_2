@@ -120,7 +120,7 @@ async function createConnectiontypeDataTable(table) {
                                 '"title="Edit Connection Type"></button>' +
                                 ' <button type="button" class="btn btn-light btn-sm mx-1 pi-trashFill" data-toggle="modal" name="deleteconnectiontype" data-id="' + full.id +
                                 '"title="Delete Connection Type"></button>' +
-                                ' <button type="button" class="btn btn-light btn-sm mx-1 bi bi-plus" data-toggle="modal" name="addconnectionsubtype" data-id="' + full.id +
+                                ' <button type="button" class="btn btn-light btn-sm mx-1 bi-plus" data-toggle="modal" name="addconnectionsubtype" data-id="' + full.id +
                                 '"title="Add New Connection Subtype"></button>';
                         }
                     }
