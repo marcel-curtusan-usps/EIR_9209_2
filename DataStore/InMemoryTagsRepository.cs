@@ -35,7 +35,7 @@ namespace EIR_9209_2.InMemory
             fileName = $"{_configuration[key: "InMemoryCollection:CollectionTags"]}.json";
             filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
                 _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-                _configuration[key: "SiteIdentity:NassCode"],
+                _configuration[key: "ApplicationConfiguration:NassCode"],
                 _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
                 $"{fileName}");
             // Load data from the first file into the first collection
@@ -303,7 +303,7 @@ namespace EIR_9209_2.InMemory
                     //save date to loacl file
                     string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
                                        _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-                                                      _configuration[key: "SiteIdentity:NassCode"],
+                                                      _configuration[key: "ApplicationConfiguration:NassCode"],
                                                                      _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
                                                                                     $"{_configuration[key: "InMemoryCollection:CollectionTags"]}.json");
                     FileService.WriteFile(BuildPath, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));

@@ -24,11 +24,11 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         _logger = logger;
         _configuration = configuration;
         _hubServices = hubServices;
-        string BuildPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"],
-            configuration[key: "ApplicationConfiguration:BaseDirectory"],
-            configuration[key: "SiteIdentity:NassCode"],
-            configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-            $"{configuration[key: "InMemoryCollection:CollectionZones"]}.json");
+        string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
+            _configuration[key: "ApplicationConfiguration:BaseDirectory"],
+            _configuration[key: "ApplicationConfiguration:NassCode"],
+            _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
+            $"{_configuration[key: "InMemoryCollection:CollectionZones"]}.json");
         // Load data from the first file into the first collection
         _ = LoadDataFromFile(BuildPath);
 
@@ -150,31 +150,23 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                         if (!_mpeSummary.ContainsKey(area))
                         {
                             _mpeSummary.TryAdd(area, new Dictionary<DateTime, MPESummary>());
-                            foreach (var hour in hoursInMpeDateTime)
-                            {
-                                var hourlySummaryForHourAndArea = GetHourlySummaryForHourAndArea(area, hour, mpe.MPERunPerformance);
-                                _mpeSummary[area][hour] = hourlySummaryForHourAndArea;
-                            }
                         }
-                        else
+                        foreach (var hour in hoursInMpeDateTime)
                         {
-                            foreach (var hour in hoursInMpeDateTime)
+                            var hourlySummaryForHourAndArea = GetHourlySummaryForHourAndArea(area, hour, mpe.MPERunPerformance);
+                            lock (_mpeSummary[area])
                             {
-                                var hourlySummaryForHourAndArea = GetHourlySummaryForHourAndArea(area, hour, mpe.MPERunPerformance);
                                 _mpeSummary[area][hour] = hourlySummaryForHourAndArea;
                             }
                         }
                     }
-
                 }
             }
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Error running MPE Summary Report");
-
         }
-
     }
 
     private MPESummary GetHourlySummaryForHourAndArea(string area, DateTime Dateandhour, MPERunPerformance mpe)

@@ -36,7 +36,7 @@ public class FileService : IFileService
         {
             string? baseDrive = _configuration[key: "ApplicationConfiguration:BaseDrive"];
             string? baseDirectory = _configuration[key: "ApplicationConfiguration:BaseDirectory"];
-            string? siteId = _configuration[key: "SiteIdentity:NassCode"];
+            string? siteId = _configuration[key: "ApplicationConfiguration:NassCode"];
             string? configurationDirectory = _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"];
 
             if (!string.IsNullOrEmpty(baseDrive) && !string.IsNullOrEmpty(siteId))

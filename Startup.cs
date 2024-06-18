@@ -115,26 +115,6 @@ public class Startup
         //services.AddHostedService(provider => provider.GetRequiredService<MPEWatchBackgroundService>());
     }
 
-    //private void AddOptions(IServiceCollection services)
-    //{
-    //    services.Configure<SiteIdentitySettings>(Configuration.GetSection("SiteIdentity"));
-    //    try
-    //    {
-    //        var logFilePath = Path.Combine(Configuration[key: "ApplicationConfiguration:BaseDrive"], Configuration[key: "ApplicationConfiguration:BaseDirectory"], Configuration[key: "SiteIdentity:NassCode"]);
-    //        if (!Directory.Exists(logFilePath))
-    //        {
-    //            Directory.CreateDirectory(logFilePath);
-    //        }
-    //        var appHasPermissionToLogToSpecifiedFolder = FileAccessTester.CanCreateFilesAndWriteInFolder(logFilePath);
-    //        if (!appHasPermissionToLogToSpecifiedFolder)
-    //        {
-    //        }
-    //    }
-    //    catch (Exception e)
-    //    {
-
-    //    }
-    //}
 
     /// <summary>
     /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

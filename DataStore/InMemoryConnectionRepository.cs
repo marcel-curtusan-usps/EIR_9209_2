@@ -18,7 +18,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         _configuration = configuration;
         string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
             _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-            _configuration[key: "SiteIdentity:NassCode"],
+            _configuration[key: "ApplicationConfiguration:NassCode"],
             _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
             $"{_configuration[key: "InMemoryCollection:CollectionConnections"]}.json");
         // Load Connection data from the first file into the first collection

@@ -36,7 +36,7 @@ namespace EIR_9209_2.Service
                 }
                 IQueryService queryService;
                 string FormatUrl = "";
-                FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType, _configuration[key: "SiteIdentity:NassCode"]);
+                FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType, _configuration[key: "ApplicationConfiguration:NassCode"]);
                 queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                 var result = (await queryService.GetSMSWrapperData(stoppingToken));
 

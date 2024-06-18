@@ -15,7 +15,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         _configuration = configuration;
         string BuildConnectionPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
             _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-            _configuration[key: "SiteIdentity:NassCode"],
+            _configuration[key: "ApplicationConfiguration:NassCode"],
             _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
             $"{_configuration[key: "InMemoryCollection:CollectionBackgroundImages"]}.json");
         // Load data from the first file into the first collection

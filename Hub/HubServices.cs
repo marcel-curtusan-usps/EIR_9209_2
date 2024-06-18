@@ -105,12 +105,12 @@ public class HubServices : Hub
     }
     public SiteInformation GetSiteInformation()
     {
-        string nassCode = _configuration["SiteIdentity:NassCode"]?.ToString();
+        string nassCode = _configuration["ApplicationConfiguration:NassCode"]?.ToString();
         return _siteInfo.GetByNASSCode(nassCode);
     }
     public async Task<string> GetApplicationInfo()
     {
-        var siteInfo = _siteInfo.GetByNASSCode(_configuration["SiteIdentity:NassCode"].ToString());
+        var siteInfo = _siteInfo.GetByNASSCode(_configuration["ApplicationConfiguration:NassCode"].ToString());
         return JsonConvert.SerializeObject(new JObject
         {
             ["name"] = "Connected Facilities",

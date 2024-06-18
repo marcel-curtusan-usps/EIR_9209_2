@@ -19,22 +19,21 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                if (_endpointConfig.Status != EWorkerServiceState.Running)
-                {
-                    _endpointConfig.Status = EWorkerServiceState.Running;
-                    _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                    if (_endpointConfig.ActiveConnection)
-                    {
-                        _endpointConfig.ApiConnected = true;
-                    }
-                    else
-                    {
-                        _endpointConfig.ApiConnected = false;
-                        _endpointConfig.Status = EWorkerServiceState.Idel;
-                    }
 
-                    await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                _endpointConfig.Status = EWorkerServiceState.Running;
+                _endpointConfig.LasttimeApiConnected = DateTime.Now;
+                if (_endpointConfig.ActiveConnection)
+                {
+                    _endpointConfig.ApiConnected = true;
                 }
+                else
+                {
+                    _endpointConfig.ApiConnected = false;
+                    _endpointConfig.Status = EWorkerServiceState.Idel;
+                }
+
+                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+
                 if (!string.IsNullOrEmpty(_endpointConfig.OAuthUrl))
                 {
                     IOAuth2AuthenticationService authService;

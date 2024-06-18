@@ -18,21 +18,20 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                if (_endpointConfig.Status != EWorkerServiceState.Running)
+
+                _endpointConfig.Status = EWorkerServiceState.Running;
+                _endpointConfig.LasttimeApiConnected = DateTime.Now;
+                if (_endpointConfig.ActiveConnection)
                 {
-                    _endpointConfig.Status = EWorkerServiceState.Running;
-                    _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                    if (_endpointConfig.ActiveConnection)
-                    {
-                        _endpointConfig.ApiConnected = true;
-                    }
-                    else
-                    {
-                        _endpointConfig.ApiConnected = false;
-                        _endpointConfig.Status = EWorkerServiceState.Idel;
-                    }
-                    await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                    _endpointConfig.ApiConnected = true;
                 }
+                else
+                {
+                    _endpointConfig.ApiConnected = false;
+                    _endpointConfig.Status = EWorkerServiceState.Idel;
+                }
+                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+
                 IQueryService queryService;
                 string FormatUrl = "";
                 string MpeWatch_id = "1";
@@ -60,7 +59,7 @@ namespace EIR_9209_2.Service
                     _ = Task.Run(async () => await ProcessMPEWatchDPSRunData(result), stoppingToken);
                     //_logger.LogInformation("Data from {Url}: {Data}", _endpointConfig.Url, result);
                 }
-                _ = Task.Run(() => _geoZones.RunMPESummaryReport());
+                // _ = Task.Run(() => _geoZones.RunMPESummaryReport());
             }
             catch (Exception ex)
             {

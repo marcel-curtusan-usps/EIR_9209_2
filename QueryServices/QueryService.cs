@@ -135,6 +135,11 @@ internal class QueryService : IQueryService
             // For example, you might want to rethrow the exception to let the caller handle it
             throw new Exception("An error occurred while deserializing the response body.", ex);
         }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw new Exception("An error occurred while connection.", e);
+        }
 
     }
 

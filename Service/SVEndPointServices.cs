@@ -16,18 +16,28 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                IQueryService queryService;
-                string FormatUrl = "";
                 _endpointConfig.Status = EWorkerServiceState.Running;
                 _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                _endpointConfig.ApiConnected = true;
+                if (_endpointConfig.ActiveConnection)
+                {
+                    _endpointConfig.ApiConnected = true;
+                }
+                else
+                {
+                    _endpointConfig.ApiConnected = false;
+                    _endpointConfig.Status = EWorkerServiceState.Idel;
+                }
+                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+
+                IQueryService queryService;
+                string FormatUrl = "";
 
 
 
-                FormatUrl = string.Format(_endpointConfig.Url, _configuration[key: "SiteIdentity:NassCode"]);
+
+                FormatUrl = string.Format(_endpointConfig.Url, _configuration[key: "ApplicationConfiguration:NassCode"]);
                 queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                 var result = (await queryService.GetSVDoorData(stoppingToken));
-                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
                 //process zone data
                 if (_endpointConfig.MessageType.ToLower() == "doors")
                 {
