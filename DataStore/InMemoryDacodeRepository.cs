@@ -17,12 +17,8 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
         _logger = logger;
         _configuration = configuration;
         fileName = $"{_configuration[key: "InMemoryCollection:CollectionDACode"]}.json";
-        filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
-               _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-               _configuration[key: "ApplicationConfiguration:NassCode"],
-               _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-               $"{fileName}");
-        // Load ConnectionType data from the first file into the first collection
+        filePath = Path.Combine(Directory.GetCurrentDirectory(), _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{fileName}");
+
         _ = LoadDataFromFile(filePath);
     }
     public DesignationActivityToCraftType? Add(DesignationActivityToCraftType dacode)
