@@ -18,7 +18,7 @@
                     <div class="col-11">
                         <h4 class="modal-title" id="siteSummaryHeader"><span aria-hidden="true">Site Performance</span></h4>
                     </div>
-                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="table-responsive">
@@ -31,13 +31,73 @@
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+    <div class="modal fade" id="Email_Modal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="Email_Modal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col">
+                        <h4 class="modal-title" id="modalHeader_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="btn-close float-right" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label class="control-label">First Name</label>
+                            <input id="emailFirstName" type="text" class="form-control" name="emailFirstName" />
+                            <span id="error_emailFirstName" class="text-danger"></span>
+                        </div>
+                        <div class="col-4">
+                            <label class="control-label">Last Name</label>
+                            <input id="emailLastName" type="text" class="form-control" name="emailLastName" />
+                            <span id="error_emailLastName" class="text-danger"></span>
+                        </div>
+                        <div class="col-4">
+                            <label class="control-label">ACE Id</label>
+                            <input id="aceId" type="text" class="form-control" name="aceId" />
+                            <span id="error_aceId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="form-group col-4">
+                            <label class="control-label">Email Address</label>
+                            <input id="emailAddress" type="text" class="form-control" name="emailAddress" />
+                            <span id="error_emailAddress" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-4">
+                            <label class="control-label">Report Name</label>
+                            <select id="reportName" class="form-control pb-1" name="reportName">
+                                <option value=""></option>
+                                <option value="MPE">MPE Synopsis </option>
+                                <option value="Site">Site Summary</option>
+                            </select>
+                            <span id="error_reportName" class="text-danger"></span>
+                        </div>
+                        <div class="col">
+                            <label class="control-label">State Options</label>
+                            <div class="custom-control custom-switch">
+                                <div class="custom-control custom-switch">
+                                    <input id="enabled_email" type="checkbox" class="custom-control-input" name="enabled_email" />
+                                    <label class="custom-control-label" for="enabled_email">Enabled</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary float-right" type="button" data-bs-dismiss="modal" aria-label="Close">Close</button>
+                    <div class="col text-center"><span class="text-info" id="error_emailsubmitBtn"></span></div>
+                    <button class="btn btn-primary float-right" type="button" id="emailsubmitBtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="API_Connection_Modal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="API_Connection_Modal_Label">
         <div class="modal-dialog modal-xl">
             <div class="modal-content bg-white">
@@ -214,7 +274,7 @@
                     <div class="col-11">
                         <h4 class="modal-title" id="floormodalHeader_ID"><span aria-hidden="true"></span></h4>
                     </div>
-                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="form-row">
@@ -306,7 +366,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
                     </div>
                     <div class="col text-center"><span class="text-info" id="error_bckImageUploadbtn"></span></div>
                     <div class="col">
@@ -324,7 +384,7 @@
                     <div class="col-11">
                         <h4 class="modal-title" id="webEORmodalHeader_ID"><span aria-hidden="true"></span></h4>
                     </div>
-                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="form-row" id="webEORUploadForm" style="display: none">
@@ -348,7 +408,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
                     </div>
                     <div class="col text-center"><span class="text-info" id="error_WebEORUploadbtn"></span></div>
                     <div class="col">
@@ -366,8 +426,7 @@
                     <div class="col-11">
                         <h4 class="modal-title" id="notification_SetupHeader">Add New Notification</h4>
                     </div>
-                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close">
-                        <i class="pi-iconExit float-right mt-2 mr-2"></i>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close">
                     </button>
                 </div>
                 <div class="modal-body">
@@ -435,7 +494,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
                     </div>
                     <div class="col text-center"><span class="text-info" id="error_notificationsubmitBtn"></span></div>
                     <div class="col">
@@ -454,7 +513,7 @@
                     <div class="col-11">
                         <h4 class="modal-title" id="removeNotificationHeader"><span aria-hidden="true"></span></h4>
                     </div>
-                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
@@ -466,7 +525,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
                     </div>
                     <div class="col text-center"><span class="text-info " id="error_removeNotification"></span></div>
                     <div class="col">
@@ -477,14 +536,14 @@
         </div>
     </div>
 
-    <div class="modal fade" id="AppSetting_value_Modal" tabindex="-1" role="dialog" style="z-index: 12000;" data-backdrop="static">
+    <div class="modal fade" id="AppSetting_value_Modal" tabindex="-1" role="dialog" style="z-index: 12000;" data-backdrop="static" aria-labelledby="AppSetting_value_Modal_Label">
         <div class="modal-dialog" style="max-width: 50%;">
             <div class="modal-content bg-white">
                 <div class="modal-header">
                     <div class="col-11">
                         <h4 class="modal-title" id="appsettingvaluemodalHeader"><span aria-hidden="true"></span></h4>
                     </div>
-                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="card">
@@ -520,13 +579,9 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
-                    </div>
+                    <button class="btn btn-outline-secondary float-right" type="button" data-bs-dismiss="modal" aria-label="Close">Close</button>
                     <div class="col text-center"><span class="text-info" id="error_appsettingvalue"></span></div>
-                    <div class="col">
-                        <button class=" btn btn-primary float-right" type="button" id="appsettingvalue">Save</button>
-                    </div>
+                    <button class=" btn btn-primary float-right" type="button" id="appsettingvalue">Save</button>
                 </div>
             </div>
         </div>
@@ -616,7 +671,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="RemoveConfirmationModal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="RemoveConfirmationModal_Label">
+    <div class="modal fade" id="RemoveConfirmationModal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="RemoveConfirmationModal_Label">
         <div class="modal-dialog modal-xl">
             <div class="modal-content bg-white">
                 <div class="modal-header">
@@ -641,6 +696,31 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="RemoveEmailModal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="RemoveEmailModal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col">
+                        <h4 class="modal-title" id="removeEmailmodalHeader_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h4 class="remove-body" style="color: red"></h4>
+                            <h4 style="color: red">Do you want to proceed ?</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
+                    <div class="col text-center"><span class="text-info" id="error_remove"></span></div>
+                    <button class=" btn btn-primary float-right" type="button" id="removebtn">Remove</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="RemoveConfirmationConTypeModal" tabindex="-1" role="dialog" style="z-index: 12000;" data-backdrop="static" aria-labelledby="RemoveConfirmationConTypeModal_Label">
         <div class="modal-dialog modal-xl">
             <div class="modal-content bg-white">
@@ -648,7 +728,7 @@
                     <div class="coll-11">
                         <h4 class="modal-title" id="removeConTypeHeader_ID"><span aria-hidden="true"></span></h4>
                     </div>
-                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="modalConTypebody">
                     <div class="row">
@@ -660,7 +740,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
                     </div>
                     <div class="col text-center"><span class="text-info " id="error_removeConType"></span></div>
                     <div class="col">
@@ -706,8 +786,7 @@
                     <div class="coll-11">
                         <h4 class="modal-title" id="removeLayermodalHeader_ID"><span aria-hidden="true"></span></h4>
                     </div>
-                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close">
-                        <i class="pi-iconExit float-right mt-2 mr-2"></i>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close">
                     </button>
                 </div>
                 <div class="modal-body">
@@ -720,7 +799,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
                     </div>
                     <div class="col text-center"><span class="text-info " id="error_remove_layer"></span></div>
                     <div class="col">
@@ -738,7 +817,7 @@
                     <div class="col-11">
                         <h4 class="modal-title" id="ctsdetailsmodalHeader"><span aria-hidden="true"></span></h4>
                     </div>
-                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body pt-0">
                     <!-- Preloader -->
@@ -761,7 +840,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
                     </div>
                     <div class="col text-center"><span class="text-info" id="error_ctsdetails"></span></div>
                 </div>
@@ -788,14 +867,14 @@
                         </div>
                     </div>
                     <div class="col-1">
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                        <button class="close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                 </div>
                 <div class="modal-body pt-0 text-center" id="camera_modalbody">
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
                     </div>
                     <div class="col text-center"><span class="text-info" id="error_camera"></span></div>
                 </div>
@@ -813,7 +892,7 @@
                     <div class="col-6 text-center">
                         <h4 id="cameradescription"><span aria-hidden="true"></span></h4>
                     </div>
-                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body pt-0 text-center" id="addedit_camera_modalbody">
                     <div class="row mb-3">
@@ -838,7 +917,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
                     </div>
                     <div class="col text-center"><span class="text-info" id="error_camera_submitBtn"></span></div>
                     <div class="col">
@@ -934,7 +1013,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class=" close btn btn-outline-secondary float-left" data-bs-dismiss="modal" type="button" data-dismiss="modal" aria-label="Close">Close</button>
+                        <button class=" close btn btn-outline-secondary float-left" data-bs-dismiss="modal" type="button" data-bs-dismiss="modal" aria-label="Close">Close</button>
                     </div>
                     <div class="col text-center"><span class="text-info" id="error_usertagsubmitBtn"></span></div>
                     <div class="col">
@@ -952,7 +1031,7 @@
                     <div class="col-11">
                         <h4 class="modal-title" id="modalZoneHeader_ID"><span aria-hidden="true"></span></h4>
                     </div>
-                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row mr-0 ml-0">
@@ -1095,7 +1174,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
                     </div>
                     <div class="col text-center"><span class="text-info" id="error_machinesubmitBtn"></span></div>
                     <div class="col">
@@ -1112,7 +1191,7 @@
                     <div class="col-11">
                         <h4 class="modal-title" id="modalDockDoorZoneHeader_ID"><span aria-hidden="true"></span></h4>
                     </div>
-                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row mr-0 ml-0">
@@ -1132,7 +1211,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
                     </div>
                     <div class="col text-center"><span class="text-info" id="error_dockdoorubmitBtn"></span></div>
                     <div class="col">
@@ -1150,7 +1229,7 @@
                     <div class="col-11">
                         <h4 class="modal-title" id="TagName_Modal_Header_ID"><span aria-hidden="true"></span></h4>
                     </div>
-                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row mr-0 ml-0">
@@ -1167,7 +1246,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
                     </div>
                     <div class="col text-center"><span class="text-info" id="error_edittagsubmitBtn"></span></div>
                     <div class="col">
@@ -1185,7 +1264,7 @@
                     <div class="col-11">
                         <h4 class="modal-title" id="modalContainerDetailsHeader_ID"><span aria-hidden="true"></span></h4>
                     </div>
-                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="card-body pb-0">
@@ -1214,7 +1293,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
                     </div>
                     <div class="col text-center"><span class="text-info" id="error_containerdetailsubmitBtn"></span></div>
                 </div>
@@ -1228,7 +1307,7 @@
                     <div class="col-11">
                         <h3 class="modal-title" id="modalRouteTripDetailsHeader_ID"><span aria-hidden="true"></span></h3>
                     </div>
-                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="card-body pb-0" id="RouteTripDetailscard">
@@ -1259,7 +1338,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
                     </div>
 
                 </div>
@@ -1331,7 +1410,7 @@
                     <span id="fotf-site-facility-name"></span>
                     <span class="leaflet-sidebar-close"><i class="bi-caret-left"></i></span>
                 </h1>
-               
+
                 <div id="div_zoneSelect">
                     <div id="zoneselectlist_div" class="d-flex mt-1 zoneselectlist display-block">
 
@@ -1440,7 +1519,7 @@
                                 </div>
                                 <div class="card-footer">
                                     <div class="col">
-                                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal" id="zonecloseBtn">Cancel</button>
+                                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal" id="zonecloseBtn">Cancel</button>
                                     </div>
                                     <div class="col text-center">
                                         <span class="text-info" id="error_zonesubmitBtn"></span>
@@ -1854,7 +1933,7 @@
                     <span>Report Information</span>
                     <span class="leaflet-sidebar-close"><i class="bi-caret-left"></i></span>
                 </h1>
-               
+
                 <div class="btn-toolbar" role="toolbar" id="userinfo_div">
                     <div id="div_staffinfo" class="container-fluid">
                         <div class="card w-100">
@@ -1976,7 +2055,7 @@
                     <span>Trips Notification</span>
                     <span class="leaflet-sidebar-close"><i class="bi-caret-left"></i></span>
                 </h1>
-               
+
                 <div class="btn-toolbar" role="toolbar" id="tripsnotificationinfo_div">
                     <div id="div_tripsnotification" class="container-fluid">
                         <div class="accordion" id="tripsaccordion">
@@ -2113,7 +2192,7 @@
                     <span>AGV Notification</span>
                     <span class="leaflet-sidebar-close"><i class="bi-caret-left"></i></span>
                 </h1>
-               
+
                 <div class="btn-toolbar" role="toolbar" id="agvnotificationinfo_div">
                     <div id="div_agvnotification" class="container-fluid">
                         <div class="card w-100">
@@ -2146,7 +2225,7 @@
                     <span>Notification</span>
                     <span class="leaflet-sidebar-close"><i class="bi-caret-left"></i></span>
                 </h1>
-               
+
                 <div class="btn-toolbar" role="toolbar" id="notificationsetup_div">
                     <div id="div_notificationsetup" class="container-fluid">
                         <button type="button" class="btn btn-primary mb-sm-2 ml-p5rem" name="addnotificationsetup">Add</button>
@@ -2179,7 +2258,7 @@
                     <span>User Profile</span>
                     <span class="leaflet-sidebar-close"><i class="bi-caret-left"></i></span>
                 </h1>
-               
+
                 <div class="btn-toolbar ml-p5rem" role="toolbar" id="userprofile_div">
                     <div class="w-100 mb-3">
                         <div class="user-card-full bg-white mr-p65rem">
@@ -2290,7 +2369,7 @@
                     <span>MPE Notification</span>
                     <span class="leaflet-sidebar-close"><i class="bi-caret-left"></i></span>
                 </h1>
-               
+
                 <div class="btn-toolbar" role="toolbar" id="mpenotificationinfo_div">
                     <div id="div_mpenotification" class="container-fluid">
                         <div class="card w-100">
@@ -2323,7 +2402,7 @@
                     <span> Connection</span>
                     <span class="leaflet-sidebar-close"><i class="bi-caret-left"></i></span>
                 </h1>
-               
+
                 <div class="card w-100">
                     <div class="card-header pl-1 d-flex justify-content-between">
                         <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Data Endpoints</h6>
@@ -2348,54 +2427,67 @@
                     <span> Application Settings</span>
                     <span class="leaflet-sidebar-close"><i class="bi-caret-left"></i></span>
                 </h1>
-               
-                <div class="btn-toolbar" role="toolbar" id="app_setting">
-                    <div id="div_app_settingtable" class="container-fluid">
-                        <div class="card w-100">
-                            <div class="card-header pl-1 d-flex justify-content-between">
-                                <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Site Info</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <div id="siteInfotable">
-                                        <table class="table table-sm" id="siteInfotable" s>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card w-100">
-                            <div class="card-header pl-1 d-flex justify-content-between">
-                                <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Application Setting</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <div id="app_settingtable">
-                                        <table class="table table-sm" id="app_settingtable">
-                                            <thead class="thead-dark">
 
-                                            </thead>
-                                            <tbody>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                <div class="btn-toolbar" role="toolbar" id="app_setting">
+                    <div class="card w-100">
+                        <div class="card-header pl-1 d-flex justify-content-between">
+                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Site Info</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm" id="siteInfotable">
+                                    <thead class="thead-dark">
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                        <div class="card w-100">
-                            <div class="card-header pl-1 d-flex justify-content-between">
-                                <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Loaded Workroom/Floor Image</h6>
-                                <button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem" name="addfloorpan">Add</button>
-                            </div>
+                    </div>
+                    <div class="card w-100">
+                        <div class="card-header pl-1 d-flex justify-content-between">
+                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Email Subscription</h6>
+                            <button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem" name="addEmail" onclick="Add_Email()" title="Add New Email">Add</button>
+                        </div>
+                        <div class="card-body">
                             <div class="table-responsive">
-                                <div id="backgroundimagetable">
-                                    <table class="table table-sm table-hover table-condensed" id="backgroundimagetable">
-                                        <thead class="thead-dark">
-                                        </thead>
-                                        <tbody>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                <table class="table table-sm" id="emailListtable">
+                                    <thead class="thead-dark">
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card w-100">
+                        <div class="card-header pl-1 d-flex justify-content-between">
+                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Application Setting</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm" id="app_settingtable">
+                                    <thead class="thead-dark">
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card w-100">
+                        <div class="card-header pl-1 d-flex justify-content-between">
+                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Loaded Workroom/Floor Image</h6>
+                            <button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem" name="addfloorpan">Add</button>
+                        </div>
+                        <div class="table-responsive">
+                            <div id="backgroundimagetable">
+                                <table class="table table-sm table-hover table-condensed" id="backgroundimagetable">
+                                    <thead class="thead-dark">
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -2407,13 +2499,13 @@
                         <div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                        <table class="table table-sm table-hover table-condensed" id="connectiontypetable">
-                                            <thead class="thead-dark">
+                                    <table class="table table-sm table-hover table-condensed" id="connectiontypetable">
+                                        <thead class="thead-dark">
 
-                                            </thead>
-                                            <tbody>
-                                            </tbody>
-                                        </table>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -2426,12 +2518,12 @@
                         <div>
                             <div class="card-body">
                                 <div class="table-responsive fixedHeader variableHeight">
-                                        <table class="table table-sm table-hover mb-1 border-bottom" id="dacodetocrafttypetable">
-                                            <thead class="thead-dark">
-                                            </thead>
-                                            <tbody>
-                                            </tbody>
-                                        </table>
+                                    <table class="table table-sm table-hover mb-1 border-bottom" id="dacodetocrafttypetable">
+                                        <thead class="thead-dark">
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -2633,12 +2725,15 @@
     <script src="../lib/leaflet.marker.slideto/Leaflet.Marker.SlideTo.js"></script>
     <script src="../lib/leaflet-easybutton/src/easy-button.js"></script>
     <script src="../js/view/default.js"></script>
+    <script src="../js/view/applicationConfiguration.js"></script>
     <script src="../js/view/connections.js"></script>
     <script src="../js/view/connectionTypes.js"></script>
+    <script src="../js/view/email.js"></script>
     <script src="../js/view/dacodetocraftTypes.js"></script>
     <script src="../js/view/indoorMap.js"></script>
     <script src="../js/view/tagsEmployee.js"></script>
     <script src="../js/view/tagsPIVVehicles.js"></script>
+    <script src="../js/view/tagsAGVVehicles.js"></script>
     <script src="../js/view/tagsSearch.js"></script>
     <script src="../js/view/geoZonesMPE.js"></script>
     <script src="../js/view/geoZonesDockDoors.js"></script>

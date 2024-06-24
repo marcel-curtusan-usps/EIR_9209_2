@@ -6,7 +6,6 @@ namespace EIR_9209_2.Service
     internal class IDSEndPointServices : BaseEndpointService
     {
 
-
         public IDSEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration)
                 : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
         {

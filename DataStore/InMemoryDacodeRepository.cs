@@ -8,20 +8,22 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
     private readonly ILogger<InMemoryDacodeRepository> _logger;
     private readonly IConfiguration _configuration;
     private readonly IFileService _fileService;
-    private readonly string dacodeTypeFilePath = "";
-    private readonly string fileName = "DesignationActivityToCraftType.json";
+    private readonly string filePath = "";
+    private readonly string fileName = "";
 
     public InMemoryDacodeRepository(ILogger<InMemoryDacodeRepository> logger, IConfiguration configuration, IFileService fileService)
     {
         _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
-
-        dacodeTypeFilePath = Path.Combine(Directory.GetCurrentDirectory(),
-            _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-            $"{fileName}");
+        fileName = $"{_configuration[key: "InMemoryCollection:CollectionDACode"]}.json";
+        filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
+               _configuration[key: "ApplicationConfiguration:BaseDirectory"],
+               _configuration[key: "ApplicationConfiguration:NassCode"],
+               _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
+               $"{fileName}");
         // Load ConnectionType data from the first file into the first collection
-        _ = LoadDataFromFile(dacodeTypeFilePath);
+        _ = LoadDataFromFile(filePath);
     }
     public DesignationActivityToCraftType? Add(DesignationActivityToCraftType dacode)
     {
@@ -33,7 +35,7 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
             }
             else
             {
-                _logger.LogError($"DesignationActivityToCraftType.json was not update");
+                _logger.LogError($"{fileName} was not update");
                 return null;
             }
         }
@@ -92,12 +94,12 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
         return _dacodeList.Values;
     }
 
-    private async Task LoadDataFromFile(string dacodeTypeFilePath)
+    private async Task LoadDataFromFile(string filePath)
     {
         try
         {
             // Read data from file
-            var fileContent = await _fileService.ReadFile(dacodeTypeFilePath);
+            var fileContent = await _fileService.ReadFile(filePath);
 
             // Parse the file content to get the data. This depends on the format of your file.
             // Here's an example if your file was in JSON format and contained an array of T objects:

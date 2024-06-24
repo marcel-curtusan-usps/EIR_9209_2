@@ -7,6 +7,7 @@ namespace EIR_9209_2.Service
     public class QPEEndPointServices : BaseEndpointService
     {
         private readonly IInMemoryTagsRepository _tags;
+
         public QPEEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryTagsRepository tags)
             : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
         {

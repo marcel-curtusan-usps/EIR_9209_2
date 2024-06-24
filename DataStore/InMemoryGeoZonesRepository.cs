@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using static EIR_9209_2.Models.GeoMarker;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 {
@@ -16,21 +17,23 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     private readonly IConfiguration _configuration;
     private readonly ILogger<InMemoryGeoZonesRepository> _logger;
     private readonly IFileService _fileService;
-    private readonly IInMemoryTagsRepository _tags;
     protected readonly IHubContext<HubServices> _hubServices;
+    private readonly string filePath = "";
+    private readonly string fileName = "";
     public InMemoryGeoZonesRepository(ILogger<InMemoryGeoZonesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices)
     {
         _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
         _hubServices = hubServices;
-        string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
+        fileName = $"{_configuration[key: "InMemoryCollection:CollectionZones"]}.json";
+        filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
             _configuration[key: "ApplicationConfiguration:BaseDirectory"],
             _configuration[key: "ApplicationConfiguration:NassCode"],
             _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-            $"{_configuration[key: "InMemoryCollection:CollectionZones"]}.json");
+            $"{fileName}");
         // Load data from the first file into the first collection
-        _ = LoadDataFromFile(BuildPath);
+        _ = LoadDataFromFile(filePath);
 
     }
     public GeoZone? Add(GeoZone geoZone)
@@ -544,7 +547,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             int.TryParse(mpe.CurThruputOphr, out int CurThruputOphr);
             int.TryParse(mpe.CurOperationId, out int OpNumber);
             int.TryParse(mpe.TotSortplanVol, out int TotSortplanVol);
-            if (_MPERunActivity.ContainsKey(mpe_id) && _MPERunActivity.TryGetValue(mpe_id, out MPEActiveRun activeRun))
+            if (_MPERunActivity.ContainsKey(mpe_id) && _MPERunActivity.TryGetValue(mpe_id, out var activeRun))
             {
                 activeRun.ActiveRun = false;
                 //check if current run end is greater than the CurrentRunEnd
@@ -571,6 +574,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 _MPERunActivity.TryAdd(mpe_id, new MPEActiveRun
                 {
                     ActiveRun = true,
+                    Type = "Run",
                     MpeType = mpe.MpeType,
                     MpeNumber = MpeNum,
                     MpeId = mpe.MpeId,
@@ -585,11 +589,257 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     ActVolPlanVolNbr = ActVolPlanVolNbr
 
                 });
+
             }
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            _MPERunActivity.Where(r => r.Value.CurrentRunStart <= DateTime.Now.AddDays(-3)).Select(l => l.Key).ToList().ForEach(key =>
+            _logger.LogError($"Error loading MPE Run data {e.Message}");
+        }
+        finally
+        {
+            _MPERunActivity.Where(r => r.Value.CurrentRunStart <= DateTime.Now.AddDays(-3) && r.Value.Type == "Run").Select(l => l.Key).ToList().ForEach(key =>
+            {
+                if (_MPERunActivity.TryRemove(key, out MPEActiveRun remove))
+                {
+                    SaveToFile = true;
+                }
+            });
+            if (SaveToFile)
+            {
+                _fileService.WriteFile("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
+            }
+        }
+    }
+
+    public Task LoadMPEPlan(JToken data)
+    {
+        // sample data
+        // {
+        //  "mods_date": "2024-06-19 00:00:00",
+        //  "machine_num": "151",
+        //  "sort_program_name": "LV97216U-2",
+        //  "rpg_start_dtm": "2024-06-19 22:45:00",
+        //  "rpg_end_dtm": "2024-06-19 23:20:00",
+        //  "rpg_pieces_fed": "14714",
+        //  "mail_operation_nbr": "919000",
+        //  "rpg_expected_thruput": "31533 pcs/hr",
+        //  "mpew_start_15min_dtm": "2024-06-19 22:45:00",
+        //  "mpew_end_15min_dtm": "2024-06-19 23:15:00",
+        //  "mpe_type": "CIOSS",
+        //  "mpe_name": "CIOSS-151"
+        //}
+
+        //loop through the sample data add to _MPERunActivity
+        //if the data is already in the _MPERunActivity update the data
+        //if the data is not in the _MPERunActivity add the data
+        //if the data is in the _MPERunActivity and the rpg_end_dtm is greater than the current time remove the data
+        bool SaveToFile = false;
+        try
+        {
+            foreach (var item in data)
+            {
+                //this to handle the unknown mpe_type for APPS
+                //this is a temporary fix until the MPEWatch team fix the issue
+                if (item["sort_program_name"].ToString().StartsWith("ATU"))
+                {
+                    int.TryParse(item["machine_num"].ToString().Substring(1), out int mpeNumber);
+
+                    item["mpe_type"] = "ATU";
+                    item["mpe_name"] = string.Concat("ATU", "-", mpeNumber.ToString().PadLeft(3, '0'));
+                    item["machine_num"] = mpeNumber;
+                }
+                if (item["sort_program_name"].ToString().StartsWith("USS") || item["sort_program_name"].ToString().StartsWith("M-USS"))
+                {
+                    int.TryParse(item["machine_num"].ToString().Substring(1), out int mpeNumber);
+
+                    item["mpe_type"] = "USS";
+                    item["mpe_name"] = string.Concat("USS", "-", mpeNumber.ToString().PadLeft(3, '0'));
+                    item["machine_num"] = mpeNumber;
+                }
+                if (item["sort_program_name"].ToString().StartsWith("HSTS"))
+                {
+                    int.TryParse(item["machine_num"].ToString().Substring(1), out int mpeNumber);
+
+                    item["mpe_type"] = "HSTS";
+                    item["mpe_name"] = string.Concat("HSTS", "-", mpeNumber.ToString().PadLeft(3, '0'));
+                    item["machine_num"] = mpeNumber;
+                }
+                if (item["mpe_type"].ToString().StartsWith("UNK"))
+                {
+                    int.TryParse(item["machine_num"].ToString().Substring(1), out int mpeNumber);
+                    item["mpe_type"] = "APPS";
+                    item["mpe_name"] = string.Concat("APPS", "-", mpeNumber.ToString().PadLeft(3, '0'));
+                }
+                int operationNumber = 0;
+                DateTime.TryParse(item["rpg_start_dtm"]?.ToString(), out DateTime rpg_start_dtm);
+                DateTime.TryParse(item["rpg_end_dtm"]?.ToString(), out DateTime rpg_end_dtm);
+                DateTime.TryParse(item["mpew_start_15min_dtm"]?.ToString(), out DateTime mpew_start_15min_dtm);
+                DateTime.TryParse(item["mpew_end_15min_dtm"]?.ToString(), out DateTime mpew_end_15min_dtm);
+                int.TryParse(item["rpg_pieces_fed"]?.ToString(), out int rpg_pieces_fed);
+                int.TryParse(item["rpg_expected_thruput"]?.ToString().Replace(" pcs/hr", ""), out int rpg_expected_thruput);
+                // Extract the first 3 digits from mail_operation_nbr
+                int.TryParse(item["mail_operation_nbr"]?.ToString(), out int mail_operation_nbr);
+                if (mail_operation_nbr != 0)
+                {
+                    operationNumber = int.Parse(mail_operation_nbr.ToString().Substring(0, 3));
+                }
+                int.TryParse(item["machine_num"]?.ToString(), out int machine_num);
+                string mpe_name = item["mpe_name"]?.ToString();
+                string mpe_type = item["mpe_type"]?.ToString();
+                string sort_program_name = item["sort_program_name"]?.ToString();
+                string mods_date = item["mods_date"]?.ToString();
+                string mpe_id = string.Concat(mpe_name, @"_", new DateTime(rpg_start_dtm.Year, rpg_start_dtm.Month, rpg_start_dtm.Day, rpg_start_dtm.Hour, rpg_start_dtm.Minute, 0, 0).ToString(""));
+
+                if (_MPERunActivity.ContainsKey(mpe_id) && _MPERunActivity.TryGetValue(mpe_id, out MPEActiveRun activeRun))
+                {
+                    if (activeRun.CurThruputOphr != rpg_expected_thruput && rpg_expected_thruput > 0)
+                    {
+                        activeRun.CurThruputOphr = rpg_expected_thruput;
+                        SaveToFile = true;
+                    }
+                    if (activeRun.TotSortplanVol != rpg_pieces_fed && rpg_pieces_fed > 0)
+                    {
+                        activeRun.TotSortplanVol = rpg_pieces_fed;
+                        SaveToFile = true;
+                    }
+                    if (activeRun.CurrentRunEnd != rpg_end_dtm)
+                    {
+                        activeRun.CurrentRunEnd = rpg_end_dtm;
+                        SaveToFile = true;
+                    }
+                    if (activeRun.CurrentRunStart != rpg_start_dtm)
+                    {
+                        activeRun.CurrentRunStart = rpg_start_dtm;
+                        SaveToFile = true;
+                    }
+                    //check sortplan
+                    if (activeRun.CurSortplan != sort_program_name)
+                    {
+                        activeRun.CurSortplan = sort_program_name;
+                        SaveToFile = true;
+                    }
+
+                }
+                else
+                {
+                    _MPERunActivity.TryAdd(mpe_id, new MPEActiveRun
+                    {
+                        ActiveRun = true,
+                        Type = "Plan",
+                        MpeType = mpe_type,
+                        MpeNumber = machine_num,
+                        MpeId = mpe_name,
+                        CurSortplan = sort_program_name,
+                        CurThruputOphr = rpg_expected_thruput,
+                        CurrentRunStart = rpg_start_dtm,
+                        CurrentRunEnd = rpg_end_dtm,
+                        CurOperationId = operationNumber,
+                        TotSortplanVol = rpg_pieces_fed,
+                        RpgEstVol = rpg_pieces_fed,
+                        RpgExpectedThruput = rpg_expected_thruput,
+                        ActVolPlanVolNbr = rpg_pieces_fed
+                    });
+                    SaveToFile = true;
+                }
+
+            }
+            return Task.FromResult(true);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Error loading MPE Plan data {e.Message}");
+            return Task.FromResult(true);
+        }
+        finally
+        {
+            _MPERunActivity.Where(r => r.Value.CurrentRunStart <= DateTime.Now.AddDays(-5) && r.Value.Type == "Plan").Select(l => l.Key).ToList().ForEach(key =>
+            {
+                if (_MPERunActivity.TryRemove(key, out MPEActiveRun remove))
+                {
+                    SaveToFile = true;
+                }
+            });
+            if (SaveToFile)
+            {
+                _fileService.WriteFile("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
+            }
+        }
+
+    }
+
+    public Task LoadWebEORMPERun(JToken data)
+    {
+        bool SaveToFile = false;
+        try
+        {
+
+            foreach (MPEActiveRun item in data.ToObject<List<MPEActiveRun>>())
+            {
+
+                string mpe_id = string.Concat(item.MpeId, @"_", new DateTime(item.CurrentRunStart.Year, item.CurrentRunStart.Month, item.CurrentRunStart.Day, item.CurrentRunStart.Hour, item.CurrentRunStart.Minute, 0, 0).ToString(""));
+
+                if (_MPERunActivity.ContainsKey(mpe_id) && _MPERunActivity.TryGetValue(mpe_id, out MPEActiveRun activeRun))
+                {
+                    if (activeRun.CurThruputOphr != item.CurThruputOphr && item.CurThruputOphr > 0)
+                    {
+                        activeRun.CurThruputOphr = item.CurThruputOphr;
+                        SaveToFile = true;
+                    }
+                    if (activeRun.TotSortplanVol != item.TotSortplanVol && item.TotSortplanVol > 0)
+                    {
+                        activeRun.TotSortplanVol = item.TotSortplanVol;
+                        SaveToFile = true;
+                    }
+                    if (activeRun.CurrentRunEnd != item.CurrentRunEnd)
+                    {
+                        activeRun.CurrentRunEnd = item.CurrentRunEnd;
+                        SaveToFile = true;
+                    }
+                    if (activeRun.CurrentRunStart != item.CurrentRunStart)
+                    {
+                        activeRun.CurrentRunStart = item.CurrentRunStart;
+                        SaveToFile = true;
+                    }
+                    //check sortplan
+                    if (activeRun.CurSortplan != item.CurSortplan)
+                    {
+                        activeRun.CurSortplan = item.CurSortplan;
+                        SaveToFile = true;
+                    }
+
+                }
+                else
+                {
+                    _MPERunActivity.TryAdd(mpe_id, new MPEActiveRun
+                    {
+                        ActiveRun = true,
+                        Type = "Run",
+                        MpeType = item.MpeType,
+                        MpeNumber = item.MpeNumber,
+                        MpeId = item.MpeId,
+                        CurSortplan = item.CurSortplan,
+                        CurThruputOphr = item.CurThruputOphr,
+                        CurrentRunStart = item.CurrentRunStart,
+                        CurrentRunEnd = item.CurrentRunEnd,
+                        CurOperationId = item.CurOperationId,
+                        TotSortplanVol = item.TotSortplanVol,
+
+                    });
+                    SaveToFile = true;
+                }
+
+            }
+            return Task.FromResult(true);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Error loading MPE Plan data {e.Message}");
+            return Task.FromResult(true);
+        }
+        finally
+        {
+            _MPERunActivity.Where(r => r.Value.CurrentRunStart <= DateTime.Now.AddDays(-5) && r.Value.Type == "Plan").Select(l => l.Key).ToList().ForEach(key =>
             {
                 if (_MPERunActivity.TryRemove(key, out MPEActiveRun remove))
                 {

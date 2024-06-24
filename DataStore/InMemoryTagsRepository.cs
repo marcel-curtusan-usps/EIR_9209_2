@@ -50,11 +50,6 @@ namespace EIR_9209_2.InMemory
                 FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
             }
         }
-        public void LocalAdd(GeoMarker tag)
-        {
-            _tagList.TryAdd(tag.Properties.Id, tag);
-        }
-
         public void Remove(string connectionId)
         {
             if (_tagList.TryRemove(connectionId, out _))

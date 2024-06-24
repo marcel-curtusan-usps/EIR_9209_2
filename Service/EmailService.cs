@@ -13,7 +13,7 @@ namespace EIR_9209_2.Service
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("Connected Facility ", fromEmail));
-            message.To.Add(new MailboxAddress("", toEmail));
+            message.Bcc.Add(new MailboxAddress("", toEmail));
             message.Subject = subject;
 
             var builder = new BodyBuilder();

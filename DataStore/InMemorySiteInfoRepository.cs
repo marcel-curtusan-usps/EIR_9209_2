@@ -1,6 +1,7 @@
 ﻿using EIR_9209_2.Models;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Security.Policy;
 
 namespace EIR_9209_2.DataStore
@@ -11,24 +12,37 @@ namespace EIR_9209_2.DataStore
         private readonly ILogger<InMemorySiteInfoRepository> _logger;
         private readonly IConfiguration _configuration;
         private readonly IFileService FileService;
+        private readonly string filePath = "";
+        private readonly string fileName = "";
         public InMemorySiteInfoRepository(ILogger<InMemorySiteInfoRepository> logger, IConfiguration configuration, IFileService fileService)
         {
             FileService = fileService;
             _logger = logger;
             _configuration = configuration;
-            string BuildPath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"], configuration[key: "ApplicationConfiguration:BaseDirectory"], configuration[key: "ApplicationConfiguration:NassCode"], configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{configuration[key: "InMemoryCollection:CollectionSiteInformation"]}.json");
+            fileName = $"{_configuration[key: "InMemoryCollection:CollectionSiteInformation"]}.json";
+            filePath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"],
+                configuration[key: "ApplicationConfiguration:BaseDirectory"],
+                configuration[key: "ApplicationConfiguration:NassCode"],
+                configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
+                $"{fileName}");
             // Load data from the first file into the first collection
-            _ = LoadDataFromFile(BuildPath);
+            _ = LoadDataFromFile(filePath);
 
         }
         public void Add(SiteInformation site)
         {
-            _siteInfo.TryAdd(site.FdbId, site);
+            if (_siteInfo.TryAdd(site.FdbId, site))
+            {
+                FileService.WriteFile(fileName, JsonConvert.SerializeObject(_siteInfo.Values, Formatting.Indented));
+            }
         }
 
         public void Remove(string id)
         {
-            _siteInfo.TryRemove(id, out _);
+            if (_siteInfo.TryRemove(id, out _))
+            {
+                FileService.WriteFile(fileName, JsonConvert.SerializeObject(_siteInfo.Values, Formatting.Indented));
+            }
         }
 
         public SiteInformation Get(string id)
@@ -49,9 +63,10 @@ namespace EIR_9209_2.DataStore
 
         public void Update(SiteInformation site)
         {
-            if (_siteInfo.TryGetValue(site.FdbId, out SiteInformation currentSite))
+            if (_siteInfo.TryGetValue(site.FdbId, out SiteInformation currentSite) && _siteInfo.TryUpdate(site.FdbId, site, currentSite))
             {
-                _siteInfo.TryUpdate(site.FdbId, site, currentSite);
+
+                FileService.WriteFile(fileName, JsonConvert.SerializeObject(_siteInfo.Values, Formatting.Indented));
             }
         }
         private async Task LoadDataFromFile(string filePath)

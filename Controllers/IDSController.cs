@@ -23,10 +23,10 @@ namespace EIR_9209_2.Controllers
             _ids = ids;
             _geoZones = geoZones;
         }
-        // GET: api/<TagController>
+        // GET: api/<IDS>
         [HttpGet]
-        [Route("/IDSData")]
-        public async Task<object> GetAsync(string queryName, int startHour, int endHour)
+        [Route("IDSData")]
+        public async Task<object> GetByIDS(string queryName, int startHour, int endHour)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -80,8 +80,8 @@ namespace EIR_9209_2.Controllers
         // POST api/<IDSController>
         [HttpPost]
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("/GetIDSData")]
-        public async Task<object> PostGetIDSData([FromBody] JToken data)
+        [Route("GetIDSData")]
+        public async Task<object> PostByGetIDSData([FromBody] JToken data)
         {   //handle bad requests
             if (!ModelState.IsValid)
             {
@@ -115,8 +115,8 @@ namespace EIR_9209_2.Controllers
             }
         }
         [HttpPost]
-        [Route("/IDSData")]
-        public async Task<object> PostIDSData(string queryName, int startHour, int endHour)
+        [Route("IDSData")]
+        public async Task<object> PostByIDSData(string queryName, int startHour, int endHour)
         {   //handle bad requests
             if (!ModelState.IsValid)
             {
