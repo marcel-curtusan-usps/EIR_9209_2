@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.SignalR;
 using EIR_9209_2.Service;
 using NuGet.Protocol.Plugins;
+using EIR_9209_2.Models;
 
 
 
@@ -166,5 +167,5 @@ namespace EIR_9209_2.Controllers
                 return new JObject { ["Message"] = $"Connection Id:{id} was not Found" };
             }
         }
-    }
+     }
 }
