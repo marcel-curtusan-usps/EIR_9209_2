@@ -25,6 +25,7 @@ namespace EIR_9209_2.Models
         public MPERunPerformance? MPERunPerformance { get; set; } = new();
         public string? DataSource { get; set; } = "";
         public string? Emails { get; set; } = "";
+        public string Bins { get; set; } = "";
     }
     public class DockDoorProperties
     {

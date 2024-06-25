@@ -37,7 +37,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     {
         if (_geoZoneList.TryAdd(geoZone.Properties.Id, geoZone))
         {
-            if (_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
+            if (_fileService.WriteFile("Zones.json", JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
             {
                 return geoZone;
             }
