@@ -238,7 +238,7 @@ function enableZoneSubmit() {
 }
 function CreateZone(newlayer) {
     try {
-        map.setView(newlayer.layer._bounds.getCenter());
+        //map.setView(newlayer.layer._bounds.getCenter());
         var togeo = newlayer.layer.toGeoJSON();
         var geoProp = {
             zoneType: "",
@@ -259,11 +259,30 @@ function CreateZone(newlayer) {
             else {
                 togeo.properties.name = $('select[name=zone_select_name] option:selected').val();
             }
-            //$.connection.FOTFManager.server.addZone(JSON.stringify(togeo)).done(function (Data) {
-            //    setTimeout(function () { sidebar.close('home'); }, 500);
-            //    newlayer.layer.remove();
-
-            //});
+            if (!$.isEmptyObject(togeo)) {
+                //make a ajax call to get the employee details
+                $.ajax({
+                    url: '/api/AddZone',
+                    data: JSON.stringify(togeo),
+                    contentType: 'application/json',
+                    type: 'POST',
+                    success: function (data) {
+                        setTimeout(function () { sidebar.close('home'); }, 500);
+                        newlayer.layer.remove();
+                    },
+                    error: function (error) {
+                        $('span[id=error_zonesubmitBtn]').text(error);
+                        $('button[id=zonesubmitBtn]').prop('disabled', false);
+                        //console.log(error);
+                    },
+                    faulure: function (fail) {
+                        console.log(fail);
+                    },
+                    complete: function (complete) {
+                        console.log(complete);
+                    }
+                });
+            }
         });
 
     } catch (e) {
