@@ -12,11 +12,13 @@ public interface IInMemoryConnectionRepository
 
 
     //Connection types
-    void AddType(ConnectionType connection);
-    void RemoveType(string connectionId);
+    ConnectionType AddType(ConnectionType connection);
+    ConnectionType RemoveType(string connectionId);
     ConnectionType GetType(string id);
     IEnumerable<ConnectionType> GetTypeAll();
     IEnumerable<ConnectionType> GetbyNameType(string type);
-    void UpdateType(ConnectionType connection);
-
+    ConnectionType UpdateType(ConnectionType connection);
+    Messagetype AddSubType(string connectionId, Messagetype connection);
+    Messagetype UpdateSubType(string connectionId, Messagetype connection);
+    Messagetype RemoveSubType(string connectionId, string subId);
 }

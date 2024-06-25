@@ -1,0 +1,194 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.SignalR;
+using EIR_9209_2.Service;
+using NuGet.Protocol.Plugins;
+using EIR_9209_2.Models;
+using Microsoft.DotNet.Scaffolding.Shared.Messaging;
+
+
+
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+namespace EIR_9209_2.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ConnectionTypesController(IInMemoryConnectionRepository connectiontypeRepository) : ControllerBase
+    {
+        private readonly IInMemoryConnectionRepository _connectiontypeRepository = connectiontypeRepository;
+
+        // POST api/<Connection>
+        [HttpPost]
+        [Route("/api/AddConnectionType")]
+        /// <summary>
+        /// Adds a new connection.
+        /// </summary>
+        /// <param name="value">The connection details.</param>
+        /// <returns>The added connection.</returns>
+        public async Task<object> PostAddNewConnectionType([FromBody] JObject value)
+        {
+            //handle bad requests
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            //convert the JObject to a Connection object
+            ConnectionType contype = value.ToObject<ConnectionType>();
+            //add the connection id
+            contype.Id = Guid.NewGuid().ToString();
+            //add to the connection repository
+            ConnectionType loadedCon = _connectiontypeRepository.AddType(contype);
+            if (loadedCon != null)
+            {
+                return Ok(loadedCon);
+            }
+            else
+            {
+                return BadRequest(new JObject { ["message"] = "Connection Type was not Added " });
+            }
+        }
+
+        // PUT api/<Connection>/5
+        [HttpPut]
+        [Route("/api/UpdateConnectionType")]
+        public async Task<object> PutType(string id, [FromBody] JObject value)
+        {
+            //handle bad requests
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            //convert the JObject to a Connection object
+            //find id to update 
+            ConnectionType conToUpdate = _connectiontypeRepository.GetType(id);
+            if (conToUpdate != null)
+            {
+                ConnectionType connection = value.ToObject<ConnectionType>();
+                ConnectionType updatedCon = _connectiontypeRepository.UpdateType(connection);
+                if (updatedCon != null)
+                {
+                    return Ok(updatedCon);
+                }
+                else
+                {
+                    return BadRequest(new JObject { ["message"] = "Connection Type was not Updated " });
+                }
+            }
+            else
+            {
+                return new JObject { ["Message"] = $"Connection Id:{id} was not Found" };
+            }
+        }
+
+        // DELETE api/<Connection>/5
+        [HttpDelete]
+        [Route("/api/DeleteConnectionType")]
+        public async Task<object> DeleteConnectionType(string id)
+        {
+            //handle bad requests
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            ConnectionType removedCon = _connectiontypeRepository.RemoveType(id);
+            if (removedCon != null)
+            {
+                return removedCon;
+            }
+            else
+            {
+                return new JObject { ["Message"] = $"Connection Type was not Found" };
+            }
+        }
+
+        // POST api/<Connection>
+        [HttpPut]
+        [Route("/api/AddConnectionSubType")]
+        public async Task<object> PostAddNewConnectionSubType(string id, [FromBody] JObject value)
+        {
+            //handle bad requests
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            ConnectionType conToUpdate = _connectiontypeRepository.GetType(id);
+            if (conToUpdate != null)
+            {
+                Messagetype msgtype = value.ToObject<Messagetype>();
+                msgtype.Id = Guid.NewGuid().ToString();
+                Messagetype updatedCon = _connectiontypeRepository.AddSubType(id, msgtype);
+                if (updatedCon != null)
+                {
+                    return Ok(updatedCon);
+                }
+                else
+                {
+                    return BadRequest(new JObject { ["message"] = "Connection Subtype was not Added " });
+                }
+            }
+            else
+            {
+                return new JObject { ["Message"] = $"Connection Type Id:{id} was not Found" };
+            }
+        }
+
+        // PUT api/<Connection>/5
+        [HttpPut]
+        [Route("/api/UpdateConnectionSubType")]
+        public async Task<object> PutSubType(string id, [FromBody] JObject value)
+        {
+            //handle bad requests
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            //convert the JObject to a Connection object
+            //find id to update 
+            ConnectionType conToUpdate = _connectiontypeRepository.GetType(id);
+            if (conToUpdate != null)
+            {
+
+                Messagetype msgtype = value.ToObject<Messagetype>();
+                Messagetype updatedCon = _connectiontypeRepository.UpdateSubType(id, msgtype);
+                if (updatedCon != null)
+                {
+                    return Ok(updatedCon);
+                }
+                else
+                {
+                    return BadRequest(new JObject { ["message"] = "Connection Type was not Updated " });
+                }
+            }
+            else
+            {
+                return new JObject { ["Message"] = $"Connection Id:{id} was not Found" };
+            }
+        }
+        // DELETE api/<Connection>/5
+        [HttpPost]
+        [Route("/api/DeleteConnectionSubType")]
+        public async Task<object> DeleteConnectionSubType([FromBody] JObject value)
+        {
+            //handle bad requests
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            //List tempdata = value.ToObject<List>();
+            string parentId = (string)value["id"];
+            string removeId = (string)value["subId"];
+            if (!string.IsNullOrEmpty(parentId) && !string.IsNullOrEmpty(removeId))
+            {
+                Messagetype removedCon = _connectiontypeRepository.RemoveSubType(parentId, removeId);
+                return Ok(removedCon);
+            }
+            else
+            {
+                return new JObject { ["Message"] = $"Connection Type was not Found" };
+            }
+        }
+    }
+}
+

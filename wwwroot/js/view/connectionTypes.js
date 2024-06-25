@@ -64,10 +64,18 @@ $('#ConnectionType_value_Modal').on('shown.bs.modal', function () {
 });
 async function init_connectiontType(data) {
     try {
-        Promise.all([createConnectiontypeDataTable(connectiontypetable)]);
-        if (data.length > 0) {
-            Promise.all([connectionTypeLoad(data), updateConnectiontypeDataTable(data, connectiontypetable)]);
-        }
+        return new Promise((resolve, reject) => {
+            $('button[name=addConnectionType]').off().on('click', function () {
+                Promise.all([Add_ConnectionType()]);
+            });
+
+            createConnectiontypeDataTable(connectiontypetable);
+            if (data.length > 0) {
+                connectionTypeLoad(data), updateConnectiontypeDataTable(data, connectiontypetable);
+            }
+            resolve();
+            return false;
+        });
     } catch (e) {
         throw new Error(e.toString());
     }
@@ -163,8 +171,6 @@ async function createConnectiontypeDataTable(table) {
                     let table_id = rowData.id + "_subconntypetable";
                     createConnectiontypeSubtable(rowData.id, table_id, rowData.messageTypes);
                     tr.addClass('shown');
-
-
                 }
             });
             // Edit/remove record
@@ -174,13 +180,13 @@ async function createConnectiontypeDataTable(table) {
                 let row = $(table).DataTable().row(td.closest('tr'));
                 let rowData = row.data();
                 if (/editconnectiontype/ig.test(this.name)) {
-                    Edit_Connectiontype(row.data());
+                    Promise.all([Edit_Connectiontype(row.data())]);
                 }
                 if (/deleteconnectiontype/ig.test(this.name)) {
-                    Delete_Connectiontype(row.data());
+                    Promise.all([Delete_Connectiontype(row.data())]);
                 }
                 if (/addconnectionsubtype/ig.test(this.name)) {
-                    Add_ConnectionSubtype(rowData);
+                    Promise.all([Add_ConnectionSubtype(rowData)]);
                 }
 
             });
@@ -192,7 +198,8 @@ async function createConnectiontypeDataTable(table) {
         throw new Error(e.toString());
     }
 }
-function Add_ConnectionType() {
+async function Add_ConnectionType() {
+  try {
     $('#modalConnTypeID').prop("disabled", false);
     $('.valuediv').css("display", "block");
 
@@ -206,22 +213,43 @@ function Add_ConnectionType() {
             name: $('input[id=modalConnTypeID]').val(),
             description: $('input[id=descValueID]').val()
         };
-
-        fotfmanager.server.addConnTypesdata(JSON.stringify(jsonObject)).done(function (Data) {
-            $('span[id=error_conntypevalue]').text("Data has been updated");
-            setTimeout(function () {
-                $("#ConnectionType_value_Modal").modal('hide');
-                $('button[id=conntypevalue]').prop('disabled', false);
-
-                updateConnectiontypeDataTable([Data], "connectiontypetable");
-            }, 800);
-        });
-
+        if (!$.isEmptyObject(jsonObject)) {
+            //make a ajax call to get the employee details
+            $.ajax({
+                url: '/api/AddConnectionType',
+                data: JSON.stringify(jsonObject),
+                contentType: 'application/json',
+                type: 'POST',
+                success: function (successdata) {
+                    $('span[id=error_conntypevalue]').text("Data has been updated");
+                    setTimeout(function () {
+                        $("#ConnectionType_value_Modal").modal('hide');
+                        $('button[id=conntypevalue]').prop('disabled', false);
+                        updateConnectiontypeDataTable([successdata], "connectiontypetable");
+                    }, 500);
+                },
+                error: function (error) {
+                    $('span[id=error_conntypevalue]').text(error);
+                    $('button[id=conntypevalue]').prop('disabled', false);
+                    //console.log(error);
+                },
+                faulure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    console.log(complete);
+                }
+            });
+        }
     });
 
-    $('#ConnectionType_value_Modal').modal();
+    $('#ConnectionType_value_Modal').modal('show');
+  } catch (e) {
+      throw new Error(e.toString());
+  }
 }
-function Edit_Connectiontype(Data) {
+async function Edit_Connectiontype(Data) {
+  try {
     $('#modalConnTypeID').prop("disabled", true);
     $('.valuediv').css("display", "block");
 
@@ -238,62 +266,79 @@ function Edit_Connectiontype(Data) {
             name: $('input[id=modalConnTypeID]').val(),
             description: $('input[id=descValueID]').val(),
         };
-
-        fotfmanager.server.editConnTypesdata(JSON.stringify(jsonObject)).done(function (connData) {
-            $('span[id=error_conntypevalue]').text("Data has been updated");
-            setTimeout(function () {
-                $("#ConnectionType_value_Modal").modal('hide');
-                $('button[id=conntypevalue]').prop('disabled', false);
-                updateConnectiontypeDataTable(connData, connectiontypetable);
-                ConnectionTypeUpdate(connData)
-            }, 800);
-
-            //reload data
-
-            // Edit_AppSetting(table);
-
-        });
-
+        
+        if (!$.isEmptyObject(jsonObject)) {
+            //make a ajax call to get the Connection details
+            $.ajax({
+                url: '/api/UpdateConnectionType?id=' + Data.id,
+                contentType: 'application/json-patch+json',
+                type: 'PUT',
+                data: JSON.stringify(jsonObject),
+                success: function (connData) {
+                    $('span[id=error_conntypevalue]').text("Data has been updated");
+                    setTimeout(function () {
+                        $("#ConnectionType_value_Modal").modal('hide');
+                        $('button[id=conntypevalue]').prop('disabled', false);
+                        updateConnectiontypeDataTable(connData, connectiontypetable);
+                        ConnectionTypeUpdate(connData)
+                    }, 500);
+                },
+                error: function (error) {
+                    $('span[id=error_conntypevalue]').text("Connection Type" + data.name + "was not Updated");
+                    //console.log(error);
+                },
+                faulure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    console.log(complete);
+                }
+            });
+        }
     });
 
     $('#ConnectionType_value_Modal').modal('show');
+  } catch (e) {
+      throw new Error(e.toString());
+  }
 }
 function loadConnectiontypeDatatable(data, table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {
         $('#' + table).DataTable().rows.add(data).draw();
     }
 }
-async function updateConnectiontypeDataTable(newdata, table) {
-    let loadnew = true;
-    if ($.fn.dataTable.isDataTable("#" + table)) {
-        $('#' + table).DataTable().rows(function (idx, data, node) {
-            if (data.id === newdata.id) {
-                loadnew = false;
-                $('#' + table).DataTable().row(node).data(newdata).draw().invalidate();
-            }
-        })
-        if (loadnew) {
-            loadConnectiontypeDatatable(newdata, table);
-        }
-    }
-}
-function Delete_Connectiontype(Data) {
-    $('#removeConTypeHeader_ID').text('Remove ' + Data.Name);
-    $('button[id=remove_ConType]').off().on('click', function () {
-        let jsonObject = {
-            id: Data.id
-        };
-        fotfmanager.server.deleteConnTypesdata(JSON.stringify(jsonObject)).done(function (newData) {
-            $('span[id=error_remove_ConType]').text("Data has been Remove");
-            setTimeout(function () {
-                $("#RemoveConfirmationConTypeModal").modal('hide');
-                removeConnectiontypeDataTable(newData, "connectiontypetable")
-                ConnectionTypeRemove(newData)
-            }, 800);
-        });
-    });
 
-    $('#RemoveConfirmationConTypeModal').modal();
+async function Delete_Connectiontype(data) {
+    try {
+        $('#removeConTypeHeader_ID').text('Remove ' + data.name);
+        $('button[id=remove_ConType]').off().on('click', function () {
+            //make a ajax call to get the Connection details
+            $.ajax({
+                url: '/api/DeleteConnectionType?id=' + data.id,
+                type: 'DELETE',
+                success: function (successdata) {
+                    setTimeout(function () {
+                        $("#RemoveConfirmationConTypeModal").modal('hide');
+                        removeConnectiontypeDataTable(successdata, "connectiontypetable")
+                        ConnectionTypeRemove(successdata)
+                    }, 500);
+                },
+                error: function (error) {
+                    $('span[id=error_removeConType]').text("Connection Type " + data.name + " has been Removed");
+                    //console.log(error);
+                },
+                faulure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    console.log(complete);
+                }
+            });
+        });
+        $('#RemoveConfirmationConTypeModal').modal('show');
+    } catch (e) {
+        throw new Error(e.toString());
+    }
 }
 async function createConnectiontypeSubtable(parentid, table, row_data) {
     try {
@@ -352,19 +397,19 @@ async function createConnectiontypeSubtable(parentid, table, row_data) {
             let row = $(table).DataTable().row(td.closest('tr'));
             let parentid = $(this).data("id");
             if (/editconnectionsubtype/ig.test(this.name)) {
-                Edit_ConnectionSubtype(row.data(), parentid);
+                Promise.all([Edit_ConnectionSubtype(row.data(), parentid)]);
             }
             if (/deleteconnectionsubtype/ig.test(this.name)) {
-
-                Delete_ConnectionSubtype(row.data(), parentid);
+                Promise.all([Delete_ConnectionSubtype(row.data(), parentid)]);
             }
         });
 
     } catch (e) {
-
+        throw new Error(e.toString());
     }
 }
-function Add_ConnectionSubtype(Data) {
+async function Add_ConnectionSubtype(data) {
+  try {
     $('#modalConnTypeID').prop("disabled", false);
     $('.valuediv').css("display", "block");
 
@@ -377,78 +422,160 @@ function Add_ConnectionSubtype(Data) {
         let jsonObject = {
             name: $('input[id=modalConnTypeID]').val(),
             description: $('input[id=descValueID]').val(),
-            id: Data.id
+            id: ""
         };
-
-        fotfmanager.server.addConnSubtypesdata(JSON.stringify(jsonObject)).done(function (newData) {
-            $('span[id=error_conntypevalue]').text("Data has been updated");
-            setTimeout(function () {
-                $("#ConnectionType_value_Modal").modal('hide');
-                $('button[id=conntypevalue]').prop('disabled', false);
-                if ($.fn.dataTable.isDataTable("#" + Data.id + "_subconntypetable")) {
-                    updateConnectionSubtypeDataTable(newData[0], Data.id + "_subconntypetable");
-                    Data.MessageTypes.push(newData[0][0])
-                    connectionTypeLoad([Data])
+        if (!$.isEmptyObject(jsonObject)) {
+            //make a ajax call to get the Connection details
+            $.ajax({
+                url: '/api/AddConnectionSubType?id=' + data.id,
+                contentType: 'application/json-patch+json',
+                type: 'PUT',
+                data: JSON.stringify(jsonObject),
+                success: function (connData) {
+                    $('span[id=error_conntypevalue]').text("Data has been updated");
+                    setTimeout(function () {
+                       $("#ConnectionType_value_Modal").modal('hide');
+                       $('button[id=conntypevalue]').prop('disabled', false);
+                       if ($.fn.dataTable.isDataTable("#" + data.id + "_subconntypetable")) {
+                           updateConnectionSubtypeDataTable(connData, data.id + "_subconntypetable");
+                        } else {
+                           createConnectiontypeSubtable(data.id, data.id + "_subconntypetable", connData);
+                        }
+                        data.messageTypes.push(connData);
+                        connectionTypeLoad([data]);
+                    }, 500);
+                },
+                error: function (error) {
+                    $('span[id=error_conntypevalue]').text("Connection Subtype " + data.name + " was not Updated");
+                    console.log(error);
+                },
+                faulure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    console.log(complete);
                 }
-                else {
-                    createConnectiontypeSubtable(Data.id, Data.id + "_subconntypetable", newData[0]);
-                    Data.MessageTypes.push(newData[0][0])
-                    connectionTypeLoad([Data])
-                }
-            }, 800);
-        });
+            });
+        }
     });
 
-    $('#ConnectionType_value_Modal').modal();
+    $('#ConnectionType_value_Modal').modal('show');
+  } catch (e) {
+      throw new Error(e.toString());
+  }
 }
-function Edit_ConnectionSubtype(Data, connId) {
+async function Edit_ConnectionSubtype(data, connId) {
+  try {
     $('.valuediv').css("display", "block");
 
     $('#conntype_label').text('Code');
-    $('#conntypevaluemodalHeader').text('Edit Connection Subtype ' + Data.name);
+    $('#conntypevaluemodalHeader').text('Edit Connection Subtype ' + data.name);
 
-    $('input[id=modalConnTypeID]').val(Data.name);
-    $('input[id=descValueID]').val(Data.Description);
+    $('input[id=modalConnTypeID]').val(data.name);
+    $('input[id=descValueID]').val(data.description);
 
     $('button[id=conntypevalue]').off().on('click', function () {
         $('button[id=conntypevalue]').prop('disabled', true);
         let jsonObject = {
-            id: connId,
-            subId: Data.Id,
+            id: data.id,
             name: $('input[id=modalConnTypeID]').val(),
             description: $('input[id=descValueID]').val()
         };
-        fotfmanager.server.editConnSubtypesdata(JSON.stringify(jsonObject)).done(function (newData) {
-            $('span[id=error_conntypevalue]').text("Data has been updated");
-            setTimeout(function () {
-                $("#ConnectionType_value_Modal").modal('hide');
-                $('button[id=conntypevalue]').prop('disabled', false);
-                updateConnectionSubtypeDataTable(newData[0], connId + "_subconntypetable");
-                ConnectionSubtypeUpdate(newData[0])
-            }, 800);
-        });
+        if (!$.isEmptyObject(jsonObject)) {
+            //make a ajax call to get the Connection details
+            $.ajax({
+                url: '/api/UpdateConnectionSubType?id=' + connId,
+                contentType: 'application/json-patch+json',
+                type: 'PUT',
+                data: JSON.stringify(jsonObject),
+                success: function (connData) {
+                    $('span[id=error_conntypevalue]').text("Data has been updated");
+                    setTimeout(function () {
+                        $("#ConnectionType_value_Modal").modal('hide');
+                        $('button[id=conntypevalue]').prop('disabled', false);
+                        updateConnectionSubtypeDataTable(connData, connId + "_subconntypetable");
+                        ConnectionSubtypeUpdate(connData)
+                    }, 500);
+                },
+                error: function (error) {
+                    $('span[id=error_conntypevalue]').text("Connection Subtype" + data.name + "was not Updated");
+                    //console.log(error);
+                },
+                faulure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    console.log(complete);
+                }
+            });
+        }
     });
 
     $('#ConnectionType_value_Modal').modal('show');
+  } catch (e) {
+      throw new Error(e.toString());
+  }
 }
-function Delete_ConnectionSubtype(Data, connId) {
-    $('#removeConTypeHeader_ID').text('Remove ' + Data.Name);
+function Delete_ConnectionSubtype(data, connId) {
+  try {
+    $('#removeConTypeHeader_ID').text('Remove Connection Subtype ' + data.name);
     $('button[id=remove_ConType]').off().on('click', function () {
         let jsonObject = {
             id: connId,
-            subId: Data.id
+            subId: data.id
         };
-        fotfmanager.server.deleteConnSubtypesdata(JSON.stringify(jsonObject)).done(function (newData) {
-            $('span[id=error_remove_ConType]').text("Data has been Remove");
-            setTimeout(function () {
-                $("#RemoveConfirmationConTypeModal").modal('hide');
-                removeConnectiontypeDataTable(Data, connId + "_subconntypetable")
-                ConnectionSubtypeRemove(Data)
-            }, 800);
-        });
+        if (!$.isEmptyObject(jsonObject)) {
+            //make a ajax call to get the employee details
+            $.ajax({
+                url: '/api/DeleteConnectionSubType',
+                data: JSON.stringify(jsonObject),
+                contentType: 'application/json',
+                type: 'POST',
+                success: function (successdata) {
+                    $('span[id=error_remove_ConType]').text("Data has been Remove");
+                    setTimeout(function () {
+                        $("#RemoveConfirmationConTypeModal").modal('hide');
+                        removeConnectiontypeDataTable(data, connId + "_subconntypetable")
+                        ConnectionSubtypeRemove(data)
+                    }, 500);
+                },
+                error: function (error) {
+                    $('span[id=error_conntypevalue]').text(error);
+                    $('button[id=conntypevalue]').prop('disabled', false);
+                    //console.log(error);
+                },
+                faulure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    console.log(complete);
+                }
+            });
+        }
     });
 
-    $('#RemoveConfirmationConTypeModal').modal();
+    $('#RemoveConfirmationConTypeModal').modal('show');
+  } catch (e) {
+    throw new Error(e.toString());
+  }
+}
+async function updateConnectiontypeDataTable(newdata, table) {
+  try {
+    let loadnew = true;
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        $('#' + table).DataTable().rows(function (idx, data, node) {
+            if (data.id === newdata.id) {
+                loadnew = false;
+                $('#' + table).DataTable().row(node).data(newdata).draw().invalidate();
+            }
+        })
+        if (loadnew) {
+            loadConnectiontypeDatatable(newdata, table);
+        }
+    }
+  } catch (e) {
+      throw new Error(e.toString());
+  }
 }
 async function connectionTypeLoad(connName) {
     try {
@@ -482,7 +609,7 @@ async function connectionTypeLoad(connName) {
 function ConnectionTypeUpdate(connData) {
     if (!$.isEmptyObject(connData)) {
         let name = connData.name;
-        if (!($('#connection_name option[value=' + name + ']').length === 0)) {
+        if (!($('#connection_name option[value=' + name + ']').length == 0)) {
             $('#connection_name option[value=' + name + ']').html(connData.description + " (" + connData.name + ")");
         }
     }
@@ -503,7 +630,7 @@ function ConnectionTypeRemove(connData) {
 function ConnectionSubtypeUpdate(connData) {
     if (!$.isEmptyObject(connData)) {
         let messagetype = connData.name;
-        if (!($('#message_type option[value=' + messagetype + ']').length === 0)) {
+        if (!($('#message_type option[value=' + messagetype + ']').length == 0)) {
             $('#message_type option[value=' + messagetype + ']').html(connData.description);
         }
     }
@@ -533,7 +660,7 @@ async function updateConnectionSubtypeDataTable(newdata, table) {
             }
         })
         if (loadnew) {
-            loadConnectiontypeDatatable(newdata, table);
+            loadConnectiontypeDatatable([newdata], table);
         }
     }
 }
