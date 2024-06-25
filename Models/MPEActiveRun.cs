@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-public class MPEActiveRun
+﻿public class MPEActiveRun
 {
     public string MpeType { get; set; } = "";
     public int MpeNumber { get; set; }
@@ -19,6 +17,7 @@ public class MPEActiveRun
     public int ArsRecrej3 { get; set; } = 0;
     public int SweepRecrej3 { get; set; } = 0;
     public string MpeId { get; set; } = "";
+    public string Type { get; set; } = "";
     public int Tour { get; set; } = 0;
     public List<Hours> Hourlydata { get; set; } = new List<Hours>();
 }

@@ -9,6 +9,7 @@ namespace EIR_9209_2.Service
     public class QREEndPointServices : BaseEndpointService
     {
         private readonly IInMemoryGeoZonesRepository _zones;
+
         public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryGeoZonesRepository zones)
             : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
         {

@@ -7,4 +7,5 @@ public interface IInMemoryBackgroundImageRepository
     BackgroundImage Get(string id);
     IEnumerable<BackgroundImage> GetAll();
     void Update(BackgroundImage backgroundImage);
+    Task LoadBackgroundImage(BackgroundImage newImage);
 }

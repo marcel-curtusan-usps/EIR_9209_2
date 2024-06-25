@@ -31,8 +31,11 @@ async function start() {
                         position: 'bottom',
                     });
                 }
+                Promise.all([init_ApplicationConfiguration()]);
                 Promise.all([UpdateOSLattribution(appData)]);
                 Promise.all([init_TagSearch()]);
+                Promise.all([init_backgroundImages(data)]);
+                Promise.all([init_emailList()]);
                 $(`span[id="fotf-site-facility-name"]`).text(appData.name);
             }).catch(function (err) {
                 // handle error
@@ -75,16 +78,16 @@ async function start() {
                 console.error(err);
             });
             //load background images
-            connection.invoke("GetBackgroundImages").then(function (data) {
-                Promise.all([init_backgroundImages(data)]).then(function () {
-                    connection.invoke("JoinGroup", "BackgroundImage").catch(function (err) {
-                        return console.error(err.toString());
-                    });
-                });
-            }).catch(function (err) {
-                // handle error
-                console.error(err);
-            });
+            //connection.invoke("GetBackgroundImages").then(function (data) {
+            //    Promise.all([init_backgroundImages(data)]).then(function () {
+            //        connection.invoke("JoinGroup", "BackgroundImage").catch(function (err) {
+            //            return console.error(err.toString());
+            //        });
+            //    });
+            //}).catch(function (err) {
+            //    // handle error
+            //    console.error(err);
+            //});
             //load Person Tags
             connection.invoke("GetPersonTags").then(function (data) {
                 Promise.all([init_tagsEmployees(data)]).then(function () {

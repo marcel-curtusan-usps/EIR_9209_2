@@ -6,6 +6,7 @@ using EIR_9209_2.InMemory;
 using EIR_9209_2.DataStore;
 using EIR_9209_2.DatabaseCalls.IDS;
 using EIR_9209_2.Service;
+using System.Reflection;
 
 public class Startup
 {
@@ -37,6 +38,7 @@ public class Startup
         services.AddSingleton<IFileAccessTester, FileAccessTester>();
         services.AddSingleton<IEncryptDecrypt, EncryptDecrypt>();
         services.AddSingleton<IInMemorySiteInfoRepository, InMemorySiteInfoRepository>();
+        services.AddSingleton<IInMemoryEmailRepository, InMemoryEmailRepository>();
         services.AddSingleton<IInMemoryBackgroundImageRepository, InMemoryBackgroundImageRepository>();
         services.AddSingleton<IInMemoryConnectionRepository, InMemoryConnectionRepository>();
         services.AddSingleton<IInMemoryDacodeRepository, InMemoryDacodeRepository>();
@@ -82,9 +84,9 @@ public class Startup
             .AddXmlSerializerFormatters();
 
 
-        services.AddSwaggerGen(c =>
+        services.AddSwaggerGen(options =>
             {
-                c.SwaggerDoc("1.0.0.1", new OpenApiInfo
+                options.SwaggerDoc("1.0.0.1", new OpenApiInfo
                 {
                     Version = "1.0.0.1",
                     Title = "Connected Facilities (CF)",
@@ -94,16 +96,24 @@ public class Startup
                         Name = "Connected Facilities API Support",
                         Email = "cf-sels_support@usps.gov"
                     },
+                    License = new OpenApiLicense
+                    {
+                        Name = "USPS EMS Group License"
+                    }
 
                 });
-                c.CustomSchemaIds(type => type.FullName);
+                // using System.Reflection;
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+                options.UseInlineDefinitionsForEnums();
+                options.CustomSchemaIds(type => type.FullName);
                 // c.IncludeXmlComments($"{AppContext.BaseDirectory}{Path.DirectorySeparatorChar}{_hostingEnv.ApplicationName}.xml");
                 // Sets the basePath property in the Swagger document generated
                 // c.DocumentFilter<BasePathFilter>("/api/v3");
 
                 // Include DataAnnotation attributes on Controller Action parameters as Swagger validation rules (e.g required, pattern, ..)
                 // Use [ValidateModelState] on Actions to actually validate it in C# as well!
-                c.OperationFilter<GeneratePathParamsValidationFilter>();
+                options.OperationFilter<GeneratePathParamsValidationFilter>();
             });
 
 

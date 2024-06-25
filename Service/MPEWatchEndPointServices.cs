@@ -9,6 +9,7 @@ namespace EIR_9209_2.Service
     public class MPEWatchEndPointServices : BaseEndpointService
     {
         private readonly IInMemoryGeoZonesRepository _geoZones;
+
         public MPEWatchEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryGeoZonesRepository geozone)
             : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
         {
@@ -75,7 +76,7 @@ namespace EIR_9209_2.Service
                     var data = result.SelectToken("data");
                     if (data != null)
                     {
-
+                        await _geoZones.LoadMPEPlan(data);
                     }
                 }
             }

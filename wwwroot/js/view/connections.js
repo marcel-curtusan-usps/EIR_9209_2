@@ -1,4 +1,6 @@
-﻿//on close clear all inputs
+﻿//email table name
+let ConnectionListtable = "connectiontable";
+//on close clear all inputs
 
 $('#API_Connection_Modal').on('hidden.bs.modal', function () {
     $(this)
@@ -309,7 +311,7 @@ let connTypeRadio = null;
 connection.on("AddConnection", async (data) => {
     try {
         return new Promise((resolve, reject) => {
-            Promise.all([updateConnectionDataTable(data, "connectiontable")]);
+            Promise.all([updateConnectionDataTable(data, ConnectionListtable)]);
             resolve();
             return false;
         });
@@ -320,7 +322,7 @@ connection.on("AddConnection", async (data) => {
 connection.on("DeleteConnection", async (data) => {
     try {
         return new Promise((resolve, reject) => {
-            Promise.all([removeConnectionDataTable(data, "connectiontable")]);
+            Promise.all([removeConnectionDataTable(data, ConnectionListtable)]);
             resolve();
             return false;
         });
@@ -332,7 +334,7 @@ connection.on("DeleteConnection", async (data) => {
 connection.on("UpdateConnection", async (data) => {
     try {
         return new Promise((resolve, reject) => {
-            Promise.all([updateConnectionDataTable(data, "connectiontable")]);
+            Promise.all([updateConnectionDataTable(data, ConnectionListtable)]);
             resolve();
             return false;
         });
@@ -572,9 +574,9 @@ async function init_connection(ConnectionList) {
                 sidebar.close();
                 Promise.all([Add_Connection()]);
             });
-            createConnectionDataTable("connectiontable");
+            createConnectionDataTable(ConnectionListtable);
             if (ConnectionList.length > 0) {
-                loadConnectionDatatable(ConnectionList.sort(SortByConnectionName), "connectiontable");
+                Promise.all([loadConnectionDatatable(ConnectionList.sort(SortByConnectionName), ConnectionListtable)]);
             }
             resolve();
             return false;
@@ -684,15 +686,6 @@ function createConnectionDataTable(table) {
     });
     $('#' + table).DataTable({
         dom: 'Bfrtip',
-        buttons: {
-            buttons:
-                [
-                    {
-                        text: "Add",
-                        action: function () { Add_Connection(); }
-                    }
-                ]
-        },
         bFilter: false,
         bdeferRender: true,
         bpaging: false,

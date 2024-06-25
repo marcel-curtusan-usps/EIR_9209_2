@@ -2,7 +2,6 @@
 {
     public class BackgroundImage
     {
-        public required string _id { get; set; }
         public double widthMeter { get; set; } = 0.0;
         public double xMeter { get; set; } = 0.0;
         public bool visible { get; set; }

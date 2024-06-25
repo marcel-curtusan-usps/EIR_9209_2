@@ -89,47 +89,67 @@ async function UpdateOSLattribution(data) {
         return false;
     });
 }
-async function init_backgroundImages(MapData) {
+async function init_backgroundImages() {
     try {
-        if (MapData.length > 0) {
-            $.each(MapData, function (index, backgroundImages) {
-                if (!!backgroundImages) {
-                    //Promise.all([loadFloorPlanDatatable([this], "backgroundimagetable")]);
-                    //set new image
+        $.ajax({
+            url: SiteURLconstructor(window.location) + 'api/BackgroundImage/GetAllImages',
+            contentType: 'application/json',
+            type: 'GET',
+            success: function (MapData) {
+                if (MapData.length > 0) {
+                    $.each(MapData, function (index, backgroundImages) {
+                        if (!!backgroundImages) {
+                            //Promise.all([loadFloorPlanDatatable([this], "backgroundimagetable")]);
+                            //set new image
+                            let trackingarea = L.polygon([[100, 150]], [[500, 5000]]);
+                            let img = new Image();
+                            //load Base64 image
+                            img.src = backgroundImages.base64;
+                            //create he bound of the image.
+                            let bounds = [[backgroundImages.yMeter, backgroundImages.xMeter], [backgroundImages.heightMeter + backgroundImages.yMeter, backgroundImages.widthMeter + backgroundImages.xMeter]];
+                            trackingarea = L.polygon(bounds, {});
+
+                            if (index === 0) {
+                                baselayerid = backgroundImages.coordinateSystemId;
+                                mainfloor.options.id = backgroundImages.coordinateSystemId;
+                                mainfloor.setUrl(img.src);
+                                mainfloor.setZIndex(index);
+                                mainfloor.setBounds(trackingarea.getBounds());
+                                //center image
+                                OSLmap.setView(trackingarea.getBounds().getCenter(), 1.5);
+                            }
+                            else if (!!this.backgroundImages) {
+                                layersControl.addBaseLayer(L.imageOverlay(img.src, trackingarea.getBounds(), { id: this.id, zindex: index }), this.backgroundImages.name);
+
+                            }
+                        }
+                    });
+
+
+                }
+                else {
                     let trackingarea = L.polygon([[100, 150]], [[500, 5000]]);
                     let img = new Image();
-                    //load Base64 image
-                    img.src = backgroundImages.base64;
-                    //create he bound of the image.
-                    let bounds = [[backgroundImages.yMeter, backgroundImages.xMeter], [backgroundImages.heightMeter + backgroundImages.yMeter, backgroundImages.widthMeter + backgroundImages.xMeter]];
-                    trackingarea = L.polygon(bounds, {});
-
-                    if (index === 0) {
-                        baselayerid = backgroundImages.coordinateSystemId;
-                        mainfloor.options.id = backgroundImages.coordinateSystemId;
-                        mainfloor.setUrl(img.src);
-                        mainfloor.setZIndex(index);
-                        mainfloor.setBounds(trackingarea.getBounds());
-                        //center image
-                        OSLmap.setView(trackingarea.getBounds().getCenter(), 1.5);
-                    }
-                    else if (!!this.backgroundImages) {
-                        layersControl.addBaseLayer(L.imageOverlay(img.src, trackingarea.getBounds(), { id: this.id, zindex: index }), this.backgroundImages.name);
-
-                    }
+                    img.src = "";
+                    mainfloor.setUrl(img.src);
+                    mainfloor.setBounds(trackingarea.getBounds());
+                    OSLmap.setView(trackingarea.getBounds().getCenter(), 1.5);
                 }
-            });
+            },
+            error: function (error) {
+                console.log(error);
+            },
+            faulure: function (fail) {
+                console.log(fail);
+            },
+            complete: function (complete) {
+                connection.invoke("JoinGroup", "BackgroundImage").catch(function (err) {
+                    return console.error(err.toString());
+                });
+                console.log(complete);
+            }
+        });
 
-
-        }
-        else {
-            let trackingarea = L.polygon([[100, 150]], [[500, 5000]]);
-            let img = new Image();
-            img.src = "";
-            mainfloor.setUrl(img.src);
-            mainfloor.setBounds(trackingarea.getBounds());
-            OSLmap.setView(trackingarea.getBounds().getCenter(), 1.5);
-        }
     } catch (e) {
         console.log(e)
     }

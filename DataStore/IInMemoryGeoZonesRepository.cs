@@ -20,4 +20,6 @@ public interface IInMemoryGeoZonesRepository
     void UpdateMPERunInfo(MPERunPerformance mpe);
     void ProcessIDSData(JToken result);
     void UpdateMPERunActivity(MPERunPerformance mpe);
+    Task LoadMPEPlan(JToken data);
+    Task LoadWebEORMPERun(JToken data);
 }

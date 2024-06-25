@@ -10,20 +10,22 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     private readonly ILogger<InMemoryConnectionRepository> _logger;
     private readonly IConfiguration _configuration;
     private readonly IFileService _fileService;
-
+    private readonly string filePath = "";
+    private readonly string fileName = "";
 
     public InMemoryConnectionRepository(ILogger<InMemoryConnectionRepository> logger, IConfiguration configuration, IFileService fileService)
     {
         _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
-        string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
+        fileName = $"{_configuration[key: "InMemoryCollection:CollectionConnections"]}.json";
+        filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
             _configuration[key: "ApplicationConfiguration:BaseDirectory"],
             _configuration[key: "ApplicationConfiguration:NassCode"],
             _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-            $"{_configuration[key: "InMemoryCollection:CollectionConnections"]}.json");
+            $"{fileName}");
         // Load Connection data from the first file into the first collection
-        _ = LoadDataFromFile(BuildPath);
+        _ = LoadDataFromFile(filePath);
 
         string conTypeFilePath = Path.Combine(Directory.GetCurrentDirectory(), _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{"ConnectionType"}.json");
         // Load ConnectionType data from the first file into the first collection

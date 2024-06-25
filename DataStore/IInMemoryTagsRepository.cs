@@ -12,7 +12,6 @@ public interface IInMemoryTagsRepository
     List<GeoMarker> GetAllPIV();
     List<GeoMarker> GetAllAGV();
     void Update(GeoMarker tag);
-    void LocalAdd(GeoMarker tag);
     void UpdateEmployeeInfo(JToken emp);
     void UpdateBadgeTransactionScan(JObject transaction);
     string GetCraftType(string tagId);

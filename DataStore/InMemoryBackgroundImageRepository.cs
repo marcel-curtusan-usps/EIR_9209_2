@@ -1,6 +1,8 @@
 ﻿using EIR_9209_2.Models;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Xml.Linq;
 
 public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageRepository
 {
@@ -8,23 +10,29 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
     private readonly ILogger<InMemoryBackgroundImageRepository> _logger;
     private readonly IConfiguration _configuration;
     private readonly IFileService FileService;
+    private readonly string filePath = "";
+    private readonly string fileName = "";
     public InMemoryBackgroundImageRepository(ILogger<InMemoryBackgroundImageRepository> logger, IConfiguration configuration, IFileService fileService)
     {
         FileService = fileService;
         _logger = logger;
         _configuration = configuration;
-        string BuildConnectionPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
+        fileName = $"{_configuration[key: "InMemoryCollection:CollectionBackgroundImages"]}.json";
+        filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
             _configuration[key: "ApplicationConfiguration:BaseDirectory"],
             _configuration[key: "ApplicationConfiguration:NassCode"],
             _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-            $"{_configuration[key: "InMemoryCollection:CollectionBackgroundImages"]}.json");
+           $"{fileName}");
         // Load data from the first file into the first collection
-        _ = LoadDataFromFile(BuildConnectionPath);
+        _ = LoadDataFromFile(filePath);
 
     }
     public void Add(BackgroundImage backgroundImage)
     {
-        _backgroundImages.TryAdd(backgroundImage.id, backgroundImage);
+        if (_backgroundImages.TryAdd(backgroundImage.id, backgroundImage))
+        {
+            FileService.WriteFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
+        }
     }
     public void Remove(BackgroundImage backgroundImage) { _backgroundImages.TryRemove(backgroundImage.id, out _); }
     public BackgroundImage Get(string id)
@@ -35,9 +43,9 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
     public IEnumerable<BackgroundImage> GetAll() => _backgroundImages.Values;
     public void Update(BackgroundImage backgroundImage)
     {
-        if (_backgroundImages.TryGetValue(backgroundImage.id, out BackgroundImage currentBackgroundImage))
+        if (_backgroundImages.TryGetValue(backgroundImage.id, out BackgroundImage currentBackgroundImage) && _backgroundImages.TryUpdate(backgroundImage.id, backgroundImage, currentBackgroundImage))
         {
-            _backgroundImages.TryUpdate(backgroundImage.id, backgroundImage, currentBackgroundImage);
+            FileService.WriteFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
         }
     }
     private async Task LoadDataFromFile(string filePath)
@@ -75,6 +83,29 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         {
             // Handle errors when parsing the JSON
             _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
+        }
+    }
+
+    public Task LoadBackgroundImage(BackgroundImage newImage)
+    {
+        try
+        {
+            var imageId = _backgroundImages.Where(x => x.Value.fileName == newImage.fileName).Select(x => x.Key).FirstOrDefault();
+            if (imageId != null)
+            {
+                _backgroundImages[imageId] = newImage;
+                FileService.WriteFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
+            }
+            else
+            {
+                Add(newImage);
+            }
+            return Task.FromResult(true);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return Task.FromResult(false);
         }
     }
 }
