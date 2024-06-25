@@ -19,17 +19,15 @@ namespace EIR_9209_2.Service
             try
             {
                 IQueryService queryService;
-                string FormatUrl = "";
+
+                _endpointConfig.Status = EWorkerServiceState.Running;
+                _endpointConfig.LasttimeApiConnected = DateTime.Now;
+                _endpointConfig.ApiConnected = true;
+                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
                 //process tag data
+                string FormatUrl = "";
                 if (_endpointConfig.MessageType == "getTagData")
                 {
-                    if (_endpointConfig.Status != EWorkerServiceState.Running)
-                    {
-                        _endpointConfig.Status = EWorkerServiceState.Running;
-                        _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                        _endpointConfig.ApiConnected = true;
-                        await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
-                    }
                     FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType);
                     queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                     var result = (await queryService.GetQPETagData(stoppingToken));

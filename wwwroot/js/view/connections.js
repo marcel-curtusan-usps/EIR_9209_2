@@ -52,7 +52,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         $('span[id=error_connection_name]').text("");
     }
 
-    $('select[name=connection_name]').change(function () {
+    $('select[name=connection_name]').on("change",function () {
         filtermessage_type("", "");
         if (!checkValue($('select[name=connection_name] option:selected').html())) {
             $('select[name=connection_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
@@ -83,7 +83,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         $('select[name=message_type]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
         $('span[id=error_message_type]').text("");
     }
-    $('select[name=message_type]').change(function () {
+    $('select[name=message_type]').on("change", function () {
         if (!checkValue($('select[name=message_type] option:selected').val())) {
             $('select[name=message_type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_message_type]').text("Please Enter Message Type");

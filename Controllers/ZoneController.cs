@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EIR_9209_2.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json.Linq;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -6,9 +9,10 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ZoneController(IInMemoryGeoZonesRepository zonesRepository) : ControllerBase
+    public class ZoneController(IInMemoryGeoZonesRepository zonesRepository, IHubContext<HubServices> hubServices) : ControllerBase
     {
         private readonly IInMemoryGeoZonesRepository _zonesRepository = zonesRepository;
+        private readonly IHubContext<HubServices> _hubServices = hubServices;
 
         // GET: api/<ZoneController>
         [HttpGet]
@@ -53,11 +57,27 @@ namespace EIR_9209_2.Controllers
             }
             return _zonesRepository.GetZoneNameList(ZoneType);
         }
-        //// POST api/<ZoneController>
-        //[HttpPost]
-        //public void Post([FromBody] string value)
-        //{
-        //}
+        // POST api/<ZoneController>
+        [HttpPost]
+        [Route("AddZone")]
+        public async Task<object> PostByAddNewZone([FromBody] JObject zone)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            GeoZone newZone = zone.ToObject<GeoZone>();
+            newZone.Properties.Id = Guid.NewGuid().ToString();
+
+            _zonesRepository.Add(newZone);
+
+            if (zone.ContainsKey("zoneType") && zone["zoneType"].ToString() == "MPEBinZones")
+            {
+                await _hubServices.Clients.Group("MPEBinZones").SendAsync("UpdateMPEBinZones", newZone);
+            }
+            return newZone;
+        }
 
         //// PUT api/<ZoneController>/5
         //[HttpPut("{id}")]

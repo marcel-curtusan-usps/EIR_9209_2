@@ -476,7 +476,7 @@ async function connectionTypeLoad(connName) {
 
     }
     catch (e) {
-
+        console.log(e);
     }
 }
 function ConnectionTypeUpdate(connData) {

@@ -40,13 +40,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     {
         if (_geoZoneList.TryAdd(geoZone.Properties.Id, geoZone))
         {
-            if (_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
+            if (_fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
             {
                 return geoZone;
             }
             else
             {
-                _logger.LogError($"Zones.json was not update");
+                _logger.LogError($"{fileName} was not update");
                 return null;
             }
         }
@@ -60,7 +60,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     {
         if (_geoZoneList.TryRemove(geoZoneId, out GeoZone geoZone))
         {
-            if (_fileService.WriteFile("Zones.json", JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
+            if (_fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
             {
                 return geoZone;
             }
@@ -79,7 +79,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     {
         if (_geoZoneList.TryGetValue(geoZone.Properties.Id, out GeoZone? currentConnection) && _geoZoneList.TryUpdate(geoZone.Properties.Id, geoZone, currentConnection))
         {
-            if (_fileService.WriteFile("Zones.json", JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
+            if (_fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
             {
                 return Get(geoZone.Properties.Id);
             }

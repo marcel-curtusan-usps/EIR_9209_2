@@ -33,7 +33,7 @@ namespace EIR_9209_2.Controllers
         // POST api/<EmailAgentController>
         [HttpPost]
         [Route("SendEmail")]
-        public async Task<object> PostByEmail(string url, string email)
+        public async Task<object> PostByEmail(string url, List<string> email)
         {
             if (!ModelState.IsValid)
             {

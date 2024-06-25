@@ -30,13 +30,22 @@ namespace EIR_9209_2.Service
                     ExecutablePath = browserPath
                 });
                 await using var page = await browser.NewPageAsync();
+                // Set the default timeout for all operations to 45 seconds
+                page.DefaultTimeout = 180000;
                 // Provide the credentials for HTTP authentication
                 await page.AuthenticateAsync(new Credentials
                 {
                     Username = "username",
                     Password = "password"
                 });
-                await page.GoToAsync(url, WaitUntilNavigation.Load);
+                await page.GoToAsync(url, new NavigationOptions { WaitUntil = new[] { WaitUntilNavigation.Networkidle2 } });
+                await Task.Delay(60000); // Additional wait to ensure dynamic content has loaded
+                                        // Set the viewport size before taking the screenshot
+                await page.SetViewportAsync(new ViewPortOptions
+                {
+                    Width = 1920,
+                    Height = 1080
+                });
                 byte[] screenshotData = await page.ScreenshotDataAsync(new ScreenshotOptions { FullPage = true });
 
                 await browser.CloseAsync();

@@ -102,6 +102,33 @@ $('#Email_Modal').on('shown.bs.modal', function () {
         }
         Promise.all([emailSubmitBtn()]);
     })
+
+    // when user select reportName show the MPE name
+    $('select[name=reportName]').on("change", function () {
+        filterReportType("", "");
+        if (!checkValue($('select[name=reportName] option:selected').html())) {
+            $('select[name=reportName]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_reportName]').text("Please Select Report Name");
+        }
+        else {
+            $('select[name=reportName]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_reportName]').text("");
+        }
+        Promise.all([emailSubmitBtn()]);
+
+    });
+    $('select[name=mpeNameList]').on("change", function () {
+        if (!checkValue($('select[name=mpeNameList] option:selected').html())) {
+            $('select[name=mpeNameList]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_mpeNameList]').text("Please Select Zone Name");
+        }
+        else {
+            $('select[name=mpeNameList]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_mpeNameList]').text("");
+        }
+        Promise.all([emailSubmitBtn()]);
+
+    });
 });
 async function init_emailList() {
     try {
@@ -150,6 +177,7 @@ async function createEmailListDataTable(table) {
         let arrayColums = [{
             "emailAddress": "",
             "reportName": "",
+            "mpeName": "",
             "enabled": "",
             "action": ""
         }]
@@ -166,8 +194,15 @@ async function createEmailListDataTable(table) {
             }
             else if (/reportName/i.test(key)) {
                 tempc = {
-                    "title": "Report Name",
-                    "width": "25%",
+                    "title": "Report Type",
+                    "width": "12%",
+                    "mDataProp": key
+                }
+            }
+            else if (/mPEName/i.test(key)) {
+                tempc = {
+                    "title": "Zone Name",
+                    "width": "12%",
                     "mDataProp": key
                 }
             }
@@ -279,8 +314,10 @@ async function deleteEmailList(deletedata) {
 }
 async function Add_Email() {
     try {
+        Promise.all([loadMpeName()]);
         $('#modalHeader_ID').text('Add New Email Subscription');
         Promise.all([onEmailVaildation()]);
+
         $('button[id=emailsubmitBtn]').off().on('click', function () {
             $('button[id=emailsubmitBtn]').prop('disabled', true);
             let jsonObject = {
@@ -289,7 +326,8 @@ async function Add_Email() {
                 lastName: $('input[type=text][name=emailLastName]').val(),
                 emailAddress: $('input[type=text][name=emailAddress]').val(),
                 ace: $('input[type=text][name=aceId]').val(),
-                reportName: $('select[name=reportName] option:selected').val()
+                reportName: $('select[name=reportName] option:selected').val(),
+                mPEName: $('select[name=mpeNameList] option:selected').val()
             };
             if (!$.isEmptyObject(jsonObject)) {
                 //make a ajax call to get the employee details
@@ -338,13 +376,14 @@ async function Edit_Email(data) {
         $('button[id=emailsubmitBtn]').off().on('click', function () {
             $('button[id=emailsubmitBtn]').prop('disabled', true);
             let jsonObject = {
-                id: Data.id,
+                id: data.id,
                 enabled: $('input[type=checkbox][name=enabled_email]').prop('checked'),
                 firstName: $('input[type=text][name=emailFirstName]').val(),
                 lastName: $('input[type=text][name=emailLastName]').val(),
-                email: $('input[type=text][name=emailAddress]').val(),
+                emailAddress: $('input[type=text][name=emailAddress]').val(),
                 ace: $('input[type=text][name=aceId]').val(),
-                reportName: $('select[name=reportName] option:selected').val()
+                reportName: $('select[name=reportName] option:selected').val(),
+                mPEName: $('select[name=mpeNameList] option:selected').val()
             };
             if (!$.isEmptyObject(jsonObject)) {
                 //make a ajax call to get the employee details
@@ -428,6 +467,15 @@ async function onEmailVaildation() {
     }
     else {
         $('select[name=reportName]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_reportName]').text("");
+    }
+    if (!checkValue($('select[name=mpeNameList] option:selected').html())) {
+        $('select[name=mpeNameList]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_mpeNameList]').text("Please Select Zone Name");
+    }
+    else {
+        $('select[name=mpeNameList]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_mpeNameList]').text("");
     }
     if (!checkValue($('input[type=text][name=emailFirstName]').val())) {
         $('input[type=text][name=emailFirstName]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
@@ -466,3 +514,75 @@ function validateEmail(email) {
     const regex = /^(?:(?:\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*))$/;
     return regex.test(email);
 }
+async function loadMpeName() {
+    // load the MPE name from API   
+
+    //makea ajax call to get the list of MPE name
+    $.ajax({
+        url: '/api/GetZoneNameList?ZoneType=MPE',
+        type: 'GET',
+        success: function (data) {
+            if (data.length > 0) {
+                //clear the select list
+                $('select[id=mpeNameList]').empty();
+                //for each data and set the MPE name
+
+                let name = "MPE";
+                $('<option data-reportType=' + name + '>').val("").html("").appendTo('#mpeNameList');
+                $.each(data.sort(), function (index, value) {
+                    //replace all instance of dot in value
+
+                    let messageType = value.replace(/\./g, '_');
+                    if ($('#mpeNameList option[value=' + messageType + ']').length == 0) {
+                        $('<option data-reportType=' + name + '>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                    }
+                })
+
+                name = "Site";
+                let messageType = "SiteSummary";
+                if ($('#mpeNameList option[value=' + messageType + ']').length == 0) {
+                    $('<option data-reportType=' + name + '>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                }
+            }
+        },
+        error: function (error) {
+            console.log(error);
+        },
+        faulure: function (fail) {
+            console.log(fail);
+        },
+        complete: function (complete) {
+        }
+    });
+
+}
+function filterReportType(name, type) {
+    let conectionName = !!name ? name : $("#reportName").find('option:selected').val();
+    $("#mpeNameList").children().appendTo("#option-container");
+    let toMove = $("#option-container").children("[data-reportType='" + conectionName + "']");
+    toMove.appendTo("#mpeNameList");
+    let toBlankMove = $("#option-container").children("[data-reportType='blank']");
+    toBlankMove.appendTo("#mpeNameList");
+    $("#mpeNameList").removeAttr("disabled");
+    if (!!name) {
+        $('select[id=reportName]').val(name);
+        $('select[id=reportName]').prop('disabled', true);
+    }
+    else {
+        $('select[id=reportName]').prop('disabled', false);
+    }
+    if (!!type) {
+        $('select[id=mpeNameList]').val(type);
+        $('select[id=mpeNameList]').prop('disabled', true);
+    }
+    else {
+        if (type === "") {
+            $('select[id=mpeNameList]').val("blank");
+        }
+        else {
+            $('select[id=mpeNameList]').val(type);
+        }
+
+        $('select[id=mpeNameList]').prop('disabled', false);
+    }
+};

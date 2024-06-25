@@ -241,7 +241,7 @@ function CreateZone(newlayer) {
         map.setView(newlayer.layer._bounds.getCenter());
         var togeo = newlayer.layer.toGeoJSON();
         var geoProp = {
-            Zone_Type: "",
+            zoneType: "",
             floorid: baselayerid,
             name: "",
             bins: "",
@@ -249,7 +249,7 @@ function CreateZone(newlayer) {
         }
         $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
             togeo.properties = geoProp;
-            togeo.properties.Zone_Type = $('select[name=zone_type] option:selected').val();
+            togeo.properties.zoneType = $('select[name=zone_type] option:selected').val();
             if (/Bin/i.test($('select[name=zone_type] option:selected').val())) {
                 togeo.properties.bins = $('textarea[id="bin_bins"]').val();
             }
@@ -259,11 +259,11 @@ function CreateZone(newlayer) {
             else {
                 togeo.properties.name = $('select[name=zone_select_name] option:selected').val();
             }
-            $.connection.FOTFManager.server.addZone(JSON.stringify(togeo)).done(function (Data) {
-                setTimeout(function () { sidebar.close('home'); }, 500);
-                newlayer.layer.remove();
+            //$.connection.FOTFManager.server.addZone(JSON.stringify(togeo)).done(function (Data) {
+            //    setTimeout(function () { sidebar.close('home'); }, 500);
+            //    newlayer.layer.remove();
 
-            });
+            //});
         });
 
     } catch (e) {

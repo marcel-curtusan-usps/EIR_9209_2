@@ -8,6 +8,7 @@
         public string LastName { get; set; } = "";
         public string ACE { get; set; } = "";
         public string ReportName { get; set; } = "";
+        public string MPEName { get; set; } = "";
         public bool Enabled { get; set; } = false;
 
     }

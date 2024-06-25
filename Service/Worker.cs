@@ -16,6 +16,7 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryConnectionRepository _connections;
         private readonly IInMemoryGeoZonesRepository _geoZones;
         private readonly IInMemoryTagsRepository _tags;
+        private readonly IInMemoryEmailRepository _email;
         private readonly IConfiguration _configuration;
         private readonly ConcurrentDictionary<string, BaseEndpointService> _endPointServices = new();
 
@@ -23,6 +24,7 @@ namespace EIR_9209_2.Service
             IInMemoryConnectionRepository connections,
             IInMemoryGeoZonesRepository geoZones,
             IInMemoryTagsRepository tags,
+            IInMemoryEmailRepository email,
             IHubContext<HubServices> hubServices,
             IConfiguration configuration)
         {
@@ -34,6 +36,7 @@ namespace EIR_9209_2.Service
             _connections = connections;
             _hubServices = hubServices;
             _configuration = configuration;
+            _email = email;
 
         }
 
@@ -72,7 +75,7 @@ namespace EIR_9209_2.Service
                     endpointService = new IDSEndPointServices(_loggerFactory.CreateLogger<IDSEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration);
                     break;
                 case "Email":
-                    endpointService = new EmailEndPointServices(_loggerFactory.CreateLogger<EmailEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _geoZones);
+                    endpointService = new EmailEndPointServices(_loggerFactory.CreateLogger<EmailEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _email);
                     break;
                 case "SV":
                     endpointService = new SVEndPointServices(_loggerFactory.CreateLogger<SVEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _geoZones);
