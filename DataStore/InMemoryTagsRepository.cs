@@ -70,6 +70,10 @@ namespace EIR_9209_2.InMemory
                 return new JObject { ["Message"] = "Tag not Found" };
             }
         }
+        public List<string> GetTagByType(string tagType)
+        {
+            return _tagList.Values.Where(r => r.Properties.TagType == tagType).Select(y => y.Properties.Name).ToList();
+        }
         public List<GeoMarker> GetAll()
         {
             return _tagList.Values.Where(r => r.Properties.posAge > 1 && r.Properties.posAge < 100000 && r.Properties.Visible).Select(y => y).ToList();
@@ -506,5 +510,7 @@ namespace EIR_9209_2.InMemory
                 || Regex.IsMatch(sl.Value.Properties.EmpLastName, "(" + searchValue + ")", RegexOptions.IgnoreCase)
               ).Select(r => r.Value.Properties).ToList();
         }
+
+
     }
 }

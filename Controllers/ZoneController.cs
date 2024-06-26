@@ -16,7 +16,7 @@ namespace EIR_9209_2.Controllers
 
         // GET: api/<ZoneController>
         [HttpGet]
-        [Route("/AllZones")]
+        [Route("AllZones")]
         public async Task<object> GetAllZones()
         {
             if (!ModelState.IsValid)
@@ -28,7 +28,7 @@ namespace EIR_9209_2.Controllers
 
         // GET api/<ZoneController>/5
         [HttpGet]
-        [Route("/ZoneId")]
+        [Route("ZoneId")]
         public async Task<object> GetByZoneId(string id)
         {
             if (!ModelState.IsValid)
@@ -38,7 +38,7 @@ namespace EIR_9209_2.Controllers
             return _zonesRepository.Get(id);
         }
         [HttpGet]
-        [Route("/MpeName")]
+        [Route("MpeName")]
         public async Task<object> GetByMpeName(string id)
         {
             if (!ModelState.IsValid)
@@ -48,7 +48,7 @@ namespace EIR_9209_2.Controllers
             return _zonesRepository.GetMPEName(id);
         }
         [HttpGet]
-        [Route("/api/GetZoneNameList")]
+        [Route("GetZoneNameList")]
         public async Task<object> GetByZoneNameList(string ZoneType)
         {
             if (!ModelState.IsValid)
@@ -74,7 +74,7 @@ namespace EIR_9209_2.Controllers
 
             if (zone.ContainsKey("zoneType") && zone["zoneType"].ToString() == "MPEBinZones")
             {
-                await _hubServices.Clients.Group("MPEBinZones").SendAsync("UpdateMPEBinZones", newZone);
+                await _hubServices.Clients.Group("MPEBinZones").SendAsync("AddMPEBinZones", newZone);
             }
             return newZone;
         }

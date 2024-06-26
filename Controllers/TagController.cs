@@ -40,6 +40,27 @@ namespace EIR_9209_2.Controllers
             }
             return Ok(_tags.Get(id));
         }
+
+        /// <summary>
+        /// Get list of Tag by TagType
+        /// </summary>
+        /// <param name="TagType"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetTagTypeList")]
+        public async Task<object> GetByTagType(string TagType)
+        {
+            if (!ModelState.IsValid)
+            {
+                return await Task.FromResult(BadRequest(ModelState));
+            }
+            return _tags.GetTagByType(TagType);
+        }
+        /// <summary>
+        /// Search for Tag by search value
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET api/<TagController>/5
         [HttpGet]
         [Route("Search")]
@@ -69,6 +90,21 @@ namespace EIR_9209_2.Controllers
                                 }).ToList();
             return Ok(searchReuslt);
         }
+        //add new tag
+        // POST api/<TagController>
+        [HttpPost]
+        public async Task<object> Post([FromBody] GeoMarker tag)
+        {
+            //handle bad requests
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            _tags.Add(tag);
+            await _hubContext.Clients.All.SendAsync("AddTag", tag);
+            return Ok(tag);
+        }
+
         // PUT api/<TagController>/5
         [HttpPut("{id}")]
         public async Task<object> Put(string id, [FromBody] string value)
@@ -79,6 +115,13 @@ namespace EIR_9209_2.Controllers
             }
             return Ok(_tags.Get(id));
         }
+
+        /// <summary>
+        /// Update Tag Info
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         // PUT api/<TagController>/5
         [HttpPut()]
         [Route("UpdateTagInfo")]

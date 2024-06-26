@@ -19,4 +19,5 @@ public interface IInMemoryTagsRepository
     bool UpdateTagDesignationActivity(DesignationActivityToCraftType updatedDacode);
     void UpdateTagQPEInfo(List<Tags> tags);
     List<Marker> SearchTag(string searchValue);
+    List<string> GetTagByType(string tagType);
 }
