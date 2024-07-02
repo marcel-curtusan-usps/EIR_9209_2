@@ -46,6 +46,10 @@ internal class QueryService : IQueryService
     {
         return (await GetQueryResults<dynamic>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
     }
+    public async Task<JToken> GetIVESData(CancellationToken ct)
+    {
+        return (await GetQueryResults<dynamic>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+    }
     public async Task<JToken> GetMPEWatchData(CancellationToken ct)
     {
         return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));

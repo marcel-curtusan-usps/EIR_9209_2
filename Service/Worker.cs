@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using EIR_9209_2.DataStore;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using NuGet.Configuration;
 using NuGet.Protocol.Core.Types;
@@ -17,6 +18,8 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryGeoZonesRepository _geoZones;
         private readonly IInMemoryTagsRepository _tags;
         private readonly IInMemoryEmailRepository _email;
+        private readonly IInMemorySiteInfoRepository _siteInfo;
+        private readonly IInMemoryEmpSchedulesRepository _empSchedule;
         private readonly IConfiguration _configuration;
         private readonly ConcurrentDictionary<string, BaseEndpointService> _endPointServices = new();
 
@@ -25,6 +28,8 @@ namespace EIR_9209_2.Service
             IInMemoryGeoZonesRepository geoZones,
             IInMemoryTagsRepository tags,
             IInMemoryEmailRepository email,
+            IInMemorySiteInfoRepository siteInfo,
+            IInMemoryEmpSchedulesRepository empSchedule,
             IHubContext<HubServices> hubServices,
             IConfiguration configuration)
         {
@@ -37,7 +42,8 @@ namespace EIR_9209_2.Service
             _hubServices = hubServices;
             _configuration = configuration;
             _email = email;
-
+            _siteInfo = siteInfo;
+            _empSchedule = empSchedule;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -82,6 +88,9 @@ namespace EIR_9209_2.Service
                     break;
                 case "SMS_Wrapper":
                     endpointService = new SMSWrapperEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _tags);
+                    break;
+                case "IVES":
+                    endpointService = new IVESEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _siteInfo, _empSchedule);
                     break;
                 default:
                     _logger.LogWarning("Unknown endpoint {Name}", endpointConfig.Name);

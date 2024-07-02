@@ -1,68 +1,5 @@
 ﻿[
   {
-    "Id": "6e5b0e92-ac49-467e-8069-0963082f4559",
-    "Name": "Email",
-    "Description": "Email",
-    "MessageTypes": [
-      {
-        "Id": "31289e3e-61e7-4c2b-9593-56e38de56716",
-        "Name": "SiteSynopsis",
-        "Description": "Site Synopsis"
-      },
-      {
-        "Id": "467b3c79-fe41-421d-89ff-5bbb3aa9daf9",
-        "Name": "MPESynopsis",
-        "Description": "MPE Synopsis"
-      }
-    ]
-  },
-  {
-    "Id": "6e5b0e92-ac49-467e-8069-0963082f454a",
-    "Name": "TSA",
-    "Description": "Transportation Sweep-Side Assignment",
-    "MessageTypes": [
-      {
-        "Id": "31289e3e-61e7-4c2b-9593-56e38de5671a",
-        "Name": "MPEList",
-        "Description": "TSA MPE List"
-      },
-      {
-        "Id": "467b3c79-fe41-421d-89ff-5bbb3aa9daf5",
-        "Name": "PrinterUsage",
-        "Description": "TSA Printer Stats"
-      }
-    ]
-  },
-  {
-    "Id": "b408e97c-90e2-4fc2-9c22-4143651667f4",
-    "Name": "Web_Camera",
-    "Description": "Web Camera",
-    "MessageTypes": [
-      {
-        "Id": "7bec51cd-a7ca-45ad-b135-5b8421abfc64",
-        "Name": "getCameraStills",
-        "Description": "Camera Pictures"
-      },
-      {
-        "Id": "a3944e1b-3f07-495f-97b1-3d85438625d9",
-        "Name": "Cameras",
-        "Description": "Camera List"
-      }
-    ]
-  },
-  {
-    "Id": "e66c2d3b-d14c-452c-ae20-c04b96ea2dc8",
-    "Name": "MPE_Alerts",
-    "Description": "MPE Maintenances Call System ",
-    "MessageTypes": [
-      {
-        "Id": "07112487-6f7a-4a53-877e-e40913b3d284",
-        "Name": "macro",
-        "Description": "MPE Call system status"
-      }
-    ]
-  },
-  {
     "Id": "86c9b6dc-aeb3-43d2-abdd-4fbf4cf88cad",
     "Name": "QPE",
     "Description": "Quuppa Position Engine",
@@ -76,104 +13,6 @@
         "Id": "4bdeb7d9-f424-42df-8ea8-614caf4a73b4",
         "Name": "getProjectInfo",
         "Description": "Project Info Data"
-      }
-    ]
-  },
-  {
-    "Id": "06bba3ac-aea6-4c11-9be9-0a005bf84933",
-    "Name": "SMS_Wrapper",
-    "Description": "ePACS Badge Scan",
-    "MessageTypes": [
-      {
-        "Id": "ae6bc4ca-f29a-4307-a18c-0bca0e700119",
-        "Name": "getEmployees",
-        "Description": "List of Badged in from the last 45 days"
-      },
-      {
-        "Id": "f5539389-2d82-45e5-ab4d-857263e37a21",
-        "Name": "FDBIDEmployeeList",
-        "Description": "List of badges at site "
-      },
-      {
-        "Id": "f5539389-2d82-45e5-ab4d-857263e37a51",
-        "Name": "NASSCodeEmployeeList",
-        "Description": "List of badges by Site NASS code "
-      }
-    ]
-  },
-  {
-    "Id": "23ffa08b-c546-4f57-8a2c-c4274b3579be",
-    "Name": "MPEWatch",
-    "Description": "MPE Watch ",
-    "MessageTypes": [
-      {
-        "Id": "f751fc78-45e9-4057-afd4-dbc5f3896c0f",
-        "Name": "rpg_plan",
-        "Description": "RPG Run Plan"
-      },
-      {
-        "Id": "f5845943-1fff-4fb2-a5ee-97645803399d",
-        "Name": "dps_run_estm",
-        "Description": "DPS Run Status"
-      },
-      {
-        "Id": "af5438cc-e132-4780-9d77-b0a4e4e2ed9c",
-        "Name": "rpg_run_perf",
-        "Description": "MPE Run Status"
-      }
-    ]
-  },
-  {
-    "Id": "38a2bd9a-960d-4cd9-bd68-a7187a72696a",
-    "Name": "IDS",
-    "Description": "IDS Connection",
-    "MessageTypes": [
-      {
-        "Id": "546cae78-4396-4324-bf78-f768f947de2c",
-        "Name": "FMPCSPscCount",
-        "Description": "IDS Pieces Count for USS"
-      },
-      {
-        "Id": "cb56f648-bf3b-4950-a204-7783707a4e94",
-        "Name": "APPSPscCount",
-        "Description": "IDS Pieces Count for APPS and EPPS"
-      },
-      {
-        "Id": "fb9b1016-296d-4b7c-ade2-add25de23be3",
-        "Name": "GENMPPscCount",
-        "Description": "IDS Pieces Count for HOPS"
-      },
-      {
-        "Id": "02f2140e-6f56-472c-af97-adf3ea6d0d2c",
-        "Name": "FSMMPPscCount",
-        "Description": "IDS Pieces count for AFSM100 "
-      },
-      {
-        "Id": "77b5aa99-ddd3-421f-b6d9-33f0962f337a",
-        "Name": "BCSMPPscCount",
-        "Description": "IDS Pieces Count for BCDS, DISOSS and CIOSS"
-      }
-    ]
-  },
-  {
-    "Id": "6eb46c30-9b9a-407f-aaed-fbb5556df3dc",
-    "Name": "SELS-RT",
-    "Description": "DATA Repo",
-    "MessageTypes": [
-      {
-        "Id": "4fd07dec-67df-4de1-9d98-939c510439d9",
-        "Name": "getTypes",
-        "Description": "Tag Types"
-      },
-      {
-        "Id": "d7ac38f2-9f81-45bf-baea-719669154bd7",
-        "Name": "getIvEmpData",
-        "Description": "Employee Schedule"
-      },
-      {
-        "Id": "8d9e6945-34fe-491a-be08-705ef53815a9",
-        "Name": "tagIdToEmpId",
-        "Description": "Tag to Employee EIN"
       }
     ]
   },
@@ -196,6 +35,16 @@
         "Id": "4f4ed93a-d713-45b5-a088-f4450b809845",
         "Name": "getStaffBySite",
         "Description": "Staff Counts by Sites"
+      },
+      {
+        "Id": "59d0e4ee-9ba2-40e0-aeb3-721c0bf60d1c",
+        "Name": "getEmpInfo",
+        "Description": "Employee Info by Finance Number"
+      },
+      {
+        "Id": "0ef2b6cf-7893-4759-9d23-dafe499e894e",
+        "Name": "getEmpSchedule",
+        "Description": "Employee Schedule by Finance Number"
       }
     ]
   },
@@ -237,6 +86,38 @@
     ]
   },
   {
+    "Id": "38a2bd9a-960d-4cd9-bd68-a7187a72696a",
+    "Name": "IDS",
+    "Description": "IDS Connection",
+    "MessageTypes": [
+      {
+        "Id": "546cae78-4396-4324-bf78-f768f947de2c",
+        "Name": "FMPCSPscCount",
+        "Description": "IDS Pieces Count for USS"
+      },
+      {
+        "Id": "cb56f648-bf3b-4950-a204-7783707a4e94",
+        "Name": "APPSPscCount",
+        "Description": "IDS Pieces Count for APPS and EPPS"
+      },
+      {
+        "Id": "fb9b1016-296d-4b7c-ade2-add25de23be3",
+        "Name": "GENMPPscCount",
+        "Description": "IDS Pieces Count for HOPS"
+      },
+      {
+        "Id": "02f2140e-6f56-472c-af97-adf3ea6d0d2c",
+        "Name": "FSMMPPscCount",
+        "Description": "IDS Pieces count for AFSM100 "
+      },
+      {
+        "Id": "77b5aa99-ddd3-421f-b6d9-33f0962f337a",
+        "Name": "BCSMPPscCount",
+        "Description": "IDS Pieces Count for BCDS, DISOSS and CIOSS"
+      }
+    ]
+  },
+  {
     "Id": "51fcec8f-f4c5-4e4e-90a9-32630a5e0da3",
     "Name": "QRE",
     "Description": "Quuppa Reporting Engine",
@@ -245,6 +126,135 @@
         "Id": "8e0de261-e6d4-4272-a0ae-54237ff13006",
         "Name": "AREA_AGGREGATION",
         "Description": "QRE Tag Dwell Time"
+      }
+    ]
+  },
+  {
+    "Id": "06bba3ac-aea6-4c11-9be9-0a005bf84933",
+    "Name": "SMS_Wrapper",
+    "Description": "ePACS Badge Scan",
+    "MessageTypes": [
+      {
+        "Id": "ae6bc4ca-f29a-4307-a18c-0bca0e700119",
+        "Name": "getEmployees",
+        "Description": "List of Badged in from the last 45 days"
+      },
+      {
+        "Id": "f5539389-2d82-45e5-ab4d-857263e37a21",
+        "Name": "FDBIDEmployeeList",
+        "Description": "List of badges at site "
+      },
+      {
+        "Id": "f5539389-2d82-45e5-ab4d-857263e37a51",
+        "Name": "NASSCodeEmployeeList",
+        "Description": "List of badges by Site NASS code "
+      }
+    ]
+  },
+  {
+    "Id": "6eb46c30-9b9a-407f-aaed-fbb5556df3dc",
+    "Name": "SELS-RT",
+    "Description": "DATA Repo",
+    "MessageTypes": [
+      {
+        "Id": "4fd07dec-67df-4de1-9d98-939c510439d9",
+        "Name": "getTypes",
+        "Description": "Tag Types"
+      },
+      {
+        "Id": "d7ac38f2-9f81-45bf-baea-719669154bd7",
+        "Name": "getIvEmpData",
+        "Description": "Employee Schedule"
+      },
+      {
+        "Id": "8d9e6945-34fe-491a-be08-705ef53815a9",
+        "Name": "tagIdToEmpId",
+        "Description": "Tag to Employee EIN"
+      }
+    ]
+  },
+  {
+    "Id": "6e5b0e92-ac49-467e-8069-0963082f4559",
+    "Name": "Email",
+    "Description": "Email",
+    "MessageTypes": [
+      {
+        "Id": "31289e3e-61e7-4c2b-9593-56e38de56716",
+        "Name": "SiteSynopsis",
+        "Description": "Site Synopsis"
+      },
+      {
+        "Id": "467b3c79-fe41-421d-89ff-5bbb3aa9daf9",
+        "Name": "MPESynopsis",
+        "Description": "MPE Synopsis"
+      }
+    ]
+  },
+  {
+    "Id": "b408e97c-90e2-4fc2-9c22-4143651667f4",
+    "Name": "Web_Camera",
+    "Description": "Web Camera",
+    "MessageTypes": [
+      {
+        "Id": "7bec51cd-a7ca-45ad-b135-5b8421abfc64",
+        "Name": "getCameraStills",
+        "Description": "Camera Pictures"
+      },
+      {
+        "Id": "a3944e1b-3f07-495f-97b1-3d85438625d9",
+        "Name": "Cameras",
+        "Description": "Camera List"
+      }
+    ]
+  },
+  {
+    "Id": "6e5b0e92-ac49-467e-8069-0963082f454a",
+    "Name": "TSA",
+    "Description": "Transportation Sweep-Side Assignment",
+    "MessageTypes": [
+      {
+        "Id": "31289e3e-61e7-4c2b-9593-56e38de5671a",
+        "Name": "MPEList",
+        "Description": "TSA MPE List"
+      },
+      {
+        "Id": "467b3c79-fe41-421d-89ff-5bbb3aa9daf5",
+        "Name": "PrinterUsage",
+        "Description": "TSA Printer Stats"
+      }
+    ]
+  },
+  {
+    "Id": "23ffa08b-c546-4f57-8a2c-c4274b3579be",
+    "Name": "MPEWatch",
+    "Description": "MPE Watch ",
+    "MessageTypes": [
+      {
+        "Id": "f751fc78-45e9-4057-afd4-dbc5f3896c0f",
+        "Name": "rpg_plan",
+        "Description": "RPG Run Plan"
+      },
+      {
+        "Id": "f5845943-1fff-4fb2-a5ee-97645803399d",
+        "Name": "dps_run_estm",
+        "Description": "DPS Run Status"
+      },
+      {
+        "Id": "af5438cc-e132-4780-9d77-b0a4e4e2ed9c",
+        "Name": "rpg_run_perf",
+        "Description": "MPE Run Status"
+      }
+    ]
+  },
+  {
+    "Id": "e66c2d3b-d14c-452c-ae20-c04b96ea2dc8",
+    "Name": "MPE_Alerts",
+    "Description": "MPE Maintenances Call System ",
+    "MessageTypes": [
+      {
+        "Id": "07112487-6f7a-4a53-877e-e40913b3d284",
+        "Name": "macro",
+        "Description": "MPE Call system status"
       }
     ]
   }
