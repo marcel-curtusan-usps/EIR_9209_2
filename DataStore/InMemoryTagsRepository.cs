@@ -344,63 +344,67 @@ namespace EIR_9209_2.InMemory
                 }
             }
         }
-        public void UpdateTagQPEInfo(List<Tags> tag)
-        {
-            bool savetoFile = false;
-            try
-            {
-                foreach (Tags qtitem in tag)
-                {
-                    GeoMarker? TagData = null;
-                    _tagList.TryGetValue(qtitem.TagId, out TagData);
-                    if (TagData != null)
-                    {
-                        TagData.Properties.Color = qtitem.Color;
-                        TagData.Properties.Zones = qtitem.LocationZoneIds;
+        //public void UpdateTagQPEInfo(List<Tags> tag)
+        //{
+        //    bool savetoFile = false;
+        //    try
+        //    {
+        //        foreach (Tags qtitem in tag)
+        //        {
+        //            GeoMarker? TagData = null;
+        //            _tagList.TryGetValue(qtitem.TagId, out TagData);
+        //            if (TagData != null)
+        //            {
+        //                TagData.Properties.Color = qtitem.Color;
+        //                TagData.Properties.Zones = qtitem.LocationZoneIds;
+        //                TagData.Geometry.Coordinates = qtitem.Location.Any() ? [qtitem.Location[0], qtitem.Location[1]] : [0, 0];
+        //                TagData.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
+        //                if (!string.IsNullOrEmpty(qtitem.TagName))
+        //                {
 
-                        TagData.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
-                        if (!string.IsNullOrEmpty(qtitem.TagName))
-                        {
+        //                }
+        //            }
+        //            else
+        //            {
+        //                //add tag to taglist
+        //                GeoMarker tagData = new GeoMarker
+        //                {
+        //                    Geometry = new MarkerGeometry
+        //                    {
+        //                        Coordinates = qtitem.Location.Any() ? [qtitem.Location[0], qtitem.Location[1]] : [0, 0],
+        //                        Type = "Point"
+        //                    },
+        //                    Properties = new Marker
+        //                    {
+        //                        Id = qtitem.TagId,
+        //                        Name = qtitem.TagName,
+        //                        Color = qtitem.Color,
+        //                        Zones = qtitem.LocationZoneIds,
+        //                        LocationMovementStatus = qtitem.LocationMovementStatus
+        //                    }
+        //                };
+        //                if (_tagList.TryAdd(qtitem.TagId, tagData))
+        //                {
+        //                    savetoFile = true;
+        //                }
 
-                        }
-                    }
-                    else
-                    {
-                        //add tag to taglist
-                        GeoMarker tagData = new GeoMarker
-                        {
-                            Geometry = new MarkerGeometry
-                            {
-                                Coordinates = [qtitem.Location[0], qtitem.Location[1]],
-                                Type = "Point"
-                            },
-                            Properties = new Marker
-                            {
-                                Id = qtitem.TagId,
-                                Name = qtitem.TagName,
-                                Color = qtitem.Color,
-                                Zones = qtitem.LocationZoneIds,
-                                LocationMovementStatus = qtitem.LocationMovementStatus
-                            }
-                        };
-                        _tagList.TryAdd(qtitem.TagId, tagData);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-            }
-            finally
-            {
-                if (savetoFile)
-                {
-                    //save date to local file
-                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
-                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e.Message);
+        //    }
+        //    finally
+        //    {
+        //        if (savetoFile)
+        //        {
+        //            //save date to local file
+        //            FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+        //        }
 
-            }
-        }
+        //    }
+        //}
 
         public object UpdateTagInfo(JObject tagInfo)
         {
@@ -511,6 +515,68 @@ namespace EIR_9209_2.InMemory
               ).Select(r => r.Value.Properties).ToList();
         }
 
+        Task IInMemoryTagsRepository.UpdateTagQPEInfo(List<Tags> tags)
+        {
+            bool savetoFile = false;
+            try
+            {
+                foreach (Tags qtitem in tags)
+                {
+                    GeoMarker? TagData = null;
+                    _tagList.TryGetValue(qtitem.TagId, out TagData);
+                    if (TagData != null)
+                    {
+                        TagData.Properties.Color = qtitem.Color;
+                        TagData.Properties.Zones = qtitem.LocationZoneIds;
+                        TagData.Geometry.Coordinates = qtitem.Location.Any() ? [qtitem.Location[0], qtitem.Location[1]] : [0, 0];
+                        TagData.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
+                        if (!string.IsNullOrEmpty(qtitem.TagName))
+                        {
 
+                        }
+                    }
+                    else
+                    {
+                        //add tag to taglist
+                        GeoMarker tagData = new GeoMarker
+                        {
+                            Geometry = new MarkerGeometry
+                            {
+                                Coordinates = qtitem.Location.Any() ? [qtitem.Location[0], qtitem.Location[1]] : [0, 0],
+                                Type = "Point"
+                            },
+                            Properties = new Marker
+                            {
+                                Id = qtitem.TagId,
+                                Name = qtitem.TagName,
+                                Color = qtitem.Color,
+                                Zones = qtitem.LocationZoneIds,
+                                LocationMovementStatus = qtitem.LocationMovementStatus
+                            }
+                        };
+                        if (_tagList.TryAdd(qtitem.TagId, tagData))
+                        {
+                            savetoFile = true;
+                        }
+
+                    }
+                }
+                return Task.FromResult(false);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return Task.FromResult(false);
+            }
+            finally
+            {
+                if (savetoFile)
+                {
+                    //save date to local file
+                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                }
+
+            }
+        }
     }
 }

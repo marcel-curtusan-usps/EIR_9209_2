@@ -1,19 +1,8 @@
 ﻿using EIR_9209_2.Models;
-using MailKit.Search;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PuppeteerSharp;
-using System.Collections;
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Globalization;
-using System.Reflection.Emit;
-using System.Text.RegularExpressions;
-using static EIR_9209_2.Models.GeoMarker;
-using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
-using static System.Collections.Specialized.BitVector32;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
 {
@@ -40,7 +29,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
         _ = LoadDataFromFile(filePath);
 
     }
- 
+
     private async Task LoadDataFromFile(string filePath)
     {
         try
@@ -79,7 +68,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
         }
     }
 
-  
+
     public Task LoadEmpInfo(JToken data)
     {
         bool savetoFile = false;
@@ -124,7 +113,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                     _empScheduleList.TryAdd(empId, empSch);
                     savetoFile = true;
                 }
-             }
+            }
             if (!string.IsNullOrEmpty(payWeek))
             {
                 _empScheduleList.Where(y => y.Value.PayWeek != payWeek).ToList().ForEach(y => _empScheduleList.TryRemove(y));
@@ -140,7 +129,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
         {
             if (savetoFile)
             {
-               _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_empScheduleList.Values, Formatting.Indented));
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_empScheduleList.Values, Formatting.Indented));
             }
         }
 

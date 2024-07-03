@@ -17,7 +17,8 @@ public interface IInMemoryTagsRepository
     string GetCraftType(string tagId);
     object UpdateTagInfo(JObject tagInfo);
     bool UpdateTagDesignationActivity(DesignationActivityToCraftType updatedDacode);
-    void UpdateTagQPEInfo(List<Tags> tags);
+    //void UpdateTagQPEInfo(List<Tags> tags);
     List<Marker> SearchTag(string searchValue);
     List<string> GetTagByType(string tagType);
+    Task UpdateTagQPEInfo(List<Tags> tags);
 }
