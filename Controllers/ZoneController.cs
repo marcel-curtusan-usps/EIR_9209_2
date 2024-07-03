@@ -76,7 +76,7 @@ namespace EIR_9209_2.Controllers
             {
                 await _hubServices.Clients.Group("MPEBinZones").SendAsync("AddMPEBinZones", newZone);
             }
-            return newZone;
+            return Ok(newZone);
         }
 
         //// PUT api/<ZoneController>/5

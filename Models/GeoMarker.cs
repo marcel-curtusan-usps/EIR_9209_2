@@ -54,6 +54,7 @@ namespace EIR_9209_2.Models
             public string LocationType { get; set; } = "";
             public long LastSeenTS { get; set; } = 0;
             public List<ScanTransaction> BadgeScan { get; set; } = [];
+
         }
         public class MarkerGeometry
         {

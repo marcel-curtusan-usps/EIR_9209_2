@@ -38,6 +38,7 @@ public class Startup
         services.AddSingleton<IFileAccessTester, FileAccessTester>();
         services.AddSingleton<IEncryptDecrypt, EncryptDecrypt>();
         services.AddSingleton<IInMemorySiteInfoRepository, InMemorySiteInfoRepository>();
+        services.AddSingleton<IInMemoryTACSReports, InMemoryTACSReports>();
         services.AddSingleton<IInMemoryEmailRepository, InMemoryEmailRepository>();
         services.AddSingleton<IInMemoryBackgroundImageRepository, InMemoryBackgroundImageRepository>();
         services.AddSingleton<IInMemoryConnectionRepository, InMemoryConnectionRepository>();
