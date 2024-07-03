@@ -7,9 +7,7 @@ namespace EIR_9209_2.DataStore
 {
     public class InMemoryTACSReports : IInMemoryTACSReports
     {
-        private readonly ConcurrentDictionary<string, TACSDailyHours> _dailyHours = new();
         private readonly ConcurrentDictionary<string, TACSEmployeePayPeirod> _employeePayPeirod = new();
-        private readonly ConcurrentDictionary<string, TACSSchedule> _schedule = new();
         private readonly ConcurrentDictionary<DateTime, TACSReportSummary> _reportSummary = new();
         private readonly ILogger<InMemoryTACSReports> _logger;
         private readonly IConfiguration _configuration;
@@ -33,25 +31,6 @@ namespace EIR_9209_2.DataStore
             foreach (TACSEmployeePayPeirod item in employeePayPeirods.Select(r => r).ToList())
             {
                 _employeePayPeirod.TryAdd(item.id, item);
-            }
-        }
-
-        public void AddTACSDailyHours(List<TACSDailyHours> tACSDailyHours)
-        {
-            //foreach tacsdailyhours in list add to _dailyHours
-
-            foreach (TACSDailyHours item in tACSDailyHours.Select(r => r).ToList())
-            {
-                _dailyHours.TryAdd(item.id, item);
-            }
-
-        }
-
-        public void AddTACSSchedule(List<TACSSchedule> tACSSchedules)
-        {
-            foreach (TACSSchedule item in tACSSchedules.Select(r => r).ToList())
-            {
-                _schedule.TryAdd(item.id, item);
             }
         }
 
