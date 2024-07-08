@@ -1,5 +1,4 @@
-﻿using EIR_9209_2.InMemory;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
 namespace EIR_9209_2.Utilities

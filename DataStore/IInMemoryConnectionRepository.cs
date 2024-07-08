@@ -6,7 +6,7 @@ public interface IInMemoryConnectionRepository
     Connection Get(string id);
     Connection Add(Connection connection);
     Connection Remove(string connectionId);
-    Connection Update(Connection connection);
+    Task Update(Connection connection);
     IEnumerable<Connection> GetAll();
     IEnumerable<Connection> GetbyType(string type);
 

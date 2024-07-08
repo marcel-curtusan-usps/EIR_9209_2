@@ -28,7 +28,7 @@ namespace EIR_9209_2.Controllers
 
         // GET api/<ZoneController>/5
         [HttpGet]
-        [Route("ZoneId")]
+        [Route("Id")]
         public async Task<object> GetByZoneId(string id)
         {
             if (!ModelState.IsValid)
@@ -49,17 +49,17 @@ namespace EIR_9209_2.Controllers
         }
         [HttpGet]
         [Route("GetZoneNameList")]
-        public async Task<object> GetByZoneNameList(string ZoneType)
+        public async Task<object> GetByZoneNameList(string zoneType)
         {
             if (!ModelState.IsValid)
             {
                 return await Task.FromResult(BadRequest(ModelState));
             }
-            return _zonesRepository.GetZoneNameList(ZoneType);
+            return _zonesRepository.GetZoneNameList(zoneType);
         }
         // POST api/<ZoneController>
         [HttpPost]
-        [Route("AddZone")]
+        [Route("Add")]
         public async Task<object> PostByAddNewZone([FromBody] JObject zone)
         {
 

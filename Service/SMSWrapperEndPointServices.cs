@@ -9,8 +9,8 @@ namespace EIR_9209_2.Service
     {
         private readonly IInMemoryTagsRepository _tags;
 
-        public SMSWrapperEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryTagsRepository tags)
-            : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
+        public SMSWrapperEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IInMemoryConnectionRepository connection, IInMemoryTagsRepository tags)
+            : base(logger, httpClientFactory, endpointConfig, configuration, connection)
         {
             _tags = tags;
         }
@@ -19,22 +19,20 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                if (_endpointConfig.Status != EWorkerServiceState.Running)
+                _endpointConfig.Status = EWorkerServiceState.Running;
+                _endpointConfig.LasttimeApiConnected = DateTime.Now;
+                if (_endpointConfig.ActiveConnection)
                 {
-                    _endpointConfig.Status = EWorkerServiceState.Running;
-                    _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                    if (_endpointConfig.ActiveConnection)
-                    {
-                        _endpointConfig.ApiConnected = true;
-                    }
-                    else
-                    {
-                        _endpointConfig.ApiConnected = false;
-                        _endpointConfig.Status = EWorkerServiceState.Idel;
-                    }
-
-                    await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                    _endpointConfig.ApiConnected = true;
                 }
+                else
+                {
+                    _endpointConfig.ApiConnected = false;
+                    _endpointConfig.Status = EWorkerServiceState.Idel;
+                }
+
+                await _connection.Update(_endpointConfig);
+
                 IQueryService queryService;
                 string FormatUrl = "";
                 FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType, _configuration[key: "ApplicationConfiguration:NassCode"]);

@@ -23,9 +23,16 @@ namespace EIR_9209_2.Controllers
             _ids = ids;
             _geoZones = geoZones;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="queryName"></param>
+        /// <param name="startHour"></param>
+        /// <param name="endHour"></param>
+        /// <returns></returns>
         // GET: api/<IDS>
         [HttpGet]
-        [Route("IDSData")]
+        [Route("GetIDSData")]
         public async Task<object> GetByIDS(string queryName, int startHour, int endHour)
         {
             //handle bad requests

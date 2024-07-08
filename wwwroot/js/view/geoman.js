@@ -262,7 +262,7 @@ function CreateZone(newlayer) {
             if (!$.isEmptyObject(togeo)) {
                 //make a ajax call to get the employee details
                 $.ajax({
-                    url: '/api/AddZone',
+                    url: SiteURLconstructor(window.location) + '/api/Zone/Add',
                     data: JSON.stringify(togeo),
                     contentType: 'application/json',
                     type: 'POST',
@@ -307,7 +307,7 @@ function CreateCamera(newlayer) {
         //Camera Direction
         togeo.properties.cameraDirection = $('input[id=cameraDirection]').val();
         $.ajax({
-            url: '/api/GetTagTypeList?TagType=' + $('select[name=zone_type] option:selected').val(),
+            url: SiteURLconstructor(window.location) + '/api/Tag/GetTagTypeList?TagType=' + $('select[name=zone_type] option:selected').val(),
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -346,7 +346,7 @@ function RemoveZoneItem(removeLayer) {
     try {
         sidebar.close();
         $.ajax({
-            url: '/api/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -383,7 +383,7 @@ function RemoveMarkerItem(removeLayer) {
     try {
         sidebar.close();
         $.ajax({
-            url: '/api/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -425,10 +425,10 @@ function RemoveMarkerItem(removeLayer) {
     }
 }
 function removeFromMapView(id) {
-    $.map(map._layers, function (layer, i) {
+    $.map(OSLmap._layers, function (layer, i) {
         if (layer.hasOwnProperty("feature")) {
             if (layer._leaflet_id === id) {
-                map.removeLayer(layer)
+                OSLmap.removeLayer(layer)
             }
         }
     });
@@ -454,7 +454,7 @@ function VaildateForm(FormType) {
     }
     if (/(MPEZone|Machine)/i.test(FormType)) {
         $.ajax({
-            url: '/api/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -494,7 +494,7 @@ function VaildateForm(FormType) {
         $('textarea[id="bin_bins"]').val("");
 
         $.ajax({
-            url: '/api/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -540,7 +540,7 @@ function VaildateForm(FormType) {
         $('#binzoneinfo').css("display", "block");
         $('textarea[id="bin_bins"]').val("");
         $.ajax({
-            url: '/api/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -577,7 +577,7 @@ function VaildateForm(FormType) {
     else if (/(Bullpen|BullpenZone)/i.test(FormType)) {
 
         $.ajax({
-            url: '/api/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -634,7 +634,7 @@ function VaildateForm(FormType) {
         //    }
         //});
         $.ajax({
-            url: '/api/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {

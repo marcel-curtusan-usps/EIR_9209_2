@@ -140,7 +140,7 @@ async function createDacodetocrafttypeDataTable(table) {
                 sorting: [[0, "asc"]]
 
             })
-            
+
             // Edit/remove record
             $('#' + table + ' tbody').on('click', 'button', function () {
                 let td = $(this);
@@ -155,7 +155,7 @@ async function createDacodetocrafttypeDataTable(table) {
                     Promise.all([Delete_Dacodetocrafttype(row.data())]);
                 }
             });
-            
+
             resolve();
             return false;
         });
@@ -180,16 +180,16 @@ async function Add_Dacodetocrafttype() {
             if (!$.isEmptyObject(jsonObject)) {
                 //make a ajax call to get the employee details
                 $.ajax({
-                    url: '/api/AddDacodetocrafttype',
+                    url: SiteURLconstructor(window.location) + '/api/Dacodetocrafttypes/Add',
                     data: JSON.stringify(jsonObject),
                     contentType: 'application/json',
                     type: 'POST',
                     success: function (data) {
-                            setTimeout(function () {
-                                $("#DacodetocraftType_value_Modal").modal('hide');
-                                $('button[id=dacodetypebtn]').prop('disabled', false);
-                                updateDacodetocrafttypeDataTable(data, dacodetocrafttypetable);
-                            }, 500);
+                        setTimeout(function () {
+                            $("#DacodetocraftType_value_Modal").modal('hide');
+                            $('button[id=dacodetypebtn]').prop('disabled', false);
+                            updateDacodetocrafttypeDataTable(data, dacodetocrafttypetable);
+                        }, 500);
                     },
                     error: function (error) {
                         $('span[id=error_dacodetypevalue]').text("Designation Activity was not Updated");
@@ -220,34 +220,34 @@ async function Edit_Dacodetocrafttype(data) {
 
     $('button[id=dacodetypebtn]').off().on('click', function () {
         try {
-        $('button[id=dacodetypebtn]').prop('disabled', true);
-        let jsonObject = {
-            designationActivity: $('input[id=modalDacodeTypeID]').val(),
-            craftType: $('input[id=craftValueID]').val(),
-        };
-        $.ajax({
-            url: '/api/UpdateDacodetocrafttype?id=' + data.designationActivity,
-            contentType: 'application/json-patch+json',
-            type: 'PUT',
-            data: JSON.stringify(jsonObject),
-            success: function (successdata) {
-                setTimeout(function () {
-                    $("#DacodetocraftType_value_Modal").modal('hide');
-                    $('button[id=dacodetypebtn]').prop('disabled', false);
-                    updateDacodetocrafttypeDataTable(successdata, dacodetocrafttypetable);
-                }, 500);
-            },
-            error: function (error) {
-                $('span[id=error_dacodetypevalue]').text("Designation Activity " + data.designationActivity + " was not Updated");
-                //console.log(error);
-            },
-            faulure: function (fail) {
-                console.log(fail);
-            },
-            complete: function (complete) {
-                console.log(complete);
-            }
-        });
+            $('button[id=dacodetypebtn]').prop('disabled', true);
+            let jsonObject = {
+                designationActivity: $('input[id=modalDacodeTypeID]').val(),
+                craftType: $('input[id=craftValueID]').val(),
+            };
+            $.ajax({
+                url: SiteURLconstructor(window.location) + '/api/Dacodetocrafttypes/Update?id=' + data.designationActivity,
+                contentType: 'application/json-patch+json',
+                type: 'PUT',
+                data: JSON.stringify(jsonObject),
+                success: function (successdata) {
+                    setTimeout(function () {
+                        $("#DacodetocraftType_value_Modal").modal('hide');
+                        $('button[id=dacodetypebtn]').prop('disabled', false);
+                        updateDacodetocrafttypeDataTable(successdata, dacodetocrafttypetable);
+                    }, 500);
+                },
+                error: function (error) {
+                    $('span[id=error_dacodetypevalue]').text("Designation Activity " + data.designationActivity + " was not Updated");
+                    //console.log(error);
+                },
+                faulure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    console.log(complete);
+                }
+            });
         } catch (e) {
             $('span[id=error_apisubmitBtn]').text(e);
         }
@@ -291,7 +291,7 @@ async function Delete_Dacodetocrafttype(data) {
         $('button[id=remove_Dacode]').off().on('click', function () {
             //make a ajax call to get the Connection details
             $.ajax({
-                url: '/api/DeleteDacodetocrafttype?id=' + data.designationActivity,
+                url: SiteURLconstructor(window.location) + '/api/Dacodetocrafttypes/Delete?id=' + data.designationActivity,
                 type: 'DELETE',
                 success: function (data) {
                     //$('#content').html(data);

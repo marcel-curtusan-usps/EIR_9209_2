@@ -15,8 +15,8 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryEmpSchedulesRepository _empSchedules;
         private readonly IInMemorySiteInfoRepository _siteInfo;
 
-        public IVESEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemorySiteInfoRepository siteInfo, IInMemoryEmpSchedulesRepository empSchedules)
-            : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
+        public IVESEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IInMemoryConnectionRepository connection, IInMemorySiteInfoRepository siteInfo, IInMemoryEmpSchedulesRepository empSchedules)
+            : base(logger, httpClientFactory, endpointConfig, configuration, connection)
         {
             _siteInfo = siteInfo;
             _empSchedules = empSchedules;
@@ -39,7 +39,7 @@ namespace EIR_9209_2.Service
                     _endpointConfig.Status = EWorkerServiceState.Idel;
                 }
 
-                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                await _connection.Update(_endpointConfig);
 
                 IQueryService queryService;
                 string FormatUrl = "";
@@ -50,7 +50,6 @@ namespace EIR_9209_2.Service
                 queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                 var result = (await queryService.GetIVESData(stoppingToken));
 
-                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
                 if (_endpointConfig.MessageType == "getEmpInfo")
                 {
                     _ = Task.Run(async () => await ProcessEmployeeInfoData(result), stoppingToken);

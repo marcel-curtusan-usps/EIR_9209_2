@@ -5,12 +5,9 @@ namespace EIR_9209_2.Service
 {
     public class EmailEndPointServices : BaseEndpointService
     {
-        private readonly IInMemoryGeoZonesRepository _geoZones;
         private readonly IInMemoryEmailRepository _email;
-
-
-        public EmailEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryEmailRepository email)
-              : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
+        public EmailEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IInMemoryConnectionRepository connection, IInMemoryEmailRepository email)
+              : base(logger, httpClientFactory, endpointConfig, configuration, connection)
         {
             _email = email;
         }
@@ -22,7 +19,7 @@ namespace EIR_9209_2.Service
                 _endpointConfig.Status = EWorkerServiceState.Running;
                 _endpointConfig.LasttimeApiConnected = DateTime.Now;
                 _endpointConfig.ApiConnected = true;
-                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                await _connection.Update(_endpointConfig);
                 //get list of Mpe name from email list and send email
 
                 // Dictionary to hold categorized emails

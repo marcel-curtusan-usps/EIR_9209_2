@@ -52,7 +52,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         $('span[id=error_connection_name]').text("");
     }
 
-    $('select[name=connection_name]').on("change",function () {
+    $('select[name=connection_name]').on("change", function () {
         filtermessage_type("", "");
         if (!checkValue($('select[name=connection_name] option:selected').html())) {
             $('select[name=connection_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
@@ -295,8 +295,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             if ($('input[type=checkbox][name=OAuthconnection]').is(':checked')) {
                 onOAuthConnection();
             }
-            else
-            {
+            else {
                 offOAuthConnection();
             }
         }
@@ -377,7 +376,7 @@ async function Add_Connection() {
             if (!$.isEmptyObject(jsonObject)) {
                 //make a ajax call to get the employee details
                 $.ajax({
-                    url: '/api/AddConnection',
+                    url: SiteURLconstructor(window.location) + '/api/Connections/Add',
                     data: JSON.stringify(jsonObject),
                     contentType: 'application/json',
                     type: 'POST',
@@ -421,7 +420,7 @@ async function Edit_Connection(data) {
     $('input[type=radio]').prop('disabled', true);
     if (checkValue(data.oAuthUrl)) {
         $('input[type=checkbox][id=OAuthconnection]').prop('checked', true);
-       
+
         $('input[type=text][name=tokenurl]').prop("disabled", false).val(data.oAuthUrl);
         $('input[type=text][name=tokenusername]').prop("disabled", false).val(data.oAuthUserName);
         $('input[type=text][name=tokenpassword]').prop("disabled", false).val(data.oAuthPassword);
@@ -496,7 +495,7 @@ async function Edit_Connection(data) {
                 }
                 //make a ajax call to get the Connection details
                 $.ajax({
-                    url: '/api/UpdateConnection?id=' + data.id,
+                    url: SiteURLconstructor(window.location) + '/api/Connections/Update?id=' + data.id,
                     contentType: 'application/json-patch+json',
                     type: 'PUT',
                     data: JSON.stringify(jsonObject),
@@ -536,7 +535,7 @@ async function Remove_Connection(data) {
         $('button[id=remove_server_connection]').off().on('click', function () {
             //make a ajax call to get the Connection details
             $.ajax({
-                url: '/api/DeleteConnection?id=' + data.id,
+                url: SiteURLconstructor(window.location) + '/api/Connections/Delete/?id=' + data.id,
                 type: 'DELETE',
                 success: function (data) {
                     $('#content').html(data);
@@ -952,7 +951,7 @@ function onOAuthConnection() {
         $('input[type=text][name=tokenclientId]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
         $('span[id=error_tokenclientId]').text("");
     }
-   
+
 }
 function offOAuthConnection() {
 

@@ -13,8 +13,13 @@ namespace EIR_9209_2.Controllers
         private readonly IInMemoryGeoZonesRepository _zones = zones;
         private readonly ILogger<MPERunActivityController> _logger = logger;
         // GET: api/<MPERunActivityController>
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mpe"></param>
+        /// <returns></returns>
         [HttpGet]
-        [Route("/MPERunActivity")]
+        [Route("GetByMPEName")]
         public async Task<object> GetByMPE(string mpe)
         {
             if (!ModelState.IsValid)
@@ -84,7 +89,7 @@ namespace EIR_9209_2.Controllers
         /// <response code="201">Returns When WebEOR Data has been Loaded</response>
         /// <response code="400">If the File name was provided </response>
         [HttpPost]
-        [Route("/UploadWebEOR")]
+        [Route("UploadWebEOR")]
         public async Task<IActionResult> UploadCSV(IFormFile file)
         {
             try

@@ -25,10 +25,14 @@ namespace EIR_9209_2.Controllers
             _hubContext = hubContext;
             _worker = worker;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         // GET: api/<Connection>
         [HttpGet]
-        public async Task<object> Get()
+        [Route("AllConnection")]
+        public async Task<object> GetByAllConnection()
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -37,10 +41,15 @@ namespace EIR_9209_2.Controllers
             }
             return Ok(_connectionRepository.GetAll());
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET api/<Connection>/5
-        [HttpGet("{id}")]
-        public async Task<object> Get(string id)
+        [HttpGet]
+        [Route("ConnectionId")]
+        public async Task<object> GetByConnectionId(string id)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -52,7 +61,7 @@ namespace EIR_9209_2.Controllers
 
         // POST api/<Connection>
         [HttpPost]
-        [Route("/api/AddConnection")]
+        [Route("Add")]
         /// <summary>
         /// Adds a new connection.
         /// </summary>
@@ -97,7 +106,7 @@ namespace EIR_9209_2.Controllers
 
         // PUT api/<Connection>/5
         [HttpPut]
-        [Route("/api/UpdateConnection")]
+        [Route("Update")]
         public async Task<object> Put(string id, [FromBody] JObject value)
         {
             //handle bad requests
@@ -116,24 +125,25 @@ namespace EIR_9209_2.Controllers
                 {
                     connection.DeactivatedDate = DateTime.Now;
                 }
-                Connection updatedCon = _connectionRepository.Update(connection);
-                if (updatedCon != null)
-                {
-                    //add the connection to the worker
-                    if (_worker.UpdateEndpoint(updatedCon))
-                    {
-                        await _hubContext.Clients.Group("Connections").SendAsync("UpdateConnection", updatedCon);
-                        return Ok(updatedCon);
-                    }
-                    else
-                    {
-                        return BadRequest(new JObject { ["message"] = "End Point was not Started" });
-                    }
-                }
-                else
-                {
-                    return BadRequest(new JObject { ["message"] = "End Point was not Updated " });
-                }
+                await _connectionRepository.Update(connection);
+                return Ok();
+                //if (updatedCon != null)
+                //{
+                //    //add the connection to the worker
+                //    if (_worker.UpdateEndpoint(updatedCon))
+                //    {
+                //        await _hubContext.Clients.Group("Connections").SendAsync("UpdateConnection", updatedCon);
+                //        return Ok(updatedCon);
+                //    }
+                //    else
+                //    {
+                //        return BadRequest(new JObject { ["message"] = "End Point was not Started" });
+                //    }
+                //}
+                //else
+                //{
+                //    return BadRequest(new JObject { ["message"] = "End Point was not Updated " });
+                //}
             }
             else
             {
@@ -143,7 +153,7 @@ namespace EIR_9209_2.Controllers
 
         // DELETE api/<Connection>/5
         [HttpDelete]
-        [Route("/api/DeleteConnection")]
+        [Route("Delete")]
         public async Task<object> Delete(string id)
         {
             //handle bad requests
@@ -167,5 +177,5 @@ namespace EIR_9209_2.Controllers
                 return new JObject { ["Message"] = $"Connection Id:{id} was not Found" };
             }
         }
-     }
+    }
 }

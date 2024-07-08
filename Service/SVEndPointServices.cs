@@ -8,8 +8,8 @@ namespace EIR_9209_2.Service
     {
         private readonly IInMemoryGeoZonesRepository _geoZones;
 
-        public SVEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryGeoZonesRepository geozone)
-            : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
+        public SVEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository geozone)
+            : base(logger, httpClientFactory, endpointConfig, configuration, connection)
         {
             _geoZones = geozone;
         }
@@ -28,13 +28,10 @@ namespace EIR_9209_2.Service
                     _endpointConfig.ApiConnected = false;
                     _endpointConfig.Status = EWorkerServiceState.Idel;
                 }
-                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                await _connection.Update(_endpointConfig);
 
                 IQueryService queryService;
                 string FormatUrl = "";
-
-
-
 
                 FormatUrl = string.Format(_endpointConfig.Url, _configuration[key: "ApplicationConfiguration:NassCode"]);
                 queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
@@ -107,7 +104,7 @@ namespace EIR_9209_2.Service
                         bool pushUIUpdate = false;
                         if (pushUIUpdate)
                         {
-                            await _hubServices.Clients.Group("DockDoorZones").SendAsync("DockDoorUpdateGeoZone", geoZone.Properties.MPERunPerformance);
+                            // await _hubServices.Clients.Group("DockDoorZones").SendAsync("DockDoorUpdateGeoZone", geoZone.Properties.MPERunPerformance);
                         }
                     }
                 }

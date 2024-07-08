@@ -17,25 +17,25 @@ namespace EIR_9209_2.Controllers
         private readonly IInMemoryTACSReports _reports = reports;
         private readonly ILogger<TACSController> _logger = logger;
 
-        // GET: api/<TACSController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
+        //// GET: api/<TACSController>
+        //[HttpGet]
+        //public IEnumerable<string> Get()
+        //{
+        //    return new string[] { "value1", "value2" };
+        //}
 
-        // GET api/<TACSController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
+        //// GET api/<TACSController>/5
+        //[HttpGet("{id}")]
+        //public string Get(int id)
+        //{
+        //    return "value";
+        //}
 
-        // POST api/<TACSController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
+        //// POST api/<TACSController>
+        //[HttpPost]
+        //public void Post([FromBody] string value)
+        //{
+        //}
 
         // POST api/<TACSController>
         /// <summary>
@@ -48,7 +48,7 @@ namespace EIR_9209_2.Controllers
         /// <response code="201">Returns When WebEOR Data has been Loaded</response>
         /// <response code="400">If the File name was provided </response>
         [HttpPost]
-        [Route("/UploadEmployeeForPayPeriod")]
+        [Route("UploadEmployeeForPayPeriod")]
         public async Task<IActionResult> UploadTACSEmployeeForPayPeriodCSV(IFormFile file)
         {
             try
@@ -163,17 +163,17 @@ namespace EIR_9209_2.Controllers
             }
         }
 
-        // PUT api/<TACSController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+        //// PUT api/<TACSController>/5
+        //[HttpPut("{id}")]
+        //public void Put(int id, [FromBody] string value)
+        //{
+        //}
 
-        // DELETE api/<TACSController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        //// DELETE api/<TACSController>/5
+        //[HttpDelete("{id}")]
+        //public void Delete(int id)
+        //{
+        //}
         private DateTime ConvertStringToDate(string dateString)
         {
             try

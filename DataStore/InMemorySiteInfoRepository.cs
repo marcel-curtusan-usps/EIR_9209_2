@@ -56,11 +56,6 @@ namespace EIR_9209_2.DataStore
             return _siteInfo.Where(t => t.Value.SiteId == id).Select(y => y.Value).FirstOrDefault();
         }
 
-        public List<SiteInformation> GetAll()
-        {
-            return _siteInfo.Values.Select(y => y).ToList();
-        }
-
         public void Update(SiteInformation site)
         {
             if (_siteInfo.TryGetValue(site.FdbId, out SiteInformation currentSite) && _siteInfo.TryUpdate(site.FdbId, site, currentSite))

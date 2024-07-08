@@ -10,8 +10,8 @@ namespace EIR_9209_2.Service
     {
         private readonly IInMemoryGeoZonesRepository _zones;
 
-        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryGeoZonesRepository zones)
-            : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
+        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository zones)
+            : base(logger, httpClientFactory, endpointConfig, configuration, connection)
         {
             _zones = zones;
         }
@@ -33,7 +33,7 @@ namespace EIR_9209_2.Service
                     _endpointConfig.Status = EWorkerServiceState.Idel;
                 }
 
-                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                await _connection.Update(_endpointConfig);
 
                 if (!string.IsNullOrEmpty(_endpointConfig.OAuthUrl))
                 {
@@ -88,7 +88,7 @@ namespace EIR_9209_2.Service
                                 _zones.AddAreaDwell(hour, newValue);
                             }
                         }
-                        _ = Task.Run(() => _zones.RunMPESummaryReport());
+
                         //var result = (await queryService.GetQPETagData(stoppingToken));
                         //await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
                         //// Process tag data in a separate thread
@@ -99,6 +99,10 @@ namespace EIR_9209_2.Service
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+            }
+            finally
+            {
+                _ = Task.Run(() => _zones.RunMPESummaryReport());
             }
         }
     }

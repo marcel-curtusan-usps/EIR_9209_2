@@ -10,8 +10,8 @@ namespace EIR_9209_2.Service
     {
         private readonly IInMemoryGeoZonesRepository _geoZones;
 
-        public MPEWatchEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryGeoZonesRepository geozone)
-            : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
+        public MPEWatchEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository geozone)
+            : base(logger, httpClientFactory, endpointConfig, configuration, connection)
         {
             _geoZones = geozone;
         }
@@ -31,7 +31,8 @@ namespace EIR_9209_2.Service
                     _endpointConfig.ApiConnected = false;
                     _endpointConfig.Status = EWorkerServiceState.Idel;
                 }
-                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                await _connection.Update(_endpointConfig);
+                //await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
 
                 IQueryService queryService;
                 string FormatUrl = "";

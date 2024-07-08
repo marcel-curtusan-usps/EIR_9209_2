@@ -32,7 +32,7 @@
         layer.on('click', function (e) {
             //makea ajax call to get the employee details
             $.ajax({
-                url: '/api/Tag/' + feature.properties.id,
+                url: SiteURLconstructor(window.location) + '/api/Tag/GetTagByTagId?tagId=' + feature.properties.id,
                 type: 'GET',
                 success: function (data) {
                     //$('button[name="tagEdit"]').attr('data-id', feature.properties.id);

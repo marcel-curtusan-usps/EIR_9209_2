@@ -329,10 +329,10 @@ async function loadMachineData(data, table) {
         $('div[id=machine_div]').css('display', 'block');
         $('div[id=ctstabs_div]').css('display', 'block');
         $('button[name=machineinfoedit]').attr('id', data.id);
-        $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + 'MPE/MPE.html?MPEStatus=' + data.name, style: 'color:white;' }).html("View").appendTo($('span[name=mpeview]'));
-        $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + 'Reports/MPEPerformance.html?MPEStatus=' + data.name, style: 'color:white;' }).html("MPE Synopsis").appendTo($('span[name=mpePerfomance]'));
+        $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPE/MPE.html?MPEStatus=' + data.name, style: 'color:white;' }).html("View").appendTo($('span[name=mpeview]'));
+        $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/Reports/MPEPerformance.html?MPEStatus=' + data.name, style: 'color:white;' }).html("MPE Synopsis").appendTo($('span[name=mpePerfomance]'));
         if (!!mpeData.mpeGroup) {
-            $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + 'MPESDO/MPESDO.html?MPEGroupName=' + mpeData.mpeGroup, style: 'color:white;' }).html("SDO View").appendTo($('span[name=mpeSDO]'));
+            $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPESDO/MPESDO.html?MPEGroupName=' + mpeData.mpeGroup, style: 'color:white;' }).html("SDO View").appendTo($('span[name=mpeSDO]'));
         }
         if (/machinetable/i.test(table)) {
             $('div[id=dps_div]').css('display', 'none');

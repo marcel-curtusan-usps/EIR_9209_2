@@ -51,7 +51,34 @@ $('#UserTag_Modal').on('shown.bs.modal', function () {
         }
     });
 });
+connection.on("updateBadgeTagPosition", async (data) => {
+    let tagdata = JSON.parse(data);
+    if (tagdata.properties.visible) {
+        Promise.all([addFeature(tagdata)]);
+    }
+    else {
+        Promise.all([deleteFeature(tagdata)]);
+    }
 
+});
+connection.on("updateBadgeTagInfo", async (tagdata) => {
+    if (tagdata.properties.visible) {
+        Promise.all([updateFeature(tagdata)]);
+    }
+    else {
+        Promise.all([deleteFeature(tagdata)]);
+    }
+
+});
+connection.on("deletePersonTagInfo", async (tagdata) => {
+    if (tagdata.properties.visible) {
+        Promise.all([updateFeature(tagdata)]);
+    }
+    else {
+        Promise.all([deleteFeature(tagdata)]);
+    }
+
+});
 let tagsEmployees = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
         return new L.circleMarker(latlng, {
@@ -70,7 +97,7 @@ let tagsEmployees = new L.GeoJSON(null, {
         layer.on('click', function (e) {
             //makea ajax call to get the employee details
             $.ajax({
-                url: '/api/Tag/' + feature.properties.id,
+                url: SiteURLconstructor(window.location) + '/api/Tag/GetTagByTagId?tagId=' + feature.properties.id,
                 type: 'GET',
                 success: function (data) {
                     if ('Message' in data) {
@@ -139,12 +166,12 @@ async function init_tagsEmployees(data) {
                 let sp = this.nextElementSibling;
                 if (/^badges$/ig.test(sp.innerHTML.trim())) {
                     if (this.checked) {
-                        connection.invoke("JoinGroup", "Tags").catch(function (err) {
+                        connection.invoke("JoinGroup", "Badge").catch(function (err) {
                             return console.error(err.toString());
                         });
                     }
                     else {
-                        connection.invoke("LeaveGroup", "Tags").catch(function (err) {
+                        connection.invoke("LeaveGroup", "Badge").catch(function (err) {
                             return console.error(err.toString());
                         });
                     }
@@ -187,6 +214,31 @@ async function addFeature(data) {
         throw new Error(e.toString());
     }
 }
+async function updateFeature(data) {
+    try {
+        let tag = data;
+        await findLeafletIds(tag.properties.id)
+            .then(leafletIds => {
+                let VisiblefillOpacity = tag.properties.visible ? "" : "tooltip-hidden";
+                let classname = getmarkerType(tag.properties.craftName) + VisiblefillOpacity;
+
+                tagsEmployees._layers[leafletIds].feature.properties = tag.properties;
+                tagsEmployees._layers[leafletIds].bindTooltip("", {
+                    permanent: true,
+                    interactive: true,
+                    direction: 'center',
+                    opacity: 1,
+                    className: classname,
+                }).openTooltip();
+            })
+            .catch(error => {
+                //
+            });
+    }
+    catch (e) {
+        throw new Error(e.toString());
+    }
+}
 async function positionUpdate(leafletId, lat, lag) {
     return new Promise((resolve, reject) => {
 
@@ -210,7 +262,7 @@ function getmarkerType(type) {
         else if (/^maintenance/ig.test(type)) {
             return 'persontag_maintenance ';
         }
-        else if (/^(LABORER CUSTODIAL|CUSTODIAN|CUTODIAN|Custodian)/ig.test(type)) {
+        else if (/^(LABORER CUSTODIAL|CUSTODIAN|CUTODIAN|Custodian|Custodian)/ig.test(type)) {
             return 'persontag_custodial ';
         }
         //else if (/pse/ig.test(type)) {
@@ -499,17 +551,24 @@ function formattagdata(result) {
     return reformatdata;
 }
 
-async function tagEditInfo() {
+async function tagEditInfo(tagId) {
 
     //get tag info from the tagEdit data-id
+    // check if tagId is  undefined
+    let id = '';
+    if (tagId === undefined) {
+        id = $('button[name="tagEdit"]').data('id');
+    }
+    else {
+        id = tagId;
+    }
 
-    let tagid = $('button[name="tagEdit"]').data('id');
     //if tagid is not empty or undefined or null
-    let ty = SiteURLconstructor(window.location) + 'api/Tag/' + tagid;
-    if (!!tagid) {
+
+    if (!!id) {
         //makea ajax call to get the employee details
         $.ajax({
-            url: SiteURLconstructor(window.location) + 'api/Tag/' + tagid,
+            url: SiteURLconstructor(window.location) + '/api/Tag/GetTagByTagId?tagid=' + id,
             type: 'GET',
             success: function (data) {
                 Promise.all([EditUserInfo(data.properties)]);
@@ -535,7 +594,7 @@ async function EditUserInfo(properties) {
     // Close the sidebar
     sidebar.close();
     // Populate the input fields with the feature properties
-    if (/Person/ig.test(properties.tagType)) {
+    if (/Badge/ig.test(properties.tagType)) {
         $('#personform').css("display", "block");
     }
     $('input[id=employeeEIN]').val(properties.eIN);
@@ -566,8 +625,8 @@ async function EditUserInfo(properties) {
             let updatedProperties = {};
             updatedProperties.tagId = $('input[name=tag_id]').val();
             updatedProperties.name = $('input[name=tag_name]').val();
-                updatedProperties.tagType = $('select[name=tagType_select] option:selected').val();
-            
+            updatedProperties.tagType = $('select[name=tagType_select] option:selected').val();
+
             if (/Person/ig.test($('select[id=tagType_select]').val())) {
                 updatedProperties.ein = $('input[name=employeeEIN]').val();
                 updatedProperties.empFirstName = $('input[name=empFirstName]').val();
@@ -589,10 +648,8 @@ async function EditUserInfo(properties) {
             // Send the updated properties to the server
 
             if (!$.isEmptyObject(updatedProperties)) {
-
-                let uri = SiteURLconstructor(window.location) + "api/Tag/UpdateTagInfo?id=" + properties.id;
                 $.ajax({
-                    url: uri,
+                    url: SiteURLconstructor(window.location) + "/api/Tag/UpdateTagInfo?id=" + properties.id,
                     type: 'PUT',
                     data: updatedProperties,
                     data: JSON.stringify(updatedProperties), // Ensure the data is a JSON string
@@ -614,7 +671,7 @@ async function EditUserInfo(properties) {
                         $('span[id=error_usertagsubmitBtn]').text("Request failed: " + response.statusText);
                     },
                     complete: function (data) {
-                    
+
                     }
                 });
 

@@ -18,12 +18,10 @@ async function startSearch(searchValue) {
     //clear layer tooltip class list for all tags
 
     if (checkValue(searchValue)) {
-        let uri = SiteURLconstructor(window.location) + "api/Tag/Search?id=" + searchValue;
-
         if (!!searchValue) {
             //makea ajax call to get the employee details
             $.ajax({
-                url: uri,
+                url: SiteURLconstructor(window.location) + "/api/Tag/Search?value=" + searchValue,
                 type: 'GET',
                 success: function (data) {
                     Promise.all([clearLayerTooltip()]);
@@ -63,7 +61,7 @@ async function setLayerTooltip(tagid) {
             tagid.forEach(function (item) {
                 $.map(map._layers, function (layer, i) {
                     if (layer.hasOwnProperty("feature") && layer.feature.properties.hasOwnProperty("Tag_Type")) {
-                        if (/(person)|(Vehicle$)/i.test(layer.feature.properties.Tag_Type)) {
+                        if (/(badge)|(Vehicle$)/i.test(layer.feature.properties.Tag_Type)) {
                             if (item.id === layer.feature.properties.id) {
                                 if (layer.hasOwnProperty("_tooltip") && layer._tooltip.hasOwnProperty("_container")) {
                                     if (!layer._tooltip._container.classList.contains('searchflash')) {
@@ -83,10 +81,10 @@ async function setLayerTooltip(tagid) {
 }
 async function clearLayerTooltip() {
     return new Promise((resolve, reject) => {
-        if (map.hasOwnProperty("_layers")) {
-            $.map(map._layers, function (layer, i) {
+        if (OSLmap.hasOwnProperty("_layers")) {
+            $.map(OSLmap._layers, function (layer, i) {
                 if (layer.hasOwnProperty("feature") && layer.feature.properties.hasOwnProperty("Tag_Type")) {
-                    if (/(person)|(Vehicle$)/i.test(layer.feature.properties.Tag_Type)) {
+                    if (/(badge)|(Vehicle$)/i.test(layer.feature.properties.Tag_Type)) {
                         if (layer.hasOwnProperty("_tooltip") && layer._tooltip.hasOwnProperty("_container")) {
                             if (layer._tooltip._container.classList.contains('searchflash')) {
                                 layer._tooltip._container.classList.remove('searchflash');
@@ -174,11 +172,13 @@ async function createTagSearchDataTable(table) {
         let td = $(this);
         let table = $(td).closest('table');
         let row = $(table).DataTable().row(td.closest('tr'));
+        let rowData = row.data();
         if (/tagedit/ig.test(this.name)) {
-            Promise.all([EditUserInfo(row.data())]);
+      
+            Promise.all([tagEditInfo(rowData.id)]);
         }
         if (/tagnav/ig.test(this.name)) {
-            Promise.all([moveToTagLocation(row.data().id)]);
+            Promise.all([moveToTagLocation(rowData.id)]);
         }
     });
 }
@@ -209,15 +209,19 @@ function removeTagSearchDataTable(ldata, table) {
     });
 }
 async function moveToTagLocation(id) {
-
-    $.map(map._layers, function (layer, i) {
-        if (layer.hasOwnProperty("feature") && layer.feature.properties.hasOwnProperty("Tag_Type")) {
-            if (/(person)|(Vehicle$)/i.test(layer.feature.properties.Tag_Type)) {
-                if (id === layer.feature.properties.id) {
-                    map.setView(layer._latlng, 5);
+    try {
+        $.map(OSLmap._layers, function (layer, i) {
+            if (layer.hasOwnProperty("feature") && layer.feature.properties.hasOwnProperty("tagType")) {
+                if (/(badge)|(Vehicle$)/i.test(layer.feature.properties.tagType)) {
+                    if (id === layer.feature.properties.id) {
+                        map.setView(layer._latlng, 5);
+                    }
                 }
             }
-        }
-    })
+        })
+    } catch (e) {
+        console.log(e)
+    }
+ 
 
 }

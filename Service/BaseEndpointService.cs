@@ -8,20 +8,20 @@ namespace EIR_9209_2.Service
     {
         protected readonly ILogger<BaseEndpointService> Logger;
         protected readonly IHttpClientFactory _httpClientFactory;
-        protected readonly IHubContext<HubServices> _hubServices;
         protected readonly IConfiguration _configuration;
+        protected readonly IInMemoryConnectionRepository _connection;
         protected Connection _endpointConfig;
         private CancellationTokenSource _cancellationTokenSource;
         private Task _task;
         private PeriodicTimer _timer;
-        protected BaseEndpointService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration)
+        protected BaseEndpointService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IInMemoryConnectionRepository connection)
         {
             Logger = logger;
             _httpClientFactory = httpClientFactory;
             _endpointConfig = endpointConfig;
             _cancellationTokenSource = new CancellationTokenSource();
-            _hubServices = hubServices;
             _configuration = configuration;
+            _connection = connection;
 
         }
         public void Start()
@@ -35,12 +35,12 @@ namespace EIR_9209_2.Service
                     _timer = new PeriodicTimer(TimeSpan.FromMilliseconds(100));
                     _task = Task.Run(async () => await RunAsync(_cancellationTokenSource.Token));
                     _endpointConfig.Status = EWorkerServiceState.Idel;
-                    _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                    _connection.Update(_endpointConfig);
                 }
                 else
                 {
                     _endpointConfig.Status = EWorkerServiceState.InActive;
-                    _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                    _connection.Update(_endpointConfig);
                 }
             }
         }
@@ -69,7 +69,7 @@ namespace EIR_9209_2.Service
             if (updateCon.ActiveConnection)
             {
                 Start();
-                _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                _connection.Update(_endpointConfig);
             }
 
         }

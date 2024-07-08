@@ -2,7 +2,6 @@
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using EIR_9209_2.Utilities;
-using EIR_9209_2.InMemory;
 using EIR_9209_2.DataStore;
 using EIR_9209_2.DatabaseCalls.IDS;
 using EIR_9209_2.Service;
@@ -49,10 +48,9 @@ public class Startup
         services.AddSingleton<IIDS, IDS>();
         services.AddSingleton<ScreenshotService>();
         services.AddSingleton<EmailService>();
-        services.AddHttpClient();
         services.AddSingleton<Worker>();
         services.AddHostedService(p => p.GetRequiredService<Worker>());
-
+        services.AddHttpClient();
         //add SignalR to the services
         services.AddSignalR(options =>
             {

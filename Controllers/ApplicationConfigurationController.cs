@@ -14,8 +14,13 @@ namespace EIR_9209_2.Controllers
         private readonly IEncryptDecrypt _encryptDecrypt = encryptDecrypt;
 
         // GET: api/<SiteConfigurationController>
-        [HttpGet("Configuration")]
-        public async Task<object> GetByConfiguration()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("AllConfiguration")]
+        public async Task<object> GetByAllConfiguration()
         {
 
             // hold all settings as a dictionary
@@ -44,42 +49,54 @@ namespace EIR_9209_2.Controllers
 
             return Ok(configurationValues);
         }
+        /// <summary>
+        /// 
+        /// </summary>
 
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET api/<SiteConfigurationController>/5
-        [HttpGet("{id}")]
+        [HttpGet]
+        [Route("Configuration")]
         public string Get(int id)
         {
             return "value";
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         // PUT api/<SiteConfigurationController>/5
-        [HttpPut("UpdateApplicationConfiguration")]
-        public async Task<object> Put(string key, string value)
-        {
-            // Example: Update a specific configuration setting
-            var applicationSettings = _configuration.GetSection("ApplicationConfiguration");
-            if (applicationSettings.Exists())
-            {
-                var setting = applicationSettings.GetSection(key);
-                if (setting.Exists())
-                {
-                    if (key.EndsWith("ConnectionString"))
-                    {
-                        _encryptDecrypt.Encrypt(value);
-                    }
-                    else
-                    {
-                        setting.Value = value;
-                    }
+        //[HttpPut("{key},{value}")]
+        //[Route("UpdateConfiguration")]
+        //public async Task<object> Put(string key, string value)
+        //{
+        //    // Example: Update a specific configuration setting
+        //    var applicationSettings = _configuration.GetSection("ApplicationConfiguration");
+        //    if (applicationSettings.Exists())
+        //    {
+        //        var setting = applicationSettings.GetSection(key);
+        //        if (setting.Exists())
+        //        {
+        //            if (key.EndsWith("ConnectionString"))
+        //            {
+        //                _encryptDecrypt.Encrypt(value);
+        //            }
+        //            else
+        //            {
+        //                setting.Value = value;
+        //            }
 
-                    return Ok();
-                }
-            }
+        //            return Ok();
+        //        }
+        //    }
 
-            return BadRequest();
+        //    return BadRequest();
 
-        }
+        //}
 
     }
 }

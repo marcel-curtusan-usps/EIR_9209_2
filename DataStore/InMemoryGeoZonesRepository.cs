@@ -205,11 +205,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             var maintPresent = 0;
             var supervisorPresent = 0;
             var otherPresent = 0;
+            var piecesForYield = piecesSortedThisHour != 0 ? piecesSortedThisHour : piecesCountThisHour;
             var entriesThisArea = _QREAreaDwellResults.ContainsKey(Dateandhour) ? _QREAreaDwellResults[Dateandhour].Where(r => r.AreaName.Equals(area)) : null; //_QREAreaDwellResults(Dateandhour);
             if (entriesThisArea != null)
             {
                 //if where pieces Sorted is available the calculate the actual yield using the sorted pieces
-                var piecesForYield = piecesSortedThisHour != 0 ? piecesSortedThisHour : piecesCountThisHour;
+               
                 var clerkAndMailHandlerCountThisHour = ((entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds)) / (1000 * 60 * 60));
                 actualYieldcal = piecesForYield != null && clerkAndMailHandlerCountThisHour > 0 ? piecesForYield.Value / clerkAndMailHandlerCountThisHour : 0.0;
                 if (mpe.HourlyData.Where(r => r.Hour == hour).Select(y => y.Count).Any())

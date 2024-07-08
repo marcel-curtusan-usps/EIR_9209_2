@@ -1,4 +1,15 @@
-﻿let tagsAGVVehicles = new L.GeoJSON(null, {
+﻿connection.on("updateAutonomousVehiclePosition", async (data) => {
+    let tagdata = JSON.parse(data);
+    if (tagdata.properties.visible) {
+        Promise.all([addAGVFeature(tagdata)]);
+    }
+    else {
+        Promise.all([deleteAGVFeature(tagdata)]);
+    }
+
+});
+
+let tagsAGVVehicles = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
         let vehicleIcon = L.divIcon({
             id: feature.properties.id,
@@ -32,7 +43,7 @@
         layer.on('click', function (e) {
             //makea ajax call to get the employee details
             $.ajax({
-                url: '/api/Tag/' + feature.properties.id,
+                url: SiteURLconstructor(window.location) + '/api/Tag/GetTagByTagId?tagId=' + feature.properties.id,
                 type: 'GET',
                 success: function (data) {
                     //$('button[name="tagEdit"]').attr('data-id', feature.properties.id);
@@ -88,12 +99,12 @@ async function init_tagsAGV(data) {
                 let sp = this.nextElementSibling;
                 if (/^badges$/ig.test(sp.innerHTML.trim())) {
                     if (this.checked) {
-                        connection.invoke("JoinGroup", "AGVTags").catch(function (err) {
+                        connection.invoke("JoinGroup", "AutonomousVehicle").catch(function (err) {
                             return console.error(err.toString());
                         });
                     }
                     else {
-                        connection.invoke("LeaveGroup", "AGVTags").catch(function (err) {
+                        connection.invoke("LeaveGroup", "AutonomousVehicle").catch(function (err) {
                             return console.error(err.toString());
                         });
                     }

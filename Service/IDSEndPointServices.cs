@@ -6,8 +6,8 @@ namespace EIR_9209_2.Service
     internal class IDSEndPointServices : BaseEndpointService
     {
 
-        public IDSEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration)
-                : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
+        public IDSEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IInMemoryConnectionRepository connection)
+                : base(logger, httpClientFactory, endpointConfig, configuration, connection)
         {
 
         }
@@ -15,22 +15,18 @@ namespace EIR_9209_2.Service
         {
             try
             {
-
-                if (_endpointConfig.Status != EWorkerServiceState.Running)
+                _endpointConfig.Status = EWorkerServiceState.Running;
+                _endpointConfig.LasttimeApiConnected = DateTime.Now;
+                if (_endpointConfig.ActiveConnection)
                 {
-                    _endpointConfig.Status = EWorkerServiceState.Running;
-                    _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                    if (_endpointConfig.ActiveConnection)
-                    {
-                        _endpointConfig.ApiConnected = true;
-                    }
-                    else
-                    {
-                        _endpointConfig.ApiConnected = false;
-                        _endpointConfig.Status = EWorkerServiceState.Idel;
-                    }
-                    await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                    _endpointConfig.ApiConnected = true;
                 }
+                else
+                {
+                    _endpointConfig.ApiConnected = false;
+                    _endpointConfig.Status = EWorkerServiceState.Idel;
+                }
+                await _connection.Update(_endpointConfig);
                 IQueryService queryService;
                 string FormatUrl = "";
                 //process tag data

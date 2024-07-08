@@ -122,17 +122,17 @@ public class HubServices : Hub
         });
     }
 
-    public async Task<IEnumerable<GeoMarker>> GetPersonTags()
+    public async Task<IEnumerable<GeoMarker>> GetBadgeTags()
     {
-        return await Task.Run(_tags.GetAllPerson);
+        return await Task.Run(() => _tags.GetTagsType("Badge"));
     }
     public async Task<IEnumerable<GeoMarker>> GetPIVTags()
     {
-        return await Task.Run(_tags.GetAllPIV);
+        return await Task.Run(() => _tags.GetTagsType("PITVehicle"));
     }
     public async Task<IEnumerable<GeoMarker>> GetAGVTags()
     {
-        return await Task.Run(_tags.GetAllAGV);
+        return await Task.Run(() => _tags.GetTagsType("AutonomousVehicle"));
     }
     public async Task<IEnumerable<GeoZone>> GetGeoZones()
     {

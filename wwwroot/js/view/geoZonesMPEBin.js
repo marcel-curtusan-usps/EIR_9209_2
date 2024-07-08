@@ -181,7 +181,7 @@ let geoZoneMPEBin = new L.GeoJSON(null, {
             OSLmap.setView(e.sourceTarget.getCenter(), 3);
             //makea ajax call to get the employee details
             $.ajax({
-                url: '/api/Zone/' + feature.properties.id,
+                url: SiteURLconstructor(window.location) + '/api/Zone/Id?id=' + feature.properties.id,
                 type: 'GET',
                 success: function (data) {
                     //$('#content').html(data);

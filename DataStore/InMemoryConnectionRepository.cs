@@ -1,4 +1,5 @@
 ﻿using EIR_9209_2.Models;
+using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -7,17 +8,19 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
 {
     private readonly ConcurrentDictionary<string, Connection> _connectionList = new();
     private readonly ConcurrentDictionary<string, ConnectionType> _connectionTypeList = new();
+    protected readonly IHubContext<HubServices> _hubServices;
     private readonly ILogger<InMemoryConnectionRepository> _logger;
     private readonly IConfiguration _configuration;
     private readonly IFileService _fileService;
     private readonly string filePath = "";
     private readonly string fileName = "";
 
-    public InMemoryConnectionRepository(ILogger<InMemoryConnectionRepository> logger, IConfiguration configuration, IFileService fileService)
+    public InMemoryConnectionRepository(ILogger<InMemoryConnectionRepository> logger, IHubContext<HubServices> hubServices, IConfiguration configuration, IFileService fileService)
     {
         _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
+        _hubServices = hubServices;
         fileName = $"{_configuration[key: "InMemoryCollection:CollectionConnections"]}.json";
         filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
             _configuration[key: "ApplicationConfiguration:BaseDirectory"],
@@ -71,25 +74,30 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
             return null;
         }
     }
-    public Connection? Update(Connection connection)
+    public async Task Update(Connection connection)
     {
-
-
-        if (_connectionList.TryGetValue(connection.Id, out Connection? currentConnection) && _connectionList.TryUpdate(connection.Id, connection, currentConnection))
+        bool saveToFile = false;
+        try
         {
-            if (_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented)))
+            if (_connectionList.TryGetValue(connection.Id, out Connection? currentConnection) && _connectionList.TryUpdate(connection.Id, connection, currentConnection))
             {
-                return Get(connection.Id);
+                saveToFile = true;
+                if (_connectionList.TryGetValue(connection.Id, out Connection? con))
+                {
+                    await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", con);
+                }
             }
-            else
-            {
-                return null;
-            }
-
         }
-        else
+        catch (Exception e)
         {
-            return null;
+            _logger.LogError(e.Message);
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+            }
         }
 
     }
@@ -128,6 +136,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
             {
                 foreach (Connection item in data.Select(r => r).ToList())
                 {
+                    item.Status = EWorkerServiceState.Stopped;
                     _connectionList.TryAdd(item.Id, item);
                 }
             }
@@ -264,8 +273,8 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
                     }
                 }
             }
-            if(_fileService.WriteFileInAppConfig("ConnectionType.json", JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented)))
-            { 
+            if (_fileService.WriteFileInAppConfig("ConnectionType.json", JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented)))
+            {
                 return connection;
             }
             else

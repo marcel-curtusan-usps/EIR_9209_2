@@ -12,7 +12,7 @@ let DateTime = luxon.DateTime;
 let appData = {};
 let baselayerid = "";
 const connection = new signalR.HubConnectionBuilder()
-    .withUrl(SiteURLconstructor(window.location) + "hubServics")
+    .withUrl(SiteURLconstructor(window.location) + "/hubServics")
     .withAutomaticReconnect()
     .configureLogging(signalR.LogLevel.Information)
     .build();
@@ -89,9 +89,9 @@ async function start() {
             //    console.error(err);
             //});
             //load Person Tags
-            connection.invoke("GetPersonTags").then(function (data) {
+            connection.invoke("GetBadgeTags").then(function (data) {
                 Promise.all([init_tagsEmployees(data)]).then(function () {
-                    connection.invoke("JoinGroup", "Tags").catch(function (err) {
+                    connection.invoke("JoinGroup", "Badge").catch(function (err) {
                         return console.error(err.toString());
                     });
 
@@ -103,7 +103,7 @@ async function start() {
             //load PIV Tags
             connection.invoke("GetPIVTags").then(function (data) {
                 Promise.all([init_tagsPIV(data)]).then(function () {
-                    connection.invoke("JoinGroup", "PIVTags").catch(function (err) {
+                    connection.invoke("JoinGroup", "PIVVehicle").catch(function (err) {
                         return console.error(err.toString());
                     });
 
@@ -115,7 +115,7 @@ async function start() {
             //load PIV Tags
             connection.invoke("GetAGVTags").then(function (data) {
                 Promise.all([init_tagsAGV(data)]).then(function () {
-                    connection.invoke("JoinGroup", "AGVTags").catch(function (err) {
+                    connection.invoke("JoinGroup", "AutonomousVehicle").catch(function (err) {
                         return console.error(err.toString());
                     });
 
@@ -162,16 +162,7 @@ connection.on("getTagData", async (id, data) => {
 connection.on("connection", async (data) => {
     Promise.all([updateConnection(JSON.parse(data))]);
 });
-connection.on("tags", async (data) => {
-    let tagdata = JSON.parse(data);
-    if (tagdata.properties.visible) {
-        Promise.all([addFeature(tagdata)]);
-    }
-    else {
-        Promise.all([deleteFeature(tagdata)]);
-    }
 
-});
 
 connection.on("applicationInfo", async (id, data) => {
     ApplicationInfo = JSON.parse(data);
@@ -223,10 +214,10 @@ function capitalize_Words(str) {
 }
 function SiteURLconstructor(winLoc) {
     if (/^(.CF)/i.test(winLoc.pathname)) {
-        return winLoc.origin + "/CF/";
+        return winLoc.origin + "/CF";
     }
     else {
-        return winLoc.origin + "/";
+        return winLoc.origin;
     }
 }
 function hideSidebarLayerDivs() {

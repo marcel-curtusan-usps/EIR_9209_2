@@ -49,10 +49,11 @@ async function init_ApplicationConfiguration() {
         //get data from application configuration controller
 
         $.ajax({
-            url: SiteURLconstructor(window.location) + 'api/ApplicationConfiguration/Configuration',
+            url: SiteURLconstructor(window.location) + '/api/ApplicationConfiguration/AllConfiguration',
 
             type: 'GET',
             success: function (data) {
+                Promise.all([init_SiteInformation(data.nassCode)]);
                 loadAppSettingDatatable(formatdata(data), "app_settingtable");
             },
             error: function (error) {
@@ -129,7 +130,7 @@ function Edit_AppSetting_Value(Data) {
         }
         if (!$.isEmptyObject(jsonObject)) {
             $.ajax({
-                url: SiteURLconstructor(window.location) + 'api/ApplicationConfiguration/Configuration',
+                url: SiteURLconstructor(window.location) + '/api/ApplicationConfiguration/Configuration',
 
                 type: 'GET',
                 success: function (data) {
@@ -145,10 +146,10 @@ function Edit_AppSetting_Value(Data) {
                     console.log(fail);
                 },
                 complete: function (complete) {
-                    
+
                     setTimeout(function () {
                         $("#AppSetting_value_Modal").modal('hide');
-                       
+
                     }, 800);
                 }
             });
@@ -237,7 +238,7 @@ function createAppSettingDataTable(table) {
         let table = $(td).closest('table');
         let row = $(table).DataTable().row(td.closest('tr'));
         if (/editappsetting/ig.test(this.name)) {
-            
+
             Edit_AppSetting_Value(row.data());
         }
     });

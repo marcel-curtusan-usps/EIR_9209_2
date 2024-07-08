@@ -29,7 +29,12 @@ namespace EIR_9209_2.Controllers
             }
             return Ok(_emailList.GetAll());
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="email"></param>
+        /// <returns></returns>
         // POST api/<EmailAgentController>
         [HttpPost]
         [Route("SendEmail")]
@@ -75,7 +80,15 @@ namespace EIR_9209_2.Controllers
             }
         }
         // PUT api/<EmailAgentController>/5 
-        [HttpPut("EditEmail")]
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+
+        [HttpPut]
+        [Route("EditEmail")]
         public async Task<object> Put(string id, [FromBody] JObject value)
         {
             if (!ModelState.IsValid)
@@ -91,7 +104,13 @@ namespace EIR_9209_2.Controllers
             return Ok(result);
         }
         //delete api/<EmailAgentController>/5   
-        [HttpDelete("DeleteEmail")]
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route("DeleteEmail")]
         public async Task<object> Delete(string id)
         {
             if (!ModelState.IsValid)

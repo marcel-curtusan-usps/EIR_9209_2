@@ -13,11 +13,11 @@ using System.Text.RegularExpressions;
 using System.Transactions;
 using static EIR_9209_2.Models.GeoMarker;
 
-namespace EIR_9209_2.InMemory
+namespace EIR_9209_2.DataStore
 {
     public class InMemoryTagsRepository : IInMemoryTagsRepository
     {
-        private static readonly ConcurrentDictionary<string, GeoMarker> _tagList = new();
+        private readonly ConcurrentDictionary<string, GeoMarker> _tagList = new();
         private readonly ILogger<InMemoryTagsRepository> _logger;
         protected readonly IHubContext<HubServices> _hubServices;
         private readonly IConfiguration _configuration;
@@ -43,17 +43,19 @@ namespace EIR_9209_2.InMemory
 
         }
 
-        public void Add(GeoMarker tag)
+        public async Task Add(GeoMarker tag)
         {
             if (_tagList.TryAdd(tag.Properties.Id, tag))
             {
+                await _hubServices.Clients.Group(tag.Properties.TagType).SendAsync($"add{tag.Properties.TagType}TagInfo", tag);
                 FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
             }
         }
-        public void Remove(string connectionId)
+        public async Task Delete(string connectionId)
         {
-            if (_tagList.TryRemove(connectionId, out _))
+            if (_tagList.TryRemove(connectionId, out GeoMarker? tag))
             {
+                await _hubServices.Clients.Group(tag.Properties.TagType).SendAsync($"delete{tag.Properties.TagType}TagInfo", tag);
                 FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
             }
 
@@ -76,11 +78,11 @@ namespace EIR_9209_2.InMemory
         }
         public List<GeoMarker> GetAll()
         {
-            return _tagList.Values.Where(r => r.Properties.posAge > 1 && r.Properties.posAge < 100000 && r.Properties.Visible).Select(y => y).ToList();
+            return _tagList.Values.Where(r => r.Properties.Visible).Select(y => y).ToList();
         }
-        public List<GeoMarker> GetAllPerson()
+        public List<GeoMarker> GetTagsType(string type)
         {
-            return _tagList.Values.Where(r => r.Properties.posAge > 1 && r.Properties.posAge < 100000 && r.Properties.Visible && r.Properties.TagType == "Person").Select(y => y).ToList();
+            return _tagList.Values.Where(r => r.Properties.TagType == type).Select(y => y).ToList();
         }
         public List<GeoMarker> GetAllPIV()
         {
@@ -90,16 +92,6 @@ namespace EIR_9209_2.InMemory
         {
             return _tagList.Values.Where(r => r.Properties.TagType.StartsWith("Autonomous")).Select(y => y).ToList();
         }
-
-        public void Update(GeoMarker tag)
-        {
-            if (_tagList.TryGetValue(tag.Properties.Id, out GeoMarker currentTag) && _tagList.TryUpdate(tag.Properties.Id, tag, currentTag))
-            {
-                FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
-            }
-        }
-        //area Dwell
-
         public void UpdateEmployeeInfo(JToken result)
         {
             bool savetoFile = false;
@@ -123,7 +115,7 @@ namespace EIR_9209_2.InMemory
                     {
                         //check if tag type is not null and update the tag type
 
-                        currentTag.Properties.TagType = "Person";
+                        currentTag.Properties.TagType = "Badge";
                         savetoFile = true;
 
 
@@ -179,15 +171,20 @@ namespace EIR_9209_2.InMemory
                         {
                             if (!string.IsNullOrEmpty(empData["designationActivity"].ToString()) && currentTag.Properties.DesignationActivity != empData["designationActivity"].ToString())
                             {
+                                if (string.IsNullOrEmpty(currentTag.Properties.DesignationActivity))
+                                {
+                                    currentTag.Properties.DesignationActivity = empData["designationActivity"].ToString();
+                                    savetoFile = true;
+                                }
+
                                 var daCode = _dacode.Get(empData["designationActivity"].ToString());
                                 if (daCode != null)
                                 {
-                                    currentTag.Properties.DesignationActivity = daCode.DesignationActivity;
                                     currentTag.Properties.CraftName = daCode.CraftType;
-
+                                    savetoFile = true;
                                 }
 
-                                savetoFile = true;
+
                             }
 
 
@@ -239,6 +236,10 @@ namespace EIR_9209_2.InMemory
                         item.Properties.posAge = 0;
                         item.Properties.Zones = [];
                         item.Properties.ZonesNames = "";
+                        if (item.Properties.TagType == "Person")
+                        {
+                            item.Properties.TagType = "Badge";
+                        }
                         _tagList.TryAdd(item.Properties.Id, item);
                     }
                 }
@@ -260,8 +261,6 @@ namespace EIR_9209_2.InMemory
                 _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
             }
         }
-        //dac
-
         public void UpdateBadgeTransactionScan(JObject transaction)
         {
             bool savetoFile = false;
@@ -309,7 +308,6 @@ namespace EIR_9209_2.InMemory
                 }
             }
         }
-
         public string GetCraftType(string tagId)
         {
             return _tagList.Where(r => r.Key == tagId).Select(y => y.Value.Properties.CraftName).FirstOrDefault();
@@ -406,7 +404,7 @@ namespace EIR_9209_2.InMemory
         //    }
         //}
 
-        public object UpdateTagInfo(JObject tagInfo)
+        async Task<object> IInMemoryTagsRepository.UpdateTagUIInfo(JObject tagInfo)
         {
             //update DasigbationActivity to CraftType
             bool savetoFile = false;
@@ -416,8 +414,7 @@ namespace EIR_9209_2.InMemory
                 {
                     //find tag id and update proprieties
                     GeoMarker? TagData = null;
-                    _tagList.TryGetValue(tagInfo["tagId"].ToString(), out TagData);
-                    if (TagData != null)
+                    if (_tagList.TryGetValue(tagInfo["tagId"].ToString(), out TagData))
                     {
                         if (tagInfo.ContainsKey("ein"))
                         {
@@ -444,6 +441,12 @@ namespace EIR_9209_2.InMemory
                             TagData.Properties.Name = tagInfo["name"].ToString();
                             savetoFile = true;
                         }
+                        if (tagInfo.ContainsKey("title"))
+                        {
+                            TagData.Properties.Title = tagInfo["title"].ToString();
+                            TagData.Properties.CraftName = tagInfo["title"].ToString();
+                            savetoFile = true;
+                        }
                         if (tagInfo.ContainsKey("empPayLocation"))
                         {
                             TagData.Properties.EmpPayLocation = tagInfo["empPayLocation"].ToString();
@@ -464,18 +467,8 @@ namespace EIR_9209_2.InMemory
                                 savetoFile = true;
                             }
                         }
-                        if (TagData.Properties.TagType.StartsWith("Person"))
-                        {
-                            _hubServices.Clients.Group("Tags").SendAsync("UpdatePersonTagInfo", TagData.ToString());
-                        }
-                        if (TagData.Properties.TagType.StartsWith("Vehicle"))
-                        {
-                            _hubServices.Clients.Group("PIVTags").SendAsync("UpdatePIVTagInfo", TagData.ToString());
-                        }
-                        if (TagData.Properties.TagType.StartsWith("Autonomous"))
-                        {
-                            _hubServices.Clients.Group("AGVTags").SendAsync("UpdateAGVTagInfo", TagData.ToString());
-                        }
+
+                        await _hubServices.Clients.Group(TagData.Properties.TagType).SendAsync($"update{TagData.Properties.TagType}TagInfo", TagData);
 
                         return Task.FromResult(TagData);
                     }
@@ -514,8 +507,7 @@ namespace EIR_9209_2.InMemory
                 || Regex.IsMatch(sl.Value.Properties.EmpLastName, "(" + searchValue + ")", RegexOptions.IgnoreCase)
               ).Select(r => r.Value.Properties).ToList();
         }
-
-        Task IInMemoryTagsRepository.UpdateTagQPEInfo(List<Tags> tags)
+        async Task IInMemoryTagsRepository.UpdateTagQPEInfo(List<Tags> tags)
         {
             bool savetoFile = false;
             try
@@ -524,12 +516,37 @@ namespace EIR_9209_2.InMemory
                 {
                     GeoMarker? TagData = null;
                     _tagList.TryGetValue(qtitem.TagId, out TagData);
+                    long posAge = -1;
+                    qtitem.ServerTS = qtitem.LocationTS;
+                    if (qtitem.LocationTS == 0)
+                    {
+                        posAge = -1;
+                    }
+                    else
+                    {
+                        posAge = qtitem.ServerTS - qtitem.LocationTS;
+                    }
+                    bool visable = posAge >= 0 && posAge < 150000 ? true : false;
+                    if (qtitem.LocationType == "presence" || qtitem.LocationType == "proximity" || qtitem.LocationType == "hidden")
+                    {
+                        visable = false;
+                    }
+                    if (qtitem.LocationMovementStatus == "hidden" || qtitem.LocationMovementStatus == "noData")
+                    {
+                        visable = false;
+                    }
                     if (TagData != null)
                     {
                         TagData.Properties.Color = qtitem.Color;
                         TagData.Properties.Zones = qtitem.LocationZoneIds;
                         TagData.Geometry.Coordinates = qtitem.Location.Any() ? [qtitem.Location[0], qtitem.Location[1]] : [0, 0];
                         TagData.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
+                        TagData.Properties.Visible = visable;
+                        if (string.IsNullOrEmpty(TagData.Properties.TagType))
+                        {
+                            TagData.Properties.TagType = "Badge";
+                            savetoFile = true;
+                        }
                         if (!string.IsNullOrEmpty(qtitem.TagName))
                         {
 
@@ -537,8 +554,7 @@ namespace EIR_9209_2.InMemory
                     }
                     else
                     {
-                        //add tag to taglist
-                        GeoMarker tagData = new GeoMarker
+                        TagData = new GeoMarker
                         {
                             Geometry = new MarkerGeometry
                             {
@@ -551,22 +567,51 @@ namespace EIR_9209_2.InMemory
                                 Name = qtitem.TagName,
                                 Color = qtitem.Color,
                                 Zones = qtitem.LocationZoneIds,
-                                LocationMovementStatus = qtitem.LocationMovementStatus
+                                LocationMovementStatus = qtitem.LocationMovementStatus,
+                                TagType = "Badge",
+                                Visible = visable
                             }
                         };
-                        if (_tagList.TryAdd(qtitem.TagId, tagData))
+
+
+                        if (_tagList.TryAdd(qtitem.TagId, TagData))
                         {
                             savetoFile = true;
                         }
 
                     }
+
+                    if (qtitem.Location.Any())
+                    {
+                        JObject PositionGeoJson = new JObject
+                        {
+                            ["type"] = "Feature",
+                            ["geometry"] = new JObject
+                            {
+                                ["type"] = "Point",
+                                ["coordinates"] = qtitem.Location.Any() ? new JArray(qtitem.Location[0], qtitem.Location[1]) : new JArray(0, 0)
+                            },
+                            ["properties"] = new JObject
+                            {
+                                ["id"] = qtitem.TagId,
+                                ["floorId"] = qtitem.LocationCoordSysId,
+                                ["posAge"] = posAge,
+                                ["visible"] = visable,
+                                ["zones"] = qtitem.LocationZoneIds.ToString(),
+                                ["locationMovementStatus"] = qtitem.LocationMovementStatus,
+                                ["positionTS_txt"] = qtitem.LocationTS,
+                                ["craftName"] = TagData?.Properties.CraftName,
+                                ["tagType"] = TagData?.Properties.TagType
+                            }
+                        };
+
+                        await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", PositionGeoJson.ToString());
+                    }
                 }
-                return Task.FromResult(false);
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return Task.FromResult(false);
             }
             finally
             {
