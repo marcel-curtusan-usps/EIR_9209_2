@@ -84,43 +84,43 @@ namespace EIR_9209_2.Controllers
                 return await Task.FromResult(BadRequest(new { message = "Invalid Parameters in the Request.", Parameters = new { QueryName = queryName, StartHour = startHour, EndHour = endHour } }));
             }
         }
-        // POST api/<IDSController>
-        [HttpPost]
-        [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("GetIDSData")]
-        public async Task<object> PostByGetIDSData([FromBody] JToken data)
-        {   //handle bad requests
-            if (!ModelState.IsValid)
-            {
-                return await Task.FromResult(BadRequest(ModelState));
-            }
-            else if (data != null && data.HasValues)
-            {
-                if (data.HasValues && data.Type == JTokenType.Object)
-                {
-                    JToken result = await _ids.GetOracleIDSData(data);
+        //// POST api/<IDSController>
+        //[HttpPost]
+        //[ApiExplorerSettings(IgnoreApi = true)]
+        //[Route("GetIDSData")]
+        //public async Task<object> PostByGetIDSData([FromBody] JToken data)
+        //{   //handle bad requests
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return await Task.FromResult(BadRequest(ModelState));
+        //    }
+        //    else if (data != null && data.HasValues)
+        //    {
+        //        if (data.HasValues && data.Type == JTokenType.Object)
+        //        {
+        //            JToken result = await _ids.GetOracleIDSData(data);
 
-                    if (((JObject)result).ContainsKey("Error"))
-                    {
-                        return await Task.FromResult(result);
+        //            if (((JObject)result).ContainsKey("Error"))
+        //            {
+        //                return await Task.FromResult(result);
 
-                    }
-                    else
-                    {
-                        return await Task.FromResult(result);
-                    }
-                }
+        //            }
+        //            else
+        //            {
+        //                return await Task.FromResult(result);
+        //            }
+        //        }
 
-                else
-                {
-                    return await Task.FromResult(BadRequest());
-                }
-            }
-            else
-            {
-                return await Task.FromResult(BadRequest());
-            }
-        }
+        //        else
+        //        {
+        //            return await Task.FromResult(BadRequest());
+        //        }
+        //    }
+        //    else
+        //    {
+        //        return await Task.FromResult(BadRequest());
+        //    }
+        //}
         [HttpPost]
         [Route("IDSData")]
         public async Task<object> PostByIDSData(string queryName, int startHour, int endHour)

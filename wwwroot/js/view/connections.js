@@ -360,7 +360,7 @@ async function Add_Connection() {
                 WsConnection: $('input[type=radio][id=ws_connection]').prop('checked'),
                 HoursBack: parseInt($('input[id=hoursback_range]').val(), 10),
                 HoursForward: parseInt($('input[id=hoursforward_range]').val(), 10),
-                DataRetrieve: $('select[name=data_retrieve] option:selected').val(),
+                MillisecondsInterval: $('select[name=data_retrieve] option:selected').val(),
                 Name: $('select[name=connection_name] option:selected').val(),
                 IpAddress: $('input[type=text][name=ip_address]').val(),
                 Port: $.isNumeric($('input[type=text][name=port_number]').val()) ? parseInt($('input[id=hoursback_range]').val(), 10) : 0,
@@ -495,9 +495,9 @@ async function Edit_Connection(data) {
                 }
                 //make a ajax call to get the Connection details
                 $.ajax({
-                    url: SiteURLconstructor(window.location) + '/api/Connections/Update?id=' + data.id,
+                    url: SiteURLconstructor(window.location) + '/api/Connections/Update',
                     contentType: 'application/json-patch+json',
-                    type: 'PUT',
+                    type: 'POST',
                     data: JSON.stringify(jsonObject),
                     success: function (successdata) {
                         $('#content').html(successdata);

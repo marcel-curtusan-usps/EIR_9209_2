@@ -37,7 +37,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
     public void Remove(BackgroundImage backgroundImage) { _backgroundImages.TryRemove(backgroundImage.id, out _); }
     public BackgroundImage Get(string id)
     {
-        _backgroundImages.TryGetValue(id, out BackgroundImage backgroundImage);
+        _backgroundImages.TryGetValue(id, out BackgroundImage? backgroundImage);
         return backgroundImage;
     }
     public IEnumerable<BackgroundImage> GetAll() => _backgroundImages.Values;

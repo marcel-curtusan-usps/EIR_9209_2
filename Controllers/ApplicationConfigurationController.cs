@@ -24,7 +24,7 @@ namespace EIR_9209_2.Controllers
         {
 
             // hold all settings as a dictionary
-            var configurationValues = new Dictionary<string, string>();
+            Dictionary<string, string?> configurationValues = [];
 
             // Example: Retrieve a specific configuration section
             var applicationSettings = _configuration.GetSection("ApplicationConfiguration");

@@ -13,18 +13,13 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class Connections : ControllerBase
+    public class Connections(ILogger<Connections> logger, IInMemoryConnectionRepository connectionRepository, IHubContext<HubServices> hubContext, Worker worker) : ControllerBase
     {
-        private readonly IInMemoryConnectionRepository _connectionRepository;
-        private readonly IHubContext<HubServices> _hubContext;
-        private readonly Worker _worker;
+        private readonly IInMemoryConnectionRepository _connectionRepository = connectionRepository;
+        private readonly IHubContext<HubServices> _hubContext = hubContext;
+        private readonly Worker _worker = worker;
+        private readonly ILogger<Connections> _logger = logger;
 
-        public Connections(IInMemoryConnectionRepository connectionRepository, IHubContext<HubServices> hubContext, Worker worker)
-        {
-            _connectionRepository = connectionRepository;
-            _hubContext = hubContext;
-            _worker = worker;
-        }
         /// <summary>
         /// 
         /// </summary>
@@ -67,7 +62,7 @@ namespace EIR_9209_2.Controllers
         /// </summary>
         /// <param name="value">The connection details.</param>
         /// <returns>The added connection.</returns>
-        public async Task<object> PostAddNewConnection([FromBody] JObject value)
+        public async Task<object> PostAddConnection([FromBody] JObject value)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -103,51 +98,56 @@ namespace EIR_9209_2.Controllers
 
 
         }
-
-        // PUT api/<Connection>/5
-        [HttpPut]
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        // POST api/<Connection>
+        [HttpPost]
         [Route("Update")]
-        public async Task<object> Put(string id, [FromBody] JObject value)
+        public async Task<object> PostUpdateConnection([FromBody] JObject value)
         {
-            //handle bad requests
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
-            //convert the JObject to a Connection object
-            //find id to update 
-            Connection conToUpdate = _connectionRepository.Get(id);
-            if (conToUpdate != null)
-            {
-                Connection connection = value.ToObject<Connection>();
-                connection.LastupDate = DateTime.Now;
-                if (!connection.ActiveConnection)
+                //handle bad requests
+                if (!ModelState.IsValid)
                 {
-                    connection.DeactivatedDate = DateTime.Now;
+                    return BadRequest(ModelState);
                 }
-                await _connectionRepository.Update(connection);
-                return Ok();
-                //if (updatedCon != null)
-                //{
-                //    //add the connection to the worker
-                //    if (_worker.UpdateEndpoint(updatedCon))
-                //    {
-                //        await _hubContext.Clients.Group("Connections").SendAsync("UpdateConnection", updatedCon);
-                //        return Ok(updatedCon);
-                //    }
-                //    else
-                //    {
-                //        return BadRequest(new JObject { ["message"] = "End Point was not Started" });
-                //    }
-                //}
-                //else
-                //{
-                //    return BadRequest(new JObject { ["message"] = "End Point was not Updated " });
-                //}
+                //convert the JObject to a Connection object
+                //find id to update 
+                string id = "";
+                if (value.ContainsKey("id") && !string.IsNullOrEmpty(value["id"].ToString()))
+                {
+                    id = value["id"].ToString();
+                }
+                else
+                {
+                    BadRequest(new JObject { ["message"] = "No Connection id Found" });
+                }
+                Connection conToUpdate = _connectionRepository.Get(id);
+                if (conToUpdate != null)
+                {
+                    Connection connection = value.ToObject<Connection>();
+                    connection.LastupDate = DateTime.Now;
+                    if (!connection.ActiveConnection)
+                    {
+                        connection.DeactivatedDate = DateTime.Now;
+                    }
+                    await _connectionRepository.Update(connection);
+                    return Ok();
+
+                }
+                else
+                {
+                    return new JObject { ["Message"] = $"Connection Id:{id} was not Found" };
+                }
             }
-            else
+            catch (Exception e)
             {
-                return new JObject { ["Message"] = $"Connection Id:{id} was not Found" };
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
             }
         }
 

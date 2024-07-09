@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using EIR_9209_2.Models;
+using Microsoft.AspNetCore.SignalR;
 using System;
 
 namespace EIR_9209_2.Service
@@ -25,9 +26,9 @@ namespace EIR_9209_2.Service
                 // Dictionary to hold categorized emails
                 // Key: Tuple of report type and Mpe name, Value: List of recipient email addresses
                 var categorizedEmails = new Dictionary<(string ReportType, string MpeName), List<string>>();
-
+                IEnumerable<Email> emails = _email.GetAll();
                 // Iterate through all emails
-                foreach (var email in _email.GetAll())
+                foreach (var email in emails)
                 {
                     // Assuming each email object has ReportType, MpeName, and RecipientEmailAddress properties
                     var key = (email.ReportName, email.MPEName);
