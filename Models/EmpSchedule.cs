@@ -30,7 +30,7 @@ namespace EIR_9209_2.Models
         //public string BeginMoveDtm { get; set; } = "";
         //public string EndMoveDtm { get; set; } = "";
         public string Btour { get; set; } = "";
-        public string ETour { get; set; } = "";
+        public string Etour { get; set; } = "";
         //public string Blunch { get; set; } = "";
         //public string Elunch { get; set; } = "";
         //public string Bmove { get; set; } = "";

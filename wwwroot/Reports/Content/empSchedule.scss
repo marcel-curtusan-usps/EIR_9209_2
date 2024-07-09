@@ -1,0 +1,57 @@
+﻿@import url('../../content/bootstrap.css');
+@import url('../../content/bootstrap-grid.css');
+@import url('../../content/bootstrap-icons.css');
+@import url('../../content/bootstrap-reboot.css');
+
+html, body {
+    min-height: 100%;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+* {
+    margin: 0;
+    padding: 0;
+}
+.runVSplan {
+    width: 100%;
+    padding: 20px;
+    border-radius: 20px;
+    border: solid 3px rgba(54, 162, 235, 1);
+    background: white;
+}
+
+#mpePerformanceData  {
+        table-layout:fixed;
+}
+
+.modsdate{
+    justify-content:flex-end;
+    padding-right:5rem;
+}
+
+.modtext{
+    font-weight:bold;
+}
+.lineChartPerf{
+    height:240px;
+}
+.box {
+    border: 1px solid #ccc;
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-radius: 5px;
+    height: 216px;
+    text-align: center;
+}
+.box-title {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+.detail-title {
+    font-weight: bold;
+}
+.detail-value {
+    margin-top: 5px;
+}

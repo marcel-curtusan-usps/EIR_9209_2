@@ -78,8 +78,12 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
             _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
         }
     }
+    public IEnumerable<EmpSchedule> GetAll() => _empScheduleList.Values;
+    public object getEmpSchedule()
+    {
+        return _empScheduleList.Select(r => r.Value).ToList();
+    }
 
-  
     public Task LoadEmpInfo(JToken data)
     {
         bool savetoFile = false;
@@ -180,7 +184,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                                     //sch.BeginMoveDtm = item[9]!.ToString();
                                     //sch.EndMoveDtm = item[10]!.ToString();
                                     sch.Btour = item[11]!.ToString();
-                                    sch.ETour = item[12]!.ToString();
+                                    sch.Etour = item[12]!.ToString();
                                     //sch.Blunch = item[13]!.ToString();
                                     //sch.Elunch = item[14]!.ToString();
                                     //sch.Bmove = item[15]!.ToString();
@@ -221,7 +225,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                                 //BeginMoveDtm = item[9]!.ToString(),
                                 //EndMoveDtm = item[10]!.ToString(),
                                 Btour = item[11]!.ToString(),
-                                ETour = item[12]!.ToString(),
+                                Etour = item[12]!.ToString(),
                                 //Blunch = item[13]!.ToString(),
                                 //Elunch = item[14]!.ToString(),
                                 //Bmove = item[15]!.ToString(),
@@ -259,7 +263,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                             //BeginMoveDtm = item[9]!.ToString(),
                             //EndMoveDtm = item[10]!.ToString(),
                             Btour = item[11]!.ToString(),
-                            ETour = item[12]!.ToString(),
+                            Etour = item[12]!.ToString(),
                             //Blunch = item[13]!.ToString(),
                             //Elunch = item[14]!.ToString(),
                             //Bmove = item[15]!.ToString(),
@@ -302,7 +306,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                         //BeginMoveDtm = item[9]!.ToString(),
                         //EndMoveDtm = item[10]!.ToString(),
                         Btour = item[11]!.ToString(),
-                        ETour = item[12]!.ToString(),
+                        Etour = item[12]!.ToString(),
                         //Blunch = item[13]!.ToString(),
                         //Elunch = item[14]!.ToString(),
                         //Bmove = item[15]!.ToString(),
