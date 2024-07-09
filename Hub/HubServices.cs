@@ -18,6 +18,7 @@ public class HubServices : Hub
     private readonly IInMemoryTagsRepository _tags;
     private readonly IInMemoryGeoZonesRepository _geoZones;
     private readonly IInMemorySiteInfoRepository _siteInfo;
+    private readonly IInMemoryEmpSchedulesRepository _empSchedules;
     private readonly ILogger<HubServices> _logger;
     private readonly IConfiguration _configuration;
     public HubServices(ILogger<HubServices> logger,
@@ -27,6 +28,7 @@ public class HubServices : Hub
         IInMemoryTagsRepository tags,
         IInMemoryGeoZonesRepository zones,
         IInMemorySiteInfoRepository siteInfo,
+        IInMemoryEmpSchedulesRepository empSchedules,
         IConfiguration configuration)
     {
         _logger = logger;
@@ -36,6 +38,7 @@ public class HubServices : Hub
         _tags = tags;
         _geoZones = zones;
         _siteInfo = siteInfo;
+        _empSchedules = empSchedules;
         _configuration = configuration;
     }
     public async Task JoinGroup(string groupName)
@@ -138,7 +141,10 @@ public class HubServices : Hub
     {
         return await Task.Run(_geoZones.GetAll);
     }
-
+    public async Task<IEnumerable<EmpSchedule>> GetEmpSchedules()
+    {
+        return await Task.Run(_empSchedules.GetAll);
+    }
     private Task<string> GetUserName(ClaimsPrincipal? user)
     {
         return Task.FromResult(user?.Identity?.Name);

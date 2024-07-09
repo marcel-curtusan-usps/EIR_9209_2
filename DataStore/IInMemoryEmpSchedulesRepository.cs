@@ -5,4 +5,6 @@ public interface IInMemoryEmpSchedulesRepository
 {
     Task LoadEmpInfo(JToken data);
     Task LoadEmpSchedule(JToken data);
+    IEnumerable<EmpSchedule> GetAll();
+    object getEmpSchedule();
 }
