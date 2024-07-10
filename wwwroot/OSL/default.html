@@ -1942,8 +1942,40 @@
                 </h1>
 
                 <div class="btn-toolbar" role="toolbar" id="userinfo_div">
+                 
                     <div id="div_staffinfo" class="container-fluid">
                         <div class="card w-100">
+                            <h6 class="card-header pl-1">Employee Schedule</h6>
+                            <div class="card-body overflow-auto">
+                                <div class="input-group mb-2 mx-3">
+                                    <!-- API Buttons -->
+                                    <div role="group" class="d-flex btn-block" aria-label="Employee Schedule">
+
+                                        <a type="button" class="btn btn-light flex-fill mr-3" href="../Reports/EmpSchedule.html" target="_blank">Employee Schedule</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card w-100" id="BEsearch">
+                            <div class="row mx-0 mb-2">
+                                <h6 class="card-header sectionHeader ml-2 px-0 py-0 mt-3">Badge / Equipment Search</h6>
+                                <div class="input-group flex-fill px-0 mt-2 mx-3 mr-p5rem">
+                                    <input type="text" id="inputsearchbtn" class="form-control input-border-light" placeholder="Enter badge or equipment ID" aria-label="Tag / Equipment Name" aria-describedby="searchbtn" style="font-size: 14px;" />
+                     
+                                </div>
+                                <p class="smaller text-secondary mb-0 mt-1 ml-2">Start search by entering any letter or number of a badge or vehicle ID</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive fixedHeader variableHeight">
+                                    <table class="table table-sm table-hover mb-1 border-bottom" id="tagresulttable">
+                                        <thead class="thead-dark">
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <!--<div class="card w-100">
                             <div class="card-header pl-1">
                                 <h6 class="sectionHeader ml-1 mb-1">Staffing Report</h6>
                             </div>
@@ -1972,9 +2004,9 @@
                                     </table>
                                 </div>
                             </div>
-                        </div>
+                        </div>-->
                     </div>
-                    <div id="div_userinfo" class="container-fluid">
+                    <!--<div id="div_userinfo" class="container-fluid">
                         <div class="card w-100">
                             <div class="card-header pl-1">
                                 <h6 class="sectionHeader ml-1 mb-1">Craft Type</h6>
@@ -1996,8 +2028,6 @@
                             </div>
                         </div>
                     </div>
-
-
                     <div id="div_overtimeinfo" class="container-fluid ">
                         <div class="card w-100">
                             <div class="card-header pl-1">
@@ -2031,7 +2061,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>-->
                     <div id="div_taginfo" style="display: none" class="container-fluid">
                         <div class="card w-100">
                             <div class="card-header pl-1 d-flex justify-content-between">
@@ -2347,27 +2377,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card w-100 mb-3" id="BEsearch">
-                        <div class="row mx-0 mb-2">
-                            <h6 class="card-header sectionHeader ml-2 px-0 py-0 mt-3">Badge / Equipment Search</h6>
-                            <div class="input-group flex-fill px-0 mt-2 mx-3 mr-p5rem">
-                                <input type="text" id="inputsearchbtn" class="form-control input-border-light" placeholder="Enter badge or equipment ID" aria-label="Tag / Equipment Name" aria-describedby="searchbtn" style="font-size: 14px;" />
-                                <!--<div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" type="button" id="searchbtn">Search</button>
-                                </div>-->
-                            </div>
-                            <p class="smaller text-secondary mb-0 mt-1 ml-2">Start search by entering any letter or number of a badge or vehicle ID</p>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive fixedHeader variableHeight">
-                                <table class="table table-sm table-hover mb-1 border-bottom" id="tagresulttable">
-                                    <thead class="thead-dark">
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+            
                 </div>
             </div>
             <!--Sidebar panel MPE Notification-->
