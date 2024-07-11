@@ -55,9 +55,16 @@ function processScheduledata(data) {
                 }
             });
             let totalhrs = Math.round(hourst * 10) / 10;
-            let tacshrtotal = '100%';
-            let selshrtotal = '100%';
-            totalhrs += '<br><span class="tacshrSpan">' + tacshrtotal + '</span><span class="selshrSpan">' + selshrtotal + '</span>';
+            let totalhrspercent = '';
+            if (totalhrs == 0) {
+            } else {
+                let tacshrtotal = '38';
+                let selshrtotal = '35';
+                totalhrs += '<br><span class="tacshrSpan">' + tacshrtotal + '</span><span class="selshrSpan">' + selshrtotal + '</span>';
+                let tacshrtotalpercent = Math.round(parseFloat(tacshrtotal) / parseFloat(totalhrs) * 100 *1) / 1 + '%';
+                let selshrtotalpercent = Math.round(parseFloat(selshrtotal) / parseFloat(totalhrs) * 100 * 1) / 1 + '%';
+                totalhrspercent = '<br><span class="tacshrSpan">' + tacshrtotalpercent + '</span><span class="selshrSpan">' + selshrtotalpercent + '</span>';
+            }
             let employee = {
                 employee: curr.lastName + ', ' + curr.firstName + '<br>' + curr.ein,
                 tour: curr.tourNumber,
@@ -68,7 +75,8 @@ function processScheduledata(data) {
                 day5: day5,
                 day6: day6,
                 day7: day7,
-                hourstotal: totalhrs
+                hourstotal: totalhrs,
+                hourstotalpercent: totalhrspercent
             };
             acc.push(employee);
             return acc;
@@ -139,6 +147,11 @@ async function createEmpScheduleDataTable(table) {
             "title": 'Hours Total',
             "width": "10%",
             "data": 'hourstotal'
+        },
+        {
+            "title": 'Hours Total %',
+            "width": "10%",
+            "data": 'hourstotalpercent'
         }
       ]
 
@@ -187,8 +200,8 @@ function getDaySchedule(row, day) {
                 //curday = 'LV';
             } else {
                 curday = '<span class="tourhrSpan">' + value.btour + '-' + value.etour + '</span >';
-                let tacshr = '100%';
-                let selshr = '100%';
+                let tacshr = '9.86';
+                let selshr = '6.85';
                 curday += '<br><span class="tacshrSpan">' + tacshr + '</span><span class="selshrSpan">' + selshr + '</span>';
             }
         }
