@@ -55,6 +55,35 @@ html, body {
 th.dt-center, td.dt-center {
     text-align: center;
 }
+.legend {
+    list-style: none;
+}
+
+.legend li {
+    float: left;
+    margin-right: 10px;
+}
+.legend span {
+    border: 1px solid #ccc;
+    float: left;
+    width: 12px;
+    height: 12px;
+    margin: 2px;
+}
+.legend .tacshr {
+    background-color: #ffaf7a;
+}
+.legend .selshr {
+    background-color: #add8e6;
+}
+.search {
+    float: right;
+}
+#empScheduleData .tourhrSpan {
+    display: inline-block;
+    width: 80px;
+    text-align: center;
+}
 #empScheduleData .leaveSpan {
     display: inline-block;
     width: 80px;
@@ -72,6 +101,18 @@ th.dt-center, td.dt-center {
     width: 80px;
     text-align: center;
     background-color: #c0c0c0;
+}
+#empScheduleData .tacshrSpan {
+    display: inline-block;
+    width: 40px;
+    text-align: center;
+    background-color: #ffaf7a;
+}
+#empScheduleData .selshrSpan {
+    display: inline-block;
+    width: 40px;
+    text-align: center;
+    background-color: #add8e6;
 }
 
 

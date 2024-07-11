@@ -54,7 +54,10 @@ function processScheduledata(data) {
                     });
                 }
             });
-            
+            let totalhrs = Math.round(hourst * 10) / 10;
+            let tacshrtotal = '100%';
+            let selshrtotal = '100%';
+            totalhrs += '<br><span class="tacshrSpan">' + tacshrtotal + '</span><span class="selshrSpan">' + selshrtotal + '</span>';
             let employee = {
                 employee: curr.lastName + ', ' + curr.firstName + '<br>' + curr.ein,
                 tour: curr.tourNumber,
@@ -65,7 +68,7 @@ function processScheduledata(data) {
                 day5: day5,
                 day6: day6,
                 day7: day7,
-                hourstotal: Math.round(hourst * 10) / 10
+                hourstotal: totalhrs
             };
             acc.push(employee);
             return acc;
@@ -140,15 +143,18 @@ async function createEmpScheduleDataTable(table) {
       ]
 
       let EmpScheduleDataTable = $('#' + table).DataTable({
-        dom: 'Bfrtip',
+          dom: '<"search"f>Brtip',
         //dom: "flrtipB",
-        bFilter: false,
+        bFilter: true,
         bdeferRender: true,
         bpaging: true,
         bPaginate: false,
         autoWidth: false,
         bInfo: false,
         destroy: true,
+        scrollY: 600,
+        scrollx: true,
+        scroller: true,        
         language: {
             zeroRecords: "No Data"
         },
@@ -156,7 +162,7 @@ async function createEmpScheduleDataTable(table) {
         columnDefs: [
             { targets: [1, 9], className: 'dt-center' }
         ],
-        sorting: [[0, "asc"]],
+        sorting: [[1, "asc"]],
       })
       $('#' + table + ' thead').attr("class", "thead-dark");
 
@@ -180,7 +186,10 @@ function getDaySchedule(row, day) {
                 curday = '<span class="leaveSpan">LV</span>';
                 //curday = 'LV';
             } else {
-                curday = value.btour + '-' + value.etour;
+                curday = '<span class="tourhrSpan">' + value.btour + '-' + value.etour + '</span >';
+                let tacshr = '100%';
+                let selshr = '100%';
+                curday += '<br><span class="tacshrSpan">' + tacshr + '</span><span class="selshrSpan">' + selshr + '</span>';
             }
         }
     });
