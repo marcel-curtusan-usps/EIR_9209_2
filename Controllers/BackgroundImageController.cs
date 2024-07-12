@@ -1,8 +1,7 @@
 ﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.Mvc;
-using Image = System.Drawing.Image;
 using Newtonsoft.Json.Linq;
-using static EIR_9209_2.Controllers.BackgroundImageController;
+using Image = System.Drawing.Image;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

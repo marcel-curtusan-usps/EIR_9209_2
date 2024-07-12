@@ -9,10 +9,9 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ZoneController(IInMemoryGeoZonesRepository zonesRepository, IHubContext<HubServices> hubServices) : ControllerBase
+    public class ZoneController(IInMemoryGeoZonesRepository zonesRepository) : ControllerBase
     {
         private readonly IInMemoryGeoZonesRepository _zonesRepository = zonesRepository;
-        private readonly IHubContext<HubServices> _hubServices = hubServices;
 
         // GET: api/<ZoneController>
         [HttpGet]
@@ -71,24 +70,19 @@ namespace EIR_9209_2.Controllers
             newZone.Properties.Id = Guid.NewGuid().ToString();
 
             _zonesRepository.Add(newZone);
-
-            if (zone.ContainsKey("zoneType") && zone["zoneType"].ToString() == "MPEBinZones")
-            {
-                await _hubServices.Clients.Group("MPEBinZones").SendAsync("AddMPEBinZones", newZone);
-            }
-            return Ok(newZone);
+            return Ok();
         }
-
-        //// PUT api/<ZoneController>/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
-
-        //// DELETE api/<ZoneController>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
+        // DELETE api/<ZoneController>/5
+        [HttpDelete]
+        [Route("Delete")]
+        public async Task<object> Delete(string id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            _zonesRepository.Remove(id);
+            return Ok();
+        }
     }
 }

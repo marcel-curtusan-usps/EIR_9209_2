@@ -6,7 +6,8 @@ namespace EIR_9209_2.Utilities
     public class FileAccessTester : IFileAccessTester
     {
         private readonly ILogger<FileAccessTester> _logger;
-        public FileAccessTester(ILogger<FileAccessTester> logger) {
+        public FileAccessTester(ILogger<FileAccessTester> logger)
+        {
             _logger = logger;
         }
         public bool CanCreateFilesAndWriteInFolder(string folderPath)

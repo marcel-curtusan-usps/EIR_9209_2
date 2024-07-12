@@ -307,7 +307,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
 });
 let connTypeRadio = null;
 /// receive messages from server 
-connection.on("AddConnection", async (data) => {
+connection.on("addConnection", async (data) => {
     try {
         return new Promise((resolve, reject) => {
             Promise.all([updateConnectionDataTable(data, ConnectionListtable)]);
@@ -318,7 +318,7 @@ connection.on("AddConnection", async (data) => {
         throw new Error(e.toString());
     }
 });
-connection.on("DeleteConnection", async (data) => {
+connection.on("deleteConnection", async (data) => {
     try {
         return new Promise((resolve, reject) => {
             Promise.all([removeConnectionDataTable(data, ConnectionListtable)]);
@@ -330,7 +330,7 @@ connection.on("DeleteConnection", async (data) => {
     }
 
 });
-connection.on("UpdateConnection", async (data) => {
+connection.on("updateConnection", async (data) => {
     try {
         return new Promise((resolve, reject) => {
             Promise.all([updateConnectionDataTable(data, ConnectionListtable)]);
@@ -499,8 +499,8 @@ async function Edit_Connection(data) {
                     contentType: 'application/json-patch+json',
                     type: 'POST',
                     data: JSON.stringify(jsonObject),
-                    success: function (successdata) {
-                        $('#content').html(successdata);
+                    success: function (data) {
+                       
                         sidebar.open('connections');
                         setTimeout(function () { $("#API_Connection_Modal").modal('hide'); sidebar.open('connections'); }, 500);
                     },

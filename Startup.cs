@@ -1,12 +1,11 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using EIR_9209_2.DatabaseCalls.IDS;
+using EIR_9209_2.DataStore;
+using EIR_9209_2.Service;
+using EIR_9209_2.Utilities;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using EIR_9209_2.Utilities;
-using EIR_9209_2.DataStore;
-using EIR_9209_2.DatabaseCalls.IDS;
-using EIR_9209_2.Service;
 using System.Reflection;
-using Microsoft.Extensions.Options;
 
 public class Startup
 {

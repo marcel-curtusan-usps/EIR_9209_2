@@ -1,5 +1,4 @@
 ﻿using EIR_9209_2.DataStore;
-using EIR_9209_2.Models;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860

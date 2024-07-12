@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace EIR_9209_2.Models
+﻿namespace EIR_9209_2.Models
 {
     public class EmpSchedule
     {

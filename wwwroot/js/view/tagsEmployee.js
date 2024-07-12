@@ -41,7 +41,7 @@ $('#UserTag_Modal').on('shown.bs.modal', function () {
         else {
             $('#error_tagType_select').text("");
 
-            if (/Person/ig.test($(this).val())) {
+            if (/Badge/ig.test($(this).val())) {
                 //display the person form
                 $('#personform').css("display", "block");
             }
@@ -627,12 +627,12 @@ async function EditUserInfo(properties) {
             updatedProperties.name = $('input[name=tag_name]').val();
             updatedProperties.tagType = $('select[name=tagType_select] option:selected').val();
 
-            if (/Person/ig.test($('select[id=tagType_select]').val())) {
+            if (/Badge/ig.test($('select[id=tagType_select]').val())) {
                 updatedProperties.ein = $('input[name=employeeEIN]').val();
                 updatedProperties.empFirstName = $('input[name=empFirstName]').val();
                 updatedProperties.empLastName = $('input[name=empLastName]').val();
                 updatedProperties.encodedId = $('input[name=tagEncodedID]').val();
-                updatedProperties.title = $('select[name=tagCraftName_select] option:selected').val();
+                updatedProperties.craftName = $('select[name=tagCraftName_select] option:selected').val();
                 updatedProperties.empPayLocation = $('input[id=paylocation]').val();
                 updatedProperties.designationActivity = $('input[id=tagDACode]').val();
             }
@@ -641,7 +641,7 @@ async function EditUserInfo(properties) {
                 updatedProperties.empFirstName = "";
                 updatedProperties.empLastName = "";
                 updatedProperties.encodedId = "";
-                updatedProperties.title = "";
+                updatedProperties.craftName = "";
                 updatedProperties.empPayLocation = "";
                 updatedProperties.designationActivity = "";
             }
@@ -649,9 +649,8 @@ async function EditUserInfo(properties) {
 
             if (!$.isEmptyObject(updatedProperties)) {
                 $.ajax({
-                    url: SiteURLconstructor(window.location) + "/api/Tag/UpdateTagInfo?id=" + properties.id,
-                    type: 'PUT',
-                    data: updatedProperties,
+                    url: SiteURLconstructor(window.location) + "/api/Tag/UpdateTagInfo",
+                    type: 'POST',
                     data: JSON.stringify(updatedProperties), // Ensure the data is a JSON string
                     contentType: 'application/json', // Correct content type
                     success: function (properties) {

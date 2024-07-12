@@ -3,11 +3,11 @@ using Newtonsoft.Json.Linq;
 
 public interface IInMemoryGeoZonesRepository
 {
-    GeoZone Add(GeoZone geoZone);
-    GeoZone Remove(string geoZoneId);
+    Task Add(GeoZone geoZone);
+    Task Remove(string geoZoneId);
+    Task Update(GeoZone geoZone);
     GeoZone Get(string id);
     IEnumerable<GeoZone> GetAll();
-    GeoZone Update(GeoZone geoZone);
     GeoZone GetMPEName(string MPEName);
     object GetZoneNameList(string type);
     bool ExistingAreaDwell(DateTime hour);

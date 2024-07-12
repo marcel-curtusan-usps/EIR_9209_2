@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace EIR_9209_2.Service
 {
@@ -9,22 +9,24 @@ namespace EIR_9209_2.Service
         protected readonly ILogger<BaseEndpointService> Logger;
         protected readonly IHttpClientFactory _httpClientFactory;
         protected readonly IConfiguration _configuration;
+        protected readonly IHubContext<HubServices> _hubContext;
         protected readonly IInMemoryConnectionRepository _connection;
         protected Connection _endpointConfig;
         private CancellationTokenSource _cancellationTokenSource;
         private Task _task;
         private PeriodicTimer _timer;
-        protected BaseEndpointService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IInMemoryConnectionRepository connection)
+        protected BaseEndpointService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection)
         {
             Logger = logger;
             _httpClientFactory = httpClientFactory;
+            _hubContext = hubContext;
             _endpointConfig = endpointConfig;
             _cancellationTokenSource = new CancellationTokenSource();
             _configuration = configuration;
             _connection = connection;
 
         }
-        public void Start()
+        public async void Start()
         {
             if (_task == null || _task.IsCompleted)
             {
@@ -35,12 +37,22 @@ namespace EIR_9209_2.Service
                     _timer = new PeriodicTimer(TimeSpan.FromMilliseconds(100));
                     _task = Task.Run(async () => await RunAsync(_cancellationTokenSource.Token));
                     _endpointConfig.Status = EWorkerServiceState.Idel;
-                    _connection.Update(_endpointConfig);
+                    var updateCon = _connection.Update(_endpointConfig).Result;
+                    if (updateCon != null)
+                    {
+                        await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon);
+                    }
+
                 }
                 else
                 {
                     _endpointConfig.Status = EWorkerServiceState.InActive;
-                    _connection.Update(_endpointConfig);
+
+                    var updateCon = _connection.Update(_endpointConfig).Result;
+                    if (updateCon != null)
+                    {
+                        await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon);
+                    }
                 }
             }
         }
@@ -53,7 +65,7 @@ namespace EIR_9209_2.Service
             }
         }
 
-        public void Update(Connection updateCon)
+        public async void Update(Connection updateCon)
         {
             Stop();
             _endpointConfig.MillisecondsInterval = updateCon.MillisecondsInterval;
@@ -69,7 +81,21 @@ namespace EIR_9209_2.Service
             if (updateCon.ActiveConnection)
             {
                 Start();
-                _connection.Update(_endpointConfig);
+                _endpointConfig.Status = EWorkerServiceState.Running;
+                updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon);
+                }
+            }
+            else
+            {
+                _endpointConfig.Status = EWorkerServiceState.Idel;
+                updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon);
+                }
             }
 
         }

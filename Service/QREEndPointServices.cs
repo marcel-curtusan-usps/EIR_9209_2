@@ -1,8 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.SignalR;
-using PuppeteerSharp.Input;
-using System.Configuration;
+﻿using Microsoft.AspNetCore.SignalR;
 
 namespace EIR_9209_2.Service
 {
@@ -10,8 +6,8 @@ namespace EIR_9209_2.Service
     {
         private readonly IInMemoryGeoZonesRepository _zones;
 
-        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository zones)
-            : base(logger, httpClientFactory, endpointConfig, configuration, connection)
+        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository zones)
+            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
         {
             _zones = zones;
         }
@@ -33,7 +29,11 @@ namespace EIR_9209_2.Service
                     _endpointConfig.Status = EWorkerServiceState.Idel;
                 }
 
-                await _connection.Update(_endpointConfig);
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                }
 
                 if (!string.IsNullOrEmpty(_endpointConfig.OAuthUrl))
                 {
@@ -99,6 +99,13 @@ namespace EIR_9209_2.Service
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                _endpointConfig.ApiConnected = false;
+                _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                }
             }
             finally
             {

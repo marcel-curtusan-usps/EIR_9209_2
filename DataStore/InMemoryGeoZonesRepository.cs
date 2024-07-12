@@ -5,8 +5,6 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using static EIR_9209_2.Models.GeoMarker;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 {
@@ -36,62 +34,39 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         _ = LoadDataFromFile(filePath);
 
     }
-    public GeoZone? Add(GeoZone geoZone)
+    public async Task Add(GeoZone geoZone)
     {
         if (_geoZoneList.TryAdd(geoZone.Properties.Id, geoZone))
         {
-            if (_fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
+            await _hubServices.Clients.Group(geoZone.Properties.ZoneType).SendAsync($"add{geoZone.Properties.ZoneType}zone", geoZone);
+            if (!_fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
             {
-                return geoZone;
+                _logger.LogError("Zone File list was not saved...");
             }
-            else
-            {
-                _logger.LogError($"{fileName} was not update");
-                return null;
-            }
-        }
-        else
-        {
-            return null;
         }
     }
 
-    public GeoZone? Remove(string geoZoneId)
+    public async Task Remove(string geoZoneId)
     {
         if (_geoZoneList.TryRemove(geoZoneId, out GeoZone geoZone))
         {
-            if (_fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
+            await _hubServices.Clients.Group(geoZone.Properties.ZoneType).SendAsync($"delete{geoZone.Properties.ZoneType}zone", geoZone);
+            if (!_fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
             {
-                return geoZone;
+                _logger.LogError("Zone File list was not saved...");
             }
-            else
-            {
-                return null;
-            }
-
-        }
-        else
-        {
-            return null;
         }
     }
-    public GeoZone? Update(GeoZone geoZone)
+    public async Task Update(GeoZone geoZone)
     {
         if (_geoZoneList.TryGetValue(geoZone.Properties.Id, out GeoZone? currentConnection) && _geoZoneList.TryUpdate(geoZone.Properties.Id, geoZone, currentConnection))
         {
-            if (_fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
+            await _hubServices.Clients.Group(geoZone.Properties.ZoneType).SendAsync($"update{geoZone.Properties.ZoneType}zone", geoZone);
+            if (!_fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
             {
-                return Get(geoZone.Properties.Id);
-            }
-            else
-            {
-                return null;
+                _logger.LogError("Zone File list was not saved...");
             }
 
-        }
-        else
-        {
-            return null;
         }
     }
     public GeoZone? Get(string id)
@@ -210,7 +185,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             if (entriesThisArea != null)
             {
                 //if where pieces Sorted is available the calculate the actual yield using the sorted pieces
-               
+
                 var clerkAndMailHandlerCountThisHour = ((entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds)) / (1000 * 60 * 60));
                 actualYieldcal = piecesForYield != null && clerkAndMailHandlerCountThisHour > 0 ? piecesForYield.Value / clerkAndMailHandlerCountThisHour : 0.0;
                 if (mpe.HourlyData.Where(r => r.Hour == hour).Select(y => y.Count).Any())

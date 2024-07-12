@@ -1,9 +1,7 @@
 ﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
-using System.Buffers;
+using Newtonsoft.Json.Linq;
 using System.Web;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -125,13 +123,12 @@ namespace EIR_9209_2.Controllers
         /// <summary>
         /// Update Tag Info
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="value"></param>
         /// <returns></returns>
         // PUT api/<TagController>/5
-        [HttpPut]
+        [HttpPost]
         [Route("UpdateTagInfo")]
-        public async Task<object> PutByTagInfo(string id, [FromBody] JObject value)
+        public async Task<object> PutByTagInfo([FromBody] JObject value)
         {
             if (!ModelState.IsValid)
             {

@@ -1,12 +1,7 @@
 ﻿
 using EIR_9209_2.DataStore;
-using EIR_9209_2.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
-using PuppeteerSharp.Input;
-using System;
-using System.Configuration;
 
 namespace EIR_9209_2.Service
 {
@@ -15,8 +10,8 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryEmpSchedulesRepository _empSchedules;
         private readonly IInMemorySiteInfoRepository _siteInfo;
 
-        public IVESEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IInMemoryConnectionRepository connection, IInMemorySiteInfoRepository siteInfo, IInMemoryEmpSchedulesRepository empSchedules)
-            : base(logger, httpClientFactory, endpointConfig, configuration, connection)
+        public IVESEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemorySiteInfoRepository siteInfo, IInMemoryEmpSchedulesRepository empSchedules)
+            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
         {
             _siteInfo = siteInfo;
             _empSchedules = empSchedules;
@@ -39,7 +34,11 @@ namespace EIR_9209_2.Service
                     _endpointConfig.Status = EWorkerServiceState.Idel;
                 }
 
-                await _connection.Update(_endpointConfig);
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                }
 
                 IQueryService queryService;
                 string FormatUrl = "";
@@ -62,6 +61,13 @@ namespace EIR_9209_2.Service
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                _endpointConfig.ApiConnected = false;
+                _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                }
             }
         }
         private async Task ProcessEmployeeInfoData(JToken result)

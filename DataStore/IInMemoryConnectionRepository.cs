@@ -1,12 +1,13 @@
 ﻿using EIR_9209_2.Models;
+using Newtonsoft.Json.Linq;
 
 public interface IInMemoryConnectionRepository
 {
     //Connection 
     Connection Get(string id);
-    Connection Add(Connection connection);
-    Connection Remove(string connectionId);
-    Task Update(Connection connection);
+    Task<Connection> Add(Connection connection);
+    Task<Connection> Remove(string connectionId);
+    Task<Connection> Update(Connection connection);
     IEnumerable<Connection> GetAll();
     IEnumerable<Connection> GetbyType(string type);
 

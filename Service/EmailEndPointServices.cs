@@ -1,14 +1,13 @@
 ﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
-using System;
 
 namespace EIR_9209_2.Service
 {
     public class EmailEndPointServices : BaseEndpointService
     {
         private readonly IInMemoryEmailRepository _email;
-        public EmailEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IInMemoryConnectionRepository connection, IInMemoryEmailRepository email)
-              : base(logger, httpClientFactory, endpointConfig, configuration, connection)
+        public EmailEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryEmailRepository email)
+              : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
         {
             _email = email;
         }
@@ -17,10 +16,18 @@ namespace EIR_9209_2.Service
             try
             {
                 IQueryService queryService;
-                _endpointConfig.Status = EWorkerServiceState.Running;
                 _endpointConfig.LasttimeApiConnected = DateTime.Now;
                 _endpointConfig.ApiConnected = true;
-                await _connection.Update(_endpointConfig);
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (_endpointConfig.Status != EWorkerServiceState.Running)
+                {
+                    _endpointConfig.Status = EWorkerServiceState.Running;
+                    if (updateCon != null)
+                    {
+                        await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                    }
+                }
+
                 //get list of Mpe name from email list and send email
 
                 // Dictionary to hold categorized emails
@@ -67,6 +74,13 @@ namespace EIR_9209_2.Service
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                _endpointConfig.ApiConnected = false;
+                _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                }
             }
         }
     }

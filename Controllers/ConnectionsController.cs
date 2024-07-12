@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
+﻿using EIR_9209_2.Service;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using EIR_9209_2.Service;
-using NuGet.Protocol.Plugins;
-using EIR_9209_2.Models;
+using Newtonsoft.Json.Linq;
 
 
 
@@ -64,42 +62,46 @@ namespace EIR_9209_2.Controllers
         /// <returns>The added connection.</returns>
         public async Task<object> PostAddConnection([FromBody] JObject value)
         {
-            //handle bad requests
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
-            //convert the JObject to a Connection object
-            Connection connection = value.ToObject<Connection>();
-            //add the connection id
-            connection.Id = Guid.NewGuid().ToString();
-            connection.CreatedDate = DateTime.Now;
-            //add to the connection repository
-            Connection loadedCon = _connectionRepository.Add(connection);
-            if (loadedCon != null)
-            {
-                //add the connection to the worker
-                if (_worker.AddEndpoint(loadedCon))
+                //handle bad requests
+                if (!ModelState.IsValid)
                 {
-
-                    await _hubContext.Clients.Group("Connections").SendAsync("AddConnection", loadedCon);
-                    return Ok(loadedCon);
+                    return BadRequest(ModelState);
+                }
+                //convert the JObject to a Connection object
+                Connection connection = value.ToObject<Connection>();
+                //add the connection id
+                connection.Id = Guid.NewGuid().ToString();
+                connection.CreatedDate = DateTime.Now;
+                //add to the connection repository
+                var addCon = await _connectionRepository.Add(connection);
+                if (addCon != null)
+                {
+                    //add the connection to the worker
+                    if (_worker.AddEndpoint(addCon))
+                    {
+                        // await _hubContext.Clients.Group("Connections").SendAsync("addConnection", addCon);
+                        return Ok(addCon);
+                    }
+                    else
+                    {
+                        return BadRequest(ModelState);
+                    }
                 }
                 else
                 {
-                    return BadRequest(new JObject { ["message"] = "End Point was not Started" });
+                    return BadRequest(new JObject { ["message"] = "End Point was not Added " });
                 }
             }
-            else
+            catch (Exception e)
             {
-                return BadRequest(new JObject { ["message"] = "End Point was not Added " });
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
             }
-
-
-
         }
         /// <summary>
-        /// 
+        /// update connection 
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -116,32 +118,25 @@ namespace EIR_9209_2.Controllers
                     return BadRequest(ModelState);
                 }
                 //convert the JObject to a Connection object
-                //find id to update 
-                string id = "";
-                if (value.ContainsKey("id") && !string.IsNullOrEmpty(value["id"].ToString()))
+
+                var updateCon = _connectionRepository.Update(value.ToObject<Connection>()).Result;
+                if (updateCon != null)
                 {
-                    id = value["id"].ToString();
-                }
-                else
-                {
-                    BadRequest(new JObject { ["message"] = "No Connection id Found" });
-                }
-                Connection conToUpdate = _connectionRepository.Get(id);
-                if (conToUpdate != null)
-                {
-                    Connection connection = value.ToObject<Connection>();
-                    connection.LastupDate = DateTime.Now;
-                    if (!connection.ActiveConnection)
+                    if (_worker.UpdateEndpoint(updateCon))
                     {
-                        connection.DeactivatedDate = DateTime.Now;
+                        // await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon);
+                        return Ok(updateCon);
                     }
-                    await _connectionRepository.Update(connection);
-                    return Ok();
+                    else
+                    {
+                        return BadRequest(ModelState);
+                    }
+
 
                 }
                 else
                 {
-                    return new JObject { ["Message"] = $"Connection Id:{id} was not Found" };
+                    return new JObject { ["Message"] = $"Connection was not Found" };
                 }
             }
             catch (Exception e)
@@ -156,25 +151,33 @@ namespace EIR_9209_2.Controllers
         [Route("Delete")]
         public async Task<object> Delete(string id)
         {
-            //handle bad requests
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
-            Connection removedCon = _connectionRepository.Remove(id);
-            if (removedCon != null)
-            {
-
-                if (_worker.RemoveEndpoint(removedCon))
+                //handle bad requests
+                if (!ModelState.IsValid)
                 {
-                    await _hubContext.Clients.Group("Connections").SendAsync("DeleteConnection", id);
+                    return BadRequest(ModelState);
                 }
+                var removedCon = _connectionRepository.Remove(id).Result;
+                if (removedCon != null)
+                {
 
-                return Ok(_connectionRepository.Get(id));
+                    if (_worker.RemoveEndpoint(removedCon))
+                    {
+                        await _hubContext.Clients.Group("Connections").SendAsync("DeleteConnection", id);
+                    }
+
+                    return Ok(removedCon);
+                }
+                else
+                {
+                    return new JObject { ["Message"] = $"Connection Id:{id} was not Found" };
+                }
             }
-            else
+            catch (Exception e)
             {
-                return new JObject { ["Message"] = $"Connection Id:{id} was not Found" };
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
             }
         }
     }

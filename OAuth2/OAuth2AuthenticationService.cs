@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System.Net.Http;
-using System.Threading;
 
 public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDisposable
 {

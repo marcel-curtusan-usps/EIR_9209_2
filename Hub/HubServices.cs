@@ -1,13 +1,8 @@
 ﻿using EIR_9209_2.DataStore;
 using EIR_9209_2.Models;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Reflection;
 using System.Security.Claims;
 
 public class HubServices : Hub

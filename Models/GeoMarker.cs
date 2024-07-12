@@ -1,8 +1,4 @@
-﻿
-using Newtonsoft.Json;
-using System.Reflection;
-
-namespace EIR_9209_2.Models
+﻿namespace EIR_9209_2.Models
 {
     public class GeoMarker
     {

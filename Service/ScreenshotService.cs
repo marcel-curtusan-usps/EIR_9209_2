@@ -1,7 +1,4 @@
 ﻿using PuppeteerSharp;
-using System.IO;
-using System.Net;
-using System.Threading.Tasks;
 namespace EIR_9209_2.Service
 {
     public class ScreenshotService
@@ -40,7 +37,7 @@ namespace EIR_9209_2.Service
                 });
                 await page.GoToAsync(url, new NavigationOptions { WaitUntil = new[] { WaitUntilNavigation.Networkidle2 } });
                 await Task.Delay(60000); // Additional wait to ensure dynamic content has loaded
-                                        // Set the viewport size before taking the screenshot
+                                         // Set the viewport size before taking the screenshot
                 await page.SetViewportAsync(new ViewPortOptions
                 {
                     Width = 1920,

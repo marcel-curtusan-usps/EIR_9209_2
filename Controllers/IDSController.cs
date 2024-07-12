@@ -1,10 +1,6 @@
 ﻿using EIR_9209_2.DatabaseCalls.IDS;
-using EIR_9209_2.Models;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Net;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

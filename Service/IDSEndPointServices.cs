@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using System.Net.Http;
 
 namespace EIR_9209_2.Service
 {
     internal class IDSEndPointServices : BaseEndpointService
     {
 
-        public IDSEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IInMemoryConnectionRepository connection)
-                : base(logger, httpClientFactory, endpointConfig, configuration, connection)
+        public IDSEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection)
+                : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
         {
 
         }
@@ -26,7 +25,11 @@ namespace EIR_9209_2.Service
                     _endpointConfig.ApiConnected = false;
                     _endpointConfig.Status = EWorkerServiceState.Idel;
                 }
-                await _connection.Update(_endpointConfig);
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                }
                 IQueryService queryService;
                 string FormatUrl = "";
                 //process tag data
@@ -39,6 +42,13 @@ namespace EIR_9209_2.Service
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                _endpointConfig.ApiConnected = false;
+                _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                }
             }
         }
     }

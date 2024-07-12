@@ -1,14 +1,15 @@
 ﻿using EIR_9209_2.Models;
+using EIR_9209_2.Service;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 public class InMemoryConnectionRepository : IInMemoryConnectionRepository
 {
     private readonly ConcurrentDictionary<string, Connection> _connectionList = new();
     private readonly ConcurrentDictionary<string, ConnectionType> _connectionTypeList = new();
-    protected readonly IHubContext<HubServices> _hubServices;
+    private readonly IHubContext<HubServices> _hubServices;
     private readonly ILogger<InMemoryConnectionRepository> _logger;
     private readonly IConfiguration _configuration;
     private readonly IFileService _fileService;
@@ -34,63 +35,110 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         // Load ConnectionType data from the first file into the first collection
         _ = LoadConnectionTypeDataFromFile(conTypeFilePath);
     }
-    public Connection? Add(Connection connection)
-    {
-        if (_connectionList.TryAdd(connection.Id, connection))
-        {
-            if (_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented)))
-            {
-                return connection;
-            }
-            else
-            {
-                _logger.LogError($"ConnectionList.json was not update");
-                return null;
-
-            }
-
-        }
-        else
-        {
-            return null;
-        }
-    }
-    public Connection? Remove(string connectionId)
-    {
-        if (_connectionList.TryRemove(connectionId, out Connection conn))
-        {
-            if (_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented)))
-            {
-                return conn;
-            }
-            else
-            {
-                return null;
-            }
-
-        }
-        else
-        {
-            return null;
-        }
-    }
-    public async Task Update(Connection connection)
+    public Task<Connection>? Add(Connection connection)
     {
         bool saveToFile = false;
         try
         {
-            if (_connectionList.TryGetValue(connection.Id, out Connection? currentConnection) && _connectionList.TryUpdate(connection.Id, connection, currentConnection))
+            if (_connectionList.TryAdd(connection.Id, connection))
             {
-                saveToFile = true;
-                if (_connectionList.TryGetValue(connection.Id, out Connection? con))
+                if (_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented)))
                 {
-                    await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", con);
+                    return Task.FromResult(connection);
                 }
+                else
+                {
+                    _logger.LogError($"ConnectionList.json was not update");
+                    return null;
+                }
+
+            }
+            else
+            {
+                return null;
             }
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+            }
+        }
+    }
+    public Task<Connection>? Remove(string connectionId)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (_connectionList.TryRemove(connectionId, out Connection connection))
+            {
+                if (_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented)))
+                {
+                    return Task.FromResult(connection);
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+            }
+        }
+    }
+    public Task<Connection>? Update(Connection connection)
+    {
+        bool saveToFile = false;
+        try
+        {
+            connection.LastupDate = DateTime.Now;
+            if (!connection.ActiveConnection)
+            {
+                connection.DeactivatedDate = DateTime.Now;
+                connection.Status = EWorkerServiceState.Idel;
+            }
+            if (_connectionList.TryGetValue(connection.Id, out Connection? currentConnection) && _connectionList.TryUpdate(connection.Id, connection, currentConnection))
+            {
+                saveToFile = true;
+                if (_connectionList.TryGetValue(connection.Id, out Connection? con))
+                {
+
+                    return Task.FromResult(con);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
         }
         finally
         {

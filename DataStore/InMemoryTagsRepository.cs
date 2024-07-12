@@ -1,16 +1,10 @@
 ﻿using EIR_9209_2.Models;
-using Humanizer;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Build.Execution;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Ocsp;
 using System.Collections.Concurrent;
 using System.Data;
-using System.Runtime.CompilerServices;
-using System.Security.Principal;
 using System.Text.RegularExpressions;
-using System.Transactions;
 using static EIR_9209_2.Models.GeoMarker;
 
 namespace EIR_9209_2.DataStore
@@ -441,10 +435,9 @@ namespace EIR_9209_2.DataStore
                             TagData.Properties.Name = tagInfo["name"].ToString();
                             savetoFile = true;
                         }
-                        if (tagInfo.ContainsKey("title"))
+                        if (tagInfo.ContainsKey("craftName"))
                         {
-                            TagData.Properties.Title = tagInfo["title"].ToString();
-                            TagData.Properties.CraftName = tagInfo["title"].ToString();
+                            TagData.Properties.CraftName = tagInfo["craftName"].ToString();
                             savetoFile = true;
                         }
                         if (tagInfo.ContainsKey("empPayLocation"))
@@ -459,6 +452,7 @@ namespace EIR_9209_2.DataStore
                         }
                         if (tagInfo.ContainsKey("designationActivity"))
                         {
+                            TagData.Properties.DesignationActivity = tagInfo["designationActivity"].ToString();
                             var daCode = _dacode.Get(tagInfo["designationActivity"].ToString());
                             if (daCode != null)
                             {

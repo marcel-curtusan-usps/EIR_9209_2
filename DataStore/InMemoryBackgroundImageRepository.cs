@@ -1,8 +1,6 @@
 ﻿using EIR_9209_2.Models;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Xml.Linq;
 
 public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageRepository
 {
