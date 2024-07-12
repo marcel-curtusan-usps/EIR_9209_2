@@ -53,12 +53,12 @@ async function init_geoZoneDockDoor() {
         let sp = this.nextElementSibling;
         if (/^(Dock Door)$/ig.test(sp.innerHTML.trim())) {
             if (this.checked) {
-                connection.invoke("AddToGroup", "DockDoorZones").catch(function (err) {
+                connection.invoke("JoinGroup", "DockDoorZones").catch(function (err) {
                     return console.error(err.toString());
                 });
             }
             else {
-                connection.invoke("RemoveFromGroup", "DockDoorZones").catch(function (err) {
+                connection.invoke("LeaveGroup", "DockDoorZones").catch(function (err) {
                     return console.error(err.toString());
                 });
             }
@@ -109,6 +109,6 @@ async function LoadDockDoorTable(data) {
 
     }
     catch (e) {
-
+        throw new Error(e.toString());
     }
 }

@@ -128,7 +128,7 @@ async function start() {
             connection.invoke("GetGeoZones").then(function (data) {
                 Promise.all([init_geoZone(data)]).then(function () {
                     Promise.all([init_geoZoneMPE()]);
-
+                    Promise.all([init_geoZoneBin()]);
                 });
             }).catch(function (err) {
                 // handle error

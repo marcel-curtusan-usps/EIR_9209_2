@@ -42,19 +42,12 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (_connectionList.TryAdd(connection.Id, connection))
             {
-                if (_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented)))
-                {
-                    return Task.FromResult(connection);
-                }
-                else
-                {
-                    _logger.LogError($"ConnectionList.json was not update");
-                    return null;
-                }
-
+                saveToFile = true;
+                return Task.FromResult(connection);
             }
             else
             {
+                _logger.LogError($"Connection file was not saved...");
                 return null;
             }
         }
@@ -67,7 +60,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
             }
         }
     }
@@ -78,18 +71,12 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (_connectionList.TryRemove(connectionId, out Connection connection))
             {
-                if (_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented)))
-                {
-                    return Task.FromResult(connection);
-                }
-                else
-                {
-                    return null;
-                }
-
+                saveToFile = true;
+                return Task.FromResult(connection);
             }
             else
             {
+                _logger.LogError($"Connection file was not saved...");
                 return null;
             }
         }
@@ -102,11 +89,11 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
             }
         }
     }
-    public Task<Connection>? Update(Connection connection)
+    public async Task<Connection>? Update(Connection connection)
     {
         bool saveToFile = false;
         try
@@ -123,7 +110,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
                 if (_connectionList.TryGetValue(connection.Id, out Connection? con))
                 {
 
-                    return Task.FromResult(con);
+                    return await Task.FromResult(con);
                 }
                 else
                 {
@@ -144,7 +131,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
             }
         }
 

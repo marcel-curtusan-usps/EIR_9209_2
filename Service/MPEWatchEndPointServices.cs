@@ -130,13 +130,7 @@ namespace EIR_9209_2.Service
                         List<MPERunPerformance>? mpeList = data.ToObject<List<MPERunPerformance>>();
                         if (mpeList != null && mpeList.Any())
                         {
-                            foreach (MPERunPerformance mpe in mpeList)
-                            {
-                                mpe.MpeId = string.Concat(mpe.MpeType, "-", mpe.MpeNumber.ToString().PadLeft(3, '0'));
-                                await Task.Run(() => _geoZones.UpdateMPERunInfo(mpe));
-                                await Task.Run(() => _geoZones.UpdateMPERunActivity(mpe));
-
-                            }
+                            await Task.Run(() => _geoZones.UpdateMPERunInfo(mpeList));
                         }
                     }
                 }

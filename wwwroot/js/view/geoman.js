@@ -1,4 +1,34 @@
-﻿async function init_geoman_editing() {
+﻿$('#Zone_Modal').on('hidden.bs.modal', function () {
+    $(this)
+        .find("input[type=text],textarea,select")
+        .val('')
+        .end()
+        .find("span[class=text]")
+        .val('')
+        .text("")
+        .end()
+        .find('input[type=checkbox]')
+        .prop('checked', false).change()
+        .end();
+});
+//remove layers
+$('#Remove_Layer_Modal').on('hidden.bs.modal', function () {
+    $(this)
+        .find("input[type=text],textarea,select")
+        .val('')
+        .end()
+        .find("span[class=text]")
+        .val('')
+        .text("")
+        .end()
+        .find('input[type=checkbox]')
+        .prop('checked', false).change()
+        .end();
+});
+$('#Remove_Layer_Modal').on('shown.bs.modal', function () {
+});
+
+async function init_geoman_editing() {
     let draw_options = {
         position: 'bottomright',
         oneBlock: false,
@@ -25,14 +55,14 @@
         if (/(Polygon|Rectangle)/i.test(e.shape)) {
             if (/(Polygon)/i.test(e.shape)) {
                 $('<option/>').val("Area").html("Area Zone").appendTo('select[id=zone_type]');
-                $('<option/>').val("AGVLocationZone").html("AGV Location Zone").appendTo('select[id=zone_type]');
-                $('<option/>').val("MPEZone").html("MPE Zone").appendTo('select[id=zone_type]');
-                $('<option/>').val("ViewPortsZone").html("View Ports").appendTo('select[id=zone_type]');
-                $('<option/>').val("BullpenZone").html("Bullpen Zone").appendTo('select[id=zone_type]')
+                $('<option/>').val("AGVLocation").html("AGV Location Zone").appendTo('select[id=zone_type]');
+                $('<option/>').val("MPE").html("MPE Zone").appendTo('select[id=zone_type]');
+                $('<option/>').val("ViewPorts").html("View Ports").appendTo('select[id=zone_type]');
+                $('<option/>').val("Bullpen").html("Bullpen Zone").appendTo('select[id=zone_type]')
             }
             if (/(Rectangle)/i.test(e.shape)) {
-                $('<option/>').val("BinZone").html("Bin Zone").appendTo('select[id=zone_type]');
-                $('<option/>').val("DockDoorZone").html("Dock Door Zone").appendTo('select[id=zone_type]');
+                $('<option/>').val("Bin").html("Bin Zone").appendTo('select[id=zone_type]');
+                $('<option/>').val("DockDoor").html("Dock Door Zone").appendTo('select[id=zone_type]');
             }
             CreateZone(e);
             sidebar.open('home');
@@ -268,6 +298,7 @@ function CreateZone(newlayer) {
                     type: 'POST',
                     success: function (data) {
                         Promise.all([init_geoZone(data)]);
+                        setTimeout(function () { sidebar.close(); }, 500);
                     },
                     error: function (error) {
                         $('span[id=error_zonesubmitBtn]').text(error);
@@ -278,7 +309,7 @@ function CreateZone(newlayer) {
                         console.log(fail);
                     },
                     complete: function (complete) {
-                        console.log(complete);
+                        newlayer.layer.remove();
                     }
                 });
             }
@@ -344,20 +375,11 @@ function CreateCamera(newlayer) {
 }
 function RemoveZoneItem(removeLayer) {
     try {
-        sidebar.close();
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/Delete?id=' + removeLayer.layer.feature.properties.id,
             contentType: 'application/json',
-            type: 'GET',
-            success: function (mpedata) {
-                if (mpedata.length > 0) {
-                    //sort 
-                    mpedata.sort();
-                    mpedata.push('**Machine Not Listed');
-                    $.each(mpedata, function () {
-                        $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
-                    })
-                }
+            type: 'DELETE',
+            success: function (data) {
             },
             error: function (error) {
 
@@ -367,14 +389,10 @@ function RemoveZoneItem(removeLayer) {
                 console.log(fail);
             },
             complete: function (complete) {
+                removeLayer.layer.remove();
                 //console.log(complete);
             }
         });
-        //fotfmanager.server.removeZone(removeLayer.layer.feature.properties.id).done(function (Data) {
-
-        //    setTimeout(function () { $("#Remove_Layer_Modal").modal('hide'); }, 500);
-
-        //});
     } catch (e) {
         console.log();
     }
@@ -452,7 +470,7 @@ function VaildateForm(FormType) {
         $('select[name=zone_type]').removeClass('is-invalid').addClass('is-valid');
         $('span[id=error_zone_type]').text("");
     }
-    if (/(MPEZone|Machine)/i.test(FormType)) {
+    if (/(MPE)/i.test(FormType)) {
         $.ajax({
             url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
             contentType: 'application/json',
@@ -478,19 +496,8 @@ function VaildateForm(FormType) {
                 console.log(complete);
             }
         });
-        //fotfmanager.server.getMPEList().done(function (mpedata) {
-        //    if (mpedata.length > 0) {
-        //        //sort 
-        //        mpedata.sort(SortByName);
-        //        mpedata.push('**Machine Not Listed');
-        //        $.each(mpedata, function () {
-        //            $('<option/>').val(this).html(this).appendTo('#zone_select_name');
-        //        })
-        //        $('select[name=zone_select_name]').removeClass('is-valid').addClass('is-invalid');
-        //    }
-        //});
     }
-    else if (/(DockDoor|DockDoorZone)/i.test(FormType)) {
+    else if (/(DockDoor)/i.test(FormType)) {
         $('textarea[id="bin_bins"]').val("");
 
         $.ajax({
@@ -535,7 +542,7 @@ function VaildateForm(FormType) {
         //    }
         //});
     }
-    else if (/(Bin|BinZone)/i.test(FormType)) {
+    else if (/(Bin)/i.test(FormType)) {
 
         $('#binzoneinfo').css("display", "block");
         $('textarea[id="bin_bins"]').val("");
@@ -574,7 +581,7 @@ function VaildateForm(FormType) {
         }
         enableBinZoneSubmit();
     }
-    else if (/(Bullpen|BullpenZone)/i.test(FormType)) {
+    else if (/(Bullpen)/i.test(FormType)) {
 
         $.ajax({
             url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
@@ -583,15 +590,15 @@ function VaildateForm(FormType) {
             success: function (mpedata) {
                 if (mpedata.length > 0) {
                     //sort 
-                    mpedata.sort(SortByName);
+                    mpedata.sort();
                     mpedata.push('**Bullpen Not Listed');
-                    $.each(svdata, function () {
+                    $.each(mpedata, function () {
                         $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
                     })
 
                     $('select[name=zone_type]').prop('disabled', true);
                     enableZoneSubmit();
-                } s
+                }
             },
             error: function (error) {
 
@@ -618,12 +625,12 @@ function VaildateForm(FormType) {
         //    enableZoneSubmit();
         //});
     }
-    else if (/(AGVLocationZone)/i.test(FormType)) {
+    else if (/(AGVLocation)/i.test(FormType)) {
         $('<option/>').val('**AGVLocation Not Listed').html('**AGVLocation Not Listed').appendTo('select[id=zone_select_name]');
         enableZoneSubmit();
     }
 
-    if (/(Camera|CameraMarker)/i.test(FormType)) {
+    if (/(Camera)/i.test(FormType)) {
         //fotfmanager.server.getCameraList().done(function (cameradata) {
         //    if (cameradata.length > 0) {
         //        $('select[id=cameraLocation]').empty();

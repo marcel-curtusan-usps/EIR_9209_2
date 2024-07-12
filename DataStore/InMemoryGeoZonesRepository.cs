@@ -34,39 +34,108 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         _ = LoadDataFromFile(filePath);
 
     }
-    public async Task Add(GeoZone geoZone)
+    public async Task<GeoZone>? Add(GeoZone geoZone)
     {
-        if (_geoZoneList.TryAdd(geoZone.Properties.Id, geoZone))
+        bool saveToFile = false;
+        try
         {
-            await _hubServices.Clients.Group(geoZone.Properties.ZoneType).SendAsync($"add{geoZone.Properties.ZoneType}zone", geoZone);
-            if (!_fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
+            if (geoZone.Properties.ZoneType == "Bin")
             {
-                _logger.LogError("Zone File list was not saved...");
+                geoZone.Properties.MPERunPerformance = null;
+            }
+            if (_geoZoneList.TryAdd(geoZone.Properties.Id, geoZone))
+            {
+                saveToFile = true;
+                return await Task.FromResult(geoZone);
+            }
+            else
+            {
+                _logger.LogError($"Zone File list was not saved...");
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented));
             }
         }
     }
 
-    public async Task Remove(string geoZoneId)
+    public async Task<GeoZone>? Remove(string geoZoneId)
     {
-        if (_geoZoneList.TryRemove(geoZoneId, out GeoZone geoZone))
+        bool saveToFile = false;
+        try
         {
-            await _hubServices.Clients.Group(geoZone.Properties.ZoneType).SendAsync($"delete{geoZone.Properties.ZoneType}zone", geoZone);
-            if (!_fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
+            if (_geoZoneList.TryRemove(geoZoneId, out GeoZone geoZone))
             {
-                _logger.LogError("Zone File list was not saved...");
+                saveToFile = true;
+                return await Task.FromResult(geoZone);
+            }
+            else
+            {
+                _logger.LogError($"Zone File list was not saved...");
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented));
             }
         }
     }
-    public async Task Update(GeoZone geoZone)
-    {
-        if (_geoZoneList.TryGetValue(geoZone.Properties.Id, out GeoZone? currentConnection) && _geoZoneList.TryUpdate(geoZone.Properties.Id, geoZone, currentConnection))
-        {
-            await _hubServices.Clients.Group(geoZone.Properties.ZoneType).SendAsync($"update{geoZone.Properties.ZoneType}zone", geoZone);
-            if (!_fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented)))
-            {
-                _logger.LogError("Zone File list was not saved...");
-            }
 
+    public Task<GeoZone> Update(GeoZone geoZone)
+    {
+        throw new NotImplementedException();
+    }
+    public async Task<GeoZone>? UiUpdate(GeoZone geoZone)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (_geoZoneList.TryGetValue(geoZone.Properties.Id, out GeoZone? currentConnection) && _geoZoneList.TryUpdate(geoZone.Properties.Id, geoZone, currentConnection))
+            {
+                saveToFile = true;
+                if (_geoZoneList.TryGetValue(geoZone.Properties.Id, out GeoZone? zone))
+                {
+
+                    return await Task.FromResult(zone);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented));
+            }
         }
     }
     public GeoZone? Get(string id)
@@ -281,124 +350,178 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         return _geoZoneList.Where(r => r.Value.Properties.ZoneType.StartsWith(type)).Select(y => y.Value.Properties.Name).ToList();
     }
 
-    public async void UpdateMPERunInfo(MPERunPerformance mpe)
+    public async Task<bool> UpdateMPERunInfo(List<MPERunPerformance> mpeList)
     {
-
-        var geoZone = _geoZoneList.Where(r => r.Value.Properties.ZoneType == "MPEZone" && r.Value.Properties.Name == mpe.MpeId).Select(y => y.Value).FirstOrDefault();
-
-        if (geoZone != null)
+        try
         {
-            bool pushUIUpdate = false;
+            foreach (MPERunPerformance mpe in mpeList)
+            {
+                mpe.MpeId = string.Concat(mpe.MpeType, "-", mpe.MpeNumber.ToString().PadLeft(3, '0'));
+                await Task.Run(() => UpdateMPERunActivity(mpe)).ConfigureAwait(false);
+                var geoZone = _geoZoneList.Where(r => r.Value.Properties.ZoneType == "MPEZone" && r.Value.Properties.Name == mpe.MpeId).Select(y => y.Value).FirstOrDefault();
 
-            if (string.IsNullOrEmpty(geoZone.Properties.MPERunPerformance?.MpeType))
-            {
-                geoZone.Properties.MPERunPerformance = mpe;
-                geoZone.Properties.MPERunPerformance.MpeId = mpe.MpeId;
-                geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
-            }
-            else
-            {
-                if (geoZone.Properties.MPERunPerformance.MpeId != mpe.MpeId)
+                if (geoZone != null)
                 {
-                    geoZone.Properties.MPERunPerformance.MpeId = mpe.MpeId;
-                }
-                if (geoZone.Properties.MPERunPerformance.ZoneId != geoZone.Properties.Id)
-                {
-                    geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
-                }
-                if (geoZone.Properties.DataSource != "IDS")
-                {
-                    if (geoZone.Properties.MPERunPerformance.HourlyData != mpe.HourlyData)
+                    bool pushUIUpdate = false;
+
+                    if (string.IsNullOrEmpty(geoZone.Properties.MPERunPerformance?.MpeType))
                     {
-                        geoZone.Properties.MPERunPerformance.HourlyData = mpe.HourlyData;
-                        pushUIUpdate = true;
+                        geoZone.Properties.MPERunPerformance = mpe;
+                        geoZone.Properties.MPERunPerformance.MpeId = mpe.MpeId;
+                        geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
+                    }
+                    else
+                    {
+                        if (geoZone.Properties.MPERunPerformance.MpeId != mpe.MpeId)
+                        {
+                            geoZone.Properties.MPERunPerformance.MpeId = mpe.MpeId;
+                        }
+                        if (geoZone.Properties.MPERunPerformance.ZoneId != geoZone.Properties.Id)
+                        {
+                            geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
+                        }
+                        if (geoZone.Properties.DataSource != "IDS")
+                        {
+                            if (geoZone.Properties.MPERunPerformance.HourlyData != mpe.HourlyData)
+                            {
+                                geoZone.Properties.MPERunPerformance.HourlyData = mpe.HourlyData;
+                                pushUIUpdate = true;
+                            }
+                        }
+                        if (geoZone.Properties.MPERunPerformance.CurSortplan != mpe.CurSortplan)
+                        {
+                            geoZone.Properties.MPERunPerformance.CurSortplan = mpe.CurSortplan;
+                            pushUIUpdate = true;
+
+                        }
+                        if (geoZone.Properties.MPERunPerformance.CurThruputOphr != mpe.CurThruputOphr)
+                        {
+                            geoZone.Properties.MPERunPerformance.CurThruputOphr = mpe.CurThruputOphr;
+                            pushUIUpdate = true;
+                        }
+                        if (geoZone.Properties.MPERunPerformance.TotSortplanVol != mpe.TotSortplanVol)
+                        {
+                            geoZone.Properties.MPERunPerformance.TotSortplanVol = mpe.TotSortplanVol;
+                            pushUIUpdate = true;
+                        }
+
+                        if (geoZone.Properties.MPERunPerformance.CurrentRunStart != mpe.CurrentRunStart)
+                        {
+                            geoZone.Properties.MPERunPerformance.CurrentRunStart = mpe.CurrentRunStart;
+                            pushUIUpdate = true;
+                        }
+                        if (geoZone.Properties.MPERunPerformance.CurrentRunEnd != mpe.CurrentRunEnd)
+                        {
+                            geoZone.Properties.MPERunPerformance.CurrentRunEnd = mpe.CurrentRunEnd;
+                            pushUIUpdate = true;
+                        }
+                        if (geoZone.Properties.MPERunPerformance.CurOperationId != mpe.CurOperationId)
+                        {
+                            geoZone.Properties.MPERunPerformance.CurOperationId = mpe.CurOperationId;
+                            pushUIUpdate = true;
+                        }
+
+                        if (geoZone.Properties.MPERunPerformance.UnplanMaintSpStatus != mpe.UnplanMaintSpStatus)
+                        {
+                            geoZone.Properties.MPERunPerformance.UnplanMaintSpStatus = mpe.UnplanMaintSpStatus;
+                            pushUIUpdate = true;
+                        }
+                        if (geoZone.Properties.MPERunPerformance.OpRunningLateStatus != mpe.OpRunningLateStatus)
+                        {
+                            geoZone.Properties.MPERunPerformance.OpRunningLateStatus = mpe.OpRunningLateStatus;
+                            pushUIUpdate = true;
+                        }
+                        if (geoZone.Properties.MPERunPerformance.OpRunningLateTimer != mpe.OpRunningLateTimer)
+                        {
+                            geoZone.Properties.MPERunPerformance.OpRunningLateTimer = mpe.OpRunningLateTimer;
+                            pushUIUpdate = true;
+                        }
+                        if (geoZone.Properties.MPERunPerformance.SortplanWrongStatus != mpe.SortplanWrongStatus)
+                        {
+                            geoZone.Properties.MPERunPerformance.SortplanWrongStatus = mpe.SortplanWrongStatus;
+                            pushUIUpdate = true;
+                        }
+                        if (geoZone.Properties.MPERunPerformance.OpStartedLateStatus != mpe.OpStartedLateStatus)
+                        {
+                            geoZone.Properties.MPERunPerformance.OpStartedLateStatus = mpe.OpStartedLateStatus;
+                            pushUIUpdate = true;
+                        }
+                        if (geoZone.Properties.MPERunPerformance.ThroughputStatus != mpe.ThroughputStatus)
+                        {
+                            geoZone.Properties.MPERunPerformance.ThroughputStatus = mpe.ThroughputStatus;
+                            pushUIUpdate = true;
+                        }
+                        if (geoZone.Properties.MPERunPerformance.UnplanMaintSpTimer != mpe.UnplanMaintSpTimer)
+                        {
+                            geoZone.Properties.MPERunPerformance.UnplanMaintSpTimer = mpe.UnplanMaintSpTimer;
+                            pushUIUpdate = true;
+                        }
+                        if (geoZone.Properties.MPERunPerformance.BinFullStatus != mpe.BinFullStatus)
+                        {
+                            geoZone.Properties.MPERunPerformance.BinFullStatus = mpe.BinFullStatus;
+                            await Task.Run(() => BinFullProcess(mpe.MpeId, mpe.BinFullStatus, mpe.BinFullBins)).ConfigureAwait(false);
+                            pushUIUpdate = true;
+                        }
+                        if (geoZone.Properties.MPERunPerformance.BinFullBins != mpe.BinFullBins)
+                        {
+                            geoZone.Properties.MPERunPerformance.BinFullBins = mpe.BinFullBins;
+
+                            pushUIUpdate = true;
+                        }
+                    }
+                    if (pushUIUpdate)
+                    {
+                        await _hubServices.Clients.Group(geoZone.Properties.ZoneType).SendAsync($"update{geoZone.Properties.ZoneType}RunPerformance", geoZone.Properties.MPERunPerformance);
                     }
                 }
-                if (geoZone.Properties.MPERunPerformance.CurSortplan != mpe.CurSortplan)
-                {
-                    geoZone.Properties.MPERunPerformance.CurSortplan = mpe.CurSortplan;
-                    pushUIUpdate = true;
-
-                }
-                if (geoZone.Properties.MPERunPerformance.CurThruputOphr != mpe.CurThruputOphr)
-                {
-                    geoZone.Properties.MPERunPerformance.CurThruputOphr = mpe.CurThruputOphr;
-                    pushUIUpdate = true;
-                }
-                if (geoZone.Properties.MPERunPerformance.TotSortplanVol != mpe.TotSortplanVol)
-                {
-                    geoZone.Properties.MPERunPerformance.TotSortplanVol = mpe.TotSortplanVol;
-                    pushUIUpdate = true;
-                }
-
-                if (geoZone.Properties.MPERunPerformance.CurrentRunStart != mpe.CurrentRunStart)
-                {
-                    geoZone.Properties.MPERunPerformance.CurrentRunStart = mpe.CurrentRunStart;
-                    pushUIUpdate = true;
-                }
-                if (geoZone.Properties.MPERunPerformance.CurrentRunEnd != mpe.CurrentRunEnd)
-                {
-                    geoZone.Properties.MPERunPerformance.CurrentRunEnd = mpe.CurrentRunEnd;
-                    pushUIUpdate = true;
-                }
-                if (geoZone.Properties.MPERunPerformance.CurOperationId != mpe.CurOperationId)
-                {
-                    geoZone.Properties.MPERunPerformance.CurOperationId = mpe.CurOperationId;
-                    pushUIUpdate = true;
-                }
-
-                if (geoZone.Properties.MPERunPerformance.UnplanMaintSpStatus != mpe.UnplanMaintSpStatus)
-                {
-                    geoZone.Properties.MPERunPerformance.UnplanMaintSpStatus = mpe.UnplanMaintSpStatus;
-                    pushUIUpdate = true;
-                }
-                if (geoZone.Properties.MPERunPerformance.OpRunningLateStatus != mpe.OpRunningLateStatus)
-                {
-                    geoZone.Properties.MPERunPerformance.OpRunningLateStatus = mpe.OpRunningLateStatus;
-                    pushUIUpdate = true;
-                }
-                if (geoZone.Properties.MPERunPerformance.OpRunningLateTimer != mpe.OpRunningLateTimer)
-                {
-                    geoZone.Properties.MPERunPerformance.OpRunningLateTimer = mpe.OpRunningLateTimer;
-                    pushUIUpdate = true;
-                }
-                if (geoZone.Properties.MPERunPerformance.SortplanWrongStatus != mpe.SortplanWrongStatus)
-                {
-                    geoZone.Properties.MPERunPerformance.SortplanWrongStatus = mpe.SortplanWrongStatus;
-                    pushUIUpdate = true;
-                }
-                if (geoZone.Properties.MPERunPerformance.OpStartedLateStatus != mpe.OpStartedLateStatus)
-                {
-                    geoZone.Properties.MPERunPerformance.OpStartedLateStatus = mpe.OpStartedLateStatus;
-                    pushUIUpdate = true;
-                }
-                if (geoZone.Properties.MPERunPerformance.ThroughputStatus != mpe.ThroughputStatus)
-                {
-                    geoZone.Properties.MPERunPerformance.ThroughputStatus = mpe.ThroughputStatus;
-                    pushUIUpdate = true;
-                }
-                if (geoZone.Properties.MPERunPerformance.UnplanMaintSpTimer != mpe.UnplanMaintSpTimer)
-                {
-                    geoZone.Properties.MPERunPerformance.UnplanMaintSpTimer = mpe.UnplanMaintSpTimer;
-                    pushUIUpdate = true;
-                }
-                if (geoZone.Properties.MPERunPerformance.BinFullStatus != mpe.BinFullStatus)
-                {
-                    geoZone.Properties.MPERunPerformance.BinFullStatus = mpe.BinFullStatus;
-                    pushUIUpdate = true;
-                }
-                if (geoZone.Properties.MPERunPerformance.BinFullBins != mpe.BinFullBins)
-                {
-                    geoZone.Properties.MPERunPerformance.BinFullBins = mpe.BinFullBins;
-                    pushUIUpdate = true;
-                }
             }
-            if (pushUIUpdate)
+            return await Task.FromResult(true);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return await Task.FromResult(false);
+        }
+    }
+
+    private void BinFullProcess(string mpeId, string status, string fullBins)
+    {
+        List<string>? _fullBins = null;
+        List<string> FullBinList = [];
+        try
+        {
+            var geoZone = _geoZoneList.Where(r => r.Value.Properties.ZoneType == "Bin" && r.Value.Properties.Name == mpeId).Select(y => y.Value).FirstOrDefault();
+            if (geoZone != null)
             {
-                await _hubServices.Clients.Group("MPEZones").SendAsync("MPEPerformanceUpdateGeoZone", geoZone.Properties.MPERunPerformance);
+                switch (status)
+                {
+                    case "0":
+                        _hubServices.Clients.Group(geoZone.Properties.ZoneType).SendAsync($"update{geoZone.Properties.ZoneType}zone", new JObject { ["zoneId"] = geoZone.Properties.Id, ["binFullStatus"] = status });
+                        break;
+                    case "1":
+                        _fullBins = !string.IsNullOrEmpty(fullBins) ? fullBins.Split(',').Select(p => p.Trim().TrimStart('0')).ToList() : [];
+                        for (int i = 0; i < _fullBins.Count; i++)
+                        {
+                            if (geoZone.Properties.Bins.Split(',').Select(p => p.Trim()).ToList().Contains(_fullBins[i]))
+                            {
+                                FullBinList.Add(_fullBins[i]);
+                            }
+                        }
+                        if (FullBinList.Any())
+                        {
+                            _hubServices.Clients.Group(geoZone.Properties.ZoneType).SendAsync($"update{geoZone.Properties.ZoneType}zone", new JObject { ["zoneId"] = geoZone.Properties.Id, ["binFullStatus"] = status });
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
         }
+        catch (Exception e)
+        {
 
+            _logger.LogError(e.Message);
+        }
     }
 
     public async void ProcessIDSData(JToken result)
@@ -828,4 +951,5 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
         }
     }
+
 }

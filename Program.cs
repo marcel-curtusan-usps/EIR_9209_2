@@ -9,6 +9,7 @@ var config = new ConfigurationBuilder()
 
 //configure Serilog using the configuration
 Log.Logger = new LoggerConfiguration()
+     .WriteTo.Console()
     .ReadFrom.Configuration(config)
     .CreateLogger();
 try

@@ -174,7 +174,7 @@ let geoZoneMPE = new L.GeoJSON(null, {
     onEachFeature: function (feature, layer) {
 
         layer.zoneId = feature.properties.id;
-       
+
         layer.on('click', function (e) {
             OSLmap.setView(e.sourceTarget.getCenter(), 3);
             Promise.all([loadMachineData(feature.properties, 'machinetable')]);
@@ -239,12 +239,12 @@ async function init_geoZoneMPE() {
         let sp = this.nextElementSibling;
         if (/^(MPE Zones)$/ig.test(sp.innerHTML.trim())) {
             if (this.checked) {
-                connection.invoke("AddToGroup", "MPEZones").catch(function (err) {
+                connection.invoke("JoinGroup", "MPEZones").catch(function (err) {
                     return console.error(err.toString());
                 });
             }
             else {
-                connection.invoke("RemoveFromGroup", "MPEZones").catch(function (err) {
+                connection.invoke("LeaveGroup", "MPEZones").catch(function (err) {
                     return console.error(err.toString());
                 });
             }
@@ -262,7 +262,7 @@ connection.on("UpdateGeoZone", async (mpeZonedata) => {
         });
 
 });
-connection.on("MPEPerformanceUpdateGeoZone", async (mpeZonedata) => {
+connection.on("updateMPEZoneRunPerformance", async (mpeZonedata) => {
     await findMpeZoneLeafletIds(mpeZonedata.zoneId)
         .then(leafletIds => {
             geoZoneMPE._layers[leafletIds].feature.properties.mpeRunPerformance = mpeZonedata;
@@ -606,8 +606,8 @@ function VaildateMPEtime(data) {
             return " ";
         }
         //how do use luxon to check if the date is valid
-        let time = luxon.DateTime.fromFormat(data, "yyyy-MM-dd HH:mm:ss"); 
-    
+        let time = luxon.DateTime.fromFormat(data, "yyyy-MM-dd HH:mm:ss");
+
         if (time.isValid && time.year === luxon.DateTime.local().year) {
             return time.toFormat("yyyy-MM-dd HH:mm:ss");
         }

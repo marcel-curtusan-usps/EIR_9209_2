@@ -81,7 +81,6 @@ namespace EIR_9209_2.Controllers
                     //add the connection to the worker
                     if (_worker.AddEndpoint(addCon))
                     {
-                        // await _hubContext.Clients.Group("Connections").SendAsync("addConnection", addCon);
                         return Ok(addCon);
                     }
                     else
@@ -117,22 +116,17 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                //convert the JObject to a Connection object
-
                 var updateCon = _connectionRepository.Update(value.ToObject<Connection>()).Result;
                 if (updateCon != null)
                 {
                     if (_worker.UpdateEndpoint(updateCon))
                     {
-                        // await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon);
                         return Ok(updateCon);
                     }
                     else
                     {
                         return BadRequest(ModelState);
                     }
-
-
                 }
                 else
                 {

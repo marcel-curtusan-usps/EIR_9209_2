@@ -3,9 +3,10 @@ using Newtonsoft.Json.Linq;
 
 public interface IInMemoryGeoZonesRepository
 {
-    Task Add(GeoZone geoZone);
-    Task Remove(string geoZoneId);
-    Task Update(GeoZone geoZone);
+    Task<GeoZone> Add(GeoZone geoZone);
+    Task<GeoZone> Remove(string geoZoneId);
+    Task<GeoZone> Update(GeoZone geoZone);
+    Task<GeoZone> UiUpdate(GeoZone geoZone);
     GeoZone Get(string id);
     IEnumerable<GeoZone> GetAll();
     GeoZone GetMPEName(string MPEName);
@@ -17,7 +18,7 @@ public interface IInMemoryGeoZonesRepository
     object getMPESummary(string mpe);
     List<MPEActiveRun> getMPERunActivity(string mpe);
     void RunMPESummaryReport();
-    void UpdateMPERunInfo(MPERunPerformance mpe);
+    Task<bool> UpdateMPERunInfo(List<MPERunPerformance> mpe);
     void ProcessIDSData(JToken result);
     void UpdateMPERunActivity(MPERunPerformance mpe);
     Task LoadMPEPlan(JToken data);
