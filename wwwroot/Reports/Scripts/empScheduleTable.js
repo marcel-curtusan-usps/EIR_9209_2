@@ -55,16 +55,23 @@ function processScheduledata(data) {
                 }
             });
             let totalhrs = Math.round(hourst * 10) / 10;
+            //let tacshrtotal = '38';
+            //let selshrtotal = '35';
+            //let totalhrspercent = '<br>'+Math.round(parseFloat(tacshrtotal) / parseFloat(selshrtotal) * 100 * 1) / 1 + '%';
             let totalhrspercent = '';
+
+            
             if (totalhrs == 0) {
             } else {
                 let tacshrtotal = '38';
                 let selshrtotal = '35';
                 totalhrs += '<br><span class="tacshrSpan">' + tacshrtotal + '</span><span class="selshrSpan">' + selshrtotal + '</span>';
-                let tacshrtotalpercent = Math.round(parseFloat(tacshrtotal) / parseFloat(totalhrs) * 100 *1) / 1 + '%';
-                let selshrtotalpercent = Math.round(parseFloat(selshrtotal) / parseFloat(totalhrs) * 100 * 1) / 1 + '%';
-                totalhrspercent = '<br><span class="tacshrSpan">' + tacshrtotalpercent + '</span><span class="selshrSpan">' + selshrtotalpercent + '</span>';
+                //let tacshrtotalpercent = Math.round(parseFloat(tacshrtotal) / parseFloat(totalhrs) * 100 *1) / 1 + '%';
+                //let selshrtotalpercent = Math.round(parseFloat(selshrtotal) / parseFloat(totalhrs) * 100 * 1) / 1 + '%';
+                //totalhrspercent = '<br><span class="tacshrSpan">' + tacshrtotalpercent + '</span><span class="selshrSpan">' + selshrtotalpercent + '</span>';
+                totalhrspercent = '<br>' + Math.round(parseFloat(tacshrtotal) / parseFloat(selshrtotal) * 100 * 1) / 1 + '%';
             }
+            
             let employee = {
                 employee: curr.lastName + ', ' + curr.firstName + '<br>' + curr.ein,
                 tour: curr.tourNumber,
@@ -149,7 +156,7 @@ async function createEmpScheduleDataTable(table) {
             "data": 'hourstotal'
         },
         {
-            "title": 'Hours Total %',
+            "title": 'TACS vs SELS %',
             "width": "10%",
             "data": 'hourstotalpercent'
         }
@@ -173,9 +180,9 @@ async function createEmpScheduleDataTable(table) {
         },
         aoColumns: columns,
         columnDefs: [
-            { targets: [1, 9], className: 'dt-center' }
+            { targets: [1, 9, 10], className: 'dt-center' }
         ],
-        sorting: [[1, "asc"]],
+          sorting: [[1, "asc"], [10, "asc"]],
       })
       $('#' + table + ' thead').attr("class", "thead-dark");
 
