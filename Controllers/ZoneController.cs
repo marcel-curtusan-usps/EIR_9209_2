@@ -9,10 +9,11 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ZoneController(IInMemoryGeoZonesRepository zonesRepository, IHubContext<HubServices> hubServices) : ControllerBase
+    public class ZoneController(ILogger<ZoneController> logger, IInMemoryGeoZonesRepository zonesRepository, IHubContext<HubServices> hubContext) : ControllerBase
     {
         private readonly IInMemoryGeoZonesRepository _zonesRepository = zonesRepository;
-        private readonly IHubContext<HubServices> _hubServices = hubServices;
+        private readonly IHubContext<HubServices> _hubContext = hubContext;
+        private readonly ILogger<ZoneController> _logger = logger;
 
         // GET: api/<ZoneController>
         [HttpGet]
@@ -28,7 +29,7 @@ namespace EIR_9209_2.Controllers
 
         // GET api/<ZoneController>/5
         [HttpGet]
-        [Route("ZoneId")]
+        [Route("Id")]
         public async Task<object> GetByZoneId(string id)
         {
             if (!ModelState.IsValid)
@@ -49,46 +50,104 @@ namespace EIR_9209_2.Controllers
         }
         [HttpGet]
         [Route("GetZoneNameList")]
-        public async Task<object> GetByZoneNameList(string ZoneType)
+        public async Task<object> GetByZoneNameList(string zoneType)
         {
             if (!ModelState.IsValid)
             {
                 return await Task.FromResult(BadRequest(ModelState));
             }
-            return _zonesRepository.GetZoneNameList(ZoneType);
+            return _zonesRepository.GetZoneNameList(zoneType);
         }
         // POST api/<ZoneController>
         [HttpPost]
-        [Route("AddZone")]
+        [Route("Add")]
         public async Task<object> PostByAddNewZone([FromBody] JObject zone)
         {
-
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest();
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
+                GeoZone newZone = zone.ToObject<GeoZone>();
+                newZone.Properties.Id = Guid.NewGuid().ToString();
+
+                var GeoZone = await _zonesRepository.Add(newZone);
+                if (GeoZone != null)
+                {
+                    await _hubContext.Clients.Group(GeoZone.Properties.ZoneType).SendAsync($"add{GeoZone.Properties.ZoneType}zone", GeoZone);
+                    return Ok(GeoZone);
+                }
+                else
+                {
+                    return BadRequest(new JObject { ["message"] = "Zone was not Added " });
+                }
+
             }
-            GeoZone newZone = zone.ToObject<GeoZone>();
-            newZone.Properties.Id = Guid.NewGuid().ToString();
-
-            _zonesRepository.Add(newZone);
-
-            if (zone.ContainsKey("zoneType") && zone["zoneType"].ToString() == "MPEBinZones")
+            catch (Exception e)
             {
-                await _hubServices.Clients.Group("MPEBinZones").SendAsync("AddMPEBinZones", newZone);
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
             }
-            return newZone;
         }
+        // POST api/<ZoneController>
+        [HttpPost]
+        [Route("Update")]
+        public async Task<object> PostByUpdateZone([FromBody] JObject zone)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
+                var GeoZone = await _zonesRepository.UiUpdate(zone.ToObject<GeoZone>());
+                if (GeoZone != null)
+                {
+                    await _hubContext.Clients.Group(GeoZone.Properties.ZoneType).SendAsync($"update{GeoZone.Properties.ZoneType}zone", GeoZone);
+                    return Ok(GeoZone);
+                }
+                else
+                {
+                    return BadRequest(new JObject { ["message"] = "Zone was not Updated " });
+                }
 
-        //// PUT api/<ZoneController>/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
+        // DELETE api/<ZoneController>/5
+        [HttpDelete]
+        [Route("Delete")]
+        public async Task<object> Delete(string id)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
+                var GeoZone = await _zonesRepository.Remove(id);
 
-        //// DELETE api/<ZoneController>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
+                if (GeoZone != null)
+                {
+                    await _hubContext.Clients.Group(GeoZone.Properties.ZoneType).SendAsync($"delete{GeoZone.Properties.ZoneType}zone", GeoZone);
+                    return Ok(GeoZone);
+                }
+                else
+                {
+                    return BadRequest(new JObject { ["message"] = "Zone was not Removes " });
+                }
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

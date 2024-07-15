@@ -5,7 +5,6 @@
         void Add(SiteInformation site);
         void Remove(string id);
         SiteInformation Get(string id);
-        List<SiteInformation> GetAll();
         void Update(SiteInformation site);
         SiteInformation GetByNASSCode(string id);
     }

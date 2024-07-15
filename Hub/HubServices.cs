@@ -1,13 +1,8 @@
 ﻿using EIR_9209_2.DataStore;
 using EIR_9209_2.Models;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Reflection;
 using System.Security.Claims;
 
 public class HubServices : Hub
@@ -125,17 +120,17 @@ public class HubServices : Hub
         });
     }
 
-    public async Task<IEnumerable<GeoMarker>> GetPersonTags()
+    public async Task<IEnumerable<GeoMarker>> GetBadgeTags()
     {
-        return await Task.Run(_tags.GetAllPerson);
+        return await Task.Run(() => _tags.GetTagsType("Badge"));
     }
     public async Task<IEnumerable<GeoMarker>> GetPIVTags()
     {
-        return await Task.Run(_tags.GetAllPIV);
+        return await Task.Run(() => _tags.GetTagsType("PIVVehicle"));
     }
     public async Task<IEnumerable<GeoMarker>> GetAGVTags()
     {
-        return await Task.Run(_tags.GetAllAGV);
+        return await Task.Run(() => _tags.GetTagsType("AutonomousVehicle"));
     }
     public async Task<IEnumerable<GeoZone>> GetGeoZones()
     {

@@ -1,4 +1,5 @@
 ﻿using EIR_9209_2.Models;
+using EIR_9209_2.Service;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net;
@@ -13,21 +14,24 @@ internal class QueryService : IQueryService
     private readonly JsonSerializerSettings _jsonSettings;
     private readonly Uri _baseQueryUrlWithPort;
     private readonly Uri _fullUrl;
+    protected readonly ILogger<BaseEndpointService> _logger;
 
-    public QueryService(IHttpClientFactory httpClient, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
+    public QueryService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClient, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
     {
-        this._httpClient = httpClient;
-        this._jsonSettings = jsonSettings;
-        this._fullUrl = new Uri(settings.FullUrl);
+        _logger = logger;
+        _httpClient = httpClient;
+        _jsonSettings = jsonSettings;
+        _fullUrl = new Uri(settings.FullUrl);
     }
 
-    public QueryService(IHttpClientFactory httpClient, IOAuth2AuthenticationService authService, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
+    public QueryService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClient, IOAuth2AuthenticationService authService, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
     {
-        this._httpClient = httpClient;
-        this._authService = authService;
-        this._jsonSettings = jsonSettings;
-        this._baseQueryUrlWithPort = new Uri(settings.BaseQueryUrlWithPort);
-        this._fullUrl = new Uri(settings.FullUrl);
+        _logger = logger;
+        _httpClient = httpClient;
+        _authService = authService;
+        _jsonSettings = jsonSettings;
+        _baseQueryUrlWithPort = new Uri(settings.BaseQueryUrlWithPort);
+        _fullUrl = new Uri(settings.FullUrl);
     }
 
     public async Task<QuuppaTag> GetQPETagData(CancellationToken ct)
@@ -130,7 +134,8 @@ internal class QueryService : IQueryService
         {
             // Log the exception or handle it in some other way
             // For example, you might want to rethrow the exception to let the caller handle it
-
+            _logger.LogInformation(queryUrl);
+            _logger.LogError(ex.Message);
             throw new Exception("An error occurred while sending the HTTP request.", ex);
 
         }
@@ -138,12 +143,14 @@ internal class QueryService : IQueryService
         {
             // Log the exception or handle it in some other way
             // For example, you might want to rethrow the exception to let the caller handle it
-
+            _logger.LogInformation(queryUrl);
+            _logger.LogError(ex.Message);
             throw new Exception("An error occurred while deserializing the response body.", ex);
         }
         catch (Exception e)
         {
-
+            _logger.LogInformation(queryUrl);
+            _logger.LogError(e.Message);
             throw new Exception("An error occurred while connection.", e);
         }
 
@@ -181,10 +188,28 @@ internal class QueryService : IQueryService
             //var responseBody = await response.Content.ReadAsStringAsync();
             //return JsonConvert.DeserializeObject<T>(responseBody, _jsonSettings);
         }
+        catch (HttpRequestException ex)
+        {
+            // Log the exception or handle it in some other way
+            // For example, you might want to rethrow the exception to let the caller handle it
+            _logger.LogInformation(queryUrl);
+            _logger.LogError(ex.Message);
+            throw new Exception("An error occurred while sending the HTTP request.", ex);
+
+        }
+        catch (JsonException ex)
+        {
+            // Log the exception or handle it in some other way
+            // For example, you might want to rethrow the exception to let the caller handle it
+            _logger.LogInformation(queryUrl);
+            _logger.LogError(ex.Message);
+            throw new Exception("An error occurred while deserializing the response body.", ex);
+        }
         catch (Exception e)
         {
-
-            throw new Exception("An error occurred while sending the HTTP request.", e);
+            _logger.LogInformation(queryUrl);
+            _logger.LogError(e.Message);
+            throw new Exception("An error occurred while connection.", e);
         }
     }
 

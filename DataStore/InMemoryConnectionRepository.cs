@@ -1,7 +1,9 @@
 ﻿using EIR_9209_2.Models;
+using EIR_9209_2.Service;
+using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 public class InMemoryConnectionRepository : IInMemoryConnectionRepository
 {
@@ -13,7 +15,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     private readonly string filePath = "";
     private readonly string fileName = "";
 
-    public InMemoryConnectionRepository(ILogger<InMemoryConnectionRepository> logger, IConfiguration configuration, IFileService fileService)
+    public InMemoryConnectionRepository(ILogger<InMemoryConnectionRepository> logger, IHubContext<HubServices> hubServices, IConfiguration configuration, IFileService fileService)
     {
         _fileService = fileService;
         _logger = logger;
@@ -31,65 +33,104 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         // Load ConnectionType data from the first file into the first collection
         _ = LoadConnectionTypeDataFromFile(conTypeFilePath);
     }
-    public Connection? Add(Connection connection)
+    public Task<Connection>? Add(Connection connection)
     {
-        if (_connectionList.TryAdd(connection.Id, connection))
+        bool saveToFile = false;
+        try
         {
-            if (_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented)))
+            if (_connectionList.TryAdd(connection.Id, connection))
             {
-                return connection;
+                saveToFile = true;
+                return Task.FromResult(connection);
             }
             else
             {
-                _logger.LogError($"ConnectionList.json was not update");
+                _logger.LogError($"Connection file was not saved...");
                 return null;
-
             }
-
         }
-        else
+        catch (Exception e)
         {
+            _logger.LogError(e.Message);
             return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+            }
         }
     }
-    public Connection? Remove(string connectionId)
+    public Task<Connection>? Remove(string connectionId)
     {
-        if (_connectionList.TryRemove(connectionId, out Connection conn))
+        bool saveToFile = false;
+        try
         {
-            if (_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented)))
+            if (_connectionList.TryRemove(connectionId, out Connection connection))
             {
-                return conn;
+                saveToFile = true;
+                return Task.FromResult(connection);
             }
             else
             {
+                _logger.LogError($"Connection file was not saved...");
                 return null;
             }
-
         }
-        else
+        catch (Exception e)
         {
+            _logger.LogError(e.Message);
             return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+            }
         }
     }
-    public Connection? Update(Connection connection)
+    public async Task<Connection>? Update(Connection connection)
     {
-
-
-        if (_connectionList.TryGetValue(connection.Id, out Connection? currentConnection) && _connectionList.TryUpdate(connection.Id, connection, currentConnection))
+        bool saveToFile = false;
+        try
         {
-            if (_fileService.WriteFile("ConnectionList.json", JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented)))
+            connection.LastupDate = DateTime.Now;
+            if (!connection.ActiveConnection)
             {
-                return Get(connection.Id);
+                connection.DeactivatedDate = DateTime.Now;
+                connection.Status = EWorkerServiceState.Idel;
+            }
+            if (_connectionList.TryGetValue(connection.Id, out Connection? currentConnection) && _connectionList.TryUpdate(connection.Id, connection, currentConnection))
+            {
+                saveToFile = true;
+                if (_connectionList.TryGetValue(connection.Id, out Connection? con))
+                {
+
+                    return await Task.FromResult(con);
+                }
+                else
+                {
+                    return null;
+                }
             }
             else
             {
                 return null;
             }
-
         }
-        else
+        catch (Exception e)
         {
+            _logger.LogError(e.Message);
             return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+            }
         }
 
     }
@@ -128,6 +169,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
             {
                 foreach (Connection item in data.Select(r => r).ToList())
                 {
+                    item.Status = EWorkerServiceState.Stopped;
                     _connectionList.TryAdd(item.Id, item);
                 }
             }
@@ -264,8 +306,8 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
                     }
                 }
             }
-            if(_fileService.WriteFileInAppConfig("ConnectionType.json", JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented)))
-            { 
+            if (_fileService.WriteFileInAppConfig("ConnectionType.json", JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented)))
+            {
                 return connection;
             }
             else

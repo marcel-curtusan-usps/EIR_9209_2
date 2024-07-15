@@ -158,8 +158,20 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
     });
 });
 
+connection.on("addBinzone", async (zoneDate) => {
+    addBinFeature(zoneDate);
+
+});
+connection.on("deleteBinzone", async (zoneDate) => {
+    deleteBinFeature(zoneDate);
+
+});
+connection.on("updateBinzone", async (zoneDate) => {
+    //need to update bin zone
+    updateBinFeature(zoneDate);
+});
 let flash = "";
-let geoZoneMPEBin = new L.GeoJSON(null, {
+let geoZoneBin = new L.GeoJSON(null, {
     style: function (feature) {
         return {
             weight: 1,
@@ -174,36 +186,22 @@ let geoZoneMPEBin = new L.GeoJSON(null, {
     onEachFeature: function (feature, layer) {
 
         layer.zoneId = feature.properties.id;
-        if (feature.properties.MPE_Bins !== null && feature.properties.MPE_Bins.length > 0) {
-            flash = "doorflash";
-        }
         layer.on('click', function (e) {
-            OSLmap.setView(e.sourceTarget.getCenter(), 3);
-            //makea ajax call to get the employee details
-            $.ajax({
-                url: '/api/Zone/' + feature.properties.id,
-                type: 'GET',
-                success: function (data) {
-                    //$('#content').html(data);
-                    sidebar.open('reports');
-                },
-                error: function (error) {
-                    console.log(error);
-                },
-                faulure: function (fail) {
-                    console.log(fail);
-                },
-                complete: function (complete) {
-                    $('div[id=machine_div]').attr("data-id", feature.properties.id);
-                    $('div[id=machine_div]').css('display', 'block');
-                    $('div[id=ctstabs_div]').css('display', 'block');
-
-                    sidebar.open('home');
-
-
+            //set to the center of the polygon.
+            $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
+            OSLmap.setView(e.latlng);
+            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+                if ($('#zoneselect').val() === feature.properties.id) {
+                    sidebar.close('home');
                 }
-            });
-
+                else {
+                    sidebar.open('home');
+                }
+            }
+            else {
+                sidebar.open('home');
+            }
+            LoadBinZoneTables(feature.properties);
         });
         layer.bindTooltip("", {
             permanent: true,
@@ -218,15 +216,15 @@ let geoZoneMPEBin = new L.GeoJSON(null, {
         return feature.properties.visible;
     }
 });
-
 // add to the map and layers control
-let geoZoneMPEBinoverlayLayer = L.layerGroup().addTo(OSLmap);
-layersControl.addOverlay(geoZoneMPEBinoverlayLayer, "MPE Bin Zones");
-geoZoneMPEBin.addTo(geoZoneMPEBinoverlayLayer);
+let geoZoneBINoverlayLayer = L.layerGroup().addTo(OSLmap);
 
-async function findMpeBinZoneLeafletIds(zoneId) {
+layersControl.addOverlay(geoZoneBINoverlayLayer, "Bin Zones");
+geoZoneBin.addTo(geoZoneBINoverlayLayer);
+
+async function findBinZoneLeafletIds(zoneId) {
     return new Promise((resolve, reject) => {
-        geoZoneMPEBin.eachLayer(function (layer) {
+        geoZoneBin.eachLayer(function (layer) {
             if (layer.zoneId === zoneId) {
                 resolve(layer._leaflet_id);
                 return false;
@@ -235,64 +233,106 @@ async function findMpeBinZoneLeafletIds(zoneId) {
         reject(new Error('No layer found with the given MPE Bin Zone Id'));
     });
 }
-async function init_geoZoneMPEBin() {
+async function init_geoZoneBin() {
     $(document).on('change', '.leaflet-control-layers-selector', function (e) {
         let sp = this.nextElementSibling;
-        if (/^(MPE Bin Zones)$/ig.test(sp.innerHTML.trim())) {
+        if (/^(Bin Zones)$/ig.test(sp.innerHTML.trim())) {
             if (this.checked) {
-                connection.invoke("AddToGroup", "MPEBinZones").catch(function (err) {
+                connection.invoke("JoinGroup", "Bin").catch(function (err) {
                     return console.error(err.toString());
                 });
             }
             else {
-                connection.invoke("RemoveFromGroup", "MPEBinZones").catch(function (err) {
+                connection.invoke("LeaveGroup", "Bin").catch(function (err) {
                     return console.error(err.toString());
                 });
             }
         }
 
     });
-    connection.invoke("JoinGroup", "MPEBinZones").catch(function (err) {
+    connection.invoke("JoinGroup", "Bin").catch(function (err) {
         return console.error(err.toString());
     });
 }
-
-connection.on("MPEBinUpdateGeoZone", async (mpeZonedata) => {
-    await findMpeBinZoneLeafletIds(mpeZonedata.zoneId)
-        .then(leafletIds => {
-            if (mpeZonedata.bin_full_status > 0) {
-                geoZoneMPEBin._layers[leafletIds]._tooltip._container.classList.add('doorflash');
-                geoZoneMPEBin._layers[leafletIds].setStyle({
-                    weight: 1,
-                    opacity: 1,
-                    fillOpacity: 0.5,
-                    fillColor: "#ff8855",
-                    lastOpacity: 0.5
-                });
-            }
-            else {
-                geoZoneMPEBin._layers[layerindex]._tooltip._container.classList.remove('doorflash');
-                geoZoneMPEBin._layers[layerindex].setStyle({
-                    weight: 1,
-                    opacity: 1,
-                    fillOpacity: 0.2,
-                    fillColor: "#989ea4",
-                    lastOpacity: 0.2
-                });
-            }
-        });
-});
-async function addMPEBinFeature(data) {
+async function addBinFeature(data) {
     try {
-        await findMpeBinZoneLeafletIds(data.properties.id)
+        await findBinZoneLeafletIds(data.properties.id)
             .then(leafletIds => {
 
             })
             .catch(error => {
-                geoZoneMPEBin.addData(data);
+                geoZoneBin.addData(data);
             });
     }
     catch (e) {
         throw new Error(e.toString());
     }
+}
+async function updateBinFeature(data) {
+    try {
+        await findBinZoneLeafletIds(data.zoneId)
+            .then(leafletIds => {
+                if (data.binFullStatus > 0) {
+                    geoZoneBin._layers[leafletIds]._tooltip._container.classList.add('doorflash');
+                    geoZoneBin._layers[leafletIds].setStyle({
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.5,
+                        fillColor: "#ff8855",
+                        lastOpacity: 0.5
+                    });
+                }
+                else {
+                    geoZoneMPEBin._layers[layerindex]._tooltip._container.classList.remove('doorflash');
+                    geoZoneMPEBin._layers[layerindex].setStyle({
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.2,
+                        fillColor: "#989ea4",
+                        lastOpacity: 0.2
+                    });
+                }
+            });
+    }
+    catch (e) {
+        throw new Error(e.toString());
+    }
+}
+async function deleteBinFeature(data) {
+    try {
+        await findBinZoneLeafletIds(data.properties.id)
+            .then(leafletIds => {
+                geoZoneBin.removeLayer(leafletIds);
+            })
+            .catch(error => {
+
+            });
+    }
+    catch (e) {
+        throw new Error(e.toString());
+    }
+}
+async function LoadBinZoneTables(data) {
+    try {
+        hideSidebarLayerDivs();
+        $('div[id=area_div]').attr("data-id", data.id);
+        $('div[id=area_div]').css('display', 'block');
+        czzonetop_Table_Body.empty();
+        czzonetop_Table_Body.append(czzonetop_row_template.supplant(formatczzonetoprow(data)));
+    } catch (e) {
+        console.log(e)
+    }
+}
+let czzonetop_Table = $('table[id=areazonetoptable]');
+let czzonetop_Table_Body = czzonetop_Table.find('tbody');
+let czzonetop_row_template = '<tr data-id="{zoneId}"><td style="width: 22%;">Bin Zone Name</td><td>{zoneName}</td></tr>' +
+    '<tr><td>Bins Configured</td><td>{AssignedBins}</td></tr>' +
+    '<tr><td>Full Bins</td><td>{fullbins}</td></tr>';
+function formatczzonetoprow(properties) {
+    return $.extend(properties, {
+        zoneId: properties.id,
+        zoneName: properties.name,
+        AssignedBins: properties.bins,
+        fullbins: properties.mpeRunPerformance.binFullBins
+    });
 }

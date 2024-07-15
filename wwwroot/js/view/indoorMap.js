@@ -92,7 +92,7 @@ async function UpdateOSLattribution(data) {
 async function init_backgroundImages() {
     try {
         $.ajax({
-            url: SiteURLconstructor(window.location) + 'api/BackgroundImage/GetAllImages',
+            url: SiteURLconstructor(window.location) + '/api/BackgroundImage/GetAllImages',
             contentType: 'application/json',
             type: 'GET',
             success: function (MapData) {
@@ -146,7 +146,7 @@ async function init_backgroundImages() {
                 connection.invoke("JoinGroup", "BackgroundImage").catch(function (err) {
                     return console.error(err.toString());
                 });
-                console.log(complete);
+              
             }
         });
 

@@ -1,8 +1,4 @@
-﻿
-using Newtonsoft.Json;
-using System.Reflection;
-
-namespace EIR_9209_2.Models
+﻿namespace EIR_9209_2.Models
 {
     public class GeoMarker
     {
@@ -13,7 +9,7 @@ namespace EIR_9209_2.Models
         public class Marker
         {
             public string Id { get; set; } = "";
-            public string FloorId { get; set; }
+            public string? FloorId { get; set; }
             public bool Visible { get; set; } = false;
             public List<string> Zones { get; set; } = new List<string>();
             public string Color { get; set; } = "";
@@ -54,6 +50,7 @@ namespace EIR_9209_2.Models
             public string LocationType { get; set; } = "";
             public long LastSeenTS { get; set; } = 0;
             public List<ScanTransaction> BadgeScan { get; set; } = [];
+
         }
         public class MarkerGeometry
         {

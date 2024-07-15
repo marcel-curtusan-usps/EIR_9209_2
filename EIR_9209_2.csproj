@@ -6,51 +6,62 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
+		<AssemblyVersion>1.0.0.12</AssemblyVersion>
+		<OutputType>Exe</OutputType>
+		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>portable</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>portable</DebugType>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="BackgroundImage\**" />
-	  <Compile Remove="Connection\**" />
-	  <Compile Remove="GeoZones\**" />
-	  <Compile Remove="Logs\**" />
-	  <Compile Remove="MongoDBServices\**" />
-	  <Compile Remove="SiteIdentity\**" />
-	  <Compile Remove="Tags\**" />
-	  <Content Remove="BackgroundImage\**" />
-	  <Content Remove="Connection\**" />
-	  <Content Remove="GeoZones\**" />
-	  <Content Remove="Logs\**" />
-	  <Content Remove="MongoDBServices\**" />
-	  <Content Remove="SiteIdentity\**" />
-	  <Content Remove="Tags\**" />
-	  <EmbeddedResource Remove="BackgroundImage\**" />
-	  <EmbeddedResource Remove="Connection\**" />
-	  <EmbeddedResource Remove="GeoZones\**" />
-	  <EmbeddedResource Remove="Logs\**" />
-	  <EmbeddedResource Remove="MongoDBServices\**" />
-	  <EmbeddedResource Remove="SiteIdentity\**" />
-	  <EmbeddedResource Remove="Tags\**" />
-	  <None Remove="BackgroundImage\**" />
-	  <None Remove="Connection\**" />
-	  <None Remove="GeoZones\**" />
-	  <None Remove="Logs\**" />
-	  <None Remove="MongoDBServices\**" />
-	  <None Remove="SiteIdentity\**" />
-	  <None Remove="Tags\**" />
+		<Compile Remove="BackgroundImage\**" />
+		<Compile Remove="Connection\**" />
+		<Compile Remove="GeoZones\**" />
+		<Compile Remove="Logs\**" />
+		<Compile Remove="MongoDBServices\**" />
+		<Compile Remove="SiteIdentity\**" />
+		<Compile Remove="Tags\**" />
+		<Content Remove="BackgroundImage\**" />
+		<Content Remove="Connection\**" />
+		<Content Remove="GeoZones\**" />
+		<Content Remove="Logs\**" />
+		<Content Remove="MongoDBServices\**" />
+		<Content Remove="SiteIdentity\**" />
+		<Content Remove="Tags\**" />
+		<EmbeddedResource Remove="BackgroundImage\**" />
+		<EmbeddedResource Remove="Connection\**" />
+		<EmbeddedResource Remove="GeoZones\**" />
+		<EmbeddedResource Remove="Logs\**" />
+		<EmbeddedResource Remove="MongoDBServices\**" />
+		<EmbeddedResource Remove="SiteIdentity\**" />
+		<EmbeddedResource Remove="Tags\**" />
+		<None Remove="BackgroundImage\**" />
+		<None Remove="Connection\**" />
+		<None Remove="GeoZones\**" />
+		<None Remove="Logs\**" />
+		<None Remove="MongoDBServices\**" />
+		<None Remove="SiteIdentity\**" />
+		<None Remove="Tags\**" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Service\EmailEndpointService.cs" />
-	  <Compile Remove="Service\EndpointService.cs" />
-	  <Compile Remove="Service\IDSEndpointService.cs" />
-	  <Compile Remove="Service\IMPEWatchBackgroundService.cs" />
-	  <Compile Remove="Service\IQPEBackgroundService.cs" />
-	  <Compile Remove="Service\IWorkerService.cs" />
-	  <Compile Remove="Service\MPEWatchBackgroundService.cs" />
-	  <Compile Remove="Service\MPEWatchEndpointService.cs" />
-	  <Compile Remove="Service\QPEBackgroundService.cs" />
-	  <Compile Remove="Service\QPEEndpointService.cs" />
-	  <Compile Remove="Service\WorkerService.cs" />
+		<Compile Remove="Service\EmailEndpointService.cs" />
+		<Compile Remove="Service\EndpointService.cs" />
+		<Compile Remove="Service\IDSEndpointService.cs" />
+		<Compile Remove="Service\IMPEWatchBackgroundService.cs" />
+		<Compile Remove="Service\IQPEBackgroundService.cs" />
+		<Compile Remove="Service\IWorkerService.cs" />
+		<Compile Remove="Service\MPEWatchBackgroundService.cs" />
+		<Compile Remove="Service\MPEWatchEndpointService.cs" />
+		<Compile Remove="Service\QPEBackgroundService.cs" />
+		<Compile Remove="Service\QPEEndpointService.cs" />
+		<Compile Remove="Service\WorkerService.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -89,7 +100,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="OracleQuery\" />
 		<Folder Include="Properties\PublishProfiles\" />
 		<Folder Include="wwwroot\images\" />
 	</ItemGroup>
@@ -100,22 +110,22 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Update="wwwroot\js\view\connectionTypes - Copy.js">
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-	  </Content>
-	  <Content Update="wwwroot\Reports\Content\mpePerformance - Copy.css">
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-	  </Content>
-	  <Content Update="wwwroot\Reports\Content\mpePerformance - Copy.min.css">
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-	  </Content>
-	  <Content Update="wwwroot\Reports\Content\mpePerformance - Copy.scss">
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-	  </Content>
+		<Content Update="wwwroot\js\view\connectionTypes - Copy.js">
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+		<Content Update="wwwroot\Reports\Content\mpePerformance - Copy.css">
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+		<Content Update="wwwroot\Reports\Content\mpePerformance - Copy.min.css">
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+		<Content Update="wwwroot\Reports\Content\mpePerformance - Copy.scss">
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
 	</ItemGroup>
 
 </Project>

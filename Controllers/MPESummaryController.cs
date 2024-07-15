@@ -10,10 +10,14 @@ namespace EIR_9209_2.Controllers
     {
         private readonly IInMemoryGeoZonesRepository _zones = zonesRepository;
         private readonly ILogger<MPESummaryController> _logger = logger;
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mpe"></param>
+        /// <returns></returns>
         // GET: api/<MPESummaryController>
         [HttpGet]
-        [Route("/MPESummary")]
+        [Route("GetByMPEName")]
         public async Task<object> GetByMPE(string mpe)
         {
             if (!ModelState.IsValid)

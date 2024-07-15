@@ -174,7 +174,7 @@ let geoZoneMPE = new L.GeoJSON(null, {
     onEachFeature: function (feature, layer) {
 
         layer.zoneId = feature.properties.id;
-       
+
         layer.on('click', function (e) {
             OSLmap.setView(e.sourceTarget.getCenter(), 3);
             Promise.all([loadMachineData(feature.properties, 'machinetable')]);
@@ -231,7 +231,7 @@ async function findMpeZoneLeafletIds(zoneId) {
                 return false;
             }
         });
-        reject(new Error('No layer found with the given MPE Zone Id'));
+        reject(new Error('No layer found with the given MPE Zone Id: ' + zoneId));
     });
 }
 async function init_geoZoneMPE() {
@@ -239,12 +239,12 @@ async function init_geoZoneMPE() {
         let sp = this.nextElementSibling;
         if (/^(MPE Zones)$/ig.test(sp.innerHTML.trim())) {
             if (this.checked) {
-                connection.invoke("AddToGroup", "MPEZones").catch(function (err) {
+                connection.invoke("JoinGroup", "MPEZones").catch(function (err) {
                     return console.error(err.toString());
                 });
             }
             else {
-                connection.invoke("RemoveFromGroup", "MPEZones").catch(function (err) {
+                connection.invoke("LeaveGroup", "MPEZones").catch(function (err) {
                     return console.error(err.toString());
                 });
             }
@@ -262,15 +262,16 @@ connection.on("UpdateGeoZone", async (mpeZonedata) => {
         });
 
 });
-connection.on("MPEPerformanceUpdateGeoZone", async (mpeZonedata) => {
-    await findMpeZoneLeafletIds(mpeZonedata.zoneId)
+connection.on("updateMPEZoneRunPerformance", async (data) => {
+
+    await findMpeZoneLeafletIds(data.zoneId)
         .then(leafletIds => {
-            geoZoneMPE._layers[leafletIds].feature.properties.mpeRunPerformance = mpeZonedata;
+            geoZoneMPE._layers[leafletIds].feature.properties.mpeRunPerformance = data;
             geoZoneMPE._layers[leafletIds].setStyle({
                 weight: 1,
                 opacity: 1,
                 fillOpacity: 0.2,
-                fillColor: GetMacineBackground(mpeZonedata),
+                fillColor: GetMacineBackground(data),
                 lastOpacity: 0.2
             });
         });
@@ -329,10 +330,10 @@ async function loadMachineData(data, table) {
         $('div[id=machine_div]').css('display', 'block');
         $('div[id=ctstabs_div]').css('display', 'block');
         $('button[name=machineinfoedit]').attr('id', data.id);
-        $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + 'MPE/MPE.html?MPEStatus=' + data.name, style: 'color:white;' }).html("View").appendTo($('span[name=mpeview]'));
-        $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + 'Reports/MPEPerformance.html?MPEStatus=' + data.name, style: 'color:white;' }).html("MPE Synopsis").appendTo($('span[name=mpePerfomance]'));
+        $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPE/MPE.html?MPEStatus=' + data.name, style: 'color:white;' }).html("View").appendTo($('span[name=mpeview]'));
+        $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/Reports/MPEPerformance.html?MPEStatus=' + data.name, style: 'color:white;' }).html("MPE Synopsis").appendTo($('span[name=mpePerfomance]'));
         if (!!mpeData.mpeGroup) {
-            $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + 'MPESDO/MPESDO.html?MPEGroupName=' + mpeData.mpeGroup, style: 'color:white;' }).html("SDO View").appendTo($('span[name=mpeSDO]'));
+            $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPESDO/MPESDO.html?MPEGroupName=' + mpeData.mpeGroup, style: 'color:white;' }).html("SDO View").appendTo($('span[name=mpeSDO]'));
         }
         if (/machinetable/i.test(table)) {
             $('div[id=dps_div]').css('display', 'none');
@@ -606,8 +607,8 @@ function VaildateMPEtime(data) {
             return " ";
         }
         //how do use luxon to check if the date is valid
-        let time = luxon.DateTime.fromFormat(data, "yyyy-MM-dd HH:mm:ss"); 
-    
+        let time = luxon.DateTime.fromFormat(data, "yyyy-MM-dd HH:mm:ss");
+
         if (time.isValid && time.year === luxon.DateTime.local().year) {
             return time.toFormat("yyyy-MM-dd HH:mm:ss");
         }

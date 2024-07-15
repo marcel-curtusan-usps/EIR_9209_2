@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
+﻿using EIR_9209_2.Service;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using EIR_9209_2.Service;
-using NuGet.Protocol.Plugins;
-using EIR_9209_2.Models;
+using Newtonsoft.Json.Linq;
 
 
 
@@ -13,22 +11,21 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class Connections : ControllerBase
+    public class Connections(ILogger<Connections> logger, IInMemoryConnectionRepository connectionRepository, IHubContext<HubServices> hubContext, Worker worker) : ControllerBase
     {
-        private readonly IInMemoryConnectionRepository _connectionRepository;
-        private readonly IHubContext<HubServices> _hubContext;
-        private readonly Worker _worker;
+        private readonly IInMemoryConnectionRepository _connectionRepository = connectionRepository;
+        private readonly IHubContext<HubServices> _hubContext = hubContext;
+        private readonly Worker _worker = worker;
+        private readonly ILogger<Connections> _logger = logger;
 
-        public Connections(IInMemoryConnectionRepository connectionRepository, IHubContext<HubServices> hubContext, Worker worker)
-        {
-            _connectionRepository = connectionRepository;
-            _hubContext = hubContext;
-            _worker = worker;
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         // GET: api/<Connection>
         [HttpGet]
-        public async Task<object> Get()
+        [Route("AllConnection")]
+        public async Task<object> GetByAllConnection()
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -37,10 +34,15 @@ namespace EIR_9209_2.Controllers
             }
             return Ok(_connectionRepository.GetAll());
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET api/<Connection>/5
-        [HttpGet("{id}")]
-        public async Task<object> Get(string id)
+        [HttpGet]
+        [Route("ConnectionId")]
+        public async Task<object> GetByConnectionId(string id)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -52,120 +54,125 @@ namespace EIR_9209_2.Controllers
 
         // POST api/<Connection>
         [HttpPost]
-        [Route("/api/AddConnection")]
+        [Route("Add")]
         /// <summary>
         /// Adds a new connection.
         /// </summary>
         /// <param name="value">The connection details.</param>
         /// <returns>The added connection.</returns>
-        public async Task<object> PostAddNewConnection([FromBody] JObject value)
+        public async Task<object> PostAddConnection([FromBody] JObject value)
         {
-            //handle bad requests
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
-            //convert the JObject to a Connection object
-            Connection connection = value.ToObject<Connection>();
-            //add the connection id
-            connection.Id = Guid.NewGuid().ToString();
-            connection.CreatedDate = DateTime.Now;
-            //add to the connection repository
-            Connection loadedCon = _connectionRepository.Add(connection);
-            if (loadedCon != null)
-            {
-                //add the connection to the worker
-                if (_worker.AddEndpoint(loadedCon))
+                //handle bad requests
+                if (!ModelState.IsValid)
                 {
-
-                    await _hubContext.Clients.Group("Connections").SendAsync("AddConnection", loadedCon);
-                    return Ok(loadedCon);
+                    return BadRequest(ModelState);
                 }
-                else
-                {
-                    return BadRequest(new JObject { ["message"] = "End Point was not Started" });
-                }
-            }
-            else
-            {
-                return BadRequest(new JObject { ["message"] = "End Point was not Added " });
-            }
-
-
-
-        }
-
-        // PUT api/<Connection>/5
-        [HttpPut]
-        [Route("/api/UpdateConnection")]
-        public async Task<object> Put(string id, [FromBody] JObject value)
-        {
-            //handle bad requests
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            //convert the JObject to a Connection object
-            //find id to update 
-            Connection conToUpdate = _connectionRepository.Get(id);
-            if (conToUpdate != null)
-            {
+                //convert the JObject to a Connection object
                 Connection connection = value.ToObject<Connection>();
-                connection.LastupDate = DateTime.Now;
-                if (!connection.ActiveConnection)
-                {
-                    connection.DeactivatedDate = DateTime.Now;
-                }
-                Connection updatedCon = _connectionRepository.Update(connection);
-                if (updatedCon != null)
+                //add the connection id
+                connection.Id = Guid.NewGuid().ToString();
+                connection.CreatedDate = DateTime.Now;
+                //add to the connection repository
+                var addCon = await _connectionRepository.Add(connection);
+                if (addCon != null)
                 {
                     //add the connection to the worker
-                    if (_worker.UpdateEndpoint(updatedCon))
+                    if (_worker.AddEndpoint(addCon))
                     {
-                        await _hubContext.Clients.Group("Connections").SendAsync("UpdateConnection", updatedCon);
-                        return Ok(updatedCon);
+                        return Ok(addCon);
                     }
                     else
                     {
-                        return BadRequest(new JObject { ["message"] = "End Point was not Started" });
+                        return BadRequest(ModelState);
                     }
                 }
                 else
                 {
-                    return BadRequest(new JObject { ["message"] = "End Point was not Updated " });
+                    return BadRequest(new JObject { ["message"] = "End Point was not Added " });
                 }
             }
-            else
+            catch (Exception e)
             {
-                return new JObject { ["Message"] = $"Connection Id:{id} was not Found" };
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
+        /// <summary>
+        /// update connection 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        // POST api/<Connection>
+        [HttpPost]
+        [Route("Update")]
+        public async Task<object> PostUpdateConnection([FromBody] JObject value)
+        {
+            try
+            {
+                //handle bad requests
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var updateCon = _connectionRepository.Update(value.ToObject<Connection>()).Result;
+                if (updateCon != null)
+                {
+                    if (_worker.UpdateEndpoint(updateCon))
+                    {
+                        return Ok(updateCon);
+                    }
+                    else
+                    {
+                        return BadRequest(ModelState);
+                    }
+                }
+                else
+                {
+                    return new JObject { ["Message"] = $"Connection was not Found" };
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
             }
         }
 
         // DELETE api/<Connection>/5
         [HttpDelete]
-        [Route("/api/DeleteConnection")]
+        [Route("Delete")]
         public async Task<object> Delete(string id)
         {
-            //handle bad requests
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
-            Connection removedCon = _connectionRepository.Remove(id);
-            if (removedCon != null)
-            {
-
-                if (_worker.RemoveEndpoint(removedCon))
+                //handle bad requests
+                if (!ModelState.IsValid)
                 {
-                    await _hubContext.Clients.Group("Connections").SendAsync("DeleteConnection", id);
+                    return BadRequest(ModelState);
                 }
+                var removedCon = _connectionRepository.Remove(id).Result;
+                if (removedCon != null)
+                {
 
-                return Ok(_connectionRepository.Get(id));
+                    if (_worker.RemoveEndpoint(removedCon))
+                    {
+                        await _hubContext.Clients.Group("Connections").SendAsync("DeleteConnection", id);
+                    }
+
+                    return Ok(removedCon);
+                }
+                else
+                {
+                    return new JObject { ["Message"] = $"Connection Id:{id} was not Found" };
+                }
             }
-            else
+            catch (Exception e)
             {
-                return new JObject { ["Message"] = $"Connection Id:{id} was not Found" };
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
             }
         }
-     }
+    }
 }

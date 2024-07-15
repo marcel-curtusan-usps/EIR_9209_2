@@ -1,8 +1,7 @@
 ﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.Mvc;
-using Image = System.Drawing.Image;
 using Newtonsoft.Json.Linq;
-using static EIR_9209_2.Controllers.BackgroundImageController;
+using Image = System.Drawing.Image;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,7 +14,13 @@ namespace EIR_9209_2.Controllers
         private readonly ILogger<BackgroundImageController> _logger = logger;
         private readonly IInMemoryBackgroundImageRepository _backgroundImage = backgroundImage;
         // GET: api/<BackgroundImage>
-        [HttpGet("GetAllImages")]
+
+        /// <summary>
+        /// Get All Background Images.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetAllImages")]
         public async Task<object> Get()
         {
             //handle bad requests
@@ -48,7 +53,8 @@ namespace EIR_9209_2.Controllers
         /// <returns>Background Image  has been Loaded</returns>
         /// <response code="201">Returns When Background Image has been Loaded</response>
         /// <response code="400">If the File name was provided </response>
-        [HttpPost("UploadBackgroundImage")]
+        [HttpPost]
+        [Route("UploadBackgroundImage")]
         public async Task<IActionResult> UploadBackgroundImage(IFormFile file, double metersPerPixelY, double metersPerPixelX)
         {
             try

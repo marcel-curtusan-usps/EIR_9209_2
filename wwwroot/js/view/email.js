@@ -146,7 +146,7 @@ async function init_emailList() {
                 $('#' + EmailListtable).DataTable().clear().draw();
             }
             $.ajax({
-                url: SiteURLconstructor(window.location) + "api/EmailAgent/AllEmail",
+                url: SiteURLconstructor(window.location) + "/api/EmailAgent/AllEmail",
                 type: 'GET',
                 success: function (data) {
                     if (data.length > 0) {
@@ -332,7 +332,7 @@ async function Add_Email() {
             if (!$.isEmptyObject(jsonObject)) {
                 //make a ajax call to get the employee details
                 $.ajax({
-                    url: '/api/EmailAgent/AddEmail',
+                    url: SiteURLconstructor(window.location) + '/api/EmailAgent/AddEmail',
                     data: JSON.stringify(jsonObject),
                     contentType: 'application/json',
                     type: 'POST',
@@ -388,7 +388,7 @@ async function Edit_Email(data) {
             if (!$.isEmptyObject(jsonObject)) {
                 //make a ajax call to get the employee details
                 $.ajax({
-                    url: '/api/EmailAgent/EditEmail?id=' + data.id,
+                    url: SiteURLconstructor(window.location) + '/api/EmailAgent/EditEmail?id=' + data.id,
                     data: JSON.stringify(jsonObject),
                     contentType: 'application/json',
                     type: 'PUT',
@@ -427,7 +427,7 @@ async function Delete_Email(data) {
         };
         // ajax call to delete email
         $.ajax({
-            url: '/api/EmailAgent/DeleteEmail?id=' + data.id,
+            url: SiteURLconstructor(window.location) + '/api/EmailAgent/DeleteEmail?id=' + data.id,
             data: JSON.stringify(jsonObject),
             contentType: 'application/json',
             type: 'DELETE',
@@ -519,7 +519,7 @@ async function loadMpeName() {
 
     //makea ajax call to get the list of MPE name
     $.ajax({
-        url: '/api/GetZoneNameList?ZoneType=MPE',
+        url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
         type: 'GET',
         success: function (data) {
             if (data.length > 0) {

@@ -12,7 +12,7 @@ let DateTime = luxon.DateTime;
 let appData = {};
 let baselayerid = "";
 const connection = new signalR.HubConnectionBuilder()
-    .withUrl(SiteURLconstructor(window.location) + "hubServics")
+    .withUrl(SiteURLconstructor(window.location) + "/hubServics")
     .withAutomaticReconnect()
     .configureLogging(signalR.LogLevel.Information)
     .build();
@@ -89,9 +89,9 @@ async function start() {
             //    console.error(err);
             //});
             //load Person Tags
-            connection.invoke("GetPersonTags").then(function (data) {
+            connection.invoke("GetBadgeTags").then(function (data) {
                 Promise.all([init_tagsEmployees(data)]).then(function () {
-                    connection.invoke("JoinGroup", "Tags").catch(function (err) {
+                    connection.invoke("JoinGroup", "Badge").catch(function (err) {
                         return console.error(err.toString());
                     });
 
@@ -103,7 +103,7 @@ async function start() {
             //load PIV Tags
             connection.invoke("GetPIVTags").then(function (data) {
                 Promise.all([init_tagsPIV(data)]).then(function () {
-                    connection.invoke("JoinGroup", "PIVTags").catch(function (err) {
+                    connection.invoke("JoinGroup", "PIVVehicle").catch(function (err) {
                         return console.error(err.toString());
                     });
 
@@ -115,7 +115,7 @@ async function start() {
             //load PIV Tags
             connection.invoke("GetAGVTags").then(function (data) {
                 Promise.all([init_tagsAGV(data)]).then(function () {
-                    connection.invoke("JoinGroup", "AGVTags").catch(function (err) {
+                    connection.invoke("JoinGroup", "AutonomousVehicle").catch(function (err) {
                         return console.error(err.toString());
                     });
 
@@ -128,7 +128,7 @@ async function start() {
             connection.invoke("GetGeoZones").then(function (data) {
                 Promise.all([init_geoZone(data)]).then(function () {
                     Promise.all([init_geoZoneMPE()]);
-
+                    Promise.all([init_geoZoneBin()]);
                 });
             }).catch(function (err) {
                 // handle error
@@ -162,16 +162,7 @@ connection.on("getTagData", async (id, data) => {
 connection.on("connection", async (data) => {
     Promise.all([updateConnection(JSON.parse(data))]);
 });
-connection.on("tags", async (data) => {
-    let tagdata = JSON.parse(data);
-    if (tagdata.properties.visible) {
-        Promise.all([addFeature(tagdata)]);
-    }
-    else {
-        Promise.all([deleteFeature(tagdata)]);
-    }
 
-});
 
 connection.on("applicationInfo", async (id, data) => {
     ApplicationInfo = JSON.parse(data);
@@ -223,10 +214,10 @@ function capitalize_Words(str) {
 }
 function SiteURLconstructor(winLoc) {
     if (/^(.CF)/i.test(winLoc.pathname)) {
-        return winLoc.origin + "/CF/";
+        return winLoc.origin + "/CF";
     }
     else {
-        return winLoc.origin + "/";
+        return winLoc.origin;
     }
 }
 function hideSidebarLayerDivs() {
@@ -244,4 +235,41 @@ function hideSidebarLayerDivs() {
     $('div[id=layer_div]').css('display', 'none');
     $('div[id=dockdoor_tripdiv]').css('display', 'none');
 
+}
+function get_pi_icon(name, type) {
+    if (/Vehicle$/i.test(type)) {
+        if (checkValue(name)) {
+            if (/^(wr|walkingrider)/i.test(name)) {
+                return "pi-iconLoader_wr ml--24";
+            }
+            if (/^(fl|forklift)/i.test(name)) {
+                return "pi-iconLoader_forklift ml--8";
+            }
+            if (/^(t|tug|mule)/i.test(name)) {
+                return "pi-iconLoader_tugger ml--16";
+            }
+            if (/^agv_t/i.test(name)) {
+                return "pi-iconLoader_avg_t ml--8";
+            }
+            if (/^agv_p/i.test(name)) {
+                return "pi-iconLoader_avg_pj ml--16";
+            }
+            if (/^ss/i.test(name)) {
+                return "pi-iconVh_ss ml--16";
+            }
+            if (/^bf/i.test(name)) {
+                return "pi-iconVh_bss ml--16";
+            }
+            if (/^Surfboard/i.test(name)) {
+                return "pi-iconSurfboard ml--32";
+            }
+            return "pi-iconVh_ss ml--16";
+        }
+        else {
+            return "pi-iconVh_ss ml--16";
+        }
+    }
+    else {
+        return "pi-iconVh_ss ml--16";
+    }
 }

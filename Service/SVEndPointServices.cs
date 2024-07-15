@@ -1,5 +1,4 @@
-﻿using EIR_9209_2.Models;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
 
 namespace EIR_9209_2.Service
@@ -8,8 +7,8 @@ namespace EIR_9209_2.Service
     {
         private readonly IInMemoryGeoZonesRepository _geoZones;
 
-        public SVEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryGeoZonesRepository geozone)
-            : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
+        public SVEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository geozone)
+            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
         {
             _geoZones = geozone;
         }
@@ -28,16 +27,17 @@ namespace EIR_9209_2.Service
                     _endpointConfig.ApiConnected = false;
                     _endpointConfig.Status = EWorkerServiceState.Idel;
                 }
-                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                }
 
                 IQueryService queryService;
                 string FormatUrl = "";
 
-
-
-
                 FormatUrl = string.Format(_endpointConfig.Url, _configuration[key: "ApplicationConfiguration:NassCode"]);
-                queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                 var result = (await queryService.GetSVDoorData(stoppingToken));
                 //process zone data
                 if (_endpointConfig.MessageType.ToLower() == "doors")
@@ -68,7 +68,14 @@ namespace EIR_9209_2.Service
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                _endpointConfig.ApiConnected = false;
+                _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                }
             }
         }
 
@@ -107,14 +114,14 @@ namespace EIR_9209_2.Service
                         bool pushUIUpdate = false;
                         if (pushUIUpdate)
                         {
-                            await _hubServices.Clients.Group("DockDoorZones").SendAsync("DockDoorUpdateGeoZone", geoZone.Properties.MPERunPerformance);
+                            // await _hubServices.Clients.Group("DockDoorZones").SendAsync("DockDoorUpdateGeoZone", geoZone.Properties.MPERunPerformance);
                         }
                     }
                 }
             }
             catch (Exception e)
             {
-                Logger.LogError(e.Message);
+                _logger.LogError(e.Message);
             }
         }
     }

@@ -1,10 +1,6 @@
 ﻿using EIR_9209_2.DatabaseCalls.IDS;
-using EIR_9209_2.Models;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Net;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -23,9 +19,16 @@ namespace EIR_9209_2.Controllers
             _ids = ids;
             _geoZones = geoZones;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="queryName"></param>
+        /// <param name="startHour"></param>
+        /// <param name="endHour"></param>
+        /// <returns></returns>
         // GET: api/<IDS>
         [HttpGet]
-        [Route("IDSData")]
+        [Route("GetIDSData")]
         public async Task<object> GetByIDS(string queryName, int startHour, int endHour)
         {
             //handle bad requests
@@ -77,43 +80,43 @@ namespace EIR_9209_2.Controllers
                 return await Task.FromResult(BadRequest(new { message = "Invalid Parameters in the Request.", Parameters = new { QueryName = queryName, StartHour = startHour, EndHour = endHour } }));
             }
         }
-        // POST api/<IDSController>
-        [HttpPost]
-        [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("GetIDSData")]
-        public async Task<object> PostByGetIDSData([FromBody] JToken data)
-        {   //handle bad requests
-            if (!ModelState.IsValid)
-            {
-                return await Task.FromResult(BadRequest(ModelState));
-            }
-            else if (data != null && data.HasValues)
-            {
-                if (data.HasValues && data.Type == JTokenType.Object)
-                {
-                    JToken result = await _ids.GetOracleIDSData(data);
+        //// POST api/<IDSController>
+        //[HttpPost]
+        //[ApiExplorerSettings(IgnoreApi = true)]
+        //[Route("GetIDSData")]
+        //public async Task<object> PostByGetIDSData([FromBody] JToken data)
+        //{   //handle bad requests
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return await Task.FromResult(BadRequest(ModelState));
+        //    }
+        //    else if (data != null && data.HasValues)
+        //    {
+        //        if (data.HasValues && data.Type == JTokenType.Object)
+        //        {
+        //            JToken result = await _ids.GetOracleIDSData(data);
 
-                    if (((JObject)result).ContainsKey("Error"))
-                    {
-                        return await Task.FromResult(result);
+        //            if (((JObject)result).ContainsKey("Error"))
+        //            {
+        //                return await Task.FromResult(result);
 
-                    }
-                    else
-                    {
-                        return await Task.FromResult(result);
-                    }
-                }
+        //            }
+        //            else
+        //            {
+        //                return await Task.FromResult(result);
+        //            }
+        //        }
 
-                else
-                {
-                    return await Task.FromResult(BadRequest());
-                }
-            }
-            else
-            {
-                return await Task.FromResult(BadRequest());
-            }
-        }
+        //        else
+        //        {
+        //            return await Task.FromResult(BadRequest());
+        //        }
+        //    }
+        //    else
+        //    {
+        //        return await Task.FromResult(BadRequest());
+        //    }
+        //}
         [HttpPost]
         [Route("IDSData")]
         public async Task<object> PostByIDSData(string queryName, int startHour, int endHour)

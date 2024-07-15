@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Text.Json;
-
-namespace EIR_9209_2.Models
+﻿namespace EIR_9209_2.Models
 {
     public class GeoZone
     {
