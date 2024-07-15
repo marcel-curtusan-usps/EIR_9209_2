@@ -9,11 +9,21 @@
 
 });
 
+connection.on("UpdateAGVTagInfo", async (data) => {
+    let tagdata = JSON.parse(data);
+    if (tagdata.properties.visible) {
+        Promise.all([addAGVFeature(tagdata)]);
+    }
+    else {
+        Promise.all([deleteAGVFeature(tagdata)]);
+    }
+
+});
 let tagsAGVVehicles = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
         let vehicleIcon = L.divIcon({
             id: feature.properties.id,
-            className: get_pi_icon(feature.properties.name, feature.properties.TagType) + ' iconXSmall',
+            className: get_pi_icon(feature.properties.name, feature.properties.tagType) + ' iconXSmall',
             html: '<i>' +
                 '<span class="path1"></span>' +
                 '<span class="path2"></span>' +
@@ -95,10 +105,9 @@ async function findAGVLeafletIds(markerId) {
 async function init_tagsAGV(data) {
     return new Promise((resolve, reject) => {
         try {
-
             $(document).on('change', '.leaflet-control-layers-selector', function () {
                 let sp = this.nextElementSibling;
-                if (/^badges$/ig.test(sp.innerHTML.trim())) {
+                if (/^AGV Vehicles/ig.test(sp.innerHTML.trim())) {
                     if (this.checked) {
                         connection.invoke("JoinGroup", "AutonomousVehicle").catch(function (err) {
                             return console.error(err.toString());
@@ -110,16 +119,6 @@ async function init_tagsAGV(data) {
                         });
                     }
                 }
-            });
-            connection.on("UpdateAGVTagInfo", async (data) => {
-                let tagdata = JSON.parse(data);
-                if (tagdata.properties.visible) {
-                    Promise.all([addAGVFeature(tagdata)]);
-                }
-                else {
-                    Promise.all([deleteAGVFeature(tagdata)]);
-                }
-
             });
             resolve();
             return false;
@@ -133,10 +132,10 @@ async function init_tagsAGV(data) {
 async function deleteAGVFeature(data, floorId) {
     try {
 
-        await findLeafletIds(data.properties.id)
+        await findAGVLeafletIds(data.properties.id)
             .then(leafletIds => {
                 //remove from tagsEmployees
-                tagsEmployees.removeLayer(leafletIds);
+                tagsAGVVehicles.removeLayer(leafletIds);
             })
             .catch(error => {
             });
@@ -146,7 +145,7 @@ async function deleteAGVFeature(data, floorId) {
 }
 async function addAGVFeature(data) {
     try {
-        await findLeafletIds(data.properties.id)
+        await findAGVLeafletIds(data.properties.id)
             .then(leafletIds => {
                 Promise.all([AGVpositionUpdate(leafletIds, data.geometry.coordinates[1], data.geometry.coordinates[0])]);
             })
@@ -196,42 +195,5 @@ async function updateFeature(data) {
     }
     catch (e) {
         throw new Error(e.toString());
-    }
-}
-function get_pi_icon(name, type) {
-    if (/Vehicle$/i.test(type)) {
-        if (checkValue(name)) {
-            if (/^(wr|walkingrider)/i.test(name)) {
-                return "pi-iconLoader_wr ml--24";
-            }
-            if (/^(fl|forklift)/i.test(name)) {
-                return "pi-iconLoader_forklift ml--8";
-            }
-            if (/^(t|tug|mule)/i.test(name)) {
-                return "pi-iconLoader_tugger ml--16";
-            }
-            if (/^agv_t/i.test(name)) {
-                return "pi-iconLoader_avg_t ml--8";
-            }
-            if (/^agv_p/i.test(name)) {
-                return "pi-iconLoader_avg_pj ml--16";
-            }
-            if (/^ss/i.test(name)) {
-                return "pi-iconVh_ss ml--16";
-            }
-            if (/^bf/i.test(name)) {
-                return "pi-iconVh_bss ml--16";
-            }
-            if (/^Surfboard/i.test(name)) {
-                return "pi-iconSurfboard ml--32";
-            }
-            return "pi-iconVh_ss ml--16";
-        }
-        else {
-            return "pi-iconVh_ss ml--16";
-        }
-    }
-    else {
-        return "pi-iconVh_ss ml--16";
     }
 }

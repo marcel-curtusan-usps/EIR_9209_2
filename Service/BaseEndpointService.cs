@@ -1,31 +1,22 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System.Net.Http;
 
 namespace EIR_9209_2.Service
 {
-    public abstract class BaseEndpointService
+    public abstract class BaseEndpointService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection) : IDisposable
     {
-        protected readonly ILogger<BaseEndpointService> Logger;
-        protected readonly IHttpClientFactory _httpClientFactory;
-        protected readonly IConfiguration _configuration;
-        protected readonly IHubContext<HubServices> _hubContext;
-        protected readonly IInMemoryConnectionRepository _connection;
-        protected Connection _endpointConfig;
-        private CancellationTokenSource _cancellationTokenSource;
-        private Task _task;
-        private PeriodicTimer _timer;
-        protected BaseEndpointService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection)
-        {
-            Logger = logger;
-            _httpClientFactory = httpClientFactory;
-            _hubContext = hubContext;
-            _endpointConfig = endpointConfig;
-            _cancellationTokenSource = new CancellationTokenSource();
-            _configuration = configuration;
-            _connection = connection;
+        protected readonly ILogger<BaseEndpointService> _logger = logger;
+        protected readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+        protected readonly IConfiguration _configuration = configuration;
+        protected readonly IHubContext<HubServices> _hubContext = hubContext;
+        protected readonly IInMemoryConnectionRepository _connection = connection;
+        protected Connection _endpointConfig = endpointConfig;
+        private CancellationTokenSource _cancellationTokenSource = new();
+        private Task? _task = null;
+        private PeriodicTimer? _timer = null;
 
-        }
         public async void Start()
         {
             if (_task == null || _task.IsCompleted)
@@ -116,7 +107,7 @@ namespace EIR_9209_2.Service
             }
             catch (OperationCanceledException)
             {
-                Logger.LogInformation("Stopping data collection for {Url}", _endpointConfig.Url);
+                _logger.LogInformation("Stopping data collection for {Url}", _endpointConfig.Url);
             }
             finally
             {
@@ -143,5 +134,19 @@ namespace EIR_9209_2.Service
                 NamingStrategy = new CamelCaseNamingStrategy()
             }
         };
+        /// <summary>
+        /// fix this later to use the correct http client
+        /// </summary>
+        /// <returns></returns>
+        protected HttpClient CreateHttpClient()
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.Timeout = TimeSpan.FromSeconds(_endpointConfig.TimeoutSeconds);
+            return client;
+        }
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

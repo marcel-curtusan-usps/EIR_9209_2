@@ -46,7 +46,7 @@ namespace EIR_9209_2.Service
                 string Finnum = siteinfo.FinanceNumber;
                 string TodayDate = DateTime.Now.ToString("yyyyMMdd");
                 FormatUrl = string.Format(_endpointConfig.Url, Finnum, TodayDate);
-                queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                 var result = (await queryService.GetIVESData(stoppingToken));
 
                 if (_endpointConfig.MessageType == "getEmpInfo")
@@ -60,7 +60,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
                 _endpointConfig.ApiConnected = false;
                 _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
                 var updateCon = _connection.Update(_endpointConfig).Result;
@@ -81,7 +81,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception e)
             {
-                Logger.LogError(e.Message);
+                _logger.LogError(e.Message);
             }
         }
         private async Task ProcessEmpScheduleData(JToken result)
@@ -95,7 +95,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception e)
             {
-                Logger.LogError(e.Message);
+                _logger.LogError(e.Message);
             }
         }
 

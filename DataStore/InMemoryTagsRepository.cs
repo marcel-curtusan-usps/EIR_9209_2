@@ -89,7 +89,7 @@ namespace EIR_9209_2.DataStore
         public void UpdateEmployeeInfo(JToken result)
         {
             bool savetoFile = false;
-            bool DesignationActivitysavetoFile = false;
+
             try
             {
                 foreach (JObject empData in result.OfType<JObject>())
@@ -589,6 +589,7 @@ namespace EIR_9209_2.DataStore
                             {
                                 ["id"] = qtitem.TagId,
                                 ["floorId"] = qtitem.LocationCoordSysId,
+                                ["name"] = TagData?.Properties.Name,
                                 ["posAge"] = posAge,
                                 ["visible"] = visable,
                                 ["zones"] = qtitem.LocationZoneIds.ToString(),

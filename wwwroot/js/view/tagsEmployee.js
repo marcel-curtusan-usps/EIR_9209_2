@@ -70,7 +70,7 @@ connection.on("updateBadgeTagInfo", async (tagdata) => {
     }
 
 });
-connection.on("deletePersonTagInfo", async (tagdata) => {
+connection.on("deleteBadgeTagInfo", async (tagdata) => {
     if (tagdata.properties.visible) {
         Promise.all([updateFeature(tagdata)]);
     }

@@ -126,7 +126,7 @@ public class HubServices : Hub
     }
     public async Task<IEnumerable<GeoMarker>> GetPIVTags()
     {
-        return await Task.Run(() => _tags.GetTagsType("PITVehicle"));
+        return await Task.Run(() => _tags.GetTagsType("PIVVehicle"));
     }
     public async Task<IEnumerable<GeoMarker>> GetAGVTags()
     {

@@ -231,7 +231,7 @@ async function findMpeZoneLeafletIds(zoneId) {
                 return false;
             }
         });
-        reject(new Error('No layer found with the given MPE Zone Id'));
+        reject(new Error('No layer found with the given MPE Zone Id: ' + zoneId));
     });
 }
 async function init_geoZoneMPE() {
@@ -262,15 +262,16 @@ connection.on("UpdateGeoZone", async (mpeZonedata) => {
         });
 
 });
-connection.on("updateMPEZoneRunPerformance", async (mpeZonedata) => {
-    await findMpeZoneLeafletIds(mpeZonedata.zoneId)
+connection.on("updateMPEZoneRunPerformance", async (data) => {
+
+    await findMpeZoneLeafletIds(data.zoneId)
         .then(leafletIds => {
-            geoZoneMPE._layers[leafletIds].feature.properties.mpeRunPerformance = mpeZonedata;
+            geoZoneMPE._layers[leafletIds].feature.properties.mpeRunPerformance = data;
             geoZoneMPE._layers[leafletIds].setStyle({
                 weight: 1,
                 opacity: 1,
                 fillOpacity: 0.2,
-                fillColor: GetMacineBackground(mpeZonedata),
+                fillColor: GetMacineBackground(data),
                 lastOpacity: 0.2
             });
         });

@@ -12,6 +12,9 @@ async function init_SiteInformation(siteNassCode) {
 
             type: 'GET',
             success: function (data) {
+                $(document).prop('title', data.displayName + ' (' + data.siteId + ')');
+                $('#fotf-site-facility-name').empty();
+                $('#fotf-site-facility-name').append(data.displayName);
                 loadSiteInfoDatatable(formatSiteInfodata(data), siteInfotable);
             },
             error: function (error) {

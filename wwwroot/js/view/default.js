@@ -236,3 +236,40 @@ function hideSidebarLayerDivs() {
     $('div[id=dockdoor_tripdiv]').css('display', 'none');
 
 }
+function get_pi_icon(name, type) {
+    if (/Vehicle$/i.test(type)) {
+        if (checkValue(name)) {
+            if (/^(wr|walkingrider)/i.test(name)) {
+                return "pi-iconLoader_wr ml--24";
+            }
+            if (/^(fl|forklift)/i.test(name)) {
+                return "pi-iconLoader_forklift ml--8";
+            }
+            if (/^(t|tug|mule)/i.test(name)) {
+                return "pi-iconLoader_tugger ml--16";
+            }
+            if (/^agv_t/i.test(name)) {
+                return "pi-iconLoader_avg_t ml--8";
+            }
+            if (/^agv_p/i.test(name)) {
+                return "pi-iconLoader_avg_pj ml--16";
+            }
+            if (/^ss/i.test(name)) {
+                return "pi-iconVh_ss ml--16";
+            }
+            if (/^bf/i.test(name)) {
+                return "pi-iconVh_bss ml--16";
+            }
+            if (/^Surfboard/i.test(name)) {
+                return "pi-iconSurfboard ml--32";
+            }
+            return "pi-iconVh_ss ml--16";
+        }
+        else {
+            return "pi-iconVh_ss ml--16";
+        }
+    }
+    else {
+        return "pi-iconVh_ss ml--16";
+    }
+}

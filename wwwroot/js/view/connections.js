@@ -109,7 +109,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         $('span[id=error_data_retrieve]').text("");
     }
     //Data Retrieve Occurrences Keyup
-    $('select[name=data_retrieve]').change(function () {
+    $('select[name=data_retrieve]').on("change", function () {
         if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
             $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
@@ -135,7 +135,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         $('span[id=error_ip_address]').text("");
     }
     //IP Address Keyup
-    $('input[type=text][name=ip_address]').keyup(function () {
+    $('input[type=text][name=ip_address]').on("keyup", function () {
         if (IPAddress_validator($('input[type=text][name=ip_address]').val()) === 'Invalid IP Address') {
             $('input[type=text][name=ip_address]').css("border-color", "#FF0000");
             $('span[id=error_ip_address]').text("Please Enter Valid IP Address!");
@@ -500,7 +500,7 @@ async function Edit_Connection(data) {
                     type: 'POST',
                     data: JSON.stringify(jsonObject),
                     success: function (data) {
-                       
+
                         sidebar.open('connections');
                         setTimeout(function () { $("#API_Connection_Modal").modal('hide'); sidebar.open('connections'); }, 500);
                     },

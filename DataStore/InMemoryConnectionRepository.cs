@@ -9,7 +9,6 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
 {
     private readonly ConcurrentDictionary<string, Connection> _connectionList = new();
     private readonly ConcurrentDictionary<string, ConnectionType> _connectionTypeList = new();
-    private readonly IHubContext<HubServices> _hubServices;
     private readonly ILogger<InMemoryConnectionRepository> _logger;
     private readonly IConfiguration _configuration;
     private readonly IFileService _fileService;
@@ -21,7 +20,6 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
-        _hubServices = hubServices;
         fileName = $"{_configuration[key: "InMemoryCollection:CollectionConnections"]}.json";
         filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
             _configuration[key: "ApplicationConfiguration:BaseDirectory"],

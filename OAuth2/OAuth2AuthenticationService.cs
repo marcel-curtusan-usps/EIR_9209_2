@@ -1,21 +1,25 @@
 ﻿using Newtonsoft.Json;
+using EIR_9209_2.Service;
 
 public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDisposable
 {
     private readonly IHttpClientFactory _httpClient;
     private readonly OAuth2AuthenticationServiceSettings _authSettings;
     private readonly JsonSerializerSettings _jsonSettings;
+    protected readonly ILogger<BaseEndpointService> _logger;
 
     private string _accessToken;
     private DateTime _refreshTokenUtcTime;
     private bool disposedValue;
-    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+    private readonly SemaphoreSlim _semaphore = new(1);
 
-    public OAuth2AuthenticationService(IHttpClientFactory httpClient, OAuth2AuthenticationServiceSettings oAuth2AuthenticationServiceSettings, JsonSerializerSettings jsonSettings)
+    public OAuth2AuthenticationService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClient, OAuth2AuthenticationServiceSettings oAuth2AuthenticationServiceSettings, JsonSerializerSettings jsonSettings)
     {
         _httpClient = httpClient;
         _authSettings = oAuth2AuthenticationServiceSettings;
         _jsonSettings = jsonSettings;
+        _logger = logger;
+
     }
 
     public async Task AddAuthHeader(HttpRequestMessage request, CancellationToken ct)
@@ -27,6 +31,9 @@ public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDispos
             acquiredLock = true;
 
             await AddAuthHeaderCore(request, ct);
+        }
+        catch ( Exception e) {
+            _logger.LogError(e.Message);
         }
         finally
         {
@@ -44,8 +51,12 @@ public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDispos
     }
     private async Task GetAccessTokenAsync(CancellationToken ct)
     {
-        var client = _httpClient.CreateClient();
-        var content = new FormUrlEncodedContent(new Dictionary<string, string>
+        try
+        {
+
+
+            var client = _httpClient.CreateClient();
+            var content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     { "grant_type", "password" },
                     { "username", _authSettings.UserName },
@@ -53,13 +64,18 @@ public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDispos
                     { "client_id", _authSettings.ClientId }
         });
 
-        var postResponse = await client.PostAsync(_authSettings.TokenUrl, content);
-        postResponse.EnsureSuccessStatusCode();
+            var postResponse = await client.PostAsync(_authSettings.TokenUrl, content);
+            postResponse.EnsureSuccessStatusCode();
 
-        var responseBody = await postResponse.Content.ReadAsStringAsync();
-        var json = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseBody, _jsonSettings);
-        _accessToken = GetJsonKeyValue("access_token", json);
-        _refreshTokenUtcTime = DateTime.UtcNow + TimeSpan.FromSeconds(int.Parse(GetJsonKeyValue("expires_in", json))) - TimeSpan.FromSeconds(10);
+            var responseBody = await postResponse.Content.ReadAsStringAsync();
+            var json = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseBody, _jsonSettings);
+            _accessToken = GetJsonKeyValue("access_token", json);
+            _refreshTokenUtcTime = DateTime.UtcNow + TimeSpan.FromSeconds(int.Parse(GetJsonKeyValue("expires_in", json))) - TimeSpan.FromSeconds(10);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+        }
     }
     private async Task AuthenticateAsync(CancellationToken ct)
     {

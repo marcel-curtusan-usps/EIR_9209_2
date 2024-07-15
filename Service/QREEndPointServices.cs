@@ -38,7 +38,7 @@ namespace EIR_9209_2.Service
                 if (!string.IsNullOrEmpty(_endpointConfig.OAuthUrl))
                 {
                     IOAuth2AuthenticationService authService;
-                    authService = new OAuth2AuthenticationService(_httpClientFactory, new OAuth2AuthenticationServiceSettings(_endpointConfig.OAuthUrl, _endpointConfig.OAuthUserName, _endpointConfig.OAuthPassword, _endpointConfig.OAuthClientId), jsonSettings);
+                    authService = new OAuth2AuthenticationService(_logger, _httpClientFactory, new OAuth2AuthenticationServiceSettings(_endpointConfig.OAuthUrl, _endpointConfig.OAuthUserName, _endpointConfig.OAuthPassword, _endpointConfig.OAuthClientId), jsonSettings);
 
                     IQueryService queryService;
                     string FormatUrl = "";
@@ -46,7 +46,7 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.MessageType == "AREA_AGGREGATION")
                     {
                         FormatUrl = string.Format(_endpointConfig.Url);
-                        queryService = new QueryService(_httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                        queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
 
                         var now = DateTime.Now;
                         var endingHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
@@ -76,6 +76,8 @@ namespace EIR_9209_2.Service
                                         allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
                                     //add to the list
                                     _zones.UpdateAreaDwell(hour, newValue, currentvalue);
+                                    //run report for the current hour
+                                    await Task.Run(() => _zones.RunMPESummaryReport(), stoppingToken).ConfigureAwait(false);
                                 }
                             }
                             else
@@ -86,6 +88,8 @@ namespace EIR_9209_2.Service
                                          allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
                                 //add to the list
                                 _zones.AddAreaDwell(hour, newValue);
+                                //run report for the current hour
+                                await Task.Run(() => _zones.RunMPESummaryReport(), stoppingToken).ConfigureAwait(false);
                             }
                         }
 
@@ -98,7 +102,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
                 _endpointConfig.ApiConnected = false;
                 _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
                 var updateCon = _connection.Update(_endpointConfig).Result;
@@ -109,7 +113,8 @@ namespace EIR_9209_2.Service
             }
             finally
             {
-                _ = Task.Run(() => _zones.RunMPESummaryReport());
+                //run summary report
+                await Task.Run(() => _zones.RunMPESummaryReport(), stoppingToken).ConfigureAwait(false);
             }
         }
     }

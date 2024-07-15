@@ -1,8 +1,20 @@
-﻿let tagsPIVVehicles = new L.GeoJSON(null, {
+﻿
+
+connection.on("updatePIVVehicleTagPosition", async (data) => {
+    let tagdata = JSON.parse(data);
+    if (tagdata.properties.visible) {
+        Promise.all([addPIVFeature(tagdata)]);
+    }
+    else {
+        Promise.all([deletePIVFeature(tagdata)]);
+    }
+
+});
+let tagsPIVVehicles = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
         let vehicleIcon = L.divIcon({
             id: feature.properties.id,
-            className: get_pi_icon(feature.properties.name, feature.properties.Tag_Type) + ' iconXSmall',
+            className: get_pi_icon(feature.properties.name, feature.properties.tagType) + ' iconXSmall',
             html: '<i>' +
                 '<span class="path1"></span>' +
                 '<span class="path2"></span>' +
@@ -30,29 +42,7 @@
         let VisiblefillOpacity = feature.properties.visible ? "" : "tooltip-hidden";
         let obstructedState = '';
         layer.on('click', function (e) {
-            //makea ajax call to get the employee details
-            $.ajax({
-                url: SiteURLconstructor(window.location) + '/api/Tag/GetTagByTagId?tagId=' + feature.properties.id,
-                type: 'GET',
-                success: function (data) {
-                    //$('button[name="tagEdit"]').attr('data-id', feature.properties.id);
-                    //Promise.all([hidestafftables()]);
-                    //$('div[id=div_taginfo]').css('display', '');
-                    //data.properties.posAge = feature.properties.posAge;
-                    //data.properties.locationMovementStatus = feature.properties.locationMovementStatus;
-                    //updateTagDataTable(formattagdata(data.properties), "tagInfotable");
-                    sidebar.open('reports');
 
-                },
-                error: function (error) {
-                    console.log(error);
-                },
-                faulure: function (fail) {
-                    console.log(fail);
-                },
-                complete: function (complete) {
-                }
-            });
         });
         layer.bindTooltip(feature.properties.name.replace(/[^0-9.]/g, '').replace(/^0+/, ''), {
             permanent: true,
@@ -86,14 +76,14 @@ async function init_tagsPIV(data) {
 
             $(document).on('change', '.leaflet-control-layers-selector', function () {
                 let sp = this.nextElementSibling;
-                if (/^badges$/ig.test(sp.innerHTML.trim())) {
+                if (/^PIV Vehicles$/ig.test(sp.innerHTML.trim())) {
                     if (this.checked) {
-                        connection.invoke("JoinGroup", "PIVTags").catch(function (err) {
+                        connection.invoke("JoinGroup", "PIVVehicle").catch(function (err) {
                             return console.error(err.toString());
                         });
                     }
                     else {
-                        connection.invoke("LeaveGroup", "PIVTags").catch(function (err) {
+                        connection.invoke("LeaveGroup", "PIVVehicle").catch(function (err) {
                             return console.error(err.toString());
                         });
                     }
@@ -108,13 +98,13 @@ async function init_tagsPIV(data) {
         }
     });
 }
-async function deleteFeature(data, floorId) {
+async function deletePIVFeature(data) {
     try {
 
-        await findLeafletIds(data.properties.id)
+        await findPIVLeafletIds(data.properties.id)
             .then(leafletIds => {
                 //remove from tagsEmployees
-                tagsEmployees.removeLayer(leafletIds);
+                tagsPIVVehicles.removeLayer(leafletIds);
             })
             .catch(error => {
             });
@@ -122,18 +112,33 @@ async function deleteFeature(data, floorId) {
         throw new Error(e.toString());
     }
 }
-async function addFeature(data) {
+async function addPIVFeature(data) {
     try {
-        await findLeafletIds(data.properties.id)
+        await findPIVLeafletIds(data.properties.id)
             .then(leafletIds => {
-                Promise.all([positionUpdate(leafletIds, data.geometry.coordinates[1], data.geometry.coordinates[0])]);
+                Promise.all([PIVpositionUpdate(leafletIds, data.geometry.coordinates[1], data.geometry.coordinates[0])]);
             })
             .catch(error => {
-                tagsEmployees.addData(data);
+                tagsPIVVehicles.addData(data);
             });
     }
     catch (e) {
         throw new Error(e.toString());
     }
+}
+async function PIVpositionUpdate(leafletId, lat, lag) {
+    return new Promise((resolve, reject) => {
+
+        if (tagsPIVVehicles._layers[leafletId].getLatLng().distanceTo(new L.LatLng(lat, lag)) > 3000000) {
+            tagsPIVVehicles._layers[leafletId].setLatLng(new L.LatLng(lat, lag));
+            resolve();
+            return false;
+        }
+        else {
+            tagsPIVVehicles._layers[leafletId].slideTo(new L.LatLng(lat, lag), { duration: 10000 });
+            resolve();
+            return false;
+        }
+    });
 }
 

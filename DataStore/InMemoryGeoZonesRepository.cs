@@ -216,7 +216,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    private MPESummary GetHourlySummaryForHourAndArea(string area, DateTime Dateandhour, MPERunPerformance mpe)
+    private MPESummary? GetHourlySummaryForHourAndArea(string area, DateTime Dateandhour, MPERunPerformance mpe)
     {
         try
         {
@@ -315,7 +315,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 
             // Parse the file content to get the data. This depends on the format of your file.
             // Here's an example if your file was in JSON format and contained an array of T objects:
-            List<GeoZone> data = JsonConvert.DeserializeObject<List<GeoZone>>(fileContent);
+            List<GeoZone>? data = JsonConvert.DeserializeObject<List<GeoZone>>(fileContent);
 
             // Insert the data into the MongoDB collection
             if (data.Any())
@@ -535,7 +535,25 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 var geoZone = _geoZoneList.Where(r => r.Value.Properties.ZoneType == "MPEZone" && r.Value.Properties.Name == mpeName).Select(y => y.Value).FirstOrDefault();
                 if (geoZone != null && geoZone.Properties.MPERunPerformance != null)
                 {
-
+                    if (geoZone.Properties.MPERunPerformance.MpeId != mpeName)
+                    {
+                        geoZone.Properties.MPERunPerformance.MpeId = mpeName;
+                    }
+                    if (geoZone.Properties.MPERunPerformance.ZoneId != geoZone.Properties.Id)
+                    {
+                        geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
+                    }
+                    if (geoZone.Properties.MPERunPerformance.MpeType != geoZone.Properties.MpeType)
+                    {
+                        geoZone.Properties.MPERunPerformance.MpeType = geoZone.Properties.MpeType;
+                    }
+                    if (geoZone.Properties.MPERunPerformance.CurSortplan == "")
+                    {
+                        geoZone.Properties.MPERunPerformance.CurSortplan = "0";
+                        geoZone.Properties.MPERunPerformance.CurrentRunStart = DateTime.MinValue.ToString();
+                        geoZone.Properties.MPERunPerformance.CurrentRunEnd = DateTime.MinValue.ToString();
+                        geoZone.Properties.MPERunPerformance.CurOperationId = "";
+                    }
                     if (geoZone.Properties.DataSource != "IDS")
                     {
                         geoZone.Properties.DataSource = "IDS";
@@ -607,7 +625,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     }
                     if (pushDBUpdate)
                     {
-                        await _hubServices.Clients.Group("MPEZones").SendAsync("MPEPerformanceUpdateGeoZone", geoZone.Properties.MPERunPerformance);
+                        await _hubServices.Clients.Group("MPEZones").SendAsync($"update{geoZone.Properties.ZoneType}RunPerformance", geoZone.Properties.MPERunPerformance);
                     }
                 }
             }
@@ -661,6 +679,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     activeRun.TotSortplanVol = TotSortplanVol;
                     SaveToFile = true;
                 }
+
                 if (activeRun.CurrentRunEnd != CurrentRunEnd)
                 {
                     activeRun.CurrentRunEnd = CurrentRunEnd;
@@ -938,9 +957,9 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
         finally
         {
-            _MPERunActivity.Where(r => r.Value.CurrentRunStart <= DateTime.Now.AddDays(-5) && r.Value.Type == "Plan").Select(l => l.Key).ToList().ForEach(key =>
+            _MPERunActivity.Where(r => r.Value.CurrentRunStart <= DateTime.Now.AddDays(-5)).Select(l => l.Key).ToList().ForEach(key =>
             {
-                if (_MPERunActivity.TryRemove(key, out MPEActiveRun remove))
+                if (_MPERunActivity.TryRemove(key, out MPEActiveRun? remove))
                 {
                     SaveToFile = true;
                 }

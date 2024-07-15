@@ -71,7 +71,7 @@ async function init_geoZoneDockDoor() {
 }
 async function addDockDoorFeature(data) {
     try {
-        await findMpeZoneLeafletIds(data.properties.id)
+        await findDockDoorZoneLeafletIds(data.properties.id)
             .then(leafletIds => {
 
             })

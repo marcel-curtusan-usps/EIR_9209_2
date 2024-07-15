@@ -32,7 +32,7 @@ namespace EIR_9209_2.Service
                 if (_endpointConfig.MessageType == "getTagData")
                 {
                     FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType);
-                    queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                    queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                     var result = (await queryService.GetQPETagData(stoppingToken));
 
                     // Process tag data in a separate thread
@@ -43,7 +43,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
                 _endpointConfig.ApiConnected = false;
                 _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
                 var updateCon = _connection.Update(_endpointConfig).Result;

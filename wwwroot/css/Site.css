@@ -2411,7 +2411,7 @@ div.leaflet-touch div.leaflet-control-layers, div.leaflet-touch div.leaflet-bar 
   /* Better Font Rendering =========== */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  content: "\e916";
+  content: "\e927";
   color: #ffffff;
   font-size: 1.5rem;
 }
@@ -2432,7 +2432,7 @@ div.leaflet-touch div.leaflet-control-layers, div.leaflet-touch div.leaflet-bar 
   height: 36px;
   display: flex;
   flex-direction: column;
-  align-items: left;
+  align-items: center;
 }
 
 /* layer panel divider - appended based on the listing order in the layers list */

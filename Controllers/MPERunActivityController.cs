@@ -163,7 +163,7 @@ namespace EIR_9209_2.Controllers
                                 }
                             }
                         }
-                        if (!int.TryParse(fields[3].Substring(0, 3), out int operationId)) // Use double.TryParse if it can be a floating-point number
+                        if (!int.TryParse(fields[3].AsSpan(0, 3), out int operationId)) // Use double.TryParse if it can be a floating-point number
                         {
                             return BadRequest("Field 3 is not a number");
                         }

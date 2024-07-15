@@ -7,29 +7,17 @@ using System.Text.RegularExpressions;
 
 namespace EIR_9209_2.DatabaseCalls.IDS
 {
-    public class IDS : IIDS
+    public class IDS(ILogger<IDS> logger, IConfiguration configuration, IFileService fileService, IEncryptDecrypt encryptDecrypt) : IIDS
     {
 
-        private readonly ILogger<IDS>? _logger;
-        private readonly IConfiguration _configuration;
+        private readonly ILogger<IDS>? _logger = logger;
+        private readonly IConfiguration _configuration = configuration;
         private string query = string.Empty;
-        private string queryName = string.Empty;
-        private int startHour = 24;
-        private int endHour = 24;
-        private string startDate = string.Empty;
-        private string endDate = string.Empty;
         private string OracleConnectionString = string.Empty;
         private JToken result = new JObject();
 
-        private readonly IFileService FileService;
-        private readonly IEncryptDecrypt _encryptDecrypt;
-        public IDS(ILogger<IDS> logger, IConfiguration configuration, IFileService fileService, IEncryptDecrypt encryptDecrypt)
-        {
-            _logger = logger;
-            _configuration = configuration;
-            FileService = fileService;
-            _encryptDecrypt = encryptDecrypt;
-        }
+        private readonly IFileService FileService = fileService;
+        private readonly IEncryptDecrypt _encryptDecrypt = encryptDecrypt;
 
         public async Task<JToken> GetOracleIDSData(JToken Request_data)
         {
@@ -185,7 +173,7 @@ namespace EIR_9209_2.DatabaseCalls.IDS
 
         }
 
-        private async Task<string> GetQueryContent(string buildPath)
+        private async Task<string?> GetQueryContent(string buildPath)
         {
             try
             {

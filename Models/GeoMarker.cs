@@ -9,7 +9,7 @@
         public class Marker
         {
             public string Id { get; set; } = "";
-            public string FloorId { get; set; }
+            public string? FloorId { get; set; }
             public bool Visible { get; set; } = false;
             public List<string> Zones { get; set; } = new List<string>();
             public string Color { get; set; } = "";
