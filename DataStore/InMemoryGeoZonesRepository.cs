@@ -559,7 +559,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                         geoZone.Properties.DataSource = "IDS";
                         pushDBUpdate = true;
                     }
-                    List<string> hourslist = GetListofHours(24);
+                    List<string> hourslist = await GetListOfHours(24);
                     foreach (string hr in hourslist)
                     {
                         var mpeData = result.Where(item => item["MPE_NAME"]?.ToString() == mpeName && item["HOUR"]?.ToString() == hr).FirstOrDefault();
@@ -637,7 +637,8 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             _logger.LogError(ex, "Error Processing data from");
         }
     }
-    private List<string> GetListofHours(int hours)
+
+    private async Task<List<string>> GetListOfHours(int hours)
     {
         var localTime = DateTime.Now;
         return Enumerable.Range(0, hours).Select(i => localTime.AddHours(-23).AddHours(i).ToString("yyyy-MM-dd HH:00")).ToList();

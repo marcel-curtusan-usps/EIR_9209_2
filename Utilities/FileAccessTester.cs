@@ -3,14 +3,10 @@ using System.Security.Principal;
 
 namespace EIR_9209_2.Utilities
 {
-    public class FileAccessTester : IFileAccessTester
+    public static class FileAccessTester
     {
-        private readonly ILogger<FileAccessTester> _logger;
-        public FileAccessTester(ILogger<FileAccessTester> logger)
-        {
-            _logger = logger;
-        }
-        public bool CanCreateFilesAndWriteInFolder(string folderPath)
+
+        public static bool CanCreateFilesAndWriteInFolder(string folderPath)
         {
             try
             {
@@ -39,11 +35,11 @@ namespace EIR_9209_2.Utilities
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occurred: {ex.Message}");
+                Console.WriteLine($"An error occurred: {ex.Message}");
                 return false;
             }
 
-            bool RuleProvidesWriteAccess(FileSystemAccessRule rule)
+            static bool RuleProvidesWriteAccess(FileSystemAccessRule rule)
             {
                 return (rule.FileSystemRights & FileSystemRights.CreateFiles) != 0;
             }

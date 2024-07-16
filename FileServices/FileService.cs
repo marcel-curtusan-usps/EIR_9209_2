@@ -7,12 +7,10 @@ public class FileService : IFileService
 {
     private readonly ILogger _logger;
     private readonly IConfiguration _configuration;
-    private readonly IFileAccessTester _accessTester;
-    public FileService(ILogger<FileService> logger, IConfiguration configuration, IFileAccessTester accessTester)
+    public FileService(ILogger<FileService> logger, IConfiguration configuration)
     {
         _logger = logger;
         _configuration = configuration;
-        _accessTester = accessTester;
 
     }
     public async Task<string> ReadFile(string path)
@@ -42,14 +40,14 @@ public class FileService : IFileService
             {
                 var BuildPath = Path.Combine(baseDrive, baseDirectory, siteId, configurationDirectory);
                 var BuildPathWithFileName = Path.Combine(BuildPath, fileName);
-                if (_accessTester.CanCreateFilesAndWriteInFolder(BuildPath))
-                {
-                    using var file = new FileStream(BuildPathWithFileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
-                    using StreamWriter sr = new(file, Encoding.UTF8);
+                //if (_accessTester.CanCreateFilesAndWriteInFolder(BuildPath))
+                //{
+                using var file = new FileStream(BuildPathWithFileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+                using StreamWriter sr = new(file, Encoding.UTF8);
 
-                    sr.WriteLine(content);
-                    return true;
-                }
+                sr.WriteLine(content);
+                return true;
+                //}
 
             }
             return false;
@@ -86,14 +84,14 @@ public class FileService : IFileService
                 var BuildPath = Path.Combine(Directory.GetCurrentDirectory(), baseDrive);
 
                 var BuildPathWithFileName = Path.Combine(BuildPath, fileName);
-                if (_accessTester.CanCreateFilesAndWriteInFolder(BuildPath))
-                {
-                    using var file = new FileStream(BuildPathWithFileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
-                    using StreamWriter sr = new(file, Encoding.UTF8);
+                //   if (_accessTester.CanCreateFilesAndWriteInFolder(BuildPath))
+                //  {
+                using var file = new FileStream(BuildPathWithFileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+                using StreamWriter sr = new(file, Encoding.UTF8);
 
-                    sr.WriteLine(content);
-                    return true;
-                }
+                sr.WriteLine(content);
+                return true;
+                //  }
 
             }
             return false;

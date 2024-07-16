@@ -116,12 +116,12 @@
     "CraftType": "EAS"
   },
   {
-    "DesignationActivity": "850",
-    "CraftType": "Clerk"
-  },
-  {
     "DesignationActivity": "090",
     "CraftType": "Supervisor"
+  },
+  {
+    "DesignationActivity": "850",
+    "CraftType": "Clerk"
   },
   {
     "DesignationActivity": "820",
@@ -148,16 +148,8 @@
     "CraftType": "Clerk"
   },
   {
-    "DesignationActivity": "747",
-    "CraftType": "Custodian"
-  },
-  {
-    "DesignationActivity": "212",
-    "CraftType": "CUSTODIAN"
-  },
-  {
-    "DesignationActivity": "593",
-    "CraftType": "SDO"
+    "DesignationActivity": "427",
+    "CraftType": "Clerk"
   },
   {
     "DesignationActivity": "375",
@@ -184,36 +176,36 @@
     "CraftType": "TRACTOR TRAILER OPERATOR"
   },
   {
-    "DesignationActivity": "951",
-    "CraftType": "Maintenance"
-  },
-  {
     "DesignationActivity": "668",
     "CraftType": "OSS"
+  },
+  {
+    "DesignationActivity": "951",
+    "CraftType": "Maintenance"
   },
   {
     "DesignationActivity": "629",
     "CraftType": "Mail Handler"
   },
   {
-    "DesignationActivity": "368",
-    "CraftType": "Clerk"
-  },
-  {
     "DesignationActivity": "930",
     "CraftType": "Clerk"
   },
   {
-    "DesignationActivity": "753",
-    "CraftType": "Maintenance"
+    "DesignationActivity": "368",
+    "CraftType": "Clerk"
+  },
+  {
+    "DesignationActivity": "229",
+    "CraftType": "Mail Handler"
   },
   {
     "DesignationActivity": "168",
     "CraftType": "Maintenance"
   },
   {
-    "DesignationActivity": "229",
-    "CraftType": "Mail Handler"
+    "DesignationActivity": "753",
+    "CraftType": "Maintenance"
   },
   {
     "DesignationActivity": "068",
@@ -238,14 +230,6 @@
   {
     "DesignationActivity": "814",
     "CraftType": "Clerk"
-  },
-  {
-    "DesignationActivity": "166",
-    "CraftType": "Maintenance"
-  },
-  {
-    "DesignationActivity": "753",
-    "CraftType": "Maintenance"
   },
   {
     "DesignationActivity": "893",

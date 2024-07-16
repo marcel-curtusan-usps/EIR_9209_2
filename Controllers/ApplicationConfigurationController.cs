@@ -1,5 +1,6 @@
 ﻿using EIR_9209_2.Utilities;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -70,33 +71,33 @@ namespace EIR_9209_2.Controllers
         /// <param name="value"></param>
         /// <returns></returns>
         // PUT api/<SiteConfigurationController>/5
-        //[HttpPut("{key},{value}")]
-        //[Route("UpdateConfiguration")]
-        //public async Task<object> Put(string key, string value)
-        //{
-        //    // Example: Update a specific configuration setting
-        //    var applicationSettings = _configuration.GetSection("ApplicationConfiguration");
-        //    if (applicationSettings.Exists())
-        //    {
-        //        var setting = applicationSettings.GetSection(key);
-        //        if (setting.Exists())
-        //        {
-        //            if (key.EndsWith("ConnectionString"))
-        //            {
-        //                _encryptDecrypt.Encrypt(value);
-        //            }
-        //            else
-        //            {
-        //                setting.Value = value;
-        //            }
+        [HttpPost]
+        [Route("UpdateConfiguration")]
+        public async Task<object> PostByUpdateApplicationConfiguration([FromBody] JObject value)
+        {
+            // Example: Update a specific configuration setting
+            var applicationSettings = _configuration.GetSection("ApplicationConfiguration");
+            if (applicationSettings.Exists())
+            {
+                //var setting = applicationSettings.GetSection(key);
+                //if (setting.Exists())
+                //{
+                //    if (key.EndsWith("ConnectionString"))
+                //    {
+                //        _encryptDecrypt.Encrypt(value);
+                //    }
+                //    else
+                //    {
+                //        setting.Value = value;
+                //    }
 
-        //            return Ok();
-        //        }
-        //    }
+                //    return Ok();
+                //}
+            }
 
-        //    return BadRequest();
+            return BadRequest();
 
-        //}
+        }
 
     }
 }

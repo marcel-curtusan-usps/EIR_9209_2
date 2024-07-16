@@ -56,7 +56,7 @@ function processScheduledata(data) {
             });
             
             let employee = {
-                employee: curr.lastName + ', ' + curr.firstName + '<br>' + curr.ein,
+                employee: curr.ein,
                 tour: curr.tourNumber,
                 day1: day1,
                 day2: day2,
@@ -88,7 +88,7 @@ async function createEmpScheduleDataTable(table) {
     
       let columns = [
         {
-            "title": 'Employee Name',
+            "title": 'EIN',
             "width": "15%",
             "data": 'employee'
         },
@@ -156,7 +156,7 @@ async function createEmpScheduleDataTable(table) {
         columnDefs: [
             { targets: [1, 9], className: 'dt-center' }
         ],
-        sorting: [[0, "asc"]],
+        sorting: [[1, "asc"]],
       })
       $('#' + table + ' thead').attr("class", "thead-dark");
 

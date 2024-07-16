@@ -1,21 +1,20 @@
-﻿using Serilog;
+﻿using EIR_9209_2.Utilities;
+using Serilog;
 
 
-// read configuration from appsettings.json
-var config = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .Build();
-
-//configure Serilog using the configuration
-Log.Logger = new LoggerConfiguration()
-     .WriteTo.Console()
-    .ReadFrom.Configuration(config)
-    .CreateLogger();
+//SETUP LOGGER
+if (!ConfigureLogger.TryConfigureSerilog(out var failureMessage))
+{
+    SerilogDefaultLogger.LogError(failureMessage);
+    DefaultResponseEndpoint.Start(failureMessage);
+    Console.WriteLine($"An error occurred: {failureMessage}");
+    return;
+}
+Log.Information("Starting up");
 try
 {
-    Log.Information("Starting up");
     CreateWebHostBuilder(args).Build().Run();
+    Log.Information("Startup complete");
 }
 catch (Exception ex)
 {

@@ -102,13 +102,39 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
                 connection.DeactivatedDate = DateTime.Now;
                 connection.Status = EWorkerServiceState.Idel;
             }
-            if (_connectionList.TryGetValue(connection.Id, out Connection? currentConnection) && _connectionList.TryUpdate(connection.Id, connection, currentConnection))
+            if (_connectionList.TryGetValue(connection.Id, out Connection? currentConnection))
             {
-                saveToFile = true;
-                if (_connectionList.TryGetValue(connection.Id, out Connection? con))
+                if (currentConnection.ActiveConnection != connection.ActiveConnection)
                 {
-
-                    return await Task.FromResult(con);
+                    saveToFile = true;
+                }
+                if (currentConnection.MillisecondsInterval != connection.MillisecondsInterval)
+                {
+                    saveToFile = true;
+                }
+                if (currentConnection.Url != connection.Url)
+                {
+                    saveToFile = true;
+                }
+                if (currentConnection.OAuthClientId != connection.OAuthClientId)
+                {
+                    saveToFile = true;
+                }
+                if (currentConnection.OAuthPassword != connection.OAuthPassword)
+                {
+                    saveToFile = true;
+                }
+                if (currentConnection.OAuthUserName != connection.OAuthUserName)
+                {
+                    saveToFile = true;
+                }
+                if (currentConnection.OAuthUrl != connection.OAuthUrl)
+                {
+                    saveToFile = true;
+                }
+                if (_connectionList.TryUpdate(connection.Id, connection, currentConnection))
+                {
+                    return await Task.FromResult(currentConnection);
                 }
                 else
                 {
