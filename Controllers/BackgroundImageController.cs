@@ -1,6 +1,9 @@
 ﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
+using static Org.BouncyCastle.Bcpg.Attr.ImageAttrib;
 using Image = System.Drawing.Image;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -9,10 +12,12 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BackgroundImageController(ILogger<BackgroundImageController> logger, IInMemoryBackgroundImageRepository backgroundImage) : ControllerBase
+    public class BackgroundImageController(ILogger<BackgroundImageController> logger, IInMemoryBackgroundImageRepository backgroundImage, IHubContext<HubServices> hubContext) : ControllerBase
     {
-        private readonly ILogger<BackgroundImageController> _logger = logger;
+
         private readonly IInMemoryBackgroundImageRepository _backgroundImage = backgroundImage;
+        private readonly IHubContext<HubServices> _hubContext = hubContext;
+        private readonly ILogger<BackgroundImageController> _logger = logger;
         // GET: api/<BackgroundImage>
 
         /// <summary>
@@ -54,19 +59,27 @@ namespace EIR_9209_2.Controllers
         /// <response code="201">Returns When Background Image has been Loaded</response>
         /// <response code="400">If the File name was provided </response>
         [HttpPost]
-        [Route("UploadBackgroundImage")]
-        public async Task<IActionResult> UploadBackgroundImage(IFormFile file, double metersPerPixelY, double metersPerPixelX)
+        [Route("Add")]
+        public async Task<IActionResult> UploadBackgroundImage(IFormCollection formData)
         {
+            bool saveOSL = false;
             try
             {
+                var file = formData.Files.First();
+                var value = formData["Store"];
+
                 if (file == null || file.Length == 0)
                 {
                     return BadRequest("No file uploaded");
                 }
+
+                JObject valueJson = JObject.Parse(value);
+                BackgroundImage? newImage = valueJson.ToObject<BackgroundImage>();
+                newImage.coordinateSystemId = Guid.NewGuid().ToString();
                 // convert the file to a byte array to image
                 byte[] fileBytes;
                 string fileName = file.FileName;
-                BackgroundImage newImage = new();
+
                 using (var ms = new MemoryStream())
                 {
                     file.CopyTo(ms);
@@ -83,20 +96,33 @@ namespace EIR_9209_2.Controllers
                         newImage.base64 = string.Concat("data:image/png;base64,", imageBase64Data);
                         newImage.fileName = fileName;
                         newImage.id = Guid.NewGuid().ToString();
-                        newImage.widthMeter = newImage.origoX * metersPerPixelY;
-                        newImage.heightMeter = newImage.origoY * metersPerPixelX;
-                        newImage.metersPerPixelY = metersPerPixelY;
-                        newImage.metersPerPixelX = metersPerPixelX;
-
-
+                        newImage.widthMeter = newImage.origoX * newImage.metersPerPixelY;
+                        newImage.heightMeter = newImage.origoY * newImage.metersPerPixelX;
                         //sent to the repository
-                        await _backgroundImage.LoadBackgroundImage(newImage);
+                        saveOSL = true;
                     }
 
                 }
+                if (saveOSL)
+                {
+                    var osl = await _backgroundImage.Add(newImage);
+
+                    if (osl != null)
+                    {
+                        await _hubContext.Clients.Group("OSL").SendAsync($"addOSL", osl);
+                        return Ok(new JObject { ["message"] = "Image was uploaded successfully." });
+                    }
+                    else
+                    {
+                        return Ok(new JObject { ["message"] = "Image was uploaded successfully." });
+                    }
+                }
+                else
+                {
+                    return BadRequest(new JObject { ["message"] = "Image was NOT uploaded." });
+                }
 
 
-                return Ok(new JObject { ["message"] = "Image was uploaded successfully." });
             }
             catch (Exception e)
             {
@@ -105,8 +131,41 @@ namespace EIR_9209_2.Controllers
             }
 
         }
+        /// <summary>
+        /// Delete OSL Image.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        // DELETE api/<BackgroundImageController>/5
+        [HttpDelete]
+        [Route("Delete")]
+        public async Task<object> Delete(string id)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
+                var osl = await _backgroundImage.Remove(id);
 
+                if (osl != null)
+                {
+                    await _hubContext.Clients.Group("OSL").SendAsync($"deleteOSL", osl);
+                    return Ok(osl);
+                }
+                else
+                {
+                    return BadRequest(new JObject { ["message"] = "OSL was not Removes " });
+                }
 
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
     }
 
 }

@@ -157,19 +157,8 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
         enablezoneSubmit();
     });
 });
+let isBinZoneRemoved = false;
 
-connection.on("addBinzone", async (zoneDate) => {
-    addBinFeature(zoneDate);
-
-});
-connection.on("deleteBinzone", async (zoneDate) => {
-    deleteBinFeature(zoneDate);
-
-});
-connection.on("updateBinzone", async (zoneDate) => {
-    //need to update bin zone
-    updateBinFeature(zoneDate);
-});
 let flash = "";
 let geoZoneBin = new L.GeoJSON(null, {
     style: function (feature) {
@@ -186,23 +175,25 @@ let geoZoneBin = new L.GeoJSON(null, {
     onEachFeature: function (feature, layer) {
 
         layer.zoneId = feature.properties.id;
-        layer.on('click', function (e) {
-            //set to the center of the polygon.
-            $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
-            OSLmap.setView(e.latlng);
-            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
-                if ($('#zoneselect').val() === feature.properties.id) {
-                    sidebar.close('home');
+        if (!isBinZoneRemoved) {
+            layer.on('click', function (e) {
+                //set to the center of the polygon.
+                $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
+                OSLmap.setView(e.latlng);
+                if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+                    if ($('#zoneselect').val() === feature.properties.id) {
+                        sidebar.close('home');
+                    }
+                    else {
+                        sidebar.open('home');
+                    }
                 }
                 else {
                     sidebar.open('home');
                 }
-            }
-            else {
-                sidebar.open('home');
-            }
-            LoadBinZoneTables(feature.properties);
-        });
+                LoadBinZoneTables(feature.properties);
+            });
+        }
         layer.bindTooltip("", {
             permanent: true,
             interactive: true,
@@ -218,10 +209,22 @@ let geoZoneBin = new L.GeoJSON(null, {
 });
 // add to the map and layers control
 let geoZoneBINoverlayLayer = L.layerGroup().addTo(OSLmap);
-
 layersControl.addOverlay(geoZoneBINoverlayLayer, "Bin Zones");
 geoZoneBin.addTo(geoZoneBINoverlayLayer);
 
+connection.on("addBinzone", async (zoneDate) => {
+    addBinFeature(zoneDate);
+
+});
+connection.on("deleteBinzone", async (zoneDate) => {
+    isBinZoneRemoved = true;
+    deleteBinFeature(zoneDate);
+
+});
+connection.on("updateBinzone", async (zoneDate) => {
+    //need to update bin zone
+    updateBinFeature(zoneDate);
+});
 async function findBinZoneLeafletIds(zoneId) {
     return new Promise((resolve, reject) => {
         geoZoneBin.eachLayer(function (layer) {
@@ -236,7 +239,7 @@ async function findBinZoneLeafletIds(zoneId) {
 async function init_geoZoneBin() {
     $(document).on('change', '.leaflet-control-layers-selector', function (e) {
         let sp = this.nextElementSibling;
-        if (/^(Bin Zones)$/ig.test(sp.innerHTML.trim())) {
+        if (/^(Bin Zones)/ig.test(sp.innerHTML.trim())) {
             if (this.checked) {
                 connection.invoke("JoinGroup", "Bin").catch(function (err) {
                     return console.error(err.toString());

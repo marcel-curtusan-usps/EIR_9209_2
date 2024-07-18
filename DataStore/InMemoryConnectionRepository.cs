@@ -14,6 +14,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     private readonly IFileService _fileService;
     private readonly string filePath = "";
     private readonly string fileName = "";
+    private readonly object _lock = new();
 
     public InMemoryConnectionRepository(ILogger<InMemoryConnectionRepository> logger, IHubContext<HubServices> hubServices, IConfiguration configuration, IFileService fileService)
     {
@@ -96,55 +97,8 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         bool saveToFile = false;
         try
         {
-            connection.LastupDate = DateTime.Now;
-            if (!connection.ActiveConnection)
-            {
-                connection.DeactivatedDate = DateTime.Now;
-                connection.Status = EWorkerServiceState.Idel;
-            }
-            if (_connectionList.TryGetValue(connection.Id, out Connection? currentConnection))
-            {
-                if (currentConnection.ActiveConnection != connection.ActiveConnection)
-                {
-                    saveToFile = true;
-                }
-                if (currentConnection.MillisecondsInterval != connection.MillisecondsInterval)
-                {
-                    saveToFile = true;
-                }
-                if (currentConnection.Url != connection.Url)
-                {
-                    saveToFile = true;
-                }
-                if (currentConnection.OAuthClientId != connection.OAuthClientId)
-                {
-                    saveToFile = true;
-                }
-                if (currentConnection.OAuthPassword != connection.OAuthPassword)
-                {
-                    saveToFile = true;
-                }
-                if (currentConnection.OAuthUserName != connection.OAuthUserName)
-                {
-                    saveToFile = true;
-                }
-                if (currentConnection.OAuthUrl != connection.OAuthUrl)
-                {
-                    saveToFile = true;
-                }
-                if (_connectionList.TryUpdate(connection.Id, connection, currentConnection))
-                {
-                    return await Task.FromResult(currentConnection);
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else
-            {
-                return null;
-            }
+            saveToFile = true;
+            return _connectionList.TryGetValue(connection.Id, out Connection? currentConnection) ? currentConnection : null;
         }
         catch (Exception e)
         {

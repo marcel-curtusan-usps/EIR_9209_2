@@ -21,6 +21,7 @@ async function start() {
     try {
         await connection.start().then(function () {
             //load Application Info
+            Promise.all([init_osl()]);
             connection.invoke("GetApplicationInfo").then(function (data) {
                 appData = JSON.parse(data);
                 if (/^(Admin|OIE)/i.test(appData.role)) {
@@ -31,10 +32,12 @@ async function start() {
                         position: 'bottom',
                     });
                 }
+               
                 Promise.all([init_ApplicationConfiguration()]);
                 Promise.all([UpdateOSLattribution(appData)]);
                 Promise.all([init_TagSearch()]);
                 Promise.all([init_backgroundImages(data)]);
+               
                 Promise.all([init_emailList()]);
                 $(`span[id="fotf-site-facility-name"]`).text(appData.name);
             }).catch(function (err) {
@@ -129,6 +132,8 @@ async function start() {
                 Promise.all([init_geoZone(data)]).then(function () {
                     Promise.all([init_geoZoneMPE()]);
                     Promise.all([init_geoZoneBin()]);
+                    Promise.all([init_geoZoneAGV()]);
+                    Promise.all([init_geoZoneArea()]);
                 });
             }).catch(function (err) {
                 // handle error

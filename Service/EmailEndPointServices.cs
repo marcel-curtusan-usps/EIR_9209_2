@@ -15,18 +15,11 @@ namespace EIR_9209_2.Service
         {
             try
             {
-
+                _endpointConfig.Status = EWorkerServiceState.Running;
                 _endpointConfig.LasttimeApiConnected = DateTime.Now;
                 _endpointConfig.ApiConnected = true;
-                var updateCon = _connection.Update(_endpointConfig).Result;
-                if (_endpointConfig.Status != EWorkerServiceState.Running)
-                {
-                    _endpointConfig.Status = EWorkerServiceState.Running;
-                    if (updateCon != null)
-                    {
-                        await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
-                    }
-                }
+                await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, cancellationToken: stoppingToken);
+              
 
                 //get list of Mpe name from email list and send email
 

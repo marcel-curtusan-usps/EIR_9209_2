@@ -2,10 +2,10 @@
 
 public interface IInMemoryBackgroundImageRepository
 {
-    void Add(BackgroundImage backgroundImage);
-    void Remove(BackgroundImage backgroundImage);
+    Task<BackgroundImage> Add(BackgroundImage backgroundImage);
+    Task<BackgroundImage> Update(BackgroundImage backgroundImage);
+    Task<BackgroundImage> Remove(string id);
     BackgroundImage Get(string id);
     IEnumerable<BackgroundImage> GetAll();
-    void Update(BackgroundImage backgroundImage);
-    Task LoadBackgroundImage(BackgroundImage newImage);
+
 }

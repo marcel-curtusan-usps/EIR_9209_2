@@ -274,7 +274,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="FloorPlan_Modal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="FloorPlan_Modal_Label">
+    <div class="modal fade" id="OSL_Modal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="OSL_Modal_Label">
         <div class="modal-dialog modal-xl">
             <div class="modal-content bg-white">
                 <div class="modal-header">
@@ -286,11 +286,11 @@
                 <div class="modal-body">
                     <div class="form-row">
                         <div class="col-4">
-                            <label class="control-label" for="BckImageName_txt">Name</label>
-                            <input type="text" class="form-control" id="BckImageName_txt" aria-describedby="BckImageName" />
+                            <label class="control-label" for="oslName_txt">Name</label>
+                            <input type="text" class="form-control" id="oslName_txt" aria-describedby="BckImageName" />
                         </div>
                     </div>
-                    <div id="bckImageDetailsForm" style="display: none;">
+                    <div id="oslDetailsForm" style="display: none;">
                         <div class="row flex">
                             <div class="col-6">
                                 <label class="control-label" for="BckImageId_txt">Id</label>
@@ -335,7 +335,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-row" id="bckImageUploadForm" style="display: none">
+                    <div class="form-row" id="oslUploadForm" style="display: none">
                         <div class="col-6">
                             <label class="control-label" for="floorname">Image</label>
                             <div class="input-group">
@@ -372,19 +372,15 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <div class="col">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
-                    </div>
-                    <div class="col text-center"><span class="text-info" id="error_bckImageUploadbtn"></span></div>
-                    <div class="col">
-                        <button class="btn btn-outline-success float-right" type="button" id="bckImageUploadbtn">Upload</button>
-                        <button class="btn btn-outline-success float-right" type="button" id="bckImageSubmitbtn" style="display: none">Save</button>
-                    </div>
+                    <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal" aria-label="Close">Close</button>
+                    <div class="col text-center"><span class="text-info" id="error_oslUploadbtn"></span></div>
+                    <button class="btn btn-outline-success float-right" type="button" id="oslUploadbtn">Upload</button>
+                    <button class="btn btn-primary float-right" type="button" id="oslSubmitbtn" style="display: none">Save</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" id="webEOR_Modal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="FloorPlan_Modal_Label">
+    <div class="modal fade" id="webEOR_Modal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="OSL_Modal_Label">
         <div class="modal-dialog modal-xl">
             <div class="modal-content bg-white">
                 <div class="modal-header">
@@ -1457,14 +1453,14 @@
                         </div>
                     </div>
                     <div id="layer_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none;">
-                        <div class="card-header pl-1">
-                            <h6 class="control-label sectionHeader mb-1">Create Layer</h6>
-                        </div>
                         <div id="div_layerarea">
                             <div class="card">
+                                <div class="card-header pl-1">
+                                    <h6 class="control-label sectionHeader mb-1">Create Layer</h6>
+                                </div>
                                 <div class="card-body pb-0">
                                     <div class="row mb-3">
-                                        <div class="form-group col-6">
+                                        <div class="col-6">
                                             <label class="control-label" for="zone_type">Type</label>
                                             <select id="zone_type" title="Zone Type" class="form-control" name="zone_type">
                                                 <option value=""></option>
@@ -1487,13 +1483,13 @@
                                             <span id="error_zone_select_name" class="text-danger"></span>
                                         </div>
                                     </div>
-                                    <div class="row mr-0 ml-0" id="manual_row" style="display: none;">
-                                        <div class="form-group col-8">
+                                    <div class="row mb-3" id="manual_row" style="display: none;">
+                                        <div class="col" id="manual_namediv">
                                             <label class="control-label" for="manual_name">Name</label>
                                             <input id="manual_name" type="text" class="form-control" name="manual_name" />
                                             <span id="error_manual_name" class="text-danger"></span>
                                         </div>
-                                        <div class="form-group col-4">
+                                        <div class="col" id="manual_numberdiv">
                                             <label class="control-label" for="manual_number">Number</label>
                                             <input id="manual_number" type="text" class="form-control" name="manual_number" />
                                             <span id="error_manual_number" class="text-danger"></span>
@@ -1520,15 +1516,11 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card-footer">
-                                    <div class="col">
-                                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal" id="zonecloseBtn">Cancel</button>
-                                    </div>
-                                    <div class="col text-center">
-                                        <span class="text-info" id="error_zonesubmitBtn"></span>
-                                    </div>
-                                    <div class="col">
-                                        <button class="btn btn-primary float-right" type="button" style="display: block;" id="zonesubmitBtn">Save</button>
+                                <div class="card-footer d-flex justify-content-between align-items-center" role="group">
+                                    <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal" aria-label="Close" id="zonecloseBtn">Close</button>
+                                    <div>
+                                        <div class="text-center mr-2"><span class="text-info" id="error_zonesubmitBtn"></span></div>
+                                        <button class="btn btn-primary" type="button" id="zonesubmitBtn">Save</button>
                                     </div>
                                 </div>
                             </div>
@@ -2430,7 +2422,7 @@
                         <button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem" name="connectionbtn" onclick="Add_Connection()">Add</button>
                     </div>
                     <div class="table-responsive">
-                        <div id="backgroundimagetable">
+                        <div>
                             <table class="table table-sm table-hover table-condensed" id="connectiontable">
                                 <thead class="thead-dark">
                                 </thead>
@@ -2499,11 +2491,11 @@
                     <div class="card w-100">
                         <div class="card-header pl-1 d-flex justify-content-between">
                             <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Loaded Workroom/Floor Image</h6>
-                            <button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem" name="addfloorpan">Add</button>
+                            <button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem" name="addOslPan">Add</button>
                         </div>
                         <div class="table-responsive">
-                            <div id="backgroundimagetable">
-                                <table class="table table-sm table-hover table-condensed" id="backgroundimagetable">
+                            <div>
+                                <table class="table table-sm table-hover table-condensed" id="osltable">
                                     <thead class="thead-dark">
                                     </thead>
                                     <tbody>
@@ -2758,12 +2750,15 @@
     <script src="../js/view/email.js"></script>
     <script src="../js/view/dacodetocraftTypes.js"></script>
     <script src="../js/view/webEORUploads.js"></script>
+    <script src="../js/view/osl.js"></script>
     <script src="../js/view/indoorMap.js"></script>
     <script src="../js/view/tagsEmployee.js"></script>
     <script src="../js/view/tagsPIVVehicles.js"></script>
     <script src="../js/view/tagsAGVVehicles.js"></script>
     <script src="../js/view/tagsSearch.js"></script>
+    <script src="../js/view/geoZonesAGV.js"></script>
     <script src="../js/view/geoZonesMPE.js"></script>
+    <script src="../js/view/geoZonesArea.js"></script>
     <script src="../js/view/geoZonesDockDoors.js"></script>
     <script src="../js/view/geoZonesBin.js"></script>
     <script src="../js/view/geoZones.js"></script>

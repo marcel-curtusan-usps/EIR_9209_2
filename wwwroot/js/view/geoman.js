@@ -15,9 +15,16 @@
 $('#Remove_Layer_Modal').on('hidden.bs.modal', function () {
     $(this)
         .find("input[type=text],textarea,select")
+        .css({ "border-color": "#D3D3D3" })
         .val('')
+        .prop('disabled', false)
+        .end()
+        .find("input[type=radio]")
+        .prop('disabled', false)
+        .prop('checked', false).change()
         .end()
         .find("span[class=text]")
+        .css("border-color", "#FF0000")
         .val('')
         .text("")
         .end()
@@ -27,7 +34,6 @@ $('#Remove_Layer_Modal').on('hidden.bs.modal', function () {
 });
 $('#Remove_Layer_Modal').on('shown.bs.modal', function () {
 });
-
 async function init_geoman_editing() {
     let draw_options = {
         position: 'bottomright',
@@ -85,17 +91,20 @@ async function init_geoman_editing() {
         }
     });
     OSLmap.on('pm:remove', (e) => {
+   
         if (e.shape === 'Marker') {
             VaildateForm("");
             RemoveMarkerItem(e);
+          
         }
         else {
             VaildateForm("");
             RemoveZoneItem(e);
         }
+        sidebar.close();
     });
     //zone type
-    $('select[name=zone_type]').change(function () {
+    $('select[name=zone_type]').on('change',function () {
         if (!checkValue($('select[name=zone_type]').val())) {
             $('select[name=zone_type]').removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_zone_type]').text("Please Select Type");
@@ -108,14 +117,14 @@ async function init_geoman_editing() {
         }
         if (!checkValue($('select[name=zone_select_name]').val())) {
             $('select[name=zone_select_name]').removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_zone_select_name]').text("Please Select Name");
+            $('span[id=error_zone_select_name]').text("Please Select Type");
         }
         else {
             $('select[name=zone_select_name]').removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_zone_select_name]').text("");
         }
     });
-    $('select[id=zone_select_name]').change(function () {
+    $('select[id=zone_select_name]').on('change', function () {
         if (/Not Listed$/.test($('select[name=zone_select_name] option:selected').val())) {
             $('#manual_row').css('display', 'block');
             if (!checkValue($('input[type=text][name=manual_name]').val())) {
@@ -161,7 +170,7 @@ async function init_geoman_editing() {
 
     });
     //bins name
-    $('textarea[id=bin_bins]').keyup(function () {
+    $('textarea[id=bin_bins]').on('keyup', function () {
         if (!checkValue($('textarea[id=bin_bins]').val())) {
             $('textarea[id=bin_bins]').removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_bin_bins]').text("Please Enter Bin Numbers");
@@ -175,11 +184,11 @@ async function init_geoman_editing() {
 
 
     //Camera URL
-    $('select[name=cameraLocation]').change(function () {
+    $('select[name=cameraLocation]').on('change', function () {
         if (!checkValue($('select[name=cameraLocation]').val())) {
             $('select[name=cameraLocation]').removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_cameraLocation]').text("Please Select Type");
-            ;
+            
         }
         else {
             $('select[name=cameraLocation]').removeClass('is-invalid').addClass('is-valid');
@@ -188,7 +197,7 @@ async function init_geoman_editing() {
         enableCameraSubmit();
     });
     //manual type keyup
-    $('input[type=text][name=manual_name]').keyup(function () {
+    $('input[type=text][name=manual_name]').on('keyup', function () {
         if (!checkValue($('input[type=text][name=manual_name]').val())) {
             $('input[type=text][name=manual_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_manual_name]').text("Please Enter Machine Name");
@@ -205,11 +214,19 @@ async function init_geoman_editing() {
 
             enableBinZoneSubmit();
         }
+        else if ($('select[name=zone_type] option:selected').val() === "AGVLocation") {
+
+            enableAGVLocationSubmit();
+        }
+        else if ($('select[name=zone_type] option:selected').val() === "Area") {
+
+            enableAreaZoneSubmit();
+        }
         else {
             enableZoneSubmit();
         }
     });
-    $('input[type=text][name=manual_number]').keyup(function () {
+    $('input[type=text][name=manual_number]').on('keyup', function () {
         if (!checkValue($('input[type=text][name=manual_number]').val())) {
             $('input[type=text][name=manual_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_manual_number]').text("Please Enter Machine Name");
@@ -266,6 +283,37 @@ function enableZoneSubmit() {
         $('button[id=zonesubmitBtn]').prop('disabled', true);
     }
 }
+function enableAGVLocationSubmit() {
+    if ($('select[name=zone_type]').hasClass('is-valid') &&
+        /Not Listed$/i.test($('select[name=zone_select_name] option:selected').val()) &&
+        $('input[type=text][name=manual_name]').hasClass('is-valid')) {
+        $('button[id=zonesubmitBtn]').prop('disabled', false);
+    }
+    else if ($('select[name=zone_type]').hasClass('is-valid') &&
+        $('select[name=zone_select_name]').hasClass('is-valid') &&
+        !/(Not Listed$)/i.test($('select[name=zone_select_name] option:selected').val())) {
+        $('button[id=zonesubmitBtn]').prop('disabled', false);
+    }
+    else {
+        $('button[id=zonesubmitBtn]').prop('disabled', true);
+    }
+
+}
+function enableAreaZoneSubmit() {
+    if ($('select[name=zone_type]').hasClass('is-valid') &&
+        /Not Listed$/i.test($('select[name=zone_select_name] option:selected').val()) &&
+        $('input[type=text][name=manual_name]').hasClass('is-valid')) {
+        $('button[id=zonesubmitBtn]').prop('disabled', false);
+    }
+    else if ($('select[name=zone_type]').hasClass('is-valid') &&
+        $('select[name=zone_select_name]').hasClass('is-valid') &&
+        !/(Not Listed$)/i.test($('select[name=zone_select_name] option:selected').val())) {
+        $('button[id=zonesubmitBtn]').prop('disabled', false);
+    }
+    else {
+        $('button[id=zonesubmitBtn]').prop('disabled', true);
+    }
+}
 function CreateZone(newlayer) {
     try {
         //map.setView(newlayer.layer._bounds.getCenter());
@@ -275,20 +323,32 @@ function CreateZone(newlayer) {
             floorid: baselayerid,
             name: "",
             bins: "",
+            type: "",
             visible: true
         }
         $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
             togeo.properties = geoProp;
             togeo.properties.zoneType = $('select[name=zone_type] option:selected').val();
+            togeo.properties.type = newlayer.shape
             if (/Bin/i.test($('select[name=zone_type] option:selected').val())) {
                 togeo.properties.bins = $('textarea[id="bin_bins"]').val();
             }
-            if (/Not Listed$/.test($('select[name=zone_select_name] option:selected').val())) {
-                togeo.properties.name = $('input[id=manual_name]').val() + "-" + $('input[id=manual_number]').val().padStart(3, '0');
+
+            else if (/(AGVLocation)/i.test($('select[name=zone_select_name] option:selected').val())) {
+                togeo.properties.name = $('input[id=manual_name]').val();
+            }
+            else if (/(Area)/i.test($('select[name=zone_select_name] option:selected').val())) {
+                togeo.properties.name = $('input[id=manual_name]').val();
             }
             else {
-                togeo.properties.name = $('select[name=zone_select_name] option:selected').val();
+                if (/Not Listed$/.test($('select[name=zone_select_name] option:selected').val())) {
+                    togeo.properties.name = $('input[id=manual_name]').val() + "-" + $('input[id=manual_number]').val().padStart(3, '0');
+                }
+                else {
+                    togeo.properties.name = $('select[name=zone_select_name] option:selected').val();
+                }
             }
+
             if (!$.isEmptyObject(togeo)) {
                 //make a ajax call to get the employee details
                 $.ajax({
@@ -323,7 +383,7 @@ function CreateCamera(newlayer) {
     VaildateForm("Camera");
     sidebar.open('home');
     var togeo = newlayer.layer.toGeoJSON();
-    map.setView(newlayer.layer._latlng, 3);
+    OSLmap.setView(newlayer.layer._latlng, 3);
     var geoProp = {
         name: "",
         floorid: baselayerid,
@@ -335,6 +395,7 @@ function CreateCamera(newlayer) {
         togeo.properties = geoProp;
         togeo.properties.name = $('select[name=cameraLocation] option:selected').val();
         togeo.properties.tagType = $('select[name=zone_type] option:selected').val();
+        togeo.properties.type = e.shape;
         //Camera Direction
         togeo.properties.cameraDirection = $('input[id=cameraDirection]').val();
         $.ajax({
@@ -362,15 +423,6 @@ function CreateCamera(newlayer) {
                 //console.log(complete);
             }
         });
-        //$.connection.FOTFManager.server.addMarker(JSON.stringify(togeo)).done(function (Data) {
-        //    if (!$.isEmptyObject(Data)) {
-        //        setTimeout(function () { sidebar.close('home'); }, 500);
-        //        newlayer.layer.remove();
-        //    }
-        //    else {
-        //        newlayer.layer.remove();
-        //    }
-        //});
     });
 }
 function RemoveZoneItem(removeLayer) {
@@ -452,8 +504,24 @@ function removeFromMapView(id) {
     });
 }
 function VaildateForm(FormType) {
+    $('select[name=zone_select_name]').removeClass('is-valid').addClass('is-invalid');
+    $('span[id=error_zone_select_name]').text("Please Select Name");
+    $('input[type=text][name=manual_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+    $('span[id=error_manual_name]').text("Please Enter Name");
+    $('input[type=text][name=manual_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+    $('span[id=error_manual_number]').text("Please Enter Number");
+    $('textarea[id=bin_bins]').removeClass('is-valid').addClass('is-invalid');
+    $('span[id=error_bin_bins]').text("Please Enter Bin Numbers");
+    $('select[name=cameraLocation]').removeClass('is-valid').addClass('is-invalid');
+    $('span[id=error_cameraLocation]').text("Please Select Type");
+    $('input[type=text][name=manual_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+    $('span[id=error_manual_name]').text("Please Enter Machine Name");
+    $('input[type=text][name=manual_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+    $('span[id=error_manual_number]').text("Please Enter Machine Name");
+
     $('input[type=text][name=manual_name]').val("");
     $('input[type=text][name=manual_number]').val("");
+    $('div[id=manual_numberdiv]').css('display', 'block');
     $('select[name=zone_type]').prop('disabled', false);
     $('div[id=div_zone_select_name]').css('display', 'none');
     $('select[id=zone_select_name]').empty();
@@ -476,10 +544,10 @@ function VaildateForm(FormType) {
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
+                mpedata.push('**Machine Not Listed');
                 if (mpedata.length > 0) {
                     //sort 
                     mpedata.sort();
-                    mpedata.push('**Machine Not Listed');
                     $.each(mpedata, function () {
                         $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
                     })
@@ -496,6 +564,7 @@ function VaildateForm(FormType) {
                 console.log(complete);
             }
         });
+        enableZoneSubmit();
     }
     else if (/(DockDoor)/i.test(FormType)) {
         $('textarea[id="bin_bins"]').val("");
@@ -505,10 +574,10 @@ function VaildateForm(FormType) {
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
+                mpedata.push('**Dock Door Not Listed');
                 if (mpedata.length > 0) {
                     //sort 
                     mpedata.sort();
-                    mpedata.push('**Dock Door Not Listed');
                     $.each(mpedata, function () {
                         $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
                     })
@@ -525,22 +594,6 @@ function VaildateForm(FormType) {
                 //console.log(complete);
             }
         });
-        //fotfmanager.server.getDockDoorList().done(function (DockDoordata) {
-        //    if (DockDoordata.length > 0) {
-        //        //sort 
-        //        DockDoordata.sort(SortByNumber);
-        //        DockDoordata.push('**Dock Door Not Listed');
-        //        $.each(DockDoordata, function () {
-        //            $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
-        //        })
-        //    }
-        //    else {
-        //        DockDoordata.push('**Dock Door Not Listed');
-        //        $.each(DockDoordata, function () {
-        //            $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
-        //        })
-        //    }
-        //});
     }
     else if (/(Bin)/i.test(FormType)) {
 
@@ -551,10 +604,10 @@ function VaildateForm(FormType) {
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
+                mpedata.push('**Machine Not Listed');
                 if (mpedata.length > 0) {
                     //sort 
                     mpedata.sort();
-                    mpedata.push('**Machine Not Listed');
                     $.each(mpedata, function () {
                         $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
                     })
@@ -588,16 +641,13 @@ function VaildateForm(FormType) {
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
+                mpedata.push('**Bullpen Not Listed');
                 if (mpedata.length > 0) {
                     //sort 
                     mpedata.sort();
-                    mpedata.push('**Bullpen Not Listed');
                     $.each(mpedata, function () {
                         $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
                     })
-
-                    $('select[name=zone_type]').prop('disabled', true);
-                    enableZoneSubmit();
                 }
             },
             error: function (error) {
@@ -609,53 +659,35 @@ function VaildateForm(FormType) {
             },
             complete: function (complete) {
                 //console.log(complete);
-            }
+            }                    
         });
-        //fotfmanager.server.getSVZoneNameList().done(function (svdata) {
-
-        //    if (svdata.length > 0) {
-        //        //sort 
-        //        svdata.sort(SortByName);
-        //        svdata.push('**Bullpen Not Listed');
-        //        $.each(svdata, function () {
-        //            $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
-        //        })
-        //    }
-        //    $('select[name=zone_type]').prop('disabled', true);
-        //    enableZoneSubmit();
-        //});
+        enableZoneSubmit();
     }
     else if (/(AGVLocation)/i.test(FormType)) {
         $('<option/>').val('**AGVLocation Not Listed').html('**AGVLocation Not Listed').appendTo('select[id=zone_select_name]');
-        enableZoneSubmit();
+        $('div[id=manual_numberdiv]').css('display', 'none');
+        enableAGVLocationSubmit();
+    }
+    else if (/^(Area)$/i.test(FormType)) {
+        $('<option/>').val('**Area Not Listed').html('**Area Not Listed').appendTo('select[id=zone_select_name]');
+        $('div[id=manual_numberdiv]').css('display', 'none');
+        enableAreaZoneSubmit();
     }
 
-    if (/(Camera)/i.test(FormType)) {
-        //fotfmanager.server.getCameraList().done(function (cameradata) {
-        //    if (cameradata.length > 0) {
-        //        $('select[id=cameraLocation]').empty();
-        //        $('<option/>').val("").html("").appendTo('select[id=cameraLocation]');
-        //        $.each(cameradata, function () {
-        //            $('<option/>').val(this.CAMERA_NAME).html(this.CAMERA_NAME + "/" + this.DESCRIPTION).appendTo('select[id=cameraLocation]');
-        //        })
-        //    }
-        //});
+   if (/(Camera)/i.test(FormType)) {
         $.ajax({
             url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
+                mpedata.push('**Camera Not Listed');
                 if (mpedata.length > 0) {
                     //sort 
                     mpedata.sort(SortByName);
-                    mpedata.push('**Bullpen Not Listed');
                     $.each(svdata, function () {
                         $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
                     })
-
-                    $('select[name=zone_type]').prop('disabled', true);
-                    enableZoneSubmit();
-                } s
+                } 
             },
             error: function (error) {
 
@@ -668,9 +700,10 @@ function VaildateForm(FormType) {
                 //console.log(complete);
             }
         });
+        enableZoneSubmit();
         $('#camerainfo').css("display", "block");
         $('#binzoneinfo').css("display", "none");
-        $('select[name=zone_type]').prop('disabled', true);
+ 
         //Camera URL
         if ($('select[name=cameraLocation]').val() === "") {
             $('select[name=cameraLocation]').removeClass('is-valid').addClass('is-invalid');

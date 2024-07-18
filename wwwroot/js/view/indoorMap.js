@@ -98,8 +98,9 @@ async function init_backgroundImages() {
             success: function (MapData) {
                 if (MapData.length > 0) {
                     $.each(MapData, function (index, backgroundImages) {
+                        loadOslDatatable([backgroundImages],"osltable")
                         if (!!backgroundImages) {
-                            //Promise.all([loadFloorPlanDatatable([this], "backgroundimagetable")]);
+                            //Promise.all([loadOslDatatable([this], "osltable")]);
                             //set new image
                             let trackingarea = L.polygon([[100, 150]], [[500, 5000]]);
                             let img = new Image();
@@ -146,7 +147,7 @@ async function init_backgroundImages() {
                 connection.invoke("JoinGroup", "BackgroundImage").catch(function (err) {
                     return console.error(err.toString());
                 });
-              
+
             }
         });
 

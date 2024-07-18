@@ -39,7 +39,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         bool saveToFile = false;
         try
         {
-            if (geoZone.Properties.ZoneType == "Bin")
+            if (!Regex.IsMatch(geoZone.Properties.ZoneType, "^(MPE)", RegexOptions.IgnoreCase))
             {
                 geoZone.Properties.MPERunPerformance = null;
             }
