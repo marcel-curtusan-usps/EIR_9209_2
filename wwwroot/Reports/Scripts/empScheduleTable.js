@@ -54,6 +54,23 @@ function processScheduledata(data) {
                     });
                 }
             });
+            let totalhrs = Math.round(hourst * 10) / 10;
+            //let tacshrtotal = '38';
+            //let selshrtotal = '35';
+            //let totalhrspercent = '<br>'+Math.round(parseFloat(tacshrtotal) / parseFloat(selshrtotal) * 100 * 1) / 1 + '%';
+            let totalhrspercent = '';
+
+            
+            if (totalhrs == 0) {
+            } else {
+                let tacshrtotal = '38';
+                let selshrtotal = '35';
+                totalhrs += '<br><span class="tacshrSpan">' + tacshrtotal + '</span><span class="selshrSpan">' + selshrtotal + '</span>';
+                //let tacshrtotalpercent = Math.round(parseFloat(tacshrtotal) / parseFloat(totalhrs) * 100 *1) / 1 + '%';
+                //let selshrtotalpercent = Math.round(parseFloat(selshrtotal) / parseFloat(totalhrs) * 100 * 1) / 1 + '%';
+                //totalhrspercent = '<br><span class="tacshrSpan">' + tacshrtotalpercent + '</span><span class="selshrSpan">' + selshrtotalpercent + '</span>';
+                totalhrspercent = '<br>' + Math.round(parseFloat(tacshrtotal) / parseFloat(selshrtotal) * 100 * 1) / 1 + '%';
+            }
             
             let employee = {
                 employee: curr.lastName + ', ' + curr.firstName + '<br>' + curr.ein,
@@ -65,7 +82,8 @@ function processScheduledata(data) {
                 day5: day5,
                 day6: day6,
                 day7: day7,
-                hourstotal: Math.round(hourst * 10) / 10
+                hourstotal: totalhrs,
+                hourstotalpercent: totalhrspercent
             };
             acc.push(employee);
             return acc;
@@ -136,27 +154,35 @@ async function createEmpScheduleDataTable(table) {
             "title": 'Hours Total',
             "width": "10%",
             "data": 'hourstotal'
+        },
+        {
+            "title": 'TACS vs SELS %',
+            "width": "10%",
+            "data": 'hourstotalpercent'
         }
       ]
 
       let EmpScheduleDataTable = $('#' + table).DataTable({
-        dom: 'Bfrtip',
+          dom: '<"search"f>Brtip',
         //dom: "flrtipB",
-        bFilter: false,
+        bFilter: true,
         bdeferRender: true,
         bpaging: true,
         bPaginate: false,
         autoWidth: false,
         bInfo: false,
         destroy: true,
+        scrollY: 600,
+        scrollx: true,
+        scroller: true,        
         language: {
             zeroRecords: "No Data"
         },
         aoColumns: columns,
         columnDefs: [
-            { targets: [1, 9], className: 'dt-center' }
+            { targets: [1, 9, 10], className: 'dt-center' }
         ],
-        sorting: [[0, "asc"]],
+          sorting: [[1, "asc"], [10, "asc"]],
       })
       $('#' + table + ' thead').attr("class", "thead-dark");
 
@@ -180,7 +206,10 @@ function getDaySchedule(row, day) {
                 curday = '<span class="leaveSpan">LV</span>';
                 //curday = 'LV';
             } else {
-                curday = value.btour + '-' + value.etour;
+                curday = '<span class="tourhrSpan">' + value.btour + '-' + value.etour + '</span >';
+                let tacshr = '9.86';
+                let selshr = '6.85';
+                curday += '<br><span class="tacshrSpan">' + tacshr + '</span><span class="selshrSpan">' + selshr + '</span>';
             }
         }
     });
