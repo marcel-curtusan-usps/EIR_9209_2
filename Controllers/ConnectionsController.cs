@@ -116,22 +116,25 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var updateCon = _connectionRepository.Update(value.ToObject<Connection>()).Result;
-                if (updateCon != null)
+                var connectionToUpdate = value.ToObject<Connection>();
+                if (_worker.UpdateEndpoint(connectionToUpdate))
                 {
-                    if (_worker.UpdateEndpoint(updateCon))
-                    {
-                        return Ok(updateCon);
-                    }
-                    else
-                    {
-                        return BadRequest(ModelState);
-                    }
+                    return Ok(connectionToUpdate);
                 }
                 else
                 {
-                    return new JObject { ["Message"] = $"Connection was not Found" };
+                    return BadRequest(ModelState);
                 }
+
+                //var updateCon = _connectionRepository.Update(connectionToUpdate).Result;
+                //if (updateCon != null)
+                //{
+
+                //}
+                //else
+                //{
+                //    return new JObject { ["Message"] = $"Connection was not Found" };
+                //}
             }
             catch (Exception e)
             {

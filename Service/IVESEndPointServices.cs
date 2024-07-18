@@ -24,21 +24,9 @@ namespace EIR_9209_2.Service
 
                 _endpointConfig.Status = EWorkerServiceState.Running;
                 _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                if (_endpointConfig.ActiveConnection)
-                {
-                    _endpointConfig.ApiConnected = true;
-                }
-                else
-                {
-                    _endpointConfig.ApiConnected = false;
-                    _endpointConfig.Status = EWorkerServiceState.Idel;
-                }
-
-                var updateCon = _connection.Update(_endpointConfig).Result;
-                if (updateCon != null)
-                {
-                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
-                }
+                _endpointConfig.ApiConnected = true;
+                await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, cancellationToken: stoppingToken);
+                
 
                 IQueryService queryService;
                 string FormatUrl = "";

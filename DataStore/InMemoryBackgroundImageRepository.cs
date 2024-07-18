@@ -7,12 +7,12 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
     private readonly static ConcurrentDictionary<string, BackgroundImage> _backgroundImages = new();
     private readonly ILogger<InMemoryBackgroundImageRepository> _logger;
     private readonly IConfiguration _configuration;
-    private readonly IFileService FileService;
+    private readonly IFileService _fileService;
     private readonly string filePath = "";
     private readonly string fileName = "";
     public InMemoryBackgroundImageRepository(ILogger<InMemoryBackgroundImageRepository> logger, IConfiguration configuration, IFileService fileService)
     {
-        FileService = fileService;
+        _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
         fileName = $"{_configuration[key: "InMemoryCollection:CollectionBackgroundImages"]}.json";
@@ -25,33 +25,119 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         _ = LoadDataFromFile(filePath);
 
     }
-    public void Add(BackgroundImage backgroundImage)
+    public async Task<BackgroundImage>? Add(BackgroundImage backgroundImage)
     {
-        if (_backgroundImages.TryAdd(backgroundImage.id, backgroundImage))
+        bool saveToFile = false;
+        try
         {
-            FileService.WriteFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
+
+            if (_backgroundImages.TryAdd(backgroundImage.id, backgroundImage))
+            {
+                saveToFile = true;
+                return await Task.FromResult(backgroundImage);
+            }
+            else
+            {
+                _logger.LogError($"Zone File list was not saved...");
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
+            }
         }
     }
-    public void Remove(BackgroundImage backgroundImage) { _backgroundImages.TryRemove(backgroundImage.id, out _); }
+    public async Task<BackgroundImage>? Remove(string id)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (_backgroundImages.TryRemove(id, out BackgroundImage backgroundImage))
+            {
+                saveToFile = true;
+                return await Task.FromResult(backgroundImage);
+            }
+            else
+            {
+                _logger.LogError($"Zone File list was not saved...");
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
+            }
+        }
+    }
+    public async Task<BackgroundImage>? Update(BackgroundImage backgroundImage)
+    {
+        if (_backgroundImages.TryGetValue(backgroundImage.id, out BackgroundImage currentBackgroundImage) && _backgroundImages.TryUpdate(backgroundImage.id, backgroundImage, currentBackgroundImage))
+        {
+            _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
+        }
+
+        bool saveToFile = false;
+        try
+        {
+            if (_backgroundImages.TryGetValue(backgroundImage.id, out BackgroundImage? currentimage) && _backgroundImages.TryUpdate(backgroundImage.id, backgroundImage, currentimage))
+            {
+                saveToFile = true;
+                if (_backgroundImages.TryGetValue(backgroundImage.id, out BackgroundImage? osl))
+                {
+
+                    return await Task.FromResult(osl);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
+            }
+        }
+    }
     public BackgroundImage Get(string id)
     {
         _backgroundImages.TryGetValue(id, out BackgroundImage? backgroundImage);
         return backgroundImage;
     }
     public IEnumerable<BackgroundImage> GetAll() => _backgroundImages.Values;
-    public void Update(BackgroundImage backgroundImage)
-    {
-        if (_backgroundImages.TryGetValue(backgroundImage.id, out BackgroundImage currentBackgroundImage) && _backgroundImages.TryUpdate(backgroundImage.id, backgroundImage, currentBackgroundImage))
-        {
-            FileService.WriteFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
-        }
-    }
+
     private async Task LoadDataFromFile(string filePath)
     {
         try
         {
             // Read data from file
-            var fileContent = await FileService.ReadFile(filePath);
+            var fileContent = await _fileService.ReadFile(filePath);
 
             // Parse the file content to get the data. This depends on the format of your file.
             // Here's an example if your file was in JSON format and contained an array of T objects:
@@ -84,26 +170,5 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         }
     }
 
-    public Task LoadBackgroundImage(BackgroundImage newImage)
-    {
-        try
-        {
-            var imageId = _backgroundImages.Where(x => x.Value.fileName == newImage.fileName).Select(x => x.Key).FirstOrDefault();
-            if (imageId != null)
-            {
-                _backgroundImages[imageId] = newImage;
-                FileService.WriteFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
-            }
-            else
-            {
-                Add(newImage);
-            }
-            return Task.FromResult(true);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message);
-            return Task.FromResult(false);
-        }
-    }
+
 }

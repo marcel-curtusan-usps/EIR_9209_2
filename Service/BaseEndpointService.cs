@@ -27,23 +27,12 @@ namespace EIR_9209_2.Service
                 {
                     _timer = new PeriodicTimer(TimeSpan.FromMilliseconds(100));
                     _task = Task.Run(async () => await RunAsync(_cancellationTokenSource.Token));
-                    _endpointConfig.Status = EWorkerServiceState.Idel;
-                    var updateCon = _connection.Update(_endpointConfig).Result;
-                    if (updateCon != null)
-                    {
-                        await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon);
-                    }
-
                 }
                 else
                 {
                     _endpointConfig.Status = EWorkerServiceState.InActive;
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig);
 
-                    var updateCon = _connection.Update(_endpointConfig).Result;
-                    if (updateCon != null)
-                    {
-                        await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon);
-                    }
                 }
             }
         }
@@ -73,20 +62,15 @@ namespace EIR_9209_2.Service
             {
                 Start();
                 _endpointConfig.Status = EWorkerServiceState.Running;
-                updateCon = _connection.Update(_endpointConfig).Result;
-                if (updateCon != null)
-                {
-                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon);
-                }
+                _ = _connection.Update(_endpointConfig).Result;
+
             }
             else
             {
-                _endpointConfig.Status = EWorkerServiceState.Idel;
-                updateCon = _connection.Update(_endpointConfig).Result;
-                if (updateCon != null)
-                {
-                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon);
-                }
+                _endpointConfig.Status = EWorkerServiceState.InActive;
+                _ = _connection.Update(_endpointConfig).Result;
+                await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig);
+
             }
 
         }
@@ -102,6 +86,8 @@ namespace EIR_9209_2.Service
                     {
                         _timer = new PeriodicTimer(TimeSpan.FromMilliseconds(_endpointConfig.MillisecondsInterval));
                     }
+                    _endpointConfig.Status = EWorkerServiceState.Idel;
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig);
                 }
 
             }

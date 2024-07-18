@@ -159,7 +159,7 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
     });
 });
 
-
+let isMPEZoneRemoved = false;
 let geoZoneMPE = new L.GeoJSON(null, {
     style: function (feature) {
         return {
@@ -174,36 +174,14 @@ let geoZoneMPE = new L.GeoJSON(null, {
     onEachFeature: function (feature, layer) {
 
         layer.zoneId = feature.properties.id;
+        if (!isMPEZoneRemoved) {
+            layer.on('click', function (e) {
+                OSLmap.setView(e.sourceTarget.getCenter(), 3);
+                Promise.all([loadMachineData(feature.properties, 'machinetable')]);
+          
 
-        layer.on('click', function (e) {
-            OSLmap.setView(e.sourceTarget.getCenter(), 3);
-            Promise.all([loadMachineData(feature.properties, 'machinetable')]);
-            //makea ajax call to get the employee details
-            //$.ajax({
-            //    url: '/api/Zone/' + feature.properties.id,
-            //    type: 'GET',
-            //    success: function (data) {
-            //        //$('#content').html(data);
-            //        sidebar.open('home');
-            //    },
-            //    error: function (error) {
-            //        console.log(error);
-            //    },
-            //    faulure: function (fail) {
-            //        console.log(fail);
-            //    },
-            //    complete: function (complete) {
-            //        $('div[id=machine_div]').attr("data-id", feature.properties.id);
-            //        $('div[id=machine_div]').css('display', 'block');
-            //        $('div[id=ctstabs_div]').css('display', 'block');
-
-            //        sidebar.open('home');
-
-
-            //    }
-            //});
-
-        });
+            });
+        }
         layer.bindTooltip(feature.properties.name + "<br/>" + "Staffing: " + (feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0"), {
             permanent: true,
             interactive: true,
@@ -239,23 +217,32 @@ async function init_geoZoneMPE() {
         let sp = this.nextElementSibling;
         if (/^(MPE Zones)$/ig.test(sp.innerHTML.trim())) {
             if (this.checked) {
-                connection.invoke("JoinGroup", "MPEZones").catch(function (err) {
+                connection.invoke("JoinGroup", "MPE").catch(function (err) {
                     return console.error(err.toString());
                 });
             }
             else {
-                connection.invoke("LeaveGroup", "MPEZones").catch(function (err) {
+                connection.invoke("LeaveGroup", "MPE").catch(function (err) {
                     return console.error(err.toString());
                 });
             }
         }
 
     });
-    connection.invoke("JoinGroup", "MPEZones").catch(function (err) {
+    connection.invoke("JoinGroup", "MPE").catch(function (err) {
         return console.error(err.toString());
     });
 }
-connection.on("UpdateGeoZone", async (mpeZonedata) => {
+connection.on("addMPEzone", async (zoneDate) => {
+    addMPEFeature(zoneDate);
+
+});
+connection.on("deleteMPEzone", async (zoneDate) => {
+    isMPEZoneRemoved = true;
+    deleteMPEFeature(zoneDate);
+
+});
+connection.on("updateMPEzone", async (mpeZonedata) => {
     await findMpeZoneLeafletIds(mpeZonedata.properties.id)
         .then(leafletIds => {
             geoZoneMPE._layers[leafletIds].properties = mpeZonedata.properties;
@@ -284,6 +271,20 @@ async function addMPEFeature(data) {
             })
             .catch(error => {
                 geoZoneMPE.addData(data);
+            });
+    }
+    catch (e) {
+        throw new Error(e.toString());
+    }
+}
+async function deleteMPEFeature(data) {
+    try {
+        await findMpeZoneLeafletIds(data.properties.id)
+            .then(leafletIds => {
+                geoZoneMPE.removeLayer(leafletIds);
+            })
+            .catch(error => {
+
             });
     }
     catch (e) {
@@ -467,7 +468,7 @@ async function LoadMachineDetails(selcValue) {
                         var Center = new L.latLng(
                             (layer._bounds._southWest.lat + layer._bounds._northEast.lat) / 2,
                             (layer._bounds._southWest.lng + layer._bounds._northEast.lng) / 2);
-                        map.setView(Center, 3);
+                        OSLmap.setView(Center, 3);
                         if (/Machine/i.test(layer.feature.properties.zoneType)) {
                             LoadMachineTables(layer.feature.properties, 'machinetable');
                         }

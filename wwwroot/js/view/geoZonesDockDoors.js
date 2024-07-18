@@ -34,7 +34,7 @@
 
 // add to the map and layers control
 let geoZoneDockDooroverlayLayer = L.layerGroup().addTo(OSLmap);
-layersControl.addOverlay(geoZoneDockDooroverlayLayer, "Dock Door");
+layersControl.addOverlay(geoZoneDockDooroverlayLayer, "Dock Door Zones");
 geoZoneDockDoor.addTo(geoZoneDockDooroverlayLayer);
 
 async function findDockDoorZoneLeafletIds(zoneId) {
@@ -51,21 +51,21 @@ async function findDockDoorZoneLeafletIds(zoneId) {
 async function init_geoZoneDockDoor() {
     $(document).on('change', '.leaflet-control-layers-selector', function (e) {
         let sp = this.nextElementSibling;
-        if (/^(Dock Door)$/ig.test(sp.innerHTML.trim())) {
+        if (/^(Dock Door)/ig.test(sp.innerHTML.trim())) {
             if (this.checked) {
-                connection.invoke("JoinGroup", "DockDoorZones").catch(function (err) {
+                connection.invoke("JoinGroup", "DockDoor").catch(function (err) {
                     return console.error(err.toString());
                 });
             }
             else {
-                connection.invoke("LeaveGroup", "DockDoorZones").catch(function (err) {
+                connection.invoke("LeaveGroup", "DockDoor").catch(function (err) {
                     return console.error(err.toString());
                 });
             }
         }
 
     });
-    connection.invoke("JoinGroup", "DockDoorZones").catch(function (err) {
+    connection.invoke("JoinGroup", "DockDoor").catch(function (err) {
         return console.error(err.toString());
     });
 }

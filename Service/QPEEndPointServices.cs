@@ -21,12 +21,8 @@ namespace EIR_9209_2.Service
                 _endpointConfig.Status = EWorkerServiceState.Running;
                 _endpointConfig.LasttimeApiConnected = DateTime.Now;
                 _endpointConfig.ApiConnected = true;
-                var updateCon = _connection.Update(_endpointConfig).Result;
-                if (updateCon != null)
-                {
-                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
-                }
-                // await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+
+                await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, cancellationToken: stoppingToken);
                 //process tag data
                 string FormatUrl = "";
                 if (_endpointConfig.MessageType == "getTagData")

@@ -214,7 +214,7 @@ async function moveToTagLocation(id) {
             if (layer.hasOwnProperty("feature") && layer.feature.properties.hasOwnProperty("tagType")) {
                 if (/(badge)|(Vehicle$)/i.test(layer.feature.properties.tagType)) {
                     if (id === layer.feature.properties.id) {
-                        map.setView(layer._latlng, 5);
+                        OSLmap.setView(layer._latlng, 5);
                     }
                 }
             }
