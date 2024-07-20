@@ -32,7 +32,8 @@ public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDispos
 
             await AddAuthHeaderCore(request, ct);
         }
-        catch ( Exception e) {
+        catch (Exception e)
+        {
             _logger.LogError(e.Message);
         }
         finally
@@ -46,15 +47,21 @@ public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDispos
     }
     private async Task AddAuthHeaderCore(HttpRequestMessage request, CancellationToken ct)
     {
-        await AuthenticateAsync(ct);
-        request.Headers.Add("Authorization", $"Bearer {_accessToken}");
+        if (!string.IsNullOrEmpty(_authSettings.BearerToken))
+        {
+            request.Headers.Add("Authorization", $"Bearer {_authSettings.BearerToken}");
+        }
+        else
+        {
+            await AuthenticateAsync(ct);
+            request.Headers.Add("Authorization", $"Bearer {_accessToken}");
+        }
+
     }
     private async Task GetAccessTokenAsync(CancellationToken ct)
     {
         try
         {
-
-
             var client = _httpClient.CreateClient();
             var content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {

@@ -62,6 +62,10 @@ internal class QueryService : IQueryService
     {
         return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
     }
+    public async Task<JToken> GetCiscoSpacesData(CancellationToken ct)
+    {
+        return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+    }
     public async Task<List<(string areaId, string areaName)>> GetAreasAsync(CancellationToken ct)
     {
         string GetAreasUrlPath = "api/usps/area/list";

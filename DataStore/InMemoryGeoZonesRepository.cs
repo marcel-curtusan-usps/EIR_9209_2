@@ -12,6 +12,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     private readonly ConcurrentDictionary<string, Dictionary<DateTime, MPESummary>> _mpeSummary = new();
     private readonly ConcurrentDictionary<DateTime, List<AreaDwell>> _QREAreaDwellResults = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPERunActivity = new();
+    private readonly List<string> _MPENameList = new();
     private readonly IConfiguration _configuration;
     private readonly ILogger<InMemoryGeoZonesRepository> _logger;
     private readonly IFileService _fileService;
@@ -531,6 +532,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             List<string> mpeNames = result.Select(item => item["MPE_NAME"]?.ToString()).Distinct().OrderBy(name => name).ToList();
             foreach (string mpeName in mpeNames)
             {
+                //if mpename not in MPE list add it
+                if (!_MPENameList.Contains(mpeName))
+                {
+                    _MPENameList.Add(mpeName);
+                }
+
                 bool pushDBUpdate = false;
                 var geoZone = _geoZoneList.Where(r => r.Value.Properties.ZoneType == "MPEZone" && r.Value.Properties.Name == mpeName).Select(y => y.Value).FirstOrDefault();
                 if (geoZone != null && geoZone.Properties.MPERunPerformance != null)

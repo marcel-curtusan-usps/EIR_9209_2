@@ -73,6 +73,7 @@ function processScheduledata(data) {
             }
             
             let employee = {
+                name: curr.lastName + ' ' + curr.firstName,
                 employee: curr.ein,
                 tour: curr.tourNumber,
                 day1: day1,
@@ -109,7 +110,12 @@ async function createEmpScheduleDataTable(table) {
             "title": 'EIN',
             "width": "15%",
             "data": 'employee'
-        },
+          },
+          {
+              "title": 'Name',
+              "width": "15%",
+              "data": 'name'
+          },
         {
             "title": 'Tour',
             "width": "5%",
@@ -162,8 +168,8 @@ async function createEmpScheduleDataTable(table) {
         }
       ]
 
-      let EmpScheduleDataTable = $('#' + table).DataTable({
-          dom: '<"search"f>Brtip',
+        let EmpScheduleDataTable = $('#' + table).DataTable({
+            searching: true,
         //dom: "flrtipB",
         bFilter: true,
         bdeferRender: true,

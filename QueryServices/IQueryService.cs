@@ -13,4 +13,5 @@ public interface IQueryService
         TimeSpan timeSpan3, TimeSpan timeSpan4, TimeSpan timeSpan5, List<(string areaId, string areaName)> allAreaIds, int areasBatchCount, CancellationToken stoppingToken);
     Task<JToken> GetSMSWrapperData(CancellationToken stoppingToken);
     Task<JToken> GetIVESData(CancellationToken stoppingToken);
+    Task<JToken> GetCiscoSpacesData(CancellationToken stoppingToken);
 }

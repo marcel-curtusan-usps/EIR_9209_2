@@ -57,6 +57,9 @@ namespace EIR_9209_2.Service
             _endpointConfig.OAuthClientId = updateCon.OAuthClientId;
             _endpointConfig.OAuthPassword = updateCon.OAuthPassword;
             _endpointConfig.OAuthUserName = updateCon.OAuthUserName;
+            _endpointConfig.TenantId = updateCon.TenantId;
+            _endpointConfig.MapId = updateCon.MapId;
+            _endpointConfig.OutgoingApikey = updateCon.OutgoingApikey;
 
             if (updateCon.ActiveConnection)
             {

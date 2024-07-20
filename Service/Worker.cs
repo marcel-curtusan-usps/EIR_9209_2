@@ -88,6 +88,9 @@ namespace EIR_9209_2.Service
                 case "IVES":
                     endpointService = new IVESEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _siteInfo, _empSchedule);
                     break;
+                case "CiscoSpaces":
+                    endpointService = new CiscoSpacesEndPointServices(_loggerFactory.CreateLogger<CiscoSpacesEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _tags);
+                    break;
                 default:
                     _logger.LogWarning("Unknown endpoint {Name}", endpointConfig.Name);
                     return false;

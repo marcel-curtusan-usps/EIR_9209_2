@@ -48,4 +48,6 @@ public class Connection
     public string OAuthPassword { get; set; } = "";
     public string OAuthClientId { get; set; } = "";
     public double TimeoutSeconds { get; set; } = 100;
+    public string? MapId { get; set; } = "";
+    public string? TenantId { get; set; } = "";
 }

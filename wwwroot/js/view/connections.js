@@ -54,6 +54,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
 
     $('select[name=connection_name]').on("change", function () {
         filtermessage_type("", "");
+
         if (!checkValue($('select[name=connection_name] option:selected').html())) {
             $('select[name=connection_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_connection_name]').text("Please Select Connection Name");
@@ -65,12 +66,22 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             $('span[id=error_connection_name]').text("");
             enableMessagetype();
         }
-
+        let connName = $('select[name=connection_name] option:selected').val();
         if (/^(udp|tcp)/i.test(connTypeRadio)) {
             enabletcpipudpSubmit();
         }
         else if (/^(api)/i.test(connTypeRadio)) {
             enableaipSubmit();
+        }
+
+        if (/^(CiscoSpaces)/i.test(connName)) {
+            $('div[id="CiscoSpacesmenu"]').css("display", "");
+        }
+        else {
+            $('div[id="CiscoSpacesmenu"]').css("display", "none");
+            $('input[type=text][name=bearerToken]').val("");
+            $('input[type=text][name=ciscoSpaceMapId]').val("");
+            $('input[type=text][name=ciscoSpacetenantId]').val("");
         }
     });
 
@@ -161,7 +172,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         $('span[id=error_port_number]').text("");
     }
     //Port Keyup
-    $('input[type=text][name=port_number]').keyup(function () {
+    $('input[type=text][name=port_number]').on("keyup", () => {
         if ($.isNumeric($('input[type=text][name=port_number]').val())) {
             if ($('input[type=text][name=port_number]').val().length > 65535) {
                 $('input[type=text][name=port_number]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
@@ -196,7 +207,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         $('span[id=error_url]').text("");
     }
     //URL Keyup
-    $('input[type=text][name=url]').keyup(function () {
+    $('input[type=text][name=url]').on("keyup", () => {
         if (!checkValue($('input[type=text][name=url]').val())) {
             $('input[type=text][name=url]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_url]').text("Please Enter API URL");
@@ -214,7 +225,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
     });
 
     //oAuth 
-    $('input[type=text][name=tokenurl]').keyup(function () {
+    $('input[type=text][name=tokenurl]').on("keyup", () => {
         if (!checkValue($('input[type=text][name=tokenurl]').val())) {
             $('input[type=text][name=tokenurl]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_tokenurl]').text("Please Enter Token URL");
@@ -224,7 +235,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             $('span[id=error_tokenurl]').text("");
         }
     });
-    $('input[type=text][name=tokenusername]').keyup(function () {
+    $('input[type=text][name=tokenusername]').on("keyup", () => {
         if (!checkValue($('input[type=text][name=tokenusername]').val())) {
             $('input[type=text][name=tokenusername]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_tokenusername]').text("Please Enter UserName");
@@ -234,7 +245,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             $('span[id=error_tokenusername]').text("");
         }
     })
-    $('input[type=text][name=tokenpassword]').keyup(function () {
+    $('input[type=text][name=tokenpassword]').on("keyup", () => {
         if (!checkValue($('input[type=text][name=tokenpassword]').val())) {
             $('input[type=text][name=tokenpassword]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_tokenpassword]').text("Please Enter Password");
@@ -244,7 +255,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             $('span[id=error_tokenpassword]').text("");
         }
     })
-    $('input[type=text][name=tokenclientId]').keyup(function () {
+    $('input[type=text][name=tokenclientId]').on("keyup", () => {
         if (!checkValue($('input[type=text][name=tokenclientId]').val())) {
             $('input[type=text][name=tokenclientId]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_tokenclientId]').text("Please Enter Client Id");
@@ -255,8 +266,38 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         }
     })
 
+    $('input[type=text][name=bearerToken]').on("keyup", () => {
+        if (!checkValue($('input[type=text][name=bearerToken]').val())) {
+            $('input[type=text][name=bearerToken]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_bearerToken]').text("Please Enter Token");
+        }
+        else {
+            $('input[type=text][name=bearerToken]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_bearerToken]').text("");
+        }
+    })
+    $('input[type=text][name=ciscoSpaceMapId]').on("keyup", () => {
+        if (!checkValue($('input[type=text][name=ciscoSpaceMapId]').val())) {
+            $('input[type=text][name=ciscoSpaceMapId]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_ciscoSpaceMapId]').text("Please Enter Map Id");
+        }
+        else {
+            $('input[type=text][name=ciscoSpaceMapId]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_ciscoSpaceMapId]').text("");
+        }
+    })
+    $('input[type=text][name=ciscoSpacetenantId]').on("keyup", () => {
+        if (!checkValue($('input[type=text][name=ciscoSpacetenantId]').val())) {
+            $('input[type=text][name=ciscoSpacetenantId]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_ciscoSpacetenantId]').text("Please Enter Tenant Id");
+        }
+        else {
+            $('input[type=text][name=ciscoSpacetenantId]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_ciscoSpacetenantId]').text("");
+        }
+    })
     //Hour 
-    $('input[type=checkbox][name=hour_range]').change(() => {
+    $('input[type=checkbox][name=hour_range]').on("change", () => {
         if (!$('input[type=checkbox][id=hour_range]').is(':checked')) {
             $('.hours_range_row').css("display", "none");
             $('input[id=hoursback_range]').val(0);
@@ -269,7 +310,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         }
     });
     //radio check
-    if ($("input[type=radio][name='connectionType']").change(() => {
+    if ($("input[type=radio][name='connectionType']").on("change", () => {
         connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
 
         if (/^(udp|tcp)/i.test(connTypeRadio)) {
@@ -279,7 +320,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             onAPIConnection();
         }
     }));
-    if ($("input[type=checkbox][name='active_connection']").change(() => {
+    if ($("input[type=checkbox][name='active_connection']").on("change", () => {
         connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
 
         if (/^(udp|tcp)/i.test(connTypeRadio)) {
@@ -289,7 +330,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             onAPIConnection();
         }
     }));
-    if ($("input[type=checkbox][name='OAuthconnection']").change(() => {
+    if ($("input[type=checkbox][name='OAuthconnection']").on("change", () => {
         connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
         if (/^(api)/i.test(connTypeRadio)) {
             if ($('input[type=checkbox][name=OAuthconnection]').is(':checked')) {
@@ -297,6 +338,17 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             }
             else {
                 offOAuthConnection();
+            }
+        }
+    }));
+    if ($("input[type=checkbox][name='bearerToken']").on("change", () => {
+        connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
+        if (/^(api)/i.test(connTypeRadio)) {
+            if ($('input[type=checkbox][name=bearerToken]').is(':checked')) {
+                onBearerConnection();
+            }
+            else {
+                offBearerConnection();
             }
         }
     }));
@@ -370,6 +422,9 @@ async function Add_Connection() {
                 OAuthUserName: $('input[type=text][name=tokenusername]').val(),
                 OAuthPassword: $('input[type=text][name=tokenpassword]').val(),
                 OAuthClientId: $('input[type=text][name=tokenclientId]').val(),
+                OutgoingApikey: $('input[type=text][name=bearerToken]').val(),
+                MapId: $('input[type=text][name=ciscoSpaceMapId]').val(),
+                TenantId: $('input[type=text][name=ciscoSpacetenantId]').val(),
                 //CreatedByUsername: User.UserId,
                 // NassCode: User.Facility_NASS_Code
             };
@@ -418,9 +473,27 @@ async function Edit_Connection(data) {
     filtermessage_type(data.name, data.messageType);
     $('select[name=data_retrieve]').val(data.millisecondsInterval);
     $('input[type=radio]').prop('disabled', true);
+
+    if (/^(CiscoSpaces)/i.test(data.name)) {
+        $('input[type=checkbox][id=bearerToken]').prop('checked', true);
+        $('input[type=text][name=bearerToken]').val(data.outgoingApikey);
+        $('input[type=text][name=ciscoSpaceMapId]').val(data.mapId);
+        $('input[type=text][name=ciscoSpacetenantId]').val(data.tenantId);
+        $('div[id="CiscoSpacesmenu"]').css("display", "");
+        onBearerConnection();
+    }
+    else {
+        $('input[type=radio][id=bearerToken]').prop('checked', false);
+        $('div[id="CiscoSpacesmenu"]').css("display", "none");
+        $('input[type=text][name=bearerToken]').val("");
+        $('input[type=text][name=ciscoSpaceMapId]').val("");
+        $('input[type=text][name=ciscoSpacetenantId]').val("");
+        offBearerConnection();
+    }
+
+
     if (checkValue(data.oAuthUrl)) {
         $('input[type=checkbox][id=OAuthconnection]').prop('checked', true);
-
         $('input[type=text][name=tokenurl]').prop("disabled", false).val(data.oAuthUrl);
         $('input[type=text][name=tokenusername]').prop("disabled", false).val(data.oAuthUserName);
         $('input[type=text][name=tokenpassword]').prop("disabled", false).val(data.oAuthPassword);
@@ -482,6 +555,10 @@ async function Edit_Connection(data) {
                 port: $('input[type=text][name=port_number]').val(),
                 url: $('input[type=text][name=url]').val(),
                 messageType: $('select[name=message_type] option:selected').val(),
+                OutgoingApikey: $('input[type=text][name=bearerToken]').val(),
+                MapId: $('input[type=text][name=ciscoSpaceMapId]').val(),
+                TenantId: $('input[type=text][name=ciscoSpacetenantId]').val(),
+                //CreatedByUsername: User.UserId,
                 //lastupdateByUsername: User.UserId,
                 id: data.id
             };
@@ -960,4 +1037,21 @@ function offOAuthConnection() {
     $('input[type=text][name=tokenusername]').prop("disabled", false).val("");
     $('input[type=text][name=tokenpassword]').prop("disabled", false).val("");
     $('input[type=text][name=tokenclientId]').prop("disabled", false).val("");
+};
+function onBearerConnection() {
+    $('div[id="BearerTokenmenu"]').css("display", "");
+    if (!checkValue($('input[type=text][name=bearerToken]').val())) {
+        $('input[type=text][name=bearerToken]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_bearerToken]').text("Please Enter Token");
+    }
+    else {
+        $('input[type=text][name=bearerToken]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_bearerToken]').text("");
+    }
+}
+function offBearerConnection() {
+
+    $('div[id="BearerTokenmenu"]').css("display", "none");
+    $('input[type=text][name=bearerToken]').val("");
+    $('input[type=text][name=bearerToken]').prop("disabled", false).val("");
 };

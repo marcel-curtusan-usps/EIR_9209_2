@@ -618,5 +618,95 @@ namespace EIR_9209_2.DataStore
 
             }
         }
+
+        async Task IInMemoryTagsRepository.UpdateTagCiscoSpacesClientInfo(JToken result)
+        {
+            bool savetoFile = false;
+            try
+            {
+                GeoMarker? TagData = null;
+                string Tagid = result["features"][0]["properties"]["macAddress"].ToString();
+                _tagList.TryGetValue(result["features"][0]["properties"]["macAddress"].ToString(), out TagData);
+                if (TagData != null)
+                {
+                    await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", "");
+                }
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
+            finally
+            {
+                if (savetoFile)
+                {
+                    //save date to local file
+                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                }
+
+            }
+        }
+        async Task IInMemoryTagsRepository.UpdateTagCiscoSpacesBLEInfo(JToken result)
+        {
+            bool savetoFile = false;
+            try
+            {
+                GeoMarker? TagData = null;
+                string Tagid = result["features"][0]["properties"]["macAddress"].ToString();
+                _tagList.TryGetValue(result["features"][0]["properties"]["macAddress"].ToString(), out TagData);
+                if (TagData != null)
+                {
+                    await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", "");
+                }
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
+            finally
+            {
+                if (savetoFile)
+                {
+                    //save date to local file
+                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                }
+
+            }
+        }
+
+        async Task IInMemoryTagsRepository.UpdateTagCiscoSpacesAPInfo(JToken result)
+        {
+            bool savetoFile = false;
+            try
+            {
+                //loop through the result and update the tag position
+                foreach (var item in result)
+                {
+                    GeoMarker? TagData = null;
+                    string Tagid = item["macAddress"].ToString();
+                    _tagList.TryGetValue(item["macAddress"].ToString(), out TagData);
+                    if (TagData != null)
+                    {
+                        await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", "");
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
+            finally
+            {
+                if (savetoFile)
+                {
+                    //save date to local file
+                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                }
+
+            }
+        }
     }
 }

@@ -191,6 +191,23 @@
     ]
   },
   {
+    "Id": "18b7493d-d844-46cb-bbb0-f41c3b03026c",
+    "Name": "CiscoSpaces",
+    "Description": "Cisco Spaces DNA",
+    "MessageTypes": [
+      {
+        "Id": "ff2ddf15-b3fc-4efc-be76-61d85e72a0d5",
+        "Name": "CLIENT",
+        "Description": "List of clients connected "
+      },
+      {
+        "Id": "de18eb79-c811-4ae0-84f5-8391ae470325",
+        "Name": "BLE_TAG",
+        "Description": "List of BLE Tags Connected"
+      }
+    ]
+  },
+  {
     "Id": "b408e97c-90e2-4fc2-9c22-4143651667f4",
     "Name": "Web_Camera",
     "Description": "Web Camera",

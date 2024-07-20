@@ -20,5 +20,7 @@ public interface IInMemoryTagsRepository
     //void UpdateTagQPEInfo(List<Tags> tags);
     List<Marker> SearchTag(string searchValue);
     List<string> GetTagByType(string tagType);
-
+    Task UpdateTagCiscoSpacesClientInfo(JToken result);
+    Task UpdateTagCiscoSpacesBLEInfo(JToken result);
+    Task UpdateTagCiscoSpacesAPInfo(JToken result);
 }
