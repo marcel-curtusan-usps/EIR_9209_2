@@ -624,14 +624,23 @@ namespace EIR_9209_2.DataStore
             bool savetoFile = false;
             try
             {
-                GeoMarker? TagData = null;
-                string Tagid = result["features"][0]["properties"]["macAddress"].ToString();
-                _tagList.TryGetValue(result["features"][0]["properties"]["macAddress"].ToString(), out TagData);
-                if (TagData != null)
+                //loop through the result and update the tag position
+                if (result is not null && ((JObject)result).ContainsKey("features"))
                 {
-                    await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", "");
+                    foreach (var item in result.SelectToken("features"))
+                    {
+                        string tagId = item.SelectToken("properties.macAddress")?.ToString();
+                        if (!string.IsNullOrEmpty(tagId))
+                        {
+                            GeoMarker? TagData = null;
+                            _tagList.TryGetValue(tagId, out TagData);
+                            if (TagData != null)
+                            {
+                                await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", "");
+                            }
+                        }
+                    }
                 }
-
             }
             catch (Exception e)
             {
@@ -652,14 +661,23 @@ namespace EIR_9209_2.DataStore
             bool savetoFile = false;
             try
             {
-                GeoMarker? TagData = null;
-                string Tagid = result["features"][0]["properties"]["macAddress"].ToString();
-                _tagList.TryGetValue(result["features"][0]["properties"]["macAddress"].ToString(), out TagData);
-                if (TagData != null)
+                //loop through the result and update the tag position
+                if (result is not null && ((JObject)result).ContainsKey("features"))
                 {
-                    await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", "");
+                    foreach (var item in result.SelectToken("features"))
+                    {
+                        string tagId = item.SelectToken("properties.macAddress")?.ToString();
+                        if (!string.IsNullOrEmpty(tagId))
+                        {
+                            GeoMarker? TagData = null;
+                            _tagList.TryGetValue(tagId, out TagData);
+                            if (TagData != null)
+                            {
+                                await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", "");
+                            }
+                        }
+                    }
                 }
-
             }
             catch (Exception e)
             {
@@ -682,14 +700,17 @@ namespace EIR_9209_2.DataStore
             try
             {
                 //loop through the result and update the tag position
-                foreach (var item in result)
+
+                if (result is not null)
                 {
-                    GeoMarker? TagData = null;
-                    string Tagid = item["macAddress"].ToString();
-                    _tagList.TryGetValue(item["macAddress"].ToString(), out TagData);
-                    if (TagData != null)
+                    foreach (var item in result)
                     {
-                        await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", "");
+                        GeoMarker? TagData = null;
+                        _tagList.TryGetValue(item["macAddress"].ToString(), out TagData);
+                        if (TagData != null)
+                        {
+                            await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", "");
+                        }
                     }
                 }
 

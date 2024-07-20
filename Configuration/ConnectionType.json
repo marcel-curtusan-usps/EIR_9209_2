@@ -204,6 +204,11 @@
         "Id": "de18eb79-c811-4ae0-84f5-8391ae470325",
         "Name": "BLE_TAG",
         "Description": "List of BLE Tags Connected"
+      },
+      {
+        "Id": "8df1c188-9d35-4c1d-9a7c-6e642fe7d04f",
+        "Name": "FLOOR",
+        "Description": "Provide Map image and AP list"
       }
     ]
   },
