@@ -2,15 +2,20 @@
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NuGet.Protocol;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 {
     private readonly ConcurrentDictionary<string, GeoZone> _geoZoneList = new();
     private readonly ConcurrentDictionary<string, Dictionary<DateTime, MPESummary>> _mpeSummary = new();
     private readonly ConcurrentDictionary<DateTime, List<AreaDwell>> _QREAreaDwellResults = new();
+    private readonly ConcurrentDictionary<DateTime, List<TagTimeline>> _QRETagTimelineResults = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPERunActivity = new();
     private readonly IConfiguration _configuration;
     private readonly ILogger<InMemoryGeoZonesRepository> _logger;
@@ -180,7 +185,40 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     {
         _QREAreaDwellResults.TryAdd(hour, newValue);
     }
+    public bool ExistingTagTimeline(DateTime hour)
+    {
+        return _QRETagTimelineResults.ContainsKey(hour);
 
+    }
+    public List<TagTimeline> GetTagTimeline(DateTime hour)
+    {
+        return _QRETagTimelineResults[hour];
+    }
+    public void UpdateTagTimeline(DateTime hour, List<TagTimeline> newValue, List<TagTimeline> currentvalue)
+    {
+        _QRETagTimelineResults.TryUpdate(hour, newValue, currentvalue);
+    }
+
+    public void AddTagTimeline(DateTime hour, List<TagTimeline> newValue)
+    {
+        _QRETagTimelineResults.TryAdd(hour, newValue);
+    }
+    public List<TagTimeline> GetTagTimelineList(string EIN)
+    {
+        List<TagTimeline> tagTimeline = new List<TagTimeline>();
+        _QRETagTimelineResults.Where(r => r.Key >= DateTime.Now.AddDays(-7)).Select(l => l.Value).ToList().ForEach(value =>
+        {
+            foreach (TagTimeline timeline in value)
+            {
+                if (timeline.Ein == EIN)
+                {
+                    tagTimeline.Add(timeline);
+                }
+            }
+        });
+        tagTimeline.OrderBy(x => x.Start);
+        return tagTimeline;
+    }
     public void RunMPESummaryReport()
     {
         try

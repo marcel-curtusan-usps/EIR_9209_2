@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
 {
@@ -10,15 +11,18 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
     private readonly IConfiguration _configuration;
     private readonly ILogger<InMemoryEmpSchedulesRepository> _logger;
     private readonly IFileService _fileService;
+    private readonly IInMemoryGeoZonesRepository _zones;
     protected readonly IHubContext<HubServices> _hubServices;
+
     private readonly string filePath = "";
     private readonly string fileName = "";
-    public InMemoryEmpSchedulesRepository(ILogger<InMemoryEmpSchedulesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices)
+    public InMemoryEmpSchedulesRepository(ILogger<InMemoryEmpSchedulesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices, IInMemoryGeoZonesRepository zones)
     {
         _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
         _hubServices = hubServices;
+        _zones = zones;
         fileName = $"{_configuration[key: "InMemoryCollection:CollectionEmpSchedule"]}.json";
         filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"]!,
             _configuration[key: "ApplicationConfiguration:BaseDirectory"]!,
@@ -335,5 +339,81 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
         }
 
     }
+    public void UpdateEmpScheduleSels()
+    {
+        bool savetoFile = false;
+        try
+        {
+            //get dates for the week
+            List<Schedule> weekday = _empScheduleList.Where(r => r.Value.WeekSchedule[0].Day == "1").Select(y => y.Value.WeekSchedule).FirstOrDefault();
+            DateTime firstdate = DateTime.ParseExact(weekday[0].EndTourDtm.ToString(), "MMMM, dd yyyy HH:mm:ss",
+                          System.Globalization.CultureInfo.InvariantCulture);
 
+            List<DateTime> weekdate = new List<DateTime>(new DateTime[7]);
+            weekdate[0] = new DateTime(firstdate.Year, firstdate.Month, firstdate.Day, 0, 0, 0).AddHours(-1);
+            for (var i = 1; i < 7; i++)
+            {
+                weekdate[i] = weekdate[0].AddDays(i);
+            }
+
+            List<long> weekts = new List<long>(new long[7]);
+            for (var i = 0; i < 7; i++)
+            { 
+                weekts[i] = (long)weekdate[i].Subtract(DateTime.UnixEpoch).TotalSeconds;
+            }
+            EmpSchedule? EmpSch = null;
+            List<string> einList = _empScheduleList.Select(item => item.Value.EIN).Distinct().ToList();
+            if (einList.Any())
+            {
+                foreach (var ein in einList)
+                {
+                    _empScheduleList.TryGetValue(ein, out EmpSch);
+                    if (EmpSch != null)
+                    {
+                        List<TagTimeline>? curemp = _zones.GetTagTimelineList(ein);
+                        if (curemp.Count > 0)
+                        {
+                            List<TimeSpan> selstotal = new List<TimeSpan>(new TimeSpan[7]);
+                            foreach (var ts in curemp)
+                            {
+                                for (var i = 0; i < 7; i++)
+                                {
+                                    //if ((i==6 && ts.End >= ((DateTimeOffset)weekdate[i]).ToUnixTimeSeconds()) || (ts.End >= ((DateTimeOffset)weekdate[i]).ToUnixTimeSeconds() && ts.End < ((DateTimeOffset)weekdate[i+1]).ToUnixTimeSeconds()))
+                                    if ((i == 6 && ts.End >= weekts[i]) || (ts.End >= weekts[i] && ts.End < weekts[i + 1]))
+                                    {
+                                        selstotal[i] += ts.Duration;
+                                    }
+                                }
+                            }
+                            List<Selshour> selsList = new List<Selshour>();
+                            for (var i = 0; i < 7; i++)
+                            {
+                                if (selstotal[i].TotalMinutes > 0)
+                                {
+                                    savetoFile = true;
+                                    selsList.Add(new Selshour
+                                    {
+                                        Day = (i+1).ToString(),
+                                        Duration = selstotal[i]
+                                    });
+                                }
+                            }
+                            EmpSch.SelsSchedule = selsList;
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Error Updating Employee data {e.Message}");
+        }
+        finally
+        {
+            if (savetoFile)
+            {
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_empScheduleList.Values, Formatting.Indented));
+            }
+        }
+    }
 }

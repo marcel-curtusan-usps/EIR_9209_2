@@ -13,6 +13,7 @@
         public string BaseOp { get; set; } = "";
         public string TourNumber { get; set; } = "";
         public List<Schedule> WeekSchedule { get; set; } = new List<Schedule>();
+        public List<Selshour> SelsSchedule { get; set; } = new List<Selshour>();
     }
 
     public class Schedule
@@ -47,5 +48,11 @@
         public string HrMove { get; set; } = "";
         public string HrOt { get; set; } = "";
         public string DayErrCnt { get; set; } = "";
+    }
+    public class Selshour
+    {
+        public string Day { get; set; } = "";
+        public TimeSpan Duration { get; set; }
+
     }
 }

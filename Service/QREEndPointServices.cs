@@ -5,11 +5,13 @@ namespace EIR_9209_2.Service
     public class QREEndPointServices : BaseEndpointService
     {
         private readonly IInMemoryGeoZonesRepository _zones;
+        private readonly IInMemoryEmpSchedulesRepository _empSchedules;
 
-        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository zones)
+        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository zones, IInMemoryEmpSchedulesRepository empSchedules)
             : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
         {
             _zones = zones;
+            _empSchedules = empSchedules;
         }
 
         protected override async Task FetchDataFromEndpoint(CancellationToken stoppingToken)
@@ -97,6 +99,73 @@ namespace EIR_9209_2.Service
                         //await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
                         //// Process tag data in a separate thread
                         //_ = Task.Run(async () => await ProcessTagMovementData(result), stoppingToken);
+                    }
+                    if (_endpointConfig.MessageType == "TAG_TIMELINE")
+                    {
+                        FormatUrl = string.Format(_endpointConfig.Url);
+                        queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+
+                        var now = DateTime.Now;
+                        var endingHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
+                        var hourBack = _endpointConfig.HoursBack;
+
+                        //first day of the week
+                        DayOfWeek weekStart = DayOfWeek.Saturday;
+                        DateTime startingDate = DateTime.Today;
+                        while (startingDate.DayOfWeek != weekStart)
+                            startingDate = startingDate.AddDays(-1);
+                        var weekFirstHour = startingDate.AddHours(-4);
+
+                        var currentHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
+                        var pastHour = currentHour.AddHours(-1);
+                        var hourCnt = 0;
+
+                        var allAreaIds = await queryService.GetAreasAsync(stoppingToken);
+
+                        int areasBatchCount = 10;
+                        Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREMinTimeOnArea"], out int MinTimeOnArea); //get the value from appsettings.json
+                        Int32.TryParse(_configuration[key: "ApplicationConfiguration:QRETimeStep"], out int TimeStep); //get the value from appsettings.json
+                        Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREActivationTime"], out int ActivationTime); //get the value from appsettings.json
+                        Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREDeactivationTime"], out int DeactivationTime); //get the value from appsettings.json
+                        Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREDisappearTime"], out int DisappearTime); //get the value from appsettings.json
+
+                        for (var hour = endingHour; weekFirstHour <= hour; hour = hour.AddHours(-1))
+                        {
+                            if (_zones.ExistingTagTimeline(hour))
+                            {
+                                if (currentHour == hour || pastHour == hour)
+                                {
+                                    var currentvalue = _zones.GetTagTimeline(hour);
+                        
+                                    var newValue = await queryService.GetTotalTagTimeline(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
+                                        TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
+                                        TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
+                                        allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
+                        
+                                    //add to the list
+                                    _zones.UpdateTagTimeline(hour, newValue, currentvalue);
+                                    //run report for the current hour
+                                    //await Task.Run(() => _zones.RunMPESummaryReport(), stoppingToken).ConfigureAwait(false);
+                                }
+                            }
+                            else
+                            {
+                                hourCnt++;
+                                if (hourCnt <= hourBack)
+                                {
+                                    var newValue = await queryService.GetTotalTagTimeline(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
+                                    TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
+                                    TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
+                                    allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
+                                    //add to the list
+                                    _zones.AddTagTimeline(hour, newValue);
+                                    //run report for the current hour
+                                    //await Task.Run(() => _empSchedules.UpdateEmpScheduleSels(), stoppingToken).ConfigureAwait(false);
+                                }
+                            }
+                        }
+                        //add sels hours to EmpSchedule
+                        await Task.Run(() => _empSchedules.UpdateEmpScheduleSels(), stoppingToken).ConfigureAwait(false);
                     }
                 }
             }
