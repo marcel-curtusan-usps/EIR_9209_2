@@ -2,8 +2,14 @@
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using PuppeteerSharp.Input;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Data;
+using Microsoft.Extensions.Hosting;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
 {
@@ -74,9 +80,164 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
     public IEnumerable<EmpSchedule> GetAll() => _empScheduleList.Values;
     public object getEmpSchedule()
     {
-        return _empScheduleList.Select(r => r.Value).ToList();
+        ConcurrentDictionary<string, IList<string>> reportResults = new ConcurrentDictionary<string, IList<string>>();
+
+        //get dates for the week
+        List<Schedule> weekday = _empScheduleList.Where(r => r.Value.WeekSchedule[0].Day == "1").Select(y => y.Value.WeekSchedule).FirstOrDefault();
+        DateTime firstdate = DateTime.ParseExact(weekday[0].EndTourDtm.ToString(), "MMMM, dd yyyy HH:mm:ss",
+                      System.Globalization.CultureInfo.InvariantCulture);
+        List<string> weeklist = new List<string>(new string[7]);
+        for (var i = 0; i < 7; i++)
+        {
+            weeklist[i] = firstdate.AddDays(i).ToString("MMMM dd");
+        }
+
+        //add weekly dates for header
+        reportResults.TryAdd("weekdate", new List<string> {
+            weeklist[0],
+            weeklist[1],
+            weeklist[2],
+            weeklist[3],
+            weeklist[4],
+            weeklist[5],
+            weeklist[6],
+        });
+
+        foreach (KeyValuePair<string, EmpSchedule> data in _empScheduleList)
+        {
+            var hourstotalpercent = "0";
+
+            var day1 = GetDaySchedule(data.Value.WeekSchedule, "1")!.ToString();
+            var day2 = GetDaySchedule(data.Value.WeekSchedule, "2")!.ToString();
+            var day3 = GetDaySchedule(data.Value.WeekSchedule, "3")!.ToString();
+            var day4 = GetDaySchedule(data.Value.WeekSchedule, "4")!.ToString();
+            var day5 = GetDaySchedule(data.Value.WeekSchedule, "5")!.ToString();
+            var day6 = GetDaySchedule(data.Value.WeekSchedule, "6")!.ToString();
+            var day7 = GetDaySchedule(data.Value.WeekSchedule, "7")!.ToString();
+            var hourst = GetTotalHours(data.Value.WeekSchedule)?.ToString("0.##");
+
+            var selsday1 = GetSelsSchedule(data.Value.SelsSchedule, "1")?.ToString("0.##");
+            var selsday2 = GetSelsSchedule(data.Value.SelsSchedule, "2")?.ToString("0.##");
+            var selsday3 = GetSelsSchedule(data.Value.SelsSchedule, "3")?.ToString("0.##");
+            var selsday4 = GetSelsSchedule(data.Value.SelsSchedule, "4")?.ToString("0.##");
+            var selsday5 = GetSelsSchedule(data.Value.SelsSchedule, "5")?.ToString("0.##");
+            var selsday6 = GetSelsSchedule(data.Value.SelsSchedule, "6")?.ToString("0.##");
+            var selsday7 = GetSelsSchedule(data.Value.SelsSchedule, "7")?.ToString("0.##");
+            var selshourst = GetTotalSelsHours(data.Value.SelsSchedule)?.ToString("0.##");
+
+            reportResults.TryAdd(data.Key, new List<string> {
+                data.Value.LastName + ", " + data.Value.FirstName + "<br>" + data.Value.EIN,
+                data.Value.TourNumber,
+                day1,
+                day2,
+                day3,
+                day4,
+                day5,
+                day6,
+                day7,
+                hourst,
+                selsday1,
+                selsday2,
+                selsday3,
+                selsday4,
+                selsday5,
+                selsday6,
+                selsday7,
+                selshourst,
+                hourstotalpercent
+            });
+        }
+        return reportResults;
     }
 
+    private string? GetDaySchedule(List<Schedule> wkschedule, string Day)
+    {
+        try
+        {
+            var curday = "OFF";
+            foreach (var wksch in wkschedule)
+            {
+                if (wksch.Day == Day)
+                {
+                    if (wksch.GroupName == "Holiday Off")
+                    {
+                        curday = "HOLOFF";
+                    }
+                    else if (wksch.HrLeave == wksch.HrSched)
+                    {
+                        curday = "LV";
+                    }
+                    else
+                    {
+                        curday = wksch.Btour + "-" + wksch.Etour;
+                    }
+                }
+            }
+            return curday;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+    }
+    private double? GetTotalHours(List<Schedule> wkschedule)
+    {
+        try
+        {
+            double totalhour = 0.00;
+            foreach (var wksch in wkschedule)
+            {
+                    if (wksch.GroupName != "Holiday Off" && wksch.HrLeave != wksch.HrSched)
+                    {
+                        totalhour += Convert.ToDouble(wksch.HrMove);
+                    }
+            }
+            return totalhour;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+    }
+    private double? GetSelsSchedule(List<Selshour> wkschedule, string Day)
+    {
+        try
+        {
+            var curday = 0.00;
+            foreach (var wksch in wkschedule)
+            {
+                if (wksch.Day == Day)
+                {
+                    curday = wksch.Duration.TotalHours;
+                }
+            }
+            return curday;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+    }
+    private double? GetTotalSelsHours(List<Selshour> wkschedule)
+    {
+        try
+        {
+            double totalhour = 0.00;
+            foreach (var wksch in wkschedule)
+            {
+                totalhour += wksch.Duration.TotalHours;
+            }
+            return totalhour;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+    }
     public Task LoadEmpInfo(JToken data)
     {
         bool savetoFile = false;
@@ -349,17 +510,12 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
             DateTime firstdate = DateTime.ParseExact(weekday[0].EndTourDtm.ToString(), "MMMM, dd yyyy HH:mm:ss",
                           System.Globalization.CultureInfo.InvariantCulture);
 
-            List<DateTime> weekdate = new List<DateTime>(new DateTime[7]);
-            weekdate[0] = new DateTime(firstdate.Year, firstdate.Month, firstdate.Day, 0, 0, 0).AddHours(-1);
-            for (var i = 1; i < 7; i++)
-            {
-                weekdate[i] = weekdate[0].AddDays(i);
-            }
+            DateTime weekdate = new DateTime(firstdate.Year, firstdate.Month, firstdate.Day, 0, 0, 0).AddHours(3);
 
             List<long> weekts = new List<long>(new long[7]);
             for (var i = 0; i < 7; i++)
-            { 
-                weekts[i] = (long)weekdate[i].Subtract(DateTime.UnixEpoch).TotalSeconds;
+            {
+                weekts[i] = (long)weekdate.AddDays(i).Subtract(DateTime.UnixEpoch).TotalSeconds * 1000;
             }
             EmpSchedule? EmpSch = null;
             List<string> einList = _empScheduleList.Select(item => item.Value.EIN).Distinct().ToList();
@@ -378,7 +534,6 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                             {
                                 for (var i = 0; i < 7; i++)
                                 {
-                                    //if ((i==6 && ts.End >= ((DateTimeOffset)weekdate[i]).ToUnixTimeSeconds()) || (ts.End >= ((DateTimeOffset)weekdate[i]).ToUnixTimeSeconds() && ts.End < ((DateTimeOffset)weekdate[i+1]).ToUnixTimeSeconds()))
                                     if ((i == 6 && ts.End >= weekts[i]) || (ts.End >= weekts[i] && ts.End < weekts[i + 1]))
                                     {
                                         selstotal[i] += ts.Duration;
@@ -388,7 +543,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                             List<Selshour> selsList = new List<Selshour>();
                             for (var i = 0; i < 7; i++)
                             {
-                                if (selstotal[i].TotalMinutes > 0)
+                                if (selstotal[i].TotalSeconds > 0)
                                 {
                                     savetoFile = true;
                                     selsList.Add(new Selshour

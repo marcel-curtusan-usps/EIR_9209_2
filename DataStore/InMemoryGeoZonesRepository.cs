@@ -203,6 +203,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     {
         _QRETagTimelineResults.TryAdd(hour, newValue);
     }
+    public void RemoveTagTimeline(DateTime hour)
+    {
+        _QRETagTimelineResults.Where(r => r.Key < hour).Select(l => l.Key).ToList().ForEach(key =>
+        {
+            _QRETagTimelineResults.TryRemove(key, out var remove);
+        });
+    }
     public List<TagTimeline> GetTagTimelineList(string EIN)
     {
         List<TagTimeline> tagTimeline = new List<TagTimeline>();

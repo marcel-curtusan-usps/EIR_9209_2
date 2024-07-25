@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json.Linq;
 
 namespace EIR_9209_2.Service
 {
@@ -114,7 +115,7 @@ namespace EIR_9209_2.Service
                         DateTime startingDate = DateTime.Today;
                         while (startingDate.DayOfWeek != weekStart)
                             startingDate = startingDate.AddDays(-1);
-                        var weekFirstHour = startingDate.AddHours(-4);
+                        var weekFirstHour = startingDate.AddHours(3);
 
                         var currentHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
                         var pastHour = currentHour.AddHours(-1);
@@ -144,8 +145,6 @@ namespace EIR_9209_2.Service
                         
                                     //add to the list
                                     _zones.UpdateTagTimeline(hour, newValue, currentvalue);
-                                    //run report for the current hour
-                                    //await Task.Run(() => _zones.RunMPESummaryReport(), stoppingToken).ConfigureAwait(false);
                                 }
                             }
                             else
@@ -159,11 +158,11 @@ namespace EIR_9209_2.Service
                                     allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
                                     //add to the list
                                     _zones.AddTagTimeline(hour, newValue);
-                                    //run report for the current hour
-                                    //await Task.Run(() => _empSchedules.UpdateEmpScheduleSels(), stoppingToken).ConfigureAwait(false);
                                 }
                             }
                         }
+                        //remove too old tagtimeline data
+                        _zones.RemoveTagTimeline(weekFirstHour);
                         //add sels hours to EmpSchedule
                         await Task.Run(() => _empSchedules.UpdateEmpScheduleSels(), stoppingToken).ConfigureAwait(false);
                     }

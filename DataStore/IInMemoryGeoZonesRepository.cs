@@ -19,6 +19,7 @@ public interface IInMemoryGeoZonesRepository
     List<TagTimeline> GetTagTimeline(DateTime hour);
     void UpdateTagTimeline(DateTime hour, List<TagTimeline> newValue, List<TagTimeline> currentvalue);
     void AddTagTimeline(DateTime hour, List<TagTimeline> newValue);
+    void RemoveTagTimeline(DateTime hour);
     object getMPESummary(string mpe);
     List<MPEActiveRun> getMPERunActivity(string mpe);
     void RunMPESummaryReport();
