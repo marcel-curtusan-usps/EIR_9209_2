@@ -51,6 +51,7 @@
     }
     public class Selshour
     {
+        public string PayWeek { get; set; } = "";
         public string Day { get; set; } = "";
         public TimeSpan Duration { get; set; }
 

@@ -503,6 +503,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
     public void UpdateEmpScheduleSels()
     {
         bool savetoFile = false;
+        bool schupdated = false;
         try
         {
             //get dates for the week
@@ -510,7 +511,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
             DateTime firstdate = DateTime.ParseExact(weekday[0].EndTourDtm.ToString(), "MMMM, dd yyyy HH:mm:ss",
                           System.Globalization.CultureInfo.InvariantCulture);
 
-            DateTime weekdate = new DateTime(firstdate.Year, firstdate.Month, firstdate.Day, 0, 0, 0).AddHours(3);
+            DateTime weekdate = new DateTime(firstdate.Year, firstdate.Month, firstdate.Day, 0, 0, 0).AddHours(7);
 
             List<long> weekts = new List<long>(new long[7]);
             for (var i = 0; i < 7; i++)
@@ -540,20 +541,64 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                                     }
                                 }
                             }
-                            List<Selshour> selsList = new List<Selshour>();
-                            for (var i = 0; i < 7; i++)
+
+                            List<Selshour> selsList = EmpSch.SelsSchedule.ToList();
+                            foreach (var sch in selsList)
                             {
-                                if (selstotal[i].TotalSeconds > 0)
+                                if (sch.PayWeek != EmpSch.PayWeek)
                                 {
-                                    savetoFile = true;
-                                    selsList.Add(new Selshour
-                                    {
-                                        Day = (i+1).ToString(),
-                                        Duration = selstotal[i]
-                                    });
+                                    EmpSch.SelsSchedule.Remove(sch);
                                 }
                             }
-                            EmpSch.SelsSchedule = selsList;
+                            if (selsList.Count > 0)
+                            {
+                                for (var i = 0; i < 7; i++)
+                                {
+                                    if (selstotal[i].TotalSeconds > 0)
+                                    {
+                                        schupdated = false;
+                                        var dayi = (i + 1).ToString();
+                                        foreach (var sch in selsList)
+                                        {
+                                            if (dayi == sch.Day)
+                                            {
+                                                schupdated = true;
+                                                if (selstotal[i] > sch.Duration)
+                                                {
+                                                    sch.Duration = selstotal[i];
+                                                }
+                                            }
+                                        }
+                                        if (!schupdated)
+                                        {
+                                            EmpSch.SelsSchedule.Add(new Selshour
+                                            {
+                                                PayWeek = EmpSch.PayWeek,
+                                                Day = dayi,
+                                                Duration = selstotal[i]
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                List<Selshour> selshrList = new List<Selshour>();
+                                for (var i = 0; i < 7; i++)
+                                {
+                                    if (selstotal[i].TotalSeconds > 0)
+                                    {
+                                        selshrList.Add(new Selshour
+                                        {
+                                            PayWeek = EmpSch.PayWeek,
+                                            Day = (i + 1).ToString(),
+                                            Duration = selstotal[i]
+                                        });
+                                    }
+                                }
+                                EmpSch.SelsSchedule = selshrList;
+                            }
+                            savetoFile = true;
                         }
                     }
                 }
