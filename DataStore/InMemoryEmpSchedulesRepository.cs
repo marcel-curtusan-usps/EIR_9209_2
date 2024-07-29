@@ -262,6 +262,23 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                     EmpSch.Title = item[7]!.ToString();
                     EmpSch.BaseOp = item[8]!.ToString();
                     EmpSch.TourNumber = item[9]!.ToString();
+                    List<Schedule> schList = EmpSch.WeekSchedule.ToList();
+                    foreach (var sch in schList)
+                    {
+                        if (sch.PayWeek != payWeek)
+                        {
+                            EmpSch.WeekSchedule.Remove(sch);
+                        }
+                    }
+                    List<Selshour> selsList = EmpSch.SelsSchedule.ToList();
+                    foreach (var sch in selsList)
+                    {
+                        if (sch.PayWeek != payWeek)
+                        {
+                            EmpSch.SelsSchedule.Remove(sch);
+                        }
+                    }
+
                     savetoFile = true;
                 }
                 else
@@ -314,9 +331,19 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                 string empId = item[0]!.ToString();
                 string payWeek = item[1]!.ToString();
                 EmpSchedule? EmpSch = null;
+
                 _empScheduleList.TryGetValue(empId, out EmpSch);
                 if (EmpSch != null)
                 {
+                    List<Selshour> selsList = EmpSch.SelsSchedule.ToList();
+                    foreach (var sch in selsList)
+                    {
+                        if (sch.PayWeek != payWeek)
+                        {
+                            EmpSch.SelsSchedule.Remove(sch);
+                        }
+                    }
+
                     EmpSch.PayWeek = payWeek;
                     List<Schedule> schList = EmpSch.WeekSchedule.ToList();
                     if (schList.Any())
@@ -511,7 +538,13 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
             DateTime firstdate = DateTime.ParseExact(weekday[0].EndTourDtm.ToString(), "MMMM, dd yyyy HH:mm:ss",
                           System.Globalization.CultureInfo.InvariantCulture);
 
+            //DateTime weekdatetmp = new DateTime(firstdate.Year, firstdate.Month, firstdate.Day, 0, 0, 0);
+            //TimeZoneInfo est = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+            //DateTime someDateTimeInUtc = TimeZoneInfo.ConvertTimeToUtc(weekdatetmp, est);
+
             DateTime weekdate = new DateTime(firstdate.Year, firstdate.Month, firstdate.Day, 0, 0, 0).AddHours(7);
+            //long weekdatets = (long)weekdate.Subtract(DateTime.UnixEpoch).TotalSeconds * 1000;
+            //long weekdateutcts = (long)someDateTimeInUtc.Subtract(DateTime.UnixEpoch).TotalSeconds * 1000;
 
             List<long> weekts = new List<long>(new long[7]);
             for (var i = 0; i < 7; i++)
