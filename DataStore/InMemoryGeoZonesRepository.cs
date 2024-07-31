@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NuGet.Protocol;
+using PuppeteerSharp.Input;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
@@ -196,7 +197,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     }
     public void UpdateTagTimeline(DateTime hour, List<TagTimeline> newValue, List<TagTimeline> currentvalue)
     {
-        _QRETagTimelineResults.TryUpdate(hour, newValue, currentvalue);
+        //_QRETagTimelineResults.TryUpdate(hour, newValue, currentvalue);
+        //while (true)
+        while(_QRETagTimelineResults.TryGetValue(hour, out var curValue))
+        {
+            if (_QRETagTimelineResults.TryUpdate(hour, newValue, curValue)) break;
+        }
     }
 
     public void AddTagTimeline(DateTime hour, List<TagTimeline> newValue)
@@ -213,18 +219,23 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     public List<TagTimeline> GetTagTimelineList(string EIN)
     {
         List<TagTimeline> tagTimeline = new List<TagTimeline>();
-        _QRETagTimelineResults.Where(r => r.Key >= DateTime.Now.AddDays(-7)).Select(l => l.Value).ToList().ForEach(value =>
+        //_QRETagTimelineResults.Where(r => r.Key >= DateTime.Now.AddDays(-7)).Select(l => l.Value).ToList().ForEach(value =>
+        _QRETagTimelineResults.Select(l => l.Value).ToList().ForEach(value =>
         {
             foreach (TagTimeline timeline in value)
             {
+                //if (timeline.Ein == "04752344" && timeline.Start == 1722204000000)
+                //{
+                //    var Timelinetmp = timeline;
+                //}
                 if (timeline.Ein == EIN)
                 {
                     tagTimeline.Add(timeline);
                 }
             }
         });
-        tagTimeline.OrderBy(x => x.Start);
-        return tagTimeline;
+        var ReturnList = tagTimeline.OrderBy(x => x.Start).ThenBy(x => x.End).ToList();
+        return ReturnList;
     }
     public void RunMPESummaryReport()
     {

@@ -145,6 +145,8 @@ namespace EIR_9209_2.Service
                         
                                     //add to the list
                                     _zones.UpdateTagTimeline(hour, newValue, currentvalue);
+                                    //add sels hours to EmpSchedule
+                                    //await Task.Run(() => _empSchedules.UpdateEmpScheduleSels(), stoppingToken).ConfigureAwait(false);
                                 }
                             }
                             else
@@ -158,6 +160,8 @@ namespace EIR_9209_2.Service
                                     allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
                                     //add to the list
                                     _zones.AddTagTimeline(hour, newValue);
+                                    //add sels hours to EmpSchedule
+                                    //await Task.Run(() => _empSchedules.UpdateEmpScheduleSels(), stoppingToken).ConfigureAwait(false);
                                 }
                             }
                         }

@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Data;
 using Microsoft.Extensions.Hosting;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 
 public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
@@ -100,7 +101,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
             weeklist[3],
             weeklist[4],
             weeklist[5],
-            weeklist[6],
+            weeklist[6]
         });
 
         foreach (KeyValuePair<string, EmpSchedule> data in _empScheduleList)
@@ -564,17 +565,103 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                         if (curemp.Count > 0)
                         {
                             List<TimeSpan> selstotal = new List<TimeSpan>(new TimeSpan[7]);
+                            long starttmp = 0;
+                            long endtmp = 0;
+                            long tsstart = 0;
+                            TimeSpan durtmp = TimeSpan.Zero;
+                            TimeSpan minustmp = TimeSpan.Zero;
                             foreach (var ts in curemp)
                             {
-                                for (var i = 0; i < 7; i++)
+                                starttmp = ts.Start;
+                                if (tsstart == 0)
                                 {
-                                    if ((i == 6 && ts.End >= weekts[i]) || (ts.End >= weekts[i] && ts.End < weekts[i + 1]))
-                                    {
-                                        selstotal[i] += ts.Duration;
-                                    }
+                                    tsstart = ts.Start;
                                 }
+                                if (endtmp != 0 && starttmp < endtmp)
+                                {
+                                    minustmp += TimeSpan.FromSeconds((endtmp-starttmp)/1000);
+                                }
+                                if (endtmp != 0 && (starttmp - endtmp) > 8*60*60*1000)
+                                {
+                                    for (var i = 0; i < 7; i++)
+                                    {
+                                        if (i != 6 && (tsstart >= weekts[i] && ts.End <= weekts[i + 1]))
+                                        {
+                                            selstotal[i] += durtmp - minustmp;
+                                            break;
+                                        }
+                                        else if ((weekts[i] - tsstart) > 0 && (ts.End - weekts[i]) > 0)
+                                        {
+                                            if (i == 0 || ((weekts[i] - tsstart) < (ts.End - weekts[i])))
+                                            {
+                                                selstotal[i] += durtmp - minustmp;
+                                            }
+                                            else
+                                            {
+                                                selstotal[i - 1] += durtmp - minustmp;
+                                            }
+                                            break;
+                                        }
+                                        else if (i==6 || (tsstart < weekts[i] && ts.End >= weekts[i+1]))
+                                        {
+                                            selstotal[i] += durtmp - minustmp;
+                                            break;
+                                        }
+                                        //if ((i == 6 && ts.End >= weekts[i]) || (ts.End >= weekts[i] && ts.End < weekts[i + 1]))
+                                        //{
+                                        //   selstotal[i] += durtmp - minustmp;
+                                        //   selstotal[i] += durtmp;
+                                        //}
+                                    }
+                                    tsstart = ts.Start;
+                                    durtmp = TimeSpan.Zero;
+                                    minustmp = TimeSpan.Zero;
+                                }
+                                durtmp += ts.Duration;
+                                endtmp = ts.End;
+                            }
+                            //last one
+                            for (var i = 0; i < 7; i++)
+                            {
+                                if (i != 6 && (tsstart >= weekts[i] && endtmp <= weekts[i + 1]))
+                                {
+                                    selstotal[i] += durtmp - minustmp;
+                                    break;
+                                }
+                                else if ((weekts[i] - tsstart) > 0 && (endtmp - weekts[i]) > 0)
+                                {
+                                    if (i == 0 || ((weekts[i] - tsstart) < (endtmp - weekts[i])))
+                                    {
+                                        selstotal[i] += durtmp - minustmp;
+                                    }
+                                    else
+                                    {
+                                        selstotal[i - 1] += durtmp - minustmp;
+                                    }
+                                    break;
+                                }
+                                else if (i == 6 || (tsstart < weekts[i] && endtmp >= weekts[i + 1]))
+                                {
+                                    selstotal[i] += durtmp - minustmp;
+                                    break;
+                                }
+                                //if ((i == 6 && endtmp >= weekts[i]) || (endtmp >= weekts[i] && endtmp < weekts[i + 1]))
+                                //{
+                                //    selstotal[i] += durtmp - minustmp;
+                                //selstotal[i] += durtmp;
+                                //}
                             }
 
+                            //foreach (var ts in curemp)
+                            //{
+                            //for (var i = 0; i < 7; i++)
+                            //{
+                            //    if ((i == 6 && ts.End >= weekts[i]) || (ts.End >= weekts[i] && ts.End < weekts[i + 1]))
+                            //    {
+                            //        selstotal[i] += ts.Duration;
+                            //    }
+                            //}
+                            //}
                             List<Selshour> selsList = EmpSch.SelsSchedule.ToList();
                             foreach (var sch in selsList)
                             {
