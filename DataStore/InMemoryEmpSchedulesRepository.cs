@@ -592,11 +592,11 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                                         }
                                         else if ((weekts[i] - tsstart) > 0 && (ts.End - weekts[i]) > 0)
                                         {
-                                            if (i == 0 || ((weekts[i] - tsstart) < (ts.End - weekts[i])))
+                                            if ((weekts[i] - tsstart) < (ts.End - weekts[i]))
                                             {
                                                 selstotal[i] += durtmp - minustmp;
                                             }
-                                            else
+                                            else if (i != 0)
                                             {
                                                 selstotal[i - 1] += durtmp - minustmp;
                                             }
@@ -630,11 +630,11 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                                 }
                                 else if ((weekts[i] - tsstart) > 0 && (endtmp - weekts[i]) > 0)
                                 {
-                                    if (i == 0 || ((weekts[i] - tsstart) < (endtmp - weekts[i])))
+                                    if ((weekts[i] - tsstart) < (endtmp - weekts[i]))
                                     {
                                         selstotal[i] += durtmp - minustmp;
                                     }
-                                    else
+                                    else if (i != 0)
                                     {
                                         selstotal[i - 1] += durtmp - minustmp;
                                     }
@@ -684,6 +684,10 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                                             {
                                                 schupdated = true;
                                                 if (selstotal[i] > sch.Duration)
+                                                {
+                                                    sch.Duration = selstotal[i];
+                                                }
+                                                else if (selstotal[i] < sch.Duration && i!=0 && selstotal[i-0].TotalSeconds > 0)
                                                 {
                                                     sch.Duration = selstotal[i];
                                                 }

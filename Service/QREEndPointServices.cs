@@ -115,7 +115,8 @@ namespace EIR_9209_2.Service
                         DateTime startingDate = DateTime.Today;
                         while (startingDate.DayOfWeek != weekStart)
                             startingDate = startingDate.AddDays(-1);
-                        var weekFirstHour = startingDate.AddHours(3);
+                        //var weekFirstHour = startingDate.AddHours(3);
+                        var weekFirstHour = startingDate.AddHours(-3);
 
                         var currentHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
                         var pastHour = currentHour.AddHours(-1);
