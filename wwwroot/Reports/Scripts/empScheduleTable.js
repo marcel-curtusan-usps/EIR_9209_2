@@ -12,7 +12,7 @@ async function updateEmployeeSchedule(data) {
                 newObj[key] = data[key];
                 return newObj;
             }, {}
-        );
+            );
 
         Promise.all([
             createEmpScheduleDataTable('empScheduleData'),
@@ -60,108 +60,108 @@ function processScheduledata(data) {
 }
 
 async function createEmpScheduleDataTable(table) {
-  try {
-    if ($.fn.dataTable.isDataTable('#'+table)) {
-       table.destroy(); // destroy the dataTableObject
-       // For new version use table.destroy();
-       $('#' + table).DataTable().clear().draw(); // Empty the DOM element which contained DataTable
-       // The line above is needed if number of columns change in the Data
-    }
-    return new Promise((resolve, reject) => {
-    
-      let columns = [
-        {
-            "title": 'EIN',
-            "width": "15%",
-            "data": 'employee'
-          },
-          {
-              "title": 'Name',
-              "width": "15%",
-              "data": 'name'
-          },
-        {
-            "title": 'Tour',
-            "width": "5%",
-            "data": 'tour'
-        },
-        {
-            "title": 'Saturday<br>' + weekDates[0],
-            "width": "10%",
-            "data": 'day1'
-        },
-        {
-            "title": 'Sunday<br>' + weekDates[1],
-            "width": "10%",
-            "data": 'day2'
-        },
-        {
-            "title": 'Monday<br>' + weekDates[2],
-            "width": "10%",
-            "data": 'day3'
-        },
-        {
-            "title": 'Tuesday<br>' + weekDates[3],
-            "width": "10%",
-            "data": 'day4'
-        },
-        {
-            "title": 'Wednesday<br>' + weekDates[4],
-            "width": "10%",
-            "data": 'day5'
-        },
-        {
-            "title": 'Thursday<br>' + weekDates[5],
-            "width": "10%",
-            "data": 'day6'
-        },
-        {
-            "title": 'Friday<br>' + weekDates[6],
-            "width": "10%",
-            "data": 'day7'
-        },
-        {
-            "title": 'Hours Total',
-            "width": "10%",
-            "data": 'hourstotal'
-        },
-        {
-            "title": 'TACS vs SELS %',
-            "width": "10%",
-            "data": 'hourstotalpercent'
+    try {
+        if ($.fn.dataTable.isDataTable('#' + table)) {
+            table.destroy(); // destroy the dataTableObject
+            // For new version use table.destroy();
+            $('#' + table).DataTable().clear().draw(); // Empty the DOM element which contained DataTable
+            // The line above is needed if number of columns change in the Data
         }
-      ]
+        return new Promise((resolve, reject) => {
 
-        let EmpScheduleDataTable = $('#' + table).DataTable({
-            searching: true,
-        //dom: "flrtipB",
-        bFilter: true,
-        bdeferRender: true,
-        bpaging: true,
-        bPaginate: false,
-        autoWidth: false,
-        bInfo: false,
-        destroy: true,
-        scrollY: 600,
-        scrollx: true,
-        scroller: true,        
-        language: {
-            zeroRecords: "No Data"
-        },
-        aoColumns: columns,
-        columnDefs: [
-            { targets: [1, 9, 10], className: 'dt-center' }
-        ],
-          sorting: [[1, "asc"], [10, "asc"]],
-      })
-      $('#' + table + ' thead').attr("class", "thead-dark");
+            let columns = [
+                {
+                    "title": 'EIN',
+                    "width": "15%",
+                    "data": 'employee'
+                },
+                {
+                    "title": 'Name',
+                    "width": "15%",
+                    "data": 'name'
+                },
+                {
+                    "title": 'Tour',
+                    "width": "5%",
+                    "data": 'tour'
+                },
+                {
+                    "title": 'Saturday<br>' + weekDates[0],
+                    "width": "10%",
+                    "data": 'day1'
+                },
+                {
+                    "title": 'Sunday<br>' + weekDates[1],
+                    "width": "10%",
+                    "data": 'day2'
+                },
+                {
+                    "title": 'Monday<br>' + weekDates[2],
+                    "width": "10%",
+                    "data": 'day3'
+                },
+                {
+                    "title": 'Tuesday<br>' + weekDates[3],
+                    "width": "10%",
+                    "data": 'day4'
+                },
+                {
+                    "title": 'Wednesday<br>' + weekDates[4],
+                    "width": "10%",
+                    "data": 'day5'
+                },
+                {
+                    "title": 'Thursday<br>' + weekDates[5],
+                    "width": "10%",
+                    "data": 'day6'
+                },
+                {
+                    "title": 'Friday<br>' + weekDates[6],
+                    "width": "10%",
+                    "data": 'day7'
+                },
+                {
+                    "title": 'Hours Total',
+                    "width": "10%",
+                    "data": 'hourstotal'
+                },
+                {
+                    "title": 'TACS vs SELS %',
+                    "width": "10%",
+                    "data": 'hourstotalpercent'
+                }
+            ]
 
-      resolve();
-      return false;
-    });
-  } catch (e) {
-    throw new Error(e.toString());
-  } 
+            let EmpScheduleDataTable = $('#' + table).DataTable({
+                searching: true,
+                //dom: "flrtipB",
+                bFilter: true,
+                bdeferRender: true,
+                bpaging: true,
+                bPaginate: false,
+                autoWidth: false,
+                bInfo: false,
+                destroy: true,
+                scrollY: 600,
+                scrollx: true,
+                scroller: true,
+                language: {
+                    zeroRecords: "No Data"
+                },
+                aoColumns: columns,
+                columnDefs: [
+                    { targets: [1, 9, 10], className: 'dt-center' }
+                ],
+                sorting: [[1, "asc"], [10, "asc"]],
+            })
+            $('#' + table + ' thead').attr("class", "thead-dark");
+
+            resolve();
+            return false;
+        });
+    } catch (e) {
+        throw new Error(e.toString());
+    }
 }
 
 function getDayFormat(dayhr, selshr, tacshr) {

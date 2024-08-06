@@ -127,7 +127,9 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
             var selshourst = GetTotalSelsHours(data.Value.SelsSchedule)?.ToString("0.##");
 
             reportResults.TryAdd(data.Key, new List<string> {
-                data.Value.LastName + ", " + data.Value.FirstName + "<br>" + data.Value.EIN,
+                data.Value.LastName,
+                data.Value.FirstName ,
+                data.Value.EIN,
                 data.Value.TourNumber,
                 day1,
                 day2,
@@ -189,10 +191,10 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
             double totalhour = 0.00;
             foreach (var wksch in wkschedule)
             {
-                    if (wksch.GroupName != "Holiday Off" && wksch.HrLeave != wksch.HrSched)
-                    {
-                        totalhour += Convert.ToDouble(wksch.HrMove);
-                    }
+                if (wksch.GroupName != "Holiday Off" && wksch.HrLeave != wksch.HrSched)
+                {
+                    totalhour += Convert.ToDouble(wksch.HrMove);
+                }
             }
             return totalhour;
         }
@@ -579,9 +581,9 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                                 }
                                 if (endtmp != 0 && starttmp < endtmp)
                                 {
-                                    minustmp += TimeSpan.FromSeconds((endtmp-starttmp)/1000);
+                                    minustmp += TimeSpan.FromSeconds((endtmp - starttmp) / 1000);
                                 }
-                                if (endtmp != 0 && (starttmp - endtmp) > 8*60*60*1000)
+                                if (endtmp != 0 && (starttmp - endtmp) > 8 * 60 * 60 * 1000)
                                 {
                                     for (var i = 0; i < 7; i++)
                                     {
@@ -602,7 +604,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                                             }
                                             break;
                                         }
-                                        else if (i==6 || (tsstart < weekts[i] && ts.End >= weekts[i+1]))
+                                        else if (i == 6 || (tsstart < weekts[i] && ts.End >= weekts[i + 1]))
                                         {
                                             selstotal[i] += durtmp - minustmp;
                                             break;
@@ -687,7 +689,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                                                 {
                                                     sch.Duration = selstotal[i];
                                                 }
-                                                else if (selstotal[i] < sch.Duration && i!=0 && selstotal[i-0].TotalSeconds > 0)
+                                                else if (selstotal[i] < sch.Duration && i != 0 && selstotal[i - 0].TotalSeconds > 0)
                                                 {
                                                     sch.Duration = selstotal[i];
                                                 }
