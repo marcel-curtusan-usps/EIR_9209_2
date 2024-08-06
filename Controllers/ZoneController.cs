@@ -149,5 +149,15 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(e.Message);
             }
         }
+        [HttpGet]
+        [Route("GetTagTimelineList")]
+        public async Task<object> GetTagTimelineByEIN(string ein)
+        {
+            if (!ModelState.IsValid)
+            {
+                return await Task.FromResult(BadRequest(ModelState));
+            }
+            return _zonesRepository.GetTagTimelineList(ein);
+        }
     }
 }

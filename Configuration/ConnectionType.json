@@ -126,6 +126,11 @@
         "Id": "8e0de261-e6d4-4272-a0ae-54237ff13006",
         "Name": "AREA_AGGREGATION",
         "Description": "QRE Tag Dwell Time"
+      },
+      {
+        "Id": "e5cee466-2612-4792-86f2-72480eb37532",
+        "Name": "TAG_TIMELINE",
+        "Description": "QRE Tag Timeline"
       }
     ]
   },
