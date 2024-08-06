@@ -52,7 +52,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         $('span[id=error_connection_name]').text("");
     }
 
-    $('select[name=connection_name]').on("change",function () {
+    $('select[name=connection_name]').on("change", function () {
         filtermessage_type("", "");
         if (!checkValue($('select[name=connection_name] option:selected').html())) {
             $('select[name=connection_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
@@ -109,7 +109,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         $('span[id=error_data_retrieve]').text("");
     }
     //Data Retrieve Occurrences Keyup
-    $('select[name=data_retrieve]').change(function () {
+    $('select[name=data_retrieve]').on("change", function () {
         if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
             $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
@@ -135,7 +135,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         $('span[id=error_ip_address]').text("");
     }
     //IP Address Keyup
-    $('input[type=text][name=ip_address]').keyup(function () {
+    $('input[type=text][name=ip_address]').on("keyup", function () {
         if (IPAddress_validator($('input[type=text][name=ip_address]').val()) === 'Invalid IP Address') {
             $('input[type=text][name=ip_address]').css("border-color", "#FF0000");
             $('span[id=error_ip_address]').text("Please Enter Valid IP Address!");
@@ -295,8 +295,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             if ($('input[type=checkbox][name=OAuthconnection]').is(':checked')) {
                 onOAuthConnection();
             }
-            else
-            {
+            else {
                 offOAuthConnection();
             }
         }
@@ -308,7 +307,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
 });
 let connTypeRadio = null;
 /// receive messages from server 
-connection.on("AddConnection", async (data) => {
+connection.on("addConnection", async (data) => {
     try {
         return new Promise((resolve, reject) => {
             Promise.all([updateConnectionDataTable(data, ConnectionListtable)]);
@@ -319,7 +318,7 @@ connection.on("AddConnection", async (data) => {
         throw new Error(e.toString());
     }
 });
-connection.on("DeleteConnection", async (data) => {
+connection.on("deleteConnection", async (data) => {
     try {
         return new Promise((resolve, reject) => {
             Promise.all([removeConnectionDataTable(data, ConnectionListtable)]);
@@ -331,7 +330,7 @@ connection.on("DeleteConnection", async (data) => {
     }
 
 });
-connection.on("UpdateConnection", async (data) => {
+connection.on("updateConnection", async (data) => {
     try {
         return new Promise((resolve, reject) => {
             Promise.all([updateConnectionDataTable(data, ConnectionListtable)]);
@@ -361,7 +360,7 @@ async function Add_Connection() {
                 WsConnection: $('input[type=radio][id=ws_connection]').prop('checked'),
                 HoursBack: parseInt($('input[id=hoursback_range]').val(), 10),
                 HoursForward: parseInt($('input[id=hoursforward_range]').val(), 10),
-                DataRetrieve: $('select[name=data_retrieve] option:selected').val(),
+                MillisecondsInterval: $('select[name=data_retrieve] option:selected').val(),
                 Name: $('select[name=connection_name] option:selected').val(),
                 IpAddress: $('input[type=text][name=ip_address]').val(),
                 Port: $.isNumeric($('input[type=text][name=port_number]').val()) ? parseInt($('input[id=hoursback_range]').val(), 10) : 0,
@@ -377,7 +376,7 @@ async function Add_Connection() {
             if (!$.isEmptyObject(jsonObject)) {
                 //make a ajax call to get the employee details
                 $.ajax({
-                    url: '/api/AddConnection',
+                    url: SiteURLconstructor(window.location) + '/api/Connections/Add',
                     data: JSON.stringify(jsonObject),
                     contentType: 'application/json',
                     type: 'POST',
@@ -421,7 +420,7 @@ async function Edit_Connection(data) {
     $('input[type=radio]').prop('disabled', true);
     if (checkValue(data.oAuthUrl)) {
         $('input[type=checkbox][id=OAuthconnection]').prop('checked', true);
-       
+
         $('input[type=text][name=tokenurl]').prop("disabled", false).val(data.oAuthUrl);
         $('input[type=text][name=tokenusername]').prop("disabled", false).val(data.oAuthUserName);
         $('input[type=text][name=tokenpassword]').prop("disabled", false).val(data.oAuthPassword);
@@ -496,12 +495,12 @@ async function Edit_Connection(data) {
                 }
                 //make a ajax call to get the Connection details
                 $.ajax({
-                    url: '/api/UpdateConnection?id=' + data.id,
+                    url: SiteURLconstructor(window.location) + '/api/Connections/Update',
                     contentType: 'application/json-patch+json',
-                    type: 'PUT',
+                    type: 'POST',
                     data: JSON.stringify(jsonObject),
-                    success: function (successdata) {
-                        $('#content').html(successdata);
+                    success: function (data) {
+
                         sidebar.open('connections');
                         setTimeout(function () { $("#API_Connection_Modal").modal('hide'); sidebar.open('connections'); }, 500);
                     },
@@ -536,7 +535,7 @@ async function Remove_Connection(data) {
         $('button[id=remove_server_connection]').off().on('click', function () {
             //make a ajax call to get the Connection details
             $.ajax({
-                url: '/api/DeleteConnection?id=' + data.id,
+                url: SiteURLconstructor(window.location) + '/api/Connections/Delete/?id=' + data.id,
                 type: 'DELETE',
                 success: function (data) {
                     $('#content').html(data);
@@ -952,7 +951,7 @@ function onOAuthConnection() {
         $('input[type=text][name=tokenclientId]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
         $('span[id=error_tokenclientId]').text("");
     }
-   
+
 }
 function offOAuthConnection() {
 

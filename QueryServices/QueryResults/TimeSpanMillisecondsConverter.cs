@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
 
 public class TimeSpanMillisecondsConverter : JsonConverter<TimeSpan>
 {

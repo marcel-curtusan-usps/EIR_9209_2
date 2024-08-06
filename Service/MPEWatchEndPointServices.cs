@@ -1,8 +1,6 @@
 ﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Ocsp;
-using System.Net.Http;
 
 namespace EIR_9209_2.Service
 {
@@ -10,8 +8,8 @@ namespace EIR_9209_2.Service
     {
         private readonly IInMemoryGeoZonesRepository _geoZones;
 
-        public MPEWatchEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryGeoZonesRepository geozone)
-            : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
+        public MPEWatchEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository geozone)
+            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
         {
             _geoZones = geozone;
         }
@@ -31,7 +29,12 @@ namespace EIR_9209_2.Service
                     _endpointConfig.ApiConnected = false;
                     _endpointConfig.Status = EWorkerServiceState.Idel;
                 }
-                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                }
+
 
                 IQueryService queryService;
                 string FormatUrl = "";
@@ -39,7 +42,7 @@ namespace EIR_9209_2.Service
                 string start_time = string.Concat(DateTime.Now.AddHours(-_endpointConfig.HoursBack).ToString("MM/dd/yyyy_"), "00:00:00");
                 string end_time = string.Concat(DateTime.Now.AddHours(_endpointConfig.HoursForward).ToString("MM/dd/yyyy_"), "23:59:59");
                 FormatUrl = string.Format(_endpointConfig.Url, MpeWatch_id, _endpointConfig.MessageType, start_time, end_time);
-                queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                 var result = (await queryService.GetMPEWatchData(stoppingToken));
                 //process zone data
                 if (_endpointConfig.MessageType.ToLower() == "rpg_run_perf")
@@ -64,7 +67,14 @@ namespace EIR_9209_2.Service
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                _endpointConfig.ApiConnected = false;
+                _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                }
             }
         }
         private async Task ProcessMPEWatchRpgPlanData(JToken result)
@@ -82,7 +92,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception e)
             {
-                Logger.LogError(e.Message);
+                _logger.LogError(e.Message);
             }
         }
         private async Task ProcessMPEWatchDPSRunData(JToken result)
@@ -100,7 +110,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception e)
             {
-                Logger.LogError(e.Message);
+                _logger.LogError(e.Message);
             }
         }
 
@@ -120,20 +130,14 @@ namespace EIR_9209_2.Service
                         List<MPERunPerformance>? mpeList = data.ToObject<List<MPERunPerformance>>();
                         if (mpeList != null && mpeList.Any())
                         {
-                            foreach (MPERunPerformance mpe in mpeList)
-                            {
-                                mpe.MpeId = string.Concat(mpe.MpeType, "-", mpe.MpeNumber.ToString().PadLeft(3, '0'));
-                                await Task.Run(() => _geoZones.UpdateMPERunInfo(mpe));
-                                await Task.Run(() => _geoZones.UpdateMPERunActivity(mpe));
-
-                            }
+                            await Task.Run(() => _geoZones.UpdateMPERunInfo(mpeList));
                         }
                     }
                 }
             }
             catch (Exception e)
             {
-                Logger.LogError(e.Message);
+                _logger.LogError(e.Message);
             }
         }
     }

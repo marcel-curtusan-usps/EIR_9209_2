@@ -81,7 +81,7 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
     }
     public DesignationActivityToCraftType Get(string id)
     {
-        _dacodeList.TryGetValue(id, out DesignationActivityToCraftType dacode);
+        _dacodeList.TryGetValue(id, out DesignationActivityToCraftType? dacode);
         return dacode;
     }
 

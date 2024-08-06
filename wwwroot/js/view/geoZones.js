@@ -9,8 +9,8 @@
                 } else if (geoZone.properties.zoneType === 'DockDoorZone') {
                     Promise.all([addDockDoorFeature(goeZones[i])]);
                     // Handle MPEBinZone geoZone
-                } else if (geoZone.properties.zoneType === 'MPEBinZone') {
-                    Promise.all([addMPEBinFeature(goeZones[i])]);
+                } else if (geoZone.properties.zoneType === 'Bin') {
+                    Promise.all([addBinFeature(goeZones[i])]);
                     // Handle type3 geoZone
                 } else {
                     // Handle other types of geoZone

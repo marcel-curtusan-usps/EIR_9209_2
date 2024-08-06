@@ -47,4 +47,5 @@ public class Connection
     public string OAuthUserName { get; set; } = "";
     public string OAuthPassword { get; set; } = "";
     public string OAuthClientId { get; set; } = "";
+    public double TimeoutSeconds { get; set; } = 100;
 }

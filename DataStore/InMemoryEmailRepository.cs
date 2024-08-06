@@ -28,7 +28,7 @@ public class InMemoryEmailRepository : IInMemoryEmailRepository
     public Email? Add(Email email)
     {
         //add to email and also save to file
-       
+
         if (_emailList.TryAdd(email.Id, email))
         {
             if (_fileService.WriteFile(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented)))
@@ -72,7 +72,6 @@ public class InMemoryEmailRepository : IInMemoryEmailRepository
     public IEnumerable<Email> GetAll()
     {
         //return all emails
-
         return _emailList.Values;
     }
 

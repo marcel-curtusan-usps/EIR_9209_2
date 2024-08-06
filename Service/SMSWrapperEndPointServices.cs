@@ -1,7 +1,5 @@
-﻿using EIR_9209_2.Models;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
-using System.Configuration;
 
 namespace EIR_9209_2.Service
 {
@@ -9,8 +7,8 @@ namespace EIR_9209_2.Service
     {
         private readonly IInMemoryTagsRepository _tags;
 
-        public SMSWrapperEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryTagsRepository tags)
-            : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
+        public SMSWrapperEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryTagsRepository tags)
+            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
         {
             _tags = tags;
         }
@@ -19,26 +17,26 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                if (_endpointConfig.Status != EWorkerServiceState.Running)
+                _endpointConfig.Status = EWorkerServiceState.Running;
+                _endpointConfig.LasttimeApiConnected = DateTime.Now;
+                if (_endpointConfig.ActiveConnection)
                 {
-                    _endpointConfig.Status = EWorkerServiceState.Running;
-                    _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                    if (_endpointConfig.ActiveConnection)
-                    {
-                        _endpointConfig.ApiConnected = true;
-                    }
-                    else
-                    {
-                        _endpointConfig.ApiConnected = false;
-                        _endpointConfig.Status = EWorkerServiceState.Idel;
-                    }
-
-                    await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                    _endpointConfig.ApiConnected = true;
+                }
+                else
+                {
+                    _endpointConfig.ApiConnected = false;
+                    _endpointConfig.Status = EWorkerServiceState.Idel;
+                }
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
                 }
                 IQueryService queryService;
                 string FormatUrl = "";
                 FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType, _configuration[key: "ApplicationConfiguration:NassCode"]);
-                queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                 var result = (await queryService.GetSMSWrapperData(stoppingToken));
 
                 if (_endpointConfig.MessageType.ToLower() == "FDBIDEmployeeList".ToLower())
@@ -54,7 +52,14 @@ namespace EIR_9209_2.Service
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                _endpointConfig.ApiConnected = false;
+                _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                }
             }
         }
 
@@ -70,7 +75,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception e)
             {
-                Logger.LogError(e.Message);
+                _logger.LogError(e.Message);
             }
         }
     }

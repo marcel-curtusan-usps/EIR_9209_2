@@ -1,8 +1,6 @@
 ﻿using EIR_9209_2.Models;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Xml.Linq;
 
 public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageRepository
 {
@@ -37,7 +35,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
     public void Remove(BackgroundImage backgroundImage) { _backgroundImages.TryRemove(backgroundImage.id, out _); }
     public BackgroundImage Get(string id)
     {
-        _backgroundImages.TryGetValue(id, out BackgroundImage backgroundImage);
+        _backgroundImages.TryGetValue(id, out BackgroundImage? backgroundImage);
         return backgroundImage;
     }
     public IEnumerable<BackgroundImage> GetAll() => _backgroundImages.Values;

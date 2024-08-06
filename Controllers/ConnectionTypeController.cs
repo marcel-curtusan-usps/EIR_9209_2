@@ -1,10 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EIR_9209_2.Models;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.SignalR;
-using EIR_9209_2.Service;
-using NuGet.Protocol.Plugins;
-using EIR_9209_2.Models;
-using Microsoft.DotNet.Scaffolding.Shared.Messaging;
 
 
 
@@ -20,7 +16,7 @@ namespace EIR_9209_2.Controllers
 
         // POST api/<Connection>
         [HttpPost]
-        [Route("/api/AddConnectionType")]
+        [Route("Add")]
         /// <summary>
         /// Adds a new connection.
         /// </summary>
@@ -51,8 +47,8 @@ namespace EIR_9209_2.Controllers
 
         // PUT api/<Connection>/5
         [HttpPut]
-        [Route("/api/UpdateConnectionType")]
-        public async Task<object> PutType(string id, [FromBody] JObject value)
+        [Route("Update")]
+        public async Task<object> PutConnectionType(string id, [FromBody] JObject value)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -83,7 +79,7 @@ namespace EIR_9209_2.Controllers
 
         // DELETE api/<Connection>/5
         [HttpDelete]
-        [Route("/api/DeleteConnectionType")]
+        [Route("Delete")]
         public async Task<object> DeleteConnectionType(string id)
         {
             //handle bad requests
@@ -101,10 +97,15 @@ namespace EIR_9209_2.Controllers
                 return new JObject { ["Message"] = $"Connection Type was not Found" };
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         // POST api/<Connection>
         [HttpPut]
-        [Route("/api/AddConnectionSubType")]
+        [Route("AddSubType")]
         public async Task<object> PostAddNewConnectionSubType(string id, [FromBody] JObject value)
         {
             //handle bad requests
@@ -133,10 +134,15 @@ namespace EIR_9209_2.Controllers
                 return new JObject { ["Message"] = $"Connection Type Id:{id} was not Found" };
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         // PUT api/<Connection>/5
         [HttpPut]
-        [Route("/api/UpdateConnectionSubType")]
+        [Route("UpdateSubType")]
         public async Task<object> PutSubType(string id, [FromBody] JObject value)
         {
             //handle bad requests
@@ -166,25 +172,28 @@ namespace EIR_9209_2.Controllers
                 return new JObject { ["Message"] = $"Connection Id:{id} was not Found" };
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="subId"></param>
+        /// <returns></returns>
         // DELETE api/<Connection>/5
         [HttpPost]
-        [Route("/api/DeleteConnectionSubType")]
-        public async Task<object> DeleteConnectionSubType([FromBody] JObject value)
+        [Route("DeleteSubType")]
+        public async Task<object> DeleteConnectionSubType(string id, string subId)
         {
             //handle bad requests
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            //List tempdata = value.ToObject<List>();
-            string parentId = (string)value["id"];
-            string removeId = (string)value["subId"];
-            if (!string.IsNullOrEmpty(parentId) && !string.IsNullOrEmpty(removeId))
+            try
             {
-                Messagetype removedCon = _connectiontypeRepository.RemoveSubType(parentId, removeId);
+                Messagetype removedCon = _connectiontypeRepository.RemoveSubType(id, subId);
                 return Ok(removedCon);
             }
-            else
+            catch (Exception)
             {
                 return new JObject { ["Message"] = $"Connection Type was not Found" };
             }

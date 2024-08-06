@@ -40,12 +40,12 @@ $(function () {
     MPEdefaultMindate = MPEdefaultMaxdate.minus({ hours: 24 }).startOf('hour');
     //makea ajax call to get the employee details
     $.ajax({
-        url: '/MPESummary?mpe=' + MPEName,
+        url: SiteURLconstructor(window.location) + '/api/MPESummary/GetByMPEName?mpe=' + MPEName,
         type: 'GET',
         success: function (data) {
             hourlyMPEdata = data.length > 0 ? data[0] : [];
             Promise.all([updateMPEPerformanceSummaryStatus(hourlyMPEdata, MPEdefaultMindate, MPEdefaultMaxdate)]);
-            
+
         },
         error: function (error) {
             console.log(error);
@@ -55,7 +55,7 @@ $(function () {
         }
     });
     $.ajax({
-        url: '/MPERunActivity?mpe=' + MPEName,
+        url: SiteURLconstructor(window.location) + '/api/MPERunActivity/GetByMPEName?mpe=' + MPEName,
         type: 'GET',
         success: function (data) {
             sortPlandata = data;
@@ -258,10 +258,10 @@ var getUrlParameter = function getUrlParameter(sParam) {
 };
 function SiteURLconstructor(winLoc) {
     if (/^(.CF)/i.test(winLoc.pathname)) {
-        return winLoc.origin + "/CF/";
+        return winLoc.origin + "/CF";
     }
     else {
-        return winLoc.origin + "/";
+        return winLoc.origin;
     }
 }
 // Start the connection.

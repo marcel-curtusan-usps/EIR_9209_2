@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace EIR_9209_2.Models
+﻿namespace EIR_9209_2.Models
 {
     public class EmpSchedule
     {
@@ -15,6 +13,7 @@ namespace EIR_9209_2.Models
         public string BaseOp { get; set; } = "";
         public string TourNumber { get; set; } = "";
         public List<Schedule> WeekSchedule { get; set; } = new List<Schedule>();
+        public List<Selshour> SelsSchedule { get; set; } = new List<Selshour>();
     }
 
     public class Schedule
@@ -49,5 +48,12 @@ namespace EIR_9209_2.Models
         public string HrMove { get; set; } = "";
         public string HrOt { get; set; } = "";
         public string DayErrCnt { get; set; } = "";
+    }
+    public class Selshour
+    {
+        public string PayWeek { get; set; } = "";
+        public string Day { get; set; } = "";
+        public TimeSpan Duration { get; set; }
+
     }
 }

@@ -1,8 +1,5 @@
-﻿using EIR_9209_2.Models;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Security.Policy;
 
 namespace EIR_9209_2.DataStore
 {
@@ -54,11 +51,6 @@ namespace EIR_9209_2.DataStore
         public SiteInformation GetByNASSCode(string id)
         {
             return _siteInfo.Where(t => t.Value.SiteId == id).Select(y => y.Value).FirstOrDefault();
-        }
-
-        public List<SiteInformation> GetAll()
-        {
-            return _siteInfo.Values.Select(y => y).ToList();
         }
 
         public void Update(SiteInformation site)

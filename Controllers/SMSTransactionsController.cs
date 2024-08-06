@@ -16,22 +16,13 @@ namespace EIR_9209_2.Controllers
             _tags = tagsRepository;
         }
 
-        // GET: api/<SMSTransactionsController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/<SMSTransactionsController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="transaction"></param>
         // POST api/<SMSTransactionsController>
         [HttpPost]
+        [Route("BadgeScan")]
         public async void Post([FromBody] JObject transaction)
         {
             //handle bad requests
@@ -40,18 +31,6 @@ namespace EIR_9209_2.Controllers
                 BadRequest(ModelState);
             }
             _tags.UpdateBadgeTransactionScan(transaction);
-        }
-
-        // PUT api/<SMSTransactionsController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<SMSTransactionsController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

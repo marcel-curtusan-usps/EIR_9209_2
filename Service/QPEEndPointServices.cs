@@ -1,6 +1,4 @@
-﻿using EIR_9209_2.Models;
-using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json.Linq;
+﻿using Microsoft.AspNetCore.SignalR;
 
 namespace EIR_9209_2.Service
 {
@@ -8,8 +6,8 @@ namespace EIR_9209_2.Service
     {
         private readonly IInMemoryTagsRepository _tags;
 
-        public QPEEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryTagsRepository tags)
-            : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
+        public QPEEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryTagsRepository tags)
+            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
         {
             _tags = tags;
         }
@@ -23,83 +21,36 @@ namespace EIR_9209_2.Service
                 _endpointConfig.Status = EWorkerServiceState.Running;
                 _endpointConfig.LasttimeApiConnected = DateTime.Now;
                 _endpointConfig.ApiConnected = true;
-                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                }
+                // await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
                 //process tag data
                 string FormatUrl = "";
                 if (_endpointConfig.MessageType == "getTagData")
                 {
                     FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType);
-                    queryService = new QueryService(_httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                    queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                     var result = (await queryService.GetQPETagData(stoppingToken));
 
                     // Process tag data in a separate thread
-                    _ = Task.Run(async () => await ProcessTagMovementData(result), stoppingToken);
+                    //await ProcessTagMovementData(result);
+                    Action processData = () => _tags.UpdateTagQPEInfo(result.Tags);
+                    await Task.Run(processData).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
-            }
-        }
-        private async Task ProcessTagMovementData(QuuppaTag result)
-        {
-            try
-            {
-                _ = Task.Run(() => _tags.UpdateTagQPEInfo(result.Tags));
-                foreach (Tags qtitem in result.Tags.Where(r => r.LocationTS > 5))
+                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                _endpointConfig.ApiConnected = false;
+                _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
                 {
-                    long posAge = -1;
-                    qtitem.ServerTS = result.ResponseTS;
-                    if (qtitem.LocationTS == 0)
-                    {
-                        posAge = -1;
-                    }
-                    else
-                    {
-                        posAge = qtitem.ServerTS - qtitem.LocationTS;
-                    }
-                    bool visable = posAge > 1 && posAge < 150000 ? true : false;
-
-                    if (qtitem.LocationType == "presence" || qtitem.LocationType == "proximity" || qtitem.LocationType == "hidden")
-                    {
-                        visable = false;
-                    }
-                    if (qtitem.LocationMovementStatus == "hidden" || qtitem.LocationMovementStatus == "noData")
-                    {
-                        visable = false;
-                    }
-
-                    if (qtitem.Location.Any())
-                    {
-                        JObject PositionGeoJson = new JObject
-                        {
-                            ["type"] = "Feature",
-                            ["geometry"] = new JObject
-                            {
-                                ["type"] = "Point",
-                                ["coordinates"] = qtitem.Location.Any() ? new JArray(qtitem.Location[0], qtitem.Location[1]) : new JArray(0, 0)
-                            },
-                            ["properties"] = new JObject
-                            {
-                                ["id"] = qtitem.TagId,
-                                ["floorId"] = qtitem.LocationCoordSysId,
-                                ["posAge"] = posAge,
-                                ["visible"] = visable,
-                                ["zones"] = qtitem.LocationZoneIds.ToString(),
-                                ["locationMovementStatus"] = qtitem.LocationMovementStatus,
-                                ["positionTS_txt"] = qtitem.LocationTS,
-                                ["craftName"] = _tags.GetCraftType(qtitem.TagId)
-                            }
-                        };
-
-                        await _hubServices.Clients.Group("Tags").SendAsync("tags", PositionGeoJson.ToString());
-                    }
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
                 }
-
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e.Message);
             }
         }
     }

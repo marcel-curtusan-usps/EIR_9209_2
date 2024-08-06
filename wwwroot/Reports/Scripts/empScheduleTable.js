@@ -6,17 +6,13 @@ async function updateEmployeeSchedule(data) {
 
     try {
         //Get dates for the week
-        let daynum = data[0]["weekSchedule"][0]["day"];
-        let daydate = data[0]["weekSchedule"][0]["endTourDtm"];
-        const DateTime = luxon.DateTime;
-        for (let i = 0; i < daynum - 1; i++) {
-            let curdate = DateTime.fromFormat(daydate, 'MMMM, dd yyyy h:mm:ss').plus({ "days": i }).toFormat("MMMM dd");
-            weekDates.push(curdate);
-        }
-        for (let i = daynum - 1; i < 7; i++) {
-            let curdate = DateTime.fromFormat(daydate, 'MMMM, dd yyyy h:mm:ss').plus({ "days": i }).toFormat("MMMM dd");
-            weekDates.push(curdate);
-        }
+        weekDates = data['weekdate'];
+        data = Object.keys(data).filter(objKey =>
+            objKey !== 'weekdate').reduce((newObj, key) => {
+                newObj[key] = data[key];
+                return newObj;
+            }, {}
+        );
 
         Promise.all([
             createEmpScheduleDataTable('empScheduleData'),
@@ -29,59 +25,28 @@ async function updateEmployeeSchedule(data) {
 function processScheduledata(data) {
     try {
         valuesArray = Object.values(data);
-
         var result = valuesArray.reduce((acc, curr) => {
-            var day1 = '';
-            var day2 = '';
-            var day3 = '';
-            var day4 = '';
-            var day5 = '';
-            var day6 = '';
-            var day7 = '';
-            var hourst = 0;
-            Object.keys(curr).forEach(key => {
-                if (key === 'weekSchedule') {
-                    day1 = getDaySchedule(curr[key], 1);
-                    day2 = getDaySchedule(curr[key], 2);
-                    day3 = getDaySchedule(curr[key], 3);
-                    day4 = getDaySchedule(curr[key], 4);
-                    day5 = getDaySchedule(curr[key], 5);
-                    day6 = getDaySchedule(curr[key], 6);
-                    day7 = getDaySchedule(curr[key], 7);
-                    $.each(curr[key], function (key, value) {
-                        //hourst = hourst + parseFloat(value.hrSched);
-                        hourst = hourst + parseFloat(value.hrMove);
-                    });
-                }
-            });
-            let totalhrs = Math.round(hourst * 10) / 10;
-            //let tacshrtotal = '38';
-            //let selshrtotal = '35';
-            //let totalhrspercent = '<br>'+Math.round(parseFloat(tacshrtotal) / parseFloat(selshrtotal) * 100 * 1) / 1 + '%';
-            let totalhrspercent = '';
-
-            
-            if (totalhrs == 0) {
+            let tacshr = '9.86';
+            let tacshrtotal = '38';
+            let selshrtotal = curr[17];
+            let totalhrs = curr[9];
+            totalhrs += '<br><span class="tacshrSpan">' + tacshrtotal + '</span><span class="selshrSpan">' + selshrtotal + '</span>';
+            if (selshrtotal == 0) {
+                totalhrspercent = '';
             } else {
-                let tacshrtotal = '38';
-                let selshrtotal = '35';
-                totalhrs += '<br><span class="tacshrSpan">' + tacshrtotal + '</span><span class="selshrSpan">' + selshrtotal + '</span>';
-                //let tacshrtotalpercent = Math.round(parseFloat(tacshrtotal) / parseFloat(totalhrs) * 100 *1) / 1 + '%';
-                //let selshrtotalpercent = Math.round(parseFloat(selshrtotal) / parseFloat(totalhrs) * 100 * 1) / 1 + '%';
-                //totalhrspercent = '<br><span class="tacshrSpan">' + tacshrtotalpercent + '</span><span class="selshrSpan">' + selshrtotalpercent + '</span>';
                 totalhrspercent = '<br>' + Math.round(parseFloat(tacshrtotal) / parseFloat(selshrtotal) * 100 * 1) / 1 + '%';
             }
-            
+
             let employee = {
-                employee: curr.lastName + ', ' + curr.firstName + '<br>' + curr.ein,
-                tour: curr.tourNumber,
-                day1: day1,
-                day2: day2,
-                day3: day3,
-                day4: day4,
-                day5: day5,
-                day6: day6,
-                day7: day7,
+                employee: curr[0],
+                tour: curr[1],
+                day1: getDayFormat(curr[2], curr[10], tacshr),
+                day2: getDayFormat(curr[3], curr[11], tacshr),
+                day3: getDayFormat(curr[4], curr[12], tacshr),
+                day4: getDayFormat(curr[5], curr[13], tacshr),
+                day5: getDayFormat(curr[6], curr[14], tacshr),
+                day6: getDayFormat(curr[7], curr[15], tacshr),
+                day7: getDayFormat(curr[8], curr[16], tacshr),
                 hourstotal: totalhrs,
                 hourstotalpercent: totalhrspercent
             };
@@ -194,6 +159,26 @@ async function createEmpScheduleDataTable(table) {
   } 
 }
 
+function getDayFormat(dayhr, selshr, tacshr) {
+    let curday = '';
+    if (dayhr == 'OFF') {
+        curday = '<span class="offSpan">OFF</span>';
+    } else if (dayhr == 'HOLOFF') {
+        curday = '<span class="holoffSpan">HOLOFF</span>';
+    } else if (dayhr == 'LV') {
+        curday = '<span class="leaveSpan">LV</span>';
+    } else {
+        curday = '<span class="tourhrSpan">' + dayhr + '</span >';
+    }
+    if (dayhr == 'OFF' || dayhr == 'HOLOFF' || dayhr == 'LV') {
+        if (parseFloat(selshr) > 0) {
+            curday += '<br><span class="tacshrSpan">' + tacshr + '</span><span class="selshrSpan">' + selshr + '</span>';
+        }
+    } else {
+        curday += '<br><span class="tacshrSpan">' + tacshr + '</span><span class="selshrSpan">' + selshr + '</span>';
+    }
+    return curday;
+}
 function getDaySchedule(row, day) {
     let curday = '<span class="offSpan">OFF</span>';
     //let curday = 'OFF';

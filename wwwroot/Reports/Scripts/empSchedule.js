@@ -12,11 +12,11 @@ $(function () {
 
     //makea ajax call to get the employee details
     $.ajax({
-        url: '/EmpSchedule',
+        url: SiteURLconstructor(window.location) + '/EmpSchedule',
         type: 'GET',
         success: function (data) {
             Promise.all([updateEmployeeSchedule(data)]);
-            
+
         },
         error: function (error) {
             console.log(error);
@@ -79,10 +79,10 @@ var getUrlParameter = function getUrlParameter(sParam) {
 };
 function SiteURLconstructor(winLoc) {
     if (/^(.CF)/i.test(winLoc.pathname)) {
-        return winLoc.origin + "/CF/";
+        return winLoc.origin + "/CF";
     }
     else {
-        return winLoc.origin + "/";
+        return winLoc.origin;
     }
 }
 // Start the connection.

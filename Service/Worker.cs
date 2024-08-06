@@ -1,9 +1,5 @@
 ﻿using EIR_9209_2.DataStore;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Options;
-using NuGet.Configuration;
-using NuGet.Protocol.Core.Types;
-using System;
 using System.Collections.Concurrent;
 
 namespace EIR_9209_2.Service
@@ -25,21 +21,21 @@ namespace EIR_9209_2.Service
 
         public Worker(ILogger<Worker> logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory,
             IInMemoryConnectionRepository connections,
+            IHubContext<HubServices> hubServices,
             IInMemoryGeoZonesRepository geoZones,
             IInMemoryTagsRepository tags,
             IInMemoryEmailRepository email,
             IInMemorySiteInfoRepository siteInfo,
             IInMemoryEmpSchedulesRepository empSchedule,
-            IHubContext<HubServices> hubServices,
             IConfiguration configuration)
         {
             _logger = logger;
+            _hubServices = hubServices;
             _loggerFactory = loggerFactory;
             _geoZones = geoZones;
             _tags = tags;
             _httpClientFactory = httpClientFactory;
             _connections = connections;
-            _hubServices = hubServices;
             _configuration = configuration;
             _email = email;
             _siteInfo = siteInfo;
@@ -69,28 +65,28 @@ namespace EIR_9209_2.Service
             switch (endpointConfig.Name)
             {
                 case "QPE":
-                    endpointService = new QPEEndPointServices(_loggerFactory.CreateLogger<QPEEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _tags);
+                    endpointService = new QPEEndPointServices(_loggerFactory.CreateLogger<QPEEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _tags);
                     break;
                 case "QRE":
-                    endpointService = new QREEndPointServices(_loggerFactory.CreateLogger<QREEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _geoZones);
+                    endpointService = new QREEndPointServices(_loggerFactory.CreateLogger<QREEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _geoZones, _empSchedule);
                     break;
                 case "MPEWatch":
-                    endpointService = new MPEWatchEndPointServices(_loggerFactory.CreateLogger<MPEWatchEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _geoZones);
+                    endpointService = new MPEWatchEndPointServices(_loggerFactory.CreateLogger<MPEWatchEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _geoZones);
                     break;
                 case "IDS":
-                    endpointService = new IDSEndPointServices(_loggerFactory.CreateLogger<IDSEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration);
+                    endpointService = new IDSEndPointServices(_loggerFactory.CreateLogger<IDSEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections);
                     break;
                 case "Email":
-                    endpointService = new EmailEndPointServices(_loggerFactory.CreateLogger<EmailEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _email);
+                    endpointService = new EmailEndPointServices(_loggerFactory.CreateLogger<EmailEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _email);
                     break;
                 case "SV":
-                    endpointService = new SVEndPointServices(_loggerFactory.CreateLogger<SVEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _geoZones);
+                    endpointService = new SVEndPointServices(_loggerFactory.CreateLogger<SVEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _geoZones);
                     break;
                 case "SMS_Wrapper":
-                    endpointService = new SMSWrapperEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _tags);
+                    endpointService = new SMSWrapperEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _tags);
                     break;
                 case "IVES":
-                    endpointService = new IVESEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _hubServices, _configuration, _siteInfo, _empSchedule);
+                    endpointService = new IVESEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _siteInfo, _empSchedule);
                     break;
                 default:
                     _logger.LogWarning("Unknown endpoint {Name}", endpointConfig.Name);

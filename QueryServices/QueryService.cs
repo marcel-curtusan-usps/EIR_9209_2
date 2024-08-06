@@ -1,6 +1,8 @@
 ﻿using EIR_9209_2.Models;
+using EIR_9209_2.Service;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -13,21 +15,24 @@ internal class QueryService : IQueryService
     private readonly JsonSerializerSettings _jsonSettings;
     private readonly Uri _baseQueryUrlWithPort;
     private readonly Uri _fullUrl;
+    protected readonly ILogger<BaseEndpointService> _logger;
 
-    public QueryService(IHttpClientFactory httpClient, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
+    public QueryService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClient, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
     {
-        this._httpClient = httpClient;
-        this._jsonSettings = jsonSettings;
-        this._fullUrl = new Uri(settings.FullUrl);
+        _logger = logger;
+        _httpClient = httpClient;
+        _jsonSettings = jsonSettings;
+        _fullUrl = new Uri(settings.FullUrl);
     }
 
-    public QueryService(IHttpClientFactory httpClient, IOAuth2AuthenticationService authService, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
+    public QueryService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClient, IOAuth2AuthenticationService authService, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
     {
-        this._httpClient = httpClient;
-        this._authService = authService;
-        this._jsonSettings = jsonSettings;
-        this._baseQueryUrlWithPort = new Uri(settings.BaseQueryUrlWithPort);
-        this._fullUrl = new Uri(settings.FullUrl);
+        _logger = logger;
+        _httpClient = httpClient;
+        _authService = authService;
+        _jsonSettings = jsonSettings;
+        _baseQueryUrlWithPort = new Uri(settings.BaseQueryUrlWithPort);
+        _fullUrl = new Uri(settings.FullUrl);
     }
 
     public async Task<QuuppaTag> GetQPETagData(CancellationToken ct)
@@ -64,6 +69,7 @@ internal class QueryService : IQueryService
         var areas = await GetQueryResults<IEnumerable<QREArea>>(new Uri(_baseQueryUrlWithPort, GetAreasUrlPath).AbsoluteUri, ct);
         return areas.Select(a => (a.Id, a.Name)).ToList();
     }
+
     public async Task<List<AreaDwell>> GetTotalDwellTime(DateTime startTime, DateTime endTime, TimeSpan minEmployeeTimeInArea,
     TimeSpan TimeStep, TimeSpan ActivationTime, TimeSpan DeactivationTime, TimeSpan DisappearTime, List<(string areaId, string areaName)> allAreaIds, int areaBatchCount, CancellationToken ct)
     {
@@ -82,6 +88,39 @@ internal class QueryService : IQueryService
               );
 
         var queryTasks = queries.Select(query => GetPostQueryResults<List<TagDwellTimeInAreaQueryResult>>(_fullUrl.AbsoluteUri, query, ct));
+        var queryResults = (await Task.WhenAll(queryTasks).ConfigureAwait(false))
+            .SelectMany(x => x)
+            .Where(r => !r.User.Equals("Empty Time"))
+            .ToList();
+
+        var result = TransformQueryResults(queryResults);
+
+        return result;
+
+        IEnumerable<List<(string areaId, string areaName)>> BreakUpAreasIntoBatches()
+        {
+            return Enumerable.Range(0, (allAreaIds.Count + areaBatchCount - 1) / areaBatchCount).Select(i => allAreaIds.Skip(i * areaBatchCount).Take(areaBatchCount).ToList());
+        }
+    }
+
+    public async Task<List<TagTimeline>> GetTotalTagTimeline(DateTime startTime, DateTime endTime, TimeSpan minEmployeeTimeInArea,
+    TimeSpan TimeStep, TimeSpan ActivationTime, TimeSpan DeactivationTime, TimeSpan DisappearTime, List<(string areaId, string areaName)> allAreaIds, int areaBatchCount, CancellationToken ct)
+    {
+        var queries = BreakUpAreasIntoBatches()
+              .Select(areasBatch => new ReportQueryBuilder()
+              .WithQueryType(ESelsReportQueryType.TimelineByPerson)
+              .WithStartLocalTime(startTime)
+              .WithEndLocalTime(endTime)
+              .WithMinTimeOnArea(minEmployeeTimeInArea)
+              .WithTimeStep(TimeStep)
+              .WithActivationTime(ActivationTime)
+              .WithDeactivationTime(DeactivationTime)
+              .WithDisappearTime(DisappearTime)
+              .WithAreaIds(areasBatch.Select(a => a.areaId).ToList())
+              .Build()
+              );
+
+        var queryTasks = queries.Select(query => GetPostQueryResults<List<TagTimelineQueryResult>>(_fullUrl.AbsoluteUri, query, ct));
         var queryResults = (await Task.WhenAll(queryTasks).ConfigureAwait(false))
             .SelectMany(x => x)
             .Where(r => !r.User.Equals("Empty Time"))
@@ -130,7 +169,8 @@ internal class QueryService : IQueryService
         {
             // Log the exception or handle it in some other way
             // For example, you might want to rethrow the exception to let the caller handle it
-
+            _logger.LogInformation(queryUrl);
+            _logger.LogError(ex.Message);
             throw new Exception("An error occurred while sending the HTTP request.", ex);
 
         }
@@ -138,12 +178,14 @@ internal class QueryService : IQueryService
         {
             // Log the exception or handle it in some other way
             // For example, you might want to rethrow the exception to let the caller handle it
-
+            _logger.LogInformation(queryUrl);
+            _logger.LogError(ex.Message);
             throw new Exception("An error occurred while deserializing the response body.", ex);
         }
         catch (Exception e)
         {
-
+            _logger.LogInformation(queryUrl);
+            _logger.LogError(e.Message);
             throw new Exception("An error occurred while connection.", e);
         }
 
@@ -181,10 +223,28 @@ internal class QueryService : IQueryService
             //var responseBody = await response.Content.ReadAsStringAsync();
             //return JsonConvert.DeserializeObject<T>(responseBody, _jsonSettings);
         }
+        catch (HttpRequestException ex)
+        {
+            // Log the exception or handle it in some other way
+            // For example, you might want to rethrow the exception to let the caller handle it
+            _logger.LogInformation(queryUrl);
+            _logger.LogError(ex.Message);
+            throw new Exception("An error occurred while sending the HTTP request.", ex);
+
+        }
+        catch (JsonException ex)
+        {
+            // Log the exception or handle it in some other way
+            // For example, you might want to rethrow the exception to let the caller handle it
+            _logger.LogInformation(queryUrl);
+            _logger.LogError(ex.Message);
+            throw new Exception("An error occurred while deserializing the response body.", ex);
+        }
         catch (Exception e)
         {
-
-            throw new Exception("An error occurred while sending the HTTP request.", e);
+            _logger.LogInformation(queryUrl);
+            _logger.LogError(e.Message);
+            throw new Exception("An error occurred while connection.", e);
         }
     }
 
@@ -204,5 +264,30 @@ internal class QueryService : IQueryService
                 DwellTimeDurationInArea = r.Duration,
                 Type = r.Type
             }).ToList();
+    }
+
+    private List<TagTimeline> TransformQueryResults(List<TagTimelineQueryResult> results)
+    {
+        const string userRegexPattern = @"^(.+?)\s(.+?)\s\((\d+)\)$"; //expected pattern FIRSTNAME LASTNAME (EIN)
+        return results
+            .Where(r => Regex.Match(r.User, userRegexPattern).Success)
+            .Select(r => new TagTimeline
+            {
+                FirstName = Regex.Match(r.User, userRegexPattern).Groups[1].Value,
+                LastName = Regex.Match(r.User, userRegexPattern).Groups[2].Value,
+                EmployeeName = string.Concat(Regex.Match(r.User, userRegexPattern).Groups[1].Value, @" ", Regex.Match(r.User, userRegexPattern).Groups[2].Value),
+                Ein = Regex.Match(r.User, userRegexPattern).Groups[3].Value.PadLeft(8, '0'),
+                AreaName = r.Area,
+                //Start_txt = DateTime.ParseExact(r.Start, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = long.Parse(r.Start),
+                //End_txt = DateTime.ParseExact(r.End, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                End = long.Parse(r.End),
+                Duration = r.Duration,
+                Type = r.Type
+            }).ToList();
+//        Start_txt = !string.IsNullOrEmpty(r.Start)
+//      ? DateTime.ParseExact(r.Start, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
+//      : DateTime.MinValue,
+
     }
 }

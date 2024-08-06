@@ -1,11 +1,10 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using EIR_9209_2.DatabaseCalls.IDS;
+using EIR_9209_2.DataStore;
+using EIR_9209_2.Service;
+using EIR_9209_2.Utilities;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using EIR_9209_2.Utilities;
-using EIR_9209_2.InMemory;
-using EIR_9209_2.DataStore;
-using EIR_9209_2.DatabaseCalls.IDS;
-using EIR_9209_2.Service;
 using System.Reflection;
 
 public class Startup
@@ -49,10 +48,9 @@ public class Startup
         services.AddSingleton<IIDS, IDS>();
         services.AddSingleton<ScreenshotService>();
         services.AddSingleton<EmailService>();
-        services.AddHttpClient();
         services.AddSingleton<Worker>();
         services.AddHostedService(p => p.GetRequiredService<Worker>());
-
+        services.AddHttpClient();
         //add SignalR to the services
         services.AddSignalR(options =>
             {
@@ -88,7 +86,7 @@ public class Startup
 
         services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("1.0.0.1", new OpenApiInfo
+                options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "1.0.0.1",
                     Title = "Connected Facilities (CF)",
@@ -109,6 +107,7 @@ public class Startup
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
                 options.UseInlineDefinitionsForEnums();
                 options.CustomSchemaIds(type => type.FullName);
+                options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
                 // c.IncludeXmlComments($"{AppContext.BaseDirectory}{Path.DirectorySeparatorChar}{_hostingEnv.ApplicationName}.xml");
                 // Sets the basePath property in the Swagger document generated
                 // c.DocumentFilter<BasePathFilter>("/api/v3");
@@ -145,7 +144,7 @@ public class Startup
         app.UseSwaggerUI(c =>
         {
             //TODO: Either use the SwaggerGen generated Swagger contract (generated from C# classes)
-            c.SwaggerEndpoint("/swagger/1.0.0.1/swagger.json", "Swagger");
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "CF API's");
 
             //TODO: Or alternatively use the original Swagger contract that's included in the static files
             // c.SwaggerEndpoint("/swagger-original.json", "Swagger  - OpenAPI 3.0 Original");

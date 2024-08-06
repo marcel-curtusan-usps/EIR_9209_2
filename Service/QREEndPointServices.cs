@@ -1,19 +1,18 @@
-﻿
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.SignalR;
-using PuppeteerSharp.Input;
-using System.Configuration;
+﻿using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json.Linq;
 
 namespace EIR_9209_2.Service
 {
     public class QREEndPointServices : BaseEndpointService
     {
         private readonly IInMemoryGeoZonesRepository _zones;
+        private readonly IInMemoryEmpSchedulesRepository _empSchedules;
 
-        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryGeoZonesRepository zones)
-            : base(logger, httpClientFactory, endpointConfig, hubServices, configuration)
+        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository zones, IInMemoryEmpSchedulesRepository empSchedules)
+            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
         {
             _zones = zones;
+            _empSchedules = empSchedules;
         }
 
         protected override async Task FetchDataFromEndpoint(CancellationToken stoppingToken)
@@ -33,12 +32,16 @@ namespace EIR_9209_2.Service
                     _endpointConfig.Status = EWorkerServiceState.Idel;
                 }
 
-                await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                }
 
                 if (!string.IsNullOrEmpty(_endpointConfig.OAuthUrl))
                 {
                     IOAuth2AuthenticationService authService;
-                    authService = new OAuth2AuthenticationService(_httpClientFactory, new OAuth2AuthenticationServiceSettings(_endpointConfig.OAuthUrl, _endpointConfig.OAuthUserName, _endpointConfig.OAuthPassword, _endpointConfig.OAuthClientId), jsonSettings);
+                    authService = new OAuth2AuthenticationService(_logger, _httpClientFactory, new OAuth2AuthenticationServiceSettings(_endpointConfig.OAuthUrl, _endpointConfig.OAuthUserName, _endpointConfig.OAuthPassword, _endpointConfig.OAuthClientId), jsonSettings);
 
                     IQueryService queryService;
                     string FormatUrl = "";
@@ -46,7 +49,7 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.MessageType == "AREA_AGGREGATION")
                     {
                         FormatUrl = string.Format(_endpointConfig.Url);
-                        queryService = new QueryService(_httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                        queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
 
                         var now = DateTime.Now;
                         var endingHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
@@ -76,6 +79,8 @@ namespace EIR_9209_2.Service
                                         allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
                                     //add to the list
                                     _zones.UpdateAreaDwell(hour, newValue, currentvalue);
+                                    //run report for the current hour
+                                    await Task.Run(() => _zones.RunMPESummaryReport(), stoppingToken).ConfigureAwait(false);
                                 }
                             }
                             else
@@ -86,19 +91,103 @@ namespace EIR_9209_2.Service
                                          allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
                                 //add to the list
                                 _zones.AddAreaDwell(hour, newValue);
+                                //run report for the current hour
+                                await Task.Run(() => _zones.RunMPESummaryReport(), stoppingToken).ConfigureAwait(false);
                             }
                         }
-                        _ = Task.Run(() => _zones.RunMPESummaryReport());
+
                         //var result = (await queryService.GetQPETagData(stoppingToken));
                         //await _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
                         //// Process tag data in a separate thread
                         //_ = Task.Run(async () => await ProcessTagMovementData(result), stoppingToken);
                     }
+                    if (_endpointConfig.MessageType == "TAG_TIMELINE")
+                    {
+                        FormatUrl = string.Format(_endpointConfig.Url);
+                        queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+
+                        var now = DateTime.Now;
+                        var endingHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
+                        var hourBack = _endpointConfig.HoursBack;
+
+                        //first day of the week
+                        DayOfWeek weekStart = DayOfWeek.Saturday;
+                        DateTime startingDate = DateTime.Today;
+                        while (startingDate.DayOfWeek != weekStart)
+                            startingDate = startingDate.AddDays(-1);
+                        //var weekFirstHour = startingDate.AddHours(3);
+                        var weekFirstHour = startingDate.AddHours(-3);
+
+                        var currentHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
+                        var pastHour = currentHour.AddHours(-1);
+                        var hourCnt = 0;
+
+                        var allAreaIds = await queryService.GetAreasAsync(stoppingToken);
+
+                        int areasBatchCount = 10;
+                        Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREMinTimeOnArea"], out int MinTimeOnArea); //get the value from appsettings.json
+                        Int32.TryParse(_configuration[key: "ApplicationConfiguration:QRETimeStep"], out int TimeStep); //get the value from appsettings.json
+                        Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREActivationTime"], out int ActivationTime); //get the value from appsettings.json
+                        Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREDeactivationTime"], out int DeactivationTime); //get the value from appsettings.json
+                        Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREDisappearTime"], out int DisappearTime); //get the value from appsettings.json
+
+                        for (var hour = endingHour; weekFirstHour <= hour; hour = hour.AddHours(-1))
+                        {
+                            if (_zones.ExistingTagTimeline(hour))
+                            {
+                                if (currentHour == hour || pastHour == hour)
+                                {
+                                    var currentvalue = _zones.GetTagTimeline(hour);
+                        
+                                    var newValue = await queryService.GetTotalTagTimeline(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
+                                        TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
+                                        TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
+                                        allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
+                        
+                                    //add to the list
+                                    _zones.UpdateTagTimeline(hour, newValue, currentvalue);
+                                    //add sels hours to EmpSchedule
+                                    //await Task.Run(() => _empSchedules.UpdateEmpScheduleSels(), stoppingToken).ConfigureAwait(false);
+                                }
+                            }
+                            else
+                            {
+                                hourCnt++;
+                                if (hourCnt <= hourBack)
+                                {
+                                    var newValue = await queryService.GetTotalTagTimeline(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
+                                    TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
+                                    TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
+                                    allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
+                                    //add to the list
+                                    _zones.AddTagTimeline(hour, newValue);
+                                    //add sels hours to EmpSchedule
+                                    //await Task.Run(() => _empSchedules.UpdateEmpScheduleSels(), stoppingToken).ConfigureAwait(false);
+                                }
+                            }
+                        }
+                        //remove too old tagtimeline data
+                        _zones.RemoveTagTimeline(weekFirstHour);
+                        //add sels hours to EmpSchedule
+                        await Task.Run(() => _empSchedules.UpdateEmpScheduleSels(), stoppingToken).ConfigureAwait(false);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                _endpointConfig.ApiConnected = false;
+                _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                }
+            }
+            finally
+            {
+                //run summary report
+                await Task.Run(() => _zones.RunMPESummaryReport(), stoppingToken).ConfigureAwait(false);
             }
         }
     }

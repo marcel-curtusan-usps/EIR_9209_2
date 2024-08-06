@@ -1,30 +1,23 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System.Net.Http;
 
 namespace EIR_9209_2.Service
 {
-    public abstract class BaseEndpointService
+    public abstract class BaseEndpointService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection) : IDisposable
     {
-        protected readonly ILogger<BaseEndpointService> Logger;
-        protected readonly IHttpClientFactory _httpClientFactory;
-        protected readonly IHubContext<HubServices> _hubServices;
-        protected readonly IConfiguration _configuration;
-        protected Connection _endpointConfig;
-        private CancellationTokenSource _cancellationTokenSource;
-        private Task _task;
-        private PeriodicTimer _timer;
-        protected BaseEndpointService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IHubContext<HubServices> hubServices, IConfiguration configuration)
-        {
-            Logger = logger;
-            _httpClientFactory = httpClientFactory;
-            _endpointConfig = endpointConfig;
-            _cancellationTokenSource = new CancellationTokenSource();
-            _hubServices = hubServices;
-            _configuration = configuration;
+        protected readonly ILogger<BaseEndpointService> _logger = logger;
+        protected readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+        protected readonly IConfiguration _configuration = configuration;
+        protected readonly IHubContext<HubServices> _hubContext = hubContext;
+        protected readonly IInMemoryConnectionRepository _connection = connection;
+        protected Connection _endpointConfig = endpointConfig;
+        private CancellationTokenSource _cancellationTokenSource = new();
+        private Task? _task = null;
+        private PeriodicTimer? _timer = null;
 
-        }
-        public void Start()
+        public async void Start()
         {
             if (_task == null || _task.IsCompleted)
             {
@@ -35,12 +28,22 @@ namespace EIR_9209_2.Service
                     _timer = new PeriodicTimer(TimeSpan.FromMilliseconds(100));
                     _task = Task.Run(async () => await RunAsync(_cancellationTokenSource.Token));
                     _endpointConfig.Status = EWorkerServiceState.Idel;
-                    _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                    var updateCon = _connection.Update(_endpointConfig).Result;
+                    if (updateCon != null)
+                    {
+                        await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon);
+                    }
+
                 }
                 else
                 {
                     _endpointConfig.Status = EWorkerServiceState.InActive;
-                    _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+
+                    var updateCon = _connection.Update(_endpointConfig).Result;
+                    if (updateCon != null)
+                    {
+                        await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon);
+                    }
                 }
             }
         }
@@ -53,7 +56,7 @@ namespace EIR_9209_2.Service
             }
         }
 
-        public void Update(Connection updateCon)
+        public async void Update(Connection updateCon)
         {
             Stop();
             _endpointConfig.MillisecondsInterval = updateCon.MillisecondsInterval;
@@ -69,7 +72,21 @@ namespace EIR_9209_2.Service
             if (updateCon.ActiveConnection)
             {
                 Start();
-                _hubServices.Clients.Group("Connections").SendAsync("UpdateConnection", _endpointConfig);
+                _endpointConfig.Status = EWorkerServiceState.Running;
+                updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon);
+                }
+            }
+            else
+            {
+                _endpointConfig.Status = EWorkerServiceState.Idel;
+                updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon);
+                }
             }
 
         }
@@ -90,7 +107,7 @@ namespace EIR_9209_2.Service
             }
             catch (OperationCanceledException)
             {
-                Logger.LogInformation("Stopping data collection for {Url}", _endpointConfig.Url);
+                _logger.LogInformation("Stopping data collection for {Url}", _endpointConfig.Url);
             }
             finally
             {
@@ -117,5 +134,19 @@ namespace EIR_9209_2.Service
                 NamingStrategy = new CamelCaseNamingStrategy()
             }
         };
+        /// <summary>
+        /// fix this later to use the correct http client
+        /// </summary>
+        /// <returns></returns>
+        protected HttpClient CreateHttpClient()
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.Timeout = TimeSpan.FromSeconds(_endpointConfig.TimeoutSeconds);
+            return client;
+        }
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

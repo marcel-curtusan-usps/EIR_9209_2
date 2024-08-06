@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.SignalR;
+﻿using EIR_9209_2.Models;
 using EIR_9209_2.Service;
-using NuGet.Protocol.Plugins;
-using EIR_9209_2.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json.Linq;
 
 
 
@@ -24,9 +23,13 @@ namespace EIR_9209_2.Controllers
             _dacodeRepository = dacodeRepository;
             _tags = tags;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         // GET: api/<DAcode>
         [HttpGet]
+        [Route("Get")]
         public async Task<object> Get()
         {
             //handle bad requests
@@ -36,9 +39,14 @@ namespace EIR_9209_2.Controllers
             }
             return Ok(_dacodeRepository.GetAll());
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET api/<DAcode>/5
-        [HttpGet("{id}")]
+        [HttpGet]
+        [Route("GetById")]
         public async Task<object> Get(string id)
         {
             //handle bad requests
@@ -50,9 +58,13 @@ namespace EIR_9209_2.Controllers
         }
 
         // POST api/<DAcode>
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         [HttpPost]
-        [Route("/api/AddDAcodetoCraftType")]
+        [Route("Add")]
         /// <summary>
         /// Adds a new connection.
         /// </summary>
@@ -80,9 +92,15 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(new JObject { ["message"] = "Designation Activity Code was not Added " });
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         // PUT api/<DAcode>/5
         [HttpPut]
-        [Route("/api/UpdateDAcodetocrafttype")]
+        [Route("Update")]
         public async Task<object> Put(string id, [FromBody] JObject value)
         {
             //handle bad requests
@@ -116,8 +134,13 @@ namespace EIR_9209_2.Controllers
 
 
         // DELETE api/<DAcode>/5
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete]
-        [Route("/api/DeleteDAcodetoCraftType")]
+        [Route("Delete")]
         public async Task<object> Delete(string id)
         {
             //handle bad requests

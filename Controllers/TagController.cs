@@ -1,9 +1,7 @@
 ﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
-using System.Buffers;
+using Newtonsoft.Json.Linq;
 using System.Web;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -28,50 +26,55 @@ namespace EIR_9209_2.Controllers
             }
             return Ok(_tags.GetAll());
         }
-
+        /// <summary>
+        /// Get Tag by TagId
+        /// </summary>
+        /// <param name="tagId"></param>
+        /// <returns></returns>
         // GET api/<TagController>/5
-        [HttpGet("{id}")]
-        public async Task<object> Get(string id)
+        [HttpGet]
+        [Route("GetTagByTagId")]
+        public async Task<object> Get(string tagId)
         {
             //handle bad requests
             if (!ModelState.IsValid)
             {
                 return await Task.FromResult(BadRequest(ModelState));
             }
-            return Ok(_tags.Get(id));
+            return Ok(_tags.Get(tagId));
         }
 
         /// <summary>
         /// Get list of Tag by TagType
         /// </summary>
-        /// <param name="TagType"></param>
+        /// <param name="tagType"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("GetTagTypeList")]
-        public async Task<object> GetByTagType(string TagType)
+        public async Task<object> GetByTagType(string tagType)
         {
             if (!ModelState.IsValid)
             {
                 return await Task.FromResult(BadRequest(ModelState));
             }
-            return _tags.GetTagByType(TagType);
+            return _tags.GetTagByType(tagType);
         }
         /// <summary>
         /// Search for Tag by search value
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="value"></param>
         /// <returns></returns>
         // GET api/<TagController>/5
         [HttpGet]
         [Route("Search")]
-        public async Task<object> GetBySearch(string id)
+        public async Task<object> GetBySearch(string value)
         {
             //handle bad requests
             if (!ModelState.IsValid)
             {
                 return await Task.FromResult(BadRequest(ModelState));
             }
-            string searchValue = string.IsNullOrEmpty(id) ? "" : HttpUtility.UrlDecode(id).Replace("\"", "");
+            string searchValue = string.IsNullOrEmpty(value) ? "" : HttpUtility.UrlDecode(value).Replace("\"", "");
             var query = await Task.Run(() => _tags.SearchTag(searchValue));
             var searchReuslt = (from sr in query
                                 select new JObject
@@ -93,6 +96,7 @@ namespace EIR_9209_2.Controllers
         //add new tag
         // POST api/<TagController>
         [HttpPost]
+        [Route("Add")]
         public async Task<object> Post([FromBody] GeoMarker tag)
         {
             //handle bad requests
@@ -100,45 +104,45 @@ namespace EIR_9209_2.Controllers
             {
                 return BadRequest(ModelState);
             }
-            _tags.Add(tag);
-            await _hubContext.Clients.All.SendAsync("AddTag", tag);
-            return Ok(tag);
+            await _tags.Add(tag);
+
+            return Ok();
         }
 
-        // PUT api/<TagController>/5
-        [HttpPut("{id}")]
-        public async Task<object> Put(string id, [FromBody] string value)
-        {
-            if (!ModelState.IsValid)
-            {
-                BadRequest(ModelState);
-            }
-            return Ok(_tags.Get(id));
-        }
+        //// PUT api/<TagController>/5
+        //[HttpPut("{id}")]
+        //public async Task<object> Put(string id, [FromBody] string value)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        BadRequest(ModelState);
+        //    }
+        //    return Ok(_tags.Get(id));
+        //}
 
         /// <summary>
         /// Update Tag Info
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="value"></param>
         /// <returns></returns>
         // PUT api/<TagController>/5
-        [HttpPut()]
+        [HttpPost]
         [Route("UpdateTagInfo")]
-        public async Task<object> PutByTagInfo(string id, [FromBody] JObject value)
+        public async Task<object> PutByTagInfo([FromBody] JObject value)
         {
             if (!ModelState.IsValid)
             {
                 BadRequest(ModelState);
             }
-            //update all tag that have this da code
-            var result = Task.Run(() => _tags.UpdateTagInfo(value)).Result;
 
-            return Ok(result);
+            await _tags.UpdateTagUIInfo(value);
+
+            return Ok();
         }
 
         // DELETE api/<TagController>/5
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("DeleteTag")]
         public async Task<object> Delete(string id)
         {
             //handle bad requests
@@ -146,9 +150,9 @@ namespace EIR_9209_2.Controllers
             {
                 BadRequest(ModelState);
             }
-            _tags.Remove(id);
-            await _hubContext.Clients.All.SendAsync("DeleteTag", id);
-            return Ok(_tags.Get(id));
+            await _tags.Delete(id);
+
+            return Ok();
         }
     }
 }
