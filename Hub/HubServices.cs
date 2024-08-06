@@ -3,6 +3,7 @@ using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Reflection;
 using System.Security.Claims;
 
 public class HubServices : Hub
@@ -16,6 +17,7 @@ public class HubServices : Hub
     private readonly IInMemoryEmpSchedulesRepository _empSchedules;
     private readonly ILogger<HubServices> _logger;
     private readonly IConfiguration _configuration;
+    private readonly Assembly _assembly;
     public HubServices(ILogger<HubServices> logger,
         IInMemoryBackgroundImageRepository backgroundImages,
         IInMemoryConnectionRepository connectionList,
@@ -35,6 +37,7 @@ public class HubServices : Hub
         _siteInfo = siteInfo;
         _empSchedules = empSchedules;
         _configuration = configuration;
+        _assembly = Assembly.GetExecutingAssembly();
     }
     public async Task JoinGroup(string groupName)
     {
@@ -112,7 +115,7 @@ public class HubServices : Hub
         return JsonConvert.SerializeObject(new JObject
         {
             ["name"] = "Connected Facilities",
-            ["version"] = "1.0.0.1",
+            ["version"] = $"{_assembly.GetName().Version}",
             ["description"] = "EIR-9209 is a web application for EIR-9209",
             ["siteName"] = siteInfo?.DisplayName,
             ["user"] = await GetUserName(Context.User),
@@ -131,6 +134,10 @@ public class HubServices : Hub
     public async Task<IEnumerable<GeoMarker>> GetAGVTags()
     {
         return await Task.Run(() => _tags.GetTagsType("AutonomousVehicle"));
+    }
+    public async Task<IEnumerable<GeoMarker>> GetAccessPoints()
+    {
+        return await Task.Run(() => _tags.GetTagsType("AP"));
     }
     public async Task<IEnumerable<GeoZone>> GetGeoZones()
     {

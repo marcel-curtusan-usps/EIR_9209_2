@@ -72,7 +72,7 @@ namespace EIR_9209_2.Controllers
         /// <returns></returns>
         // PUT api/<SiteConfigurationController>/5
         [HttpPost]
-        [Route("UpdateConfiguration")]
+        [Route("Update")]
         public async Task<object> PostByUpdateApplicationConfiguration([FromBody] JObject value)
         {
             // Example: Update a specific configuration setting

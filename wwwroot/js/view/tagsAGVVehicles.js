@@ -120,6 +120,9 @@ async function init_tagsAGV(data) {
                     }
                 }
             });
+            connection.invoke("JoinGroup", "AutonomousVehicle").catch(function (err) {
+                return console.error(err.toString());
+            });
             resolve();
             return false;
         }

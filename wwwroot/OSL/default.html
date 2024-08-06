@@ -214,7 +214,7 @@
                             <input id="bearerToken" type="text" class="form-control" name="bearerToken" />
                             <span id="error_bearerToken" class="text-danger"></span>
                         </div>
-                     
+
                     </div>
                     <div class="row mb-3" id="OAuthmenu" style="display: none">
                         <div class="form-group col-12">
@@ -1630,7 +1630,11 @@
                         <div class="card-header pl-1 border-bottom">
                             <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
                                 AGV Location Info
-                                <span class="btn btn-secondary border-0 badge-info badge" name="locationid"></span>
+                                <span class="d-flex justify-content-between">
+                                    <span class="btn btn-secondary border-0 badge-info badge" name="locationid"></span>
+                                </span>
+                                <button type="button" class="btn btn-secondary border-0 badge-info badge agvlocationinfoedit" name="agvlocationinfoedit" style="display: none" data-id="0" data-toggle="tooltip" data-container="body" data-placement="top">Edit</button>
+
                             </h6>
                         </div>
                         <div id="div_location_mission">
@@ -1714,8 +1718,6 @@
                                 <label class="vehicleInfo custom-control-label" for="followvehicle">Follow Vehicle</label>
 
                             </div>
-                            <div>
-                            </div>
                         </div>
 
                         <div id="div_vehicle">
@@ -1728,7 +1730,9 @@
                         </div>
                         <div class="card-header pl-1 d-flex flex-row" id="vehicle-info-edit-row">
                             <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
-
+                                <span class="d-flex justify-content-between">
+                                    <span class="btn btn-secondary border-0 badge-info badge" name="vehicleid"></span>
+                                </span>
                                 <button type="button" class="btn btn-secondary border-0 badge-info badge vehicleinfoedit" name="vehicleinfoedit" data-id="0" data-toggle="tooltip" data-container="body" data-placement="top">Edit</button>
 
                             </h6>
@@ -2472,8 +2476,23 @@
                             <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Site Info</h6>
                         </div>
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-sm" id="siteInfotable">
+                            <div class="table-responsive fixedHeader variableHeight">
+                                <table class="table table-sm table-hover mb-1 border-bottom" id="siteInfotable">
+                                    <thead class="thead-dark">
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card w-100">
+                        <div class="card-header pl-1 d-flex justify-content-between">
+                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Application Setting</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive fixedHeader variableHeight">
+                                <table class="table table-sm table-hover mb-1 border-bottom" id="app_settingtable">
                                     <thead class="thead-dark">
                                     </thead>
                                     <tbody>
@@ -2498,21 +2517,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card w-100">
-                        <div class="card-header pl-1 d-flex justify-content-between">
-                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Application Setting</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-sm" id="app_settingtable">
-                                    <thead class="thead-dark">
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+
                     <div class="card w-100">
                         <div class="card-header pl-1 d-flex justify-content-between">
                             <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Loaded Workroom/Floor Image</h6>
@@ -2778,6 +2783,7 @@
     <script src="../js/view/osl.js"></script>
     <script src="../js/view/indoorMap.js"></script>
     <script src="../js/view/tagsEmployee.js"></script>
+    <script src="../js/view/accessPoints.js"></script>
     <script src="../js/view/tagsPIVVehicles.js"></script>
     <script src="../js/view/tagsAGVVehicles.js"></script>
     <script src="../js/view/tagsSearch.js"></script>

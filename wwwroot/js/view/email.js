@@ -365,52 +365,55 @@ async function Add_Email() {
 // edit email 
 async function Edit_Email(data) {
     try {
-        $('#modalHeader_ID').text('Edit Email Subscription');
-        $('input[type=checkbox][id=enabled_email]').prop('checked', data.enabled);
-        $('input[type=text][name=emailFirstName]').val(data.firstName);
-        $('input[type=text][name=emailLastName]').val(data.lastName);
-        $('input[type=text][name=emailAddress]').val(data.emailAddress);
-        $('input[type=text][name=aceId]').val(data.ace);
-        $('select[name=reportName]').val(data.reportName);
-        Promise.all([onEmailVaildation()]);
-        $('button[id=emailsubmitBtn]').off().on('click', function () {
-            $('button[id=emailsubmitBtn]').prop('disabled', true);
-            let jsonObject = {
-                id: data.id,
-                enabled: $('input[type=checkbox][name=enabled_email]').prop('checked'),
-                firstName: $('input[type=text][name=emailFirstName]').val(),
-                lastName: $('input[type=text][name=emailLastName]').val(),
-                emailAddress: $('input[type=text][name=emailAddress]').val(),
-                ace: $('input[type=text][name=aceId]').val(),
-                reportName: $('select[name=reportName] option:selected').val(),
-                mPEName: $('select[name=mpeNameList] option:selected').val()
-            };
-            if (!$.isEmptyObject(jsonObject)) {
-                //make a ajax call to get the employee details
-                $.ajax({
-                    url: SiteURLconstructor(window.location) + '/api/EmailAgent/EditEmail?id=' + data.id,
-                    data: JSON.stringify(jsonObject),
-                    contentType: 'application/json',
-                    type: 'PUT',
-                    success: function (data) {
-                        Promise.all([updateEmailListDataTable(data, EmailListtable)]);
-                        setTimeout(function () { $("#Email_Modal").modal('hide'); sidebar.open('setting'); }, 500);
-                    },
-                    error: function (error) {
-                        $('span[id=error_emailsubmitBtn]').text(error);
-                        $('button[id=emailsubmitBtn]').prop('disabled', false);
-                        //console.log(error);
-                    },
-                    faulure: function (fail) {
-                        console.log(fail);
-                    },
-                    complete: function (complete) {
-                        $('button[id=emailsubmitBtn]').prop('disabled', false);
-                    }
-                });
-            }
+        Promise.all([loadMpeName()]).then(() => {
+            $('#modalHeader_ID').text('Edit Email Subscription');
+            $('input[type=checkbox][id=enabled_email]').prop('checked', data.enabled);
+            $('input[type=text][name=emailFirstName]').val(data.firstName);
+            $('input[type=text][name=emailLastName]').val(data.lastName);
+            $('input[type=text][name=emailAddress]').val(data.emailAddress);
+            $('input[type=text][name=aceId]').val(data.ace);
+            $('select[name=reportName]').val(data.reportName);
+            $('select[name=mpeNameList]').val(data.mpeName);
+            Promise.all([onEmailVaildation()]);
+            $('button[id=emailsubmitBtn]').off().on('click', function () {
+                $('button[id=emailsubmitBtn]').prop('disabled', true);
+                let jsonObject = {
+                    id: data.id,
+                    enabled: $('input[type=checkbox][name=enabled_email]').prop('checked'),
+                    firstName: $('input[type=text][name=emailFirstName]').val(),
+                    lastName: $('input[type=text][name=emailLastName]').val(),
+                    emailAddress: $('input[type=text][name=emailAddress]').val(),
+                    ace: $('input[type=text][name=aceId]').val(),
+                    reportName: $('select[name=reportName] option:selected').val(),
+                    mPEName: $('select[name=mpeNameList] option:selected').val()
+                };
+                if (!$.isEmptyObject(jsonObject)) {
+                    //make a ajax call to get the employee details
+                    $.ajax({
+                        url: SiteURLconstructor(window.location) + '/api/EmailAgent/EditEmail?id=' + data.id,
+                        data: JSON.stringify(jsonObject),
+                        contentType: 'application/json',
+                        type: 'PUT',
+                        success: function (data) {
+                            Promise.all([updateEmailListDataTable(data, EmailListtable)]);
+                            setTimeout(function () { $("#Email_Modal").modal('hide'); sidebar.open('setting'); }, 500);
+                        },
+                        error: function (error) {
+                            $('span[id=error_emailsubmitBtn]').text(error);
+                            $('button[id=emailsubmitBtn]').prop('disabled', false);
+                            //console.log(error);
+                        },
+                        faulure: function (fail) {
+                            console.log(fail);
+                        },
+                        complete: function (complete) {
+                            $('button[id=emailsubmitBtn]').prop('disabled', false);
+                        }
+                    });
+                }
+            });
+            $('#Email_Modal').modal('show');
         });
-        $('#Email_Modal').modal('show');
     } catch (e) {
         throw new Error(e.toString());
     }
@@ -516,45 +519,51 @@ function validateEmail(email) {
 }
 async function loadMpeName() {
     // load the MPE name from API   
+    try {
+        return new Promise((resolve, reject) => {
+            //makea ajax call to get the list of MPE name
+            $.ajax({
+                url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
+                type: 'GET',
+                success: function (data) {
+                    if (data.length > 0) {
+                        //clear the select list
+                        $('select[id=mpeNameList]').empty();
+                        //for each data and set the MPE name
 
-    //makea ajax call to get the list of MPE name
-    $.ajax({
-        url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
-        type: 'GET',
-        success: function (data) {
-            if (data.length > 0) {
-                //clear the select list
-                $('select[id=mpeNameList]').empty();
-                //for each data and set the MPE name
+                        let name = "MPE";
+                        $('<option data-reportType=' + name + '>').val("").html("").appendTo('#mpeNameList');
+                        $.each(data.sort(), function (index, value) {
+                            //replace all instance of dot in value
 
-                let name = "MPE";
-                $('<option data-reportType=' + name + '>').val("").html("").appendTo('#mpeNameList');
-                $.each(data.sort(), function (index, value) {
-                    //replace all instance of dot in value
+                            let messageType = value.replace(/\./g, '_');
+                            if ($('#mpeNameList option[value=' + messageType + ']').length == 0) {
+                                $('<option data-reportType=' + name + '>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                            }
+                        })
 
-                    let messageType = value.replace(/\./g, '_');
-                    if ($('#mpeNameList option[value=' + messageType + ']').length == 0) {
-                        $('<option data-reportType=' + name + '>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                        name = "Site";
+                        let messageType = "SiteSummary";
+                        if ($('#mpeNameList option[value=' + messageType + ']').length == 0) {
+                            $('<option data-reportType=' + name + '>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                        }
                     }
-                })
-
-                name = "Site";
-                let messageType = "SiteSummary";
-                if ($('#mpeNameList option[value=' + messageType + ']').length == 0) {
-                    $('<option data-reportType=' + name + '>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                },
+                error: function (error) {
+                    console.log(error);
+                },
+                faulure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
                 }
-            }
-        },
-        error: function (error) {
-            console.log(error);
-        },
-        faulure: function (fail) {
-            console.log(fail);
-        },
-        complete: function (complete) {
-        }
-    });
-
+            });
+            resolve();
+            return false;
+        });
+    } catch (e) {
+        throw new Error(e.toString());
+    }
 }
 function filterReportType(name, type) {
     let conectionName = !!name ? name : $("#reportName").find('option:selected').val();

@@ -28,44 +28,90 @@ public class InMemoryEmailRepository : IInMemoryEmailRepository
     public Email? Add(Email email)
     {
         //add to email and also save to file
-
-        if (_emailList.TryAdd(email.Id, email))
+        bool saveToFile = false;
+        try
         {
-            if (_fileService.WriteFile(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented)))
+            if (_emailList.TryAdd(email.Id, email))
             {
+                saveToFile = true;
                 return email;
+
             }
             else
             {
-                _logger.LogError($"{fileName} was not update");
                 return null;
-
             }
         }
-        else
+        catch (Exception e)
         {
+            _logger.LogError(e.Message);
             return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented));
+            }
         }
     }
 
     public Email? Delete(string id)
     {
-        //delete from email and also save to file
-        if (_emailList.TryRemove(id, out Email currentEmail))
+        bool saveToFile = false;
+        try
         {
-            if (_fileService.WriteFile(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented)))
+            //delete from email and also save to file
+            if (_emailList.TryRemove(id, out Email currentEmail))
             {
+                saveToFile = true;
+                return currentEmail;
+
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented));
+            }
+        }
+    }
+    public Email? Update(string id, Email email)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (_emailList.TryGetValue(id, out Email? currentEmail) && _emailList.TryUpdate(id, email, currentEmail))
+            {
+                saveToFile = true;
                 return currentEmail;
             }
             else
             {
                 return null;
             }
-
         }
-        else
+        catch (Exception e)
         {
+            _logger.LogError(e.Message);
             return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented));
+            }
         }
     }
 
@@ -75,25 +121,7 @@ public class InMemoryEmailRepository : IInMemoryEmailRepository
         return _emailList.Values;
     }
 
-    public Email? Update(Email email)
-    {
-        if (_emailList.TryGetValue(email.Id, out Email? currentEmail) && _emailList.TryUpdate(email.Id, email, currentEmail))
-        {
-            if (_fileService.WriteFile(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented)))
-            {
-                return currentEmail;
-            }
-            else
-            {
-                return null;
-            }
 
-        }
-        else
-        {
-            return null;
-        }
-    }
 
     /// <summary>
     /// Updates a email in the in-memory email repository.

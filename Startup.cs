@@ -2,9 +2,11 @@
 using EIR_9209_2.DataStore;
 using EIR_9209_2.Service;
 using EIR_9209_2.Utilities;
+using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using System.Configuration;
 using System.Reflection;
 
 public class Startup
@@ -33,6 +35,7 @@ public class Startup
         // Configure logging
         services.AddLogging();
         //AddOptions(services);
+        services.AddAuthentication(IISDefaults.AuthenticationScheme);
         services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<IEncryptDecrypt, EncryptDecrypt>();
         services.AddSingleton<IInMemorySiteInfoRepository, InMemorySiteInfoRepository>();
@@ -138,15 +141,21 @@ public class Startup
         //TODO: Uncomment this if you need wwwroot folder
         // app.UseStaticFiles();
         //app.UseHealthChecks("/health");
+        app.UseAuthentication();
         app.UseAuthorization();
+        var swaggerConfig = Configuration.GetSection("SwaggerConfiguration");
+        var applicationConfiguration = Configuration.GetSection("ApplicationConfiguration");
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
-            //TODO: Either use the SwaggerGen generated Swagger contract (generated from C# classes)
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "CF API's");
-
-            //TODO: Or alternatively use the original Swagger contract that's included in the static files
-            // c.SwaggerEndpoint("/swagger-original.json", "Swagger  - OpenAPI 3.0 Original");
+            if (env.IsDevelopment())
+            {
+                c.SwaggerEndpoint(swaggerConfig["Endpoint"], "CF API's");
+            }
+            else
+            {
+                c.SwaggerEndpoint($"/{applicationConfiguration["ApplicationName"]}{swaggerConfig["Endpoint"]}", "CF API's");
+            }
         });
 
         //TODO: Use Https Redirection

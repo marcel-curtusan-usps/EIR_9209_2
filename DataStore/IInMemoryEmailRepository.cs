@@ -6,5 +6,5 @@ public interface IInMemoryEmailRepository
     Email Add(Email email);
     Email Delete(string id);
     IEnumerable<Email> GetAll();
-    Email Update(Email email);
+    Email Update(string id, Email email);
 }

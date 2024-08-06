@@ -706,10 +706,87 @@ namespace EIR_9209_2.DataStore
                     foreach (var item in result)
                     {
                         GeoMarker? TagData = null;
+                        JObject PositionGeoJson = new JObject
+                        {
+                            ["type"] = "Feature",
+                            ["geometry"] = new JObject
+                            {
+                                ["type"] = "Point",
+                                ["coordinates"] = new JArray((double)item["x"], (double)item["y"])
+                            },
+                            ["properties"] = new JObject
+                            {
+                                ["id"] = item["macAddress"].ToString(),
+                                ["floorId"] = item["macAddress"].ToString(),
+                                ["name"] = item["name"].ToString(),
+                                ["posAge"] = 0,
+                                ["visible"] = true,
+                                ["zones"] = "",
+                                ["locationMovementStatus"] = "",
+                                ["positionTS_txt"] = DateTime.Now.ToString(),
+                                ["craftName"] = item["make"].ToString(),
+                                ["tagType"] = item["level"].ToString()
+                            }
+                        };
                         _tagList.TryGetValue(item["macAddress"].ToString(), out TagData);
                         if (TagData != null)
                         {
-                            await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", "");
+                            if (TagData.Properties.Name != item["displayName"].ToString())
+                            {
+                                TagData.Properties.Name = item["displayName"].ToString();
+                                savetoFile = false;
+                            }
+                            if (TagData.Properties.CraftName != item["make"].ToString())
+                            {
+                                TagData.Properties.CraftName = item["make"].ToString();
+                                savetoFile = false;
+                            }
+                            if (TagData.Properties.TagType != item["level"].ToString())
+                            {
+                                TagData.Properties.TagType = item["level"].ToString();
+                                savetoFile = false;
+                            }
+                            if (TagData.Properties.EmpFirstName != item["model"].ToString())
+                            {
+                                TagData.Properties.EmpFirstName = item["model"].ToString();
+                                savetoFile = false;
+                            }
+                            if (TagData.Properties.EmpLastName != item["ipAddress"].ToString())
+                            {
+                                TagData.Properties.EmpLastName = item["ipAddress"].ToString();
+                                savetoFile = false;
+                            }
+
+                            if (TagData.Geometry.Coordinates != new List<double> { (double)item["x"], (double)item["y"] })
+                            {
+                                TagData.Geometry.Coordinates = new List<double> { (double)item["x"], (double)item["y"] };
+                                await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}Position", PositionGeoJson);
+                            }
+
+                        }
+                        else
+                        {
+                            TagData = new GeoMarker
+                            {
+                                Geometry = new MarkerGeometry
+                                {
+                                    Coordinates = new List<double> { (double)item["x"], (double)item["y"] },
+                                    Type = "Point"
+                                },
+                                Properties = new Marker
+                                {
+                                    Id = item["macAddress"].ToString(),
+                                    Name = item["name"].ToString(),
+                                    TagType = item["level"].ToString(),
+                                    EmpFirstName = item["model"].ToString(),
+                                    EmpLastName = item["ipAddress"].ToString(),
+                                    Visible = true
+                                }
+                            };
+                            if (_tagList.TryAdd(item["macAddress"].ToString(), TagData))
+                            {
+                                await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}Position", PositionGeoJson);
+                            }
                         }
                     }
                 }

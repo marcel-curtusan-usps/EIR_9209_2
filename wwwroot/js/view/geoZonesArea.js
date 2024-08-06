@@ -33,11 +33,10 @@ let geoZoneArea = new L.GeoJSON(null, {
     onEachFeature: function (feature, layer) {
 
         layer.zoneId = feature.properties.id;
-        if (!isAGVLocationZoneRemoved) {
-            layer.on('click', function (e) {
-                OSLmap.setView(e.sourceTarget.getCenter(), 3);
-            });
-        }
+        layer.on('click', function (e) {
+            OSLmap.setView(e.sourceTarget.getCenter(), 3);
+        });
+
         layer.bindTooltip(feature.properties.name, {
             permanent: true,
             interactive: true,
@@ -90,12 +89,11 @@ async function init_geoZoneArea() {
     });
 }
 connection.on("addAreazone", async (zoneDate) => {
-    addAreaFeature(zoneDate);
+    Promise.all([addAreaFeature(zoneDate)]);
 
 });
 connection.on("deleteAreazone", async (zoneDate) => {
-    isAGVLocationZoneRemoved = true;
-    deleteAreaFeature(zoneDate);
+    Promise.all([deleteAreaFeature(zoneDate)]);
 
 });
 connection.on("updateAreazone", async (mpeZonedata) => {
@@ -119,7 +117,7 @@ async function addAreaFeature(data) {
         throw new Error(e.toString());
     }
 }
-async function deleteAGVLocationFeature(data) {
+async function deleteAreaFeature(data) {
     try {
         await findAreaLeafletIds(data.properties.id)
             .then(leafletIds => {

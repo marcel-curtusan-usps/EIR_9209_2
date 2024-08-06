@@ -54,7 +54,7 @@ namespace EIR_9209_2.Controllers
         }
         // POST api/<EmailAgentController>
         [HttpPost]
-        [Route("AddEmail")]
+        [Route("Add")]
         public async Task<object> PostByAddNewEmail([FromBody] JObject newEmail)
         {
             try
@@ -87,16 +87,16 @@ namespace EIR_9209_2.Controllers
         /// <param name="value"></param>
         /// <returns></returns>
 
-        [HttpPut]
-        [Route("EditEmail")]
-        public async Task<object> Put(string id, [FromBody] JObject value)
+        [HttpPost]
+        [Route("Update")]
+        public async Task<object> PostByUpdateEmail(string id, [FromBody] JObject value)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
             Email email = value.ToObject<Email>();
-            Email result = _emailList.Update(email);
+            Email result = _emailList.Update(id, email);
             if (result == null)
             {
                 return BadRequest("Email was not updated");

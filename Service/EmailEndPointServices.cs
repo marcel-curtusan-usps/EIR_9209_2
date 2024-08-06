@@ -19,7 +19,7 @@ namespace EIR_9209_2.Service
                 _endpointConfig.LasttimeApiConnected = DateTime.Now;
                 _endpointConfig.ApiConnected = true;
                 await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, cancellationToken: stoppingToken);
-              
+
 
                 //get list of Mpe name from email list and send email
 
@@ -54,14 +54,19 @@ namespace EIR_9209_2.Service
                     FormatUrl = string.Format(_endpointConfig.Url, mpeName);
 
                     var screenshotStream = await new ScreenshotService().CaptureScreenshotAsync(FormatUrl);
-                    // Construct the email content
-                    var body = $"Dear recipients,\n\nThis email is for the report type '{reportType}' and Zone name '{mpeName}'.\n\nClick on this link to navigate to Report<p>Click on this <a href='{FormatUrl}'>link</a> to navigate to Report.</p>";
-                    //how do i add a link to the email body
+                    var body = "";
+                    if (screenshotStream.Length > 0)
+                    {
+                        // Construct the email content
+                        body = $"Dear recipients,\n\nThis email is for the report type '{reportType}' and Zone name '{mpeName}'.\n\nClick on this link to navigate to Report<p>Click on this <a href='{FormatUrl}'>link</a> to navigate to Report.</p>";
 
-                    // Assuming you have a method to send emails that takes the subject and the message
-                    // Note: You might need to adjust the method to accept multiple recipients or handle it accordingly
+                    }
+                    else
+                    {
+                        body = $"Dear recipients,\n\nThis email is for the report type '{reportType}' and Zone name '{mpeName}'.\n\nClick on this link to navigate to Report<p>Click on this <a href='{FormatUrl}'>link</a> to navigate to Report.</p>";
+
+                    }
                     await new EmailService().SendEmailAsync(_configuration["ApplicationConfiguration:SupportEmail"], recipients, "MPE Screen shot", body, screenshotStream);
-
                 }
             }
             catch (Exception ex)
