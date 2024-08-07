@@ -572,56 +572,56 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                             long tsstart = 0;
                             TimeSpan durtmp = TimeSpan.Zero;
                             TimeSpan minustmp = TimeSpan.Zero;
-                            foreach (var ts in curemp)
-                            {
-                                starttmp = ts.Start;
-                                if (tsstart == 0)
-                                {
-                                    tsstart = ts.Start;
-                                }
-                                if (endtmp != 0 && starttmp < endtmp)
-                                {
-                                    minustmp += TimeSpan.FromSeconds((endtmp - starttmp) / 1000);
-                                }
-                                if (endtmp != 0 && (starttmp - endtmp) > 8 * 60 * 60 * 1000)
-                                {
-                                    for (var i = 0; i < 7; i++)
-                                    {
-                                        if (i != 6 && (tsstart >= weekts[i] && ts.End <= weekts[i + 1]))
-                                        {
-                                            selstotal[i] += durtmp - minustmp;
-                                            break;
-                                        }
-                                        else if ((weekts[i] - tsstart) > 0 && (ts.End - weekts[i]) > 0)
-                                        {
-                                            if ((weekts[i] - tsstart) < (ts.End - weekts[i]))
-                                            {
-                                                selstotal[i] += durtmp - minustmp;
-                                            }
-                                            else if (i != 0)
-                                            {
-                                                selstotal[i - 1] += durtmp - minustmp;
-                                            }
-                                            break;
-                                        }
-                                        else if (i == 6 || (tsstart < weekts[i] && ts.End >= weekts[i + 1]))
-                                        {
-                                            selstotal[i] += durtmp - minustmp;
-                                            break;
-                                        }
-                                        //if ((i == 6 && ts.End >= weekts[i]) || (ts.End >= weekts[i] && ts.End < weekts[i + 1]))
-                                        //{
-                                        //   selstotal[i] += durtmp - minustmp;
-                                        //   selstotal[i] += durtmp;
-                                        //}
-                                    }
-                                    tsstart = ts.Start;
-                                    durtmp = TimeSpan.Zero;
-                                    minustmp = TimeSpan.Zero;
-                                }
-                                durtmp += ts.Duration;
-                                endtmp = ts.End;
-                            }
+                            //foreach (var ts in curemp)
+                            //{
+                            //    starttmp = ts.Start;
+                            //    if (tsstart == 0)
+                            //    {
+                            //        tsstart = ts.Start;
+                            //    }
+                            //    if (endtmp != 0 && starttmp < endtmp)
+                            //    {
+                            //        minustmp += TimeSpan.FromSeconds((endtmp - starttmp) / 1000);
+                            //    }
+                            //    if (endtmp != 0 && (starttmp - endtmp) > 8 * 60 * 60 * 1000)
+                            //    {
+                            //        for (var i = 0; i < 7; i++)
+                            //        {
+                            //            if (i != 6 && (tsstart >= weekts[i] && ts.End <= weekts[i + 1]))
+                            //            {
+                            //                selstotal[i] += durtmp - minustmp;
+                            //                break;
+                            //            }
+                            //            else if ((weekts[i] - tsstart) > 0 && (ts.End - weekts[i]) > 0)
+                            //            {
+                            //                if ((weekts[i] - tsstart) < (ts.End - weekts[i]))
+                            //                {
+                            //                    selstotal[i] += durtmp - minustmp;
+                            //                }
+                            //                else if (i != 0)
+                            //                {
+                            //                    selstotal[i - 1] += durtmp - minustmp;
+                            //                }
+                            //                break;
+                            //            }
+                            //            else if (i == 6 || (tsstart < weekts[i] && ts.End >= weekts[i + 1]))
+                            //            {
+                            //                selstotal[i] += durtmp - minustmp;
+                            //                break;
+                            //            }
+                            //            //if ((i == 6 && ts.End >= weekts[i]) || (ts.End >= weekts[i] && ts.End < weekts[i + 1]))
+                            //            //{
+                            //            //   selstotal[i] += durtmp - minustmp;
+                            //            //   selstotal[i] += durtmp;
+                            //            //}
+                            //        }
+                            //        tsstart = ts.Start;
+                            //        durtmp = TimeSpan.Zero;
+                            //        minustmp = TimeSpan.Zero;
+                            //    }
+                            //    durtmp += ts.Duration;
+                            //    endtmp = ts.End;
+                            //}
                             //last one
                             for (var i = 0; i < 7; i++)
                             {

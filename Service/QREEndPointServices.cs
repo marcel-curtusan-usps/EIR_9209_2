@@ -126,12 +126,12 @@ namespace EIR_9209_2.Service
                                 if (currentHour == hour || pastHour == hour)
                                 {
                                     var currentvalue = _zones.GetTagTimeline(hour);
-                        
+
                                     var newValue = await queryService.GetTotalTagTimeline(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
                                         TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
                                         TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
                                         allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
-                        
+
                                     //add to the list
                                     _zones.UpdateTagTimeline(hour, newValue, currentvalue);
                                     //add sels hours to EmpSchedule
@@ -166,7 +166,7 @@ namespace EIR_9209_2.Service
                 _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
                 _endpointConfig.ApiConnected = false;
                 _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
-                var updateCon = _connection.Update(_endpointConfig).Result;
+                var updateCon = _connection.Update(_endpointConfig);
                 if (updateCon != null)
                 {
                     await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
@@ -175,7 +175,10 @@ namespace EIR_9209_2.Service
             finally
             {
                 //run summary report
-                await Task.Run(() => _zones.RunMPESummaryReport(), stoppingToken).ConfigureAwait(false);
+                if (_endpointConfig.MessageType == "AREA_AGGREGATION")
+                {
+                    await Task.Run(() => _zones.RunMPESummaryReport(), stoppingToken).ConfigureAwait(false);
+                }
             }
         }
     }

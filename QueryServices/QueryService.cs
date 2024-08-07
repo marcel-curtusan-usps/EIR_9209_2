@@ -282,16 +282,11 @@ internal class QueryService : IQueryService
                 EmployeeName = string.Concat(Regex.Match(r.User, userRegexPattern).Groups[1].Value, @" ", Regex.Match(r.User, userRegexPattern).Groups[2].Value),
                 Ein = Regex.Match(r.User, userRegexPattern).Groups[3].Value.PadLeft(8, '0'),
                 AreaName = r.Area,
-                //Start_txt = DateTime.ParseExact(r.Start, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
-                Start = long.Parse(r.Start),
-                //End_txt = DateTime.ParseExact(r.End, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
-                End = long.Parse(r.End),
+                Start = r.Start,
+                End = r.End,
                 Duration = r.Duration,
                 Type = r.Type
             }).ToList();
-//        Start_txt = !string.IsNullOrEmpty(r.Start)
-//      ? DateTime.ParseExact(r.Start, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
-//      : DateTime.MinValue,
 
     }
 }
