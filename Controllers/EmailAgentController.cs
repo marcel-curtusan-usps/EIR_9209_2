@@ -19,6 +19,10 @@ namespace EIR_9209_2.Controllers
         private readonly IConfiguration _configuration = configuration;
 
         // GET: api/<ZoneController>
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("AllEmail")]
         public async Task<object> GetAllEmail()
@@ -110,7 +114,7 @@ namespace EIR_9209_2.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete]
-        [Route("DeleteEmail")]
+        [Route("Delete")]
         public async Task<object> Delete(string id)
         {
             if (!ModelState.IsValid)

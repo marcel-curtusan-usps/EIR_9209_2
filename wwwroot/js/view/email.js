@@ -332,7 +332,7 @@ async function Add_Email() {
             if (!$.isEmptyObject(jsonObject)) {
                 //make a ajax call to get the employee details
                 $.ajax({
-                    url: SiteURLconstructor(window.location) + '/api/EmailAgent/AddEmail',
+                    url: SiteURLconstructor(window.location) + '/api/EmailAgent/Add',
                     data: JSON.stringify(jsonObject),
                     contentType: 'application/json',
                     type: 'POST',
@@ -390,7 +390,7 @@ async function Edit_Email(data) {
                 if (!$.isEmptyObject(jsonObject)) {
                     //make a ajax call to get the employee details
                     $.ajax({
-                        url: SiteURLconstructor(window.location) + '/api/EmailAgent/EditEmail?id=' + data.id,
+                        url: SiteURLconstructor(window.location) + '/api/EmailAgent/Edit?id=' + data.id,
                         data: JSON.stringify(jsonObject),
                         contentType: 'application/json',
                         type: 'PUT',
@@ -430,7 +430,7 @@ async function Delete_Email(data) {
         };
         // ajax call to delete email
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/EmailAgent/DeleteEmail?id=' + data.id,
+            url: SiteURLconstructor(window.location) + '/api/EmailAgent/Delete?id=' + data.id,
             data: JSON.stringify(jsonObject),
             contentType: 'application/json',
             type: 'DELETE',
