@@ -91,7 +91,7 @@ namespace EIR_9209_2.Controllers
         /// <param name="value"></param>
         /// <returns></returns>
 
-        [HttpPost]
+        [HttpPut]
         [Route("Update")]
         public async Task<object> PostByUpdateEmail(string id, [FromBody] JObject value)
         {
