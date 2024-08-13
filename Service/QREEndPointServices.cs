@@ -166,7 +166,7 @@ namespace EIR_9209_2.Service
                 _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
                 _endpointConfig.ApiConnected = false;
                 _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
-                var updateCon = _connection.Update(_endpointConfig);
+                var updateCon = _connection.Update(_endpointConfig).Result;
                 if (updateCon != null)
                 {
                     await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
