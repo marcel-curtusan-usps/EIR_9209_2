@@ -390,7 +390,7 @@ async function Edit_Email(data) {
                 if (!$.isEmptyObject(jsonObject)) {
                     //make a ajax call to get the employee details
                     $.ajax({
-                        url: SiteURLconstructor(window.location) + '/api/EmailAgent/Edit?id=' + data.id,
+                        url: SiteURLconstructor(window.location) + '/api/EmailAgent/Update?id=' + data.id,
                         data: JSON.stringify(jsonObject),
                         contentType: 'application/json',
                         type: 'PUT',
