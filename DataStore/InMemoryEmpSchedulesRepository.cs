@@ -10,26 +10,30 @@ using System.Data;
 using Microsoft.Extensions.Hosting;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Globalization;
+using System;
+using Humanizer;
 
 
 public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
 {
     private readonly ConcurrentDictionary<string, EmpSchedule> _empScheduleList = new();
+    private readonly ConcurrentDictionary<string, ScheduleReport> _schReport = new();
     private readonly IConfiguration _configuration;
     private readonly ILogger<InMemoryEmpSchedulesRepository> _logger;
     private readonly IFileService _fileService;
-    private readonly IInMemoryGeoZonesRepository _zones;
+    private readonly IInMemoryTagsRepository _tags;
     protected readonly IHubContext<HubServices> _hubServices;
 
     private readonly string filePath = "";
     private readonly string fileName = "";
-    public InMemoryEmpSchedulesRepository(ILogger<InMemoryEmpSchedulesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices, IInMemoryGeoZonesRepository zones)
+    public InMemoryEmpSchedulesRepository(ILogger<InMemoryEmpSchedulesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices, IInMemoryTagsRepository tags)
     {
         _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
         _hubServices = hubServices;
-        _zones = zones;
+        _tags = tags;
         fileName = $"{_configuration[key: "InMemoryCollection:CollectionEmpSchedule"]}.json";
         filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"]!,
             _configuration[key: "ApplicationConfiguration:BaseDirectory"]!,
@@ -81,78 +85,56 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
     public IEnumerable<EmpSchedule> GetAll() => _empScheduleList.Values;
     public object getEmpSchedule()
     {
-        ConcurrentDictionary<string, IList<string>> reportResults = new ConcurrentDictionary<string, IList<string>>();
-
-        //get dates for the week
-        List<Schedule> weekday = _empScheduleList.Where(r => r.Value.WeekSchedule[0].Day == "1").Select(y => y.Value.WeekSchedule).FirstOrDefault();
-        DateTime firstdate = DateTime.ParseExact(weekday[0].EndTourDtm.ToString(), "MMMM, dd yyyy HH:mm:ss",
-                      System.Globalization.CultureInfo.InvariantCulture);
-        List<string> weeklist = new List<string>(new string[7]);
-        for (var i = 0; i < 7; i++)
+        //payweek
+        string payweek = _empScheduleList.Select(y => y.Value.PayWeek).FirstOrDefault() ?? "";
+        if (payweek == "")
         {
-            weeklist[i] = firstdate.AddDays(i).ToString("MMMM dd");
+            return null;
         }
-
-        //add weekly dates for header
-        reportResults.TryAdd("weekdate", new List<string> {
-            weeklist[0],
-            weeklist[1],
-            weeklist[2],
-            weeklist[3],
-            weeklist[4],
-            weeklist[5],
-            weeklist[6]
-        });
-
-        foreach (KeyValuePair<string, EmpSchedule> data in _empScheduleList)
+        else
         {
-            var hourstotalpercent = "0";
-
-            var day1 = GetDaySchedule(data.Value.WeekSchedule, "1")!.ToString();
-            var day2 = GetDaySchedule(data.Value.WeekSchedule, "2")!.ToString();
-            var day3 = GetDaySchedule(data.Value.WeekSchedule, "3")!.ToString();
-            var day4 = GetDaySchedule(data.Value.WeekSchedule, "4")!.ToString();
-            var day5 = GetDaySchedule(data.Value.WeekSchedule, "5")!.ToString();
-            var day6 = GetDaySchedule(data.Value.WeekSchedule, "6")!.ToString();
-            var day7 = GetDaySchedule(data.Value.WeekSchedule, "7")!.ToString();
-            var hourst = GetTotalHours(data.Value.WeekSchedule)?.ToString("0.##");
-
-            var selsday1 = GetSelsSchedule(data.Value.SelsSchedule, "1")?.ToString("0.##");
-            var selsday2 = GetSelsSchedule(data.Value.SelsSchedule, "2")?.ToString("0.##");
-            var selsday3 = GetSelsSchedule(data.Value.SelsSchedule, "3")?.ToString("0.##");
-            var selsday4 = GetSelsSchedule(data.Value.SelsSchedule, "4")?.ToString("0.##");
-            var selsday5 = GetSelsSchedule(data.Value.SelsSchedule, "5")?.ToString("0.##");
-            var selsday6 = GetSelsSchedule(data.Value.SelsSchedule, "6")?.ToString("0.##");
-            var selsday7 = GetSelsSchedule(data.Value.SelsSchedule, "7")?.ToString("0.##");
-            var selshourst = GetTotalSelsHours(data.Value.SelsSchedule)?.ToString("0.##");
-
-            reportResults.TryAdd(data.Key, new List<string> {
-                data.Value.LastName,
-                data.Value.FirstName ,
-                data.Value.EIN,
-                data.Value.TourNumber,
-                day1,
-                day2,
-                day3,
-                day4,
-                day5,
-                day6,
-                day7,
-                hourst,
-                selsday1,
-                selsday2,
-                selsday3,
-                selsday4,
-                selsday5,
-                selsday6,
-                selsday7,
-                selshourst,
-                hourstotalpercent
-            });
+            return _schReport.Where(r => r.Value.PayWeek == payweek).Select(r => r.Value).ToList();
         }
-        return reportResults;
     }
 
+    private SingleReport? getScheduleAdd(EmpSchedule EmpSch, List<TimeSpan> selstotal)
+    {
+        try {
+            double totalselshr = 0;
+            foreach (TimeSpan hr in selstotal)
+            {
+                totalselshr += hr.TotalHours;
+            }
+            return new SingleReport
+            {
+                EIN = EmpSch.EIN,
+                LastName = EmpSch.LastName,
+                FirstName = EmpSch.FirstName,
+                TourNumber = EmpSch.TourNumber,
+                day1hr = GetDaySchedule(EmpSch.WeekSchedule, "1")!.ToString(),
+                day2hr = GetDaySchedule(EmpSch.WeekSchedule, "2")!.ToString(),
+                day3hr = GetDaySchedule(EmpSch.WeekSchedule, "3")!.ToString(),
+                day4hr = GetDaySchedule(EmpSch.WeekSchedule, "4")!.ToString(),
+                day5hr = GetDaySchedule(EmpSch.WeekSchedule, "5")!.ToString(),
+                day6hr = GetDaySchedule(EmpSch.WeekSchedule, "6")!.ToString(),
+                day7hr = GetDaySchedule(EmpSch.WeekSchedule, "7")!.ToString(),
+                totalhr = GetTotalHours(EmpSch.WeekSchedule) ?? 0,
+                day1selshr = selstotal[0].TotalHours,
+                day2selshr = selstotal[1].TotalHours,
+                day3selshr = selstotal[2].TotalHours,
+                day4selshr = selstotal[3].TotalHours,
+                day5selshr = selstotal[4].TotalHours,
+                day6selshr = selstotal[5].TotalHours,
+                day7selshr = selstotal[6].TotalHours,
+                totalselshr = totalselshr
+            };
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+    }
     private string? GetDaySchedule(List<Schedule> wkschedule, string Day)
     {
         try
@@ -196,43 +178,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                     totalhour += Convert.ToDouble(wksch.HrMove);
                 }
             }
-            return totalhour;
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message);
-            return null;
-        }
-    }
-    private double? GetSelsSchedule(List<Selshour> wkschedule, string Day)
-    {
-        try
-        {
-            var curday = 0.00;
-            foreach (var wksch in wkschedule)
-            {
-                if (wksch.Day == Day)
-                {
-                    curday = wksch.Duration.TotalHours;
-                }
-            }
-            return curday;
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message);
-            return null;
-        }
-    }
-    private double? GetTotalSelsHours(List<Selshour> wkschedule)
-    {
-        try
-        {
-            double totalhour = 0.00;
-            foreach (var wksch in wkschedule)
-            {
-                totalhour += wksch.Duration.TotalHours;
-            }
+            totalhour = Math.Round(totalhour, 2);
             return totalhour;
         }
         catch (Exception e)
@@ -273,15 +219,6 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                             EmpSch.WeekSchedule.Remove(sch);
                         }
                     }
-                    List<Selshour> selsList = EmpSch.SelsSchedule.ToList();
-                    foreach (var sch in selsList)
-                    {
-                        if (sch.PayWeek != payWeek)
-                        {
-                            EmpSch.SelsSchedule.Remove(sch);
-                        }
-                    }
-
                     savetoFile = true;
                 }
                 else
@@ -338,15 +275,6 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                 _empScheduleList.TryGetValue(empId, out EmpSch);
                 if (EmpSch != null)
                 {
-                    List<Selshour> selsList = EmpSch.SelsSchedule.ToList();
-                    foreach (var sch in selsList)
-                    {
-                        if (sch.PayWeek != payWeek)
-                        {
-                            EmpSch.SelsSchedule.Remove(sch);
-                        }
-                    }
-
                     EmpSch.PayWeek = payWeek;
                     List<Schedule> schList = EmpSch.WeekSchedule.ToList();
                     if (schList.Any())
@@ -530,6 +458,218 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
         }
 
     }
+    public void RunEmpScheduleReport()
+    {
+        try
+        {
+            var payweek = "";
+            DateTime firstdate = new DateTime();
+            DateTime weekdate = new DateTime();
+            List<DateTime> weekts = new List<DateTime>(new DateTime[7]);
+
+            EmpSchedule? EmpSch = null;
+            ScheduleReport? SchReport = null;
+
+            List<string> einList = _empScheduleList.Select(item => item.Value.EIN).Distinct().ToList();
+            if (einList.Any())
+            {
+                foreach (var ein in einList)
+                {
+                    _empScheduleList.TryGetValue(ein, out EmpSch);
+                    if (EmpSch != null)
+                    {
+                        if (payweek == "")
+                        {
+                            payweek = EmpSch.PayWeek;
+                            List<Schedule> schList = EmpSch.WeekSchedule.ToList();
+                            foreach (var sch in schList)
+                            {
+                                if (firstdate == DateTime.MinValue && sch.PayWeek == payweek)
+                                {
+                                    firstdate = DateTime.ParseExact(sch.EndTourDtm.ToString(), "MMMM, dd yyyy HH:mm:ss",
+                                                   System.Globalization.CultureInfo.InvariantCulture);
+                                    var daydiff = (Int32.Parse(sch.Day)-1) * -1;
+                                    weekdate = new DateTime(firstdate.Year, firstdate.Month, firstdate.Day, 0, 0, 0).AddDays(daydiff).AddHours(2);
+                                    for (var i = 0; i < 7; i++)
+                                    {
+                                        weekts[i] = weekdate.AddDays(i);
+                                    }
+                                }
+                            }
+                        }
+                        if (payweek != "" && firstdate != DateTime.MinValue)
+                        {
+                            if (!_schReport.ContainsKey(payweek))
+                            {
+                                ScheduleReport schrpt = new ScheduleReport();
+                                List<string> weeklist = new List<string>(new string[7]);
+                                for (var i = 0; i < 7; i++)
+                                {
+                                    weeklist[i] = firstdate.AddDays(i).ToString("MMMM dd");
+                                }
+                                schrpt.WeekDate1 = weeklist[0];
+                                schrpt.WeekDate2 = weeklist[1];
+                                schrpt.WeekDate3 = weeklist[2];
+                                schrpt.WeekDate4 = weeklist[3];
+                                schrpt.WeekDate5 = weeklist[4];
+                                schrpt.WeekDate6 = weeklist[5];
+                                schrpt.WeekDate7 = weeklist[6];
+                                schrpt.PayWeek = payweek;
+                                _schReport.TryAdd(payweek, schrpt);
+                            }
+                            //Get Sels Hours
+                            List<TimeSpan> selstotal = new List<TimeSpan>(new TimeSpan[7]);
+                            List<TagTimeline>? curemp = _tags.GetTagTimelineList(ein);
+                            if (curemp.Count > 0)
+                            {
+                                DateTime starttmp = new DateTime();
+                                DateTime endtmp = new DateTime();
+                                DateTime tsstart = new DateTime();
+                                TimeSpan durtmp = TimeSpan.Zero;
+                                TimeSpan minustmp = TimeSpan.Zero;
+                                foreach (var ts in curemp)
+                                {
+                                    if (ts.Start > weekts[0].AddHours(-8))
+                                    {
+                                        starttmp = ts.Start;
+                                        if (tsstart == DateTime.MinValue)
+                                        {
+                                            tsstart = ts.Start;
+                                        }
+                                        if (endtmp != DateTime.MinValue && starttmp < endtmp)
+                                        {
+                                            minustmp += endtmp - starttmp;
+                                        }
+                                        if (endtmp != DateTime.MinValue && (starttmp - endtmp).TotalMilliseconds > 2 * 60 * 60 * 1000)
+                                        {
+                                            for (var i = 0; i < 7; i++)
+                                            {
+                                                //if (i != 6 && (tsstart >= weekts[i] && ts.End <= weekts[i + 1]))
+                                                if (i != 6 && (tsstart >= weekts[i] && endtmp <= weekts[i + 1]))
+                                                {
+                                                    selstotal[i] += durtmp - minustmp;
+                                                    break;
+                                                }
+                                                //else if ((weekts[i] - tsstart) > TimeSpan.Zero && (ts.End - weekts[i]) > TimeSpan.Zero)
+                                                else if ((weekts[i] - tsstart) > TimeSpan.Zero && (endtmp - weekts[i]) > TimeSpan.Zero)
+                                                {
+                                                    //if ((weekts[i] - tsstart) < (ts.End - weekts[i]))
+                                                    if ((weekts[i] - tsstart) < (endtmp - weekts[i]))
+                                                        {
+                                                            selstotal[i] += durtmp - minustmp;
+                                                    }
+                                                    else if (i != 0)
+                                                    {
+                                                        selstotal[i - 1] += durtmp - minustmp;
+                                                    }
+                                                    break;
+                                                }
+                                                //else if (i == 6 || (tsstart < weekts[i] && ts.End >= weekts[i + 1]))
+                                                else if ((i == 6 && endtmp > weekts[i]) || (i != 6 && tsstart < weekts[i] && endtmp >= weekts[i + 1]))
+                                                {
+                                                    selstotal[i] += durtmp - minustmp;
+                                                    break;
+                                                }
+                                                //if ((i == 6 && ts.End >= weekts[i]) || (ts.End >= weekts[i] && ts.End < weekts[i + 1]))
+                                                //{
+                                                //   selstotal[i] += durtmp - minustmp;
+                                                //   selstotal[i] += durtmp;
+                                                //}
+                                            }
+                                            tsstart = ts.Start;
+                                            durtmp = TimeSpan.Zero;
+                                            minustmp = TimeSpan.Zero;
+                                        }
+                                        durtmp += ts.Duration;
+                                        endtmp = ts.End;
+                                    }
+                                }
+                                //last one
+                                for (var i = 0; i < 7; i++)
+                                {
+                                    if (i != 6 && (tsstart >= weekts[i] && endtmp <= weekts[i + 1]))
+                                    {
+                                        selstotal[i] += durtmp - minustmp;
+                                        break;
+                                    }
+                                    else if ((weekts[i] - tsstart) > TimeSpan.Zero && (endtmp - weekts[i]) > TimeSpan.Zero)
+                                    {
+                                        if ((weekts[i] - tsstart) < (endtmp - weekts[i]))
+                                        {
+                                            selstotal[i] += durtmp - minustmp;
+                                        }
+                                        else if (i != 0)
+                                        {
+                                            selstotal[i - 1] += durtmp - minustmp;
+                                        }
+                                        break;
+                                    }
+                                    else if ((i == 6 && endtmp > weekts[i]) || (i != 6 && tsstart < weekts[i] && endtmp >= weekts[i + 1]))
+                                    {
+                                        selstotal[i] += durtmp - minustmp;
+                                        break;
+                                    }
+                                }
+                            }
+                            //Add Employee Schedule & Sels Hours to Report
+                            _schReport.TryGetValue(payweek, out SchReport);
+                            if (SchReport != null)
+                            {
+                                if (SchReport.ScheduleList.Where(r => r.EIN == ein).Any())
+                                {
+                                    SchReport.ScheduleList.Where(r => r.EIN == ein).ToList().ForEach(sch =>
+                                    {
+                                        double totalselshr = 0;
+                                        foreach (TimeSpan hr in selstotal)
+                                        {
+                                            totalselshr += hr.TotalHours;
+                                        }
+
+                                        sch.day1hr = GetDaySchedule(EmpSch.WeekSchedule, "1")!.ToString();
+                                        sch.day1hr = GetDaySchedule(EmpSch.WeekSchedule, "2")!.ToString();
+                                        sch.day1hr = GetDaySchedule(EmpSch.WeekSchedule, "3")!.ToString();
+                                        sch.day1hr = GetDaySchedule(EmpSch.WeekSchedule, "4")!.ToString();
+                                        sch.day1hr = GetDaySchedule(EmpSch.WeekSchedule, "5")!.ToString();
+                                        sch.day1hr = GetDaySchedule(EmpSch.WeekSchedule, "6")!.ToString();
+                                        sch.day1hr = GetDaySchedule(EmpSch.WeekSchedule, "7")!.ToString();
+                                        sch.totalhr = GetTotalHours(EmpSch.WeekSchedule) ?? 0;
+                                        sch.day1selshr = Math.Round(selstotal[0].TotalHours, 2);
+                                        sch.day2selshr = Math.Round(selstotal[1].TotalHours, 2);
+                                        sch.day3selshr = Math.Round(selstotal[2].TotalHours, 2);
+                                        sch.day4selshr = Math.Round(selstotal[3].TotalHours, 2);
+                                        sch.day5selshr = Math.Round(selstotal[4].TotalHours, 2);
+                                        sch.day6selshr = Math.Round(selstotal[5].TotalHours, 2);
+                                        sch.day7selshr = Math.Round(selstotal[6].TotalHours, 2);
+                                        sch.totalselshr = Math.Round(totalselshr, 2);
+                                    });
+                                }
+                                else
+                                {
+                                    SingleReport newsch = getScheduleAdd(EmpSch, selstotal);
+                                    if (newsch != null)
+                                    {
+                                        SchReport.ScheduleList.Add(newsch);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                SingleReport newsch = getScheduleAdd(EmpSch, selstotal);
+                                if (newsch != null)
+                                {
+                                    SchReport?.ScheduleList.Add(newsch);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error running Employee Schedule Report");
+        }
+    }
     public void UpdateEmpScheduleSels()
     {
         bool savetoFile = false;
@@ -561,6 +701,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                 foreach (var ein in einList)
                 {
                     _empScheduleList.TryGetValue(ein, out EmpSch);
+                    /*
                     if (EmpSch != null)
                     {
                         List<TagTimeline>? curemp = _zones.GetTagTimelineList(ein);
@@ -727,6 +868,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                             savetoFile = true;
                         }
                     }
+                    */
                 }
             }
         }

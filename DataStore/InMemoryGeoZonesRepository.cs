@@ -16,7 +16,6 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     private readonly ConcurrentDictionary<string, GeoZone> _geoZoneList = new();
     private readonly ConcurrentDictionary<string, Dictionary<DateTime, MPESummary>> _mpeSummary = new();
     private readonly ConcurrentDictionary<DateTime, List<AreaDwell>> _QREAreaDwellResults = new();
-    private readonly ConcurrentDictionary<DateTime, List<TagTimeline>> _QRETagTimelineResults = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPERunActivity = new();
     private readonly List<string> _MPENameList = new();
     private readonly IConfiguration _configuration;
@@ -186,57 +185,6 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     public void AddAreaDwell(DateTime hour, List<AreaDwell> newValue)
     {
         _QREAreaDwellResults.TryAdd(hour, newValue);
-    }
-    public bool ExistingTagTimeline(DateTime hour)
-    {
-        return _QRETagTimelineResults.ContainsKey(hour);
-
-    }
-    public List<TagTimeline> GetTagTimeline(DateTime hour)
-    {
-        return _QRETagTimelineResults[hour];
-    }
-    public void UpdateTagTimeline(DateTime hour, List<TagTimeline> newValue, List<TagTimeline> currentvalue)
-    {
-        //_QRETagTimelineResults.TryUpdate(hour, newValue, currentvalue);
-        //while (true)
-        while(_QRETagTimelineResults.TryGetValue(hour, out var curValue))
-        {
-            if (_QRETagTimelineResults.TryUpdate(hour, newValue, curValue)) break;
-        }
-    }
-
-    public void AddTagTimeline(DateTime hour, List<TagTimeline> newValue)
-    {
-        _QRETagTimelineResults.TryAdd(hour, newValue);
-    }
-    public void RemoveTagTimeline(DateTime hour)
-    {
-        _QRETagTimelineResults.Where(r => r.Key < hour).Select(l => l.Key).ToList().ForEach(key =>
-        {
-            _QRETagTimelineResults.TryRemove(key, out var remove);
-        });
-    }
-    public List<TagTimeline> GetTagTimelineList(string EIN)
-    {
-        List<TagTimeline> tagTimeline = new List<TagTimeline>();
-        //_QRETagTimelineResults.Where(r => r.Key >= DateTime.Now.AddDays(-7)).Select(l => l.Value).ToList().ForEach(value =>
-        _QRETagTimelineResults.Select(l => l.Value).ToList().ForEach(value =>
-        {
-            foreach (TagTimeline timeline in value)
-            {
-                //if (timeline.Ein == "04752344" && timeline.Start == 1722204000000)
-                //{
-                //    var Timelinetmp = timeline;
-                //}
-                if (timeline.Ein == EIN)
-                {
-                    tagTimeline.Add(timeline);
-                }
-            }
-        });
-        var ReturnList = tagTimeline.OrderBy(x => x.Start).ThenBy(x => x.End).ToList();
-        return ReturnList;
     }
     public void RunMPESummaryReport()
     {

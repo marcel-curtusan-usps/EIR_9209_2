@@ -1,9 +1,13 @@
 ﻿using EIR_9209_2.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Text.RegularExpressions;
 using static EIR_9209_2.Models.GeoMarker;
 
@@ -12,6 +16,7 @@ namespace EIR_9209_2.DataStore
     public class InMemoryTagsRepository : IInMemoryTagsRepository
     {
         private readonly ConcurrentDictionary<string, GeoMarker> _tagList = new();
+        private readonly ConcurrentDictionary<DateTime, List<TagTimeline>> _QRETagTimelineResults = new();
         private readonly ILogger<InMemoryTagsRepository> _logger;
         protected readonly IHubContext<HubServices> _hubServices;
         private readonly IConfiguration _configuration;
@@ -19,6 +24,8 @@ namespace EIR_9209_2.DataStore
         private readonly IInMemoryDacodeRepository _dacode;
         private readonly string filePath = "";
         private readonly string fileName = "";
+        private readonly string fileTagTimelinePath = "";
+        private readonly string fileTagTimeline = "";
         public InMemoryTagsRepository(ILogger<InMemoryTagsRepository> logger, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryDacodeRepository dacode, IFileService fileService)
         {
             FileService = fileService;
@@ -34,7 +41,13 @@ namespace EIR_9209_2.DataStore
                 $"{fileName}");
             // Load data from the first file into the first collection
             _ = LoadDataFromFile(filePath);
-
+            fileTagTimeline = $"{_configuration[key: "InMemoryCollection:CollectionTagTimeline"]}.json";
+            fileTagTimelinePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
+                _configuration[key: "ApplicationConfiguration:BaseDirectory"],
+                _configuration[key: "ApplicationConfiguration:NassCode"],
+                _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
+                $"{fileTagTimeline}");
+            _ = LoadTagTimelineFromFile(fileTagTimelinePath);
         }
 
         public async Task Add(GeoMarker tag)
@@ -208,6 +221,135 @@ namespace EIR_9209_2.DataStore
                 }
             }
         }
+        private async Task LoadTagTimelineFromFile(string filePath)
+        {
+            try
+            {
+                // Read data from file
+                var fileContent = await FileService.ReadFile(filePath);
+                var data = JsonConvert.DeserializeObject<List<TagTimeline>[]>(fileContent);
+
+                if (data!.Length > 0)
+                {
+                    DateTime Max = DateTime.MinValue;
+                    foreach (List<TagTimeline> curdata in data)
+                    {
+                        DateTime hour = curdata!.Select(i => i.Hour).FirstOrDefault();
+                        if (curdata!.Count > 0)
+                        {
+                            if (hour > Max)
+                            {
+                                Max = hour;
+                            }
+                            _QRETagTimelineResults.TryAdd(hour, curdata);
+                        }
+                    }
+                    //Remove last hour in case not complete hour data
+                    _QRETagTimelineResults.TryRemove(Max, out var remove);
+                }
+
+            }
+            catch (FileNotFoundException ex)
+            {
+                // Handle the FileNotFoundException here
+                _logger.LogError($"File not found: {ex.Message}");
+                // You can choose to throw an exception or take any other appropriate action
+            }
+            catch (IOException ex)
+            {
+                // Handle errors when reading the file
+                _logger.LogError($"An error occurred when reading the file: {ex.Message}");
+            }
+            catch (JsonException ex)
+            {
+                // Handle errors when parsing the JSON
+                _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
+            }
+        }
+
+        public bool ExistingTagTimeline(DateTime hour)
+        {
+            return _QRETagTimelineResults.ContainsKey(hour);
+
+        }
+        public List<TagTimeline> GetTagTimeline(DateTime hour)
+        {
+            return _QRETagTimelineResults[hour];
+        }
+        public void UpdateTagTimeline(DateTime hour, List<TagTimeline> newValue, List<TagTimeline> currentvalue)
+        {
+            //_QRETagTimelineResults.TryUpdate(hour, newValue, currentvalue);
+            bool savetoFile = false;
+            try
+            {
+                while (_QRETagTimelineResults.TryGetValue(hour, out var curValue))
+                {
+                    if (_QRETagTimelineResults.TryUpdate(hour, newValue, curValue))
+                        savetoFile = true;
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error updating TagTimeLine {e.Message}");
+            }
+            finally
+            {
+                if (savetoFile)
+                {
+                    FileService.WriteFile(fileTagTimeline, JsonConvert.SerializeObject(_QRETagTimelineResults.Values, Formatting.Indented));
+                }
+            }
+        }
+
+        public void AddTagTimeline(DateTime hour, List<TagTimeline> newValue)
+        {
+            bool savetoFile = false;
+            try
+            {
+                if (!_QRETagTimelineResults.ContainsKey(hour))
+                { 
+                    savetoFile = true;
+                    _QRETagTimelineResults.TryAdd(hour, newValue);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error adding TagTimeLine {e.Message}");
+            }
+            finally
+            {
+                if (savetoFile)
+                {
+                    FileService.WriteFile(fileTagTimeline, JsonConvert.SerializeObject(_QRETagTimelineResults.Values, Formatting.Indented));
+                }
+            }
+        }
+        public void RemoveTagTimeline(DateTime hour)
+        {
+            _QRETagTimelineResults.Where(r => r.Key < hour).Select(l => l.Key).ToList().ForEach(key =>
+            {
+                _QRETagTimelineResults.TryRemove(key, out var remove);
+            });
+        }
+        public List<TagTimeline> GetTagTimelineList(string EIN)
+        {
+            List<TagTimeline> tagTimeline = new List<TagTimeline>();
+            _QRETagTimelineResults.Where(r => r.Key >= DateTime.Now.AddDays(-7)).Select(l => l.Value).ToList().ForEach(value =>
+            //_QRETagTimelineResults.Select(l => l.Value).ToList().ForEach(value =>
+            {
+                foreach (TagTimeline timeline in value)
+                {
+                    if (timeline.Ein == EIN)
+                    {
+                        tagTimeline.Add(timeline);
+                    }
+                }
+            });
+            var ReturnList = tagTimeline.OrderBy(x => x.Start).ThenBy(x => x.End).ToList();
+            return ReturnList;
+        }
+
         private async Task LoadDataFromFile(string filePath)
         {
             try
@@ -241,7 +383,7 @@ namespace EIR_9209_2.DataStore
             catch (FileNotFoundException ex)
             {
                 // Handle the FileNotFoundException here
-                _logger.LogError($"File not found: {ex.FileName}");
+                _logger.LogError($"File not found: {ex.Message}");
                 // You can choose to throw an exception or take any other appropriate action
             }
             catch (IOException ex)
