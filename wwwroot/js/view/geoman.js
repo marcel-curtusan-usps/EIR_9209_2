@@ -319,21 +319,18 @@ function CreateZone(newlayer) {
         //map.setView(newlayer.layer._bounds.getCenter());
         var togeo = newlayer.layer.toGeoJSON();
         var geoProp = {
-            zoneType: "",
+            type: "",
             floorid: baselayerid,
             name: "",
             bins: "",
-            type: "",
             visible: true
         }
         $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
             togeo.properties = geoProp;
-            togeo.properties.zoneType = $('select[name=zone_type] option:selected').val();
-            togeo.properties.type = newlayer.shape
+            togeo.properties.type = $('select[name=zone_type] option:selected').val();
             if (/Bin/i.test($('select[name=zone_type] option:selected').val())) {
                 togeo.properties.bins = $('textarea[id="bin_bins"]').val();
             }
-
             else if (/(AGVLocation)/i.test($('select[name=zone_select_name] option:selected').val())) {
                 togeo.properties.name = $('input[id=manual_name]').val();
             }
@@ -540,7 +537,7 @@ function VaildateForm(FormType) {
     }
     if (/(MPE)/i.test(FormType)) {
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/MPE/MPENames?Type=MPE',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -570,7 +567,7 @@ function VaildateForm(FormType) {
         $('textarea[id="bin_bins"]').val("");
 
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=DockDoor',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -600,7 +597,7 @@ function VaildateForm(FormType) {
         $('#binzoneinfo').css("display", "block");
         $('textarea[id="bin_bins"]').val("");
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=Bin',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -637,7 +634,7 @@ function VaildateForm(FormType) {
     else if (/(Bullpen)/i.test(FormType)) {
 
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=Bullpen',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {

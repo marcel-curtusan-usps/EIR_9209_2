@@ -17,8 +17,10 @@
         public string Color { get; set; } = "";
         public string Name { get; set; } = "";
         public string Type { get; set; } = "";
-        public string ZoneType { get; set; } = "";
-        public string MpeType { get; set; } = "";
+        public string MpeName { get; set; } = "";
+        public string MpeNumber { get; set; } = "";
+        public string MpeGroup { get; set; } = "";
+        public string MpeIpAddress{ get; set; } = "";
         public MPERunPerformance? MPERunPerformance { get; set; } = new();
         public string? DataSource { get; set; } = "";
         public string? Emails { get; set; } = "";

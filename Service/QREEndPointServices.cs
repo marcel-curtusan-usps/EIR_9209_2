@@ -47,7 +47,7 @@ namespace EIR_9209_2.Service
 
                         var allAreaIds = await queryService.GetAreasAsync(stoppingToken);
 
-                        int areasBatchCount = 10;
+                        int areasBatchCount = 24;
                         Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREMinTimeOnArea"], out int MinTimeOnArea); //get the value from appsettings.json
                         Int32.TryParse(_configuration[key: "ApplicationConfiguration:QRETimeStep"], out int TimeStep); //get the value from appsettings.json
                         Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREActivationTime"], out int ActivationTime); //get the value from appsettings.json
@@ -166,7 +166,7 @@ namespace EIR_9209_2.Service
                 _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
                 _endpointConfig.ApiConnected = false;
                 _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
-                var updateCon = _connection.Update(_endpointConfig);
+                var updateCon = _connection.Update(_endpointConfig).Result;
                 if (updateCon != null)
                 {
                     await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);

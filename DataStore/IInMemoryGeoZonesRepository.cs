@@ -5,7 +5,7 @@ public interface IInMemoryGeoZonesRepository
 {
     Task<GeoZone> Add(GeoZone geoZone);
     Task<GeoZone> Remove(string geoZoneId);
-    Task<GeoZone> Update(GeoZone geoZone);
+    Task<JObject> Update(JObject geoZone);
     Task<GeoZone> UiUpdate(GeoZone geoZone);
     GeoZone Get(string id);
     IEnumerable<GeoZone> GetAll();
@@ -29,4 +29,6 @@ public interface IInMemoryGeoZonesRepository
     Task LoadMPEPlan(JToken data);
     Task LoadWebEORMPERun(JToken data);
     List<TagTimeline> GetTagTimelineList(string ein);
+    Task<object?> GetMPENameList(string type);
+    Task<object?> GetMPEGroupList(string type);
 }

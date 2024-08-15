@@ -18,6 +18,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     private readonly ConcurrentDictionary<DateTime, List<AreaDwell>> _QREAreaDwellResults = new();
     private readonly ConcurrentDictionary<DateTime, List<TagTimeline>> _QRETagTimelineResults = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPERunActivity = new();
+    private readonly ConcurrentDictionary<string, MPEActiveRun> _MPEStandard = new();
     private readonly List<string> _MPENameList = new();
     private readonly IConfiguration _configuration;
     private readonly ILogger<InMemoryGeoZonesRepository> _logger;
@@ -46,7 +47,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         bool saveToFile = false;
         try
         {
-            if (!Regex.IsMatch(geoZone.Properties.ZoneType, "^(MPE)", RegexOptions.IgnoreCase))
+            if (!Regex.IsMatch(geoZone.Properties.Type, "^(MPE)", RegexOptions.IgnoreCase))
             {
                 geoZone.Properties.MPERunPerformance = null;
             }
@@ -105,9 +106,41 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public Task<GeoZone> Update(GeoZone geoZone)
+    public async Task<JObject> Update(JObject properties)
     {
-        throw new NotImplementedException();
+        bool saveToFile = false;
+        try
+        {
+            if (_geoZoneList.TryGetValue(properties["id"].ToString(), out GeoZone Properties))
+            {
+                //check if properties then update the properties type
+                if (properties.ContainsKey("type"))
+                {
+                    Properties.Properties.Type = properties["type"].ToString();
+                    saveToFile = true;
+                }
+
+                
+                return await Task.FromResult(properties);
+            }
+            else
+            {
+                _logger.LogError($"Zone File list was not saved...");
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented));
+            }
+        }
     }
     public async Task<GeoZone>? UiUpdate(GeoZone geoZone)
     {
@@ -153,7 +186,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     }
     public GeoZone GetMPEName(string MPEName)
     {
-        return _geoZoneList.Where(r => r.Value.Properties.ZoneType == "MPEZone" && r.Value.Properties.Name == MPEName).Select(y => y.Value).FirstOrDefault();
+        return _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == MPEName).Select(y => y.Value).FirstOrDefault();
     }
 
     public IEnumerable<GeoZone> GetAll() => _geoZoneList.Values;
@@ -242,12 +275,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     {
         try
         {
-            List<string> areasList = _geoZoneList.Where(r => r.Value.Properties.ZoneType == "MPEZone").Select(item => item.Value.Properties.Name).Distinct().ToList();
+            List<string> areasList = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE").Select(item => item.Value.Properties.Name).Distinct().ToList();
             if (areasList.Any())
             {
                 foreach (var area in areasList)
                 {
-                    var mpe = _geoZoneList.Where(r => r.Value.Properties.Name == area && r.Value.Properties.ZoneType == "MPEZone").Select(y => y.Value.Properties).FirstOrDefault();
+                    var mpe = _geoZoneList.Where(r => r.Value.Properties.Name == area && r.Value.Properties.Type == "MPE").Select(y => y.Value.Properties).FirstOrDefault();
                     if (mpe != null)
                     {
                         List<DateTime> hoursInMpeDateTime = mpe.MPERunPerformance.HourlyData.Select(x => DateTime.Parse(x.Hour, CultureInfo.CurrentCulture, DateTimeStyles.None)).ToList();
@@ -381,6 +414,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 {
                     item.Properties.MPERunPerformance = new();
                     _geoZoneList.TryAdd(item.Properties.Id, item);
+
+                    item.Properties.Type = GetZoneType(item.Properties.Name);
+
+                    if (item.Properties.Type == "MPE")
+                    {
+                        _MPENameList.Add(item.Properties.Name);
+                    }
                 }
             }
         }
@@ -401,10 +441,47 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
         }
     }
-
+    private string GetZoneType(string name)
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(name))
+            {
+                if (Regex.IsMatch(name, _configuration[key: "ZoneConfiguration:AGVLocation"], RegexOptions.IgnoreCase))
+                {
+                    return "AGVLocation";
+                }
+                else if (Regex.IsMatch(name, _configuration[key: "ZoneConfiguration:Dockdoor"], RegexOptions.IgnoreCase))
+                {
+                    return "DockDoor";
+                }
+                else if (Regex.IsMatch(name, _configuration[key: "ZoneConfiguration:Area"], RegexOptions.IgnoreCase))
+                {
+                    return "Area";
+                }
+                else if (Regex.IsMatch(name, _configuration[key: "ZoneConfiguration:Viewport"], RegexOptions.IgnoreCase))
+                {
+                    return "ViewPorts";
+                }
+                else
+                {
+                    return "MPE";
+                }
+            }
+            else
+            {
+                return "None";
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return "None";
+        }
+    }
     public object GetZoneNameList(string type)
     {
-        return _geoZoneList.Where(r => r.Value.Properties.ZoneType.StartsWith(type)).Select(y => y.Value.Properties.Name).ToList();
+        return _geoZoneList.Where(r => r.Value.Properties.Type.StartsWith(type)).Select(y => y.Value.Properties.Name).ToList();
     }
 
     public async Task<bool> UpdateMPERunInfo(List<MPERunPerformance> mpeList)
@@ -414,9 +491,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             foreach (MPERunPerformance mpe in mpeList)
             {
                 mpe.MpeId = string.Concat(mpe.MpeType, "-", mpe.MpeNumber.ToString().PadLeft(3, '0'));
+                //if mpename not in MPE list add it
+                if (!_MPENameList.Contains(mpe.MpeId))
+                {
+                    _MPENameList.Add(mpe.MpeId);
+                }
                 await Task.Run(() => UpdateMPERunActivity(mpe)).ConfigureAwait(false);
-                var geoZone = _geoZoneList.Where(r => r.Value.Properties.ZoneType == "MPEZone" && r.Value.Properties.Name == mpe.MpeId).Select(y => y.Value).FirstOrDefault();
-
+                var geoZone = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == mpe.MpeId).Select(y => y.Value).FirstOrDefault();
                 if (geoZone != null)
                 {
                     bool pushUIUpdate = false;
@@ -528,7 +609,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     }
                     if (pushUIUpdate)
                     {
-                        await _hubServices.Clients.Group(geoZone.Properties.ZoneType).SendAsync($"update{geoZone.Properties.ZoneType}RunPerformance", geoZone.Properties.MPERunPerformance);
+                        await _hubServices.Clients.Group(geoZone.Properties.Type).SendAsync($"update{geoZone.Properties.Type}zoneRunPerformance", geoZone.Properties.MPERunPerformance);
                     }
                 }
             }
@@ -547,13 +628,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         List<string> FullBinList = [];
         try
         {
-            var geoZone = _geoZoneList.Where(r => r.Value.Properties.ZoneType == "Bin" && r.Value.Properties.Name == mpeId).Select(y => y.Value).FirstOrDefault();
+            var geoZone = _geoZoneList.Where(r => r.Value.Properties.Type == "Bin" && r.Value.Properties.Name == mpeId).Select(y => y.Value).FirstOrDefault();
             if (geoZone != null)
             {
                 switch (status)
                 {
                     case "0":
-                        _hubServices.Clients.Group(geoZone.Properties.ZoneType).SendAsync($"update{geoZone.Properties.ZoneType}zone", new JObject { ["zoneId"] = geoZone.Properties.Id, ["binFullStatus"] = status });
+                        _hubServices.Clients.Group(geoZone.Properties.Type).SendAsync($"update{geoZone.Properties.Type}zone", new JObject { ["zoneId"] = geoZone.Properties.Id, ["binFullStatus"] = status });
                         break;
                     case "1":
                         _fullBins = !string.IsNullOrEmpty(fullBins) ? fullBins.Split(',').Select(p => p.Trim().TrimStart('0')).ToList() : [];
@@ -566,7 +647,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                         }
                         if (FullBinList.Any())
                         {
-                            _hubServices.Clients.Group(geoZone.Properties.ZoneType).SendAsync($"update{geoZone.Properties.ZoneType}zone", new JObject { ["zoneId"] = geoZone.Properties.Id, ["binFullStatus"] = status });
+                            _hubServices.Clients.Group(geoZone.Properties.Type).SendAsync($"update{geoZone.Properties.Type}zone", new JObject { ["zoneId"] = geoZone.Properties.Id, ["binFullStatus"] = status });
                         }
                         break;
                     default:
@@ -595,7 +676,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 }
 
                 bool pushDBUpdate = false;
-                var geoZone = _geoZoneList.Where(r => r.Value.Properties.ZoneType == "MPEZone" && r.Value.Properties.Name == mpeName).Select(y => y.Value).FirstOrDefault();
+                var geoZone = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == mpeName).Select(y => y.Value).FirstOrDefault();
                 if (geoZone != null && geoZone.Properties.MPERunPerformance != null)
                 {
                     if (geoZone.Properties.MPERunPerformance.MpeId != mpeName)
@@ -606,10 +687,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     {
                         geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
                     }
-                    if (geoZone.Properties.MPERunPerformance.MpeType != geoZone.Properties.MpeType)
-                    {
-                        geoZone.Properties.MPERunPerformance.MpeType = geoZone.Properties.MpeType;
-                    }
+                   
                     if (geoZone.Properties.MPERunPerformance.CurSortplan == "")
                     {
                         geoZone.Properties.MPERunPerformance.CurSortplan = "0";
@@ -688,7 +766,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     }
                     if (pushDBUpdate)
                     {
-                        await _hubServices.Clients.Group("MPEZones").SendAsync($"update{geoZone.Properties.ZoneType}RunPerformance", geoZone.Properties.MPERunPerformance);
+                        await _hubServices.Clients.Group("MPEZones").SendAsync($"update{geoZone.Properties.Type}zoneRunPerformance", geoZone.Properties.MPERunPerformance);
                     }
                 }
             }
@@ -1035,4 +1113,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
+    public async Task<object> GetMPENameList(string type)
+    {
+        return await Task.Run( () => _MPENameList.Select(y => y).ToList());
+    }
+    public async Task<object> GetMPEGroupList(string type)
+    {
+        return await Task.Run(() => _geoZoneList.Where(r => r.Value.Properties.Type.StartsWith(type) && !string.IsNullOrEmpty(r.Value.Properties.MpeGroup)).Select(y => y.Value.Properties.MpeGroup).ToList());
+    }
 }
