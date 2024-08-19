@@ -365,7 +365,7 @@ async function Add_Email() {
 // edit email 
 async function Edit_Email(data) {
     try {
-        Promise.all([loadMpeName()]).then(() => {
+        Promise.all([loadMpeName(data.mpeName)]).then(() => {
             $('#modalHeader_ID').text('Edit Email Subscription');
             $('input[type=checkbox][id=enabled_email]').prop('checked', data.enabled);
             $('input[type=text][name=emailFirstName]').val(data.firstName);
@@ -517,7 +517,7 @@ function validateEmail(email) {
     const regex = /^(?:(?:\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*))$/;
     return regex.test(email);
 }
-async function loadMpeName() {
+async function loadMpeName(select) {
     // load the MPE name from API   
     try {
         return new Promise((resolve, reject) => {
@@ -538,7 +538,13 @@ async function loadMpeName() {
 
                             let messageType = value.replace(/\./g, '_');
                             if ($('#mpeNameList option[value=' + messageType + ']').length == 0) {
-                                $('<option data-reportType=' + name + '>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                                if (select == messageType) {
+                                    //set selected option
+                                    $('<option data-reportType=' + name + ' selected>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                                    //$('<option data-reportType=' + name + '>').val(messageType).html(messageType).select().appendTo('#mpeNameList');
+                                } else {
+                                    $('<option data-reportType=' + name + '>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                                }
                             }
                         })
 
