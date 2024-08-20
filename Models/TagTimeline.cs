@@ -1,7 +1,11 @@
-﻿namespace EIR_9209_2.Models
+﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
+
+namespace EIR_9209_2.Models
 {
     public class TagTimeline
     {
+        public DateTime Hour { get; set; }
         public string EmployeeName { get; set; } = "";
         public string Ein { get; set; } = "";
         public string AreaName { get; set; } = "";

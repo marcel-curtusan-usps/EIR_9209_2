@@ -8,5 +8,6 @@ public interface IInMemoryEmpSchedulesRepository
     IEnumerable<EmpSchedule> GetAll();
     object getEmpSchedule();
     void UpdateEmpScheduleSels();
+    void RunEmpScheduleReport();
 
 }
