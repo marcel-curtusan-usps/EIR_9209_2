@@ -394,8 +394,8 @@ async function Edit_Email(data) {
                         data: JSON.stringify(jsonObject),
                         contentType: 'application/json',
                         type: 'PUT',
-                        success: function (data) {
-                            Promise.all([updateEmailListDataTable(data, EmailListtable)]);
+                        success: function (responsedata) {
+                            Promise.all([updateEmailListDataTable(responsedata, EmailListtable)]);
                             setTimeout(function () { $("#Email_Modal").modal('hide'); sidebar.open('setting'); }, 500);
                         },
                         error: function (error) {
@@ -551,7 +551,12 @@ async function loadMpeName(select) {
                         name = "Site";
                         let messageType = "SiteSummary";
                         if ($('#mpeNameList option[value=' + messageType + ']').length == 0) {
-                            $('<option data-reportType=' + name + '>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                            if (select == messageType) {
+                                //set selected option
+                                $('<option data-reportType=' + name + ' selected>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                            } else {
+                                $('<option data-reportType=' + name + '>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                            }
                         }
                     }
                 },
