@@ -53,21 +53,25 @@ $('#UserTag_Modal').on('shown.bs.modal', function () {
 });
 connection.on("updateCamera", async (data) => {
     let tagdata = JSON.parse(data);
-    if (tagdata.properties.visible) {
-        Promise.all([addFeature(tagdata)]);
-    }
-    else {
-        Promise.all([deleteCameraFeature(tagdata)]);
-    }
-
+    Promise.all([addCameraFeature(tagdata)]);
 });
-connection.on("deleteCamera", async (tagdata) => {
-    if (tagdata.properties.visible) {
-        Promise.all([updateCameraFeature(tagdata)]);
-    }
-    else {
-        Promise.all([deleteCameraFeature(tagdata)]);
-    }
+let defaultTime = 90;
+let count = 0;
+let timer;
+function startTimer() {
+    timer = setInterval(function () {
+        let newcount = count * 1 - 1;
+        count = newcount
+        $('#counter').html(count);
+        if (count <= 0) {
+            $('#counter').html('0');
+            $('#countDownView').hide();
+            $('#timeOutView').show();
+            $('div[id=Camera_Modal]').attr("data-id", "0");
+            $('div[id=camera_modalbody]').empty();
+        }
+    }, 1000);
+}
 
 });
 let markerCameras = new L.GeoJSON(null, {
@@ -105,7 +109,14 @@ let markerCameras = new L.GeoJSON(null, {
     onEachFeature: function (feature, layer) {
         layer.markerId = feature.properties.id;
         layer.on('click', function (e) {
+            $('#timeOutView').hide();
+            $('#countDownView').show();
+            clearInterval(timer);
+            count = defaultTime;
+            $('#counter').html(count);
+            setTimeout(startTimer, 300);
 
+            LoadWeb_CameraImage(feature.properties.cameraData, feature.properties.id, feature.properties.cameraDirection, feature.properties.base64Image);
         });
         layer.bindTooltip("", {
             permanent: true,
@@ -118,7 +129,7 @@ let markerCameras = new L.GeoJSON(null, {
     }
 });
 // add to the map and layers control
-let overlayCameraLayer = L.layerGroup().addTo(OSLmap);
+let overlayCameraLayer = L.layerGroup();
 layersControl.addOverlay(overlayCameraLayer, "Cameras");
 markerCameras.addTo(overlayCameraLayer);
 async function hidestafftables() {
@@ -145,14 +156,14 @@ async function init_markerCameras(data) {
 
             $(document).on('change', '.leaflet-control-layers-selector', function () {
                 let sp = this.nextElementSibling;
-                if (/^camera$/ig.test(sp.innerHTML.trim())) {
+                if (/^Cameras$/ig.test(sp.innerHTML.trim())) {
                     if (this.checked) {
                         connection.invoke("JoinGroup", "Camera").catch(function (err) {
                             return console.error(err.toString());
                         });
                     }
                     else {
-                        connection.invoke("LeaveGroup", "Badge").catch(function (err) {
+                        connection.invoke("LeaveGroup", "Camera").catch(function (err) {
                             return console.error(err.toString());
                         });
                     }
@@ -167,7 +178,7 @@ async function init_markerCameras(data) {
         }
     });
 }
-async function deleteCameraFeature(data, floorId) {
+async function deleteCameraFeature(data) {
     try {
 
         await findCameraLeafletIds(data.properties.id)
@@ -181,11 +192,17 @@ async function deleteCameraFeature(data, floorId) {
         throw new Error(e.toString());
     }
 }
-async function addFeature(data) {
+async function addCameraFeature(data) {
     try {
         await findCameraLeafletIds(data.properties.id)
             .then(leafletIds => {
-                Promise.all([positionUpdate(leafletIds, data.geometry.coordinates[1], data.geometry.coordinates[0])]);
+                Promise.all([positionCameraUpdate(leafletIds, data.geometry.coordinates[1], data.geometry.coordinates[0])]);
+                markerCameras._layers[leafletIds].feature.properties = data.properties;
+                if (($('#Camera_Modal').hasClass('show')) && $('div[id=Camera_Modal]').attr("data-id") === data.properties.id) {
+                    camera_modal_body = $('div[id=camera_modalbody]');
+                    camera_modal_body.empty();
+                    camera_modal_body.append(ImageLayout.supplant(formatImageLayout(data.properties.base64Image)));
+                }
             })
             .catch(error => {
                 markerCameras.addData(data);
@@ -200,8 +217,8 @@ async function updateCameraFeature(data) {
         let tag = data;
         await findCameraLeafletIds(tag.properties.id)
             .then(leafletIds => {
-                let VisiblefillOpacity = tag.properties.visible ? "" : "tooltip-hidden";
-                let classname = getmarkerType(tag.properties.craftName) + VisiblefillOpacity;
+                //let VisiblefillOpacity = tag.properties.visible ? "" : "tooltip-hidden";
+                //let classname = getmarkerType(tag.properties.craftName) + VisiblefillOpacity;
 
                 markerCameras._layers[leafletIds].feature.properties = tag.properties;
                 markerCameras._layers[leafletIds].bindTooltip("", {
@@ -220,7 +237,7 @@ async function updateCameraFeature(data) {
         throw new Error(e.toString());
     }
 }
-async function positionUpdate(leafletId, lat, lag) {
+async function positionCameraUpdate(leafletId, lat, lag) {
     return new Promise((resolve, reject) => {
 
         if (markerCameras._layers[leafletId].getLatLng().distanceTo(new L.LatLng(lat, lag)) > 3000000) {
@@ -375,7 +392,7 @@ function createStaffingDataTable(table) {
                 "width": "15%",
                 "mDataProp": key
             };
-        }
+}
         else if (/epacs/i.test(key)) {
             tempc = {
                 "title": "ePACS",
@@ -391,277 +408,43 @@ function createStaffingDataTable(table) {
                 "mRender": function (data, type, full) {
                     return '<i class="leaflet-tooltip ' + getmarkerType(full.type) + '"></i>';
 
-                }
-            };
-        }
-
-        columns.push(tempc);
-
-    });
-    $('#' + table).DataTable({
-        dom: 'Bfrtip',
-        bFilter: false,
-        bdeferRender: true,
-        bpaging: false,
-        bPaginate: false,
-        autoWidth: false,
-        bInfo: false,
-        destroy: true,
-        language: {
-            zeroRecords: "No Data"
-        },
-        aoColumns: columns,
-        columnDefs: [],
-        sorting: [[1, "asc"]],
-        rowCallback: function (row, data, index) {
-            $(row).find('td:eq(2)').css('text-align', 'center');
-            $(row).find('td:eq(3)').css('text-align', 'center');
-            $(row).find('td:eq(4)').css('text-align', 'center');
-        },
-        footerCallback: function (row, data, start, end, display) {
-            let api = this.api();
-            // converting to interger to find total
-            let intVal = function (i) {
-                return typeof i === 'string' ?
-                    i.replace(/[$,]/g, '') * 1 :
-                    typeof i === 'number' ?
-                        i : 0;
-            };
-            // computing column Total of the complete result 
-            let schetotal = api
-                .column(2)
-                .data()
-                .reduce(function (a, b) {
-                    return intVal(a) + intVal(b);
-                }, 0);
-            let in_buildingtotal = api
-                .column(3)
-                .data()
-                .reduce(function (a, b) {
-                    return intVal(a) + intVal(b);
-                }, 0);
-            let epacstotal = api
-                .column(4)
-                .data()
-                .reduce(function (a, b) {
-                    return intVal(a) + intVal(b);
-                }, 0);
-            // Update footer by showing the total with the reference of the column index 
-            $(api.column(2).footer()).html(schetotal).css('text-align', 'center');
-            $(api.column(3).footer()).html(in_buildingtotal).css('text-align', 'center');
-            $(api.column(4).footer()).html(epacstotal).css('text-align', 'center');
-        }
+let ImageLayout = '<div>{image}</div>';
+function formatImageLayout(img) {
+    let newimg = new Image();
+    newimg.src = img;
+    return $.extend(newimg, {
+        image: newimg.outerHTML
     });
 }
-function loadStaffingDatatable(data, table) {
-    if ($.fn.dataTable.isDataTable("#" + table)) {
-        $('#' + table).DataTable().rows.add(data).draw();
-    }
-}
-function updateStaffingDataTable(newdata, table) {
-    let loadnew = true;
-    if ($.fn.dataTable.isDataTable("#" + table)) {
-        $('#' + table).DataTable().rows(function (idx, data, node) {
-            loadnew = false;
-            for (const element of newdata) {
-                if (data.type === element.type) {
-                    $('#' + table).DataTable().row(node).data(element).draw().invalidate();
-                }
-            }
-
-        })
-        if (loadnew) {
-            loadStaffingDatatable(newdata, table);
-        }
-    }
-}
-function formattagdata(result) {
-    let reformatdata = [];
+var webCameraViewData = null;
+function LoadWeb_CameraImage(Data, id, direction, image) {
     try {
-        for (let key in result) {
-            let temp = {
-                "INDEX": "",
-                "KEY_NAME": "",
-                "VALUE": ""
-            };
-            if (/^(admin)/i.test(appData.role) && !$.isPlainObject(result[key]) && /^(empFirstName|empLastName)/ig.test(key)) {
-                switch (key) {
-                    case "empFirstName":
-                        temp['INDEX'] = 0;
-                        break;
-                    case "empLastName":
-                        temp['INDEX'] = 0;
-                        break;
-                    default:
-                        temp['INDEX'] = 10;
-                        break;
-                }
-                temp['KEY_NAME'] = key;
-                temp['VALUE'] = result[key];
-                reformatdata.push(temp);
-            }
+        $('#cameramodalHeader').text('View Web Camera');
+        //$('#cameradescription').text(Data.DESCRIPTION);
+        camera_modal_body = $('div[id=camera_modalbody]');
+        camera_modal_body.empty();
+        camera_modal_body.append(ImageLayout.supplant(formatImageLayout(image)));
+        $('div[id=Camera_Modal]').attr("data-id", id);
+        $('#Camera_Modal').modal('show');
 
-            if (!$.isPlainObject(result[key]) && /^(id|ein|encodedID|craftName|tourNumber|daysOff|floorId|posAge|locationMovementStatus|payLocation|title|designationActivity)/ig.test(key)) {
-                switch (key) {
-                    case "craftName":
-                        temp['INDEX'] = 2;
-                        break;
-                    case "id":
-                        temp['INDEX'] = 1;
-                        break;
-                    case "ein":
-                        temp['INDEX'] = 1;
-                        break;
-                    case "encodedID":
-                        temp['INDEX'] = 1;
-                        break;
-                    default:
-                        temp['INDEX'] = 10;
-                        break;
-                }
-                temp['KEY_NAME'] = key;
-                temp['VALUE'] = result[key];
-                reformatdata.push(temp);
-            }
+        if (direction) {
+            document.getElementById("cameraViewDirectionArrow").style.transform = 'rotate(' + direction + 'deg)';
+            document.getElementById("cameraViewDirectionArrow").style.display = 'block';
+            document.getElementById("cameraViewDirectionNotice").style.display = 'none';
+        } else {
+            document.getElementById("cameraViewDirectionArrow").style.display = 'none';
+            document.getElementById("cameraViewDirectionNotice").style.display = 'block';
         }
-
-    } catch (e) {
-        throw new Error(e.toString());
-    }
-
-    return reformatdata;
-}
-
-async function tagEditInfo(tagId) {
-
-    //get tag info from the tagEdit data-id
-    // check if tagId is  undefined
-    let id = '';
-    if (tagId === undefined) {
-        id = $('button[name="tagEdit"]').data('id');
-    }
-    else {
-        id = tagId;
-    }
-
-    //if tagid is not empty or undefined or null
-
-    if (!!id) {
-        //makea ajax call to get the employee details
-        $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Tag/GetTagByTagId?tagid=' + id,
-            type: 'GET',
-            success: function (data) {
-                Promise.all([EditUserInfo(data.properties)]);
-            },
-            error: function (error) {
-                console.log(error);
-            },
-            faulure: function (fail) {
-                console.log(fail);
-            },
-            complete: function (complete) {
-            }
-        });
-    }
-}
-async function EditUserInfo(properties) {
-    //move to tag location 
-
-    // Set the header text of the modal
-    $('#modaluserHeader_ID').text('Edit Tag Info');
-    $('button[id=usertagsubmitBtn]').prop('disabled', false);
-    $('input[name=tag_id]').prop('disabled', true);
-    // Close the sidebar
-    sidebar.close();
-    // Populate the input fields with the feature properties
-    if (/Badge/ig.test(properties.tagType)) {
-        $('#personform').css("display", "block");
-    }
-    $('input[id=employeeEIN]').val(properties.eIN);
-    $('input[id=empFirstName]').val(properties.empFirstName);
-    $('input[id=empLastName]').val(properties.empLastName);
-    $('input[id=tagEncodedID]').val(properties.encodedId);
-    $('input[id=paylocation]').val(properties.empPayLocation);
-    $('input[id=tagDACode]').val(properties.designationActivity);
-    $('input[id=tag_name]').val(properties.name);
-    $('select[id=tagType_select]').val(properties.tagType);
-    if (!/^(Clerk|Supervisor|Maintenance|Mail Handler|Custodial)$/ig.test(properties.craftName)) {
-        $('select[id=tagCraftName_select]').val("");
-    }
-    else {
-        $('select[id=tagCraftName_select]').val(capitalize_Words(properties.craftName));
-    }
-
-    $('input[name=tag_name]').val(properties.name);
-    $('input[name=tag_id]').val(properties.id);
-
-    // Set up the click event for the submit button
-    $('button[id=usertagsubmitBtn]').off().on('click', function () {
-        try {
-            // Disable the submit button to prevent multiple submissions
-            $('button[id=usertagsubmitBtn]').prop('disabled', true);
-
-            // Create an object to store the updated properties
-            let updatedProperties = {};
-            updatedProperties.tagId = $('input[name=tag_id]').val();
-            updatedProperties.name = $('input[name=tag_name]').val();
-            updatedProperties.tagType = $('select[name=tagType_select] option:selected').val();
-
-            if (/Badge/ig.test($('select[id=tagType_select]').val())) {
-                updatedProperties.ein = $('input[name=employeeEIN]').val();
-                updatedProperties.empFirstName = $('input[name=empFirstName]').val();
-                updatedProperties.empLastName = $('input[name=empLastName]').val();
-                updatedProperties.encodedId = $('input[name=tagEncodedID]').val();
-                updatedProperties.craftName = $('select[name=tagCraftName_select] option:selected').val();
-                updatedProperties.empPayLocation = $('input[id=paylocation]').val();
-                updatedProperties.designationActivity = $('input[id=tagDACode]').val();
-            }
-            else {
-                updatedProperties.ein = "";
-                updatedProperties.empFirstName = "";
-                updatedProperties.empLastName = "";
-                updatedProperties.encodedId = "";
-                updatedProperties.craftName = "";
-                updatedProperties.empPayLocation = "";
-                updatedProperties.designationActivity = "";
-            }
-            // Send the updated properties to the server
-
-            if (!$.isEmptyObject(updatedProperties)) {
-                $.ajax({
-                    url: SiteURLconstructor(window.location) + "/api/Tag/UpdateTagInfo",
-                    type: 'POST',
-                    data: JSON.stringify(updatedProperties), // Ensure the data is a JSON string
-                    contentType: 'application/json', // Correct content type
-                    success: function (properties) {
-                        $('span[id=error_usertagsubmitBtn]').text("Tag Info has been updated");
-                        setTimeout(function () {
-                            $("#UserTag_Modal").modal('hide');
-                            sidebar.open('userprofile');
-                        }, 500);
-                    },
-                    error: function (error) {
-                        // Display user-friendly error message on the webpage
-                        $('span[id=error_usertagsubmitBtn]').text("Error retrieving data: " + error.responseText);
-
-                    },
-                    failure: function (response) {
-                        // Display user-friendly error message on the webpage
-                        $('span[id=error_usertagsubmitBtn]').text("Request failed: " + response.statusText);
-                    },
-                    complete: function (data) {
-
-                    }
                 });
 
-            } else {
-                $('span[id=error_usertagsubmitBtn]').text("No Tag Data has been Updated");
+        sidebar.close('');
 
-            }
+    } catch (e) {
+        $("#error_camera").text(e);
+    }
         } catch (error) {
             $('span[id=error_usertagsubmitBtn]').text(error);
-        }
+}
     });
 
     // Show the modal

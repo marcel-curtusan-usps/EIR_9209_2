@@ -15,6 +15,7 @@ public class HubServices : Hub
     private readonly IInMemoryGeoZonesRepository _geoZones;
     private readonly IInMemorySiteInfoRepository _siteInfo;
     private readonly IInMemoryEmpSchedulesRepository _empSchedules;
+    private readonly IInMemoryCamerasRepository _cameraMarkers;
     private readonly ILogger<HubServices> _logger;
     private readonly IConfiguration _configuration;
     private readonly Assembly _assembly;
@@ -26,6 +27,7 @@ public class HubServices : Hub
         IInMemoryGeoZonesRepository zones,
         IInMemorySiteInfoRepository siteInfo,
         IInMemoryEmpSchedulesRepository empSchedules,
+        IInMemoryCamerasRepository cameraMarkers,
         IConfiguration configuration)
     {
         _logger = logger;
@@ -36,6 +38,7 @@ public class HubServices : Hub
         _geoZones = zones;
         _siteInfo = siteInfo;
         _empSchedules = empSchedules;
+        _cameraMarkers = cameraMarkers;
         _configuration = configuration;
         _assembly = Assembly.GetExecutingAssembly();
     }
@@ -147,6 +150,11 @@ public class HubServices : Hub
     {
         return await Task.Run(_empSchedules.GetAll);
     }
+    public async Task<IEnumerable<CameraMarker>> GetCameras()
+    {
+        return await Task.Run(_cameraMarkers.GetAll);
+    }
+
     private Task<string> GetUserName(ClaimsPrincipal? user)
     {
         return Task.FromResult(user?.Identity?.Name);

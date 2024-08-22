@@ -1,5 +1,7 @@
 ﻿using EIR_9209_2.DataStore;
+using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Hosting.Internal;
 using System.Collections.Concurrent;
 
 namespace EIR_9209_2.Service
@@ -16,7 +18,9 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryEmailRepository _email;
         private readonly IInMemorySiteInfoRepository _siteInfo;
         private readonly IInMemoryEmpSchedulesRepository _empSchedule;
+        private readonly IInMemoryCamerasRepository _cameras;
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly ConcurrentDictionary<string, BaseEndpointService> _endPointServices = new();
 
         public Worker(ILogger<Worker> logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory,
@@ -27,6 +31,7 @@ namespace EIR_9209_2.Service
             IInMemoryEmailRepository email,
             IInMemorySiteInfoRepository siteInfo,
             IInMemoryEmpSchedulesRepository empSchedule,
+            IInMemoryCamerasRepository cameras,
             IConfiguration configuration)
         {
             _logger = logger;
@@ -34,6 +39,7 @@ namespace EIR_9209_2.Service
             _loggerFactory = loggerFactory;
             _geoZones = geoZones;
             _tags = tags;
+            _cameras = cameras;
             _httpClientFactory = httpClientFactory;
             _connections = connections;
             _configuration = configuration;
@@ -90,6 +96,9 @@ namespace EIR_9209_2.Service
                     break;
                 case "CiscoSpaces":
                     endpointService = new CiscoSpacesEndPointServices(_loggerFactory.CreateLogger<CiscoSpacesEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _tags);
+                    break;
+                case "Web_Camera":
+                    endpointService = new CameraEndPointServices(_loggerFactory.CreateLogger<CiscoSpacesEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _siteInfo, _cameras);
                     break;
                 default:
                     _logger.LogWarning("Unknown endpoint {Name}", endpointConfig.Name);

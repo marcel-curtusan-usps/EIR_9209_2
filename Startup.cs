@@ -47,6 +47,7 @@ public class Startup
         services.AddSingleton<IInMemoryTagsRepository, InMemoryTagsRepository>();
         services.AddSingleton<IInMemoryGeoZonesRepository, InMemoryGeoZonesRepository>();
         services.AddSingleton<IInMemoryEmpSchedulesRepository, InMemoryEmpSchedulesRepository>();
+        services.AddSingleton<IInMemoryCamerasRepository, InMemoryCamerasRepository>();
         services.AddSingleton<IIDS, IDS>();
         services.AddSingleton<ScreenshotService>();
         services.AddSingleton<EmailService>();

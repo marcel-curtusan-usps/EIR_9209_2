@@ -381,45 +381,70 @@ function CreateCamera(newlayer) {
     sidebar.open('home');
     var togeo = newlayer.layer.toGeoJSON();
     OSLmap.setView(newlayer.layer._latlng, 3);
-    var geoProp = {
-        name: "",
-        floorid: baselayerid,
-        tagType: "",
-        visible: true
-    }
+    //var geoProp = {
+    //    name: "",
+    //    floorid: baselayerid,
+    //    tagType: "",
+    //    visible: true
+    //}
 
     $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
-        togeo.properties = geoProp;
-        togeo.properties.name = $('select[name=cameraLocation] option:selected').val();
-        togeo.properties.tagType = $('select[name=zone_type] option:selected').val();
-        togeo.properties.type = e.shape;
+        //togeo.properties = geoProp;
+        let displayname = $('select[name=cameraLocation] option:selected').val();
+        togeo.id = displayname.substring(0, displayname.indexOf(' / '));
+        //togeo.id = $('select[name=zone_type] option:selected').val();
+        //togeo.properties.type = e.shape;
         //Camera Direction
-        togeo.properties.cameraDirection = $('input[id=cameraDirection]').val();
-        $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Tag/GetTagTypeList?TagType=' + $('select[name=zone_type] option:selected').val(),
-            contentType: 'application/json',
-            type: 'GET',
-            success: function (mpedata) {
-                if (mpedata.length > 0) {
-                    //sort 
-                    mpedata.sort();
-                    mpedata.push('**Machine Not Listed');
-                    $.each(mpedata, function () {
-                        $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
-                    })
+        togeo.cameraDirection = $('input[id=cameraDirection]').val();
+        if (!$.isEmptyObject(togeo)) {
+            //make a ajax call to get the employee details
+            $.ajax({
+                url: SiteURLconstructor(window.location) + '/api/Camera/Add',
+                data: JSON.stringify(togeo),
+                contentType: 'application/json',
+                type: 'POST',
+                success: function (data) {
+                    //Promise.all([init_geoZone(data)]);
+                    setTimeout(function () { sidebar.close(); }, 500);
+                },
+                error: function (error) {
+                    $('span[id=error_zonesubmitBtn]').text(error);
+                    $('button[id=zonesubmitBtn]').prop('disabled', false);
+                    //console.log(error);
+                },
+                faulure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    newlayer.layer.remove();
                 }
-            },
-            error: function (error) {
+            });
+        }
+        //$.ajax({
+        //    url: SiteURLconstructor(window.location) + '/api/Camera/GetCameraList',
+        //    contentType: 'application/json',
+        //    type: 'GET',
+        //    success: function (mpedata) {
+        //        if (mpedata.length > 0) {
+        //            //sort 
+        //            mpedata.sort();
+        //            mpedata.push('**Machine Not Listed');
+        //            $.each(mpedata, function () {
+        //                $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
+        //            })
+        //        }
+        //    },
+        //    error: function (error) {
 
-                console.log(error);
-            },
-            faulure: function (fail) {
-                console.log(fail);
-            },
-            complete: function (complete) {
-                //console.log(complete);
-            }
-        });
+        //        console.log(error);
+        //    },
+        //    faulure: function (fail) {
+        //        console.log(fail);
+        //    },
+        //    complete: function (complete) {
+        //        //console.log(complete);
+        //    }
+        //});
     });
 }
 function RemoveZoneItem(removeLayer) {
@@ -673,16 +698,16 @@ function VaildateForm(FormType) {
 
    if (/(Camera)/i.test(FormType)) {
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Camera/GetCameraList',
             contentType: 'application/json',
             type: 'GET',
-            success: function (mpedata) {
-                mpedata.push('**Camera Not Listed');
-                if (mpedata.length > 0) {
+            success: function (cameradata) {
+                //cameradata.push('**Camera Not Listed');
+                if (cameradata.length > 0) {
                     //sort 
-                    mpedata.sort(SortByName);
-                    $.each(svdata, function () {
-                        $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
+                    //mpedata.sort(SortByName);
+                    $.each(cameradata, function () {
+                        $('<option/>').val(this).html(this).appendTo('select[id=cameraLocation]');
                     })
                 } 
             },
