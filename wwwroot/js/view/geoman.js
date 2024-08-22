@@ -597,7 +597,7 @@ function VaildateForm(FormType) {
         $('#binzoneinfo').css("display", "block");
         $('textarea[id="bin_bins"]').val("");
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=Bin',
+            url: SiteURLconstructor(window.location) + '/api/MPE/MPENames?Type=MPE',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {

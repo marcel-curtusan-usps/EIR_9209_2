@@ -143,7 +143,7 @@ public class HubServices : Hub
     {
         return await Task.Run(_geoZones.GetAll);
     }
-    public async Task<IEnumerable<EmpSchedule>> GetEmpSchedules()
+    public async Task<IEnumerable<EmployeeInfo>> GetEmpSchedules()
     {
         return await Task.Run(_empSchedules.GetAll);
     }

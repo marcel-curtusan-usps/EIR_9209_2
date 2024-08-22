@@ -3,9 +3,9 @@ using Newtonsoft.Json.Linq;
 
 public interface IInMemoryEmpSchedulesRepository
 {
-    Task LoadEmpInfo(JToken data);
-    Task LoadEmpSchedule(JToken data);
-    IEnumerable<EmpSchedule> GetAll();
+    void LoadEmpInfo(JToken data);
+    void LoadEmpSchedule(JToken data);
+    IEnumerable<EmployeeInfo> GetAll();
     object getEmpSchedule();
     void UpdateEmpScheduleSels();
     void RunEmpScheduleReport();

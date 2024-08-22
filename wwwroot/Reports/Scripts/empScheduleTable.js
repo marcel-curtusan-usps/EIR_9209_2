@@ -4,14 +4,18 @@ let weekDates = [];
 
 async function updateEmployeeSchedule(data) {
     try {
-        //Get dates for the week
-        weekDates = [data[0].weekDate1, data[0].weekDate2, data[0].weekDate3, data[0].weekDate4, data[0].weekDate5, data[0].weekDate6, data[0].weekDate7];
-        data = data[0].scheduleList;
+        if (data.length > 0) {
+            //Get dates for the week
+            weekDates = [data[0].weekDate1, data[0].weekDate2, data[0].weekDate3, data[0].weekDate4, data[0].weekDate5, data[0].weekDate6, data[0].weekDate7];
+            data = data[0].scheduleList;
 
-        Promise.all([
-            createEmpScheduleDataTable('empScheduleData'),
-            loadEmpScheduleDatatable(processScheduledata(data), 'empScheduleData')
-        ]);
+            Promise.all([
+                createEmpScheduleDataTable('empScheduleData'),
+                loadEmpScheduleDatatable(processScheduledata(data), 'empScheduleData')
+            ]);
+        }
+        else {
+        }
     } catch (e) {
         console.log(e);
     }

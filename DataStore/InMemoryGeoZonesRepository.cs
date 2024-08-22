@@ -445,7 +445,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     _MPENameList.Add(mpe.MpeId);
                 }
                 await Task.Run(() => UpdateMPERunActivity(mpe)).ConfigureAwait(false);
-                var geoZone = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == mpe.MpeId).Select(y => y.Value).FirstOrDefault();
+                var geoZone = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == mpe.MpeId ).Select(y => y.Value).FirstOrDefault();
                 if (geoZone != null)
                 {
                     bool pushUIUpdate = false;
@@ -455,6 +455,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                         geoZone.Properties.MPERunPerformance = mpe;
                         geoZone.Properties.MPERunPerformance.MpeId = mpe.MpeId;
                         geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
+                        pushUIUpdate = true;
                     }
                     else
                     {
@@ -1068,5 +1069,10 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     public async Task<object> GetMPEGroupList(string type)
     {
         return await Task.Run(() => _geoZoneList.Where(r => r.Value.Properties.Type.StartsWith(type) && !string.IsNullOrEmpty(r.Value.Properties.MpeGroup)).Select(y => y.Value.Properties.MpeGroup).ToList());
+    }
+
+    public List<TagTimeline> GetTagTimelineList(string ein)
+    {
+        throw new NotImplementedException();
     }
 }

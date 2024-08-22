@@ -464,7 +464,7 @@ async function loadMachineData(data, table) {
     }
 }
 let machinetop_row_template =
-    '<tr data-id="{zoneId}"><td>{zoneType}</td><td>{zoneName}</td><td><span class="badge badge-pill {stateBadge}" style="font-size: 12px;">{stateText}</span></td></tr>' +
+    '<tr data-id="{zoneId}"><td>{type}</td><td>{zoneName}</td><td><span class="badge badge-pill {stateBadge}" style="font-size: 12px;">{stateText}</span></td></tr>' +
     '<tr id="SortPlan_tr"><td>OPN / Sort Plan</td><td colspan="2">{opNum} / {sortPlan}</td></tr>' +
     '<tr id="StartTime_tr"><td>Start</td><td colspan="2">{sortPlanStart}</td></tr>' +
     '<tr id="endtime_tr"><td>End</td><td colspan="2">{sortPlanEnd}</td></tr>' +
@@ -510,7 +510,7 @@ function formatmachinetoprow(properties) {
     return $.extend(properties, {
         zoneId: properties.id,
         zoneName: properties.name,
-        zoneType: properties.zoneType,
+        type: properties.type,
         sortPlan: Vaildatesortplan(properties.mpeRunPerformance),// ? properties.MPEWatchData.cur_sortplan : "N/A",
         opNum: properties.mpeRunPerformance.curOperationId,
         sortPlanStart: VaildateMPEtime(properties.mpeRunPerformance.currentRunStart),
@@ -610,6 +610,7 @@ function getstateText(properties) {
             return "No Data";
         }
     } catch (e) {
+        console.log(e)
         return "No Data";
     }
 }

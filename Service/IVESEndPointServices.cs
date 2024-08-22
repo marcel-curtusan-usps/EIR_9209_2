@@ -71,7 +71,7 @@ namespace EIR_9209_2.Service
             {
                 if (result is not null && ((JObject)result).ContainsKey("DATA"))
                 {
-                    await Task.Run(() => _empSchedules.LoadEmpInfo(result));
+                    await Task.Run(() => _empSchedules.LoadEmpInfo(result)).ConfigureAwait(false);
                 }
             }
             catch (Exception e)
@@ -85,7 +85,7 @@ namespace EIR_9209_2.Service
             {
                 if (result is not null && ((JObject)result).ContainsKey("DATA"))
                 {
-                    await Task.Run(() => _empSchedules.LoadEmpSchedule(result));
+                    await Task.Run(() => _empSchedules.LoadEmpSchedule(result)).ConfigureAwait(false);
                 }
             }
             catch (Exception e)
