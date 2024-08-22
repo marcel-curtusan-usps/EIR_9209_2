@@ -873,7 +873,7 @@
     </div>
     <!-- Camera Modal-->
     <div class="modal fade" id="Camera_Modal" tabindex="-1" role="dialog" style="z-index: 12000;" data-backdrop="static">
-        <div class="modal-dialog" style="max-width: 75%;">
+        <div class="modal-dialog" style="max-width: 85%;">
             <div class="modal-content bg-white">
                 <div class="modal-header">
                     <div class="col-3">
@@ -881,7 +881,7 @@
                     </div>
                     <div class="col-2">
                         <div class="row">
-                            <span>Camera Direction:</span><div id="cameraViewDirectionArrow" class="bi-arrow-up ml-2"></div>
+                            <span>Camera Direction:</span><div id="cameraViewDirectionArrow" class="bi-arrow-up ms-2 col-1"></div>
                             <span id="cameraViewDirectionNotice">(Not Set)</span>
                         </div>
                     </div>
@@ -889,9 +889,12 @@
                         <div class="countDown" id="countDownView">
                             <p>You may view these images for <span id="counter" class="badge badge-info font-weight-bold">0</span> seconds to conserve bandwidth.</p>
                         </div>
+                        <div class="countDown" id="timeOutView">
+                            <p>Your connection has timed out</p>
+                        </div>
                     </div>
                     <div class="col-1">
-                        <button class="close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                 </div>
                 <div class="modal-body pt-0 text-center" id="camera_modalbody">
@@ -1528,6 +1531,24 @@
                                                     <option value=""></option>
                                                 </select>
                                                 <span id="error_cameraLocation" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="form-group col">
+                                                <label class="control-label" for="cameraDirection">Camera Direction</label>
+                                                <div class="row ms-1">
+                                                    <div class="col-1 mb-1">
+                                                        <div id="cameraDirectionArrow" class="bi-arrow-up ms-2"></div>
+                                                    </div>
+                                                    <span class="font-weight-bold text-primary ms-2" id="cameraDirectionvalue"></span>
+                                                </div>
+                                                <div class="row ms-1">
+                                                    <input type="range" min="0" max="359" value="180" step="1" id="cameraDirection" class="custom-range" />
+                                                </div>
+                                                <div class="row ms-1">
+                                                    <span class="control-label">Camera facing direction on page: 0&#176;/360&#176; Up | 90&#176; Right | 180&#176; Down | 270&#176; Left</span>
+                                                    <span id="error_cameraDirection" class="text-danger"></span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -2784,6 +2805,7 @@
     <script src="../js/view/indoorMap.js"></script>
     <script src="../js/view/tagsEmployee.js"></script>
     <script src="../js/view/accessPoints.js"></script>
+    <script src="../js/view/tagsCamera.js"></script>
     <script src="../js/view/tagsPIVVehicles.js"></script>
     <script src="../js/view/tagsAGVVehicles.js"></script>
     <script src="../js/view/tagsSearch.js"></script>

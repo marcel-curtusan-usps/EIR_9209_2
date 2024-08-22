@@ -67,6 +67,14 @@ internal class QueryService : IQueryService
     {
         return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
     }
+    public async Task<JToken> GetCameraData(CancellationToken ct)
+    {
+        return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+    }
+    public async Task<byte[]> GetPictureData(CancellationToken ct)
+    {
+        return (await GetQueryResults<byte[]>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+    }
     public async Task<List<(string areaId, string areaName)>> GetAreasAsync(CancellationToken ct)
     {
         string GetAreasUrlPath = "api/usps/area/list";

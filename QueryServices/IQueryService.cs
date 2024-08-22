@@ -16,4 +16,6 @@ public interface IQueryService
     Task<JToken> GetSMSWrapperData(CancellationToken stoppingToken);
     Task<JToken> GetIVESData(CancellationToken stoppingToken);
     Task<JToken> GetCiscoSpacesData(CancellationToken stoppingToken);
+    Task<JToken> GetCameraData(CancellationToken stoppingToken);
+    Task<byte[]> GetPictureData(CancellationToken stoppingToken);
 }
