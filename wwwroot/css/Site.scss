@@ -60,7 +60,19 @@ html, body {
     position: absolute;
     border-radius: 50%;
 }
-
+.marker-camera-cone {
+    width: 0;
+    height: 0;
+    border-left: 40px solid transparent;
+    border-right: 40px solid transparent;
+    border-bottom: 40px solid transparent;
+    border-top: 40px solid #007bff;
+    border-radius: 50% 50% 0 0;
+    opacity: 0.4;
+    position: absolute;
+    margin: -20px 0 0 -20px;
+    align-content: center;
+}
 // to align icon
 .custom-div-icon i {
     position: absolute;

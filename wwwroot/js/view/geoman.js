@@ -319,21 +319,18 @@ function CreateZone(newlayer) {
         //map.setView(newlayer.layer._bounds.getCenter());
         var togeo = newlayer.layer.toGeoJSON();
         var geoProp = {
-            zoneType: "",
+            type: "",
             floorid: baselayerid,
             name: "",
             bins: "",
-            type: "",
             visible: true
         }
         $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
             togeo.properties = geoProp;
-            togeo.properties.zoneType = $('select[name=zone_type] option:selected').val();
-            togeo.properties.type = newlayer.shape
+            togeo.properties.type = $('select[name=zone_type] option:selected').val();
             if (/Bin/i.test($('select[name=zone_type] option:selected').val())) {
                 togeo.properties.bins = $('textarea[id="bin_bins"]').val();
             }
-
             else if (/(AGVLocation)/i.test($('select[name=zone_select_name] option:selected').val())) {
                 togeo.properties.name = $('input[id=manual_name]').val();
             }
@@ -385,44 +382,41 @@ function CreateCamera(newlayer) {
     var togeo = newlayer.layer.toGeoJSON();
     OSLmap.setView(newlayer.layer._latlng, 3);
     var geoProp = {
-        name: "",
-        floorid: baselayerid,
-        tagType: "",
+        floorId: baselayerid,
+        type: "Cameras",
         visible: true
     }
 
     $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
-        togeo.properties = geoProp;
-        togeo.properties.name = $('select[name=cameraLocation] option:selected').val();
-        togeo.properties.tagType = $('select[name=zone_type] option:selected').val();
-        togeo.properties.type = e.shape;
+        togeo.properties = geoProp; 
+        togeo.properties.ip = $('select[name=cameraLocation] option:selected').val();
+        togeo.properties.cameraName = $('select[name=cameraLocation] option:selected').val();
         //Camera Direction
         togeo.properties.cameraDirection = $('input[id=cameraDirection]').val();
-        $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Tag/GetTagTypeList?TagType=' + $('select[name=zone_type] option:selected').val(),
-            contentType: 'application/json',
-            type: 'GET',
-            success: function (mpedata) {
-                if (mpedata.length > 0) {
-                    //sort 
-                    mpedata.sort();
-                    mpedata.push('**Machine Not Listed');
-                    $.each(mpedata, function () {
-                        $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
-                    })
+        if (!$.isEmptyObject(togeo)) {
+            //make a ajax call to get the employee details
+            $.ajax({
+                url: SiteURLconstructor(window.location) + '/api/Camera/Add',
+                data: JSON.stringify(togeo),
+                contentType: 'application/json',
+                type: 'POST',
+                success: function (data) {
+                    newlayer.layer.remove();
+                    setTimeout(function () { sidebar.close(); }, 500);
+                },
+                error: function (error) {
+                    $('span[id=error_zonesubmitBtn]').text(error);
+                    $('button[id=zonesubmitBtn]').prop('disabled', false);
+                    //console.log(error);
+                },
+                faulure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    newlayer.layer.remove();
                 }
-            },
-            error: function (error) {
-
-                console.log(error);
-            },
-            faulure: function (fail) {
-                console.log(fail);
-            },
-            complete: function (complete) {
-                //console.log(complete);
-            }
-        });
+            });
+        }
     });
 }
 function RemoveZoneItem(removeLayer) {
@@ -477,6 +471,31 @@ function RemoveMarkerItem(removeLayer) {
                 //console.log(complete);
             }
         });
+        if (removeLayer.layer.feature.properties.hasOwnProperty("type") && removeLayer.layer.feature.properties.type == "Cameras") {
+            $.ajax({
+                url: SiteURLconstructor(window.location) + '/api/Camera/Delete?id=' + removeLayer.layer.feature.properties.id ,
+                contentType: 'application/json',
+                type: 'DELETE',
+                success: function (mpedata) {
+                    //if modal is open close it
+                    if (($('#Camera_Modal').data('bs.modal') || {})._isShown) {
+                        $('#Camera_Modal').modal('hide');
+                    }
+                    setTimeout(function () { $("#Remove_Layer_Modal").modal('hide'); $('#Camera_Modal').modal('hide'); }, 500);
+                },
+                error: function (error) {
+
+                    console.log(error);
+                },
+                faulure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    //console.log(complete);
+                }
+            });
+        }
+
         //if (removeLayer.layer.feature.properties.Tag_Type === "CameraMarker") {
         //    fotfmanager.server.removeCameraMarker(removeLayer.layer.feature.properties.id).done(function (Data) {
         //        //if modal is open close it
@@ -540,7 +559,7 @@ function VaildateForm(FormType) {
     }
     if (/(MPE)/i.test(FormType)) {
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/MPE/MPENames?Type=MPE',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -570,7 +589,7 @@ function VaildateForm(FormType) {
         $('textarea[id="bin_bins"]').val("");
 
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=DockDoor',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -600,7 +619,7 @@ function VaildateForm(FormType) {
         $('#binzoneinfo').css("display", "block");
         $('textarea[id="bin_bins"]').val("");
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/MPE/MPENames?Type=MPE',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -637,7 +656,7 @@ function VaildateForm(FormType) {
     else if (/(Bullpen)/i.test(FormType)) {
 
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=Bullpen',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -674,18 +693,17 @@ function VaildateForm(FormType) {
         enableAreaZoneSubmit();
     }
 
-   if (/(Camera)/i.test(FormType)) {
+    if (/(Camera)/i.test(FormType)) {
+        $('select[id=cameraLocation]').empty();
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Camera/GetList',
             contentType: 'application/json',
             type: 'GET',
-            success: function (mpedata) {
-                mpedata.push('**Camera Not Listed');
-                if (mpedata.length > 0) {
-                    //sort 
-                    mpedata.sort(SortByName);
-                    $.each(svdata, function () {
-                        $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
+            success: function (cameradata) {
+                $('<option/>').val("").html('').appendTo('select[id=cameraLocation]');
+                if (cameradata.length > 0) {
+                    $.each(cameradata, function () {
+                        $('<option/>').val(this.cameraName).html(this.description + " (" + this.cameraName + ")").appendTo('select[id=cameraLocation]');
                     })
                 } 
             },

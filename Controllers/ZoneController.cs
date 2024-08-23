@@ -75,7 +75,7 @@ namespace EIR_9209_2.Controllers
                 var GeoZone = await _zonesRepository.Add(newZone);
                 if (GeoZone != null)
                 {
-                    await _hubContext.Clients.Group(GeoZone.Properties.ZoneType).SendAsync($"add{GeoZone.Properties.ZoneType}zone", GeoZone);
+                    await _hubContext.Clients.Group(GeoZone.Properties.Type).SendAsync($"add{GeoZone.Properties.Type}zone", GeoZone);
                     return Ok(GeoZone);
                 }
                 else
@@ -104,7 +104,7 @@ namespace EIR_9209_2.Controllers
                 var GeoZone = await _zonesRepository.UiUpdate(zone.ToObject<GeoZone>());
                 if (GeoZone != null)
                 {
-                    await _hubContext.Clients.Group(GeoZone.Properties.ZoneType).SendAsync($"update{GeoZone.Properties.ZoneType}zone", GeoZone);
+                    await _hubContext.Clients.Group(GeoZone.Properties.Type).SendAsync($"update{GeoZone.Properties.Type}zone", GeoZone);
                     return Ok(GeoZone);
                 }
                 else
@@ -134,7 +134,7 @@ namespace EIR_9209_2.Controllers
 
                 if (GeoZone != null)
                 {
-                    await _hubContext.Clients.Group(GeoZone.Properties.ZoneType).SendAsync($"delete{GeoZone.Properties.ZoneType}zone", GeoZone);
+                    await _hubContext.Clients.Group(GeoZone.Properties.Type).SendAsync($"delete{GeoZone.Properties.Type}zone", GeoZone);
                     return Ok(GeoZone);
                 }
                 else
@@ -148,16 +148,6 @@ namespace EIR_9209_2.Controllers
                 _logger.LogError(e.Message);
                 return BadRequest(e.Message);
             }
-        }
-        [HttpGet]
-        [Route("GetTagTimelineList")]
-        public async Task<object> GetTagTimelineByEIN(string ein)
-        {
-            if (!ModelState.IsValid)
-            {
-                return await Task.FromResult(BadRequest(ModelState));
-            }
-            return _zonesRepository.GetTagTimelineList(ein);
         }
     }
 }

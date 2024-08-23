@@ -5,7 +5,7 @@ public interface IInMemoryGeoZonesRepository
 {
     Task<GeoZone> Add(GeoZone geoZone);
     Task<GeoZone> Remove(string geoZoneId);
-    Task<GeoZone> Update(GeoZone geoZone);
+    Task<JObject> Update(JObject geoZone);
     Task<GeoZone> UiUpdate(GeoZone geoZone);
     GeoZone Get(string id);
     IEnumerable<GeoZone> GetAll();
@@ -15,11 +15,6 @@ public interface IInMemoryGeoZonesRepository
     List<AreaDwell> GetAreaDwell(DateTime hour);
     void UpdateAreaDwell(DateTime hour, List<AreaDwell> newValue, List<AreaDwell> currentvalue);
     void AddAreaDwell(DateTime hour, List<AreaDwell> newValue);
-    bool ExistingTagTimeline(DateTime hour);
-    List<TagTimeline> GetTagTimeline(DateTime hour);
-    void UpdateTagTimeline(DateTime hour, List<TagTimeline> newValue, List<TagTimeline> currentvalue);
-    void AddTagTimeline(DateTime hour, List<TagTimeline> newValue);
-    void RemoveTagTimeline(DateTime hour);
     object getMPESummary(string mpe);
     List<MPEActiveRun> getMPERunActivity(string mpe);
     void RunMPESummaryReport();
@@ -29,4 +24,6 @@ public interface IInMemoryGeoZonesRepository
     Task LoadMPEPlan(JToken data);
     Task LoadWebEORMPERun(JToken data);
     List<TagTimeline> GetTagTimelineList(string ein);
+    Task<object?> GetMPENameList(string type);
+    Task<object?> GetMPEGroupList(string type);
 }

@@ -105,6 +105,11 @@ async function findAGVLeafletIds(markerId) {
 async function init_tagsAGV(data) {
     return new Promise((resolve, reject) => {
         try {
+            //add AGV markers to the layer
+            for (let i = 0; i < data.length; i++) {
+                ;
+                Promise.all([addAGVFeature(data[i])]);
+            }
             $(document).on('change', '.leaflet-control-layers-selector', function () {
                 let sp = this.nextElementSibling;
                 if (/^AGV Vehicles/ig.test(sp.innerHTML.trim())) {

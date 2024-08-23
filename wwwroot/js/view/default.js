@@ -141,6 +141,16 @@ async function start() {
                 // handle error
                 console.error(err);
             });
+            //load cameras
+            connection.invoke("GetCameras").then(function (data) {
+                Promise.all([init_markerCameras(data)]);
+                connection.invoke("JoinGroup", "Camera").catch(function (err) {
+                    return console.error(err.toString());
+                });
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
 
 
         }).catch(function (err) {

@@ -57,6 +57,13 @@ namespace EIR_9209_2.Service
                     await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
                 }
             }
+            finally
+            {
+                if (_endpointConfig.MessageType == "getEmpSchedule")
+                {
+                    await Task.Run(() => _empSchedules.RunEmpScheduleReport(), stoppingToken).ConfigureAwait(false);
+                }
+            }
         }
         private async Task ProcessEmployeeInfoData(JToken result)
         {
@@ -64,7 +71,7 @@ namespace EIR_9209_2.Service
             {
                 if (result is not null && ((JObject)result).ContainsKey("DATA"))
                 {
-                    _ = Task.Run(() => _empSchedules.LoadEmpInfo(result));
+                    await Task.Run(() => _empSchedules.LoadEmpInfo(result)).ConfigureAwait(false);
                 }
             }
             catch (Exception e)
@@ -78,7 +85,7 @@ namespace EIR_9209_2.Service
             {
                 if (result is not null && ((JObject)result).ContainsKey("DATA"))
                 {
-                    _ = Task.Run(() => _empSchedules.LoadEmpSchedule(result));
+                    await Task.Run(() => _empSchedules.LoadEmpSchedule(result)).ConfigureAwait(false);
                 }
             }
             catch (Exception e)

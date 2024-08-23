@@ -3,21 +3,19 @@ let valuesArray = null;
 let weekDates = [];
 
 async function updateEmployeeSchedule(data) {
-
     try {
-        //Get dates for the week
-        weekDates = data['weekdate'];
-        data = Object.keys(data).filter(objKey =>
-            objKey !== 'weekdate').reduce((newObj, key) => {
-                newObj[key] = data[key];
-                return newObj;
-            }, {}
-            );
+        if (data.length > 0) {
+            //Get dates for the week
+            weekDates = [data[0].weekDate1, data[0].weekDate2, data[0].weekDate3, data[0].weekDate4, data[0].weekDate5, data[0].weekDate6, data[0].weekDate7];
+            data = data[0].scheduleList;
 
-        Promise.all([
-            createEmpScheduleDataTable('empScheduleData'),
-            loadEmpScheduleDatatable(processScheduledata(data), 'empScheduleData')
-        ]);
+            Promise.all([
+                createEmpScheduleDataTable('empScheduleData'),
+                loadEmpScheduleDatatable(processScheduledata(data), 'empScheduleData')
+            ]);
+        }
+        else {
+        }
     } catch (e) {
         console.log(e);
     }
@@ -28,25 +26,25 @@ function processScheduledata(data) {
         var result = valuesArray.reduce((acc, curr) => {
             let tacshr = '9.86';
             let tacshrtotal = '38';
-            let selshrtotal = curr[17];
-            let totalhrs = curr[9];
+            let selshrtotal = curr.totalselshr;
+            let totalhrs = curr.totalhr;
             totalhrs += '<br><span class="tacshrSpan">' + tacshrtotal + '</span><span class="selshrSpan">' + selshrtotal + '</span>';
             if (selshrtotal == 0) {
                 totalhrspercent = '';
             } else {
                 totalhrspercent = '<br>' + Math.round(parseFloat(tacshrtotal) / parseFloat(selshrtotal) * 100 * 1) / 1 + '%';
             }
-
             let employee = {
-                employee: curr[0],
-                tour: curr[1],
-                day1: getDayFormat(curr[2], curr[10], tacshr),
-                day2: getDayFormat(curr[3], curr[11], tacshr),
-                day3: getDayFormat(curr[4], curr[12], tacshr),
-                day4: getDayFormat(curr[5], curr[13], tacshr),
-                day5: getDayFormat(curr[6], curr[14], tacshr),
-                day6: getDayFormat(curr[7], curr[15], tacshr),
-                day7: getDayFormat(curr[8], curr[16], tacshr),
+                ein: curr.ein,
+                name: curr.firstName + ' ' + curr.lastName, 
+                tour: curr.tourNumber,
+                day1: getDayFormat(curr.day1hr, curr.day1selshr, tacshr),
+                day2: getDayFormat(curr.day2hr, curr.day2selshr, tacshr),
+                day3: getDayFormat(curr.day3hr, curr.day3selshr, tacshr),
+                day4: getDayFormat(curr.day4hr, curr.day4selshr, tacshr),
+                day5: getDayFormat(curr.day5hr, curr.day5selshr, tacshr),
+                day6: getDayFormat(curr.day6hr, curr.day6selshr, tacshr),
+                day7: getDayFormat(curr.day7hr, curr.day7selshr, tacshr),
                 hourstotal: totalhrs,
                 hourstotalpercent: totalhrspercent
             };
@@ -72,8 +70,8 @@ async function createEmpScheduleDataTable(table) {
             let columns = [
                 {
                     "title": 'EIN',
-                    "width": "15%",
-                    "data": 'employee'
+                    "width": "10%",
+                    "data": 'ein'
                 },
                 {
                     "title": 'Name',
@@ -150,9 +148,9 @@ async function createEmpScheduleDataTable(table) {
                 },
                 aoColumns: columns,
                 columnDefs: [
-                    { targets: [1, 9, 10], className: 'dt-center' }
+                    { targets: [2, 10, 11], className: 'dt-center' }
                 ],
-                sorting: [[1, "asc"], [10, "asc"]],
+                sorting: [[2, "asc"], [11, "asc"]],
             })
             $('#' + table + ' thead').attr("class", "thead-dark");
 
@@ -182,27 +180,6 @@ function getDayFormat(dayhr, selshr, tacshr) {
     } else {
         curday += '<br><span class="tacshrSpan">' + tacshr + '</span><span class="selshrSpan">' + selshr + '</span>';
     }
-    return curday;
-}
-function getDaySchedule(row, day) {
-    let curday = '<span class="offSpan">OFF</span>';
-    //let curday = 'OFF';
-    $.each(row, function (key, value) {
-        if (value.day == day) {
-            if (value.groupName == 'Holiday Off') {
-                curday = '<span class="holoffSpan">HOLOFF</span>';
-                //curday = 'HOLOFF';
-            } else if (value.hrLeave == value.hrSched) {
-                curday = '<span class="leaveSpan">LV</span>';
-                //curday = 'LV';
-            } else {
-                curday = '<span class="tourhrSpan">' + value.btour + '-' + value.etour + '</span >';
-                let tacshr = '9.86';
-                let selshr = '6.85';
-                curday += '<br><span class="tacshrSpan">' + tacshr + '</span><span class="selshrSpan">' + selshr + '</span>';
-            }
-        }
-    });
     return curday;
 }
 async function loadEmpScheduleDatatable(data, table) {

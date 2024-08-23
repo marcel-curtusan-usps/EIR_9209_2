@@ -125,16 +125,6 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-
-                //var updateCon = _connectionRepository.Update(connectionToUpdate).Result;
-                //if (updateCon != null)
-                //{
-
-                //}
-                //else
-                //{
-                //    return new JObject { ["Message"] = $"Connection was not Found" };
-                //}
             }
             catch (Exception e)
             {
