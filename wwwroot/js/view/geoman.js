@@ -381,21 +381,18 @@ function CreateCamera(newlayer) {
     sidebar.open('home');
     var togeo = newlayer.layer.toGeoJSON();
     OSLmap.setView(newlayer.layer._latlng, 3);
-    //var geoProp = {
-    //    name: "",
-    //    floorid: baselayerid,
-    //    tagType: "",
-    //    visible: true
-    //}
+    var geoProp = {
+        floorId: baselayerid,
+        type: "Cameras",
+        visible: true
+    }
 
     $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
-        //togeo.properties = geoProp;
-        let displayname = $('select[name=cameraLocation] option:selected').val();
-        togeo.id = displayname.substring(0, displayname.indexOf(' / '));
-        //togeo.id = $('select[name=zone_type] option:selected').val();
-        //togeo.properties.type = e.shape;
+        togeo.properties = geoProp; 
+        togeo.properties.ip = $('select[name=cameraLocation] option:selected').val();
+        togeo.properties.cameraName = $('select[name=cameraLocation] option:selected').val();
         //Camera Direction
-        togeo.cameraDirection = $('input[id=cameraDirection]').val();
+        togeo.properties.cameraDirection = $('input[id=cameraDirection]').val();
         if (!$.isEmptyObject(togeo)) {
             //make a ajax call to get the employee details
             $.ajax({
@@ -404,7 +401,7 @@ function CreateCamera(newlayer) {
                 contentType: 'application/json',
                 type: 'POST',
                 success: function (data) {
-                    //Promise.all([init_geoZone(data)]);
+                    newlayer.layer.remove();
                     setTimeout(function () { sidebar.close(); }, 500);
                 },
                 error: function (error) {
@@ -420,31 +417,6 @@ function CreateCamera(newlayer) {
                 }
             });
         }
-        //$.ajax({
-        //    url: SiteURLconstructor(window.location) + '/api/Camera/GetCameraList',
-        //    contentType: 'application/json',
-        //    type: 'GET',
-        //    success: function (mpedata) {
-        //        if (mpedata.length > 0) {
-        //            //sort 
-        //            mpedata.sort();
-        //            mpedata.push('**Machine Not Listed');
-        //            $.each(mpedata, function () {
-        //                $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
-        //            })
-        //        }
-        //    },
-        //    error: function (error) {
-
-        //        console.log(error);
-        //    },
-        //    faulure: function (fail) {
-        //        console.log(fail);
-        //    },
-        //    complete: function (complete) {
-        //        //console.log(complete);
-        //    }
-        //});
     });
 }
 function RemoveZoneItem(removeLayer) {
@@ -499,6 +471,31 @@ function RemoveMarkerItem(removeLayer) {
                 //console.log(complete);
             }
         });
+        if (removeLayer.layer.feature.properties.hasOwnProperty("type") && removeLayer.layer.feature.properties.type == "Cameras") {
+            $.ajax({
+                url: SiteURLconstructor(window.location) + '/api/Camera/Delete?id=' + removeLayer.layer.feature.properties.id ,
+                contentType: 'application/json',
+                type: 'DELETE',
+                success: function (mpedata) {
+                    //if modal is open close it
+                    if (($('#Camera_Modal').data('bs.modal') || {})._isShown) {
+                        $('#Camera_Modal').modal('hide');
+                    }
+                    setTimeout(function () { $("#Remove_Layer_Modal").modal('hide'); $('#Camera_Modal').modal('hide'); }, 500);
+                },
+                error: function (error) {
+
+                    console.log(error);
+                },
+                faulure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    //console.log(complete);
+                }
+            });
+        }
+
         //if (removeLayer.layer.feature.properties.Tag_Type === "CameraMarker") {
         //    fotfmanager.server.removeCameraMarker(removeLayer.layer.feature.properties.id).done(function (Data) {
         //        //if modal is open close it
@@ -696,18 +693,17 @@ function VaildateForm(FormType) {
         enableAreaZoneSubmit();
     }
 
-   if (/(Camera)/i.test(FormType)) {
+    if (/(Camera)/i.test(FormType)) {
+        $('select[id=cameraLocation]').empty();
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Camera/GetCameraList',
+            url: SiteURLconstructor(window.location) + '/api/Camera/GetList',
             contentType: 'application/json',
             type: 'GET',
             success: function (cameradata) {
-                //cameradata.push('**Camera Not Listed');
+                $('<option/>').val("").html('').appendTo('select[id=cameraLocation]');
                 if (cameradata.length > 0) {
-                    //sort 
-                    //mpedata.sort(SortByName);
                     $.each(cameradata, function () {
-                        $('<option/>').val(this).html(this).appendTo('select[id=cameraLocation]');
+                        $('<option/>').val(this.cameraName).html(this.description + " (" + this.cameraName + ")").appendTo('select[id=cameraLocation]');
                     })
                 } 
             },

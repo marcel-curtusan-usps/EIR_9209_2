@@ -53,18 +53,48 @@ namespace EIR_9209_2.DataStore
 
         public async Task Add(GeoMarker tag)
         {
-            if (_tagList.TryAdd(tag.Properties.Id, tag))
+            bool saveToFile = false;
+            try
             {
-                await _hubServices.Clients.Group(tag.Properties.TagType).SendAsync($"add{tag.Properties.TagType}TagInfo", tag);
-                FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                if (_tagList.TryAdd(tag.Properties.Id, tag))
+                {
+                    await _hubServices.Clients.Group(tag.Properties.TagType).SendAsync($"add{tag.Properties.TagType}TagInfo", tag);
+                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
+            finally
+            {
+                if (saveToFile)
+                {
+                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                }
             }
         }
         public async Task Delete(string connectionId)
         {
-            if (_tagList.TryRemove(connectionId, out GeoMarker? tag))
+            bool saveToFile = false;
+            try
             {
-                await _hubServices.Clients.Group(tag.Properties.TagType).SendAsync($"delete{tag.Properties.TagType}TagInfo", tag);
-                FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                if (_tagList.TryRemove(connectionId, out GeoMarker? tag))
+                {
+                    await _hubServices.Clients.Group(tag.Properties.TagType).SendAsync($"delete{tag.Properties.TagType}TagInfo", tag);
+                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
+            finally
+            {
+                if (saveToFile)
+                {
+                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                }
             }
 
         }

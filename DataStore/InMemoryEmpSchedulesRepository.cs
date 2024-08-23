@@ -317,14 +317,14 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                         {
                             _employeeScheduleDailySummary.TryAdd(ein.EIN, new Dictionary<DateTime, EmployeeScheduleSummary>());
                         }
-                        //foreach (var schday in sch)
-                        //{
-                        //    var daySch = GetEmployeeDaySchedule(sch, day, ein);
-                        //    lock (_employeeScheduleDailySummary)
-                        //    {
-                        //        _employeeScheduleDailySummary[ein.EIN][day] = daySch;
-                        //    }
-                        //}
+                        foreach (var schday in sch)
+                        {
+                            //var daySch = GetEmployeeDaySchedule(schday, days, ein);
+                            //lock (_employeeScheduleDailySummary)
+                            //{
+                            //    _employeeScheduleDailySummary[ein.EIN][day] = daySch;
+                            //}
+                        }
                     }
                 }
             }
@@ -336,7 +336,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
 
     }
 
-    private EmployeeScheduleSummary GetEmployeeDaySchedule(List<Schedule> sch, DateTime day, EmployeeInfo ein)
+    private EmployeeScheduleSummary GetEmployeeDaySchedule(Schedule sch, DateTime day, EmployeeInfo ein)
     {
         try
         {
@@ -353,7 +353,9 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
             return new EmployeeScheduleSummary
             {
                 FirstName = ein.FirstName,
-                SelsLaborHrs = selsHrs
+                PayWeek = sch.PayWeek,
+                SelsLaborHrs = selsHrs,
+                TACSLaborHrs = tacsHrs
             };
         }
         catch (Exception e)

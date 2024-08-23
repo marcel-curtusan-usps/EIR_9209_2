@@ -1,29 +1,25 @@
 ﻿using EIR_9209_2.DataStore;
 using EIR_9209_2.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting.Internal;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PuppeteerSharp;
-using System;
-using System.Net;
-using System.Net.Http;
+
 
 namespace EIR_9209_2.Service
 {
     internal class CameraEndPointServices : BaseEndpointService
     {
-        private readonly IInMemoryCamerasRepository _cameraList;
+        private readonly IInMemoryCamerasRepository _camera;
         private readonly IInMemorySiteInfoRepository _siteInfo;
-        public CameraEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemorySiteInfoRepository siteInfo, IInMemoryCamerasRepository cameraList)
+        public CameraEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemorySiteInfoRepository siteInfo, IInMemoryCamerasRepository camera)
                 : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
         {
             _siteInfo = siteInfo;
-            _cameraList = cameraList;
+            _camera = camera;
         }
         protected override async Task FetchDataFromEndpoint(CancellationToken stoppingToken)
         {
+            byte[] result = Array.Empty<byte>();
             try
             {
                 _endpointConfig.Status = EWorkerServiceState.Running;
@@ -36,36 +32,40 @@ namespace EIR_9209_2.Service
                 if (_endpointConfig.MessageType == "Cameras")
                 {
                     SiteInformation siteinfo = _siteInfo.GetByNASSCode(_configuration["ApplicationConfiguration:NassCode"]!.ToString());
-                    string Fdbid = siteinfo.FdbId;
-                    //process tag data
-                    FormatUrl = string.Format(_endpointConfig.Url, Fdbid);
-                    queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                    if (siteinfo != null)
+                    {
+                        //process tag data
+                        FormatUrl = string.Format(_endpointConfig.Url, siteinfo.FdbId);
+                        queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
 
-                    var result = (await queryService.GetCameraData(stoppingToken));
-                    // Process the data as needed
-                    _ = Task.Run(async () => await ProcessCameraData(result), stoppingToken);
+                        var cresult = (await queryService.GetCameraData(stoppingToken));
+                        // Process the data as needed
+                        _ = Task.Run(async () => await ProcessCameraData(cresult), stoppingToken);
+                    }
                 }
                 if (_endpointConfig.MessageType == "getCameraStills")
                 {
                     //process camera list and get pictures
-                    foreach (CameraMarker camera in _cameraList.GetAll())
+                    foreach (CameraMarker camera in _camera.GetAll())
                     {
-                        FormatUrl = string.Format(_endpointConfig.Url, camera.CameraData.CameraName);
                         try
                         {
+                            if (string.IsNullOrEmpty(camera.Properties.CameraName))
+                            {
+                                continue;
+                            }
+                            FormatUrl = string.Format(_endpointConfig.Url, camera.Properties.CameraName);
+                       
                             using (var httpClient = new HttpClient())
                             {
-                                //Issue the GET request to a URL and read the response into a 
-                                //stream that can be used to load the image
-                                var fileInfo = new FileInfo(FormatUrl);
-                                byte[] result = await httpClient.GetByteArrayAsync(FormatUrl);
-                                _ = Task.Run(async () => await ProcessPictureData(result, camera.CameraData.CameraName, true), stoppingToken);
+                                result = await httpClient.GetByteArrayAsync(FormatUrl);
+                                _ = Task.Run(async () => await ProcessCameraStills(result, camera.Properties.Id), stoppingToken);
                             }
                         }
                         catch (Exception ex)
                         {
-                            byte[] noresult = Array.Empty<byte>();
-                            _ = Task.Run(async () => await ProcessPictureData(noresult, camera.CameraData.CameraName, false), stoppingToken);
+                            result = Array.Empty<byte>();
+                            _ = Task.Run(async () => await ProcessCameraStills(result, camera.Properties.Id), stoppingToken);
                         }
                     }
                 }
@@ -82,6 +82,10 @@ namespace EIR_9209_2.Service
                     await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
                 }
             }
+            finally 
+            {
+                result = Array.Empty<byte>();
+            }
         }
         private async Task ProcessCameraData(JToken result)
         {
@@ -89,7 +93,38 @@ namespace EIR_9209_2.Service
             {
                 if (result is not null)
                 {
-                    await Task.Run(() => _cameraList.LoadCameraData(result));
+                    List<BICAMCameras>? BICAMcameraList = result.ToObject<List<BICAMCameras>>();
+                    List<Cameras>? cameraList = new List<Cameras>();
+                    foreach (var BICAMcamera in BICAMcameraList)
+                    {
+                        cameraList.Add(new Cameras
+                        {
+                            Id = BICAMcamera.CameraName,
+                            DisplayName = BICAMcamera.FacilityDisplayName,
+                            CameraDirection = BICAMcamera.CameraName,
+                            LocaleKey = BICAMcamera.LocaleKey,
+                            ModelNum = BICAMcamera.ModelNum,
+                            FacilityPhysAddrTxt = BICAMcamera.FacilityPhysAddrTxt,
+                            GeoProcRegionNm = BICAMcamera.GeoProcRegionNm,
+                            FacilitySubtypeDesc = BICAMcamera.FacilitySubtypeDesc,
+                            GeoProcDivisionNm = BICAMcamera.GeoProcDivisionNm,
+                            AuthKey = BICAMcamera.AuthKey,
+                            FacilityLatitudeNum = BICAMcamera.FacilitiyLatitudeNum,
+                            FacilityLongitudeNum = BICAMcamera.FacilitiyLongitudeNum,
+                            CameraName = BICAMcamera.CameraName,
+                            IP  =BICAMcamera.CameraName,
+                            Description = BICAMcamera.Description,
+                            Reachable = BICAMcamera.Reachable,
+                            Type = "Cameras",
+
+                        });
+                    }
+
+                    if (cameraList != null && cameraList.Any())
+                    {
+                        await Task.Run(() => _camera.LoadCameraData(cameraList));
+                    }
+                   
                 }
             }
             catch (Exception e)
@@ -97,16 +132,57 @@ namespace EIR_9209_2.Service
                 _logger.LogError(e.Message);
             }
         }
-        private async Task ProcessPictureData(byte[] result, string id, bool picload)
+        private async Task ProcessCameraStills(byte[] result, string id)
         {
             try
             {
-                await Task.Run(() => _cameraList.LoadPictureData(result, id, picload));
+                await Task.Run(() => _camera.LoadCameraStills(result, id));
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
             }
+        }
+        public class BICAMCameras
+        {
+            [JsonProperty("LOCALE_KEY")]
+            public string LocaleKey { get; set; } = "";
+
+            [JsonProperty("MODEL_NUM")]
+            public string ModelNum { get; set; } = "";
+
+            [JsonProperty("FACILITY_PHYS_ADDR_TXT")]
+            public string FacilityPhysAddrTxt { get; set; } = "";
+
+            [JsonProperty("GEO_PROC_REGION_NM")]
+            public string GeoProcRegionNm { get; set; } = "";
+
+            [JsonProperty("FACILITY_SUBTYPE_DESC")]
+            public string FacilitySubtypeDesc { get; set; } = "";
+
+            [JsonProperty("GEO_PROC_DIVISION_NM")]
+            public string GeoProcDivisionNm { get; set; } = "";
+
+            [JsonProperty("AUTH_KEY")]
+            public string AuthKey { get; set; } = "";
+
+            [JsonProperty("FACILITY_LATITUDE_NUM")]
+            public double FacilitiyLatitudeNum { get; set; } = 0.0;
+
+            [JsonProperty("FACILITY_LONGITUDE_NUM")]
+            public double FacilitiyLongitudeNum { get; set; } = 0.0;
+
+            [JsonProperty("DESCRIPTION")]
+            public string Description { get; set; } = "";
+
+            [JsonProperty("CAMERA_NAME")]
+            public string CameraName { get; set; } = "";
+
+            [JsonProperty("REACHABLE")]
+            public string Reachable { get; set; } = "";
+
+            [JsonProperty("FACILITY_DISPLAY_NME")]
+            public string FacilityDisplayName { get; set; } = "";
         }
     }
 }

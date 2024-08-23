@@ -356,7 +356,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             List<GeoZone>? data = JsonConvert.DeserializeObject<List<GeoZone>>(fileContent);
 
             // Insert the data into the MongoDB collection
-            if (data.Any())
+            if (data?.Count > 0)
             {
                 foreach (GeoZone item in data.Select(r => r).ToList())
                 {
