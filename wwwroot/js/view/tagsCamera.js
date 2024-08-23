@@ -228,7 +228,7 @@ async function updateCameraFeature(data) {
 }
 
 
-let ImageLayout = '<div>{image}</div>';
+let ImageLayout = '<div class="row">{image}</div>';
 function formatImageLayout(img) {
     let newimg = new Image();
     newimg.src = img;
