@@ -395,7 +395,8 @@ async function Edit_Email(data) {
                         contentType: 'application/json',
                         type: 'PUT',
                         success: function (responsedata) {
-                            Promise.all([updateEmailListDataTable(responsedata, EmailListtable)]);
+                            //Promise.all([updateEmailListDataTable(responsedata, EmailListtable)]);
+                            Promise.all([init_emailList()]);
                             setTimeout(function () { $("#Email_Modal").modal('hide'); sidebar.open('setting'); }, 500);
                         },
                         error: function (error) {
