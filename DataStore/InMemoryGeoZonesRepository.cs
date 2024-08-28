@@ -7,22 +7,27 @@ using NuGet.Protocol;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using static EIR_9209_2.DataStore.InMemoryCamerasRepository;
 
 public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 {
     private readonly ConcurrentDictionary<string, GeoZone> _geoZoneList = new();
+    private readonly ConcurrentDictionary<string, GeoZoneDockDoor> _geoZoneDockDoorList = new();
     private readonly ConcurrentDictionary<string, Dictionary<DateTime, MPESummary>> _mpeSummary = new();
     private readonly ConcurrentDictionary<DateTime, List<AreaDwell>> _QREAreaDwellResults = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPERunActivity = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPEStandard = new();
     private readonly IInMemorySiteInfoRepository _siteInfo;
     private readonly List<string> _MPENameList = new();
+    private readonly List<string> _DockDoorList = new();
     private readonly IConfiguration _configuration;
     private readonly ILogger<InMemoryGeoZonesRepository> _logger;
     private readonly IFileService _fileService;
     protected readonly IHubContext<HubServices> _hubServices;
     private readonly string filePath = "";
     private readonly string fileName = "";
+    private readonly string filePathDockDoor = "";
+    private readonly string fileNameDockDoor = "ZonesDockDoor.json";
     public InMemoryGeoZonesRepository(ILogger<InMemoryGeoZonesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices,IInMemorySiteInfoRepository siteInfo)
     {
         _fileService = fileService;
@@ -36,10 +41,20 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             _configuration[key: "ApplicationConfiguration:NassCode"],
             _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
             $"{fileName}");
+        filePathDockDoor = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
+    _configuration[key: "ApplicationConfiguration:BaseDirectory"],
+    _configuration[key: "ApplicationConfiguration:NassCode"],
+    _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
+    $"{fileNameDockDoor}");
         // Load data from the first file into the first collection
         _ = LoadDataFromFile(filePath);
+        // Load data from the first file into the first collection
+        _ = LoadDockDoorDataFromFile(filePathDockDoor);
 
     }
+
+
+
     public async Task<GeoZone>? Add(GeoZone geoZone)
     {
         bool saveToFile = false;
@@ -69,7 +84,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented));
+                _fileService.WriteFile(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
             }
         }
     }
@@ -99,11 +114,70 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented));
+                _fileService.WriteFile(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
             }
         }
     }
 
+    public async Task<GeoZoneDockDoor>? AddDockDoor(GeoZoneDockDoor geoZone)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (_geoZoneDockDoorList.TryAdd(geoZone.Properties.Id, geoZone))
+            {
+                saveToFile = true;
+                return await Task.FromResult(geoZone);
+            }
+            else
+            {
+                _logger.LogError($"Zone File list was not saved...");
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile(fileNameDockDoor, GeoZoneDockDoorOutPutdata(_geoZoneDockDoorList.Select(x => x.Value).ToList()));
+            }
+        }
+    }
+
+    public async Task<GeoZoneDockDoor>? RemoveDockDoor(string geoZoneId)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (_geoZoneDockDoorList.TryRemove(geoZoneId, out GeoZoneDockDoor geoZone))
+            {
+                saveToFile = true;
+                return await Task.FromResult(geoZone);
+            }
+            else
+            {
+                _logger.LogError($"Zone File list was not saved...");
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                _fileService.WriteFile(fileNameDockDoor, GeoZoneDockDoorOutPutdata(_geoZoneDockDoorList.Select(x => x.Value).ToList()));
+            }
+        }
+    }
     public async Task<JObject> Update(JObject properties)
     {
         bool saveToFile = false;
@@ -136,9 +210,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented));
+                _fileService.WriteFile(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
             }
         }
+    }
+    public Task<GeoZoneDockDoor> UpdateDockDoor(GeoZoneDockDoor geoZone)
+    {
+        throw new NotImplementedException();
     }
     public async Task<GeoZone>? UiUpdate(GeoZone geoZone)
     {
@@ -172,7 +250,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_geoZoneList.Values, Formatting.Indented));
+                _fileService.WriteFile(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
             }
         }
     }
@@ -188,7 +266,10 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     }
 
     public IEnumerable<GeoZone> GetAll() => _geoZoneList.Values;
-
+    public IEnumerable<GeoZoneDockDoor>? GetDockDoor()
+    {
+        return _geoZoneDockDoorList.Values;
+    }
     public object getMPESummary(string area)
     {
         return _mpeSummary.Where(r => Regex.IsMatch(r.Key, "(" + area + ")", RegexOptions.IgnoreCase)).Select(r => r.Value).ToList();
@@ -367,6 +448,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             {
                 foreach (GeoZone item in data.Select(r => r).ToList())
                 {
+                    if (item.Properties.Type == "DockDoor")
+                    {
+                        await AddDockDoor(JsonConvert.DeserializeObject<GeoZoneDockDoor>(JsonConvert.SerializeObject(item, Formatting.Indented)));
+                        continue;
+                       
+                    }
                     item.Properties.MPERunPerformance = new();
                     _geoZoneList.TryAdd(item.Properties.Id, item);
 
@@ -375,6 +462,48 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     if (item.Properties.Type == "MPE")
                     {
                         _MPENameList.Add(item.Properties.Name);
+                    }
+                }
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            // Handle the FileNotFoundException here
+            _logger.LogError($"File not found: {ex.FileName}");
+            // You can choose to throw an exception or take any other appropriate action
+        }
+        catch (IOException ex)
+        {
+            // Handle errors when reading the file
+            _logger.LogError($"An error occurred when reading the file: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            // Handle errors when parsing the JSON
+            _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
+        }
+    }
+    private async Task LoadDockDoorDataFromFile(string filePath)
+    {
+        try
+        {
+            // Read data from file
+            var fileContent = await _fileService.ReadFile(filePath);
+
+            // Parse the file content to get the data. This depends on the format of your file.
+            // Here's an example if your file was in JSON format and contained an array of T objects:
+            List<GeoZoneDockDoor>? data = JsonConvert.DeserializeObject<List<GeoZoneDockDoor>>(fileContent);
+
+            // Insert the data into the MongoDB collection
+            if (data?.Count > 0)
+            {
+                foreach (GeoZoneDockDoor item in data.Select(r => r).ToList())
+                {
+                    item.Properties.RouteTrips = new();
+                    _geoZoneDockDoorList.TryAdd(item.Properties.Id, item);
+                    if (item.Properties.Type == "DockDoor")
+                    {
+                        _DockDoorList.Add(item.Properties.Name);
                     }
                 }
             }
@@ -726,7 +855,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     }
                 }
             }
-            _ = Task.Run(() => RunMPESummaryReport());
+            _ = Task.Run(() => RunMPESummaryReport()).ConfigureAwait(false); 
         }
         catch (Exception ex)
         {
@@ -1072,16 +1201,51 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 
     public async Task<object> GetMPENameList(string type)
     {
-        return await Task.Run(() => _MPENameList.Select(y => y).ToList());
+        return await Task.Run(() => _MPENameList.Select(y => y).ToList()).ConfigureAwait(false);
     }
     public async Task<object> GetMPEGroupList(string type)
     {
-        return await Task.Run(() => _geoZoneList.Where(r => r.Value.Properties.Type.StartsWith(type) && !string.IsNullOrEmpty(r.Value.Properties.MpeGroup)).Select(y => y.Value.Properties.MpeGroup).ToList());
+        return await Task.Run(() => _geoZoneList.Where(r => r.Value.Properties.Type.StartsWith(type) && !string.IsNullOrEmpty(r.Value.Properties.MpeGroup)).Select(y => y.Value.Properties.MpeGroup).ToList()).ConfigureAwait(false); 
     }
 
     public List<TagTimeline> GetTagTimelineList(string ein)
     {
         throw new NotImplementedException();
+    }
+    private string GeoZoneDockDoorOutPutdata(List<GeoZoneDockDoor> DockDoor)
+    {
+        try
+        {
+            var jsonResolver = new PropertyRenameAndIgnoreSerializerContractResolver();
+            jsonResolver.IgnoreProperty(typeof(RouteTrips), "RouteTrips");
+            var serializerSettings = new JsonSerializerSettings();
+            serializerSettings.ContractResolver = jsonResolver;
+            return JsonConvert.SerializeObject(DockDoor, Formatting.Indented, serializerSettings);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return "";
+        }
+    }
+    private string GeoZoneOutPutdata(List<GeoZone> zone)
+    {
+        try
+        {
+            var jsonResolver = new PropertyRenameAndIgnoreSerializerContractResolver();
+            jsonResolver.IgnoreProperty(typeof(Properties), "MPERunPerformance");
+            jsonResolver.IgnoreProperty(typeof(Properties), "Bins");
+            jsonResolver.IgnoreProperty(typeof(Properties), "Emails");
+            jsonResolver.IgnoreProperty(typeof(Properties), "DataSource");
+            var serializerSettings = new JsonSerializerSettings();
+            serializerSettings.ContractResolver = jsonResolver;
+            return JsonConvert.SerializeObject(zone, Formatting.Indented, serializerSettings);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return "";
+        }
     }
 
 

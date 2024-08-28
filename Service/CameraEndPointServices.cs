@@ -19,7 +19,7 @@ namespace EIR_9209_2.Service
         }
         protected override async Task FetchDataFromEndpoint(CancellationToken stoppingToken)
         {
-            byte[] result = Array.Empty<byte>();
+           
             try
             {
                 _endpointConfig.Status = EWorkerServiceState.Running;
@@ -40,7 +40,7 @@ namespace EIR_9209_2.Service
 
                         var cresult = await queryService.GetCameraData(stoppingToken);
                         // Process the data as needed
-                        _ = Task.Run(async () => await ProcessCameraData(cresult), stoppingToken);
+                        _ = Task.Run(() => ProcessCameraData(cresult), stoppingToken).ConfigureAwait(false);
                     }
                 }
                 if (_endpointConfig.MessageType == "getCameraStills")
@@ -48,6 +48,7 @@ namespace EIR_9209_2.Service
                     //process camera list and get pictures
                     foreach (CameraGeoMarker camera in _camera.GetAll())
                     {
+                        byte[] result = Array.Empty<byte>();
                         try
                         {
                             if (string.IsNullOrEmpty(camera.Properties.CameraName))
@@ -59,13 +60,14 @@ namespace EIR_9209_2.Service
                             using (var httpClient = new HttpClient())
                             {
                                 result = await httpClient.GetByteArrayAsync(FormatUrl);
-                                _ = Task.Run(async () => await ProcessCameraStills(result, camera.Properties.Id), stoppingToken);
+                                _ = Task.Run(() => _camera.LoadCameraStills(result, camera.Properties.Id), stoppingToken).ConfigureAwait(false);
                             }
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
+                            _logger.LogError(e.Message);
                             result = Array.Empty<byte>();
-                            _ = Task.Run(async () => await ProcessCameraStills(result, camera.Properties.Id), stoppingToken);
+                         _ =  Task.Run(() => _camera.LoadCameraStills(result, camera.Properties.Id), stoppingToken).ConfigureAwait(false);
                         }
                     }
                 }
@@ -82,10 +84,7 @@ namespace EIR_9209_2.Service
                     await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
                 }
             }
-            finally
-            {
-                result = Array.Empty<byte>();
-            }
+           
         }
         private async Task ProcessCameraData(JToken result)
         {
@@ -122,7 +121,7 @@ namespace EIR_9209_2.Service
 
                     if (cameraList != null && cameraList.Any())
                     {
-                        await Task.Run(() => _camera.LoadCameraData(cameraList));
+                        await Task.Run(() => _camera.LoadCameraData(cameraList)).ConfigureAwait(false);
                     }
 
                 }
@@ -132,17 +131,7 @@ namespace EIR_9209_2.Service
                 _logger.LogError(e.Message);
             }
         }
-        private async Task ProcessCameraStills(byte[] result, string id)
-        {
-            try
-            {
-                await Task.Run(() => _camera.LoadCameraStills(result, id));
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-            }
-        }
+   
         public class BICAMCameras
         {
             [JsonProperty("LOCALE_KEY")]

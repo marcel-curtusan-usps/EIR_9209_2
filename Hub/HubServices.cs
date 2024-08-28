@@ -120,64 +120,65 @@ public class HubServices : Hub
             ["version"] = $"{_assembly.GetName().Version}",
             ["description"] = "EIR-9209 is a web application for EIR-9209",
             ["siteName"] = siteInfo?.DisplayName,
-            ["user"] = await GetUserName(Context.User),
+            ["user"] = GetUserName(Context.User),
             ["role"] = "Admin"
         });
     }
 
     public async Task<IEnumerable<GeoMarker>> GetBadgeTags()
     {
-        return await Task.Run(() => _tags.GetTagsType("Badge"));
+        return await Task.Run(() => _tags.GetTagsType("Badge")).ConfigureAwait(false);
     }
     public async Task<IEnumerable<VehicleGeoMarker>> GetPIVTags()
     {
-        return await Task.Run(() => _tags.GetAllPIV());
+        return await Task.Run(() => _tags.GetAllPIV()).ConfigureAwait(false);
     }
     public async Task<IEnumerable<VehicleGeoMarker>> GetAGVTags()
     {
-        return await Task.Run(() => _tags.GetAllAGV());
+        return await Task.Run(() => _tags.GetAllAGV()).ConfigureAwait(false);
     }
     public async Task<IEnumerable<GeoMarker>> GetAccessPoints()
     {
-        return await Task.Run(() => _tags.GetTagsType("AP"));
+        return await Task.Run(() => _tags.GetTagsType("AP")).ConfigureAwait(false);
     }
     public async Task<IEnumerable<GeoZone>> GetGeoZones()
     {
-        return await Task.Run(_geoZones.GetAll);
+        return await Task.Run(_geoZones.GetAll).ConfigureAwait(false);
+    }
+    public async Task<IEnumerable<GeoZoneDockDoor>> GetDockDoorGeoZones()
+    {
+        return await Task.Run(_geoZones.GetDockDoor).ConfigureAwait(false);
     }
     public async Task<IEnumerable<EmployeeInfo>> GetEmpSchedules()
     {
-        return await Task.Run(_empSchedules.GetAll);
+        return await Task.Run(_empSchedules.GetAll).ConfigureAwait(false);
     }
     public async Task<IEnumerable<CameraGeoMarker>> GetCameras()
     {
-        return await Task.Run(_cameraMarkers.GetAll);
+        return await Task.Run(_cameraMarkers.GetAll).ConfigureAwait(false);
     }
 
-    private Task<string> GetUserName(ClaimsPrincipal? user)
-    {
-        return Task.FromResult(user?.Identity?.Name);
-    }
+    private string? GetUserName(ClaimsPrincipal? user) => user?.Identity?.Name;
 
 
     // worker request for data of connection list
     public async Task<IEnumerable<Connection>> GetConnectionList()
     {
-        return await Task.Run(_connections.GetAll);
+        return await Task.Run(_connections.GetAll).ConfigureAwait(false);
     }
     // worker request for data of connectionType list
     public async Task<IEnumerable<ConnectionType>> GetConnectionTypeList()
     {
-        return await Task.Run(_connections.GetTypeAll);
+        return await Task.Run(_connections.GetTypeAll).ConfigureAwait(false);
     }
     // worker request for data of connectionType list
     public async Task<IEnumerable<DesignationActivityToCraftType>> GetDacodeToCraftTypeList()
     {
-        return await Task.Run(_dacodes.GetAll);
+        return await Task.Run(_dacodes.GetAll).ConfigureAwait(false);
     }
     // client get all zones
     public async Task<IEnumerable<GeoZone>> GetGeoZoneList()
     {
-        return await Task.Run(_geoZones.GetAll);
+        return await Task.Run(_geoZones.GetAll).ConfigureAwait(false); 
     }
 }

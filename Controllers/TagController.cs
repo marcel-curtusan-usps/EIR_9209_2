@@ -75,7 +75,7 @@ namespace EIR_9209_2.Controllers
                 return await Task.FromResult(BadRequest(ModelState));
             }
             string searchValue = string.IsNullOrEmpty(value) ? "" : HttpUtility.UrlDecode(value).Replace("\"", "");
-            var query = await Task.Run(() => _tags.SearchTag(searchValue));
+            var query = await Task.Run(() => _tags.SearchTag(searchValue)).ConfigureAwait(false);
             var searchReuslt = (from sr in query
                                 select new JObject
                                 {

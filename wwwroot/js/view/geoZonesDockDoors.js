@@ -53,7 +53,12 @@ async function findDockDoorZoneLeafletIds(zoneId) {
         reject(new Error('No layer found with the given DockDoor Zone Id'));
     });
 }
-async function init_geoZoneDockDoor() {
+async function init_geoZoneDockDoor(data) {
+    //load dockdoor data
+    for (let i = 0; i < data.length; i++) {
+        ;
+        Promise.all([addDockDoorFeature(data[i])]);
+    }
     $(document).on('change', '.leaflet-control-layers-selector', function (e) {
         let sp = this.nextElementSibling;
         if (/^(Dock Door)/ig.test(sp.innerHTML.trim())) {

@@ -61,6 +61,7 @@ namespace EIR_9209_2.DataStore
             bool saveToFile = false;
             try
             {
+                camera.Properties.Base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(noimageresult);
                 if (_cameraMarkers.TryAdd(camera.Properties.Id, camera))
                 {
                     saveToFile = true;
@@ -373,13 +374,21 @@ namespace EIR_9209_2.DataStore
         {
             try
             {
-                string newImage = "data:image/jpeg;base64," + Convert.ToBase64String(result);
+                string newImage = "";
+                if (result.Length == 0)
+                {
+                    newImage = "data:image/jpeg;base64," + Convert.ToBase64String(noimageresult);
+                }
+                else
+                {
+                    newImage = "data:image/jpeg;base64," + Convert.ToBase64String(result);
+                }
                 if (_cameraMarkers.ContainsKey(id) && _cameraMarkers.TryGetValue(id, out CameraGeoMarker cm))
                 {
                     if (cm.Properties.Base64Image != newImage)
                     {
                         cm.Properties.Base64Image = newImage;
-                        await _hubServices.Clients.Group(cm.Properties.Type).SendAsync($"update{cm.Properties.Type}", cm);
+                        await _hubServices.Clients.Group($"{cm.Properties.Type}Still").SendAsync($"update{cm.Properties.Type}Still", cm);
 
                     }
                 }

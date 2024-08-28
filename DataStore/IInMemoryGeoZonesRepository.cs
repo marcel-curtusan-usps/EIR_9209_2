@@ -5,6 +5,9 @@ public interface IInMemoryGeoZonesRepository
 {
     Task<GeoZone> Add(GeoZone geoZone);
     Task<GeoZone> Remove(string geoZoneId);
+    Task<GeoZoneDockDoor> AddDockDoor(GeoZoneDockDoor geoZone);
+    Task<GeoZoneDockDoor> RemoveDockDoor(string geoZoneId);
+    Task<GeoZoneDockDoor> UpdateDockDoor(GeoZoneDockDoor geoZone);
     Task<JObject> Update(JObject geoZone);
     Task<GeoZone> UiUpdate(GeoZone geoZone);
     GeoZone Get(string id);
@@ -27,4 +30,5 @@ public interface IInMemoryGeoZonesRepository
     Task<object?> GetMPENameList(string type);
     Task<object?> GetMPEGroupList(string type);
     Task<List<MPESummary>> getMPESummaryDateRange(string mpe, DateTime startDT, DateTime endDT);
+    IEnumerable<GeoZoneDockDoor>? GetDockDoor();
 }

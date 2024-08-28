@@ -58,7 +58,7 @@ namespace EIR_9209_2.Service
             {
                 if (result is not null)
                 {
-                    await Task.Run(() => _tags.UpdateEmployeeInfo(result));
+                    await Task.Run(() => _tags.UpdateEmployeeInfo(result)).ConfigureAwait(false);
 
                 }
             }

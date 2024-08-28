@@ -69,18 +69,37 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest();
                 }
-                GeoZone newZone = zone.ToObject<GeoZone>();
-                newZone.Properties.Id = Guid.NewGuid().ToString();
-
-                var GeoZone = await _zonesRepository.Add(newZone);
-                if (GeoZone != null)
+                if (zone["Properties"]?["Type"]?.ToString() == "DockDoor")
                 {
-                    await _hubContext.Clients.Group(GeoZone.Properties.Type).SendAsync($"add{GeoZone.Properties.Type}zone", GeoZone);
-                    return Ok(GeoZone);
+                    GeoZoneDockDoor newDockDoorZone = zone.ToObject<GeoZoneDockDoor>();
+                    newDockDoorZone.Properties.Id = Guid.NewGuid().ToString();
+
+                    var dockDoorZone = await _zonesRepository.AddDockDoor(newDockDoorZone);
+                    if (dockDoorZone != null)
+                    {
+                        await _hubContext.Clients.Group(dockDoorZone.Properties.Type).SendAsync($"add{dockDoorZone.Properties.Type}zone", dockDoorZone);
+                        return Ok(dockDoorZone);
+                    }
+                    else
+                    {
+                        return BadRequest(new JObject { ["message"] = "Dock door zone was not added" });
+                    }
                 }
                 else
                 {
-                    return BadRequest(new JObject { ["message"] = "Zone was not Added " });
+                    GeoZone newZone = zone.ToObject<GeoZone>();
+                    newZone.Properties.Id = Guid.NewGuid().ToString();
+
+                    var geoZone = await _zonesRepository.Add(newZone);
+                    if (geoZone != null)
+                    {
+                        await _hubContext.Clients.Group(geoZone.Properties.Type).SendAsync($"add{geoZone.Properties.Type}zone", geoZone);
+                        return Ok(geoZone);
+                    }
+                    else
+                    {
+                        return BadRequest(new JObject { ["message"] = "Zone was not added" });
+                    }
                 }
 
             }
@@ -101,15 +120,35 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest();
                 }
-                var GeoZone = await _zonesRepository.UiUpdate(zone.ToObject<GeoZone>());
-                if (GeoZone != null)
+                if (zone["Properties"]?["Type"]?.ToString() == "dock door")
                 {
-                    await _hubContext.Clients.Group(GeoZone.Properties.Type).SendAsync($"update{GeoZone.Properties.Type}zone", GeoZone);
-                    return Ok(GeoZone);
+                    GeoZoneDockDoor updatedDockDoorZone = zone.ToObject<GeoZoneDockDoor>();
+
+                    var dockDoorZone = await _zonesRepository.UpdateDockDoor(updatedDockDoorZone);
+                    if (dockDoorZone != null)
+                    {
+                        await _hubContext.Clients.Group(dockDoorZone.Properties.Type).SendAsync($"update{dockDoorZone.Properties.Type}zone", dockDoorZone);
+                        return Ok(dockDoorZone);
+                    }
+                    else
+                    {
+                        return BadRequest(new JObject { ["message"] = "Dock door zone was not updated" });
+                    }
                 }
                 else
                 {
-                    return BadRequest(new JObject { ["message"] = "Zone was not Updated " });
+                    GeoZone updatedZone = zone.ToObject<GeoZone>();
+
+                    var geoZone = await _zonesRepository.UiUpdate(updatedZone);
+                    if (geoZone != null)
+                    {
+                        await _hubContext.Clients.Group(geoZone.Properties.Type).SendAsync($"update{geoZone.Properties.Type}zone", geoZone);
+                        return Ok(geoZone);
+                    }
+                    else
+                    {
+                        return BadRequest(new JObject { ["message"] = "Zone was not updated" });
+                    }
                 }
 
             }
@@ -130,16 +169,32 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest();
                 }
-                var GeoZone = await _zonesRepository.Remove(id);
+                var geoZone = await _zonesRepository.Remove(id);
 
-                if (GeoZone != null)
+                if (geoZone != null)
                 {
-                    await _hubContext.Clients.Group(GeoZone.Properties.Type).SendAsync($"delete{GeoZone.Properties.Type}zone", GeoZone);
-                    return Ok(GeoZone);
+                    if (geoZone.Properties.Type == "dock door")
+                    {
+                        var dockDoorZone = await _zonesRepository.RemoveDockDoor(id);
+                        if (dockDoorZone != null)
+                        {
+                            await _hubContext.Clients.Group(dockDoorZone.Properties.Type).SendAsync($"delete{dockDoorZone.Properties.Type}zone", dockDoorZone);
+                            return Ok(dockDoorZone);
+                        }
+                        else
+                        {
+                            return BadRequest(new JObject { ["message"] = "Dock door zone was not removed" });
+                        }
+                    }
+                    else
+                    {
+                        await _hubContext.Clients.Group(geoZone.Properties.Type).SendAsync($"delete{geoZone.Properties.Type}zone", geoZone);
+                        return Ok(geoZone);
+                    }
                 }
                 else
                 {
-                    return BadRequest(new JObject { ["message"] = "Zone was not Removes " });
+                    return BadRequest(new JObject { ["message"] = "Zone was not removed" });
                 }
 
             }

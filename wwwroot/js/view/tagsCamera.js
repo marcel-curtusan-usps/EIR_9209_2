@@ -1,5 +1,5 @@
 ﻿
-$('#UserTag_Modal').on('hidden.bs.modal', function () {
+$('#Camera_Modal').on('hidden.bs.modal', function () {
     $(this)
         .find("input[type=text],textarea,select")
         .css({ "border-color": "#D3D3D3" })
@@ -18,37 +18,18 @@ $('#UserTag_Modal').on('hidden.bs.modal', function () {
         .find('input[type=checkbox]')
         .prop('checked', false).change()
         .end();
-    sidebar.open('userprofile');
-    $('#personform').css("display", "none");
-});
-$('#UserTag_Modal').on('shown.bs.modal', function () {
-    $('select[id=tagCraftName_select]').on('change', function () {
-        if ($(this).val() === "") {
-            $('span[id=error_tagCraftName_select]').text("Pleas select a Category");
-        }
-        else {
-            $('span[id=error_tagCraftName_select]').text("");
-        }
+
+    //stop the startTimer when closing the modal
+
+    clearInterval(timer);
+    connection.invoke("LeaveGroup", "CamerasStill").catch(function (err) {
+        return console.error(err.toString());
     });
-
-    // on change of the tagType_select
-
-
-    $('#tagType_select').on('change', function () {
-        if ($(this).val() === "") {
-            $('#error_tagType_select').text("Please select a Category");
-        }
-        else {
-            $('#error_tagType_select').text("");
-
-            if (/Badge/ig.test($(this).val())) {
-                //display the person form
-                $('#personform').css("display", "block");
-            }
-            else {
-                $('#personform').css("display", "none");
-            }
-        }
+   
+});
+$('#Camera_Modal').on('shown.bs.modal', function () {
+    connection.invoke("JoinGroup", "CamerasStill").catch(function (err) {
+        return console.error(err.toString());
     });
 });
 connection.on("addCameras", async (data) => {
@@ -60,6 +41,9 @@ connection.on("updateCameras", async (data) => {
 });
 connection.on("deleteCameras", async (data) => {
     Promise.all([deleteCameraFeature(data)]);
+});
+connection.on("updateCamerasStill", async (data) => {
+    Promise.all([updateCameraStillFeature(data)]);
 });
 
 let defaultTime = 90;
@@ -76,6 +60,9 @@ function startTimer() {
             $('#timeOutView').show();
             $('div[id=Camera_Modal]').attr("data-id", "0");
             $('div[id=camera_modalbody]').empty();
+            connection.invoke("LeaveGroup", "CamerasStill").catch(function (err) {
+                return console.error(err.toString());
+            });
         }
     }, 1000);
 };
@@ -155,21 +142,21 @@ async function init_markerCameras(data) {
             for (let i = 0; i < data.length; i++) {;
                 Promise.all([addCameraFeature(data[i])]);
             }
-            $(document).on('change', '.leaflet-control-layers-selector', function () {
-                let sp = this.nextElementSibling;
-                if (/^Cameras$/ig.test(sp.innerHTML.trim())) {
-                    if (this.checked) {
-                        connection.invoke("JoinGroup", "Cameras").catch(function (err) {
-                            return console.error(err.toString());
-                        });
-                    }
-                    else {
-                        connection.invoke("LeaveGroup", "Cameras").catch(function (err) {
-                            return console.error(err.toString());
-                        });
-                    }
-                }
-            });
+            //$(document).on('change', '.leaflet-control-layers-selector', function () {
+            //    let sp = this.nextElementSibling;
+            //    if (/^Cameras$/ig.test(sp.innerHTML.trim())) {
+            //        if (this.checked) {
+            //            connection.invoke("JoinGroup", "Cameras").catch(function (err) {
+            //                return console.error(err.toString());
+            //            });
+            //        }
+            //        else {
+            //            connection.invoke("LeaveGroup", "Cameras").catch(function (err) {
+            //                return console.error(err.toString());
+            //            });
+            //        }
+            //    }
+            //});
             resolve();
             return false;
         }
@@ -212,6 +199,21 @@ async function updateCameraFeature(data) {
         await findCameraLeafletIds(Camera.properties.id)
             .then(leafletIds => {
                 markerCameras._layers[leafletIds].feature.properties = data.properties;
+            })
+            .catch(error => {
+                //
+            });
+    }
+    catch (e) {
+        throw new Error(e.toString());
+    }
+}
+async function updateCameraStillFeature(data) {
+    try {
+        let Camera = data;
+        await findCameraLeafletIds(Camera.properties.id)
+            .then(leafletIds => {
+                markerCameras._layers[leafletIds].feature.properties.base64Image = data.properties.base64Image;
                 if (($('#Camera_Modal').hasClass('show')) && $('div[id=Camera_Modal]').attr("data-id") === data.properties.id) {
                     camera_modal_body = $('div[id=camera_modalbody]');
                     camera_modal_body.empty();

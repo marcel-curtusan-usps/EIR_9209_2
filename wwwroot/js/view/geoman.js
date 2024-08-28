@@ -334,6 +334,9 @@ function CreateZone(newlayer) {
             else if (/(AGVLocation)/i.test($('select[name=zone_select_name] option:selected').val())) {
                 togeo.properties.name = $('input[id=manual_name]').val();
             }
+            else if (/(DockDoor)/i.test($('select[name=zone_select_name] option:selected').val())) {
+                togeo.properties.name = $('input[id=manual_name]').val();
+            }
             else if (/(Area)/i.test($('select[name=zone_select_name] option:selected').val())) {
                 togeo.properties.name = $('input[id=manual_name]').val();
             }

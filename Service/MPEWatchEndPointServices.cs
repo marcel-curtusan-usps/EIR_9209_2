@@ -35,22 +35,18 @@ namespace EIR_9209_2.Service
                 if (_endpointConfig.MessageType.ToLower() == "rpg_run_perf")
                 {
                     // Process MPE data in a separate thread
-                    _ = Task.Run(async () => await ProcessMPEWatchRunPerfData(result), stoppingToken);
-                    //_logger.LogInformation("Data from {Url}: {Data}", _endpointConfig.Url, result);
+                    _ = Task.Run(async () => await ProcessMPEWatchRunPerfData(result), stoppingToken).ConfigureAwait(false);
                 }
                 if (_endpointConfig.MessageType.ToLower() == "rpg_plan")
                 {
                     // Process MPE data in a separate thread
-                    _ = Task.Run(async () => await ProcessMPEWatchRpgPlanData(result), stoppingToken);
-                    //_logger.LogInformation("Data from {Url}: {Data}", _endpointConfig.Url, result);
+                    _ = Task.Run(async () => await ProcessMPEWatchRpgPlanData(result), stoppingToken).ConfigureAwait(false);
                 }
                 if (_endpointConfig.MessageType.ToLower() == "dps_run_estm")
                 {
                     // Process MPE data in a separate thread
-                    _ = Task.Run(() => ProcessMPEWatchDPSRunData(result), stoppingToken);
-                    //_logger.LogInformation("Data from {Url}: {Data}", _endpointConfig.Url, result);
+                    _ = Task.Run(() => ProcessMPEWatchDPSRunData(result), stoppingToken).ConfigureAwait(false);
                 }
-                // _ = Task.Run(() => _geoZones.RunMPESummaryReport());
             }
             catch (Exception ex)
             {
@@ -117,7 +113,7 @@ namespace EIR_9209_2.Service
                         List<MPERunPerformance>? mpeList = data.ToObject<List<MPERunPerformance>>();
                         if (mpeList != null && mpeList.Any())
                         {
-                            await Task.Run(() => _geoZones.UpdateMPERunInfo(mpeList));
+                            await Task.Run(() => _geoZones.UpdateMPERunInfo(mpeList)).ConfigureAwait(false);
                         }
                     }
                 }

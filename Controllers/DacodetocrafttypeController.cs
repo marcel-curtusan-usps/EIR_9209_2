@@ -84,7 +84,7 @@ namespace EIR_9209_2.Controllers
             if (loadedDacode != null)
             {
                 //update all tag that have this da code
-                _ = Task.Run(() => _tags.UpdateTagDesignationActivity(loadedDacode));
+                _ = Task.Run(() => _tags.UpdateTagDesignationActivity(loadedDacode)).ConfigureAwait(false);
                 return Ok(loadedDacode);
             }
             else
@@ -118,7 +118,7 @@ namespace EIR_9209_2.Controllers
                 if (updatedDacode != null)
                 {
                     //update all tag that have this da code
-                    _ = Task.Run(() => _tags.UpdateTagDesignationActivity(updatedDacode));
+                    _ = Task.Run(() => _tags.UpdateTagDesignationActivity(updatedDacode)).ConfigureAwait(false);
                     return Ok(updatedDacode);
                 }
                 else

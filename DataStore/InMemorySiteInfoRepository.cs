@@ -61,13 +61,7 @@ namespace EIR_9209_2.DataStore
                 FileService.WriteFile(fileName, JsonConvert.SerializeObject(_siteInfo.Values, Formatting.Indented));
             }
         }
-        private DateTime GetCurrentTimeInTimeZone(string timeZoneId)
-        {
-            TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
-            DateTime currentTime = DateTime.Now;
-            DateTime currentTimeInTimeZone = TimeZoneInfo.ConvertTime(currentTime, timeZone);
-            return currentTimeInTimeZone;
-        }
+
         private async Task LoadDataFromFile(string filePath)
         {
             try

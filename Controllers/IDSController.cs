@@ -50,7 +50,7 @@ namespace EIR_9209_2.Controllers
                     JToken result = await _ids.GetOracleIDSData(data);
                     if (result.HasValues)
                     {
-                        _ = Task.Run(() => _geoZones.ProcessIDSData(result));
+                        _ = Task.Run(() => _geoZones.ProcessIDSData(result)).ConfigureAwait(false);
                     }
                     if (result.Type == JTokenType.Array)
                     {
@@ -60,7 +60,7 @@ namespace EIR_9209_2.Controllers
                     {
                         if (((JObject)result).ContainsKey("Error"))
                         {
-                            return await Task.FromResult(BadRequest(result));
+                            return await Task.FromResult(BadRequest(result)).ConfigureAwait(false);
 
                         }
                         else
@@ -139,7 +139,7 @@ namespace EIR_9209_2.Controllers
                     JToken result = await _ids.GetOracleIDSData(data);
                     if (result.HasValues)
                     {
-                        _ = Task.Run(() => _geoZones.ProcessIDSData(result));
+                        _ = Task.Run(() => _geoZones.ProcessIDSData(result)).ConfigureAwait(false);
                     }
                     if (result.Type == JTokenType.Array)
                     {
@@ -149,7 +149,7 @@ namespace EIR_9209_2.Controllers
                     {
                         if (((JObject)result).ContainsKey("Error"))
                         {
-                            return await Task.FromResult(BadRequest(result));
+                            return await Task.FromResult(BadRequest(result)).ConfigureAwait(false);
 
                         }
                         else

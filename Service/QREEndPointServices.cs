@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using EIR_9209_2.DataStore;
+using Microsoft.AspNetCore.SignalR;
 
 namespace EIR_9209_2.Service
 {
@@ -7,13 +8,15 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryGeoZonesRepository _zones;
         private readonly IInMemoryTagsRepository _tags;
         private readonly IInMemoryEmpSchedulesRepository _empSchedules;
+        private readonly IInMemorySiteInfoRepository _siteInfo;
 
-        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository zones, IInMemoryTagsRepository tags, IInMemoryEmpSchedulesRepository empSchedules)
+        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository zones, IInMemoryTagsRepository tags, IInMemoryEmpSchedulesRepository empSchedules, IInMemorySiteInfoRepository siteInfo)
             : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
         {
             _zones = zones;
             _tags = tags;
             _empSchedules = empSchedules;
+            _siteInfo = siteInfo;
         }
 
         protected override async Task FetchDataFromEndpoint(CancellationToken stoppingToken)
@@ -40,7 +43,7 @@ namespace EIR_9209_2.Service
                         FormatUrl = string.Format(_endpointConfig.Url);
                         queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
 
-                        var now = DateTime.Now;
+                        var now = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                         var endingHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
                         var startingHour = endingHour.AddHours(-1 * _endpointConfig.HoursBack);
                         var currentHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
@@ -91,27 +94,15 @@ namespace EIR_9209_2.Service
                         FormatUrl = string.Format(_endpointConfig.Url);
                         queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
 
-                        var now = DateTime.Now;
+                        var now = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                         var endingHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
                         var hourBack = _endpointConfig.HoursBack;
-
-                        //first day of the week
-                        //DayOfWeek weekStart = DayOfWeek.Saturday;
-                        //DateTime startingDate = DateTime.Today;
-                        //while (startingDate.DayOfWeek != weekStart)
-                        //    startingDate = startingDate.AddDays(-1);
-                        //var weekFirstHour = startingDate.AddHours(-3);
-
-                        DateTime startingDate = DateTime.Today;
-                        startingDate = startingDate.AddDays(-7);
-                        var weekFirstHour = startingDate.AddHours(-3);
-
+                        var startingHour = endingHour.AddHours(-1 * _endpointConfig.HoursBack);
                         var currentHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
                         var pastHour = currentHour.AddHours(-1);
                         var hourCnt = 0;
 
                         var allAreaIds = await queryService.GetAreasAsync(stoppingToken);
-
                         int areasBatchCount = 24;
                         Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREMinTimeOnArea"], out int MinTimeOnArea); //get the value from appsettings.json
                         Int32.TryParse(_configuration[key: "ApplicationConfiguration:QRETimeStep"], out int TimeStep); //get the value from appsettings.json
@@ -119,7 +110,7 @@ namespace EIR_9209_2.Service
                         Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREDeactivationTime"], out int DeactivationTime); //get the value from appsettings.json
                         Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREDisappearTime"], out int DisappearTime); //get the value from appsettings.json
 
-                        for (var hour = endingHour; weekFirstHour <= hour; hour = hour.AddHours(-1))
+                        for (var hour = endingHour; startingHour <= hour; hour = hour.AddHours(-1))
                         {
                             if (_tags.ExistingTagTimeline(hour))
                             {
@@ -152,8 +143,6 @@ namespace EIR_9209_2.Service
                             }
                             await Task.Run(() => _empSchedules.RunEmpScheduleReport(), stoppingToken).ConfigureAwait(false);
                         }
-                        //remove too old tagtimeline data
-                        _tags.RemoveTagTimeline(weekFirstHour);
                     }
                 }
             }
