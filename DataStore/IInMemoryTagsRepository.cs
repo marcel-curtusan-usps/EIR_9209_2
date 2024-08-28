@@ -11,8 +11,8 @@ public interface IInMemoryTagsRepository
     object Get(string id);
     List<GeoMarker> GetAll();
     List<GeoMarker> GetTagsType(string type);
-    List<GeoMarker> GetAllPIV();
-    List<GeoMarker> GetAllAGV();
+    List<VehicleGeoMarker> GetAllPIV();
+    List<VehicleGeoMarker> GetAllAGV();
     void UpdateEmployeeInfo(JToken emp);
     void UpdateBadgeTransactionScan(JObject transaction);
     string GetCraftType(string tagId);

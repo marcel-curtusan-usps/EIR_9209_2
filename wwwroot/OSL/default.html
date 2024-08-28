@@ -243,7 +243,7 @@
                             <div class="d-flex justify-content-center my-2">
                                 <div class="w-100">
                                     <label class="control-label" for="hoursback_range">Hours Backwards: <span class="font-weight-bold text-primary ml-2 hoursbackvalue"></span></label>
-                                    <input type="range" title="Hours Backwards" class="custom-range" id="hoursback_range" min="0" max="60" value="0" />
+                                    <input type="range" title="Hours Backwards" class="custom-range" id="hoursback_range" min="0" max="336" value="0" />
                                 </div>
                             </div>
                         </div>
@@ -252,7 +252,7 @@
                             <div class="d-flex justify-content-center my-2">
                                 <div class="w-100">
                                     <label class="control-label" for="hoursforward_range">Hours Forward: <span class="font-weight-bold text-primary ml-2 hoursforwardvalue"></span></label>
-                                    <input type="range" title="Hours Forward" class="custom-range" id="hoursforward_range" min="0" max="60" value="0" />
+                                    <input type="range" title="Hours Forward" class="custom-range" id="hoursforward_range" min="0" max="336" value="0" />
                                 </div>
                             </div>
                         </div>
@@ -1453,17 +1453,17 @@
                 </h1>
 
                 <div id="div_zoneSelect">
-                    <div id="zoneselectlist_div" class="d-flex mt-1 zoneselectlist display-block">
+                    <!--<div id="zoneselectlist_div" class="d-flex mt-1 zoneselectlist display-block">
 
-                        <div class="form-group flex-fill pl-3 mb-0 mr-p5rem">
+                        <div class="form-group flex-fill pl-3 mb-0 mr-p5rem">-->
                             <!-- <label class="mb-1">Select a Zone</label> -->
-                            <label for="zoneselect">Select a Zone:</label>
+                            <!--<label for="zoneselect">Select a Zone:</label>
                             <select class="form-control" id="zoneselect" title="zones" placeholder="Begin by selecting a zone">
                                 <option value=""></option>
                             </select>
                             <span class="text-danger" name="eroor_zoneselect"></span>
                         </div>
-                    </div>
+                    </div>-->
 
                     <div id="area_div" data-id="" class="card bg-white mt-2 pb-1 d-none">
                         <div class="card-header pl-1">
@@ -2797,10 +2797,10 @@
     <script src="../lib/chartjs/chart.umd.min.js"></script>
     <script src="../lib/chartjs-adapter-luxon/chartjs-adapter-luxon.umd.min.js"></script>
     <script src="../lib/chartjs-plugin-datalabels/chartjs-plugin-datalabels.min.js"></script>
-
-    <script src="../lib/datatables/js/jquery.dataTables.min.js"></script>
     <script src="../js/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="../lib/datatables.net/dataTables.min.js"></script>
+    <script src="../lib/datatables.net-bs5/dataTables.bootstrap5.min.js"></script>
     <script src="../js/microsoft/signalr/dist/browser/signalr.min.js"></script>
     <script src="../js/leaflet/dist/leaflet.js" crossorigin=""></script>
     <script src="../js/leaflet/leaflet-sidebar-v2/js/leaflet-sidebar.min.js"></script>

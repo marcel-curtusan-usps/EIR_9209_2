@@ -1,11 +1,13 @@
-﻿namespace EIR_9209_2.DataStore
+﻿
+namespace EIR_9209_2.DataStore
 {
     public interface IInMemorySiteInfoRepository
     {
         void Add(SiteInformation site);
         void Remove(string id);
-        SiteInformation Get(string id);
         void Update(SiteInformation site);
-        SiteInformation GetByNASSCode(string id);
+        SiteInformation Get(string id);
+        SiteInformation GetSiteInfo();
+        DateTime GetCurrentTimeInTimeZone(DateTime now);
     }
 }

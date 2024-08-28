@@ -302,7 +302,10 @@ function createOslDataTable(table) {
             zeroRecords: "No Data"
         },
         aoColumns: columns,
-        columnDefs: [],
+        columnDefs: [{
+            orderable: false, // Disable sorting on all columns
+            targets: '_all'
+        }],
         sorting: [[0, "asc"]],
 
     })

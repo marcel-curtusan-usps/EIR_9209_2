@@ -22,7 +22,7 @@ namespace EIR_9209_2.Controllers
         /// </summary>
         /// <param name="value">The connection details.</param>
         /// <returns>The added connection.</returns>
-        public async Task<object> PostAddNewConnectionType([FromBody] JObject value)
+        public object PostAddNewConnectionType([FromBody] JObject value)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -48,7 +48,7 @@ namespace EIR_9209_2.Controllers
         // PUT api/<Connection>/5
         [HttpPut]
         [Route("Update")]
-        public async Task<object> PutConnectionType(string id, [FromBody] JObject value)
+        public object PutConnectionType(string id, [FromBody] JObject value)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -80,7 +80,7 @@ namespace EIR_9209_2.Controllers
         // DELETE api/<Connection>/5
         [HttpDelete]
         [Route("Delete")]
-        public async Task<object> DeleteConnectionType(string id)
+        public object DeleteConnectionType(string id)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -106,7 +106,7 @@ namespace EIR_9209_2.Controllers
         // POST api/<Connection>
         [HttpPut]
         [Route("AddSubType")]
-        public async Task<object> PostAddNewConnectionSubType(string id, [FromBody] JObject value)
+        public object PostAddNewConnectionSubType(string id, [FromBody] JObject value)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -143,7 +143,7 @@ namespace EIR_9209_2.Controllers
         // PUT api/<Connection>/5
         [HttpPut]
         [Route("UpdateSubType")]
-        public async Task<object> PutSubType(string id, [FromBody] JObject value)
+        public object PutSubType(string id, [FromBody] JObject value)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -181,7 +181,7 @@ namespace EIR_9209_2.Controllers
         // DELETE api/<Connection>/5
         [HttpPost]
         [Route("DeleteSubType")]
-        public async Task<object> DeleteConnectionSubType(string id, string subId)
+        public object DeleteConnectionSubType(string id, string subId)
         {
             //handle bad requests
             if (!ModelState.IsValid)

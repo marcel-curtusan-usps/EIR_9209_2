@@ -20,7 +20,7 @@ public class ReportQuery
 
     [JsonProperty("ID")] public List<string> TagIds { get; set; } //if you want to filter by a specific badge ID, otherwise leave null
     public List<string> GroupIds { get; set; } //represents employee type - comes from the "api/v1/trackgroup/list?types=STATS_GROUP&showNonEmpty=true" call
-    public List<object> IntegrationIds { get; } = null; //unknown - leave null
+    public List<object>? IntegrationIds { get; } = null; //unknown - leave null
     [Required, JsonConverter(typeof(TimeSpanMillisecondsConverter))] public TimeSpan? MinTimeOnArea { get; set; } //change this based on desired minimum tag in area duration
     [JsonConverter(typeof(TimeSpanMillisecondsConverter))] public TimeSpan TimeStep { get; set; }
     [JsonConverter(typeof(TimeSpanMillisecondsConverter))] public TimeSpan ActivationTime { get; set; }
@@ -31,7 +31,7 @@ public class ReportQuery
     [JsonConverter(typeof(DateTimeUnixEpochMillisecondsTimeConverter)), Required] public DateTime? StartTime { get; set; } //unix timestamp in local time
     [JsonConverter(typeof(DateTimeUnixEpochMillisecondsTimeConverter)), Required] public DateTime? EndTime { get; set; } //unix timestamp in local time
     [JsonConverter(typeof(EnumDescriptionConverter<ESelsReportQueryType>)), Required] public ESelsReportQueryType? Type { get; set; } //defines the query type - see enum SelsDataQueryType;
-    public string Search { get; set; } = null;
-    public string Order { get; set; } = null;
-    public string Desc { get; set; } = null;
+    public string? Search { get; set; } = null;
+    public string? Order { get; set; } = null;
+    public string? Desc { get; set; } = null;
 }

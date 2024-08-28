@@ -1,6 +1,5 @@
 ﻿
 using Serilog;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 internal class SerilogDefaultLogger
 {

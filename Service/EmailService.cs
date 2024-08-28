@@ -1,6 +1,5 @@
 ﻿using MailKit.Net.Smtp;
 using MimeKit;
-using MimeKit.Utils;
 
 namespace EIR_9209_2.Service
 {

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Concurrent;
 
 namespace EIR_9209_2.DataStore
@@ -47,10 +48,9 @@ namespace EIR_9209_2.DataStore
             _siteInfo.TryGetValue(id, out SiteInformation tag);
             return tag;
         }
-
-        public SiteInformation GetByNASSCode(string id)
+        public SiteInformation GetSiteInfo()
         {
-            return _siteInfo.Where(t => t.Value.SiteId == id).Select(y => y.Value).FirstOrDefault();
+            return _siteInfo.Values.FirstOrDefault();
         }
 
         public void Update(SiteInformation site)
@@ -60,6 +60,13 @@ namespace EIR_9209_2.DataStore
 
                 FileService.WriteFile(fileName, JsonConvert.SerializeObject(_siteInfo.Values, Formatting.Indented));
             }
+        }
+        private DateTime GetCurrentTimeInTimeZone(string timeZoneId)
+        {
+            TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+            DateTime currentTime = DateTime.Now;
+            DateTime currentTimeInTimeZone = TimeZoneInfo.ConvertTime(currentTime, timeZone);
+            return currentTimeInTimeZone;
         }
         private async Task LoadDataFromFile(string filePath)
         {
@@ -96,7 +103,49 @@ namespace EIR_9209_2.DataStore
             }
         }
 
-
+        public DateTime GetCurrentTimeInTimeZone(DateTime currentTime)
+        {
+            string timeZoneId = "";
+            try
+            {
+                if (!CustomTimeZoneMappings.TryGetValue(_siteInfo.Values.FirstOrDefault().TimeZoneAbbr, out timeZoneId))
+                {
+                    throw new ArgumentException($"Invalid timezone identifier: {_siteInfo.Values.FirstOrDefault().TimeZoneAbbr}");
+                }
+                TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+                DateTime currentTimeInTimeZone = TimeZoneInfo.ConvertTime(currentTime, timeZone);
+                return currentTimeInTimeZone;
+            }
+            catch (TimeZoneNotFoundException)
+            {
+                Console.WriteLine($"The timezone identifier '{timeZoneId}' was not found.");
+                // Handle the error or return a default value
+                return DateTime.Now; // Default to local time
+            }
+            catch (InvalidTimeZoneException)
+            {
+                Console.WriteLine($"The timezone identifier '{timeZoneId}' is invalid.");
+                // Handle the error or return a default value
+                return DateTime.Now; // Default to local time
+            }
+        }
+        private static readonly Dictionary<string, string> CustomTimeZoneMappings = new Dictionary<string, string>
+            {
+            { "EST", "America/New_York" },
+            { "CST", "America/Chicago" },
+            { "MST", "America/Denver" },
+            { "PST", "America/Los_Angeles" },
+            { "AKST", "America/Anchorage" },
+            { "HST", "Pacific/Honolulu" },
+            { "EST1", "America/New_York" },
+            { "CST1", "America/Chicago" },
+            { "MST1", "America/Denver" },
+            { "PST1", "America/Los_Angeles" },
+            { "AKST1", "America/Anchorage" },
+            { "HST1", "Pacific/Honolulu" }
+                // Add other mappings as needed
+            };
     }
+
 }
 

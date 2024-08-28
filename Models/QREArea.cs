@@ -7,9 +7,9 @@
     //"color": "#99ffff",
     //"rtlsMapId": 1
 
-    public string Id { get; set; }
-    public string Name { get; set; }
-    public string Type { get; set; }
-    public string Color { get; set; }
+    public required string Id { get; set; }
+    public required string Name { get; set; }
+    public required string Type { get; set; }
+    public required string Color { get; set; }
     public int RtlsMapId { get; set; }
 }

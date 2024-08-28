@@ -1,24 +1,17 @@
-﻿using EIR_9209_2.Controllers;
-using EIR_9209_2.Models;
+﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
-using MimeKit;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using NuGet.Protocol;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Reflection;
-using System.Text.RegularExpressions;
-using static EIR_9209_2.Models.GeoMarker;
 
 namespace EIR_9209_2.DataStore
 {
     public class InMemoryCamerasRepository : IInMemoryCamerasRepository
     {
-        private readonly ConcurrentDictionary<string, CameraMarker> _cameraMarkers = new();
+        private readonly ConcurrentDictionary<string, CameraGeoMarker> _cameraMarkers = new();
         private readonly ConcurrentDictionary<string, Cameras> _cameraList = new();
         private readonly ILogger<InMemoryCamerasRepository> _logger;
         protected readonly IHubContext<HubServices> _hubServices;
@@ -63,7 +56,7 @@ namespace EIR_9209_2.DataStore
         }
 
 
-        public Task<CameraMarker> Add(CameraMarker camera)
+        public Task<CameraGeoMarker>? Add(CameraGeoMarker camera)
         {
             bool saveToFile = false;
             try
@@ -92,14 +85,14 @@ namespace EIR_9209_2.DataStore
                 }
             }
         }
-        public Task<CameraMarker> Delete(string cameraId)
+        public Task<CameraGeoMarker>? Delete(string cameraId)
         {
             bool saveToFile = false;
             try
             {
-                if (_cameraMarkers.ContainsKey(cameraId) && _cameraMarkers.TryRemove(cameraId, out CameraMarker? camera))
+                if (_cameraMarkers.ContainsKey(cameraId) && _cameraMarkers.TryRemove(cameraId, out CameraGeoMarker? camera))
                 {
-                 saveToFile = true;
+                    saveToFile = true;
                     return Task.FromResult(camera);
                 }
                 else
@@ -121,11 +114,11 @@ namespace EIR_9209_2.DataStore
                 }
             }
         }
-        public async Task Update(CameraMarker camera)
+        public async Task Update(CameraGeoMarker camera)
         {
             try
             {
-                if (_cameraMarkers.ContainsKey(camera.Properties.Id) && _cameraMarkers.TryGetValue(camera.Properties.Id, out CameraMarker cm) &&  _cameraMarkers.TryUpdate(camera.Properties.Id,camera,cm))
+                if (_cameraMarkers.ContainsKey(camera.Properties.Id) && _cameraMarkers.TryGetValue(camera.Properties.Id, out CameraGeoMarker cm) && _cameraMarkers.TryUpdate(camera.Properties.Id, camera, cm))
                 {
                     await _hubServices.Clients.Group(camera.Properties.Type).SendAsync($"update{camera.Properties.Type}", cm);
                 }
@@ -135,7 +128,7 @@ namespace EIR_9209_2.DataStore
                 _logger.LogError(e.Message);
             }
         }
-        private string CameraMarkersOutPutdata(List<CameraMarker> cameraMarkers)
+        private string CameraMarkersOutPutdata(List<CameraGeoMarker> cameraMarkers)
         {
             try
             {
@@ -153,7 +146,7 @@ namespace EIR_9209_2.DataStore
         }
         public object Get(string id)
         {
-            if (_cameraMarkers.ContainsKey(id) && _cameraMarkers.TryGetValue(id, out CameraMarker camera))
+            if (_cameraMarkers.ContainsKey(id) && _cameraMarkers.TryGetValue(id, out CameraGeoMarker camera))
             {
                 return camera;
             }
@@ -162,7 +155,7 @@ namespace EIR_9209_2.DataStore
                 return new JObject { ["Message"] = "Tag not Found" };
             }
         }
-        public List<CameraMarker> GetAll()
+        public List<CameraGeoMarker> GetAll()
         {
             return _cameraMarkers.Values.Select(y => y).ToList();
         }
@@ -219,12 +212,12 @@ namespace EIR_9209_2.DataStore
 
                 // Parse the file content to get the data. This depends on the format of your file.
                 // Here's an example if your file was in JSON format and contained an array of T objects:
-                List<CameraMarker>? data = JsonConvert.DeserializeObject<List<CameraMarker>>(fileContent);
+                List<CameraGeoMarker>? data = JsonConvert.DeserializeObject<List<CameraGeoMarker>>(fileContent);
 
                 // Insert the data into the MongoDB collection
                 if (data?.Count > 0)
                 {
-                    foreach (CameraMarker item in data.Select(r => r).ToList())
+                    foreach (CameraGeoMarker item in data.Select(r => r).ToList())
                     {
                         item.Properties.Base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(noimageresult);
                         _cameraMarkers.TryAdd(item.Properties.Id, item);
@@ -249,7 +242,7 @@ namespace EIR_9209_2.DataStore
             }
         }
 
-        public Task<Cameras> AddCameraInfo(Cameras camera)
+        public Task<Cameras>? AddCameraInfo(Cameras camera)
         {
             bool saveToFile = false;
             try
@@ -279,12 +272,12 @@ namespace EIR_9209_2.DataStore
             }
         }
 
-        public Task<Cameras> UpdateCameraInfo(Cameras camera)
+        public Task<Cameras>? UpdateCameraInfo(Cameras camera)
         {
             bool saveToFile = false;
             try
             {
-                if (_cameraList.ContainsKey(camera.Id)&& _cameraList.TryGetValue(camera.Id, out Cameras c) && _cameraList.TryUpdate(camera.Id, camera, c))
+                if (_cameraList.ContainsKey(camera.Id) && _cameraList.TryGetValue(camera.Id, out Cameras c) && _cameraList.TryUpdate(camera.Id, camera, c))
                 {
                     saveToFile = true;
                     return Task.FromResult(c);
@@ -309,7 +302,7 @@ namespace EIR_9209_2.DataStore
             }
         }
 
-        public Task<Cameras> DeleteCameraInfo(string id)
+        public Task<Cameras>? DeleteCameraInfo(string id)
         {
             bool saveToFile = false;
             try
@@ -381,7 +374,7 @@ namespace EIR_9209_2.DataStore
             try
             {
                 string newImage = "data:image/jpeg;base64," + Convert.ToBase64String(result);
-                if (_cameraMarkers.ContainsKey(id) && _cameraMarkers.TryGetValue(id, out CameraMarker cm))
+                if (_cameraMarkers.ContainsKey(id) && _cameraMarkers.TryGetValue(id, out CameraGeoMarker cm))
                 {
                     if (cm.Properties.Base64Image != newImage)
                     {
@@ -464,7 +457,7 @@ namespace EIR_9209_2.DataStore
                 return _ignores[type].Contains(jsonPropertyName);
             }
 
-            private bool IsRenamed(Type type, string jsonPropertyName, out string newJsonPropertyName)
+            private bool IsRenamed(Type type, string jsonPropertyName, out string? newJsonPropertyName)
             {
                 Dictionary<string, string> renames;
 

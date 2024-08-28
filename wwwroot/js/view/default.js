@@ -11,6 +11,8 @@
 let DateTime = luxon.DateTime;
 let appData = {};
 let baselayerid = "";
+let siteInfo = {};
+let ianaTimeZone = ""
 const connection = new signalR.HubConnectionBuilder()
     .withUrl(SiteURLconstructor(window.location) + "/hubServics")
     .withAutomaticReconnect()
@@ -289,4 +291,38 @@ function get_pi_icon(name, type) {
     else {
         return "pi-iconVh_ss ml--16";
     }
+}
+// Mapping of standard time zone abbreviations to IANA time zones
+const timeZoneMapping = {
+    'PST': 'America/Los_Angeles',
+    'PDT': 'America/Los_Angeles',
+    'MST': 'America/Denver',
+    'MDT': 'America/Denver',
+    'CST': 'America/Chicago',
+    'CDT': 'America/Chicago',
+    'EST': 'America/New_York',
+    'EDT': 'America/New_York',
+    'HST': 'Pacific/Honolulu',
+    'AKST': 'America/Anchorage',
+    'AKDT': 'America/Anchorage',
+    'AEST': 'Australia/Sydney',
+    'AEDT': 'Australia/Sydney',
+    'ACST': 'Australia/Adelaide',
+    'ACDT': 'Australia/Adelaide',
+    'AWST': 'Australia/Perth',
+    'JST': 'Asia/Tokyo'
+};
+const postaltimeZoneMapping = {
+    'PST1': 'PDT',
+    'MST1': 'MDT',
+    'CST1': 'CDT',
+    'EST1': 'EDT'
+};
+
+// Function to get the IANA time zone from a standard abbreviation
+function getIANATimeZone(abbreviation) {
+    return timeZoneMapping[abbreviation] || abbreviation;
+}
+function getPostalTimeZone(abbreviation) {
+    return postaltimeZoneMapping[abbreviation] || abbreviation;
 }

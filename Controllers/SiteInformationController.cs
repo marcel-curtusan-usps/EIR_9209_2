@@ -13,21 +13,25 @@ namespace EIR_9209_2.Controllers
         private readonly ILogger<SiteInformation> _logger = logger;
         // GET: api/<SiteInformationController>
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="nassCode"></param>
-        /// <returns></returns>
+        //get site information
         [HttpGet]
-        [Route("GetSiteInfo")]
-        public async Task<object> Get(string nassCode)
+        [Route("SiteInfo")]
+        public IActionResult Get()
         {
-            //handle bad requests
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var siteInformation = _siteInfo.GetSiteInfo();
+                return Ok(siteInformation);
             }
-            return Ok(_siteInfo.GetByNASSCode(nassCode));
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting site information");
+                return StatusCode(500, "Internal server error");
+            }
         }
     }
 }

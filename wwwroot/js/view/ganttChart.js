@@ -3,6 +3,10 @@ let Ldata = null;
 let engStandardDataset = [];
 
 function GanttChart(chartID, chartdata, mpeName) {
+    // Check if a chart instance already exists and destroy it
+    if (chart) {
+        chart.destroy();
+    }
     $("#moddatedisplay").html(MPEdefaultMindate.toFormat('L/dd/yyyy T') + " To " + MPEdefaultMaxdate.toFormat('L/dd/yyyy T'));
 
     let runColor = 'rgb(0, 103, 244)';
@@ -20,14 +24,14 @@ function GanttChart(chartID, chartdata, mpeName) {
             ctx.beginPath();
             ctx.lineWidth = 3;
             ctx.strokeStyle = 'rgba(0,0,0,0.9)';
-            ctx.moveTo(x.getPixelForValue(localdateTime.ts), top - 30);
-            ctx.lineTo(x.getPixelForValue(localdateTime.ts), bottom);
+            ctx.moveTo(x.getPixelForValue(localdateTime.setZone("system", { keepLocalTime: true }).ts), top - 30);
+            ctx.lineTo(x.getPixelForValue(localdateTime.setZone("system", { keepLocalTime: true }).ts), bottom);
             ctx.stroke();
             ctx.restore();
 
             // creating the ball on top of the line
             ctx.beginPath();
-            ctx.arc(x.getPixelForValue(localdateTime.ts), top - 30, 7, 0, 2 * Math.PI);
+            ctx.arc(x.getPixelForValue(localdateTime.setZone("system", { keepLocalTime: true }).ts), top - 30, 7, 0, 2 * Math.PI);
             ctx.fillStyle = 'rgba(0,0,0,0.9)';
             ctx.fill();
             ctx.restore();
@@ -137,8 +141,8 @@ function GanttChart(chartID, chartdata, mpeName) {
             const tolerance = 5;
             ctx.save();
             tourstimes.forEach(tours => {
-                if ((tours.startTime.ts >= MPEdefaultMindate.ts && tours.endTime.ts <= MPEdefaultMaxdate.ts) ||
-                    (tours.endTime.ts >= MPEdefaultMindate.ts && tours.endTime.ts <= MPEdefaultMaxdate.ts)
+                if ((tours.startTime.ts >= MPEdefaultMindate.setZone("system", { keepLocalTime: true }).ts && tours.endTime.ts <= MPEdefaultMaxdate.setZone("system", { keepLocalTime: true }).ts) ||
+                    (tours.endTime.ts >= MPEdefaultMindate.setZone("system", { keepLocalTime: true }).ts && tours.endTime.ts <= MPEdefaultMaxdate.setZone("system", { keepLocalTime: true }).ts)
                 ) {
                     const xPos = chart.scales.x.getPixelForValue(tours.startTime.ts);
                     const lineExists = drawnLines.some(drawnX => Math.abs(drawnX - xPos) < tolerance);
@@ -299,8 +303,8 @@ function GanttChart(chartID, chartdata, mpeName) {
             scales: {
                 x: {
                     position: 'top',
-                    min: MPEdefaultMindate.ts,
-                    max: MPEdefaultMaxdate.ts,
+                    min: MPEdefaultMindate.setZone("system", { keepLocalTime: true }).ts,
+                    max: MPEdefaultMaxdate.setZone("system", { keepLocalTime: true }).ts,
                     type: 'time',
                     time: {
                         displayFormats: {
@@ -421,7 +425,7 @@ function GanttChart(chartID, chartdata, mpeName) {
                     }
                 }
                 else {
-                    Promise.all([loadDefaultData()]);
+                    Promise.all([loadData("")]);
                 }
 
             }

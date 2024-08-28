@@ -17,7 +17,7 @@ namespace EIR_9209_2.Controllers
 
         // GET: api/<TagController>
         [HttpGet]
-        public async Task<object> GetAsync()
+        public object Get()
         {
             //handle bad requests
             if (!ModelState.IsValid)

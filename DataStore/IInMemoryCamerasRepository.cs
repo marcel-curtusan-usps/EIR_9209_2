@@ -1,13 +1,12 @@
 ﻿using EIR_9209_2.Models;
-using Newtonsoft.Json.Linq;
 
 public interface IInMemoryCamerasRepository
 {
     object Get(string id);
-    Task<CameraMarker> Add(CameraMarker camera);
-    Task Update(CameraMarker camera);
-    Task<CameraMarker> Delete(string id);
-    List<CameraMarker> GetAll();
+    Task<CameraGeoMarker> Add(CameraGeoMarker camera);
+    Task Update(CameraGeoMarker camera);
+    Task<CameraGeoMarker> Delete(string id);
+    List<CameraGeoMarker> GetAll();
     Task<Cameras> AddCameraInfo(Cameras camera);
     Task<Cameras> UpdateCameraInfo(Cameras camera);
     Task<Cameras> DeleteCameraInfo(string id);

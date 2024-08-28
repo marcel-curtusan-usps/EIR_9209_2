@@ -1,9 +1,7 @@
 ﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
-using static Org.BouncyCastle.Bcpg.Attr.ImageAttrib;
 using Image = System.Drawing.Image;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -26,7 +24,7 @@ namespace EIR_9209_2.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetAllImages")]
-        public async Task<object> Get()
+        public object Get()
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -39,9 +37,7 @@ namespace EIR_9209_2.Controllers
         /// Upload Background Image.
         /// </summary>
         /// <name>UploadBackgroundImage</name>
-        /// <param name="file"></param>
-        /// <param name="metersPerPixelY"></param>
-        /// <param name="metersPerPixelX"></param>
+        /// <param name="formData"></param>
         /// <remarks>
         /// value = "0.0529166667" > 0.01 Pixel Per Meter
         /// value = "0.0002645833" > 0.1 Pixel Per Meter

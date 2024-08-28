@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json.Linq;
 
 namespace EIR_9209_2.Service
 {
@@ -69,7 +68,7 @@ namespace EIR_9209_2.Service
                                         allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
                                     //add to the list
                                     _zones.UpdateAreaDwell(hour, newValue, currentvalue);
-                             
+
                                 }
                             }
                             else
@@ -80,12 +79,12 @@ namespace EIR_9209_2.Service
                                          allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
                                 //add to the list
                                 _zones.AddAreaDwell(hour, newValue);
-                               
+
                             }
                             //// Process tag data in a separate thread
                             await Task.Run(() => _zones.RunMPESummaryReport(), stoppingToken).ConfigureAwait(false);
                         }
-                     
+
                     }
                     if (_endpointConfig.MessageType == "TAG_TIMELINE")
                     {
@@ -127,7 +126,7 @@ namespace EIR_9209_2.Service
                                 if (currentHour == hour || pastHour == hour)
                                 {
                                     var currentvalue = _tags.GetTagTimeline(hour);
-                        
+
                                     var newValue = await queryService.GetTotalTagTimeline(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
                                         TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
                                         TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
@@ -135,7 +134,7 @@ namespace EIR_9209_2.Service
 
                                     //add to the list
                                     _tags.UpdateTagTimeline(hour, newValue, currentvalue);
-                               
+
                                 }
                             }
                             else

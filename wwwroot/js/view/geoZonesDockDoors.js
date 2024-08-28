@@ -15,8 +15,13 @@
         let dockDoorNumber = parseInt(feature.properties.name.match(/\d+/g)[0], 10);
 
         layer.on('click', function (e) {
-            OSLmap.setView(e.sourceTarget.getCenter(), 3);
-            Promise.all([LoadDockDoorTable(feature.properties)]);
+
+            //if sourceTarget is not available, use target
+            if (e.sourceTarget.getCenter) {
+               
+                OSLmap.setView(e.sourceTarget.getCenter(), 3);
+                Promise.all([LoadDockDoorTable(feature.properties)]);
+            }
         });
         layer.bindTooltip(dockDoorNumber.toString(), {
             permanent: true,

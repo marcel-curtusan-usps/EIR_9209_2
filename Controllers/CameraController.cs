@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
-using System.Web;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -17,7 +16,7 @@ namespace EIR_9209_2.Controllers
         private readonly ILogger<Camera> _logger = logger;
         // GET: api/<TagController>
         [HttpGet]
-        public async Task<object> GetAsync()
+        public object Get()
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -43,7 +42,7 @@ namespace EIR_9209_2.Controllers
                 if (cameraFromList != null)
                 {
                     //convert the JObject to a Connection object
-                    CameraMarker cameraMarker = value.ToObject<CameraMarker>();
+                    CameraGeoMarker cameraMarker = value.ToObject<CameraGeoMarker>();
                     cameraMarker.Properties.Id = cameraFromList.AuthKey;
                     cameraMarker.Properties.ModelNum = cameraFromList.ModelNum;
                     cameraMarker.Properties.FacilityPhysAddrTxt = cameraFromList.FacilityPhysAddrTxt;
@@ -86,7 +85,6 @@ namespace EIR_9209_2.Controllers
         /// <summary>
         /// Get Camera by Id
         /// </summary>
-        /// <param name="tagId"></param>
         /// <returns></returns>
         // GET api/<Camera>/5
         [HttpGet]
@@ -112,11 +110,10 @@ namespace EIR_9209_2.Controllers
         /// <summary>
         /// Get list of Cameras
         /// </summary>
-        /// <param name="cameraName"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("GetList")]
-        public async Task<object> GetCameraList()
+        public object GetCameraList()
         {
             try
             {
@@ -133,7 +130,7 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(e.Message);
             }
         }
-    
+
         // DELETE api/<Camera>/5
         [HttpDelete]
         [Route("Delete")]

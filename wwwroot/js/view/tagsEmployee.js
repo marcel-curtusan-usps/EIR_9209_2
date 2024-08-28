@@ -339,9 +339,12 @@ function createTagDataTable(table) {
                 target: 0,
                 visible: false,
                 searchable: false
+            },
+            {
+                orderable: false, // Disable sorting on all columns
+                targets: '_all'
             }
-        ],
-        sorting: [[0, "asc"], [1, "asc"]]
+        ]
 
     });
 }
@@ -426,6 +429,7 @@ function createStaffingDataTable(table) {
         autoWidth: false,
         bInfo: false,
         destroy: true,
+        ordering: false, // Disable sorting
         language: {
             zeroRecords: "No Data"
         },

@@ -25,7 +25,7 @@ namespace EIR_9209_2.Controllers
         // GET: api/<Connection>
         [HttpGet]
         [Route("AllConnection")]
-        public async Task<object> GetByAllConnection()
+        public object GetByAllConnection()
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -42,7 +42,7 @@ namespace EIR_9209_2.Controllers
         // GET api/<Connection>/5
         [HttpGet]
         [Route("ConnectionId")]
-        public async Task<object> GetByConnectionId(string id)
+        public object GetByConnectionId(string id)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -107,7 +107,7 @@ namespace EIR_9209_2.Controllers
         // POST api/<Connection>
         [HttpPost]
         [Route("Update")]
-        public async Task<object> PostUpdateConnection([FromBody] JObject value)
+        public object PostUpdateConnection([FromBody] JObject value)
         {
             try
             {

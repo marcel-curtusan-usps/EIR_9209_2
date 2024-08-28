@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using EIR_9209_2.Service;
+﻿using EIR_9209_2.Service;
+using Newtonsoft.Json;
 
 public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDisposable
 {

@@ -30,7 +30,7 @@ namespace EIR_9209_2.Service
                 string end_time = string.Concat(DateTime.Now.AddHours(_endpointConfig.HoursForward).ToString("MM/dd/yyyy_"), "23:59:59");
                 FormatUrl = string.Format(_endpointConfig.Url, MpeWatch_id, _endpointConfig.MessageType, start_time, end_time);
                 queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
-                var result = (await queryService.GetMPEWatchData(stoppingToken));
+                var result = await queryService.GetMPEWatchData(stoppingToken);
                 //process zone data
                 if (_endpointConfig.MessageType.ToLower() == "rpg_run_perf")
                 {
@@ -47,7 +47,7 @@ namespace EIR_9209_2.Service
                 if (_endpointConfig.MessageType.ToLower() == "dps_run_estm")
                 {
                     // Process MPE data in a separate thread
-                    _ = Task.Run(async () => await ProcessMPEWatchDPSRunData(result), stoppingToken);
+                    _ = Task.Run(() => ProcessMPEWatchDPSRunData(result), stoppingToken);
                     //_logger.LogInformation("Data from {Url}: {Data}", _endpointConfig.Url, result);
                 }
                 // _ = Task.Run(() => _geoZones.RunMPESummaryReport());
@@ -82,7 +82,7 @@ namespace EIR_9209_2.Service
                 _logger.LogError(e.Message);
             }
         }
-        private async Task ProcessMPEWatchDPSRunData(JToken result)
+        private void ProcessMPEWatchDPSRunData(JToken result)
         {
             try
             {

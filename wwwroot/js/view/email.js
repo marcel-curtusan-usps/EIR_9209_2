@@ -252,7 +252,10 @@ async function createEmailListDataTable(table) {
             columnDefs: [{
                 target: 3,
                 visible: Actioncolumn
-            }],
+            }, {
+                    orderable: false, // Disable sorting on all columns
+                    targets: '_all'
+                }],
             sorting: [[0, "asc"]]
 
         })

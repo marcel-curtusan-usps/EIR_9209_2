@@ -21,7 +21,7 @@ namespace EIR_9209_2.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("AllConfiguration")]
-        public async Task<object> GetByAllConfiguration()
+        public object GetByAllConfiguration()
         {
 
             // hold all settings as a dictionary
@@ -67,13 +67,12 @@ namespace EIR_9209_2.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
         // PUT api/<SiteConfigurationController>/5
         [HttpPost]
         [Route("Update")]
-        public async Task<object> PostByUpdateApplicationConfiguration([FromBody] JObject value)
+        public object PostByUpdateApplicationConfiguration([FromBody] JObject value)
         {
             // Example: Update a specific configuration setting
             var applicationSettings = _configuration.GetSection("ApplicationConfiguration");

@@ -30,7 +30,7 @@ namespace EIR_9209_2.Controllers
         // GET: api/<DAcode>
         [HttpGet]
         [Route("Get")]
-        public async Task<object> Get()
+        public object Get()
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -47,7 +47,7 @@ namespace EIR_9209_2.Controllers
         // GET api/<DAcode>/5
         [HttpGet]
         [Route("GetById")]
-        public async Task<object> Get(string id)
+        public object Get(string id)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -70,7 +70,7 @@ namespace EIR_9209_2.Controllers
         /// </summary>
         /// <param name="value">The connection details.</param>
         /// <returns>The added connection.</returns>
-        public async Task<object> PostAddNewDacodetocrafttype([FromBody] JObject value)
+        public object PostAddNewDacodetocrafttype([FromBody] JObject value)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -101,7 +101,7 @@ namespace EIR_9209_2.Controllers
         // PUT api/<DAcode>/5
         [HttpPut]
         [Route("Update")]
-        public async Task<object> Put(string id, [FromBody] JObject value)
+        public object Put(string id, [FromBody] JObject value)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -141,7 +141,7 @@ namespace EIR_9209_2.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("Delete")]
-        public async Task<object> Delete(string id)
+        public object Delete(string id)
         {
             //handle bad requests
             if (!ModelState.IsValid)

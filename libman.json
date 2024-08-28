@@ -60,6 +60,29 @@
       "provider": "cdnjs",
       "library": "chartjs-plugin-datalabels@2.2.0",
       "destination": "wwwroot/lib/chartjs-plugin-datalabels/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "bootstrap-datepicker@1.10.0",
+      "destination": "wwwroot/lib/bootstrap-datepicker/",
+      "files": [
+        "js/bootstrap-datepicker.min.js",
+        "js/bootstrap-datepicker.js",
+        "locales/bootstrap-datepicker.en-US.min.js",
+        "css/bootstrap-datepicker.css",
+        "css/bootstrap-datepicker.css.map",
+        "css/bootstrap-datepicker.min.css"
+      ]
+    },
+    {
+      "provider": "cdnjs",
+      "library": "datatables.net@2.1.4",
+      "destination": "wwwroot/lib/datatables.net/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "datatables.net-bs5@2.1.4",
+      "destination": "wwwroot/lib/datatables.net-bs5/"
     }
   ]
 }

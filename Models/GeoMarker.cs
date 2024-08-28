@@ -1,4 +1,6 @@
-﻿namespace EIR_9209_2.Models
+﻿using System.Globalization;
+
+namespace EIR_9209_2.Models
 {
     public class GeoMarker
     {
@@ -30,9 +32,25 @@
             public string EIN { get; set; } = "";
             public string LDC { get; set; } = "";
             public string PayLocation { get; set; } = "";
-            public string EmpFirstName { get; set; } = "";
-            public string EmpLastName { get; set; } = "";
-            public string Title { get; set; } = "";
+            private string _empFirstName = "";
+          
+            public string EmpFirstName
+            {
+                get => _empFirstName;
+                set => _empFirstName = ConvertToTitleCase(value);
+            }
+            private string _empLastName = "";
+            public string EmpLastName
+            {
+                get => _empLastName;
+                set => _empLastName = ConvertToTitleCase(value);
+            }
+            private string _title = "";
+            public string Title
+            {
+                get => _title;
+                set => _title = ConvertToTitleCase(value);
+            }
             public string DesignationActivity { get; set; } = "";
             public string EmpPayLocation { get; set; } = "";
             public string EncodedId { get; set; } = "";
@@ -50,6 +68,15 @@
             public string LocationType { get; set; } = "";
             public long LastSeenTS { get; set; } = 0;
             public List<ScanTransaction> BadgeScan { get; set; } = [];
+            private string ConvertToTitleCase(string input)
+            {
+                if (string.IsNullOrEmpty(input))
+                {
+                    return input;
+                }
+
+                return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input.ToLower());
+            }
 
         }
         public class MarkerGeometry

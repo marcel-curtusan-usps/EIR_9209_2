@@ -4,6 +4,9 @@
     <meta charset="utf-8" />
     <title>MPE Performance</title>
     <link href="Content/mpePerformance.css" rel="stylesheet" />
+    <link href="../css/bootstrap-icons.min.css" rel="stylesheet" />
+    <link href="../lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="../lib/datatables.net-bs5/dataTables.bootstrap5.min.css" rel="stylesheet" />
 </head>
 <body>
 
@@ -83,9 +86,24 @@
                         <card-navigation navtype="tabbed" class="mb-4">
                             <div class="card mb-1">
                                 <div class="modsdate card-header border-bottom d-flex">
-                                    <h6 class="modtext ms-auto">Date Range : <span id="moddatedisplay"></span></h6>
+                                   <!-- <input type="text" id="datepicker" data-provide="datepicker" placeholder="Select Date" class="form-control ms-3" style="width: 200px;">-->
+                                    <section class="container">
+                                        <form class="row">
+                                            <div class="col-2">
+                                                <div class="input-group date" id="datepickerdiv">
+                                                    <input type="text" class="form-control" data-provide id="datepicker" />
+                                                    <span class="input-group-append">
+                                                        <span class="input-group-text bg-light d-block">
+                                                            <i class="bi bi-calendar"></i>
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </section>
+                                        <h6 class="modtext ms-auto">Date Range : <span id="moddatedisplay"></span></h6>
 
-                                </div>
+</div>
                                 <div class="card-body p-0">
                                     <div class="tab-content">
                                         <div role="tabpanel" aria-labelledby="overview-tab" class="tab-pane fade show active">
@@ -124,9 +142,16 @@
                                                         <canvas id="ganttRunVsPlan"></canvas>
 
                                                     </div>
-                                                    <div class="text-right col-lg-12" id="rightColumn">
-                                                        <input type="checkbox" id="showStandardCheckbox" onclick="updateChart(this)" value="2" class="align-self-center" />
-                                                        <label for="showStandardCheckbox" id="label">MPE Standard</label>
+
+                                                    <div class="d-flex">
+                                                        <!--<div class="form-check form-switch me-3" id="rightColumn">
+                                                            <input class="form-check-input align-self-center" type="checkbox" id="showStandardCheckbox" onclick="updateChart(this)" value="2"/>
+                                                            <label class="form-check-label" for="showStandardCheckbox" id="label">Toggle MPE Standard</label>
+                                                        </div>-->
+                                                        <div class="form-check form-switch me-3">
+                                                            <input class="form-check-input" type="checkbox" id="yStaffingHrsCountToggle" onchange="toggleYAxis('lineperfChart','yStaffingHrs')">
+                                                            <label class="form-check-label" for="yStaffingHrsCountToggle">Staffing Hours vs Count</label>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -181,7 +206,10 @@
     <script src="../lib/chartjs/chart.umd.min.js"></script>
     <script src="../lib/chartjs-plugin-datalabels/chartjs-plugin-datalabels.min.js"></script>
     <script src="../lib/chartjs-adapter-luxon/chartjs-adapter-luxon.umd.min.js"></script>
-    <script src="../lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="../lib/datatables.net/dataTables.min.js"></script>
+    <script src="../lib/datatables.net-bs5/dataTables.bootstrap5.min.js"></script>
+    <script src="../lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+    <script src="../lib/bootstrap-datepicker/locales/bootstrap-datepicker.en-US.min.js"></script>
     <script src="../js/view/lineChart.js"></script>
     <script src="../js/view/ganttChart.js"></script>
     <script src="Scripts/mpePerformance.js"></script>

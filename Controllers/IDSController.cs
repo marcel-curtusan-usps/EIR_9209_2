@@ -126,7 +126,7 @@ namespace EIR_9209_2.Controllers
                 return await Task.FromResult(BadRequest(ModelState));
             }
 
-            if (!string.IsNullOrEmpty(queryName) && (startHour > 0) && (endHour > 0 && endHour < 24))
+            if (!string.IsNullOrEmpty(queryName) && (startHour > 0) && endHour > 0 && endHour < 24)
             {
                 JObject data = new JObject
                 {

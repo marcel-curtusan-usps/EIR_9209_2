@@ -31,14 +31,14 @@ namespace EIR_9209_2.Service
                 string FormatUrl = "";
                 if (_endpointConfig.MessageType == "Cameras")
                 {
-                    SiteInformation siteinfo = _siteInfo.GetByNASSCode(_configuration["ApplicationConfiguration:NassCode"]!.ToString());
+                    SiteInformation siteinfo = _siteInfo.GetSiteInfo();
                     if (siteinfo != null)
                     {
                         //process tag data
                         FormatUrl = string.Format(_endpointConfig.Url, siteinfo.FdbId);
                         queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
 
-                        var cresult = (await queryService.GetCameraData(stoppingToken));
+                        var cresult = await queryService.GetCameraData(stoppingToken);
                         // Process the data as needed
                         _ = Task.Run(async () => await ProcessCameraData(cresult), stoppingToken);
                     }
@@ -46,7 +46,7 @@ namespace EIR_9209_2.Service
                 if (_endpointConfig.MessageType == "getCameraStills")
                 {
                     //process camera list and get pictures
-                    foreach (CameraMarker camera in _camera.GetAll())
+                    foreach (CameraGeoMarker camera in _camera.GetAll())
                     {
                         try
                         {
@@ -55,14 +55,14 @@ namespace EIR_9209_2.Service
                                 continue;
                             }
                             FormatUrl = string.Format(_endpointConfig.Url, camera.Properties.CameraName);
-                       
+
                             using (var httpClient = new HttpClient())
                             {
                                 result = await httpClient.GetByteArrayAsync(FormatUrl);
                                 _ = Task.Run(async () => await ProcessCameraStills(result, camera.Properties.Id), stoppingToken);
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             result = Array.Empty<byte>();
                             _ = Task.Run(async () => await ProcessCameraStills(result, camera.Properties.Id), stoppingToken);
@@ -82,7 +82,7 @@ namespace EIR_9209_2.Service
                     await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
                 }
             }
-            finally 
+            finally
             {
                 result = Array.Empty<byte>();
             }
@@ -112,7 +112,7 @@ namespace EIR_9209_2.Service
                             FacilityLatitudeNum = BICAMcamera.FacilitiyLatitudeNum,
                             FacilityLongitudeNum = BICAMcamera.FacilitiyLongitudeNum,
                             CameraName = BICAMcamera.CameraName,
-                            IP  =BICAMcamera.CameraName,
+                            IP = BICAMcamera.CameraName,
                             Description = BICAMcamera.Description,
                             Reachable = BICAMcamera.Reachable,
                             Type = "Cameras",
@@ -124,7 +124,7 @@ namespace EIR_9209_2.Service
                     {
                         await Task.Run(() => _camera.LoadCameraData(cameraList));
                     }
-                   
+
                 }
             }
             catch (Exception e)

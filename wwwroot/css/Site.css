@@ -21,6 +21,7 @@
 @import url("../js/leaflet/leaflet-sidebar-v2/css/_base.min.css");
 @import url("../js/leaflet/leaflet-sidebar-v2/css/_base.css");
 @import url("../lib/leaflet-easybutton/src/easy-button.css");
+@import url("../lib/datatables.net-bs5/datatables.bootstrap5.css");
 .leaflet-sidebar {
   position: absolute;
   top: 0;
@@ -506,6 +507,20 @@ html, body {
   background: #fff;
   position: absolute;
   border-radius: 50%;
+}
+
+.marker-camera-cone {
+  width: 0;
+  height: 0;
+  border-left: 40px solid transparent;
+  border-right: 40px solid transparent;
+  border-bottom: 40px solid transparent;
+  border-top: 40px solid #007bff;
+  border-radius: 50% 50% 0 0;
+  opacity: 0.4;
+  position: absolute;
+  margin: -20px 0 0 -20px;
+  align-content: center;
 }
 
 .custom-div-icon i {

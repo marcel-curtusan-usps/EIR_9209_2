@@ -1,8 +1,6 @@
-﻿using Newtonsoft.Json;
-
-namespace EIR_9209_2.Models
+﻿namespace EIR_9209_2.Models
 {
-    public class CameraMarker
+    public class CameraGeoMarker
     {
         public string Type { get; set; } = "Feature";
         public MarkerGeometry Geometry { get; set; } = new MarkerGeometry();

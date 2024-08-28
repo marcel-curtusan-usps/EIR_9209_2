@@ -26,16 +26,16 @@ namespace EIR_9209_2.Service
                 _endpointConfig.LasttimeApiConnected = DateTime.Now;
                 _endpointConfig.ApiConnected = true;
                 await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, cancellationToken: stoppingToken);
-                
+
 
                 IQueryService queryService;
                 string FormatUrl = "";
-                SiteInformation siteinfo = _siteInfo.GetByNASSCode(_configuration["ApplicationConfiguration:NassCode"]!.ToString());
+                SiteInformation siteinfo = _siteInfo.GetSiteInfo();
                 string Finnum = siteinfo.FinanceNumber;
                 string TodayDate = DateTime.Now.ToString("yyyyMMdd");
                 FormatUrl = string.Format(_endpointConfig.Url, Finnum, TodayDate);
                 queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
-                var result = (await queryService.GetIVESData(stoppingToken));
+                var result = await queryService.GetIVESData(stoppingToken);
 
                 if (_endpointConfig.MessageType == "getEmpInfo")
                 {

@@ -776,6 +776,10 @@ function createConnectionDataTable(table) {
         columnDefs: [{
             target: 4,
             visible: Actioncolumn
+        },
+        {
+            orderable: false, // Disable sorting on all columns
+            targets: '_all'
         }
         ],
         sorting: [[0, "asc"]],

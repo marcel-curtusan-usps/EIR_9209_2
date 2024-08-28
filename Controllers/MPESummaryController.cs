@@ -26,6 +26,36 @@ namespace EIR_9209_2.Controllers
             }
             return _zones.getMPESummary(mpe);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mpe"></param>
+        /// <param name="endDateTime"></param>
+        /// <param name="startDateTime" ></param>
+        /// <returns></returns>
+        // GET: api/<MPESummaryController>
+        [HttpGet]
+        [Route("MPENameDatetime")]
+        public async Task<object> GetByMPEDatetime(string mpe, string startDateTime, string endDateTime)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return await Task.FromResult(BadRequest(ModelState));
+                }
+                DateTime startDT = DateTime.Parse(startDateTime);
+                DateTime endDT = DateTime.Parse(endDateTime);
+
+                return await _zones.getMPESummaryDateRange(mpe, startDT, endDT);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error getting MPE Summary");
+                return null;
+            }
+
+        }
 
 
     }

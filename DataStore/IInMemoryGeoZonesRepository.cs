@@ -26,4 +26,5 @@ public interface IInMemoryGeoZonesRepository
     List<TagTimeline> GetTagTimelineList(string ein);
     Task<object?> GetMPENameList(string type);
     Task<object?> GetMPEGroupList(string type);
+    Task<List<MPESummary>> getMPESummaryDateRange(string mpe, DateTime startDT, DateTime endDT);
 }

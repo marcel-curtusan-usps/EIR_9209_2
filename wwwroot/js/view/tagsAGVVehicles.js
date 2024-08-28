@@ -3,9 +3,6 @@
     if (tagdata.properties.visible) {
         Promise.all([addAGVFeature(tagdata)]);
     }
-    else {
-        Promise.all([deleteAGVFeature(tagdata)]);
-    }
 
 });
 
@@ -107,7 +104,6 @@ async function init_tagsAGV(data) {
         try {
             //add AGV markers to the layer
             for (let i = 0; i < data.length; i++) {
-                ;
                 Promise.all([addAGVFeature(data[i])]);
             }
             $(document).on('change', '.leaflet-control-layers-selector', function () {

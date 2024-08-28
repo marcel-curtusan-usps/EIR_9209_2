@@ -2,8 +2,6 @@
 using EIR_9209_2.Service;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -39,43 +37,43 @@ internal class QueryService : IQueryService
 
     public async Task<QuuppaTag> GetQPETagData(CancellationToken ct)
     {
-        return (await GetQueryResults<QuuppaTag>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+        return await GetQueryResults<QuuppaTag>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
     }
     public async Task<JToken> GetIDSData(CancellationToken ct)
     {
-        return (await GetQueryResults<dynamic>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+        return await GetQueryResults<dynamic>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
     }
     public async Task<string> SendEmail(CancellationToken ct)
     {
-        return (await GetPostQueryResults<dynamic>(_fullUrl.AbsoluteUri, new object(), ct).ConfigureAwait(false));
+        return await GetPostQueryResults<dynamic>(_fullUrl.AbsoluteUri, new object(), ct).ConfigureAwait(false);
     }
     public async Task<JToken> GetSMSWrapperData(CancellationToken ct)
     {
-        return (await GetQueryResults<dynamic>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+        return await GetQueryResults<dynamic>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
     }
     public async Task<JToken> GetIVESData(CancellationToken ct)
     {
-        return (await GetQueryResults<dynamic>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+        return await GetQueryResults<dynamic>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
     }
     public async Task<JToken> GetMPEWatchData(CancellationToken ct)
     {
-        return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+        return await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
     }
     public async Task<JToken> GetSVDoorData(CancellationToken ct)
     {
-        return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+        return await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
     }
     public async Task<JToken> GetCiscoSpacesData(CancellationToken ct)
     {
-        return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+        return await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
     }
     public async Task<JToken> GetCameraData(CancellationToken ct)
     {
-        return (await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+        return await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
     }
     public async Task<byte[]> GetPictureData(CancellationToken ct)
     {
-        return (await GetQueryResults<byte[]>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false));
+        return await GetQueryResults<byte[]>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
     }
     public async Task<List<(string areaId, string areaName)>> GetAreasAsync(CancellationToken ct)
     {

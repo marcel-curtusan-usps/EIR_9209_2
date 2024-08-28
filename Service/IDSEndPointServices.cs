@@ -18,7 +18,7 @@ namespace EIR_9209_2.Service
                 _endpointConfig.LasttimeApiConnected = DateTime.Now;
                 _endpointConfig.ApiConnected = true;
                 await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, cancellationToken: stoppingToken);
-             
+
                 IQueryService queryService;
                 string FormatUrl = "";
                 //process tag data

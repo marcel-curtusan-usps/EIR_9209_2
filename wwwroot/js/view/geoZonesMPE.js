@@ -447,16 +447,16 @@ async function loadMachineData(data, table) {
                 }
             }
             document.getElementById('machineChart_tr').style.backgroundColor = 'rgba(0,0,0,0)';
-            //if (dataproperties.MPEWatchData.hasOwnProperty("hourly_data")) {
-            //    GetMachinePerfGraph(dataproperties);
-            //}
-            //else {
+            if (data.mpeRunPerformance.hasOwnProperty("hourlyData") && data.mpeRunPerformance.hourlyData.length > 0) {
+                Promise.all([GetMachinePerfGraph(data)]);
+            }
+            else {
             var mpgtrStyle = document.getElementById('machineChart_tr').style;
             mpgtrStyle.display = 'none';
-            //}
+            }
             FormatMachineRowColors(mpeData);
         }
-        sidebar.open('home');
+        sidebar.open('home'); 
     }
     catch (e) {
         // handle error
@@ -1214,5 +1214,128 @@ function removeMpeStandardDataTable(removedata, table) {
                 $('#' + table).DataTable().row(node).remove().draw();
             }
         });
+    }
+}
+//dataproperties.mpeRunPerformance
+//dataproperties.mpeRunPerformance.hourlyData
+async function GetMachinePerfGraph(dataproperties) {
+    try {
+        //replace the space with the letter T
+        let localdateTime = luxon.DateTime.local().setZone(ianaTimeZone);
+        let maxdate = localdateTime.plus({ hours: 2 }).startOf('hour');
+        let mindate = maxdate.minus({ hours: 24 }).startOf('hour');
+
+        //let mindate = luxon.DateTime.fromISO(dataproperties.mpeRunPerformance.hourlyData[0].hour.replace('\s',"T"));
+        //let maxdate = luxon.DateTime.fromISO(dataproperties.mpeRunPerformance.hourlyData[23].hour).plus({ hours: 1 }).startOf('hour');;
+        let total = $.map(dataproperties.mpeRunPerformance.hourlyData, obj => obj.count).reduce((total, count) => total + count);
+        let totalSorted = $.map(dataproperties.mpeRunPerformance.hourlyData, obj => obj.sorted).reduce((total, sorted) => total + sorted);
+        let totalRejected = $.map(dataproperties.mpeRunPerformance.hourlyData, obj => obj.rejected).reduce((total, rejected) => total + rejected);
+        if (total > 0) {
+            let MPEdataSet = {
+                datasets: [
+                    {
+                        label: 'Pcs Fed',
+                        type: "line",
+                        hidden: false,
+                        backgroundColor: "rgb(0,0,255)",
+                        borderColor: "rgb(0,0,255)",
+                        data: Object.values(dataproperties.mpeRunPerformance.hourlyData).sort((a, b) => luxon.DateTime.fromISO(a.hour.replace(/\s/g, 'T')) - luxon.DateTime.fromISO(b.hour.replace(/\s/g, 'T'))).map(od => ({ x: luxon.DateTime.fromISO(od.hour.replace(/\s/g, 'T')), y: od.count })),
+                        yAxisID: 'yPeicesFed'
+                    },
+                    {
+                        label: 'Sorted Pcs',
+                        type: "line",
+                        hidden: true,
+                        backgroundColor: "rgb(48, 208, 116)",
+                        borderColor: "rgb(48, 208, 116)",
+                        data: Object.values(dataproperties.mpeRunPerformance.hourlyData).sort((a, b) => luxon.DateTime.fromISO(a.hour.replace(/\s/g, 'T')) - luxon.DateTime.fromISO(b.hour.replace(/\s/g, 'T'))).map(od => ({ x: luxon.DateTime.fromISO(od.hour.replace(/\s/g, 'T')), y: od.sorted })),
+                        yAxisID: 'ySorted'
+                    },
+                    {
+                        label: 'Rejected Pcs',
+                        type: "line",
+                        hidden: true,
+                        backgroundColor: "rgb(237, 187, 153)",
+                        borderColor: "rgb(237, 187, 153)",
+                        data: Object.values(dataproperties.mpeRunPerformance.hourlyData).sort((a, b) => luxon.DateTime.fromISO(a.hour.replace(/\s/g, 'T')) - luxon.DateTime.fromISO(b.hour.replace(/\s/g, 'T'))).map(od => ({ x: luxon.DateTime.fromISO(od.hour.replace(/\s/g, 'T')), y: od.rejected })),
+                        yAxisID: 'yRejected'
+                    }
+                ]
+            };
+            let MPEconfig = {
+                data: MPEdataSet,
+                options: {
+                    animation: false,
+                    responsive: false,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                beforeTitle: function () {
+                                    return "";
+                                },
+                                label: function (context) {
+                                    let label = "Time: " + luxon.DateTime.fromJSDate(new Date(context.dataset.data[context.dataIndex].x)).toFormat('L/dd/yyyy T');
+                                    return label;
+                                }, 
+                                beforeFooter: function (context) {
+                                    let label = "";
+                                    label = context[0].dataset.label+": " + parseFloat(context[0].dataset.data[context[0].dataIndex].y).toLocaleString('en-US');
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+
+                    scales: {
+                        x: {
+                            min: mindate.setZone("system", { keepLocalTime: true }).ts,
+                            max: maxdate.setZone("system", { keepLocalTime: true }).ts,
+                            type: 'time',
+                            time: {
+                                displayFormats: {
+                                    hour: "HH:mm",
+                                },
+                                unit: 'hour'
+                            }
+                        },
+                        yPeicesFed: {
+                            beginAtZero: true
+                        },
+                        ySorted: {
+                            beginAtZero: true,
+                            display:false
+                        },
+                        yRejected: {
+                            beginAtZero: true,
+                            display: false
+                        }
+                    }
+                }
+            };
+          
+            let MpeChart = new Chart("machinechart", MPEconfig)
+
+            const SortedIndex = MpeChart.data.datasets.findIndex(dataset => dataset.yAxisID === 'ySorted');
+            const RejectedIndex = MpeChart.data.datasets.findIndex(dataset => dataset.yAxisID === 'yRejected');
+            const Sortedcounts = MpeChart.data.datasets[SortedIndex];
+            const Rejectedcounts = MpeChart.data.datasets[RejectedIndex];
+            if (totalSorted > 0) {
+                Sortedcounts.hidden = false;
+            }
+            if (totalRejected > 0) {
+                Rejectedcounts.hidden = false;
+            }
+            MpeChart.update();
+        }
+        else {
+            var mpgtrStyle = document.getElementById('machineChart_tr').style;
+            mpgtrStyle.display = 'none';
+        }
+    } catch (e) {
+        console.log(e)
     }
 }

@@ -150,6 +150,10 @@ async function createConnectiontypeDataTable(table) {
                 },
                 aoColumns: columns,
                 columnDefs: [
+                    {
+                        orderable: false, // Disable sorting on all columns
+                        targets: '_all'
+                    }
                 ],
                 sorting: [[1, "asc"]]
 
@@ -388,7 +392,10 @@ async function createConnectiontypeSubtable(parentid, table, row_data) {
             bPaginate: false,
             select: false,
             aoColumns: columns,
-            columnDefs: [],
+            columnDefs: [{
+                orderable: false, // Disable sorting on all columns
+                targets: '_all'
+            }],
             sorting: [[0, "asc"]],
         });
         $('#' + table + ' tbody').on('click', 'button', function () {

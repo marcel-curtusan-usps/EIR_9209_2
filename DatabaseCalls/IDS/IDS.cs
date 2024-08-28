@@ -76,7 +76,7 @@ namespace EIR_9209_2.DatabaseCalls.IDS
                                                 ((JObject)Request_data)["endHour"].Replace(new JValue(startHour));
 
                                             }
-                                            foreach (KeyValuePair<string, JToken> property in (((JObject)Request_data)))
+                                            foreach (KeyValuePair<string, JToken> property in (JObject)Request_data)
                                             {
                                                 if (property.Key != "queryName")
                                                 {
@@ -106,7 +106,7 @@ namespace EIR_9209_2.DatabaseCalls.IDS
                                                 // Convert DataTable to JSON string
                                                 string jsonResult = JsonConvert.SerializeObject(dt, Formatting.Indented);
                                                 // Check if query returned a single row or multiple rows
-                                                bool isSingleRow = (dt.Rows.Count == 1);
+                                                bool isSingleRow = dt.Rows.Count == 1;
                                                 // Deserialize JSON string to JObject or JArray
                                                 result = isSingleRow ? JToken.Parse(jsonResult) : JArray.Parse(jsonResult);
                                             }

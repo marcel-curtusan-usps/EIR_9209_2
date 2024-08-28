@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Data;
 
 
@@ -77,7 +76,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
         }
     }
     public IEnumerable<EmployeeInfo> GetAll() => _empList.Values;
-    public object getEmpSchedule()
+    public object? getEmpSchedule()
     {
         //payweek
         string payweek = _empList.Select(y => y.Value.PayWeek)
@@ -94,7 +93,8 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
 
     private SingleReport? getScheduleAdd(EmployeeInfo EmpSch, List<TimeSpan> selstotal)
     {
-        try {
+        try
+        {
             double totalselshr = 0;
             foreach (TimeSpan hr in selstotal)
             {
@@ -299,7 +299,8 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
         }
 
     }
-    public void RunEmployeeScheduleDailySummaryReport() {
+    public void RunEmployeeScheduleDailySummaryReport()
+    {
         try
         {
             var empEIN = _empList.Select(item => item.Value).Distinct().ToList();
@@ -336,13 +337,13 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
 
     }
 
-    private EmployeeScheduleSummary GetEmployeeDaySchedule(Schedule sch, DateTime day, EmployeeInfo ein)
+    private EmployeeScheduleSummary? GetEmployeeDaySchedule(Schedule sch, DateTime day, EmployeeInfo ein)
     {
         try
         {
             string date = day.ToString("yyyy-MM-dd");
             var selsHrs = new Dictionary<string, double>();
-            var tacsHrs = new Dictionary<string, double>(); 
+            var tacsHrs = new Dictionary<string, double>();
 
             var selsTimeLine = _tags.GetTagTimelineList(date);
             if (selsTimeLine != null)
@@ -395,7 +396,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                                 {
                                     firstdate = DateTime.ParseExact(sch.EndTourDtm.ToString(), "MMMM, dd yyyy HH:mm:ss",
                                                    System.Globalization.CultureInfo.InvariantCulture);
-                                    var daydiff = (Int32.Parse(sch.Day)-1) * -1;
+                                    var daydiff = (Int32.Parse(sch.Day) - 1) * -1;
                                     weekdate = new DateTime(firstdate.Year, firstdate.Month, firstdate.Day, 0, 0, 0).AddDays(daydiff).AddHours(2);
                                     for (var i = 0; i < 7; i++)
                                     {
@@ -452,7 +453,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                                             for (var i = 0; i < 7; i++)
                                             {
                                                 //if (i != 6 && (tsstart >= weekts[i] && ts.End <= weekts[i + 1]))
-                                                if (i != 6 && (tsstart >= weekts[i] && endtmp <= weekts[i + 1]))
+                                                if (i != 6 && tsstart >= weekts[i] && endtmp <= weekts[i + 1])
                                                 {
                                                     selstotal[i] += durtmp - minustmp;
                                                     break;
@@ -462,8 +463,8 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                                                 {
                                                     //if ((weekts[i] - tsstart) < (ts.End - weekts[i]))
                                                     if ((weekts[i] - tsstart) < (endtmp - weekts[i]))
-                                                        {
-                                                            selstotal[i] += durtmp - minustmp;
+                                                    {
+                                                        selstotal[i] += durtmp - minustmp;
                                                     }
                                                     else if (i != 0)
                                                     {
@@ -494,7 +495,7 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                                 //last one
                                 for (var i = 0; i < 7; i++)
                                 {
-                                    if (i != 6 && (tsstart >= weekts[i] && endtmp <= weekts[i + 1]))
+                                    if (i != 6 && tsstart >= weekts[i] && endtmp <= weekts[i + 1])
                                     {
                                         selstotal[i] += durtmp - minustmp;
                                         break;
@@ -580,7 +581,6 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
     public void UpdateEmpScheduleSels()
     {
         bool savetoFile = false;
-        bool schupdated = false;
         try
         {
             //get dates for the week

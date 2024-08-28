@@ -20,7 +20,7 @@
         public string MpeName { get; set; } = "";
         public string MpeNumber { get; set; } = "";
         public string MpeGroup { get; set; } = "";
-        public string MpeIpAddress{ get; set; } = "";
+        public string MpeIpAddress { get; set; } = "";
         public MPERunPerformance? MPERunPerformance { get; set; } = new();
         public string? DataSource { get; set; } = "";
         public string? Emails { get; set; } = "";

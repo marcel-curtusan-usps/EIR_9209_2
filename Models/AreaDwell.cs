@@ -2,12 +2,12 @@
 {
     public class AreaDwell
     {
-        public string EmployeeName { get; set; }
-        public string Ein { get; set; }
-        public string AreaName { get; set; }
+        public required string EmployeeName { get; set; }
+        public required string Ein { get; set; }
+        public required string AreaName { get; set; }
         public TimeSpan DwellTimeDurationInArea { get; set; }
-        public string Type { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public required string Type { get; set; }
+        public required string FirstName { get; set; }
+        public required string LastName { get; set; }
     }
 }

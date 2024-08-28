@@ -135,7 +135,10 @@ async function createDacodetocrafttypeDataTable(table) {
                     emptyTable: "No Data Available"
                 },
                 aoColumns: columns,
-                columnDefs: [
+                columnDefs: [{
+                    orderable: false, // Disable sorting on all columns
+                    targets: 2
+                }
                 ],
                 sorting: [[0, "asc"]]
 

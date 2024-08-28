@@ -23,7 +23,7 @@ namespace EIR_9209_2.Controllers
         // POST api/<SMSTransactionsController>
         [HttpPost]
         [Route("BadgeScan")]
-        public async void Post([FromBody] JObject transaction)
+        public void Post([FromBody] JObject transaction)
         {
             //handle bad requests
             if (!ModelState.IsValid)

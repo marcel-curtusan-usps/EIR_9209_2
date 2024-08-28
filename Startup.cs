@@ -2,11 +2,11 @@
 using EIR_9209_2.DataStore;
 using EIR_9209_2.Service;
 using EIR_9209_2.Utilities;
+using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using System.Configuration;
 using System.Reflection;
 
 public class Startup
@@ -62,8 +62,7 @@ public class Startup
             }).AddJsonProtocol(options =>
             {
                 options.PayloadSerializerOptions.PropertyNameCaseInsensitive = true;
-            })
-    .AddMessagePackProtocol();
+            }).AddMessagePackProtocol();
         services.AddCors(o =>
         {
             o.AddPolicy("Everything", p =>
@@ -83,10 +82,7 @@ public class Startup
             {
                 opts.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 opts.SerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
-            })
-            .AddXmlSerializerFormatters();
-
-
+            }).AddXmlSerializerFormatters();
         services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
@@ -119,14 +115,6 @@ public class Startup
                 // Use [ValidateModelState] on Actions to actually validate it in C# as well!
                 options.OperationFilter<GeneratePathParamsValidationFilter>();
             });
-
-
-        ////init QPE data pull
-        //services.AddSingleton<QPEBackgroundService>();
-        //services.AddHostedService(provider => provider.GetRequiredService<QPEBackgroundService>());
-        ////init MPE data pull
-        //services.AddSingleton<MPEWatchBackgroundService>();
-        //services.AddHostedService(provider => provider.GetRequiredService<MPEWatchBackgroundService>());
     }
 
 
@@ -139,10 +127,6 @@ public class Startup
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
     {
         app.UseRouting();
-        //TODO: Uncomment this if you need wwwroot folder
-        // app.UseStaticFiles();
-        //app.UseHealthChecks("/health");
-        app.UseAuthentication();
         app.UseAuthorization();
         var swaggerConfig = Configuration.GetSection("SwaggerConfiguration");
         var applicationConfiguration = Configuration.GetSection("ApplicationConfiguration");

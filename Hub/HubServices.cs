@@ -84,7 +84,11 @@ public class HubServices : Hub
         //    }
         //}
         string userId = Context.ConnectionId;
-
+        if (exception != null)
+        {
+            _logger.LogError(exception.ToString());
+        }
+       
         // await Groups.RemoveFromGroupAsync(userId, groupName);
 
         await base.OnDisconnectedAsync(exception);
@@ -107,14 +111,9 @@ public class HubServices : Hub
     {
         return await Task.Run(_backgroundImages.GetAll);
     }
-    public SiteInformation GetSiteInformation()
-    {
-        string nassCode = _configuration["ApplicationConfiguration:NassCode"]?.ToString();
-        return _siteInfo.GetByNASSCode(nassCode);
-    }
     public async Task<string> GetApplicationInfo()
     {
-        var siteInfo = _siteInfo.GetByNASSCode(_configuration["ApplicationConfiguration:NassCode"].ToString());
+        var siteInfo = _siteInfo.GetSiteInfo();
         return JsonConvert.SerializeObject(new JObject
         {
             ["name"] = "Connected Facilities",
@@ -130,13 +129,13 @@ public class HubServices : Hub
     {
         return await Task.Run(() => _tags.GetTagsType("Badge"));
     }
-    public async Task<IEnumerable<GeoMarker>> GetPIVTags()
+    public async Task<IEnumerable<VehicleGeoMarker>> GetPIVTags()
     {
-        return await Task.Run(() => _tags.GetTagsType("PIVVehicle"));
+        return await Task.Run(() => _tags.GetAllPIV());
     }
-    public async Task<IEnumerable<GeoMarker>> GetAGVTags()
+    public async Task<IEnumerable<VehicleGeoMarker>> GetAGVTags()
     {
-        return await Task.Run(() => _tags.GetTagsType("AutonomousVehicle"));
+        return await Task.Run(() => _tags.GetAllAGV());
     }
     public async Task<IEnumerable<GeoMarker>> GetAccessPoints()
     {
@@ -150,7 +149,7 @@ public class HubServices : Hub
     {
         return await Task.Run(_empSchedules.GetAll);
     }
-    public async Task<IEnumerable<CameraMarker>> GetCameras()
+    public async Task<IEnumerable<CameraGeoMarker>> GetCameras()
     {
         return await Task.Run(_cameraMarkers.GetAll);
     }

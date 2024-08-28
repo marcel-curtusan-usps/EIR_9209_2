@@ -26,7 +26,7 @@ namespace EIR_9209_2.Service
                 string FormatUrl = "";
                 FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType, _configuration[key: "ApplicationConfiguration:NassCode"]);
                 queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
-                var result = (await queryService.GetSMSWrapperData(stoppingToken));
+                var result = await queryService.GetSMSWrapperData(stoppingToken);
 
                 if (_endpointConfig.MessageType.ToLower() == "FDBIDEmployeeList".ToLower())
                 {

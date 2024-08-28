@@ -1,7 +1,5 @@
 ﻿using EIR_9209_2.DataStore;
-using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Hosting.Internal;
 using System.Collections.Concurrent;
 
 namespace EIR_9209_2.Service
@@ -20,7 +18,6 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryEmpSchedulesRepository _empSchedule;
         private readonly IInMemoryCamerasRepository _cameras;
         private readonly IConfiguration _configuration;
-        private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly ConcurrentDictionary<string, BaseEndpointService> _endPointServices = new();
 
         public Worker(ILogger<Worker> logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory,

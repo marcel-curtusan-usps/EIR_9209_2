@@ -1,15 +1,12 @@
-﻿using EIR_9209_2.Models;
+﻿using EIR_9209_2.DataStore;
+using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NuGet.Protocol;
-using PuppeteerSharp.Input;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text.RegularExpressions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 {
@@ -18,6 +15,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     private readonly ConcurrentDictionary<DateTime, List<AreaDwell>> _QREAreaDwellResults = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPERunActivity = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPEStandard = new();
+    private readonly IInMemorySiteInfoRepository _siteInfo;
     private readonly List<string> _MPENameList = new();
     private readonly IConfiguration _configuration;
     private readonly ILogger<InMemoryGeoZonesRepository> _logger;
@@ -25,12 +23,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     protected readonly IHubContext<HubServices> _hubServices;
     private readonly string filePath = "";
     private readonly string fileName = "";
-    public InMemoryGeoZonesRepository(ILogger<InMemoryGeoZonesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices)
+    public InMemoryGeoZonesRepository(ILogger<InMemoryGeoZonesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices,IInMemorySiteInfoRepository siteInfo)
     {
         _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
         _hubServices = hubServices;
+        _siteInfo = siteInfo;
         fileName = $"{_configuration[key: "InMemoryCollection:CollectionZones"]}.json";
         filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
             _configuration[key: "ApplicationConfiguration:BaseDirectory"],
@@ -119,7 +118,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     saveToFile = true;
                 }
 
-                
+
                 return await Task.FromResult(properties);
             }
             else
@@ -194,6 +193,14 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     {
         return _mpeSummary.Where(r => Regex.IsMatch(r.Key, "(" + area + ")", RegexOptions.IgnoreCase)).Select(r => r.Value).ToList();
 
+    }
+    public Task<List<MPESummary>> getMPESummaryDateRange(string area, DateTime startDT, DateTime endDT)
+    {
+        var ty = startDT.Date;
+        //i want to select all the area that matches the area and is between startDT and endDT
+        var result = _mpeSummary.Where(r => Regex.IsMatch(r.Key, "(" + area + ")", RegexOptions.IgnoreCase)).SelectMany(y => y.Value)
+            .Where(u => u.Key >= startDT && u.Key <= endDT).Select(y => y.Value).ToList();
+        return Task.FromResult(result);
     }
     public List<MPEActiveRun> getMPERunActivity(string area)
     {
@@ -293,11 +300,11 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             {
                 //if where pieces Sorted is available the calculate the actual yield using the sorted pieces
 
-                var clerkAndMailHandlerCountThisHour = ((entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds)) / (1000 * 60 * 60));
+                var clerkAndMailHandlerCountThisHour = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds) / (1000 * 60 * 60);
                 actualYieldcal = piecesForYield != null && clerkAndMailHandlerCountThisHour > 0 ? piecesForYield.Value / clerkAndMailHandlerCountThisHour : 0.0;
                 if (mpe.HourlyData.Where(r => r.Hour == hour).Select(y => y.Count).Any())
                 {
-                    actualYieldcal = mpe.HourlyData.Where(r => r.Hour == hour).Select(y => y.Count).First() / ((entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds)) / (1000 * 60 * 60));
+                    actualYieldcal = mpe.HourlyData.Where(r => r.Hour == hour).Select(y => y.Count).First() / (entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds) / (1000 * 60 * 60));
                 }
                 laborHrs = entriesThisArea.GroupBy(e => e.Type).ToDictionary(g => g.Key, g => g.Sum(e => e.DwellTimeDurationInArea.TotalMilliseconds));
                 laborCounts = entriesThisArea.GroupBy(e => e.Type).ToDictionary(g => g.Key, g => g.Count());
@@ -445,7 +452,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     _MPENameList.Add(mpe.MpeId);
                 }
                 await Task.Run(() => UpdateMPERunActivity(mpe)).ConfigureAwait(false);
-                var geoZone = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == mpe.MpeId ).Select(y => y.Value).FirstOrDefault();
+                var geoZone = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == mpe.MpeId).Select(y => y.Value).FirstOrDefault();
                 if (geoZone != null)
                 {
                     bool pushUIUpdate = false;
@@ -636,7 +643,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     {
                         geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
                     }
-                   
+
                     if (geoZone.Properties.MPERunPerformance.CurSortplan == "")
                     {
                         geoZone.Properties.MPERunPerformance.CurSortplan = "0";
@@ -649,7 +656,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                         geoZone.Properties.DataSource = "IDS";
                         pushDBUpdate = true;
                     }
-                    List<string> hourslist = await GetListOfHours(24);
+                    List<string> hourslist = GetListOfHours(336);
                     foreach (string hr in hourslist)
                     {
                         var mpeData = result.Where(item => item["MPE_NAME"]?.ToString() == mpeName && item["HOUR"]?.ToString() == hr).FirstOrDefault();
@@ -728,15 +735,16 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    private async Task<List<string>> GetListOfHours(int hours)
+    private List<string> GetListOfHours(int hours)
     {
         var localTime = DateTime.Now;
-        return Enumerable.Range(0, hours).Select(i => localTime.AddHours(-23).AddHours(i).ToString("yyyy-MM-dd HH:00")).ToList();
+        return Enumerable.Range(0, hours).Select(i => localTime.AddHours(-hours).AddHours(i).ToString("yyyy-MM-dd HH:00")).ToList();
     }
 
     public void UpdateMPERunActivity(MPERunPerformance mpe)
     {
         bool SaveToFile = false;
+        SiteInformation siteinfo = _siteInfo.GetSiteInfo();
         try
         {
             DateTime CurrentRunStart = !string.IsNullOrEmpty(mpe.CurrentRunStart)
@@ -744,7 +752,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                       : DateTime.MinValue;
             DateTime CurrentRunEnd = !string.IsNullOrEmpty(mpe.CurrentRunEnd)
              ? DateTime.ParseExact(mpe.CurrentRunEnd, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
-             : DateTime.Now;
+             : _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
             string mpe_id = string.Concat(mpe.MpeId, @"_", new DateTime(CurrentRunStart.Year, CurrentRunStart.Month, CurrentRunStart.Day, CurrentRunStart.Hour, CurrentRunStart.Minute, 0, 0).ToString(""));
 
             int.TryParse(mpe.MpeNumber, out int MpeNum);
@@ -807,7 +815,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
         finally
         {
-            _MPERunActivity.Where(r => r.Value.CurrentRunStart <= DateTime.Now.AddDays(-3) && r.Value.Type == "Run").Select(l => l.Key).ToList().ForEach(key =>
+            _MPERunActivity.Where(r => r.Value.CurrentRunStart <= DateTime.Now.AddDays(-7) && r.Value.Type == "Run").Select(l => l.Key).ToList().ForEach(key =>
             {
                 if (_MPERunActivity.TryRemove(key, out MPEActiveRun remove))
                 {
@@ -983,12 +991,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         try
         {
 
-            foreach (MPEActiveRun item in data.ToObject<List<MPEActiveRun>>())
+            foreach (MPEActiveRun? item in data.ToObject<List<MPEActiveRun>>())
             {
 
                 string mpe_id = string.Concat(item.MpeId, @"_", new DateTime(item.CurrentRunStart.Year, item.CurrentRunStart.Month, item.CurrentRunStart.Day, item.CurrentRunStart.Hour, item.CurrentRunStart.Minute, 0, 0).ToString(""));
 
-                if (_MPERunActivity.ContainsKey(mpe_id) && _MPERunActivity.TryGetValue(mpe_id, out MPEActiveRun activeRun))
+                if (_MPERunActivity.ContainsKey(mpe_id) && _MPERunActivity.TryGetValue(mpe_id, out MPEActiveRun? activeRun))
                 {
                     if (activeRun.CurThruputOphr != item.CurThruputOphr && item.CurThruputOphr > 0)
                     {
@@ -1064,7 +1072,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 
     public async Task<object> GetMPENameList(string type)
     {
-        return await Task.Run( () => _MPENameList.Select(y => y).ToList());
+        return await Task.Run(() => _MPENameList.Select(y => y).ToList());
     }
     public async Task<object> GetMPEGroupList(string type)
     {
@@ -1075,4 +1083,6 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     {
         throw new NotImplementedException();
     }
+
+
 }

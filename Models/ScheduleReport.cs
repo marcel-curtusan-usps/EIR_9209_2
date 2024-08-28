@@ -1,6 +1,4 @@
-﻿using EIR_9209_2.Models;
-
-public class ScheduleReport
+﻿public class ScheduleReport
 {
     public string PayWeek { get; set; } = "";
     public string WeekDate1 { get; set; } = "";

@@ -22,14 +22,14 @@ function processMPEdata(data, mindate, maxdate) {
 
         let newresult = [];
         let counter = 0;
-        valuesArray = Object.values(data);
+        valuesArray = data;
         //for (let i = 1; i < 28; i++) {
-        let maxDateTemp = MPEdefaultMaxdate;
-        let minDateTemp = MPEdefaultMindate
+        let maxDateTemp = mindate;
+        let minDateTemp = maxdate
         while (minDateTemp <= maxDateTemp) {
             var newObj = $.extend({}, valuesArray[0]);
-            let dateformat = minDateTemp.toFormat('yyyy-LL-dd') + "T" + minDateTemp.toFormat('HH:00:00ZZ')
-            if (!Object.keys(data).includes(dateformat)) {
+            //let dateformat = minDateTemp.toFormat('yyyy-LL-dd') + "T" + minDateTemp.toFormat('HH:00:00ZZ')
+            //if (!Object.keys(data.hour).includes(dateformat)) {
 
                 for (var prop in newObj) {
                     if (!/(mpeName|hour)/ig.test(prop)) {
@@ -43,7 +43,7 @@ function processMPEdata(data, mindate, maxdate) {
                     }
                 }
                 valuesArray.push(newObj);
-            }
+            //}
             minDateTemp = minDateTemp.plus({ hours: 1 });
         }
         let result = valuesArray.reduce((acc, curr) => {
@@ -156,10 +156,12 @@ async function createMPESummaryDataTable(table, minDate, maxDate) {
         aoColumns: columns,
         columnDefs: [{
             visible: false,
-            targets: 0,
-
+            targets: 0
+        },
+        {
+            orderable: false, // Disable sorting on all columns
+            targets: '_all'
         }],
-        sorting: [[0, "asc"]],
         rowCallback: function (row, data, index) {
             if (/^Total/ig.test(data.name)) {
                 $(row).css('background-color', '#f2f2f2');
@@ -172,13 +174,12 @@ async function createMPESummaryDataTable(table, minDate, maxDate) {
             }
         },
         headerCallback: function (thead, data, start, end, display) {
-            // Add title attribute with tooltip text to column header
             $(thead).find('th').each(function () {
-                $(this).attr('title', data);
+                $(this).attr('title', $(this).text());
             });
         }
     })
-    $('#' + table + ' thead').attr("class", "thead-dark");
+
 }
 async function loadMPESummaryDatatable(data, table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {

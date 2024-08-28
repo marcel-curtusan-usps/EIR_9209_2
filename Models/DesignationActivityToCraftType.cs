@@ -2,7 +2,7 @@
 {
     public class DesignationActivityToCraftType
     {
-        public string DesignationActivity { get; set; }
-        public string CraftType { get; set; }
+        public required string DesignationActivity { get; set; }
+        public required string CraftType { get; set; }
     }
 }

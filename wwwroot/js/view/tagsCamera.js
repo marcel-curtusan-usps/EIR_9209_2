@@ -127,14 +127,14 @@ let markerCameras = new L.GeoJSON(null, {
             permanent: true,
             interactive: true,
             direction: 'center',
-            opacity: 1
+            opacity: 0
         }).openTooltip();
     }, filter: function (feature, layer) {
         return feature.properties.visible;
     }
 });
 // add to the map and layers control
-let overlayCameraLayer = L.layerGroup();
+let overlayCameraLayer = L.layerGroup().addTo(OSLmap);
 layersControl.addOverlay(overlayCameraLayer, "Cameras");
 markerCameras.addTo(overlayCameraLayer);
 async function findCameraLeafletIds(markerId) {
@@ -228,7 +228,7 @@ async function updateCameraFeature(data) {
 }
 
 
-let ImageLayout = '<div>{image}</div>';
+let ImageLayout = '<div class="row">{image}</div>';
 function formatImageLayout(img) {
     let newimg = new Image();
     newimg.src = img;

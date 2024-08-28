@@ -25,32 +25,32 @@ namespace EIR_9209_2.Service
 
                 FormatUrl = string.Format(_endpointConfig.Url, _configuration[key: "ApplicationConfiguration:NassCode"]);
                 queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
-                var result = (await queryService.GetSVDoorData(stoppingToken));
+                var result = await queryService.GetSVDoorData(stoppingToken);
                 //process zone data
                 if (_endpointConfig.MessageType.ToLower() == "doors")
                 {
                     // Process MPE data in a separate thread
-                    _ = Task.Run(async () => await ProcessDoorsData(result), stoppingToken);
+                    _ = Task.Run(() => ProcessDoorsData(result), stoppingToken);
                 }
                 if (_endpointConfig.MessageType.ToLower() == "getdoor_associated_trips")
                 {
                     // Process MPE data in a separate thread
-                    _ = Task.Run(async () => await ProcessGetdoorAssociatedTripsData(result), stoppingToken);
+                    _ = Task.Run(() => ProcessGetdoorAssociatedTripsData(result), stoppingToken);
                 }
                 if (_endpointConfig.MessageType.ToLower() == "trip_itinerary")
                 {
                     // Process MPE data in a separate thread
-                    _ = Task.Run(async () => await ProcessTripItineraryData(result), stoppingToken);
+                    _ = Task.Run(() => ProcessTripItineraryData(result), stoppingToken);
                 }
                 if (_endpointConfig.MessageType.ToLower() == "trips")
                 {
                     // Process MPE data in a separate thread
-                    _ = Task.Run(async () => await ProcessTripsData(result), stoppingToken);
+                    _ = Task.Run(() => ProcessTripsData(result), stoppingToken);
                 }
                 if (_endpointConfig.MessageType.ToLower() == "container")
                 {
                     // Process MPE data in a separate thread
-                    _ = Task.Run(async () => await ProcessContainerData(result), stoppingToken);
+                    _ = Task.Run(() => ProcessContainerData(result), stoppingToken);
                 }
             }
             catch (Exception ex)
@@ -66,27 +66,27 @@ namespace EIR_9209_2.Service
             }
         }
 
-        private async Task ProcessGetdoorAssociatedTripsData(JToken result)
+        private void ProcessGetdoorAssociatedTripsData(JToken result)
         {
             throw new NotImplementedException();
         }
 
-        private async Task ProcessTripItineraryData(JToken result)
+        private void ProcessTripItineraryData(JToken result)
         {
             throw new NotImplementedException();
         }
 
-        private async Task ProcessTripsData(JToken result)
+        private void ProcessTripsData(JToken result)
         {
             throw new NotImplementedException();
         }
 
-        private async Task ProcessContainerData(JToken result)
+        private void ProcessContainerData(JToken result)
         {
             throw new NotImplementedException();
         }
 
-        private async Task ProcessDoorsData(JToken result)
+        private void ProcessDoorsData(JToken result)
         {
             try
             {

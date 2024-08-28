@@ -1,8 +1,6 @@
 ﻿using EIR_9209_2.Models;
-using EIR_9209_2.Service;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
 
 public class InMemoryConnectionRepository : IInMemoryConnectionRepository
@@ -92,13 +90,13 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
             }
         }
     }
-    public async Task<Connection>? Update(Connection connection)
+    public Task<Connection?> Update(Connection connection)
     {
         bool saveToFile = false;
         try
         {
             saveToFile = true;
-            return _connectionList.TryGetValue(connection.Id, out Connection? currentConnection) ? currentConnection : null;
+            return Task.FromResult(_connectionList.TryGetValue(connection.Id, out Connection? currentConnection) ? currentConnection : null);
         }
         catch (Exception e)
         {
@@ -131,7 +129,6 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     /// <summary>
     /// Updates a connection in the in-memory connection repository.
     /// </summary>
-    /// <param name="connection">The connection to update.</param>
 
     private async Task LoadDataFromFile(string filePath)
     {
@@ -359,5 +356,4 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
             _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
         }
     }
-
 }

@@ -25,7 +25,7 @@ namespace EIR_9209_2.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("AllEmail")]
-        public async Task<object> GetAllEmail()
+        public object GetAllEmail()
         {
             if (!ModelState.IsValid)
             {
@@ -59,7 +59,7 @@ namespace EIR_9209_2.Controllers
         // POST api/<EmailAgentController>
         [HttpPost]
         [Route("Add")]
-        public async Task<object> PostByAddNewEmail([FromBody] JObject newEmail)
+        public object PostByAddNewEmail([FromBody] JObject newEmail)
         {
             try
             {
@@ -93,7 +93,7 @@ namespace EIR_9209_2.Controllers
 
         [HttpPut]
         [Route("Update")]
-        public async Task<object> PostByUpdateEmail(string id, [FromBody] JObject value)
+        public object PostByUpdateEmail(string id, [FromBody] JObject value)
         {
             if (!ModelState.IsValid)
             {
@@ -115,7 +115,7 @@ namespace EIR_9209_2.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("Delete")]
-        public async Task<object> Delete(string id)
+        public object Delete(string id)
         {
             if (!ModelState.IsValid)
             {
