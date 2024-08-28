@@ -456,7 +456,7 @@ async function Delete_Email(data) {
 }
 async function emailSubmitBtn() {
     if ($('input[type=text][name=emailAddress]').hasClass('is-valid') &&
-        $('select[name=reportName]').hasClass('is-valid')
+        $('select[name=reportName]').hasClass('is-valid') && $('select[name=mpeNameList]').hasClass('is-valid')
     ) {
         $('button[id=emailsubmitBtn]').prop('disabled', false);
     }
