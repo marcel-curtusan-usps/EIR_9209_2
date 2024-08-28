@@ -374,7 +374,7 @@ async function Edit_Email(data) {
             $('input[type=text][name=aceId]').val(data.ace);
             $('select[name=reportName]').val(data.reportName);
             $('select[name=mpeNameList]').val(data.mpeName);
-            Promise.all([onEmailVaildation()]);
+            Promise.all([onEmailVaildation(data.mpeName)]);
             $('button[id=emailsubmitBtn]').off().on('click', function () {
                 $('button[id=emailsubmitBtn]').prop('disabled', true);
                 let jsonObject = {
@@ -464,7 +464,7 @@ async function emailSubmitBtn() {
         $('button[id=emailsubmitBtn]').prop('disabled', true);
     }
 }
-async function onEmailVaildation() {
+async function onEmailVaildation(mpeName) {
     if (!checkValue($('select[name=reportName] option:selected').html())) {
         $('select[name=reportName]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
         $('span[id=error_reportName]').text("Please Select Report Name");
@@ -473,7 +473,7 @@ async function onEmailVaildation() {
         $('select[name=reportName]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
         $('span[id=error_reportName]').text("");
     }
-    if (!checkValue($('select[name=mpeNameList] option:selected').html())) {
+    if (!checkValue($('select[name=mpeNameList] option:selected').html()) && !mpeName) {
         $('select[name=mpeNameList]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
         $('span[id=error_mpeNameList]').text("Please Select Zone Name");
     }
