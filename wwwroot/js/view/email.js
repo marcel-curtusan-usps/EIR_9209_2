@@ -114,6 +114,11 @@ $('#Email_Modal').on('shown.bs.modal', function () {
             $('select[name=reportName]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_reportName]').text("");
         }
+        //invalidate mpeNameList if it is unselcted by changing reportName
+        if (!checkValue($('select[name=mpeNameList] option:selected').html())) {
+            $('select[name=mpeNameList]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_mpeNameList]').text("Please Select Zone Name");
+        }
         Promise.all([emailSubmitBtn()]);
 
     });
