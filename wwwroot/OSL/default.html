@@ -1408,10 +1408,10 @@
                 <li class="hidden" title="User Profile" id="UserProfileSideButton">
                     <a class="iconCenter" href="#userprofile"><i class="pi-iconUserProfile"></i></a>
                 </li>
-                <li class="hidden" title="AGV Notification" id="AGVSideButton">
-                    <a class="iconCenter" href="#agvnotificationinfo">
-                        <i id="agvnotificaion" class="pi-iconVehicle" title="AGV Notification">
-                            <span class="badge badge-notify bell-notification" id="agvnotificaion_number"></span>
+                <li class="hidden" title="Vehicle Notification" id="VehicleSideButton">
+                    <a class="iconCenter" href="#Vehicleinfo">
+                        <i id="vehicleinfo" class="pi-iconVehicle" title="Vehicle Info">
+                            <span class="badge badge-notify bell-notification" id="Vehicle_number"></span>
                         </i>
                     </a>
                 </li>
@@ -1446,7 +1446,7 @@
         <div class="leaflet-sidebar-content" id="sidePanels">
 
             <!-- Sidebar panel Home - Zone Selector -->
-            <div class="leaflet-sidebar-pane" id="home">
+            <div class="leaflet-sidebar-pane overflow-auto" id="home">
                 <h1 class="leaflet-sidebar-header">
                     <span id="fotf-site-facility-name"></span>
                     <span class="leaflet-sidebar-close"><i class="bi-caret-left"></i></span>
@@ -1455,15 +1455,15 @@
                 <div id="div_zoneSelect">
                     <!--<div id="zoneselectlist_div" class="d-flex mt-1 zoneselectlist display-block">
 
-                        <div class="form-group flex-fill pl-3 mb-0 mr-p5rem">-->
-                            <!-- <label class="mb-1">Select a Zone</label> -->
-                            <!--<label for="zoneselect">Select a Zone:</label>
-                            <select class="form-control" id="zoneselect" title="zones" placeholder="Begin by selecting a zone">
-                                <option value=""></option>
-                            </select>
-                            <span class="text-danger" name="eroor_zoneselect"></span>
-                        </div>
-                    </div>-->
+                <div class="form-group flex-fill pl-3 mb-0 mr-p5rem">-->
+                    <!-- <label class="mb-1">Select a Zone</label> -->
+                    <!--<label for="zoneselect">Select a Zone:</label>
+                    <select class="form-control" id="zoneselect" title="zones" placeholder="Begin by selecting a zone">
+                        <option value=""></option>
+                    </select>
+                    <span class="text-danger" name="eroor_zoneselect"></span>
+                </div>
+            </div>-->
 
                     <div id="area_div" data-id="" class="card bg-white mt-2 pb-1 d-none">
                         <div class="card-header pl-1">
@@ -1894,8 +1894,8 @@
                                                         <th class="row-cts-leg">Leg</th>
                                                         <th class="row-cts-dest">Dest</th>
                                                         <!--<th class="row-cts-close">Close</th>
-                                                        <th class="row-cts-load">Load</th>
-                                                        <th>Load%</th>-->
+                                                <th class="row-cts-load">Load</th>
+                                                <th>Load%</th>-->
                                                     </tr>
                                                 </thead>
                                                 <tbody></tbody>
@@ -1921,8 +1921,8 @@
                                                         <th class="row-cts-leg">Leg</th>
                                                         <th class="row-cts-dest">Dest</th>
                                                         <!--<th class="row-cts-close">Close</th>
-                                                        <th class="row-cts-load">Load</th>
-                                                        <th>Load%</th>-->
+                                                <th class="row-cts-load">Load</th>
+                                                <th>Load%</th>-->
                                                     </tr>
                                                 </thead>
                                                 <tbody></tbody>
@@ -1987,7 +1987,7 @@
                 </div>
             </div>
             <!-- Sidebar panel Report Information -->
-            <div class="leaflet-sidebar-pane" id="reports">
+            <div class="leaflet-sidebar-pane overflow-auto" id="reports">
                 <h1 class="leaflet-sidebar-header">
                     <span>Report Information</span>
                     <span class="leaflet-sidebar-close"><i class="bi-caret-left"></i></span>
@@ -2028,92 +2028,92 @@
                             </div>
                         </div>
                         <!--<div class="card w-100">
-                            <div class="card-header pl-1">
-                                <h6 class="sectionHeader ml-1 mb-1">Staffing Report</h6>
-                            </div>
-                            <div class="card-body overflow-auto">
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-hover mb-1 border-bottom" id="staffingtable">
-                                        <thead class="thead-dark">
-                                            <tr>
-                                                <th>Icon</th>
-                                                <th>Type</th>
-                                                <th>Scheduled</th>
-                                                <th>Scan</th>
-                                                <th>In-Building</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <th style="text-align: right">Total:</th>
-                                                <th></th>
-                                                <th></th>
-                                                <th></th>
-                                                <th></th>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>-->
+                    <div class="card-header pl-1">
+                        <h6 class="sectionHeader ml-1 mb-1">Staffing Report</h6>
+                    </div>
+                    <div class="card-body overflow-auto">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover mb-1 border-bottom" id="staffingtable">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>Icon</th>
+                                        <th>Type</th>
+                                        <th>Scheduled</th>
+                                        <th>Scan</th>
+                                        <th>In-Building</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th style="text-align: right">Total:</th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>-->
                     </div>
                     <!--<div id="div_userinfo" class="container-fluid">
-                        <div class="card w-100">
-                            <div class="card-header pl-1">
-                                <h6 class="sectionHeader ml-1 mb-1">Craft Type</h6>
-                            </div>
-                            <div class="card-body overflow-auto">
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-hover mb-1 border-bottom" id="userstoptable">
-                                        <thead class="thead-dark">
-                                            <tr>
-                                                <th>
-                                                    <span class="ml-p25rem">F1 Craft</span>
-                                                </th>
-                                                <th>In Work Zone</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
+                <div class="card w-100">
+                    <div class="card-header pl-1">
+                        <h6 class="sectionHeader ml-1 mb-1">Craft Type</h6>
+                    </div>
+                    <div class="card-body overflow-auto">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover mb-1 border-bottom" id="userstoptable">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>
+                                            <span class="ml-p25rem">F1 Craft</span>
+                                        </th>
+                                        <th>In Work Zone</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
                     </div>
-                    <div id="div_overtimeinfo" class="container-fluid ">
-                        <div class="card w-100">
-                            <div class="card-header pl-1">
-                                <h6 class="sectionHeader ml-1 mb-1">
-                                    Overtime Badges
-                                    <span class="badge-info badge" name="overtime_count">0</span>
-                                </h6>
-                                <p class="smaller text-secondary mb-0 ml-2">Overtime List</p>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive fixedHeader variableHeight filterable">
-                                    <table class="table table-striped table-sm table-hover mb-1 border-bottom" id="overtimebagestable">
-                                        <thead class="thead-dark">
-                                            <tr>
-                                                <th class="row-comp-1">
-                                                    <span class="ml-p25rem">Badge</span>
-                                                </th>
-                                                <th class="row-comp-2">Overtime</th>
-                                            </tr>
-                                            <tr class="filters">
-                                                <td>
-                                                    <input class="frow-comp-1" id="badge" type="text" placeholder="Badge" />
-                                                </td>
-                                                <td>
-                                                    <input class="frow-comp-2" id="overtimebage_time" type="text" placeholder="Overtime" />
-                                                </td>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
+                </div>
+            </div>
+            <div id="div_overtimeinfo" class="container-fluid ">
+                <div class="card w-100">
+                    <div class="card-header pl-1">
+                        <h6 class="sectionHeader ml-1 mb-1">
+                            Overtime Badges
+                            <span class="badge-info badge" name="overtime_count">0</span>
+                        </h6>
+                        <p class="smaller text-secondary mb-0 ml-2">Overtime List</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive fixedHeader variableHeight filterable">
+                            <table class="table table-striped table-sm table-hover mb-1 border-bottom" id="overtimebagestable">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th class="row-comp-1">
+                                            <span class="ml-p25rem">Badge</span>
+                                        </th>
+                                        <th class="row-comp-2">Overtime</th>
+                                    </tr>
+                                    <tr class="filters">
+                                        <td>
+                                            <input class="frow-comp-1" id="badge" type="text" placeholder="Badge" />
+                                        </td>
+                                        <td>
+                                            <input class="frow-comp-2" id="overtimebage_time" type="text" placeholder="Overtime" />
+                                        </td>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
-                    </div>-->
+                    </div>
+                </div>
+            </div>-->
                     <div id="div_taginfo" style="display: none" class="container-fluid">
                         <div class="card w-100">
                             <div class="card-header pl-1 d-flex justify-content-between">
@@ -2275,22 +2275,22 @@
                     </div>
                 </div>
             </div>
-            <!-- Sidebar panel AGV Notification -->
-            <div class="leaflet-sidebar-pane overflow-auto" id="agvnotificationinfo">
+            <!-- Sidebar panel Vehicleinfo -->
+            <div class="leaflet-sidebar-pane overflow-auto" id="vehicleinfo">
                 <h1 class="leaflet-sidebar-header">
-                    <span>AGV Notification</span>
+                    <span>Vehicle Info</span>
                     <span class="leaflet-sidebar-close"><i class="bi-caret-left"></i></span>
                 </h1>
 
-                <div class="btn-toolbar" role="toolbar" id="agvnotificationinfo_div">
-                    <div id="div_agvnotification" class="container-fluid">
+                <div class="btn-toolbar" role="toolbar" id="vehicleinfo_div">
+                    <div id="div_Vehicle" class="container-fluid">
                         <div class="card w-100">
                             <div class="card-header pl-1">
-                                <h6 class="sectionHeader ml-1 mb-1">AGV Details and Status</h6>
+                                <h6 class="sectionHeader ml-1 mb-1">Vehicle Details and Status</h6>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive fixedHeader variableHeight">
-                                    <table class="table table-sm table-hover table-condensed mb-1 border-bottom" id="agvnotificationtable">
+                                    <table class="table table-sm table-hover table-condensed mb-1 border-bottom" id="vehicletable">
                                         <thead class="thead-dark">
                                             <tr>
                                                 <th>

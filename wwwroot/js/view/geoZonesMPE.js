@@ -792,7 +792,7 @@ async function Edit_Machine_Info(id) {
                     }
                 });
                 $.ajax({
-                    url: SiteURLconstructor(window.location) + '/api/MPE/MPENames?Type=MPE',
+                    url: SiteURLconstructor(window.location) + '/api/Zone/MPENames',
                     contentType: 'application/json',
                     type: 'GET',
                     success: function (mpedata) {

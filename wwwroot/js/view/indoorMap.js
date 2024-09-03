@@ -33,24 +33,16 @@ sidebar.on('content', function (ev) {
         case 'autopan':
             break;
         case 'setting':
-            /* Edit_AppSetting("app_settingtable");*/
-
             break;
         case 'reports':
-            //Promise.all([getStaffInfo()]);
-            //GetUserInfo();
             break;
         case 'userprofile':
-            //GetUserProfile();
             break;
-        case 'agvnotificationinfo':
-            //LoadNotification("vehicle", "agvnotificationtable");
+        case 'vehicleinfo':
             break;
         case 'notificationsetup':
-            // LoadNotificationsetup({}, "notificationsetuptable");
             break;
         case 'tripsnotificationinfo':
-            // LoadNotification("routetrip", "tripsnotificationtable");
             break;
         default:
             sidebar.options.autopan = false;

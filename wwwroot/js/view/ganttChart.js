@@ -41,8 +41,6 @@ function GanttChart(chartID, chartdata, mpeName) {
     let volumelabelvalue = 175;
     let throughputlabel = 255;
     let throughputlabelvalue = 325;
-
-    console.log(siteTours);
     const tourstimes = [];
     const { tour1Start, tour1End, tour2Start, tour2End, tour3Start, tour3End } = siteTours;
     let currentDate = localdateTime.minus({ days: 1 }).startOf('day');
@@ -85,7 +83,6 @@ function GanttChart(chartID, chartdata, mpeName) {
 
         currentDate = currentDate.plus({ days: i })
     }
-    console.log(tourstimes);
 
     const toursPlugin = {
         id: 'labelPlugin',

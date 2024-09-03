@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data;
 using System.Text.RegularExpressions;
 using static EIR_9209_2.Models.GeoMarker;
@@ -21,10 +22,11 @@ namespace EIR_9209_2.DataStore
         private readonly IFileService FileService;
         private readonly IInMemoryDacodeRepository _dacode;
         private readonly string filePath = "";
-        private readonly string fileName = "";
-        private readonly string vehicleFileName = "";
+        private readonly string fileName = "Tags.json";
+        private readonly string fileTagVehiclePath = "";
+        private readonly string vehicleFileName = "VehicelTags.json";
         private readonly string fileTagTimelinePath = "";
-        private readonly string fileTagTimeline = "";
+        private readonly string fileTagTimeline = "TagTimeline.json";
         public InMemoryTagsRepository(ILogger<InMemoryTagsRepository> logger, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryDacodeRepository dacode, IFileService fileService)
         {
             FileService = fileService;
@@ -32,7 +34,6 @@ namespace EIR_9209_2.DataStore
             _configuration = configuration;
             _hubServices = hubServices;
             _dacode = dacode;
-            fileName = $"{_configuration[key: "InMemoryCollection:CollectionTags"]}.json";
             filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
                 _configuration[key: "ApplicationConfiguration:BaseDirectory"],
                 _configuration[key: "ApplicationConfiguration:NassCode"],
@@ -40,14 +41,22 @@ namespace EIR_9209_2.DataStore
                 $"{fileName}");
             // Load data from the first file into the first collection
             _ = LoadDataFromFile(filePath);
-            fileTagTimeline = $"{_configuration[key: "InMemoryCollection:CollectionTagTimeline"]}.json";
             fileTagTimelinePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
                 _configuration[key: "ApplicationConfiguration:BaseDirectory"],
                 _configuration[key: "ApplicationConfiguration:NassCode"],
                 _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
                 $"{fileTagTimeline}");
             _ = LoadTagTimelineFromFile(fileTagTimelinePath);
+
+            fileTagVehiclePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
+              _configuration[key: "ApplicationConfiguration:BaseDirectory"],
+              _configuration[key: "ApplicationConfiguration:NassCode"],
+              _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
+              $"{vehicleFileName}");
+            _ = LoadTagVehicleFromFile(fileTagVehiclePath);
         }
+
+  
 
         public async Task Add(GeoMarker tag)
         {
@@ -102,6 +111,10 @@ namespace EIR_9209_2.DataStore
             if (_tagList.ContainsKey(id) && _tagList.TryGetValue(id, out GeoMarker tag))
             {
                 return tag;
+            }
+            else if (_vehicleTagList.ContainsKey(id) && _vehicleTagList.TryGetValue(id, out VehicleGeoMarker vtag))
+            {
+                return vtag;
             }
             else
             {
@@ -295,7 +308,90 @@ namespace EIR_9209_2.DataStore
                 _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
             }
         }
+        private async Task LoadTagVehicleFromFile(string filePath)
+        {
+            try
+            {
+                // Read data from file
+                var fileContent = await FileService.ReadFile(filePath);
+                List<VehicleGeoMarker> data = JsonConvert.DeserializeObject<List<VehicleGeoMarker>>(fileContent);
 
+                if (data.Count > 0)
+                {
+                    foreach (VehicleGeoMarker curdata in data.Select(r => r).ToList())
+                    {
+                        curdata.Properties.Visible = true;
+                        curdata.Properties.IsPosition = false;
+                        _vehicleTagList.TryAdd(curdata.Properties.Id, curdata);
+
+                    }
+                }
+
+            }
+            catch (FileNotFoundException ex)
+            {
+                // Handle the FileNotFoundException here
+                _logger.LogError($"File not found: {ex.Message}");
+                // You can choose to throw an exception or take any other appropriate action
+            }
+            catch (IOException ex)
+            {
+                // Handle errors when reading the file
+                _logger.LogError($"An error occurred when reading the file: {ex.Message}");
+            }
+            catch (JsonException ex)
+            {
+                // Handle errors when parsing the JSON
+                _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
+            }
+        }
+        private async Task LoadDataFromFile(string filePath)
+        {
+            try
+            {
+                // Read data from file
+                var fileContent = await FileService.ReadFile(filePath);
+
+                // Parse the file content to get the data. This depends on the format of your file.
+                // Here's an example if your file was in JSON format and contained an array of T objects:
+                List<GeoMarker> data = JsonConvert.DeserializeObject<List<GeoMarker>>(fileContent);
+
+                // Insert the data into the MongoDB collection
+                if (data.Count != 0)
+                {
+                    foreach (GeoMarker item in data.Select(r => r).ToList())
+                    {
+                        item.Properties.Visible = false;
+                        item.Properties.LocationMovementStatus = "noData";
+                        item.Properties.isPosition = false;
+                        item.Properties.posAge = 0;
+                        item.Properties.Zones = [];
+                        item.Properties.ZonesNames = "";
+                        if (item.Properties.TagType == "Person")
+                        {
+                            item.Properties.TagType = "Badge";
+                        }
+                        _tagList.TryAdd(item.Properties.Id, item);
+                    }
+                }
+            }
+            catch (FileNotFoundException ex)
+            {
+                // Handle the FileNotFoundException here
+                _logger.LogError($"File not found: {ex.Message}");
+                // You can choose to throw an exception or take any other appropriate action
+            }
+            catch (IOException ex)
+            {
+                // Handle errors when reading the file
+                _logger.LogError($"An error occurred when reading the file: {ex.Message}");
+            }
+            catch (JsonException ex)
+            {
+                // Handle errors when parsing the JSON
+                _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
+            }
+        }
         public bool ExistingTagTimeline(DateTime hour)
         {
             return _QRETagTimelineResults.ContainsKey(hour);
@@ -379,53 +475,7 @@ namespace EIR_9209_2.DataStore
             return ReturnList;
         }
 
-        private async Task LoadDataFromFile(string filePath)
-        {
-            try
-            {
-                // Read data from file
-                var fileContent = await FileService.ReadFile(filePath);
-
-                // Parse the file content to get the data. This depends on the format of your file.
-                // Here's an example if your file was in JSON format and contained an array of T objects:
-                List<GeoMarker> data = JsonConvert.DeserializeObject<List<GeoMarker>>(fileContent);
-
-                // Insert the data into the MongoDB collection
-                if (data.Count != 0)
-                {
-                    foreach (GeoMarker item in data.Select(r => r).ToList())
-                    {
-                        item.Properties.Visible = false;
-                        item.Properties.LocationMovementStatus = "noData";
-                        item.Properties.isPosition = false;
-                        item.Properties.posAge = 0;
-                        item.Properties.Zones = [];
-                        item.Properties.ZonesNames = "";
-                        if (item.Properties.TagType == "Person")
-                        {
-                            item.Properties.TagType = "Badge";
-                        }
-                        _tagList.TryAdd(item.Properties.Id, item);
-                    }
-                }
-            }
-            catch (FileNotFoundException ex)
-            {
-                // Handle the FileNotFoundException here
-                _logger.LogError($"File not found: {ex.Message}");
-                // You can choose to throw an exception or take any other appropriate action
-            }
-            catch (IOException ex)
-            {
-                // Handle errors when reading the file
-                _logger.LogError($"An error occurred when reading the file: {ex.Message}");
-            }
-            catch (JsonException ex)
-            {
-                // Handle errors when parsing the JSON
-                _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
-            }
-        }
+  
         public void UpdateBadgeTransactionScan(JObject transaction)
         {
             bool savetoFile = false;
@@ -618,8 +668,24 @@ namespace EIR_9209_2.DataStore
                         }
                         if (tagInfo.ContainsKey("tagType"))
                         {
-                            TagData.Properties.TagType = tagInfo["tagType"].ToString();
-                            savetoFile = true;
+                            string newTagType = tagInfo["tagType"].ToString();
+                            if (newTagType.Contains("vehicle", StringComparison.OrdinalIgnoreCase))
+                            {
+                                // Remove from _tagList and add to _vehicleTagList
+                                if (_tagList.TryRemove(tagInfo["tagId"].ToString(), out TagData))
+                                {
+                                    var serializedTagData = JsonConvert.SerializeObject(TagData);
+                                    var vehicleTagData = JsonConvert.DeserializeObject<VehicleGeoMarker>(serializedTagData);
+                                    vehicleTagData.Properties.Type = tagInfo["tagType"].ToString();
+                                    _vehicleTagList.TryAdd(tagInfo["tagId"].ToString(), vehicleTagData);
+                                    savetoFile = true;
+                                }
+                            }
+                            else
+                            {
+                                TagData.Properties.TagType = newTagType;
+                                savetoFile = true;
+                            }
                         }
                         if (tagInfo.ContainsKey("designationActivity"))
                         {
@@ -658,12 +724,13 @@ namespace EIR_9209_2.DataStore
                 {
                     //save date to local file
                     FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    FileService.WriteFile(vehicleFileName, JsonConvert.SerializeObject(_vehicleTagList.Values, Formatting.Indented));
                 }
             }
         }
-        public List<Marker> SearchTag(string searchValue)
+        public IEnumerable<JObject> SearchTag(string searchValue)
         {
-            return _tagList.Where(sl =>
+            var badgeQuery = _tagList.Where(sl =>
                 Regex.IsMatch(sl.Value.Properties.Id, "(" + searchValue + ")", RegexOptions.IgnoreCase)
                 || Regex.IsMatch(sl.Value.Properties.EIN, "(" + searchValue + ")", RegexOptions.IgnoreCase)
                 || Regex.IsMatch(sl.Value.Properties.EncodedId, "(" + searchValue + ")", RegexOptions.IgnoreCase)
@@ -671,6 +738,46 @@ namespace EIR_9209_2.DataStore
                 || Regex.IsMatch(sl.Value.Properties.EmpFirstName, "(" + searchValue + ")", RegexOptions.IgnoreCase)
                 || Regex.IsMatch(sl.Value.Properties.EmpLastName, "(" + searchValue + ")", RegexOptions.IgnoreCase)
               ).Select(r => r.Value.Properties).ToList();
+            var badgeSearchReuslt = (from sr in badgeQuery
+                                     select new JObject
+                                     {
+                                         ["id"] = sr.Id,
+                                         ["eIN"] = sr.EIN,
+                                         ["tagType"] = sr.TagType,
+                                         ["name"] = sr.Name,
+                                         ["encodedId"] = sr.EncodedId,
+                                         ["empFirstName"] = sr.EmpFirstName,
+                                         ["empLastName"] = sr.EmpLastName,
+                                         ["craftName"] = sr.CraftName,
+                                         ["presence"] = sr.isPosition,
+                                         ["payLocation"] = sr.PayLocation,
+                                         ["designationActivity"] = sr.DesignationActivity,
+                                         ["color"] = sr.Color
+                                     }).ToList();
+            
+            var vehicelQuery = _vehicleTagList.Where(sl =>
+           Regex.IsMatch(sl.Value.Properties.Id, "(" + searchValue + ")", RegexOptions.IgnoreCase)
+           || Regex.IsMatch(sl.Value.Properties.Name, "(" + searchValue + ")", RegexOptions.IgnoreCase)
+         ).Select(r => r.Value.Properties).ToList();
+
+            var vehicelSearchReuslt = (from sr in vehicelQuery
+                                       select new JObject
+                                       {
+                                           ["id"] = sr.Id,
+                                           ["tagType"] = sr.Type,
+                                           ["name"] = sr.Name,
+                                           ["encodedId"] = "",
+                                           ["empFirstName"] = sr.Name,
+                                           ["empLastName"] = "",
+                                           ["craftName"] = "",
+                                           ["payLocation"] = "",
+                                           ["presence"] = sr.IsPosition,
+                                           ["designationActivity"] = "",
+                                           ["color"] = sr.Color
+                                       }).ToList();
+
+            var finalReuslt = badgeSearchReuslt.Concat(vehicelSearchReuslt);
+            return finalReuslt;
         }
         public async Task UpdateTagQPEInfo(List<Tags> tags)
         {
@@ -716,15 +823,8 @@ namespace EIR_9209_2.DataStore
                     {
                         posAge = qtitem.ServerTS - qtitem.LocationTS;
                     }
-                    visable = posAge >= 0 && posAge < 150000 ? true : false;
-                    if (qtitem.LocationType == "presence" || qtitem.LocationType == "proximity" || qtitem.LocationType == "hidden")
-                    {
-                        visable = false;
-                    }
-                    if (qtitem.LocationMovementStatus == "hidden" || qtitem.LocationMovementStatus == "noData")
-                    {
-                        visable = false;
-                    }
+                    visable = posAge >= 0 && posAge < 86400000 ? true : false;
+                   
                     if (VTagData != null)
                     {
                         VTagData.Geometry.Coordinates = qtitem.Location.Any() ? [qtitem.Location[0], qtitem.Location[1]] : [0, 0];
@@ -732,7 +832,7 @@ namespace EIR_9209_2.DataStore
                         VTagData.Properties.Visible = visable;
                         if (string.IsNullOrEmpty(VTagData.Properties.Type))
                         {
-                            VTagData.Properties.Type = "Badge";
+                            VTagData.Properties.Type = "Vehicle";
                             savetoFile = true;
                         }
                         if (!string.IsNullOrEmpty(qtitem.TagName))
@@ -755,8 +855,9 @@ namespace EIR_9209_2.DataStore
                                 Name = qtitem.TagName,
                                 Color = qtitem.Color,
                                 LocationMovementStatus = qtitem.LocationMovementStatus,
-                                Type = "Badge",
-                                Visible = visable
+                                Type = "Vehicle",
+                                IsPosition = visable,
+                                Visible = true
                             }
                         };
 

@@ -22,6 +22,18 @@ namespace EIR_9209_2.Models
         public string Name { get; set; } = "";
         public string Type { get; set; } = "";
         public string DoorNumber { get; set; } = "";
+        public int RouteTripId { get; set; } = 0;
+        public int RouteTripLegId { get; set; } = 0;
+        public string TripDirectionInd { get; set; } = "";
+        public string LegSiteName { get; set; } = "";
+        public string LegSiteId { get; set; } = "";
+        public string Status { get; set; } = "";
+        public int TripMin { get; set; } = 0;
+        public int ContainersNotLoaded { get; set; } = 0;
+        public DateTime ScheduledDtm { get; set; } = DateTime.MinValue;
+        public string Route { get; set; } = "";
+        public string Trip { get; set; } = "";
+        public bool IsTripAtDoor { get; set; }
         public List<RouteTrips> RouteTrips { get; set; } = [];
 
        

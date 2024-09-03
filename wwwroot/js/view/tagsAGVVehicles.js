@@ -59,7 +59,7 @@ let tagsAGVVehicles = new L.GeoJSON(null, {
                     //data.properties.posAge = feature.properties.posAge;
                     //data.properties.locationMovementStatus = feature.properties.locationMovementStatus;
                     //updateTagDataTable(formattagdata(data.properties), "tagInfotable");
-                    sidebar.open('reports');
+                    sidebar.open('vehicleinfo');
 
                 },
                 error: function (error) {

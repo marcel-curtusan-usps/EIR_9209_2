@@ -136,7 +136,7 @@ async function createTagSearchDataTable(table) {
             tempc = {
                 "title": "Action",
                 "width": "10%",
-                "mRender": function (data, full) {
+                "mRender": function (data, type, full) {
                     return '<button type="button" class="btn btn-light btn-sm mx-1 bi bi-bullseye" data-toggle="modal" name="tagnav" "title="Edit Tag Info"></button>' +
                         '<button type="button" class="btn btn-light btn-sm mx-1 pi-iconEdit" data-toggle="modal" name="tagedit" "title="Edit Tag Info"></button>';
                 }

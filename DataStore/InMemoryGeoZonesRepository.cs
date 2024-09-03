@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using static EIR_9209_2.DataStore.InMemoryCamerasRepository;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 {
@@ -42,10 +43,10 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
             $"{fileName}");
         filePathDockDoor = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
-    _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-    _configuration[key: "ApplicationConfiguration:NassCode"],
-    _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-    $"{fileNameDockDoor}");
+            _configuration[key: "ApplicationConfiguration:BaseDirectory"],
+            _configuration[key: "ApplicationConfiguration:NassCode"],
+            _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
+            $"{fileNameDockDoor}");
         // Load data from the first file into the first collection
         _ = LoadDataFromFile(filePath);
         // Load data from the first file into the first collection
@@ -119,15 +120,33 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async Task<GeoZoneDockDoor>? AddDockDoor(GeoZoneDockDoor geoZone)
+    public async Task<GeoZoneDockDoor>? AddDockDoor(GeoZoneDockDoor newgeoZone)
     {
         bool saveToFile = false;
         try
         {
-            if (_geoZoneDockDoorList.TryAdd(geoZone.Properties.Id, geoZone))
+
+            if (_geoZoneDockDoorList.TryAdd(newgeoZone.Properties.Id, newgeoZone))
             {
+                if (string.IsNullOrEmpty(newgeoZone.Properties.DoorNumber))
+                {
+                    string dockNumber = newgeoZone.Properties.Name.Replace("DockDoor", "");
+                    //check if dock number is number 
+                    if (Int32.TryParse(dockNumber,out int doornumber))
+                    {
+                        newgeoZone.Properties.DoorNumber = doornumber.ToString();
+                    }
+                    else
+                    {
+                        newgeoZone.Properties.DoorNumber = dockNumber;
+                    }
+                }
+                if (!_DockDoorList.Contains(newgeoZone.Properties.DoorNumber))
+                {
+                    _DockDoorList.Add(newgeoZone.Properties.DoorNumber);
+                }
                 saveToFile = true;
-                return await Task.FromResult(geoZone);
+                return await Task.FromResult(newgeoZone);
             }
             else
             {
@@ -448,12 +467,6 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             {
                 foreach (GeoZone item in data.Select(r => r).ToList())
                 {
-                    if (item.Properties.Type == "DockDoor")
-                    {
-                        await AddDockDoor(JsonConvert.DeserializeObject<GeoZoneDockDoor>(JsonConvert.SerializeObject(item, Formatting.Indented)));
-                        continue;
-                       
-                    }
                     item.Properties.MPERunPerformance = new();
                     _geoZoneList.TryAdd(item.Properties.Id, item);
 
@@ -500,12 +513,41 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 foreach (GeoZoneDockDoor item in data.Select(r => r).ToList())
                 {
                     item.Properties.RouteTrips = new();
-                    _geoZoneDockDoorList.TryAdd(item.Properties.Id, item);
-                    if (item.Properties.Type == "DockDoor")
+                    item.Properties.IsTripAtDoor = false;
+                    item.Properties.TripDirectionInd = "";
+                    item.Properties.RouteTripId = 0;
+                    item.Properties.RouteTripLegId = 0;
+                    item.Properties.Route = "";
+                    item.Properties.LegSiteName = "";
+                    item.Properties.LegSiteId = "";
+                    item.Properties.Status = "";
+                    item.Properties.Trip = "";
+                    item.Properties.TripMin = 0;
+                    item.Properties.ContainersNotLoaded = 0;
+                  
+
+                    if (string.IsNullOrEmpty(item.Properties.DoorNumber))
                     {
-                        _DockDoorList.Add(item.Properties.Name);
+                        string dockNumber = item.Properties.Name.Replace("DockDoor", "");
+                        //check if dock number is number 
+                        if (Int32.TryParse(dockNumber, out int doornumber))
+                        {
+                            item.Properties.DoorNumber = doornumber.ToString();
+                        }
+                        else
+                        {
+                            item.Properties.DoorNumber = dockNumber;
+                        }
                     }
+
+                    //check if door exits in _DockDoorList
+                    if (!_DockDoorList.Contains(item.Properties.DoorNumber))
+                    {
+                        _DockDoorList.Add(item.Properties.DoorNumber);
+                    }
+                    _geoZoneDockDoorList.TryAdd(item.Properties.Id, item);
                 }
+                
             }
         }
         catch (FileNotFoundException ex)
@@ -762,97 +804,103 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 
                 bool pushDBUpdate = false;
                 var geoZone = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == mpeName).Select(y => y.Value).FirstOrDefault();
-                if (geoZone != null && geoZone.Properties.MPERunPerformance != null)
+                lock (_geoZoneList)
                 {
-                    if (geoZone.Properties.MPERunPerformance.MpeId != mpeName)
-                    {
-                        geoZone.Properties.MPERunPerformance.MpeId = mpeName;
-                    }
-                    if (geoZone.Properties.MPERunPerformance.ZoneId != geoZone.Properties.Id)
-                    {
-                        geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
-                    }
 
-                    if (geoZone.Properties.MPERunPerformance.CurSortplan == "")
+
+                    if (geoZone != null && geoZone.Properties.MPERunPerformance != null)
                     {
-                        geoZone.Properties.MPERunPerformance.CurSortplan = "0";
-                        geoZone.Properties.MPERunPerformance.CurrentRunStart = DateTime.MinValue.ToString();
-                        geoZone.Properties.MPERunPerformance.CurrentRunEnd = DateTime.MinValue.ToString();
-                        geoZone.Properties.MPERunPerformance.CurOperationId = "";
-                    }
-                    if (geoZone.Properties.DataSource != "IDS")
-                    {
-                        geoZone.Properties.DataSource = "IDS";
-                        pushDBUpdate = true;
-                    }
-                    List<string> hourslist = GetListOfHours(336);
-                    foreach (string hr in hourslist)
-                    {
-                        var mpeData = result.Where(item => item["MPE_NAME"]?.ToString() == mpeName && item["HOUR"]?.ToString() == hr).FirstOrDefault();
-                        if (mpeData != null)
+                        if (geoZone.Properties.MPERunPerformance.MpeId != mpeName)
                         {
-                            if (geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).Any())
+                            geoZone.Properties.MPERunPerformance.MpeId = mpeName;
+                        }
+                        if (geoZone.Properties.MPERunPerformance.ZoneId != geoZone.Properties.Id)
+                        {
+                            geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
+                        }
+
+                        if (geoZone.Properties.MPERunPerformance.CurSortplan == "")
+                        {
+                            geoZone.Properties.MPERunPerformance.CurSortplan = "0";
+                            geoZone.Properties.MPERunPerformance.CurrentRunStart = DateTime.MinValue.ToString();
+                            geoZone.Properties.MPERunPerformance.CurrentRunEnd = DateTime.MinValue.ToString();
+                            geoZone.Properties.MPERunPerformance.CurOperationId = "";
+                        }
+                        if (geoZone.Properties.DataSource != "IDS")
+                        {
+                            geoZone.Properties.DataSource = "IDS";
+                            pushDBUpdate = true;
+                        }
+                        List<string> hourslist = GetListOfHours(336);
+                        foreach (string hr in hourslist)
+                        {
+                            var mpeData = result.Where(item => item["MPE_NAME"]?.ToString() == mpeName && item["HOUR"]?.ToString() == hr).FirstOrDefault();
+                            if (mpeData != null)
                             {
-                                geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).ToList().ForEach(h =>
+                                if (geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).Any())
                                 {
-                                    if (h.Sorted != (int)mpeData["SORTED"])
+                                    geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).ToList().ForEach(h =>
                                     {
-                                        h.Sorted = (int)mpeData["SORTED"];
-                                        pushDBUpdate = true;
-                                    }
+                                        if (h.Sorted != (int)mpeData["SORTED"])
+                                        {
+                                            h.Sorted = (int)mpeData["SORTED"];
+                                            pushDBUpdate = true;
+                                        }
 
-                                    if (h.Rejected != (int)mpeData["REJECTED"])
-                                    {
-                                        h.Rejected = (int)mpeData["REJECTED"];
-                                        pushDBUpdate = true;
-                                    }
-                                    if (h.Count != (int)mpeData["INDUCTED"])
-                                    {
-                                        h.Count = (int)mpeData["INDUCTED"];
-                                        pushDBUpdate = true;
-                                    }
+                                        if (h.Rejected != (int)mpeData["REJECTED"])
+                                        {
+                                            h.Rejected = (int)mpeData["REJECTED"];
+                                            pushDBUpdate = true;
+                                        }
+                                        if (h.Count != (int)mpeData["INDUCTED"])
+                                        {
+                                            h.Count = (int)mpeData["INDUCTED"];
+                                            pushDBUpdate = true;
+                                        }
 
-                                });
+                                    });
+                                }
+                                else
+                                {
+                                    geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
+                                    {
+                                        Hour = hr,
+                                        Sorted = (int)mpeData["SORTED"],
+                                        Rejected = (int)mpeData["REJECTED"],
+                                        Count = (int)mpeData["INDUCTED"]
+                                    });
+                                    pushDBUpdate = true;
+                                }
                             }
                             else
                             {
-                                geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
+                                if (geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).Any())
                                 {
-                                    Hour = hr,
-                                    Sorted = (int)mpeData["SORTED"],
-                                    Rejected = (int)mpeData["REJECTED"],
-                                    Count = (int)mpeData["INDUCTED"]
-                                });
-                                pushDBUpdate = true;
+                                    geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).ToList().ForEach(h =>
+                                    {
+                                        h.Sorted = 0;
+                                        h.Rejected = 0;
+                                        h.Count = 0;
+                                    });
+                                }
+                                else
+                                {
+                                    geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
+                                    {
+                                        Hour = hr,
+                                        Sorted = 0,
+                                        Rejected = 0,
+                                        Count = 0
+                                    });
+                                }
                             }
                         }
-                        else
-                        {
-                            if (geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).Any())
-                            {
-                                geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).ToList().ForEach(h =>
-                                {
-                                    h.Sorted = 0;
-                                    h.Rejected = 0;
-                                    h.Count = 0;
-                                });
-                            }
-                            else
-                            {
-                                geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
-                                {
-                                    Hour = hr,
-                                    Sorted = 0,
-                                    Rejected = 0,
-                                    Count = 0
-                                });
-                            }
-                        }
+
                     }
-                    if (pushDBUpdate)
-                    {
-                        await _hubServices.Clients.Group("MPEZones").SendAsync($"update{geoZone.Properties.Type}zoneRunPerformance", geoZone.Properties.MPERunPerformance);
-                    }
+                }
+                if (pushDBUpdate)
+                {
+                    await _hubServices.Clients.Group("MPEZones").SendAsync($"update{geoZone.Properties.Type}zoneRunPerformance", geoZone.Properties.MPERunPerformance);
                 }
             }
             _ = Task.Run(() => RunMPESummaryReport()).ConfigureAwait(false); 
@@ -1199,9 +1247,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async Task<object> GetMPENameList(string type)
+    public async Task<object> GetMPENameList()
     {
         return await Task.Run(() => _MPENameList.Select(y => y).ToList()).ConfigureAwait(false);
+    }
+    public async Task<object> GetDockDoorNameList()
+    {
+        return await Task.Run(() => _DockDoorList.Select(y => y).ToList()).ConfigureAwait(false);
     }
     public async Task<object> GetMPEGroupList(string type)
     {
@@ -1248,5 +1300,190 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
+    public async void ProcessSVDoorsData(JToken result)
+    {
+        bool SaveToFile = false;
+        try
+        {   // Ensure result is a JArray
+            if (result is JArray resultArray)
+            {
+                // Convert to list and sort by doorNumber
+                var sortedItems = resultArray
+                    .OfType<JObject>()
+                    .Where(item => item.ContainsKey("doorNumber"))
+                    .OrderBy(item => item["doorNumber"].ToString())
+                    .ToList();
+                foreach (JObject item in sortedItems)
+                {
+                 
+                    bool updateUI = false;
+                    GeoZoneDockDoor geoZone = new GeoZoneDockDoor();
+                    if (item.ContainsKey("doorNumber"))
+                    {
+                        string doorNumber = item["doorNumber"].ToString();
+                        //check if door exits in _DockDoorList
+                        if (!_DockDoorList.Contains(doorNumber))
+                        {
+                            _DockDoorList.Add(doorNumber);
+                        }
+                        //find door number in _geoZoneDockDoorList
+                        geoZone = _geoZoneDockDoorList.Where(r => r.Value.Properties.DoorNumber == doorNumber).Select(y => y.Value).FirstOrDefault();
+                        if (geoZone != null)
+                        {
+                            if (item.ContainsKey("routeTripId"))
+                            {
+                                if (!geoZone.Properties.IsTripAtDoor)
+                                {
+                                    geoZone.Properties.IsTripAtDoor = true;
+                                    updateUI = true;
+                                }
+                                //if TripDirectionInd is not equal to item["tripDirectionInd"].ToString()
+                                if (geoZone.Properties.TripDirectionInd != item["tripDirectionInd"].ToString())
+                                {
+                                    geoZone.Properties.TripDirectionInd = item["tripDirectionInd"].ToString();
+                                    updateUI = true;
+                                }
+                                if (geoZone.Properties.RouteTripId != (int)item["routeTripId"])
+                                {
+                                    geoZone.Properties.RouteTripId = (int)item["routeTripId"];
+                                    updateUI = true;
+                                }
+                                if (geoZone.Properties.RouteTripLegId != (int)item["routeTripLegId"])
+                                {
+                                    geoZone.Properties.RouteTripLegId = (int)item["routeTripLegId"];
+                                    updateUI = true;
+                                }
+                                if (geoZone.Properties.Route != item["route"].ToString())
+                                {
+                                    geoZone.Properties.Route = item["route"].ToString();
+                                    updateUI = true;
+                                }
+                                if (geoZone.Properties.Trip != item["trip"].ToString())
+                                {
+                                    geoZone.Properties.Trip = item["trip"].ToString();
+                                    updateUI = true;
+                                }
+                                if (geoZone.Properties.LegSiteName != item["legSiteName"].ToString())
+                                {
+                                    geoZone.Properties.LegSiteName = item["legSiteName"].ToString();
+                                    updateUI = true;
+                                }
+                                if (geoZone.Properties.LegSiteId != item["legSiteId"].ToString())
+                                {
+                                    geoZone.Properties.LegSiteId = item["legSiteId"].ToString();
+                                    updateUI = true;
+                                }
+                                if (item.ContainsKey("status") && geoZone.Properties.Status != item["status"].ToString())
+                                {
+                                    geoZone.Properties.Status = item["status"].ToString();
+                                    updateUI = true;
+                                }
+                                else
+                                {
+                                    geoZone.Properties.Status = "";
+                                    updateUI = true;
+                                }
+                                if (geoZone.Properties.ScheduledDtm != GetSVDate((JObject)item["scheduledDtm"]))
+                                {
+                                    geoZone.Properties.ScheduledDtm = GetSVDate((JObject)item["scheduledDtm"]);
+                                    updateUI = true;
+                                }
+                                int tripMin = GetTripMin(GetSVDate((JObject)item["scheduledDtm"]));
+                                if (geoZone.Properties.TripMin != tripMin)
+                                {
+                                    geoZone.Properties.TripMin = tripMin;
+                                    updateUI = true;
+                                }
 
+                                geoZone.Properties.ContainersNotLoaded = 0;
+                            }
+                            else
+                            {
+                                if (geoZone.Properties.IsTripAtDoor)
+                                {
+                                    geoZone.Properties.IsTripAtDoor = false;
+                                    updateUI = true;
+                                }
+                                geoZone.Properties.TripDirectionInd = "";
+                                geoZone.Properties.RouteTripId = 0;
+                                geoZone.Properties.RouteTripLegId = 0;
+                                geoZone.Properties.Route = "";
+                                geoZone.Properties.Trip = "";
+                                geoZone.Properties.LegSiteName = "";
+                                geoZone.Properties.LegSiteId = "";
+                                geoZone.Properties.Status = "";
+                                geoZone.Properties.TripMin = 0;
+                                geoZone.Properties.ContainersNotLoaded = 0;
+
+
+                            }
+                            if (updateUI)
+                            {
+                                await _hubServices.Clients.Group(geoZone.Properties.Type).SendAsync($"update{geoZone.Properties.Type}zone", geoZone.Properties);
+                            }
+                        }
+                        
+                    }
+                
+                }
+
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+        }
+        finally
+        {
+            if (SaveToFile)
+            {
+               // _fileService.WriteFile("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
+            }
+        }
+    }
+    private DateTime GetSVDate(JObject scheduledDtm)
+    {
+        try
+        {
+            DateTime tripDtm = new DateTime((int)scheduledDtm["year"],
+                                                  (int)scheduledDtm["month"] + 1,
+                                                  (int)scheduledDtm["dayOfMonth"],
+                                                  (int)scheduledDtm["hourOfDay"],
+                                                  (int)scheduledDtm["minute"],
+                                                  (int)scheduledDtm["second"], DateTimeKind.Local);
+            return tripDtm;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return DateTime.MinValue;
+        }
+     
+    }
+    private int GetTripMin(DateTime tripDtm)
+    {
+        try
+        {
+            return (int)Math.Ceiling(tripDtm.Subtract(GetDTMNow()).TotalMinutes);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return 0;
+        }
+
+    }
+    private DateTime GetDTMNow()
+    {
+        try
+        {
+           return _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return DateTime.Now;
+        }
+
+    }
 }

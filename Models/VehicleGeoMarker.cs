@@ -27,6 +27,7 @@ namespace EIR_9209_2.Models
         public bool Visible { get; set; } = false;
         public DateTime ServerTS_txt { get; set; } = DateTime.MinValue;
         public long ServerTS { get; set; } = 0;
+        public bool IsPosition { get; set; } 
         public string LocationMovementStatus { get; set; } = "";
         public string NotificationId { get; set; } = "";
     }

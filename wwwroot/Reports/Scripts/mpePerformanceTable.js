@@ -195,7 +195,7 @@ async function updateMPESummaryDataTable(newdata, table) {
 
         })
         if (loadnew) {
-            loadConnectiontypeDatatable(newdata, table);
+            loadMPESummaryDatatable(newdata, table);
         }
     }
 }

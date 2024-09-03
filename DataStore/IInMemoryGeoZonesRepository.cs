@@ -27,8 +27,10 @@ public interface IInMemoryGeoZonesRepository
     Task LoadMPEPlan(JToken data);
     Task LoadWebEORMPERun(JToken data);
     List<TagTimeline> GetTagTimelineList(string ein);
-    Task<object?> GetMPENameList(string type);
+    Task<object?> GetMPENameList();
+    Task<object?> GetDockDoorNameList();
     Task<object?> GetMPEGroupList(string type);
     Task<List<MPESummary>> getMPESummaryDateRange(string mpe, DateTime startDT, DateTime endDT);
     IEnumerable<GeoZoneDockDoor>? GetDockDoor();
+    void ProcessSVDoorsData(JToken result);
 }

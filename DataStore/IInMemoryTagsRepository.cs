@@ -18,7 +18,7 @@ public interface IInMemoryTagsRepository
     string GetCraftType(string tagId);
     bool UpdateTagDesignationActivity(DesignationActivityToCraftType updatedDacode);
     //void UpdateTagQPEInfo(List<Tags> tags);
-    List<Marker> SearchTag(string searchValue);
+    IEnumerable<JObject> SearchTag(string searchValue);
     List<string> GetTagByType(string tagType);
     Task UpdateTagCiscoSpacesClientInfo(JToken result);
     Task UpdateTagCiscoSpacesBLEInfo(JToken result);

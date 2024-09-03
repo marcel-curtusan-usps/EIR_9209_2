@@ -40,13 +40,39 @@ namespace EIR_9209_2.Controllers
         }
         [HttpGet]
         [Route("MpeName")]
-        public async Task<object> GetByMpeName(string id)
+        public async Task<object> GetByMpeName()
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return await Task.FromResult(BadRequest(ModelState));
+                if (!ModelState.IsValid)
+                {
+                    return await Task.FromResult(BadRequest(ModelState));
+                }
+                return Ok(await _zonesRepository.GetMPENameList());
             }
-            return _zonesRepository.GetMPEName(id);
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
+        [HttpGet]
+        [Route("DockDoorName")]
+        public async Task<object> GetByDockDoorName()
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return await Task.FromResult(BadRequest(ModelState));
+                }
+                return Ok(await _zonesRepository.GetDockDoorNameList());
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
         }
         [HttpGet]
         [Route("GetZoneNameList")]
@@ -69,7 +95,7 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest();
                 }
-                if (zone["Properties"]?["Type"]?.ToString() == "DockDoor")
+                if (zone["properties"]?["type"]?.ToString() == "DockDoor")
                 {
                     GeoZoneDockDoor newDockDoorZone = zone.ToObject<GeoZoneDockDoor>();
                     newDockDoorZone.Properties.Id = Guid.NewGuid().ToString();
@@ -120,7 +146,7 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest();
                 }
-                if (zone["Properties"]?["Type"]?.ToString() == "dock door")
+                if (zone["properties"]?["type"]?.ToString() == "DockDoor")
                 {
                     GeoZoneDockDoor updatedDockDoorZone = zone.ToObject<GeoZoneDockDoor>();
 
@@ -170,27 +196,19 @@ namespace EIR_9209_2.Controllers
                     return BadRequest();
                 }
                 var geoZone = await _zonesRepository.Remove(id);
+                var dockDoorZone = await _zonesRepository.RemoveDockDoor(id);
 
-                if (geoZone != null)
+                if (dockDoorZone != null)
                 {
-                    if (geoZone.Properties.Type == "dock door")
-                    {
-                        var dockDoorZone = await _zonesRepository.RemoveDockDoor(id);
-                        if (dockDoorZone != null)
-                        {
-                            await _hubContext.Clients.Group(dockDoorZone.Properties.Type).SendAsync($"delete{dockDoorZone.Properties.Type}zone", dockDoorZone);
-                            return Ok(dockDoorZone);
-                        }
-                        else
-                        {
-                            return BadRequest(new JObject { ["message"] = "Dock door zone was not removed" });
-                        }
-                    }
-                    else
-                    {
-                        await _hubContext.Clients.Group(geoZone.Properties.Type).SendAsync($"delete{geoZone.Properties.Type}zone", geoZone);
-                        return Ok(geoZone);
-                    }
+                    await _hubContext.Clients.Group(dockDoorZone.Properties.Type).SendAsync($"delete{dockDoorZone.Properties.Type}zone", dockDoorZone);
+                    return Ok(dockDoorZone);
+                }
+               else if (geoZone != null)
+                {
+
+                    await _hubContext.Clients.Group(geoZone.Properties.Type).SendAsync($"delete{geoZone.Properties.Type}zone", geoZone);
+                    return Ok(geoZone);
+
                 }
                 else
                 {

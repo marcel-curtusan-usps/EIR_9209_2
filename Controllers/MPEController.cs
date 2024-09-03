@@ -18,32 +18,7 @@ namespace EIR_9209_2.Controllers
         {
             return new string[] { "value1", "value2" };
         }
-
-        // GET api/<MPEController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-        [HttpGet]
-        [Route("MPENames")]
-        public async Task<object> GetByMPENameList(string type)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return await Task.FromResult(BadRequest(ModelState));
-                }
-                return Ok(await _zonesRepository.GetMPENameList(type));
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return BadRequest(e.Message);
-            }
-
-        }
+ 
         [HttpGet]
         [Route("MPEGroups")]
         public async Task<object> GetByMPEGroupList(string type)

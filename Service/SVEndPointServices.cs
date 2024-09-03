@@ -1,16 +1,19 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using EIR_9209_2.DataStore;
+using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
 
 namespace EIR_9209_2.Service
 {
     public class SVEndPointServices : BaseEndpointService
     {
-        private readonly IInMemoryGeoZonesRepository _geoZones;
+        private readonly IInMemoryGeoZonesRepository _geoZones; 
+        private readonly IInMemorySiteInfoRepository _siteInfo;
 
-        public SVEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository geozone)
+        public SVEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository geozone, IInMemorySiteInfoRepository siteInfo)
             : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
         {
             _geoZones = geozone;
+            _siteInfo = siteInfo;
         }
         protected override async Task FetchDataFromEndpoint(CancellationToken stoppingToken)
         {
@@ -20,37 +23,41 @@ namespace EIR_9209_2.Service
                 _endpointConfig.LasttimeApiConnected = DateTime.Now;
                 _endpointConfig.ApiConnected = true;
                 await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, cancellationToken: stoppingToken);
+
                 IQueryService queryService;
                 string FormatUrl = "";
-
-                FormatUrl = string.Format(_endpointConfig.Url, _configuration[key: "ApplicationConfiguration:NassCode"]);
-                queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
-                var result = await queryService.GetSVDoorData(stoppingToken);
-                //process zone data
-                if (_endpointConfig.MessageType.ToLower() == "doors")
+                SiteInformation siteinfo = _siteInfo.GetSiteInfo();
+                if (siteinfo != null)
                 {
-                    // Process MPE data in a separate thread
-                    _ = Task.Run(() => ProcessDoorsData(result), stoppingToken).ConfigureAwait(false);
-                }
-                if (_endpointConfig.MessageType.ToLower() == "getdoor_associated_trips")
-                {
-                    // Process MPE data in a separate thread
-                    _ = Task.Run(() => ProcessGetdoorAssociatedTripsData(result), stoppingToken).ConfigureAwait(false);
-                }
-                if (_endpointConfig.MessageType.ToLower() == "trip_itinerary")
-                {
-                    // Process MPE data in a separate thread
-                    _ = Task.Run(() => ProcessTripItineraryData(result), stoppingToken).ConfigureAwait(false);
-                }
-                if (_endpointConfig.MessageType.ToLower() == "trips")
-                {
-                    // Process MPE data in a separate thread
-                    _ = Task.Run(() => ProcessTripsData(result), stoppingToken).ConfigureAwait(false);
-                }
-                if (_endpointConfig.MessageType.ToLower() == "container")
-                {
-                    // Process MPE data in a separate thread
-                    _ = Task.Run(() => ProcessContainerData(result), stoppingToken).ConfigureAwait(false);
+                    FormatUrl = string.Format(_endpointConfig.Url, siteinfo.SiteId);
+                    queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                    var result = await queryService.GetSVDoorData(stoppingToken);
+                    //process zone data
+                    if (_endpointConfig.MessageType.ToLower() == "doors")
+                    {
+                        // Process MPE data in a separate thread
+                        _ = Task.Run(() => ProcessDoorsData(result), stoppingToken).ConfigureAwait(false);
+                    }
+                    if (_endpointConfig.MessageType.ToLower() == "getdoor_associated_trips")
+                    {
+                        // Process MPE data in a separate thread
+                        _ = Task.Run(() => ProcessGetdoorAssociatedTripsData(result), stoppingToken).ConfigureAwait(false);
+                    }
+                    if (_endpointConfig.MessageType.ToLower() == "trip_itinerary")
+                    {
+                        // Process MPE data in a separate thread
+                        _ = Task.Run(() => ProcessTripItineraryData(result), stoppingToken).ConfigureAwait(false);
+                    }
+                    if (_endpointConfig.MessageType.ToLower() == "trips")
+                    {
+                        // Process MPE data in a separate thread
+                        _ = Task.Run(() => ProcessTripsData(result), stoppingToken).ConfigureAwait(false);
+                    }
+                    if (_endpointConfig.MessageType.ToLower() == "container")
+                    {
+                        // Process MPE data in a separate thread
+                        _ = Task.Run(() => ProcessContainerData(result), stoppingToken).ConfigureAwait(false);
+                    }
                 }
             }
             catch (Exception ex)
@@ -90,21 +97,7 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                foreach (var item in result.OfType<JObject>())
-                {
-                    string name = "";
-
-
-                    var geoZone = _geoZones.GetMPEName(name);
-                    if (geoZone != null)
-                    {
-                        bool pushUIUpdate = false;
-                        if (pushUIUpdate)
-                        {
-                            // await _hubServices.Clients.Group("DockDoorZones").SendAsync("DockDoorUpdateGeoZone", geoZone.Properties.MPERunPerformance);
-                        }
-                    }
-                }
+               _geoZones.ProcessSVDoorsData(result);
             }
             catch (Exception e)
             {

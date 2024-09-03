@@ -76,22 +76,7 @@ namespace EIR_9209_2.Controllers
             }
             string searchValue = string.IsNullOrEmpty(value) ? "" : HttpUtility.UrlDecode(value).Replace("\"", "");
             var query = await Task.Run(() => _tags.SearchTag(searchValue)).ConfigureAwait(false);
-            var searchReuslt = (from sr in query
-                                select new JObject
-                                {
-                                    ["id"] = sr.Id,
-                                    ["eIN"] = sr.EIN,
-                                    ["tagType"] = sr.TagType,
-                                    ["name"] = sr.Name,
-                                    ["encodedId"] = sr.EncodedId,
-                                    ["empFirstName"] = sr.EmpFirstName,
-                                    ["empLastName"] = sr.EmpLastName,
-                                    ["craftName"] = sr.CraftName,
-                                    ["payLocation"] = sr.PayLocation,
-                                    ["designationActivity"] = sr.DesignationActivity,
-                                    ["color"] = sr.Color
-                                }).ToList();
-            return Ok(searchReuslt);
+            return Ok(query);
         }
         //add new tag
         // POST api/<TagController>

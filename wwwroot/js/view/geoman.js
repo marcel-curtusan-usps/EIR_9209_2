@@ -322,7 +322,6 @@ function CreateZone(newlayer) {
             type: "",
             floorid: baselayerid,
             name: "",
-            bins: "",
             visible: true
         }
         $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
@@ -335,7 +334,7 @@ function CreateZone(newlayer) {
                 togeo.properties.name = $('input[id=manual_name]').val();
             }
             else if (/(DockDoor)/i.test($('select[name=zone_select_name] option:selected').val())) {
-                togeo.properties.name = $('input[id=manual_name]').val();
+                togeo.properties.name = "DoorNumber"+$('input[id=manual_name]').val();
             }
             else if (/(Area)/i.test($('select[name=zone_select_name] option:selected').val())) {
                 togeo.properties.name = $('input[id=manual_name]').val();
@@ -562,7 +561,7 @@ function VaildateForm(FormType) {
     }
     if (/(MPE)/i.test(FormType)) {
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/MPE/MPENames?Type=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/MPENames?Type=MPE',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -592,7 +591,7 @@ function VaildateForm(FormType) {
         $('textarea[id="bin_bins"]').val("");
 
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=DockDoor',
+            url: SiteURLconstructor(window.location) + '/api/Zone/DockDoorName',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -622,7 +621,7 @@ function VaildateForm(FormType) {
         $('#binzoneinfo').css("display", "block");
         $('textarea[id="bin_bins"]').val("");
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/MPE/MPENames?Type=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/MPENames',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {

@@ -83,7 +83,6 @@ function loadData(date) {
     let ianaTimeZone = getIANATimeZone(getPostalTimeZone(siteInfo.timeZoneAbbr));
     localdateTime = luxon.DateTime.local().setZone(ianaTimeZone);
     let todayFormatted = localdateTime.toFormat('yyyy-MM-dd');
-    console.log("Selected date: " + date);
     let startTime = date + "T00:00:00";
     let endTime = date + "T23:59:59";
     // Check if the selected date is today
@@ -289,5 +288,3 @@ function SiteURLconstructor(winLoc) {
         return winLoc.origin;
     }
 }
-// Start the connection.
-start();
