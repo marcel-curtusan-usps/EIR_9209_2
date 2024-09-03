@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net8.0-windows8.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -106,6 +106,7 @@
 	  <Content Include="OracleQuery\TSA\TSAPrinterUsage.txt">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	  <Content Include="wwwroot\lib\leaflet.marker.slideto\node_modules\.package-lock.json" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -145,30 +146,166 @@
 	<ItemGroup>
 		<Folder Include="Properties\PublishProfiles\" />
 		<Folder Include="wwwroot\images\" />
+		<Folder Include="wwwroot\lib\leaflet.marker.slideto\node_modules\%40geoman-io\" />
+		<Folder Include="wwwroot\lib\leaflet.marker.slideto\node_modules\%40turf\" />
+		<Folder Include="wwwroot\lib\leaflet.marker.slideto\node_modules\%40types\" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="bundleconfig.json" />
 		<None Include="compilerconfig.json" />
+		<None Include="wwwroot\css\bootstrap-icons.scss" />
+		<None Include="wwwroot\css\fonts\bootstrap-icons.woff2" />
+		<None Include="wwwroot\css\fonts\fotf-icon.svg" />
+		<None Include="wwwroot\css\Site.scss" />
+		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-grid.css.map" />
+		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-grid.min.css.map" />
+		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-grid.rtl.css.map" />
+		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-grid.rtl.min.css.map" />
+		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-reboot.css.map" />
+		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-reboot.min.css.map" />
+		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-reboot.rtl.css.map" />
+		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-reboot.rtl.min.css.map" />
+		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-utilities.css.map" />
+		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-utilities.min.css.map" />
+		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-utilities.rtl.css.map" />
+		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-utilities.rtl.min.css.map" />
+		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap.css.map" />
+		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap.min.css.map" />
+		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap.rtl.css.map" />
+		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap.rtl.min.css.map" />
+		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.bundle.js" />
+		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.bundle.js.map" />
+		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.bundle.min.js" />
+		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.bundle.min.js.map" />
+		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.esm.js" />
+		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.esm.js.map" />
+		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.esm.min.js" />
+		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.esm.min.js.map" />
+		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.js" />
+		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.js.map" />
+		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.min.js" />
+		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.min.js.map" />
+		<None Include="wwwroot\js\leaflet\dist\leaflet-src.esm.js" />
+		<None Include="wwwroot\js\leaflet\dist\leaflet-src.esm.js.map" />
+		<None Include="wwwroot\js\leaflet\dist\leaflet-src.js" />
+		<None Include="wwwroot\js\leaflet\dist\leaflet-src.js.map" />
+		<None Include="wwwroot\js\leaflet\dist\leaflet.js" />
+		<None Include="wwwroot\js\leaflet\dist\leaflet.js.map" />
+		<None Include="wwwroot\js\leaflet\leaflet-sidebar-v2\css\leaflet-sidebar.scss" />
+		<None Include="wwwroot\js\leaflet\leaflet-sidebar-v2\css\_base.scss" />
+		<None Include="wwwroot\js\leaflet\leaflet-sidebar-v2\js\leaflet-sidebar.js" />
+		<None Include="wwwroot\js\leaflet\leaflet-sidebar-v2\js\leaflet-sidebar.min.js" />
+		<None Include="wwwroot\js\microsoft\signalr-protocol-msgpack\dist\browser\signalr-protocol-msgpack.js" />
+		<None Include="wwwroot\js\microsoft\signalr-protocol-msgpack\dist\browser\signalr-protocol-msgpack.js.map" />
+		<None Include="wwwroot\js\microsoft\signalr-protocol-msgpack\dist\browser\signalr-protocol-msgpack.min.js" />
+		<None Include="wwwroot\js\microsoft\signalr-protocol-msgpack\dist\browser\signalr-protocol-msgpack.min.js.map" />
+		<None Include="wwwroot\js\microsoft\signalr\dist\browser\signalr.js" />
+		<None Include="wwwroot\js\microsoft\signalr\dist\browser\signalr.js.map" />
+		<None Include="wwwroot\js\microsoft\signalr\dist\browser\signalr.min.js" />
+		<None Include="wwwroot\js\microsoft\signalr\dist\browser\signalr.min.js.map" />
+		<None Include="wwwroot\js\view\accessPoints.js" />
+		<None Include="wwwroot\js\view\applicationConfiguration.js" />
+		<None Include="wwwroot\js\view\connections.js" />
+		<None Include="wwwroot\js\view\connectionTypes.js" />
+		<None Include="wwwroot\js\view\dacodetocraftTypes.js" />
+		<None Include="wwwroot\js\view\default.js" />
+		<None Include="wwwroot\js\view\email.js" />
+		<None Include="wwwroot\js\view\ganttChart.js" />
+		<None Include="wwwroot\js\view\geoman.js" />
+		<None Include="wwwroot\js\view\geoZones.js" />
+		<None Include="wwwroot\js\view\geoZonesAGV.js" />
+		<None Include="wwwroot\js\view\geoZonesArea.js" />
+		<None Include="wwwroot\js\view\geoZonesBin.js" />
+		<None Include="wwwroot\js\view\geoZonesDockDoors.js" />
+		<None Include="wwwroot\js\view\geoZonesMPE.js" />
+		<None Include="wwwroot\js\view\indoorMap.js" />
+		<None Include="wwwroot\js\view\lineChart.js" />
+		<None Include="wwwroot\js\view\osl.js" />
+		<None Include="wwwroot\js\view\siteInformation.js" />
+		<None Include="wwwroot\js\view\tagsAGVVehicles.js" />
+		<None Include="wwwroot\js\view\tagsCamera.js" />
+		<None Include="wwwroot\js\view\tagsEmployee.js" />
+		<None Include="wwwroot\js\view\tagsPIVVehicles.js" />
+		<None Include="wwwroot\js\view\tagsSearch.js" />
+		<None Include="wwwroot\js\view\webEORUploads.js" />
+		<None Include="wwwroot\lib\bootstrap-datepicker\css\bootstrap-datepicker.css.map" />
+		<None Include="wwwroot\lib\bootstrap-datepicker\js\bootstrap-datepicker.js" />
+		<None Include="wwwroot\lib\bootstrap-datepicker\js\bootstrap-datepicker.min.js" />
+		<None Include="wwwroot\lib\bootstrap-datepicker\locales\bootstrap-datepicker.en-US.min.js" />
+		<None Include="wwwroot\lib\bootstrap\bootstrap.bundle.js" />
+		<None Include="wwwroot\lib\bootstrap\bootstrap.bundle.js.map" />
+		<None Include="wwwroot\lib\bootstrap\bootstrap.bundle.min.js" />
+		<None Include="wwwroot\lib\bootstrap\bootstrap.bundle.min.js.map" />
+		<None Include="wwwroot\lib\bootstrap\bootstrap.esm.js" />
+		<None Include="wwwroot\lib\bootstrap\bootstrap.esm.js.map" />
+		<None Include="wwwroot\lib\bootstrap\bootstrap.esm.min.js" />
+		<None Include="wwwroot\lib\bootstrap\bootstrap.esm.min.js.map" />
+		<None Include="wwwroot\lib\bootstrap\bootstrap.js" />
+		<None Include="wwwroot\lib\bootstrap\bootstrap.js.map" />
+		<None Include="wwwroot\lib\bootstrap\bootstrap.min.js" />
+		<None Include="wwwroot\lib\bootstrap\bootstrap.min.js.map" />
+		<None Include="wwwroot\lib\bootstrap\LICENSE" />
+		<None Include="wwwroot\lib\chartjs-adapter-luxon\chartjs-adapter-luxon.umd.js" />
+		<None Include="wwwroot\lib\chartjs-adapter-luxon\chartjs-adapter-luxon.umd.min.js" />
+		<None Include="wwwroot\lib\chartjs-plugin-datalabels\chartjs-plugin-datalabels.esm.js" />
+		<None Include="wwwroot\lib\chartjs-plugin-datalabels\chartjs-plugin-datalabels.esm.min.js" />
+		<None Include="wwwroot\lib\chartjs-plugin-datalabels\chartjs-plugin-datalabels.js" />
+		<None Include="wwwroot\lib\chartjs-plugin-datalabels\chartjs-plugin-datalabels.min.js" />
+		<None Include="wwwroot\lib\chartjs\chart.cjs.map" />
+		<None Include="wwwroot\lib\chartjs\chart.js" />
+		<None Include="wwwroot\lib\chartjs\chart.js.map" />
+		<None Include="wwwroot\lib\chartjs\chart.min.js" />
+		<None Include="wwwroot\lib\chartjs\chart.umd.js" />
+		<None Include="wwwroot\lib\chartjs\chart.umd.js.map" />
+		<None Include="wwwroot\lib\chartjs\chart.umd.min.js" />
+		<None Include="wwwroot\lib\chartjs\helpers.cjs.map" />
+		<None Include="wwwroot\lib\chartjs\helpers.js" />
+		<None Include="wwwroot\lib\chartjs\helpers.js.map" />
+		<None Include="wwwroot\lib\chartjs\helpers.min.js" />
+		<None Include="wwwroot\lib\datatables.net-bs5\dataTables.bootstrap5.js" />
+		<None Include="wwwroot\lib\datatables.net-bs5\dataTables.bootstrap5.min.js" />
+		<None Include="wwwroot\lib\datatables.net\dataTables.js" />
+		<None Include="wwwroot\lib\datatables.net\dataTables.min.js" />
+		<None Include="wwwroot\lib\geoman-io\dist\leaflet-geoman.js" />
+		<None Include="wwwroot\lib\geoman-io\dist\leaflet-geoman.min.js" />
+		<None Include="wwwroot\lib\geoman-io\leaflet-geoman-free\dist\leaflet-geoman.js" />
+		<None Include="wwwroot\lib\geoman-io\leaflet-geoman-free\dist\leaflet-geoman.min.js" />
+		<None Include="wwwroot\lib\geoman-io\leaflet-geoman-free\LICENSE" />
+		<None Include="wwwroot\lib\geoman-io\leaflet-geoman-free\README.md" />
+		<None Include="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.js" />
+		<None Include="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.min.js" />
+		<None Include="wwwroot\lib\jquery-validation\additional-methods.js" />
+		<None Include="wwwroot\lib\jquery-validation\additional-methods.min.js" />
+		<None Include="wwwroot\lib\jquery-validation\jquery.validate.js" />
+		<None Include="wwwroot\lib\jquery-validation\jquery.validate.min.js" />
+		<None Include="wwwroot\lib\jquery-validation\LICENSE.md" />
+		<None Include="wwwroot\lib\jquery\jquery.js" />
+		<None Include="wwwroot\lib\jquery\jquery.min.js" />
+		<None Include="wwwroot\lib\jquery\jquery.min.map" />
+		<None Include="wwwroot\lib\leaflet-easybutton\src\easy-button.js" />
+		<None Include="wwwroot\lib\leaflet.marker.slideto\Leaflet.Marker.SlideTo.js" />
+		<None Include="wwwroot\lib\leaflet.marker.slideto\LICENSE" />
+		<None Include="wwwroot\lib\leaflet.marker.slideto\README.md" />
+		<None Include="wwwroot\lib\luxon\luxon.js" />
+		<None Include="wwwroot\lib\luxon\luxon.js.map" />
+		<None Include="wwwroot\lib\luxon\luxon.min.js" />
+		<None Include="wwwroot\lib\luxon\luxon.min.js.map" />
+		<None Include="wwwroot\Reports\Content\empSchedule.scss" />
+		<None Include="wwwroot\Reports\Content\mpePerformance.scss" />
+		<None Include="wwwroot\Reports\Content\siteRollUp.scss" />
+		<None Include="wwwroot\Reports\Scripts\empSchedule.js" />
+		<None Include="wwwroot\Reports\Scripts\empScheduleTable.js" />
+		<None Include="wwwroot\Reports\Scripts\mpePerformance.js" />
+		<None Include="wwwroot\Reports\Scripts\mpePerformanceTable.js" />
+		<None Include="wwwroot\Reports\Scripts\siteRollUp.js" />
+		<None Include="wwwroot\Reports\Scripts\siteRollUpLineChart.js" />
+		<None Include="wwwroot\Reports\Scripts\siteRollUpTable.js" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Update="wwwroot\js\view\connectionTypes - Copy.js">
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-		</Content>
-		<Content Update="wwwroot\Reports\Content\mpePerformance - Copy.css">
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-		</Content>
-		<Content Update="wwwroot\Reports\Content\mpePerformance - Copy.min.css">
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-		</Content>
-		<Content Update="wwwroot\Reports\Content\mpePerformance - Copy.scss">
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-		</Content>
+	  <TypeScriptCompile Include="wwwroot\lib\geoman-io\dist\leaflet-geoman.d.ts" />
+	  <TypeScriptCompile Include="wwwroot\lib\geoman-io\leaflet-geoman-free\dist\leaflet-geoman.d.ts" />
 	</ItemGroup>
 
 </Project>
