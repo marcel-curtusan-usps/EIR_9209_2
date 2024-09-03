@@ -114,6 +114,11 @@ $('#Email_Modal').on('shown.bs.modal', function () {
             $('select[name=reportName]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_reportName]').text("");
         }
+        //invalidate mpeNameList if it is unselcted by changing reportName
+        if (!checkValue($('select[name=mpeNameList] option:selected').html())) {
+            $('select[name=mpeNameList]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_mpeNameList]').text("Please Select Zone Name");
+        }
         Promise.all([emailSubmitBtn()]);
 
     });
@@ -373,7 +378,7 @@ async function Add_Email() {
 // edit email 
 async function Edit_Email(data) {
     try {
-        Promise.all([loadMpeName()]).then(() => {
+        Promise.all([loadMpeName(data.mpeName)]).then(() => {
             $('#modalHeader_ID').text('Edit Email Subscription');
             $('input[type=checkbox][id=enabled_email]').prop('checked', data.enabled);
             $('input[type=text][name=emailFirstName]').val(data.firstName);
@@ -382,7 +387,7 @@ async function Edit_Email(data) {
             $('input[type=text][name=aceId]').val(data.ace);
             $('select[name=reportName]').val(data.reportName);
             $('select[name=mpeNameList]').val(data.mpeName);
-            Promise.all([onEmailVaildation()]);
+            Promise.all([onEmailVaildation(data.mpeName)]);
             $('button[id=emailsubmitBtn]').off().on('click', function () {
                 $('button[id=emailsubmitBtn]').prop('disabled', true);
                 let jsonObject = {
@@ -402,8 +407,9 @@ async function Edit_Email(data) {
                         data: JSON.stringify(jsonObject),
                         contentType: 'application/json',
                         type: 'PUT',
-                        success: function (data) {
-                            Promise.all([updateEmailListDataTable(data, EmailListtable)]);
+                        success: function (responsedata) {
+                            //Promise.all([updateEmailListDataTable(responsedata, EmailListtable)]);
+                            Promise.all([init_emailList()]);
                             setTimeout(function () { $("#Email_Modal").modal('hide'); sidebar.open('setting'); }, 500);
                         },
                         error: function (error) {
@@ -463,7 +469,7 @@ async function Delete_Email(data) {
 }
 async function emailSubmitBtn() {
     if ($('input[type=text][name=emailAddress]').hasClass('is-valid') &&
-        $('select[name=reportName]').hasClass('is-valid')
+        $('select[name=reportName]').hasClass('is-valid') && $('select[name=mpeNameList]').hasClass('is-valid')
     ) {
         $('button[id=emailsubmitBtn]').prop('disabled', false);
     }
@@ -471,7 +477,7 @@ async function emailSubmitBtn() {
         $('button[id=emailsubmitBtn]').prop('disabled', true);
     }
 }
-async function onEmailVaildation() {
+async function onEmailVaildation(mpeName) {
     if (!checkValue($('select[name=reportName] option:selected').html())) {
         $('select[name=reportName]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
         $('span[id=error_reportName]').text("Please Select Report Name");
@@ -480,7 +486,7 @@ async function onEmailVaildation() {
         $('select[name=reportName]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
         $('span[id=error_reportName]').text("");
     }
-    if (!checkValue($('select[name=mpeNameList] option:selected').html())) {
+    if (!checkValue($('select[name=mpeNameList] option:selected').html()) && !mpeName) {
         $('select[name=mpeNameList]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
         $('span[id=error_mpeNameList]').text("Please Select Zone Name");
     }
@@ -525,7 +531,7 @@ function validateEmail(email) {
     const regex = /^(?:(?:\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*))$/;
     return regex.test(email);
 }
-async function loadMpeName() {
+async function loadMpeName(select) {
     // load the MPE name from API   
     try {
         return new Promise((resolve, reject) => {
@@ -546,14 +552,25 @@ async function loadMpeName() {
 
                             let messageType = value.replace(/\./g, '_');
                             if ($('#mpeNameList option[value=' + messageType + ']').length == 0) {
-                                $('<option data-reportType=' + name + '>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                                if (select == messageType) {
+                                    //set selected option
+                                    $('<option data-reportType=' + name + ' selected>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                                    //$('<option data-reportType=' + name + '>').val(messageType).html(messageType).select().appendTo('#mpeNameList');
+                                } else {
+                                    $('<option data-reportType=' + name + '>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                                }
                             }
                         })
 
                         name = "Site";
                         let messageType = "SiteSummary";
                         if ($('#mpeNameList option[value=' + messageType + ']').length == 0) {
-                            $('<option data-reportType=' + name + '>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                            if (select == messageType) {
+                                //set selected option
+                                $('<option data-reportType=' + name + ' selected>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                            } else {
+                                $('<option data-reportType=' + name + '>').val(messageType).html(messageType).appendTo('#mpeNameList');
+                            }
                         }
                     }
                 },

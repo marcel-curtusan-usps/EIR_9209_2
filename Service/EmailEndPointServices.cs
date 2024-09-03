@@ -32,7 +32,7 @@ namespace EIR_9209_2.Service
                 {
                     // Assuming each email object has ReportType, MpeName, and RecipientEmailAddress properties
                     var key = (email.ReportName, email.MPEName);
-                    if (_endpointConfig.MessageType.StartsWith(email.ReportName))
+                    if (_endpointConfig.MessageType.StartsWith(email.ReportName) && email.Enabled)
                     {
                         if (!categorizedEmails.ContainsKey(key))
                         {
