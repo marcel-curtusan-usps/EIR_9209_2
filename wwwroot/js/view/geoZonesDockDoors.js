@@ -2,11 +2,11 @@
     style: function (feature) {
         let ZoneColor = GetDockDoorZoneColor(feature.properties);
         return {
-            weight: 5,
-            opacity: 5,
+            weight: 1,
+            opacity: 1,
             color: '#989ea4',
             fillColor: ZoneColor,
-            fillOpacity: 5.2,
+            fillOpacity: 0.2,
             lastOpacity: 0.2
         };
     },
@@ -24,7 +24,7 @@
             //if sourceTarget is not available, use target
             if (e.sourceTarget.getCenter) {
                
-                OSLmap.setView(e.sourceTarget.getCenter(), 3);
+                OSLmap.setView(e.sourceTarget.getCenter(), 4);
                 Promise.all([LoadDockDoorTable(feature.properties)]);
             }
         });
@@ -32,12 +32,9 @@
             permanent: true,
             interactive: true,
             direction: 'center',
-            opacity: 0.1,
+            opacity: 0.9,
             className: 'dockdooknumber ' + dockdookflash
         }).openTooltip();
-        //on click the tooltip
-
-
     },
     filter: function (feature, layer) {
         return feature.properties.visible;
