@@ -71,7 +71,41 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="OracleQuery\IDS\APPSPscCount.txt" />
+	  <None Remove="OracleQuery\IDS\BCSMPPscCount.txt" />
+	  <None Remove="OracleQuery\IDS\FMPCSPscCount.txt" />
+	  <None Remove="OracleQuery\IDS\FSMMPPscCount.txt" />
+	  <None Remove="OracleQuery\IDS\GENMPPscCount.txt" />
+	  <None Remove="OracleQuery\TSA\TSAMPEList.txt" />
+	  <None Remove="OracleQuery\TSA\TSAPrinterUsage.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<_ContentIncludedByDefault Remove="compilerconfig.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="OracleQuery\IDS\APPSPscCount.txt">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="OracleQuery\IDS\BCSMPPscCount.txt">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="OracleQuery\IDS\FMPCSPscCount.txt">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="OracleQuery\IDS\FSMMPPscCount.txt">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="OracleQuery\IDS\GENMPPscCount.txt">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="OracleQuery\TSA\TSAMPEList.txt">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="OracleQuery\TSA\TSAPrinterUsage.txt">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 	<ItemGroup>

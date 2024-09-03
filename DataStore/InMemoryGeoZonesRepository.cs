@@ -914,7 +914,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 
     private List<string> GetListOfHours(int hours)
     {
-        var localTime = DateTime.Now;
+        var localTime = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
         return Enumerable.Range(0, hours).Select(i => localTime.AddHours(-hours).AddHours(i).ToString("yyyy-MM-dd HH:00")).ToList();
     }
 
