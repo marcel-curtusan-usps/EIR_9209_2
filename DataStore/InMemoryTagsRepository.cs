@@ -793,7 +793,10 @@ namespace EIR_9209_2.DataStore
                     {
                         await Task.Run(() => ProcessQPEVehicleTag(qtitem)).ConfigureAwait(false);
                     }
-
+                    else
+                    {
+                        await Task.Run(() => ProcessQPEBadgeTag(qtitem)).ConfigureAwait(false);
+                    }
                 }
             }
             catch (Exception e)

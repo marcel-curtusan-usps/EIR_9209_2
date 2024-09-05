@@ -38,51 +38,16 @@ namespace EIR_9209_2.Controllers
             }
             return _zonesRepository.Get(id);
         }
-        [HttpGet]
-        [Route("MpeName")]
-        public async Task<object> GetByMpeName()
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return await Task.FromResult(BadRequest(ModelState));
-                }
-                return Ok(await _zonesRepository.GetMPENameList());
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return BadRequest(e.Message);
-            }
-        }
-        [HttpGet]
-        [Route("DockDoorName")]
-        public async Task<object> GetByDockDoorName()
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return await Task.FromResult(BadRequest(ModelState));
-                }
-                return Ok(await _zonesRepository.GetDockDoorNameList());
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return BadRequest(e.Message);
-            }
-        }
+       
         [HttpGet]
         [Route("GetZoneNameList")]
-        public async Task<object> GetByZoneNameList(string zoneType)
+        public async Task<object> GetByZoneNameList(string type)
         {
             if (!ModelState.IsValid)
             {
                 return await Task.FromResult(BadRequest(ModelState));
             }
-            return _zonesRepository.GetZoneNameList(zoneType);
+            return await _zonesRepository.GetZoneNameList(type);
         }
         // POST api/<ZoneController>
         [HttpPost]

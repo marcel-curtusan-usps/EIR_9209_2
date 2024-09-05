@@ -10,10 +10,9 @@ public interface IInMemoryGeoZonesRepository
     Task<GeoZoneDockDoor> UpdateDockDoor(GeoZoneDockDoor geoZone);
     Task<JObject> Update(JObject geoZone);
     Task<GeoZone> UiUpdate(GeoZone geoZone);
-    GeoZone Get(string id);
+    Task<object> Get(string id);
     IEnumerable<GeoZone> GetAll();
-    GeoZone GetMPEName(string MPEName);
-    object GetZoneNameList(string type);
+    Task<List<string>> GetZoneNameList(string type);
     bool ExistingAreaDwell(DateTime hour);
     List<AreaDwell> GetAreaDwell(DateTime hour);
     void UpdateAreaDwell(DateTime hour, List<AreaDwell> newValue, List<AreaDwell> currentvalue);

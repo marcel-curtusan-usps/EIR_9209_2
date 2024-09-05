@@ -3,12 +3,10 @@ using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NuGet.Protocol;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using static EIR_9209_2.DataStore.InMemoryCamerasRepository;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 {
@@ -273,17 +271,43 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
         }
     }
-    public GeoZone? Get(string id)
+    public async Task<object?> Get(string id)
     {
-        _geoZoneList.TryGetValue(id, out GeoZone geoZone);
+        try
+        {
+            // Run the LINQ queries asynchronously
+            var geoZoneTask = Task.Run(() =>
+                _geoZoneList.Where(r => r.Value.Properties.Id == id)
+                            .Select(y => y.Value)
+                            .FirstOrDefault()
+            );
 
-        return geoZone;
-    }
-    public GeoZone GetMPEName(string MPEName)
-    {
-        return _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == MPEName).Select(y => y.Value).FirstOrDefault();
-    }
+            var dgeoZoneTask = Task.Run(() =>
+                _geoZoneDockDoorList.Where(r => r.Value.Properties.Id == id)
+                                    .Select(y => y.Value)
+                                    .FirstOrDefault()
+            );
 
+            // Await the tasks
+            var geoZone = await geoZoneTask;
+            var dgeoZone = await dgeoZoneTask;
+
+            // Return the result based on which one is found
+            if (geoZone != null)
+            {
+                return geoZone;
+            }
+            else
+            {
+                return dgeoZone;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+    }
     public IEnumerable<GeoZone> GetAll() => _geoZoneList.Values;
     public IEnumerable<GeoZoneDockDoor>? GetDockDoor()
     {
@@ -605,9 +629,37 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             return "None";
         }
     }
-    public object GetZoneNameList(string type)
+    public async Task<List<string>> GetZoneNameList(string type)
     {
-        return _geoZoneList.Where(r => r.Value.Properties.Type.StartsWith(type)).Select(y => y.Value.Properties.Name).ToList();
+        try
+        {
+            // Filter and select from _geoZoneList
+            var geoZoneNames = _geoZoneList
+                .Where(r => r.Value.Properties.Type.Normalize() == type.Normalize())
+                .Select(y => y.Value.Properties.Name)
+                .ToList();
+
+            // Filter and select from _geoZoneDockDoorList
+            var dockDoorNames = _geoZoneDockDoorList
+                .Where(r => r.Value.Properties.Type.Normalize() == type.Normalize())
+                .Select(y => y.Value.Properties.Name)
+                .ToList();
+
+            // Combine the results and ensure uniqueness
+            var allMPEZones = geoZoneNames.Concat(dockDoorNames).Distinct().ToList();
+
+            return await Task.FromResult(allMPEZones);
+        }
+        catch (Exception e)
+        { 
+            // Handle the exception
+            Console.WriteLine($"An error occurred: {e.Message}");
+            _logger.LogError(e.Message);
+            return null;
+        }
+
+
+       
     }
 
     public async Task<bool> UpdateMPERunInfo(List<MPERunPerformance> mpeList)

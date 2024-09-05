@@ -437,8 +437,7 @@ function RemoveZoneItem(removeLayer) {
                 console.log(fail);
             },
             complete: function (complete) {
-                removeLayer.layer.remove();
-                //console.log(complete);
+                console.log(complete);
             }
         });
     } catch (e) {
@@ -448,31 +447,7 @@ function RemoveZoneItem(removeLayer) {
 function RemoveMarkerItem(removeLayer) {
     try {
         sidebar.close();
-        $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?ZoneType=MPE',
-            contentType: 'application/json',
-            type: 'GET',
-            success: function (mpedata) {
-                if (mpedata.length > 0) {
-                    //sort 
-                    mpedata.sort();
-                    mpedata.push('**Machine Not Listed');
-                    $.each(mpedata, function () {
-                        $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
-                    })
-                }
-            },
-            error: function (error) {
-
-                console.log(error);
-            },
-            faulure: function (fail) {
-                console.log(fail);
-            },
-            complete: function (complete) {
-                //console.log(complete);
-            }
-        });
+     
         if (removeLayer.layer.feature.properties.hasOwnProperty("type") && removeLayer.layer.feature.properties.type == "Cameras") {
             $.ajax({
                 url: SiteURLconstructor(window.location) + '/api/Camera/Delete?id=' + removeLayer.layer.feature.properties.id ,
@@ -493,24 +468,10 @@ function RemoveMarkerItem(removeLayer) {
                     console.log(fail);
                 },
                 complete: function (complete) {
-                    //console.log(complete);
+                  console.log(complete);
                 }
             });
         }
-
-        //if (removeLayer.layer.feature.properties.Tag_Type === "CameraMarker") {
-        //    fotfmanager.server.removeCameraMarker(removeLayer.layer.feature.properties.id).done(function (Data) {
-        //        //if modal is open close it
-        //        if (($('#Camera_Modal').data('bs.modal') || {})._isShown) {
-        //            $('#Camera_Modal').modal('hide');
-        //        }
-        //        setTimeout(function () { $("#Remove_Layer_Modal").modal('hide'); $('#Camera_Modal').modal('hide'); }, 500);
-        //    });
-        //}
-        //fotfmanager.server.removeMarker(removeLayer.layer.feature.properties.id).done(function (Data) {
-
-        //    setTimeout(function () { $("#Remove_Layer_Modal").modal('hide'); }, 500);
-        //});
     } catch (e) {
         console.log();
     }
@@ -561,7 +522,7 @@ function VaildateForm(FormType) {
     }
     if (/(MPE)/i.test(FormType)) {
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/MPENames?Type=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?Type=MPE',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -591,7 +552,7 @@ function VaildateForm(FormType) {
         $('textarea[id="bin_bins"]').val("");
 
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/DockDoorName',
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?Type=DockDoor',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -621,7 +582,7 @@ function VaildateForm(FormType) {
         $('#binzoneinfo').css("display", "block");
         $('textarea[id="bin_bins"]').val("");
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/MPENames',
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?Type=Bullpen',
             contentType: 'application/json',
             type: 'GET',
             success: function (mpedata) {
@@ -690,8 +651,31 @@ function VaildateForm(FormType) {
         enableAGVLocationSubmit();
     }
     else if (/^(Area)$/i.test(FormType)) {
-        $('<option/>').val('**Area Not Listed').html('**Area Not Listed').appendTo('select[id=zone_select_name]');
-        $('div[id=manual_numberdiv]').css('display', 'none');
+        $.ajax({
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?Type=MPE',
+            contentType: 'application/json',
+            type: 'GET',
+            success: function (mpedata) {
+                mpedata.push('**Area Not Listed');
+                if (mpedata.length > 0) {
+                    //sort 
+                    mpedata.sort();
+                    $.each(mpedata, function () {
+                        $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
+                    })
+                }
+            },
+            error: function (error) {
+
+                console.log(error);
+            },
+            faulure: function (fail) {
+                console.log(fail);
+            },
+            complete: function (complete) {
+                console.log(complete);
+            }
+        });
         enableAreaZoneSubmit();
     }
 
