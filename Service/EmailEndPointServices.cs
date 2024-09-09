@@ -15,14 +15,6 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                _endpointConfig.Status = EWorkerServiceState.Running;
-                _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                _endpointConfig.ApiConnected = true;
-                await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, cancellationToken: stoppingToken);
-
-
-                //get list of Mpe name from email list and send email
-
                 // Dictionary to hold categorized emails
                 // Key: Tuple of report type and Mpe name, Value: List of recipient email addresses
                 var categorizedEmails = new Dictionary<(string ReportType, string MpeName), List<string>>();
@@ -77,7 +69,7 @@ namespace EIR_9209_2.Service
                 var updateCon = _connection.Update(_endpointConfig).Result;
                 if (updateCon != null)
                 {
-                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
                 }
             }
         }

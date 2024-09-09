@@ -86,7 +86,7 @@ namespace EIR_9209_2.Service
             {
                 _endpointConfig.Status = EWorkerServiceState.InActive;
                 await _connection.Update(_endpointConfig).ConfigureAwait(false);
-                await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig).ConfigureAwait(false);
+                await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, CancellationToken.None).ConfigureAwait(false);
             }
         }
 
@@ -99,7 +99,7 @@ namespace EIR_9209_2.Service
                     _endpointConfig.Status = EWorkerServiceState.Running;
                     _endpointConfig.LasttimeApiConnected = DateTime.Now;
 
-                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, stoppingToken).ConfigureAwait(false);
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, CancellationToken.None).ConfigureAwait(false);
 
                     await FetchDataFromEndpoint(stoppingToken).ConfigureAwait(false);
                     if (_timer.Period.TotalMilliseconds != _endpointConfig.MillisecondsInterval)
@@ -107,7 +107,7 @@ namespace EIR_9209_2.Service
                         _timer = new PeriodicTimer(TimeSpan.FromMilliseconds(_endpointConfig.MillisecondsInterval));
                     }
                     _endpointConfig.Status = EWorkerServiceState.Idel;
-                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, stoppingToken).ConfigureAwait(false);
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, CancellationToken.None).ConfigureAwait(false);
                 }
             }
             catch (OperationCanceledException)

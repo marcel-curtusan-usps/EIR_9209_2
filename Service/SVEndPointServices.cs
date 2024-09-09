@@ -62,7 +62,7 @@ namespace EIR_9209_2.Service
                 var updateCon = _connection.Update(_endpointConfig).Result;
                 if (updateCon != null)
                 {
-                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
                 }
             }
         }

@@ -24,10 +24,10 @@ public interface IInMemoryTagsRepository
     Task UpdateTagCiscoSpacesClientInfo(JToken result);
     Task UpdateTagCiscoSpacesBLEInfo(JToken result);
     Task UpdateTagCiscoSpacesAPInfo(JToken result);
-    //bool ExistingTagTimeline(DateTime hour);
-    //List<TagTimeline> GetTagTimeline(DateTime hour);
-    //void UpdateTagTimeline(DateTime hour, List<TagTimeline> newValue, List<TagTimeline> currentvalue);
-    //void AddTagTimeline(DateTime hour, List<TagTimeline> newValue);
+    bool ExistingTagTimeline(DateTime hour);
+    List<TagTimeline> GetTagTimeline(DateTime hour);
+    void UpdateTagTimeline(DateTime hour, List<TagTimeline> newValue, List<TagTimeline> currentvalue);
+    void AddTagTimeline(DateTime hour, List<TagTimeline> newValue);
     void RemoveTagTimeline(DateTime hour);
     //List<TagTimeline> GetTagTimelineList(string ein);
 

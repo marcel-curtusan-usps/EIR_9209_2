@@ -399,7 +399,7 @@ async function loadMachineData(data, table) {
         if (/^(Admin|Maintenance)/i.test(appData.role)) {
             $('button[name=machineinfoedit]').css('display', 'block');
         }
-        $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPE/MPE.html?MPEStatus=' + data.name, style: 'color:white;' }).html("View").appendTo($('span[name=mpeview]'));
+        $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPE/default.html?MPEStatus=' + data.name, style: 'color:white;' }).html("View").appendTo($('span[name=mpeview]'));
         $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/Reports/MPEPerformance.html?MPEStatus=' + data.name, style: 'color:white;' }).html("MPE Synopsis").appendTo($('span[name=mpePerfomance]'));
         if (!!mpeData.mpeGroup) {
             $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPESDO/MPESDO.html?MPEGroupName=' + mpeData.mpeGroup, style: 'color:white;' }).html("SDO View").appendTo($('span[name=mpeSDO]'));

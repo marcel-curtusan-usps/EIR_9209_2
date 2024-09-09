@@ -21,29 +21,24 @@ namespace EIR_9209_2.Service
         {
             try
             {
-
-                _endpointConfig.Status = EWorkerServiceState.Running;
-                _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                _endpointConfig.ApiConnected = true;
-                await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, cancellationToken: stoppingToken);
-
-
-                IQueryService queryService;
-                string FormatUrl = "";
                 SiteInformation siteinfo = _siteInfo.GetSiteInfo();
-                string Finnum = siteinfo.FinanceNumber;
-                string TodayDate = DateTime.Now.ToString("yyyyMMdd");
-                FormatUrl = string.Format(_endpointConfig.Url, Finnum, TodayDate);
-                queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
-                var result = await queryService.GetIVESData(stoppingToken);
+                if (siteinfo != null)
+                {
+                    IQueryService queryService;
+                    var now = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
+                    string FormatUrl = string.Format(_endpointConfig.Url, siteinfo.FinanceNumber, now.ToString("yyyyMMdd"));
+                    string Finnum = siteinfo.FinanceNumber;
+                    queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                    var result = await queryService.GetIVESData(stoppingToken);
 
-                if (_endpointConfig.MessageType == "getEmpInfo")
-                {
-                    _ = Task.Run(async () => await ProcessEmployeeInfoData(result), stoppingToken);
-                }
-                if (_endpointConfig.MessageType == "getEmpSchedule")
-                {
-                    _ = Task.Run(async () => await ProcessEmpScheduleData(result), stoppingToken);
+                    if (_endpointConfig.MessageType == "getEmpInfo")
+                    {
+                        _ = Task.Run(async () => await ProcessEmployeeInfoData(result), stoppingToken);
+                    }
+                    if (_endpointConfig.MessageType == "getEmpSchedule")
+                    {
+                        _ = Task.Run(async () => await ProcessEmpScheduleData(result), stoppingToken);
+                    }
                 }
             }
             catch (Exception ex)
@@ -54,7 +49,7 @@ namespace EIR_9209_2.Service
                 var updateCon = _connection.Update(_endpointConfig).Result;
                 if (updateCon != null)
                 {
-                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
                 }
             }
             finally

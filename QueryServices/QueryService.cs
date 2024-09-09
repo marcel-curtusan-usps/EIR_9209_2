@@ -115,38 +115,38 @@ internal class QueryService : IQueryService
         }
     }
 
-    //public async Task<List<TagTimeline>> GetTotalTagTimeline(DateTime startTime, DateTime endTime, TimeSpan minEmployeeTimeInArea,
-    //TimeSpan TimeStep, TimeSpan ActivationTime, TimeSpan DeactivationTime, TimeSpan DisappearTime, List<(string areaId, string areaName)> allAreaIds, int areaBatchCount, CancellationToken ct)
-    //{
-    //    var queries = BreakUpAreasIntoBatches()
-    //          .Select(areasBatch => new ReportQueryBuilder()
-    //          .WithQueryType(ESelsReportQueryType.TimelineByPerson)
-    //          .WithStartLocalTime(startTime)
-    //          .WithEndLocalTime(endTime)
-    //          .WithMinTimeOnArea(minEmployeeTimeInArea)
-    //          .WithTimeStep(TimeStep)
-    //          .WithActivationTime(ActivationTime)
-    //          .WithDeactivationTime(DeactivationTime)
-    //          .WithDisappearTime(DisappearTime)
-    //          .WithAreaIds(areasBatch.Select(a => a.areaId).ToList())
-    //          .Build()
-    //          );
+    public async Task<List<TagTimeline>> GetTotalTagTimeLine(DateTime startTime, DateTime endTime, TimeSpan minEmployeeTimeInArea,
+    TimeSpan TimeStep, TimeSpan ActivationTime, TimeSpan DeactivationTime, TimeSpan DisappearTime, List<(string areaId, string areaName)> allAreaIds, int areaBatchCount, CancellationToken ct)
+    {
+        var queries = BreakUpTimelinIntoBatches()
+              .Select(areasBatch => new ReportQueryBuilder()
+              .WithQueryType(ESelsReportQueryType.TimelineByPerson)
+              .WithStartLocalTime(startTime)
+              .WithEndLocalTime(endTime)
+              .WithMinTimeOnArea(minEmployeeTimeInArea)
+              .WithTimeStep(TimeStep)
+              .WithActivationTime(ActivationTime)
+              .WithDeactivationTime(DeactivationTime)
+              .WithDisappearTime(DisappearTime)
+              .WithAreaIds(areasBatch.Select(a => a.areaId).ToList())
+              .Build()
+              );
 
-    //    var queryTasks = queries.Select(query => GetPostQueryResults<List<TagTimelineQueryResult>>(_fullUrl.AbsoluteUri, query, ct));
-    //    var queryResults = (await Task.WhenAll(queryTasks).ConfigureAwait(false))
-    //        .SelectMany(x => x)
-    //        .Where(r => !r.User.Equals("Empty Time"))
-    //        .ToList();
+        var queryTasks = queries.Select(query => GetPostQueryResults<List<TagTimelineQueryResult>>(_fullUrl.AbsoluteUri, query, ct));
+        var queryResults = (await Task.WhenAll(queryTasks).ConfigureAwait(false))
+            .SelectMany(x => x)
+            .Where(r => !r.User.Equals("Empty Time"))
+            .ToList();
 
-    //    var result = TransformQueryResults(queryResults, startTime);
+        var result = TransformTimeLineQueryResults(queryResults, startTime);
 
-    //    return result;
+        return result;
 
-    //    IEnumerable<List<(string areaId, string areaName)>> BreakUpAreasIntoBatches()
-    //    {
-    //        return Enumerable.Range(0, (allAreaIds.Count + areaBatchCount - 1) / areaBatchCount).Select(i => allAreaIds.Skip(i * areaBatchCount).Take(areaBatchCount).ToList());
-    //    }
-    //}
+        IEnumerable<List<(string areaId, string areaName)>> BreakUpTimelinIntoBatches()
+        {
+            return Enumerable.Range(0, (allAreaIds.Count + areaBatchCount - 1) / areaBatchCount).Select(i => allAreaIds.Skip(i * areaBatchCount).Take(areaBatchCount).ToList());
+        }
+    }
 
     private async Task<T> GetQueryResults<T>(string queryUrl, CancellationToken ct)
     {
@@ -230,6 +230,11 @@ internal class QueryService : IQueryService
             _logger.LogError(ex.Message);
             throw new Exception("An error occurred while deserializing the response body.", ex);
         }
+        catch (OperationCanceledException ex)
+        {
+            _logger.LogError(ex.Message);
+            throw new Exception("An error occurred while connection.", ex);
+        }
         catch (Exception e)
         {
             _logger.LogInformation(queryUrl);
@@ -256,24 +261,24 @@ internal class QueryService : IQueryService
             }).ToList();
     }
 
-    //private List<TagTimeline> TransformQueryResults(List<TagTimelineQueryResult> results, DateTime hour)
-    //{
-    //    const string userRegexPattern = @"^(.+?)\s(.+?)\s\((\d+)\)$"; //expected pattern FIRSTNAME LASTNAME (EIN)
-    //    return results
-    //        .Where(r => Regex.Match(r.User, userRegexPattern).Success)
-    //        .Select(r => new TagTimeline
-    //        {
-    //            Hour = hour,
-    //            FirstName = Regex.Match(r.User, userRegexPattern).Groups[1].Value,
-    //            LastName = Regex.Match(r.User, userRegexPattern).Groups[2].Value,
-    //            EmployeeName = string.Concat(Regex.Match(r.User, userRegexPattern).Groups[1].Value, @" ", Regex.Match(r.User, userRegexPattern).Groups[2].Value),
-    //            Ein = Regex.Match(r.User, userRegexPattern).Groups[3].Value.PadLeft(8, '0'),
-    //            AreaName = r.Area,
-    //            Start = r.Start,
-    //            End = r.End,
-    //            Duration = r.Duration,
-    //            Type = r.Type
-    //        }).ToList();
+    private List<TagTimeline> TransformTimeLineQueryResults(List<TagTimelineQueryResult> results, DateTime hour)
+    {
+        const string userRegexPattern = @"^(.+?)\s(.+?)\s\((\d+)\)$"; //expected pattern FIRSTNAME LASTNAME (EIN)
+        return results
+            .Where(r => Regex.Match(r.User, userRegexPattern).Success)
+            .Select(r => new TagTimeline
+            {
+                Hour = hour,
+                FirstName = Regex.Match(r.User, userRegexPattern).Groups[1].Value,
+                LastName = Regex.Match(r.User, userRegexPattern).Groups[2].Value,
+                EmployeeName = string.Concat(Regex.Match(r.User, userRegexPattern).Groups[1].Value, @" ", Regex.Match(r.User, userRegexPattern).Groups[2].Value),
+                Ein = Regex.Match(r.User, userRegexPattern).Groups[3].Value.PadLeft(8, '0'),
+                AreaName = r.Area,
+                Start = r.Start,
+                End = r.End,
+                Duration = r.Duration,
+                Type = r.Type
+            }).ToList();
 
-    //}
+    }
 }

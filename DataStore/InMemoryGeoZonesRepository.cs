@@ -343,12 +343,48 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     }
     public void UpdateAreaDwell(DateTime hour, List<AreaDwell> newValue, List<AreaDwell> currentvalue)
     {
-        _QREAreaDwellResults.TryUpdate(hour, newValue, currentvalue);
+        bool savetoFile = false;
+        try
+        {
+            if (_QREAreaDwellResults.TryUpdate(hour, newValue, currentvalue))
+            {
+                savetoFile = true;
+            }
+         
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Error updating Area Dwell {e.Message}");
+        }
+        finally
+        {
+            //if (savetoFile)
+            //{
+            //    FileService.WriteFile(fileTagTimeline, JsonConvert.SerializeObject(_QRETagTimelineResults.Values, Formatting.Indented));
+            //}
+        }
     }
 
     public void AddAreaDwell(DateTime hour, List<AreaDwell> newValue)
     {
-        _QREAreaDwellResults.TryAdd(hour, newValue);
+        bool savetoFile = false;
+        try
+        {
+            if (_QREAreaDwellResults.TryAdd(hour, newValue)) {
+                savetoFile = true;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Error updating  Area Dwell {e.Message}");
+        }
+        finally
+        {
+            //if (savetoFile)
+            //{
+            //    FileService.WriteFile(fileTagTimeline, JsonConvert.SerializeObject(_QRETagTimelineResults.Values, Formatting.Indented));
+            //}
+        }
     }
     public void RunMPESummaryReport()
     {

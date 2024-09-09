@@ -401,59 +401,58 @@ namespace EIR_9209_2.DataStore
             return _QRETagTimelineResults.ContainsKey(hour);
 
         }
-        //public List<TagTimeline> GetTagTimeline(DateTime hour)
-        //{
-        //    return _QRETagTimelineResults[hour];
-        //}
-        //public void UpdateTagTimeline(DateTime hour, List<TagTimeline> newValue, List<TagTimeline> currentvalue)
-        //{
-        //    //_QRETagTimelineResults.TryUpdate(hour, newValue, currentvalue);
-        //    bool savetoFile = false;
-        //    try
-        //    {
-        //        while (_QRETagTimelineResults.TryGetValue(hour, out var curValue))
-        //        {
-        //            if (_QRETagTimelineResults.TryUpdate(hour, newValue, curValue))
-        //                savetoFile = true;
-        //            break;
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogError($"Error updating TagTimeLine {e.Message}");
-        //    }
-        //    finally
-        //    {
-        //        if (savetoFile)
-        //        {
-        //            FileService.WriteFile(fileTagTimeline, JsonConvert.SerializeObject(_QRETagTimelineResults.Values, Formatting.Indented));
-        //        }
-        //    }
-        //}
+        public List<TagTimeline> GetTagTimeline(DateTime hour)
+        {
+            return _QRETagTimelineResults[hour];
+        }
+        public void UpdateTagTimeline(DateTime hour, List<TagTimeline> newValue, List<TagTimeline> currentValue)
+        {
+            bool savetoFile = false;
+            try
+            {
+                if (_QRETagTimelineResults.TryUpdate(hour, newValue, currentValue))
+                {
+                    savetoFile = true;
+                }
+               
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error updating TagTimeLine {e.Message}");
+            }
+            finally
+            {
+                //if (savetoFile)
+                //{
+                //    FileService.WriteFile(fileTagTimeline, JsonConvert.SerializeObject(_QRETagTimelineResults.Values, Formatting.Indented));
+                //}
+            }
+        }
 
-        //public void AddTagTimeline(DateTime hour, List<TagTimeline> newValue)
-        //{
-        //    bool savetoFile = false;
-        //    try
-        //    {
-        //        if (!_QRETagTimelineResults.ContainsKey(hour))
-        //        {
-        //            savetoFile = true;
-        //            _QRETagTimelineResults.TryAdd(hour, newValue);
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogError($"Error adding TagTimeLine {e.Message}");
-        //    }
-        //    finally
-        //    {
-        //        if (savetoFile)
-        //        {
-        //            FileService.WriteFile(fileTagTimeline, JsonConvert.SerializeObject(_QRETagTimelineResults.Values, Formatting.Indented));
-        //        }
-        //    }
-        //}
+        public void AddTagTimeline(DateTime hour, List<TagTimeline> newValue)
+        {
+            bool savetoFile = false;
+            try
+            {
+
+                if (_QRETagTimelineResults.TryAdd(hour, newValue))
+                {
+                    savetoFile = true;
+                }
+                
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error adding TagTimeLine {e.Message}");
+            }
+            finally
+            {
+                //if (savetoFile)
+                //{
+                //    FileService.WriteFile(fileTagTimeline, JsonConvert.SerializeObject(_QRETagTimelineResults.Values, Formatting.Indented));
+                //}
+            }
+        }
         public void RemoveTagTimeline(DateTime hour)
         {
             _QRETagTimelineResults.Where(r => r.Key < hour).Select(l => l.Key).ToList().ForEach(key =>
@@ -561,8 +560,6 @@ namespace EIR_9209_2.DataStore
                 }
             }
         }
-      
-
         public async Task<object> UpdateTagUIInfo(JObject tagInfo)
         {
             //update DasigbationActivity to CraftType

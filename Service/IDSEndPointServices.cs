@@ -14,15 +14,8 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                _endpointConfig.Status = EWorkerServiceState.Running;
-                _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                _endpointConfig.ApiConnected = true;
-                await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, cancellationToken: stoppingToken);
-
                 IQueryService queryService;
-                string FormatUrl = "";
-                //process tag data
-                FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType, _endpointConfig.HoursBack, _endpointConfig.HoursForward);
+                string FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType, _endpointConfig.HoursBack, _endpointConfig.HoursForward);
                 queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                 await queryService.GetIDSData(stoppingToken);
                 // Process the data as needed
@@ -36,7 +29,7 @@ namespace EIR_9209_2.Service
                 var updateCon = _connection.Update(_endpointConfig).Result;
                 if (updateCon != null)
                 {
-                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
                 }
             }
         }

@@ -1,16 +1,18 @@
-﻿namespace EIR_9209_2.Models
+﻿// Ignore Spelling: Timeline
+
+namespace EIR_9209_2.Models
 {
     public class TagTimeline
     {
-        public DateTime Hour { get; set; }
-        public string EmployeeName { get; set; } = "";
-        public string Ein { get; set; } = "";
-        public string AreaName { get; set; } = "";
-        public DateTime Start { get; set; }
-        public DateTime End { get; set; }
-        public TimeSpan Duration { get; set; }
-        public string Type { get; set; } = "";
-        public string FirstName { get; set; } = "";
-        public string LastName { get; set; } = "";
+        public required string EmployeeName { get; set; } 
+        public required string Ein { get; set; }
+        public required string AreaName { get; set; }
+        public required DateTime Hour { get; set; }
+        public required DateTime Start { get; set; }
+        public required DateTime End { get; set; }
+        public required TimeSpan Duration { get; set; }
+        public required string Type { get; set; }
+        public required string FirstName { get; set; } 
+        public required string LastName { get; set; }
     }
 }

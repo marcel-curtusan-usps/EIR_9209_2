@@ -20,12 +20,6 @@ namespace EIR_9209_2.Service
                 authService = new OAuth2AuthenticationService(_logger, _httpClientFactory, new OAuth2AuthenticationServiceSettings("", "", "", "", _endpointConfig.OutgoingApikey), jsonSettings);
 
                 IQueryService queryService;
-
-                _endpointConfig.Status = EWorkerServiceState.Running;
-                _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                _endpointConfig.ApiConnected = true;
-
-                await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, cancellationToken: stoppingToken);
                 //process tag data
                 string FormatUrl = "";
                 if (_endpointConfig.MessageType == "CLIENT")
@@ -67,7 +61,7 @@ namespace EIR_9209_2.Service
                 var updateCon = _connection.Update(_endpointConfig).Result;
                 if (updateCon != null)
                 {
-                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken);
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
                 }
             }
         }
