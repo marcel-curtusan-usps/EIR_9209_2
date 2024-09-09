@@ -115,38 +115,38 @@ internal class QueryService : IQueryService
         }
     }
 
-    public async Task<List<TagTimeline>> GetTotalTagTimeline(DateTime startTime, DateTime endTime, TimeSpan minEmployeeTimeInArea,
-    TimeSpan TimeStep, TimeSpan ActivationTime, TimeSpan DeactivationTime, TimeSpan DisappearTime, List<(string areaId, string areaName)> allAreaIds, int areaBatchCount, CancellationToken ct)
-    {
-        var queries = BreakUpAreasIntoBatches()
-              .Select(areasBatch => new ReportQueryBuilder()
-              .WithQueryType(ESelsReportQueryType.TimelineByPerson)
-              .WithStartLocalTime(startTime)
-              .WithEndLocalTime(endTime)
-              .WithMinTimeOnArea(minEmployeeTimeInArea)
-              .WithTimeStep(TimeStep)
-              .WithActivationTime(ActivationTime)
-              .WithDeactivationTime(DeactivationTime)
-              .WithDisappearTime(DisappearTime)
-              .WithAreaIds(areasBatch.Select(a => a.areaId).ToList())
-              .Build()
-              );
+    //public async Task<List<TagTimeline>> GetTotalTagTimeline(DateTime startTime, DateTime endTime, TimeSpan minEmployeeTimeInArea,
+    //TimeSpan TimeStep, TimeSpan ActivationTime, TimeSpan DeactivationTime, TimeSpan DisappearTime, List<(string areaId, string areaName)> allAreaIds, int areaBatchCount, CancellationToken ct)
+    //{
+    //    var queries = BreakUpAreasIntoBatches()
+    //          .Select(areasBatch => new ReportQueryBuilder()
+    //          .WithQueryType(ESelsReportQueryType.TimelineByPerson)
+    //          .WithStartLocalTime(startTime)
+    //          .WithEndLocalTime(endTime)
+    //          .WithMinTimeOnArea(minEmployeeTimeInArea)
+    //          .WithTimeStep(TimeStep)
+    //          .WithActivationTime(ActivationTime)
+    //          .WithDeactivationTime(DeactivationTime)
+    //          .WithDisappearTime(DisappearTime)
+    //          .WithAreaIds(areasBatch.Select(a => a.areaId).ToList())
+    //          .Build()
+    //          );
 
-        var queryTasks = queries.Select(query => GetPostQueryResults<List<TagTimelineQueryResult>>(_fullUrl.AbsoluteUri, query, ct));
-        var queryResults = (await Task.WhenAll(queryTasks).ConfigureAwait(false))
-            .SelectMany(x => x)
-            .Where(r => !r.User.Equals("Empty Time"))
-            .ToList();
+    //    var queryTasks = queries.Select(query => GetPostQueryResults<List<TagTimelineQueryResult>>(_fullUrl.AbsoluteUri, query, ct));
+    //    var queryResults = (await Task.WhenAll(queryTasks).ConfigureAwait(false))
+    //        .SelectMany(x => x)
+    //        .Where(r => !r.User.Equals("Empty Time"))
+    //        .ToList();
 
-        var result = TransformQueryResults(queryResults, startTime);
+    //    var result = TransformQueryResults(queryResults, startTime);
 
-        return result;
+    //    return result;
 
-        IEnumerable<List<(string areaId, string areaName)>> BreakUpAreasIntoBatches()
-        {
-            return Enumerable.Range(0, (allAreaIds.Count + areaBatchCount - 1) / areaBatchCount).Select(i => allAreaIds.Skip(i * areaBatchCount).Take(areaBatchCount).ToList());
-        }
-    }
+    //    IEnumerable<List<(string areaId, string areaName)>> BreakUpAreasIntoBatches()
+    //    {
+    //        return Enumerable.Range(0, (allAreaIds.Count + areaBatchCount - 1) / areaBatchCount).Select(i => allAreaIds.Skip(i * areaBatchCount).Take(areaBatchCount).ToList());
+    //    }
+    //}
 
     private async Task<T> GetQueryResults<T>(string queryUrl, CancellationToken ct)
     {
@@ -159,7 +159,7 @@ internal class QueryService : IQueryService
             {
                 await _authService.AddAuthHeader(request, ct);
             }
-            var response = await client.SendAsync(request, ct);
+            using var response = await client.SendAsync(request, ct);
 
             response.EnsureSuccessStatusCode();
 
@@ -170,26 +170,17 @@ internal class QueryService : IQueryService
             }
             else
             {
-                // Handle non-OK response codes here
-                // For example, you can log the response code or throw an exception
-
                 throw new Exception($"The response code is {response.StatusCode}.");
             }
-
         }
         catch (HttpRequestException ex)
         {
-            // Log the exception or handle it in some other way
-            // For example, you might want to rethrow the exception to let the caller handle it
             _logger.LogInformation(queryUrl);
             _logger.LogError(ex.Message);
             throw new Exception("An error occurred while sending the HTTP request.", ex);
-
         }
         catch (JsonException ex)
         {
-            // Log the exception or handle it in some other way
-            // For example, you might want to rethrow the exception to let the caller handle it
             _logger.LogInformation(queryUrl);
             _logger.LogError(ex.Message);
             throw new Exception("An error occurred while deserializing the response body.", ex);
@@ -200,15 +191,12 @@ internal class QueryService : IQueryService
             _logger.LogError(e.Message);
             throw new Exception("An error occurred while connection.", e);
         }
-
     }
 
     private async Task<T> GetPostQueryResults<T>(string queryUrl, object query, CancellationToken ct)
     {
         try
         {
-
-
             var client = _httpClient.CreateClient();
             using var request = new HttpRequestMessage(HttpMethod.Post, queryUrl);
             if (_authService != null)
@@ -216,7 +204,7 @@ internal class QueryService : IQueryService
                 await _authService.AddAuthHeader(request, ct);
             }
             request.Content = new StringContent(JsonConvert.SerializeObject(query, _jsonSettings), Encoding.UTF8, "application/json");
-            var response = await client.SendAsync(request, ct);
+            using var response = await client.SendAsync(request, ct);
 
             response.EnsureSuccessStatusCode();
 
@@ -227,27 +215,17 @@ internal class QueryService : IQueryService
             }
             else
             {
-                // Handle non-OK response codes here
-                // For example, you can log the response code or throw an exception
-
                 throw new Exception($"The response code is {response.StatusCode}.");
             }
-            //var responseBody = await response.Content.ReadAsStringAsync();
-            //return JsonConvert.DeserializeObject<T>(responseBody, _jsonSettings);
         }
         catch (HttpRequestException ex)
         {
-            // Log the exception or handle it in some other way
-            // For example, you might want to rethrow the exception to let the caller handle it
             _logger.LogInformation(queryUrl);
             _logger.LogError(ex.Message);
             throw new Exception("An error occurred while sending the HTTP request.", ex);
-
         }
         catch (JsonException ex)
         {
-            // Log the exception or handle it in some other way
-            // For example, you might want to rethrow the exception to let the caller handle it
             _logger.LogInformation(queryUrl);
             _logger.LogError(ex.Message);
             throw new Exception("An error occurred while deserializing the response body.", ex);
@@ -278,24 +256,24 @@ internal class QueryService : IQueryService
             }).ToList();
     }
 
-    private List<TagTimeline> TransformQueryResults(List<TagTimelineQueryResult> results, DateTime hour)
-    {
-        const string userRegexPattern = @"^(.+?)\s(.+?)\s\((\d+)\)$"; //expected pattern FIRSTNAME LASTNAME (EIN)
-        return results
-            .Where(r => Regex.Match(r.User, userRegexPattern).Success)
-            .Select(r => new TagTimeline
-            {
-                Hour = hour,
-                FirstName = Regex.Match(r.User, userRegexPattern).Groups[1].Value,
-                LastName = Regex.Match(r.User, userRegexPattern).Groups[2].Value,
-                EmployeeName = string.Concat(Regex.Match(r.User, userRegexPattern).Groups[1].Value, @" ", Regex.Match(r.User, userRegexPattern).Groups[2].Value),
-                Ein = Regex.Match(r.User, userRegexPattern).Groups[3].Value.PadLeft(8, '0'),
-                AreaName = r.Area,
-                Start = r.Start,
-                End = r.End,
-                Duration = r.Duration,
-                Type = r.Type
-            }).ToList();
+    //private List<TagTimeline> TransformQueryResults(List<TagTimelineQueryResult> results, DateTime hour)
+    //{
+    //    const string userRegexPattern = @"^(.+?)\s(.+?)\s\((\d+)\)$"; //expected pattern FIRSTNAME LASTNAME (EIN)
+    //    return results
+    //        .Where(r => Regex.Match(r.User, userRegexPattern).Success)
+    //        .Select(r => new TagTimeline
+    //        {
+    //            Hour = hour,
+    //            FirstName = Regex.Match(r.User, userRegexPattern).Groups[1].Value,
+    //            LastName = Regex.Match(r.User, userRegexPattern).Groups[2].Value,
+    //            EmployeeName = string.Concat(Regex.Match(r.User, userRegexPattern).Groups[1].Value, @" ", Regex.Match(r.User, userRegexPattern).Groups[2].Value),
+    //            Ein = Regex.Match(r.User, userRegexPattern).Groups[3].Value.PadLeft(8, '0'),
+    //            AreaName = r.Area,
+    //            Start = r.Start,
+    //            End = r.End,
+    //            Duration = r.Duration,
+    //            Type = r.Type
+    //        }).ToList();
 
-    }
+    //}
 }

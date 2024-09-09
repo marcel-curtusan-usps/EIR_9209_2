@@ -135,28 +135,39 @@ async function findCameraLeafletIds(markerId) {
         reject(new Error('No layer found with the given markerId'));
     });
 }
-async function init_markerCameras(data) {
+async function init_markerCameras() {
     return new Promise((resolve, reject) => {
         try {
-            //add camera markers to the layer
-            for (let i = 0; i < data.length; i++) {;
-                Promise.all([addCameraFeature(data[i])]);
-            }
-            //$(document).on('change', '.leaflet-control-layers-selector', function () {
-            //    let sp = this.nextElementSibling;
-            //    if (/^Cameras$/ig.test(sp.innerHTML.trim())) {
-            //        if (this.checked) {
-            //            connection.invoke("JoinGroup", "Cameras").catch(function (err) {
-            //                return console.error(err.toString());
-            //            });
-            //        }
-            //        else {
-            //            connection.invoke("LeaveGroup", "Cameras").catch(function (err) {
-            //                return console.error(err.toString());
-            //            });
-            //        }
-            //    }
-            //});
+            //load cameras
+            connection.invoke("GetCameras").then(function (data) {
+                //add camera markers to the layer
+                for (let i = 0; i < data.length; i++) {
+                    ;
+                    Promise.all([addCameraFeature(data[i])]);
+                }
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
+     
+            $(document).on('change', '.leaflet-control-layers-selector', function () {
+                let sp = this.nextElementSibling;
+                if (/^Cameras$/ig.test(sp.innerHTML.trim())) {
+                    if (this.checked) {
+                        connection.invoke("JoinGroup", "Cameras").catch(function (err) {
+                            return console.error(err.toString());
+                        });
+                    }
+                    else {
+                        connection.invoke("LeaveGroup", "Cameras").catch(function (err) {
+                            return console.error(err.toString());
+                        });
+                    }
+                }
+            });
+            connection.invoke("JoinGroup", "Cameras").catch(function (err) {
+                return console.error(err.toString());
+            });
             resolve();
             return false;
         }

@@ -7,7 +7,8 @@ public interface IInMemoryTagsRepository
     Task Add(GeoMarker tag);
     Task Delete(string tagId);
     Task<object> UpdateTagUIInfo(JObject tagInfo);
-    Task UpdateTagQPEInfo(List<Tags> tags);
+    //void UpdateTagQPEInfo(List<Tags> tags, long responseTS);
+    Task UpdateTagQPEInfo(List<Tags> tags, long responseTS);
     object Get(string id);
     List<GeoMarker> GetAll();
     List<GeoMarker> GetTagsType(string type);
@@ -23,10 +24,11 @@ public interface IInMemoryTagsRepository
     Task UpdateTagCiscoSpacesClientInfo(JToken result);
     Task UpdateTagCiscoSpacesBLEInfo(JToken result);
     Task UpdateTagCiscoSpacesAPInfo(JToken result);
-    bool ExistingTagTimeline(DateTime hour);
-    List<TagTimeline> GetTagTimeline(DateTime hour);
-    void UpdateTagTimeline(DateTime hour, List<TagTimeline> newValue, List<TagTimeline> currentvalue);
-    void AddTagTimeline(DateTime hour, List<TagTimeline> newValue);
+    //bool ExistingTagTimeline(DateTime hour);
+    //List<TagTimeline> GetTagTimeline(DateTime hour);
+    //void UpdateTagTimeline(DateTime hour, List<TagTimeline> newValue, List<TagTimeline> currentvalue);
+    //void AddTagTimeline(DateTime hour, List<TagTimeline> newValue);
     void RemoveTagTimeline(DateTime hour);
-    List<TagTimeline> GetTagTimelineList(string ein);
+    //List<TagTimeline> GetTagTimelineList(string ein);
+
 }

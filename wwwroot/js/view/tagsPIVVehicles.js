@@ -1,14 +1,11 @@
 ﻿
 
-connection.on("updatePIVVehicleTagPosition", async (data) => {
-    let tagdata = JSON.parse(data);
-    if (tagdata.properties.visible) {
+connection.on("updatePIVVehicleTagPosition", async (tagdata) => {
+    try {
         Promise.all([addPIVFeature(tagdata)]);
+    } catch (e) {
+        throw new Error(e.toString());
     }
-    else {
-        Promise.all([deletePIVFeature(tagdata)]);
-    }
-
 });
 let tagsPIVVehicles = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
@@ -51,8 +48,6 @@ let tagsPIVVehicles = new L.GeoJSON(null, {
             opacity: 0.9,
             className: 'vehiclenumber ' + obstructedState
         }).openTooltip();
-    }, filter: function (feature, layer) {
-        return feature.properties.visible;
     }
 });
 // add to the map and layers control
@@ -70,10 +65,20 @@ async function findPIVLeafletIds(markerId) {
         reject(new Error('No layer found with the given markerId'));
     });
 }
-async function init_tagsPIV(data) {
+async function init_tagsPIV() {
     return new Promise((resolve, reject) => {
         try {
-
+            //load PIV Tags
+            connection.invoke("GetPIVTags").then(function (data) {
+                //add PIV markers to the layer
+                for (let i = 0; i < data.length; i++) {
+                    Promise.all([addPIVFeatures(data[i])]);
+                }
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
+            
             $(document).on('change', '.leaflet-control-layers-selector', function () {
                 let sp = this.nextElementSibling;
                 if (/^PIV Vehicles$/ig.test(sp.innerHTML.trim())) {
@@ -88,6 +93,9 @@ async function init_tagsPIV(data) {
                         });
                     }
                 }
+            });
+            connection.invoke("JoinGroup", "PIVVehicle").catch(function (err) {
+                return console.error(err.toString());
             });
             resolve();
             return false;

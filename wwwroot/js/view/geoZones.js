@@ -3,25 +3,14 @@
         try {
             for (let i = 0; i < goeZones.length; i++) {
                 const geoZone = goeZones[i];
-                if (/^(MPE)/ig.test(geoZone.properties.type)) {
-                    Promise.all([addMPEFeature(goeZones[i])]);
-                    // Handle DockDoorZone geoZone
-                } else if (/^(Dockdoor)/ig.test(geoZone.properties.type)) {
+             if (/^(Dockdoor)/ig.test(geoZone.properties.type)) {
                     Promise.all([addDockDoorFeature(goeZones[i])]);
                     // Handle MPEBinZone geoZone
-                } else if (/^(Bin)/ig.test(geoZone.properties.type)) {
-                    Promise.all([addBinFeature(goeZones[i])]);
-                    // Handle type3 geoZone
                 } else if (/^(AGVLocation)/ig.test(geoZone.properties.type)) {
                     Promise.all([addAGVLocationFeature(goeZones[i])]);
                     // Handle type3 geoZone
                 }
-                else if (/^(Area)/ig.test(geoZone.properties.type)) {
-                    Promise.all([addAreaFeature(goeZones[i])]);
-                    // Handle type3 geoZone
-                } else {
-                    // Handle other types of geoZone
-                }
+              
             }
             resolve();
             return false;

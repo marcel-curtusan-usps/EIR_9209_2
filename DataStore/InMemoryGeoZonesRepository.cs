@@ -1312,10 +1312,10 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         return await Task.Run(() => _geoZoneList.Where(r => r.Value.Properties.Type.StartsWith(type) && !string.IsNullOrEmpty(r.Value.Properties.MpeGroup)).Select(y => y.Value.Properties.MpeGroup).ToList()).ConfigureAwait(false); 
     }
 
-    public List<TagTimeline> GetTagTimelineList(string ein)
-    {
-        throw new NotImplementedException();
-    }
+    //public List<TagTimeline> GetTagTimelineList(string ein)
+    //{
+    //    throw new NotImplementedException();
+    //}
     private string GeoZoneDockDoorOutPutdata(List<GeoZoneDockDoor> DockDoor)
     {
         try
@@ -1537,5 +1537,21 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             return DateTime.Now;
         }
 
+    }
+
+    public async Task<IEnumerable<GeoZone>>  GetGeoZone(string zoneType)
+    {
+        try
+        {
+            var geoZones = await Task.Run(() =>
+                _geoZoneList.Values.Where(gz => gz.Properties.Type == zoneType).ToList()
+            );
+            return geoZones;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return Enumerable.Empty<GeoZone>();
+        }
     }
 }

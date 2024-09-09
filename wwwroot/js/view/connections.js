@@ -589,15 +589,9 @@ async function Edit_Connection(data) {
                         console.log(fail);
                     },
                     complete: function (complete) {
-                        console.log(complete);
+                       // console.log(complete);
                     }
                 });
-                //fotfmanager.server.editAPI(JSON.stringify(jsonObject)).done(function () {
-                //    setTimeout(function () {
-                //        $("#API_Connection_Modal").modal('hide');
-                //        sidebar.open('connections');
-                //    }, 500);
-                //});
             }
 
         } catch (e) {
@@ -642,18 +636,27 @@ async function Remove_Connection(data) {
 
     }
 }
-async function init_connection(ConnectionList) {
+async function init_connection() {
     try {
         return new Promise((resolve, reject) => {
+            createConnectionDataTable(ConnectionListtable);
             $('button[name=addconnection]').off().on('click', function () {
                 /* close the sidebar */
                 sidebar.close();
                 Promise.all([Add_Connection()]);
             });
-            createConnectionDataTable(ConnectionListtable);
-            if (ConnectionList.length > 0) {
-                Promise.all([loadConnectionDatatable(ConnectionList.sort(SortByConnectionName), ConnectionListtable)]);
-            }
+            //loading connections
+            connection.invoke("GetConnectionList").then(function (data) {
+                if (data.length > 0) {
+                    Promise.all([loadConnectionDatatable(data.sort(SortByConnectionName), ConnectionListtable)]);
+                }
+                connection.invoke("JoinGroup", "Connections").catch(function (err) {
+                    console.error("Error joining Connections group: ", err);
+                });
+
+            }).catch(function (err) {
+                console.error("Error loading connection list: ", err);
+            });
             resolve();
             return false;
         });

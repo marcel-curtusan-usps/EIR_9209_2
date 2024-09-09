@@ -237,24 +237,43 @@ async function findBinZoneLeafletIds(zoneId) {
     });
 }
 async function init_geoZoneBin() {
-    $(document).on('change', '.leaflet-control-layers-selector', function (e) {
-        let sp = this.nextElementSibling;
-        if (/^(Bin Zones)/ig.test(sp.innerHTML.trim())) {
-            if (this.checked) {
-                connection.invoke("JoinGroup", "Bin").catch(function (err) {
-                    return console.error(err.toString());
-                });
-            }
-            else {
-                connection.invoke("LeaveGroup", "Bin").catch(function (err) {
-                    return console.error(err.toString());
-                });
-            }
-        }
+    return new Promise((resolve, reject) => {
+        try {
+            //load cameras
+            connection.invoke("GetGeoZones","Bin").then(function (data) {
+                for (let i = 0; i < data.length; i++) {
+                    Promise.all([addBinFeature(data[i])]);
+                }
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
+            $(document).on('change', '.leaflet-control-layers-selector', function (e) {
+                let sp = this.nextElementSibling;
+                if (/^(Bin Zones)/ig.test(sp.innerHTML.trim())) {
+                    if (this.checked) {
+                        connection.invoke("JoinGroup", "Bin").catch(function (err) {
+                            return console.error(err.toString());
+                        });
+                    }
+                    else {
+                        connection.invoke("LeaveGroup", "Bin").catch(function (err) {
+                            return console.error(err.toString());
+                        });
+                    }
+                }
 
-    });
-    connection.invoke("JoinGroup", "Bin").catch(function (err) {
-        return console.error(err.toString());
+            });
+            connection.invoke("JoinGroup", "Bin").catch(function (err) {
+                return console.error(err.toString());
+            });
+            resolve();
+            return false;
+        }
+        catch (e) {
+            throw new Error(e.toString());
+            reject();
+        }
     });
 }
 async function addBinFeature(data) {

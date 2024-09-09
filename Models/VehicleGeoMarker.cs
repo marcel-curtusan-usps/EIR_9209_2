@@ -25,9 +25,15 @@ namespace EIR_9209_2.Models
         public Mission? Mission { get; set; } = new Mission();
         public string? FloorId { get; set; }
         public bool Visible { get; set; } = false;
+        public DateTime PositionTS_txt { get; set; } = DateTime.MinValue;
+        public long PositionTS { get; set; } = 0;
         public DateTime ServerTS_txt { get; set; } = DateTime.MinValue;
         public long ServerTS { get; set; } = 0;
-        public bool IsPosition { get; set; } 
+        public bool isPosition
+        {
+            get => Visible;
+            set => Visible = value;
+        }
         public string LocationMovementStatus { get; set; } = "";
         public string NotificationId { get; set; } = "";
     }

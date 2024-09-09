@@ -18,7 +18,7 @@ namespace EIR_9209_2.Models
 
         [JsonProperty("responseTS")]
         public long ResponseTS { get; set; } = 0;
-
+     
         [JsonProperty("version")]
         public string Version { get; set; } = "";
 

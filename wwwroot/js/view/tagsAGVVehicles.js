@@ -1,13 +1,14 @@
-﻿connection.on("updateAutonomousVehicleTagPosition", async (data) => {
-    let tagdata = JSON.parse(data);
-    if (tagdata.properties.visible) {
-        Promise.all([addAGVFeature(tagdata)]);
+﻿connection.on("updateAutonomousVehicleTagPosition", async (tagdata) => {
+    try {
+        if (tagdata.properties.visible) {
+            Promise.all([addAGVFeature(tagdata)]);
+        }
+    } catch (e) {
+        throw new Error(e.toString());
     }
-
 });
 
 connection.on("UpdateAGVTagInfo", async (data) => {
-    let tagdata = JSON.parse(data);
     if (tagdata.properties.visible) {
         Promise.all([addAGVFeature(tagdata)]);
     }
@@ -20,7 +21,7 @@ let tagsAGVVehicles = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
         let vehicleIcon = L.divIcon({
             id: feature.properties.id,
-            className: get_pi_icon(feature.properties.name, feature.properties.tagType) + ' iconXSmall',
+            className: get_pi_icon(feature.properties.name, feature.properties.type) + ' iconXSmall',
             html: '<i>' +
                 '<span class="path1"></span>' +
                 '<span class="path2"></span>' +
@@ -99,13 +100,19 @@ async function findAGVLeafletIds(markerId) {
         reject(new Error('No layer found with the given markerId'));
     });
 }
-async function init_tagsAGV(data) {
+async function init_tagsAGV() {
     return new Promise((resolve, reject) => {
         try {
-            //add AGV markers to the layer
-            for (let i = 0; i < data.length; i++) {
-                Promise.all([addAGVFeature(data[i])]);
-            }
+            //load PIV Tags
+            connection.invoke("GetAGVTags").then(function (data) {
+                //add AGV markers to the layer
+                for (let i = 0; i < data.length; i++) {
+                    Promise.all([addAGVFeature(data[i])]);
+                }
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
             $(document).on('change', '.leaflet-control-layers-selector', function () {
                 let sp = this.nextElementSibling;
                 if (/^AGV Vehicles/ig.test(sp.innerHTML.trim())) {

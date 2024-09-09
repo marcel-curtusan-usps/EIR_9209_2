@@ -12,217 +12,92 @@ let DateTime = luxon.DateTime;
 let appData = {};
 let baselayerid = "";
 let siteInfo = {};
-let ianaTimeZone = ""
+let ianaTimeZone = "";
+let retryCount = 0;
+const maxRetries = 5;
 const connection = new signalR.HubConnectionBuilder()
     .withUrl(SiteURLconstructor(window.location) + "/hubServics")
-    .withAutomaticReconnect()
+    .withAutomaticReconnect([0, 2000, 10000, 30000]) // Exponential backoff intervals
     .configureLogging(signalR.LogLevel.Information)
     .build();
 
 async function start() {
     try {
-        await connection.start().then(function () {
-            //load Application Info
-            Promise.all([init_osl()]);
-            connection.invoke("GetApplicationInfo").then(function (data) {
-                appData = JSON.parse(data);
-                if (/^(Admin|OIE)/i.test(appData.role)) {
-                    Promise.all([init_geoman_editing()]);
-                    sidebar.addPanel({
-                        id: 'setting',
-                        tab: '<span class="iconCenter"><i class="pi-iconGearFill"></i></span>',
-                        position: 'bottom',
-                    });
-                }
-
-                Promise.all([init_ApplicationConfiguration()]);
-                Promise.all([UpdateOSLattribution(appData)]);
-                Promise.all([init_TagSearch()]);
-                Promise.all([init_backgroundImages(data)]);
-
-                Promise.all([init_emailList()]);
-                $(`span[id="fotf-site-facility-name"]`).text(appData.name);
-            }).catch(function (err) {
-                // handle error
-                console.error(err);
-            });
-            //load Connection
-            connection.invoke("GetConnectionList").then(function (data) {
-                Promise.all([init_connection(data)]).then(function () {
-                    connection.invoke("JoinGroup", "Connections").catch(function (err) {
-                        return console.error(err.toString());
-                    });
-
-                });
-            }).catch(function (err) {
-                // handle error
-                console.error(err);
-            });
-            //load Connection Type
-            connection.invoke("GetConnectionTypeList").then(function (data) {
-                Promise.all([init_connectiontType(data)]).then(function () {
-                    connection.invoke("JoinGroup", "ConnectionTypes").catch(function (err) {
-                        return console.error(err.toString());
-                    });
-
-                });
-            }).catch(function (err) {
-                // handle error
-                console.error(err);
-            });
-            //load Designation Activity to Craft Type
-            connection.invoke("GetDacodeToCraftTypeList").then(function (data) {
-                Promise.all([init_dacodetocraftType(data)]).then(function () {
-                    connection.invoke("JoinGroup", "DacodeToCraftTypes").catch(function (err) {
-                        return console.error(err.toString());
-                    });
-
-                });
-            }).catch(function (err) {
-                // handle error
-                console.error(err);
-            });
-            //load background images
-            //connection.invoke("GetBackgroundImages").then(function (data) {
-            //    Promise.all([init_backgroundImages(data)]).then(function () {
-            //        connection.invoke("JoinGroup", "BackgroundImage").catch(function (err) {
-            //            return console.error(err.toString());
-            //        });
-            //    });
-            //}).catch(function (err) {
-            //    // handle error
-            //    console.error(err);
-            //});
-            //load Person Tags
-            connection.invoke("GetBadgeTags").then(function (data) {
-                Promise.all([init_tagsEmployees(data)]).then(function () {
-                    connection.invoke("JoinGroup", "Badge").catch(function (err) {
-                        return console.error(err.toString());
-                    });
-
-                });
-            }).catch(function (err) {
-                // handle error
-                console.error(err);
-            });
-            //load PIV Tags
-            connection.invoke("GetPIVTags").then(function (data) {
-                Promise.all([init_tagsPIV(data)]).then(function () {
-                    connection.invoke("JoinGroup", "PIVVehicle").catch(function (err) {
-                        return console.error(err.toString());
-                    });
-
-                });
-            }).catch(function (err) {
-                // handle error
-                console.error(err);
-            });
-            //load PIV Tags
-            connection.invoke("GetAGVTags").then(function (data) {
-                Promise.all([init_tagsAGV(data)]);
-            }).catch(function (err) {
-                // handle error
-                console.error(err);
-            });
-            //load Person Tags
-            connection.invoke("GetAccessPoints").then(function (data) {
-                Promise.all([init_accessPoints(data)]);
-            }).catch(function (err) {
-                // handle error
-                console.error(err);
-            });
-            //load GeoZones MPE
-            connection.invoke("GetGeoZones").then(function (data) {
-                Promise.all([init_geoZone(data)]).then(function () {
-                    Promise.all([init_geoZoneMPE()]);
-                    Promise.all([init_geoZoneBin()]);
-                    Promise.all([init_geoZoneAGV()]);
-                    Promise.all([init_geoZoneArea()]);
-                });
-            }).catch(function (err) {
-                // handle error
-                console.error(err);
-            });
-            //load GeoZones MPE
-            connection.invoke("GetDockDoorGeoZones").then(function (data) {
-               
-                Promise.all([init_geoZoneDockDoor(data)]);
-                connection.invoke("JoinGroup", "DockDoor").catch(function (err) {
-                    return console.error(err.toString());
-                });
-            }).catch(function (err) {
-                // handle error
-                console.error(err);
-            });
-            //load cameras
-            connection.invoke("GetCameras").then(function (data) {
-                Promise.all([init_markerCameras(data)]);
-                connection.invoke("JoinGroup", "Cameras").catch(function (err) {
-                    return console.error(err.toString());
-                });
-            }).catch(function (err) {
-                // handle error
-                console.error(err);
-            });
-
-
-        }).catch(function (err) {
-            setTimeout(start, 5000);
-            return console.error(err.toString());
-
-        });
+        await connection.start();
+        console.log("SignalR Connected.");
+        retryCount = 0; // Reset retry count on successful connection
+        initializeApp();
 
     } catch (err) {
-        console.log(err);
-        setTimeout(start, 5000);
+        console.log("Connection failed: ", err);
+        retryCount++;
+        if (retryCount <= maxRetries) {
+            const delay = Math.min(5000 * Math.pow(2, retryCount), 30000); // Exponential backoff with a cap
+            const jitter = Math.random() * 1000; // Add jitter
+            setTimeout(start, delay + jitter);
+        } else {
+            console.error("Max retries reached. Could not connect to SignalR.");
+            showConnectionStatus("Unable to connect. Please check your network.");
+        }
     }
 };
+function initializeApp() {
+    // Load Application Info
+    connection.invoke("GetApplicationInfo").then(function (data) {
+        appData = JSON.parse(data);
+        if (/^(Admin|OIE)/i.test(appData.role)) {
+            init_geoman_editing();
+            sidebar.addPanel({
+                id: 'setting',
+                tab: '<span class="iconCenter"><i class="pi-iconGearFill"></i></span>',
+                position: 'bottom',
+            });
+        }
+        init_ApplicationConfiguration();
+        init_connectiontType();
+        init_connection();
+        UpdateOSLattribution(appData);
+        init_TagSearch();
+        init_backgroundImages(data);
+        init_emailList();
+        init_dacodetocraftType();
+        init_tags();
+        init_tagsAGV();
+        init_tagsPIV();
+        init_accessPoints();
+        init_geoZoneMPE();
+        init_geoZoneDockDoor();
+        init_geoZoneArea();
+        $(`span[id="fotf-site-facility-name"]`).text(appData.name);
+    }).catch(function (err) {
+        console.error("Error loading application info: ", err);
+    });
+    
+}
 
 connection.onclose(async () => {
+    console.log("Connection closed. Attempting to reconnect...");
+    showConnectionStatus("Connection lost. Attempting to reconnect...");
     await start();
 });
-connection.on("backgroundImages", async (id, data) => {
-    // console.log(data);
-    Promise.all([init_backgroundImages(JSON.parse(data))]);
-});
-connection.on("getTagData", async (id, data) => {
-    console.log(data);
-    // Promise.all([init_backgroundImages($.parseJSON(data))]);
-});
-connection.on("connection", async (data) => {
-    Promise.all([updateConnection(JSON.parse(data))]);
+
+connection.onreconnecting((error) => {
+    console.log("Reconnecting...", error);
+    showConnectionStatus("Reconnecting...");
 });
 
+connection.onreconnected((connectionId) => {
+    console.log("Reconnected. Connection ID: ", connectionId);
+    showConnectionStatus("Reconnected.");
+});
 
-connection.on("applicationInfo", async (id, data) => {
-    ApplicationInfo = JSON.parse(data);
-    UpdateOSLattribution();
-    $(`span[id="fotf-site-facility-name"]`).text(ApplicationInfo.name);
-    //add setting icon to the bottom side panel
-    if (/^(admin)/i.test(ApplicationInfo.role)) {
-        sidebar.addPanel({
-            id: 'setting',
-            tab: '<span class="iconCenter"><i class="pi-iconGearFill"></i></span>',
-            position: 'bottom',
-        });
+function showConnectionStatus(message) {
+    const statusElement = document.getElementById('connection-status');
+    if (statusElement) {
+        statusElement.textContent = message;
+        statusElement.style.display = 'block';
     }
-
-});
-connection.on("siteInfo", async (id, data) => {
-    ApplicationInfo = $.parseJSON(data);
-    UpdateOSLattribution();
-    $(`span[id="fotf-site-facility-name"]`).text(ApplicationInfo.name);
-    //add setting icon to the bottom side panel
-    if (/^(admin)/i.test(ApplicationInfo.role)) {
-        sidebar.addPanel({
-            id: 'setting',
-            tab: '<span class="iconCenter"><i class="pi-iconGearFill"></i></span>',
-            position: 'bottom',
-        });
-    }
-
-});
-
+}
 // Start the connection.
 start();
 function checkValue(value) {

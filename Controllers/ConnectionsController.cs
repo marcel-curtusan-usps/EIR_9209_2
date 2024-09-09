@@ -119,7 +119,7 @@ namespace EIR_9209_2.Controllers
                 var connectionToUpdate = value.ToObject<Connection>();
                 if (_worker.UpdateEndpoint(connectionToUpdate))
                 {
-                    return Ok(connectionToUpdate);
+                    return Ok();
                 }
                 else
                 {

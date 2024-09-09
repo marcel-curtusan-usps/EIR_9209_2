@@ -63,16 +63,25 @@ $('#DacodetocraftType_value_Modal').on('shown.bs.modal', function () {
         }
     });
 });
-async function init_dacodetocraftType(data) {
+async function init_dacodetocraftType() {
     try {
         return new Promise((resolve, reject) => {
             $('button[name=dacodebtn]').off().on('click', function () {
                 Promise.all([Add_Dacodetocrafttype()]);
             });
             createDacodetocrafttypeDataTable(dacodetocrafttypetable);
-            if (data.length > 0) {
-                loadDacodetocrafttypeDatatable(data, "dacodetocrafttypetable")
-            }
+            //load Designation Activity to Craft Type
+            connection.invoke("GetDacodeToCraftTypeList").then(function (data) {
+                if (data.length > 0) {
+                    loadDacodetocrafttypeDatatable(data, "dacodetocrafttypetable");
+                }
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
+            connection.invoke("JoinGroup", "DacodeToCraftTypes").catch(function (err) {
+                return console.error(err.toString());
+            });
             resolve();
             return false;
         });

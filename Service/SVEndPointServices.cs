@@ -19,17 +19,11 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                _endpointConfig.Status = EWorkerServiceState.Running;
-                _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                _endpointConfig.ApiConnected = true;
-                await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, cancellationToken: stoppingToken);
-
                 IQueryService queryService;
-                string FormatUrl = "";
                 SiteInformation siteinfo = _siteInfo.GetSiteInfo();
                 if (siteinfo != null)
                 {
-                    FormatUrl = string.Format(_endpointConfig.Url, siteinfo.SiteId);
+                    string FormatUrl = string.Format(_endpointConfig.Url, siteinfo.SiteId);
                     queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                     var result = await queryService.GetSVDoorData(stoppingToken);
                     //process zone data

@@ -31,12 +31,12 @@ namespace EIR_9209_2.Service
                 if (_endpointConfig.MessageType.ToLower() == "FDBIDEmployeeList".ToLower())
                 {
                     // Process tag data in a separate thread
-                    _ = Task.Run(async () => await ProcessFDBIDEmployeeListData(result), stoppingToken);
+                    _ = Task.Run(async () => await ProcessFDBIDEmployeeListData(result), stoppingToken).ConfigureAwait(false);
                 }
                 if (_endpointConfig.MessageType.ToLower() == "NASSCodeEmployeeList".ToLower())
                 {
                     // Process tag data in a separate thread
-                    _ = Task.Run(async () => await ProcessFDBIDEmployeeListData(result), stoppingToken);
+                    _ = Task.Run(async () => await ProcessFDBIDEmployeeListData(result), stoppingToken).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)

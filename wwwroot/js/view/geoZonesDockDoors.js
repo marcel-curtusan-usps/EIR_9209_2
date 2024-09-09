@@ -181,29 +181,46 @@ async function findDockDoorZoneLeafletIds(zoneId) {
         reject(new Error('No layer found with the given DockDoor Zone Id'));
     });
 }
-async function init_geoZoneDockDoor(data) {
-    //load dockdoor data
-    for (let i = 0; i < data.length; i++) {
-        ;
-        Promise.all([addDockDoorFeature(data[i])]);
-    }
-    //load the table 
-    createDockdoorDataTable("dockdoortable");
-    $(document).on('change', '.leaflet-control-layers-selector', function (e) {
-        let sp = this.nextElementSibling;
-        if (/^(Dock Door)/ig.test(sp.innerHTML.trim())) {
-            if (this.checked) {
-                connection.invoke("JoinGroup", "DockDoor").catch(function (err) {
-                    return console.error(err.toString());
-                });
-            }
-            else {
-                connection.invoke("LeaveGroup", "DockDoor").catch(function (err) {
-                    return console.error(err.toString());
-                });
-            }
+async function init_geoZoneDockDoor() {
+    return new Promise((resolve, reject) => {
+        try {
+            //load the table 
+            createDockdoorDataTable("dockdoortable");
+            connection.invoke("GetDockDoorGeoZones").then(function (data) {
+                //load dockdoor data
+                for (let i = 0; i < data.length; i++) {
+                    Promise.all([addDockDoorFeature(data[i])]);
+                }
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
+       
+            $(document).on('change', '.leaflet-control-layers-selector', function (e) {
+                let sp = this.nextElementSibling;
+                if (/^(Dock Door)/ig.test(sp.innerHTML.trim())) {
+                    if (this.checked) {
+                        connection.invoke("JoinGroup", "DockDoor").catch(function (err) {
+                            return console.error(err.toString());
+                        });
+                    }
+                    else {
+                        connection.invoke("LeaveGroup", "DockDoor").catch(function (err) {
+                            return console.error(err.toString());
+                        });
+                    }
+                }
+            });
+            connection.invoke("JoinGroup", "DockDoor").catch(function (err) {
+                return console.error(err.toString());
+            });
+            resolve();
+            return false;
         }
-
+        catch (e) {
+            throw new Error(e.toString());
+            reject();
+        }
     });
 }
 async function LoadDockDoorTable(data) {

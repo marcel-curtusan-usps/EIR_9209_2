@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using PuppeteerSharp;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Text.RegularExpressions;
+using static EIR_9209_2.DataStore.InMemoryCamerasRepository;
 using static EIR_9209_2.Models.GeoMarker;
 using static EIR_9209_2.Models.VehicleGeoMarker;
 
@@ -41,6 +43,7 @@ namespace EIR_9209_2.DataStore
                 $"{fileName}");
             // Load data from the first file into the first collection
             _ = LoadDataFromFile(filePath);
+
             fileTagTimelinePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
                 _configuration[key: "ApplicationConfiguration:BaseDirectory"],
                 _configuration[key: "ApplicationConfiguration:NassCode"],
@@ -267,28 +270,28 @@ namespace EIR_9209_2.DataStore
         {
             try
             {
-                // Read data from file
-                var fileContent = await FileService.ReadFile(filePath);
-                var data = JsonConvert.DeserializeObject<List<TagTimeline>[]>(fileContent);
+                //// Read data from file
+                //var fileContent = await FileService.ReadFile(filePath);
+                //var data = JsonConvert.DeserializeObject<List<TagTimeline>[]>(fileContent);
 
-                if (data!.Length > 0)
-                {
-                    DateTime Max = DateTime.MinValue;
-                    foreach (List<TagTimeline> curdata in data)
-                    {
-                        DateTime hour = curdata!.Select(i => i.Hour).FirstOrDefault();
-                        if (curdata!.Count > 0)
-                        {
-                            if (hour > Max)
-                            {
-                                Max = hour;
-                            }
-                            _QRETagTimelineResults.TryAdd(hour, curdata);
-                        }
-                    }
-                    //Remove last hour in case not complete hour data
-                    _QRETagTimelineResults.TryRemove(Max, out var remove);
-                }
+                //if (data!.Length > 0)
+                //{
+                //    DateTime Max = DateTime.MinValue;
+                //    foreach (List<TagTimeline> curdata in data)
+                //    {
+                //        DateTime hour = curdata!.Select(i => i.Hour).FirstOrDefault();
+                //        if (curdata!.Count > 0)
+                //        {
+                //            if (hour > Max)
+                //            {
+                //                Max = hour;
+                //            }
+                //            _QRETagTimelineResults.TryAdd(hour, curdata);
+                //        }
+                //    }
+                //    //Remove last hour in case not complete hour data
+                //    _QRETagTimelineResults.TryRemove(Max, out var remove);
+                //}
 
             }
             catch (FileNotFoundException ex)
@@ -321,7 +324,7 @@ namespace EIR_9209_2.DataStore
                     foreach (VehicleGeoMarker curdata in data.Select(r => r).ToList())
                     {
                         curdata.Properties.Visible = true;
-                        curdata.Properties.IsPosition = false;
+                        curdata.Properties.isPosition = false;
                         _vehicleTagList.TryAdd(curdata.Properties.Id, curdata);
 
                     }
@@ -357,7 +360,7 @@ namespace EIR_9209_2.DataStore
                 List<GeoMarker> data = JsonConvert.DeserializeObject<List<GeoMarker>>(fileContent);
 
                 // Insert the data into the MongoDB collection
-                if (data.Count != 0)
+                if (data?.Count != 0)
                 {
                     foreach (GeoMarker item in data.Select(r => r).ToList())
                     {
@@ -367,10 +370,11 @@ namespace EIR_9209_2.DataStore
                         item.Properties.posAge = 0;
                         item.Properties.Zones = [];
                         item.Properties.ZonesNames = "";
-                        if (item.Properties.TagType == "Person")
+                        if (string.IsNullOrEmpty(item.Properties.TagType) || item.Properties.TagType == "Person")
                         {
                             item.Properties.TagType = "Badge";
                         }
+
                         _tagList.TryAdd(item.Properties.Id, item);
                     }
                 }
@@ -397,59 +401,59 @@ namespace EIR_9209_2.DataStore
             return _QRETagTimelineResults.ContainsKey(hour);
 
         }
-        public List<TagTimeline> GetTagTimeline(DateTime hour)
-        {
-            return _QRETagTimelineResults[hour];
-        }
-        public void UpdateTagTimeline(DateTime hour, List<TagTimeline> newValue, List<TagTimeline> currentvalue)
-        {
-            //_QRETagTimelineResults.TryUpdate(hour, newValue, currentvalue);
-            bool savetoFile = false;
-            try
-            {
-                while (_QRETagTimelineResults.TryGetValue(hour, out var curValue))
-                {
-                    if (_QRETagTimelineResults.TryUpdate(hour, newValue, curValue))
-                        savetoFile = true;
-                    break;
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"Error updating TagTimeLine {e.Message}");
-            }
-            finally
-            {
-                if (savetoFile)
-                {
-                    FileService.WriteFile(fileTagTimeline, JsonConvert.SerializeObject(_QRETagTimelineResults.Values, Formatting.Indented));
-                }
-            }
-        }
+        //public List<TagTimeline> GetTagTimeline(DateTime hour)
+        //{
+        //    return _QRETagTimelineResults[hour];
+        //}
+        //public void UpdateTagTimeline(DateTime hour, List<TagTimeline> newValue, List<TagTimeline> currentvalue)
+        //{
+        //    //_QRETagTimelineResults.TryUpdate(hour, newValue, currentvalue);
+        //    bool savetoFile = false;
+        //    try
+        //    {
+        //        while (_QRETagTimelineResults.TryGetValue(hour, out var curValue))
+        //        {
+        //            if (_QRETagTimelineResults.TryUpdate(hour, newValue, curValue))
+        //                savetoFile = true;
+        //            break;
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError($"Error updating TagTimeLine {e.Message}");
+        //    }
+        //    finally
+        //    {
+        //        if (savetoFile)
+        //        {
+        //            FileService.WriteFile(fileTagTimeline, JsonConvert.SerializeObject(_QRETagTimelineResults.Values, Formatting.Indented));
+        //        }
+        //    }
+        //}
 
-        public void AddTagTimeline(DateTime hour, List<TagTimeline> newValue)
-        {
-            bool savetoFile = false;
-            try
-            {
-                if (!_QRETagTimelineResults.ContainsKey(hour))
-                {
-                    savetoFile = true;
-                    _QRETagTimelineResults.TryAdd(hour, newValue);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"Error adding TagTimeLine {e.Message}");
-            }
-            finally
-            {
-                if (savetoFile)
-                {
-                    FileService.WriteFile(fileTagTimeline, JsonConvert.SerializeObject(_QRETagTimelineResults.Values, Formatting.Indented));
-                }
-            }
-        }
+        //public void AddTagTimeline(DateTime hour, List<TagTimeline> newValue)
+        //{
+        //    bool savetoFile = false;
+        //    try
+        //    {
+        //        if (!_QRETagTimelineResults.ContainsKey(hour))
+        //        {
+        //            savetoFile = true;
+        //            _QRETagTimelineResults.TryAdd(hour, newValue);
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError($"Error adding TagTimeLine {e.Message}");
+        //    }
+        //    finally
+        //    {
+        //        if (savetoFile)
+        //        {
+        //            FileService.WriteFile(fileTagTimeline, JsonConvert.SerializeObject(_QRETagTimelineResults.Values, Formatting.Indented));
+        //        }
+        //    }
+        //}
         public void RemoveTagTimeline(DateTime hour)
         {
             _QRETagTimelineResults.Where(r => r.Key < hour).Select(l => l.Key).ToList().ForEach(key =>
@@ -457,23 +461,23 @@ namespace EIR_9209_2.DataStore
                 _QRETagTimelineResults.TryRemove(key, out var remove);
             });
         }
-        public List<TagTimeline> GetTagTimelineList(string EIN)
-        {
-            List<TagTimeline> tagTimeline = new List<TagTimeline>();
-            _QRETagTimelineResults.Where(r => r.Key >= DateTime.Now.AddDays(-7)).Select(l => l.Value).ToList().ForEach(value =>
-            //_QRETagTimelineResults.Select(l => l.Value).ToList().ForEach(value =>
-            {
-                foreach (TagTimeline timeline in value)
-                {
-                    if (timeline.Ein == EIN)
-                    {
-                        tagTimeline.Add(timeline);
-                    }
-                }
-            });
-            var ReturnList = tagTimeline.OrderBy(x => x.Start).ThenBy(x => x.End).ToList();
-            return ReturnList;
-        }
+        //public List<TagTimeline> GetTagTimelineList(string EIN)
+        //{
+        //    List<TagTimeline> tagTimeline = new List<TagTimeline>();
+        //    _QRETagTimelineResults.Where(r => r.Key >= DateTime.Now.AddDays(-7)).Select(l => l.Value).ToList().ForEach(value =>
+        //    //_QRETagTimelineResults.Select(l => l.Value).ToList().ForEach(value =>
+        //    {
+        //        foreach (TagTimeline timeline in value)
+        //        {
+        //            if (timeline.Ein == EIN)
+        //            {
+        //                tagTimeline.Add(timeline);
+        //            }
+        //        }
+        //    });
+        //    var ReturnList = tagTimeline.OrderBy(x => x.Start).ThenBy(x => x.End).ToList();
+        //    return ReturnList;
+        //}
 
   
         public void UpdateBadgeTransactionScan(JObject transaction)
@@ -557,67 +561,7 @@ namespace EIR_9209_2.DataStore
                 }
             }
         }
-        //public void UpdateTagQPEInfo(List<Tags> tag)
-        //{
-        //    bool savetoFile = false;
-        //    try
-        //    {
-        //        foreach (Tags qtitem in tag)
-        //        {
-        //            GeoMarker? TagData = null;
-        //            _tagList.TryGetValue(qtitem.TagId, out TagData);
-        //            if (TagData != null)
-        //            {
-        //                TagData.Properties.Color = qtitem.Color;
-        //                TagData.Properties.Zones = qtitem.LocationZoneIds;
-        //                TagData.Geometry.Coordinates = qtitem.Location.Any() ? [qtitem.Location[0], qtitem.Location[1]] : [0, 0];
-        //                TagData.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
-        //                if (!string.IsNullOrEmpty(qtitem.TagName))
-        //                {
-
-        //                }
-        //            }
-        //            else
-        //            {
-        //                //add tag to taglist
-        //                GeoMarker tagData = new GeoMarker
-        //                {
-        //                    Geometry = new MarkerGeometry
-        //                    {
-        //                        Coordinates = qtitem.Location.Any() ? [qtitem.Location[0], qtitem.Location[1]] : [0, 0],
-        //                        Type = "Point"
-        //                    },
-        //                    Properties = new Marker
-        //                    {
-        //                        Id = qtitem.TagId,
-        //                        Name = qtitem.TagName,
-        //                        Color = qtitem.Color,
-        //                        Zones = qtitem.LocationZoneIds,
-        //                        LocationMovementStatus = qtitem.LocationMovementStatus
-        //                    }
-        //                };
-        //                if (_tagList.TryAdd(qtitem.TagId, tagData))
-        //                {
-        //                    savetoFile = true;
-        //                }
-
-        //            }
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogError(e.Message);
-        //    }
-        //    finally
-        //    {
-        //        if (savetoFile)
-        //        {
-        //            //save date to local file
-        //            FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
-        //        }
-
-        //    }
-        //}
+      
 
         public async Task<object> UpdateTagUIInfo(JObject tagInfo)
         {
@@ -674,9 +618,11 @@ namespace EIR_9209_2.DataStore
                                 // Remove from _tagList and add to _vehicleTagList
                                 if (_tagList.TryRemove(tagInfo["tagId"].ToString(), out TagData))
                                 {
+                                    await _hubServices.Clients.Group(TagData.Properties.TagType).SendAsync($"delete{TagData.Properties.TagType}TagInfo", TagData);
                                     var serializedTagData = JsonConvert.SerializeObject(TagData);
                                     var vehicleTagData = JsonConvert.DeserializeObject<VehicleGeoMarker>(serializedTagData);
                                     vehicleTagData.Properties.Type = tagInfo["tagType"].ToString();
+
                                     _vehicleTagList.TryAdd(tagInfo["tagId"].ToString(), vehicleTagData);
                                     savetoFile = true;
                                 }
@@ -742,7 +688,7 @@ namespace EIR_9209_2.DataStore
                                      select new JObject
                                      {
                                          ["id"] = sr.Id,
-                                         ["eIN"] = sr.EIN,
+                                         ["ein"] = sr.EIN,
                                          ["tagType"] = sr.TagType,
                                          ["name"] = sr.Name,
                                          ["encodedId"] = sr.EncodedId,
@@ -764,6 +710,7 @@ namespace EIR_9209_2.DataStore
                                        select new JObject
                                        {
                                            ["id"] = sr.Id,
+                                           ["ein"] = "",
                                            ["tagType"] = sr.Type,
                                            ["name"] = sr.Name,
                                            ["encodedId"] = "",
@@ -771,7 +718,7 @@ namespace EIR_9209_2.DataStore
                                            ["empLastName"] = "",
                                            ["craftName"] = "",
                                            ["payLocation"] = "",
-                                           ["presence"] = sr.IsPosition,
+                                           ["presence"] = sr.isPosition,
                                            ["designationActivity"] = "",
                                            ["color"] = sr.Color
                                        }).ToList();
@@ -779,7 +726,7 @@ namespace EIR_9209_2.DataStore
             var finalReuslt = badgeSearchReuslt.Concat(vehicelSearchReuslt);
             return finalReuslt;
         }
-        public async Task UpdateTagQPEInfo(List<Tags> tags)
+        public async Task UpdateTagQPEInfo(List<Tags> tags, long responseTS)
         {
             try
             {
@@ -787,15 +734,15 @@ namespace EIR_9209_2.DataStore
                 {
                     if (_tagList.ContainsKey(qtitem.TagId))
                     {
-                        await Task.Run(() => ProcessQPEBadgeTag(qtitem)).ConfigureAwait(false);
+                       Task.Run(() => ProcessQPEBadgeTag(qtitem)).ConfigureAwait(false);
                     }
                     else if (_vehicleTagList.ContainsKey(qtitem.TagId))
                     {
-                        await Task.Run(() => ProcessQPEVehicleTag(qtitem)).ConfigureAwait(false);
+                        Task.Run(() => ProcessQPEVehicleTag(qtitem)).ConfigureAwait(false);
                     }
                     else
                     {
-                        await Task.Run(() => ProcessQPEBadgeTag(qtitem)).ConfigureAwait(false);
+                        Task.Run(() => ProcessQPEBadgeTag(qtitem)).ConfigureAwait(false);
                     }
                 }
             }
@@ -806,7 +753,7 @@ namespace EIR_9209_2.DataStore
 
         }
 
-        private async Task ProcessQPEVehicleTag(Tags qtitem)
+        private async void ProcessQPEVehicleTag(Tags qtitem)
         {
             bool savetoFile = false;
             try
@@ -814,10 +761,15 @@ namespace EIR_9209_2.DataStore
                 VehicleGeoMarker? VTagData = null;
                 long posAge = -1;
                 bool visable = false;
+                List<double> positionLocation = [0, 0];
                 lock (_vehicleTagList)
                 {
                     _vehicleTagList.TryGetValue(qtitem.TagId, out VTagData);
                     qtitem.ServerTS = qtitem.LocationTS;
+                    if (qtitem.Location.Any())
+                    {
+                        positionLocation = [qtitem.Location[0], qtitem.Location[1]];
+                    }
                     if (qtitem.LocationTS == 0)
                     {
                         posAge = -1;
@@ -830,9 +782,11 @@ namespace EIR_9209_2.DataStore
                    
                     if (VTagData != null)
                     {
-                        VTagData.Geometry.Coordinates = qtitem.Location.Any() ? [qtitem.Location[0], qtitem.Location[1]] : [0, 0];
+                        VTagData.Geometry.Coordinates = positionLocation;
                         VTagData.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
                         VTagData.Properties.Visible = visable;
+                        VTagData.Properties.PositionTS = qtitem.LocationTS;
+                        VTagData.Properties.ServerTS = qtitem.LocationTS;
                         if (string.IsNullOrEmpty(VTagData.Properties.Type))
                         {
                             VTagData.Properties.Type = "Vehicle";
@@ -849,7 +803,7 @@ namespace EIR_9209_2.DataStore
                         {
                             Geometry = new VehicleMarkerGeometry
                             {
-                                Coordinates = qtitem.Location.Any() ? [qtitem.Location[0], qtitem.Location[1]] : [0, 0],
+                                Coordinates = positionLocation,
                                 Type = "Point"
                             },
                             Properties = new Vehicle
@@ -858,8 +812,10 @@ namespace EIR_9209_2.DataStore
                                 Name = qtitem.TagName,
                                 Color = qtitem.Color,
                                 LocationMovementStatus = qtitem.LocationMovementStatus,
+                                ServerTS = qtitem.ServerTS,
+                                PositionTS = qtitem.LocationTS,
                                 Type = "Vehicle",
-                                IsPosition = visable,
+                                isPosition = visable,
                                 Visible = true
                             }
                         };
@@ -874,29 +830,7 @@ namespace EIR_9209_2.DataStore
                 }
                 if (qtitem.Location.Any())
                 {
-                    JObject PositionGeoJson = new JObject
-                    {
-                        ["type"] = "Feature",
-                        ["geometry"] = new JObject
-                        {
-                            ["type"] = "Point",
-                            ["coordinates"] = qtitem.Location.Any() ? new JArray(qtitem.Location[0], qtitem.Location[1]) : new JArray(0, 0)
-                        },
-                        ["properties"] = new JObject
-                        {
-                            ["id"] = qtitem.TagId,
-                            ["floorId"] = qtitem.LocationCoordSysId,
-                            ["name"] = VTagData?.Properties.Name,
-                            ["posAge"] = posAge,
-                            ["visible"] = visable,
-                            ["zones"] = qtitem.LocationZoneIds.ToString(),
-                            ["locationMovementStatus"] = qtitem.LocationMovementStatus,
-                            ["positionTS_txt"] = qtitem.LocationTS,
-                            ["type"] = VTagData?.Properties.Type
-                        }
-                    };
-
-                    await _hubServices.Clients.Group(VTagData?.Properties.Type).SendAsync($"update{VTagData?.Properties.Type}TagPosition", PositionGeoJson.ToString());
+                  await  _hubServices.Clients.Group(VTagData?.Properties.Type).SendAsync($"update{VTagData?.Properties.Type}TagPosition", positionLocationVehicleMarkersUpdate(VTagData));
                 }
 
             }
@@ -923,10 +857,14 @@ namespace EIR_9209_2.DataStore
                 GeoMarker? TagData = null;
                 long posAge = -1;
                 bool visable = false;
+                List<double> positionLocation = [0, 0];
                 lock (_tagList)
                 {
                     _tagList.TryGetValue(qtitem.TagId, out TagData);
-
+                    if (qtitem.Location.Any())
+                    {
+                        positionLocation = [qtitem.Location[0], qtitem.Location[1]];
+                    }
                     qtitem.ServerTS = qtitem.LocationTS;
                     if (qtitem.LocationTS == 0)
                     {
@@ -949,7 +887,7 @@ namespace EIR_9209_2.DataStore
                     {
                         TagData.Properties.Color = qtitem.Color;
                         TagData.Properties.Zones = qtitem.LocationZoneIds;
-                        TagData.Geometry.Coordinates = qtitem.Location.Any() ? [qtitem.Location[0], qtitem.Location[1]] : [0, 0];
+                        TagData.Geometry.Coordinates = positionLocation;
                         TagData.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
                         TagData.Properties.Visible = visable;
                         if (string.IsNullOrEmpty(TagData.Properties.TagType))
@@ -968,7 +906,7 @@ namespace EIR_9209_2.DataStore
                         {
                             Geometry = new MarkerGeometry
                             {
-                                Coordinates = qtitem.Location.Any() ? [qtitem.Location[0], qtitem.Location[1]] : [0, 0],
+                                Coordinates = positionLocation,
                                 Type = "Point"
                             },
                             Properties = new Marker
@@ -978,8 +916,11 @@ namespace EIR_9209_2.DataStore
                                 Color = qtitem.Color,
                                 Zones = qtitem.LocationZoneIds,
                                 LocationMovementStatus = qtitem.LocationMovementStatus,
+                                ServerTS = qtitem.ServerTS,
+                                PositionTS = qtitem.LocationTS,
                                 TagType = "Badge",
-                                Visible = visable
+                                Visible = visable,
+                                isPosition = visable
                             }
                         };
 
@@ -993,30 +934,7 @@ namespace EIR_9209_2.DataStore
                 }
                 if (qtitem.Location.Any())
                 {
-                    JObject PositionGeoJson = new JObject
-                    {
-                        ["type"] = "Feature",
-                        ["geometry"] = new JObject
-                        {
-                            ["type"] = "Point",
-                            ["coordinates"] = qtitem.Location.Any() ? new JArray(qtitem.Location[0], qtitem.Location[1]) : new JArray(0, 0)
-                        },
-                        ["properties"] = new JObject
-                        {
-                            ["id"] = qtitem.TagId,
-                            ["floorId"] = qtitem.LocationCoordSysId,
-                            ["name"] = TagData?.Properties.Name,
-                            ["posAge"] = posAge,
-                            ["visible"] = visable,
-                            ["zones"] = qtitem.LocationZoneIds.ToString(),
-                            ["locationMovementStatus"] = qtitem.LocationMovementStatus,
-                            ["positionTS_txt"] = qtitem.LocationTS,
-                            ["craftName"] = TagData?.Properties.CraftName,
-                            ["tagType"] = TagData?.Properties.TagType
-                        }
-                    };
-
-                    await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", PositionGeoJson.ToString());
+                   await  _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", positionLocationMarkersUpdate(TagData));
                 }
 
             }
@@ -1035,7 +953,72 @@ namespace EIR_9209_2.DataStore
             }
 
         }
-
+        private GeoMarker positionLocationMarkersUpdate(GeoMarker marker)
+        {
+            try
+            {
+                var jsonResolver = new PropertyRenameAndIgnoreSerializerContractResolver();
+                jsonResolver.IgnoreProperty(typeof(Marker), "BadgeScan");
+                jsonResolver.IgnoreProperty(typeof(Marker), "LocationType");
+                jsonResolver.IgnoreProperty(typeof(Marker), "ZonesNames");
+                jsonResolver.IgnoreProperty(typeof(Marker), "NotificationId");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Source");
+                jsonResolver.IgnoreProperty(typeof(Marker), "DaysOff");
+                jsonResolver.IgnoreProperty(typeof(Marker), "ReqDate");
+                jsonResolver.IgnoreProperty(typeof(Marker), "TourNumber");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Edate");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Elunch");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Blunch");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Bdate");
+                jsonResolver.IgnoreProperty(typeof(Marker), "EncodedId");
+                jsonResolver.IgnoreProperty(typeof(Marker), "EmpPayLocation");
+                jsonResolver.IgnoreProperty(typeof(Marker), "DesignationActivity");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Title");
+                jsonResolver.IgnoreProperty(typeof(Marker), "EmpLastName");
+                jsonResolver.IgnoreProperty(typeof(Marker), "EmpFirstName");
+                jsonResolver.IgnoreProperty(typeof(Marker), "PayLocation");
+                jsonResolver.IgnoreProperty(typeof(Marker), "LDC");
+                jsonResolver.IgnoreProperty(typeof(Marker), "EIN");
+                jsonResolver.IgnoreProperty(typeof(Marker), "CardHolderId");
+                jsonResolver.IgnoreProperty(typeof(Marker), "isePacs");
+                jsonResolver.IgnoreProperty(typeof(Marker), "isTacs");
+                jsonResolver.IgnoreProperty(typeof(Marker), "isSch");
+                jsonResolver.IgnoreProperty(typeof(Marker), "ServerTS");
+                jsonResolver.IgnoreProperty(typeof(Marker), "ServerTS_txt");
+                jsonResolver.IgnoreProperty(typeof(Marker), "PositionTS");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Name");
+                var serializerSettings = new JsonSerializerSettings();
+                serializerSettings.ContractResolver = jsonResolver;
+                return marker;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
+        }
+        private VehicleGeoMarker positionLocationVehicleMarkersUpdate(VehicleGeoMarker marker)
+        {
+            try
+            {
+                var jsonResolver = new PropertyRenameAndIgnoreSerializerContractResolver();
+                jsonResolver.IgnoreProperty(typeof(Marker), "NotificationId");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Mission");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Vehicle_Status_Data");
+                jsonResolver.IgnoreProperty(typeof(Marker), "ServerTS");
+                jsonResolver.IgnoreProperty(typeof(Marker), "ServerTS_txt");
+                jsonResolver.IgnoreProperty(typeof(Marker), "PositionTS");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Name");
+                var serializerSettings = new JsonSerializerSettings();
+                serializerSettings.ContractResolver = jsonResolver;
+                return marker;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
+        }
         /// <summary>
         /// 
         /// </summary>

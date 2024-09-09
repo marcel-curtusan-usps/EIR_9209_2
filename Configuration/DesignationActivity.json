@@ -228,12 +228,16 @@
     "CraftType": "Clerk"
   },
   {
+    "DesignationActivity": "166",
+    "CraftType": "Maintenance"
+  },
+  {
     "DesignationActivity": "753",
     "CraftType": "Maintenance"
   },
   {
-    "DesignationActivity": "166",
-    "CraftType": "Maintenance"
+    "DesignationActivity": "153",
+    "CraftType": "Clerk"
   },
   {
     "DesignationActivity": "140",

@@ -23,13 +23,6 @@ namespace EIR_9209_2.Service
         {
             try
             {
-
-                _endpointConfig.Status = EWorkerServiceState.Running;
-                _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                _endpointConfig.ApiConnected = true;
-                await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, cancellationToken: stoppingToken);
-
-
                 if (!string.IsNullOrEmpty(_endpointConfig.OAuthUrl))
                 {
                     IOAuth2AuthenticationService authService;
@@ -110,39 +103,39 @@ namespace EIR_9209_2.Service
                         Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREDeactivationTime"], out int DeactivationTime); //get the value from appsettings.json
                         Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREDisappearTime"], out int DisappearTime); //get the value from appsettings.json
 
-                        for (var hour = endingHour; startingHour <= hour; hour = hour.AddHours(-1))
-                        {
-                            if (_tags.ExistingTagTimeline(hour))
-                            {
-                                if (currentHour == hour || pastHour == hour)
-                                {
-                                    var currentvalue = _tags.GetTagTimeline(hour);
+                        //for (var hour = endingHour; startingHour <= hour; hour = hour.AddHours(-1))
+                        //{
+                        //    if (_tags.ExistingTagTimeline(hour))
+                        //    {
+                        //        if (currentHour == hour || pastHour == hour)
+                        //        {
+                        //            var currentvalue = _tags.GetTagTimeline(hour);
 
-                                    var newValue = await queryService.GetTotalTagTimeline(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
-                                        TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
-                                        TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
-                                        allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
+                        //            var newValue = await queryService.GetTotalTagTimeline(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
+                        //                TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
+                        //                TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
+                        //                allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
 
-                                    //add to the list
-                                    _tags.UpdateTagTimeline(hour, newValue, currentvalue);
+                        //            //add to the list
+                        //            _tags.UpdateTagTimeline(hour, newValue, currentvalue);
 
-                                }
-                            }
-                            else
-                            {
-                                hourCnt++;
-                                if (hourCnt <= hourBack)
-                                {
-                                    var newValue = await queryService.GetTotalTagTimeline(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
-                                    TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
-                                    TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
-                                    allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
-                                    //add to the list
-                                    _tags.AddTagTimeline(hour, newValue);
-                                }
-                            }
-                            await Task.Run(() => _empSchedules.RunEmpScheduleReport(), stoppingToken).ConfigureAwait(false);
-                        }
+                        //        }
+                        //    }
+                        //    else
+                        //    {
+                        //        hourCnt++;
+                        //        if (hourCnt <= hourBack)
+                        //        {
+                        //            var newValue = await queryService.GetTotalTagTimeline(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
+                        //            TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
+                        //            TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
+                        //            allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
+                        //            //add to the list
+                        //            _tags.AddTagTimeline(hour, newValue);
+                        //        }
+                        //    }
+                        //    await Task.Run(() => _empSchedules.RunEmpScheduleReport(), stoppingToken).ConfigureAwait(false);
+                        //}
                     }
                 }
             }

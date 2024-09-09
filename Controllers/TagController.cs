@@ -120,9 +120,9 @@ namespace EIR_9209_2.Controllers
                 BadRequest(ModelState);
             }
 
-            await _tags.UpdateTagUIInfo(value);
+           var taginfo = await _tags.UpdateTagUIInfo(value);
 
-            return Ok();
+            return Ok(taginfo);
         }
 
         // DELETE api/<TagController>/5
@@ -139,15 +139,15 @@ namespace EIR_9209_2.Controllers
 
             return Ok();
         }
-        [HttpGet]
-        [Route("GetTagTimelineList")]
-        public async Task<object> GetTagTimelineByEIN(string ein)
-        {
-            if (!ModelState.IsValid)
-            {
-                return await Task.FromResult(BadRequest(ModelState));
-            }
-            return _tags.GetTagTimelineList(ein);
-        }
+        //[HttpGet]
+        //[Route("GetTagTimelineList")]
+        //public async Task<object> GetTagTimelineByEIN(string ein)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return await Task.FromResult(BadRequest(ModelState));
+        //    }
+        //    return _tags.GetTagTimelineList(ein);
+        //}
     }
 }

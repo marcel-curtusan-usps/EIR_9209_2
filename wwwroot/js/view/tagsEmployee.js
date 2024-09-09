@@ -51,8 +51,8 @@ $('#UserTag_Modal').on('shown.bs.modal', function () {
         }
     });
 });
-connection.on("updateBadgeTagPosition", async (data) => {
-    let tagdata = JSON.parse(data);
+connection.on("updateBadgeTagPosition", async (tagdata) => {
+
     if (tagdata.properties.visible) {
         Promise.all([addFeature(tagdata)]);
     }
@@ -71,11 +71,10 @@ connection.on("updateBadgeTagInfo", async (tagdata) => {
 
 });
 connection.on("deleteBadgeTagInfo", async (tagdata) => {
-    if (tagdata.properties.visible) {
-        Promise.all([updateFeature(tagdata)]);
-    }
-    else {
+    try {
         Promise.all([deleteFeature(tagdata)]);
+    } catch (e) {
+        throw new Error(e.toString());
     }
 
 });
@@ -157,11 +156,22 @@ async function findLeafletIds(markerId) {
         reject(new Error('No layer found with the given markerId'));
     });
 }
-async function init_tagsEmployees(data) {
+async function init_tags() {
     return new Promise((resolve, reject) => {
         try {
             createStaffingDataTable("staffingtable");
             createTagDataTable('tagInfotable');
+
+            //load Person Tags
+            connection.invoke("GetBadgeTags").then(function (data) {
+                //add PIV markers to the layer
+                for (let i = 0; i < data.length; i++) {
+                    Promise.all([addFeature(data[i])]);
+                }
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
             $(document).on('change', '.leaflet-control-layers-selector', function () {
                 let sp = this.nextElementSibling;
                 if (/^badges$/ig.test(sp.innerHTML.trim())) {
@@ -176,6 +186,9 @@ async function init_tagsEmployees(data) {
                         });
                     }
                 }
+            });
+            connection.invoke("JoinGroup", "Badge").catch(function (err) {
+                return console.error(err.toString());
             });
             resolve();
             return false;

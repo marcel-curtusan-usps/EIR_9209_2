@@ -141,9 +141,9 @@ public class HubServices : Hub
     {
         return await Task.Run(() => _tags.GetTagsType("AP")).ConfigureAwait(false);
     }
-    public async Task<IEnumerable<GeoZone>> GetGeoZones()
+    public async Task<IEnumerable<GeoZone>> GetGeoZones(string zoneType)
     {
-        return await Task.Run(_geoZones.GetAll).ConfigureAwait(false);
+        return await Task.Run(() => _geoZones.GetGeoZone(zoneType)).ConfigureAwait(false);
     }
     public async Task<IEnumerable<GeoZoneDockDoor>> GetDockDoorGeoZones()
     {

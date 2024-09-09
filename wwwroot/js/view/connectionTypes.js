@@ -62,7 +62,7 @@ $('#ConnectionType_value_Modal').on('shown.bs.modal', function () {
         }
     });
 });
-async function init_connectiontType(data) {
+async function init_connectiontType() {
     try {
         return new Promise((resolve, reject) => {
             $('button[name=addConnectionType]').off().on('click', function () {
@@ -70,9 +70,20 @@ async function init_connectiontType(data) {
             });
 
             createConnectiontypeDataTable(connectiontypetable);
-            if (data.length > 0) {
-                connectionTypeLoad(data), updateConnectiontypeDataTable(data, connectiontypetable);
-            }
+
+            //load Connection Type
+            connection.invoke("GetConnectionTypeList").then(function (data) {
+                if (data.length > 0) {
+                    connectionTypeLoad(data), updateConnectiontypeDataTable(data, connectiontypetable);
+                }
+                connection.invoke("JoinGroup", "ConnectionTypes").catch(function (err) {
+                    return console.error(err.toString());
+                });
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
+
             resolve();
             return false;
         });

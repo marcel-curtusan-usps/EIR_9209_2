@@ -2378,3 +2378,16 @@ tr.hide-table-padding td {
 .bi-bullseye::before {
     font-size: 0.75rem;
 }
+
+/* styles.css */
+.green-presence {
+    background-color: green  !important;
+    color: white; /* Optional: Change text color to white for better contrast */
+}
+.red-presence {
+    background-color: red !important;
+    color: white; /* Optional: Change text color to white for better contrast */
+}
+.red-presence .bi-bullseye {
+    color: white; /* Change icon color to white */
+}

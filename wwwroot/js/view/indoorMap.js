@@ -51,7 +51,8 @@ sidebar.on('content', function (ev) {
 }).addTo(OSLmap);
 // Add Layer Popover - Proposed
 let layersControl = L.control.layers(baseLayers, overlayMaps, {
-    sortLayers: true, sortFunction: function (layerA, layerB, nameA, nameB) {
+    sortLayers: true,
+    sortFunction: function (layerA, layerB, nameA, nameB) {
         if (/FLOOR/i.test(nameA)) {
             if (/MAIN/i.test(nameA)) {
                 return -1;
@@ -62,8 +63,18 @@ let layersControl = L.control.layers(baseLayers, overlayMaps, {
         }
     },
     position: 'bottomright',
-    collapsed: true
+    collapsed: true,
+    autoZIndex: false // Disable expand on hover
 }).addTo(OSLmap);
+
+// Add onclick event listener
+layersControl.getContainer().onclick = function () {
+    if (layersControl._container.classList.contains('leaflet-control-layers-expanded')) {
+        layersControl._container.classList.remove('leaflet-control-layers-expanded');
+    } else {
+        layersControl._container.classList.add('leaflet-control-layers-expanded');
+    }
+};
 //Add zoom button
 new L.Control.Zoom({ position: 'bottomright' }).addTo(OSLmap);
 //add View Ports

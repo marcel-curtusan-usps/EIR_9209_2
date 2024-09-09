@@ -27,7 +27,11 @@ namespace EIR_9209_2.Models
             public bool isSch { get; set; }
             public bool isTacs { get; set; }
             public bool isePacs { get; set; }
-            public bool isPosition { get; set; }
+            public bool isPosition
+            {
+                get => Visible;
+                set => Visible = value;
+            }
             public int CardHolderId { get; set; } = 0;
             public string EIN { get; set; } = "";
             public string LDC { get; set; } = "";

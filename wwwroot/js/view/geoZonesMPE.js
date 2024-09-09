@@ -234,35 +234,55 @@ async function findMpeZoneLeafletIds(zoneId) {
     });
 }
 async function init_geoZoneMPE() {
-    $(document).on('change', '.leaflet-control-layers-selector', function (e) {
-        let sp = this.nextElementSibling;
-        if (/^(MPE Zones)$/ig.test(sp.innerHTML.trim())) {
-            if (this.checked) {
-                connection.invoke("JoinGroup", "MPE").catch(function (err) {
-                    return console.error(err.toString());
-                });
-            }
-            else {
-                connection.invoke("LeaveGroup", "MPE").catch(function (err) {
-                    return console.error(err.toString());
-                });
-            }
-        }
+    return new Promise((resolve, reject) => {
+        try {
+            //int mpe standard table 
+            creatMpeStandardDataTable(mpeStandardTable);
+            //load MPE Zones
+            connection.invoke("GetGeoZones", "MPE").then(function (data) {
+                for (let i = 0; i < data.length; i++) {
+                    Promise.all([addMPEFeature(data[i])]);
+                }
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
+            $(document).on('change', '.leaflet-control-layers-selector', function (e) {
+                let sp = this.nextElementSibling;
+                if (/^(MPE Zones)$/ig.test(sp.innerHTML.trim())) {
+                    if (this.checked) {
+                        connection.invoke("JoinGroup", "MPE").catch(function (err) {
+                            return console.error(err.toString());
+                        });
+                    }
+                    else {
+                        connection.invoke("LeaveGroup", "MPE").catch(function (err) {
+                            return console.error(err.toString());
+                        });
+                    }
+                }
 
-    });
-    connection.invoke("JoinGroup", "MPE").catch(function (err) {
-        return console.error(err.toString());
-    });
-    $('button[name=machineinfoedit]').off().on('click', function () {
-        /* close the sidebar */
-        sidebar.close();
-        var id = $(this).attr('id');
-        if (checkValue(id)) {
-            Promise.all([Edit_Machine_Info(id)]);
+            });
+            connection.invoke("JoinGroup", "MPE").catch(function (err) {
+                return console.error(err.toString());
+            });
+            $('button[name=machineinfoedit]').off().on('click', function () {
+                /* close the sidebar */
+                sidebar.close();
+                var id = $(this).attr('id');
+                if (checkValue(id)) {
+                    Promise.all([Edit_Machine_Info(id)]);
+                }
+            });
+
+            resolve();
+            return false;
+        }
+        catch (e) {
+            throw new Error(e.toString());
+            reject();
         }
     });
-    //int mpe standard table 
-    creatMpeStandardDataTable(mpeStandardTable); 
 }
 connection.on("addMPEzone", async (zoneDate) => {
     addMPEFeature(zoneDate);
@@ -405,7 +425,7 @@ async function loadMachineData(data, table) {
             }
 
             if (mpeData.curOperationId === "918" || mpeData.curOperationId === "919") {
-                Promise.all([LoadMachineDPSTables(dataproperties, "dpstable")]);
+               // Promise.all([LoadMachineDPSTables(dataproperties, "dpstable")]);
             }
 
             if (mpeData.hasOwnProperty("currentRunEnd")) {
@@ -575,36 +595,26 @@ function getstatebadge(properties) {
 }
 function getstateText(properties) {
     try {
-
-
         if (properties.hasOwnProperty("mpeRunPerformance")) {
-            if (properties.mpeRunPerformance.hasOwnProperty("currentRunEnd")) {
 
-                let endtime, starttime;
-                if (properties.mpeRunPerformance.currentRunEnd !== '') {
-                    endtime = luxon.DateTime.fromFormat(properties.mpeRunPerformance.currentRunEnd, 'yyyy-MM-dd HH:mm:ss');
-                }
-                else {
-                    endtime = null;
-                }
-                if (properties.mpeRunPerformance.currentRunStart !== '') {
-                    starttime = luxon.DateTime.fromFormat(properties.mpeRunPerformance.currentRunStart, 'yyyy-MM-dd HH:mm:ss');
-                }
-                var sortPlan = properties.mpeRunPerformance.curSortplan;
+            var sortPlan = properties.mpeRunPerformance.curSortplan;
 
-                if (sortPlan.length >= 3) {
-                    return "Running";
-                }
-                else if (!starttime.isValid && endtime === null) {
-                    return "Unknown";
-                }
-                else if (starttime.isValid && endtime.isValid) {
+            if (sortPlan === "") {
+                if (VaildateMPEtime(properties.mpeRunPerformance.currentRunEnd) !== "") {
                     return "Idle";
                 }
+                else {
+                    return "Unknown";
+                }
+              
+            }
+            else if (sortPlan.length >= 3) {
+                return "Running";
             }
             else {
-                return "No Data";
+                return "Idle";
             }
+
         }
         else {
             return "No Data";
@@ -735,23 +745,6 @@ async function Edit_Machine_Info(id) {
                 let MPEwNUMBER = Data.MPE_Type + "-" + (padLeft(Data.MPE_Number, 3, "0"))
                 $('input[id=machine_ip]').val(Data.MPE_IP)
                 $('select[id=zone_Type]').val(Data.type);
-                //fotfmanager.server.getTSAMPEList().done(function (TSAMPE) {
-                //    if (TSAMPE.length > 0) {
-                //        $('input[id=machine_ip]').css('display', 'none');
-                //        $('select[id=select_machine_ip]').css('display', '');
-                //        $('select[id=select_machine_ip]').empty();
-                //        $('<option/>').val("").html("").appendTo('select[id=select_machine_ip]');
-                //        $('select[id=select_machine_ip]').val("");
-                //        $.each(TSAMPE, function () {
-                //            $('<option/>').val(this.IMPENAME).html(this.ALIASNAME).appendTo('#select_machine_ip');
-                //        })
-                //        $('select[id=select_machine_ip]').val(Data.name.toString());
-                //    }
-                //    else {
-                //        $('input[id=machine_ip]').css('display', '');
-                //        $('select[id=select_machine_ip]').css('display', 'none');
-                //    }
-                //});
                 $.ajax({
                     url: SiteURLconstructor(window.location) + '/api/MPE/MPEStandard?Name=' + MPEwNUMBER ,
                     contentType: 'application/json',
@@ -846,28 +839,6 @@ async function Edit_Machine_Info(id) {
                         $('button[id=machinesubmitBtn]').prop('disabled', false);
                     }
                 });
-                /*Populate Machine Group Name*/
-                //fotfmanager.server.getMPEGroupList().done(function (mpeGroupData) {
-                //    $('select[id=mpe_group_select]').empty();
-                //    if (mpeGroupData.length > 0) {
-                //        mpeGroupData.push('');
-                //        mpeGroupData.sort(SortByName);
-                //        mpeGroupData.push('**Group Not Listed');
-                //        $('#mpegroupname_div').css('display', 'none');
-                //        $('select[id=mpe_group_select]').css('display', '');
-                //        $.each(mpeGroupData, function () {
-                //            $('<option/>').val(this).html(this).appendTo('#mpe_group_select');
-                //        })
-                //        $('select[id=mpe_group_select]').val(Data.MPE_Group.toString());
-                //    }
-                //    else {
-                //        $('<option/>').val("**Group Not Listed").html("**Group Not Listed").appendTo('select[id=mpe_group_select]');
-                //        $('<option/>').val("").html("").appendTo('select[id=mpe_group_select]');
-                //        $('select[id=mpe_group_select]').val("");
-                //        $('#mpegroupname_div').css('display', 'none');
-                //        /*enableNewGroupName();*/
-                //    }
-                //});
                 $.ajax({
                     url: SiteURLconstructor(window.location) + '/api/MPE/MPEGroups?Type=MPE',
                     contentType: 'application/json',
@@ -934,32 +905,10 @@ async function Edit_Machine_Info(id) {
                 //empty values of the div.
                 $('#mpestandard_div').html("");
       
-                //fotfmanager.server.getMPEENGStandard(MPEwNUMBER).done(async (data) => {
-                //    $.each(data, function (k, v) {
-                //        //build the mpe list
-                //        let rowid = k;
-                //        let rowvalue = v;
-                //        buildMPEStandardRow(rowid, rowvalue);
-                //    });
-                //});
+             
                 $('input[id=mpestandard_btn]').off().on('click', function () {
 
-                    //fotfmanager.server.getMPEEngGuid().done(async (guid) => {
-                    //    let rowvalue = {
-                    //        GUID: guid,
-                    //        MPE: MPEwNUMBER,
-                    //        OPN: "",
-                    //        StartTime: "",
-                    //        EndTime: "",
-                    //        SetupTimeDuration: "",
-                    //        ChangeoverTimeDuration: "",
-                    //        PulldownTime: "",
-                    //        Name: "",
-                    //        PcsFeedHours: "",
-                    //        StaffHours: ""
-                    //    };
-                    //    buildMPEStandardRow(guid, rowvalue);
-                    //});
+                   
                 });
                 //submit button for MPEENGStandard
                 $('button[id=machinesubmitBtn]').off().on('click', function () {
@@ -989,14 +938,6 @@ async function Edit_Machine_Info(id) {
                                 PcsFeedHours: psc_hr_txt,
                                 StaffHours: staff_hr_txt
                             };
-
-                            //fotfmanager.server.editMPEngStandard(JSON.stringify(rowvalue)).done(function () {
-
-                            //    $('span[id=error_machinesubmitBtn]').text("Operation Standard has been added");
-                            //    setTimeout(function () { $('span[id=error_machinesubmitBtn]').text(""); }, 500);
-
-
-                            //});
 
                             console.log(rowvalue);
                         });
@@ -1216,8 +1157,6 @@ function removeMpeStandardDataTable(removedata, table) {
         });
     }
 }
-//dataproperties.mpeRunPerformance
-//dataproperties.mpeRunPerformance.hourlyData
 async function GetMachinePerfGraph(dataproperties) {
     try {
         //replace the space with the letter T

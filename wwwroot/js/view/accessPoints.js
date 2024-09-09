@@ -105,9 +105,17 @@ async function findAPLeafletIds(markerId) {
         reject(new Error('No layer found with the given markerId'));
     });
 }
-async function init_accessPoints(geoMarker) {
+async function init_accessPoints() {
     return new Promise((resolve, reject) => {
         try {
+            connection.invoke("GetAccessPoints").then(function (data) {
+                for (let i = 0; i < data.length; i++) {
+                    Promise.all([addAPFeature(data[i])]);
+                }
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
+            });
 
             $(document).on('change', '.leaflet-control-layers-selector', function () {
                 let sp = this.nextElementSibling;
@@ -127,9 +135,6 @@ async function init_accessPoints(geoMarker) {
             connection.invoke("JoinGroup", "AP").catch(function (err) {
                 return console.error(err.toString());
             });
-            for (let i = 0; i < geoMarker.length; i++) {
-                Promise.all([addAPFeature(geoMarker[i])]);
-            }
             resolve();
             return false;
         }

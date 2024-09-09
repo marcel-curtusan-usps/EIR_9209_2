@@ -345,11 +345,11 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
             var selsHrs = new Dictionary<string, double>();
             var tacsHrs = new Dictionary<string, double>();
 
-            var selsTimeLine = _tags.GetTagTimelineList(date);
-            if (selsTimeLine != null)
-            {
-                selsHrs = selsTimeLine.GroupBy(e => e.Ein).ToDictionary(g => g.Key, g => g.Sum(e => e.Duration.TotalMilliseconds));
-            }
+            //var selsTimeLine = _tags.GetTagTimelineList(date);
+            //if (selsTimeLine != null)
+            //{
+            //    selsHrs = selsTimeLine.GroupBy(e => e.Ein).ToDictionary(g => g.Key, g => g.Sum(e => e.Duration.TotalMilliseconds));
+            //}
 
             return new EmployeeScheduleSummary
             {
@@ -427,98 +427,98 @@ public class InMemoryEmpSchedulesRepository : IInMemoryEmpSchedulesRepository
                             }
                             //Get Sels Hours
                             List<TimeSpan> selstotal = new List<TimeSpan>(new TimeSpan[7]);
-                            List<TagTimeline>? curemp = _tags.GetTagTimelineList(ein);
-                            if (curemp.Count > 0)
-                            {
-                                DateTime starttmp = new DateTime();
-                                DateTime endtmp = new DateTime();
-                                DateTime tsstart = new DateTime();
-                                TimeSpan durtmp = TimeSpan.Zero;
-                                TimeSpan minustmp = TimeSpan.Zero;
-                                foreach (var ts in curemp)
-                                {
-                                    if (ts.Start > weekts[0].AddHours(-8))
-                                    {
-                                        starttmp = ts.Start;
-                                        if (tsstart == DateTime.MinValue)
-                                        {
-                                            tsstart = ts.Start;
-                                        }
-                                        if (endtmp != DateTime.MinValue && starttmp < endtmp)
-                                        {
-                                            minustmp += endtmp - starttmp;
-                                        }
-                                        if (endtmp != DateTime.MinValue && (starttmp - endtmp).TotalMilliseconds > 2 * 60 * 60 * 1000)
-                                        {
-                                            for (var i = 0; i < 7; i++)
-                                            {
-                                                //if (i != 6 && (tsstart >= weekts[i] && ts.End <= weekts[i + 1]))
-                                                if (i != 6 && tsstart >= weekts[i] && endtmp <= weekts[i + 1])
-                                                {
-                                                    selstotal[i] += durtmp - minustmp;
-                                                    break;
-                                                }
-                                                //else if ((weekts[i] - tsstart) > TimeSpan.Zero && (ts.End - weekts[i]) > TimeSpan.Zero)
-                                                else if ((weekts[i] - tsstart) > TimeSpan.Zero && (endtmp - weekts[i]) > TimeSpan.Zero)
-                                                {
-                                                    //if ((weekts[i] - tsstart) < (ts.End - weekts[i]))
-                                                    if ((weekts[i] - tsstart) < (endtmp - weekts[i]))
-                                                    {
-                                                        selstotal[i] += durtmp - minustmp;
-                                                    }
-                                                    else if (i != 0)
-                                                    {
-                                                        selstotal[i - 1] += durtmp - minustmp;
-                                                    }
-                                                    break;
-                                                }
-                                                //else if (i == 6 || (tsstart < weekts[i] && ts.End >= weekts[i + 1]))
-                                                else if ((i == 6 && endtmp > weekts[i]) || (i != 6 && tsstart < weekts[i] && endtmp >= weekts[i + 1]))
-                                                {
-                                                    selstotal[i] += durtmp - minustmp;
-                                                    break;
-                                                }
-                                                //if ((i == 6 && ts.End >= weekts[i]) || (ts.End >= weekts[i] && ts.End < weekts[i + 1]))
-                                                //{
-                                                //   selstotal[i] += durtmp - minustmp;
-                                                //   selstotal[i] += durtmp;
-                                                //}
-                                            }
-                                            tsstart = ts.Start;
-                                            durtmp = TimeSpan.Zero;
-                                            minustmp = TimeSpan.Zero;
-                                        }
-                                        durtmp += ts.Duration;
-                                        endtmp = ts.End;
-                                    }
-                                }
-                                //last one
-                                for (var i = 0; i < 7; i++)
-                                {
-                                    if (i != 6 && tsstart >= weekts[i] && endtmp <= weekts[i + 1])
-                                    {
-                                        selstotal[i] += durtmp - minustmp;
-                                        break;
-                                    }
-                                    else if ((weekts[i] - tsstart) > TimeSpan.Zero && (endtmp - weekts[i]) > TimeSpan.Zero)
-                                    {
-                                        if ((weekts[i] - tsstart) < (endtmp - weekts[i]))
-                                        {
-                                            selstotal[i] += durtmp - minustmp;
-                                        }
-                                        else if (i != 0)
-                                        {
-                                            selstotal[i - 1] += durtmp - minustmp;
-                                        }
-                                        break;
-                                    }
-                                    else if ((i == 6 && endtmp > weekts[i]) || (i != 6 && tsstart < weekts[i] && endtmp >= weekts[i + 1]))
-                                    {
-                                        selstotal[i] += durtmp - minustmp;
-                                        break;
-                                    }
-                                }
-                            }
+                            //List<TagTimeline>? curemp = _tags.GetTagTimelineList(ein);
+                            //if (curemp.Count > 0)
+                            //{
+                            //    DateTime starttmp = new DateTime();
+                            //    DateTime endtmp = new DateTime();
+                            //    DateTime tsstart = new DateTime();
+                            //    TimeSpan durtmp = TimeSpan.Zero;
+                            //    TimeSpan minustmp = TimeSpan.Zero;
+                            //    foreach (var ts in curemp)
+                            //    {
+                            //        if (ts.Start > weekts[0].AddHours(-8))
+                            //        {
+                            //            starttmp = ts.Start;
+                            //            if (tsstart == DateTime.MinValue)
+                            //            {
+                            //                tsstart = ts.Start;
+                            //            }
+                            //            if (endtmp != DateTime.MinValue && starttmp < endtmp)
+                            //            {
+                            //                minustmp += endtmp - starttmp;
+                            //            }
+                            //            if (endtmp != DateTime.MinValue && (starttmp - endtmp).TotalMilliseconds > 2 * 60 * 60 * 1000)
+                            //            {
+                            //                for (var i = 0; i < 7; i++)
+                            //                {
+                            //                    //if (i != 6 && (tsstart >= weekts[i] && ts.End <= weekts[i + 1]))
+                            //                    if (i != 6 && tsstart >= weekts[i] && endtmp <= weekts[i + 1])
+                            //                    {
+                            //                        selstotal[i] += durtmp - minustmp;
+                            //                        break;
+                            //                    }
+                            //                    //else if ((weekts[i] - tsstart) > TimeSpan.Zero && (ts.End - weekts[i]) > TimeSpan.Zero)
+                            //                    else if ((weekts[i] - tsstart) > TimeSpan.Zero && (endtmp - weekts[i]) > TimeSpan.Zero)
+                            //                    {
+                            //                        //if ((weekts[i] - tsstart) < (ts.End - weekts[i]))
+                            //                        if ((weekts[i] - tsstart) < (endtmp - weekts[i]))
+                            //                        {
+                            //                            selstotal[i] += durtmp - minustmp;
+                            //                        }
+                            //                        else if (i != 0)
+                            //                        {
+                            //                            selstotal[i - 1] += durtmp - minustmp;
+                            //                        }
+                            //                        break;
+                            //                    }
+                            //                    //else if (i == 6 || (tsstart < weekts[i] && ts.End >= weekts[i + 1]))
+                            //                    else if ((i == 6 && endtmp > weekts[i]) || (i != 6 && tsstart < weekts[i] && endtmp >= weekts[i + 1]))
+                            //                    {
+                            //                        selstotal[i] += durtmp - minustmp;
+                            //                        break;
+                            //                    }
+                            //                    //if ((i == 6 && ts.End >= weekts[i]) || (ts.End >= weekts[i] && ts.End < weekts[i + 1]))
+                            //                    //{
+                            //                    //   selstotal[i] += durtmp - minustmp;
+                            //                    //   selstotal[i] += durtmp;
+                            //                    //}
+                            //                }
+                            //                tsstart = ts.Start;
+                            //                durtmp = TimeSpan.Zero;
+                            //                minustmp = TimeSpan.Zero;
+                            //            }
+                            //            durtmp += ts.Duration;
+                            //            endtmp = ts.End;
+                            //        }
+                            //    }
+                            //    //last one
+                            //    for (var i = 0; i < 7; i++)
+                            //    {
+                            //        if (i != 6 && tsstart >= weekts[i] && endtmp <= weekts[i + 1])
+                            //        {
+                            //            selstotal[i] += durtmp - minustmp;
+                            //            break;
+                            //        }
+                            //        else if ((weekts[i] - tsstart) > TimeSpan.Zero && (endtmp - weekts[i]) > TimeSpan.Zero)
+                            //        {
+                            //            if ((weekts[i] - tsstart) < (endtmp - weekts[i]))
+                            //            {
+                            //                selstotal[i] += durtmp - minustmp;
+                            //            }
+                            //            else if (i != 0)
+                            //            {
+                            //                selstotal[i - 1] += durtmp - minustmp;
+                            //            }
+                            //            break;
+                            //        }
+                            //        else if ((i == 6 && endtmp > weekts[i]) || (i != 6 && tsstart < weekts[i] && endtmp >= weekts[i + 1]))
+                            //        {
+                            //            selstotal[i] += durtmp - minustmp;
+                            //            break;
+                            //        }
+                            //    }
+                            //}
                             //Add Employee Schedule & Sels Hours to Report
                             _schReport.TryGetValue(payweek, out SchReport);
                             if (SchReport != null)
