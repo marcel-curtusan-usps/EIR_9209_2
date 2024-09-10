@@ -230,16 +230,7 @@
 		<None Include="wwwroot\lib\luxon\luxon.js.map" />
 		<None Include="wwwroot\lib\luxon\luxon.min.js" />
 		<None Include="wwwroot\lib\luxon\luxon.min.js.map" />
-		<None Include="wwwroot\Reports\Content\empSchedule.scss" />
-		<None Include="wwwroot\Reports\Content\mpePerformance.scss" />
-		<None Include="wwwroot\Reports\Content\siteRollUp.scss" />
-		<None Include="wwwroot\Reports\Scripts\empSchedule.js" />
-		<None Include="wwwroot\Reports\Scripts\empScheduleTable.js" />
-		<None Include="wwwroot\Reports\Scripts\mpePerformance.js" />
-		<None Include="wwwroot\Reports\Scripts\mpePerformanceTable.js" />
-		<None Include="wwwroot\Reports\Scripts\siteRollUp.js" />
-		<None Include="wwwroot\Reports\Scripts\siteRollUpLineChart.js" />
-		<None Include="wwwroot\Reports\Scripts\siteRollUpTable.js" />
+		<Page Include="wwwroot\Reports\Content\empSchedule.scss" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -438,10 +429,40 @@
 	  <Content Update="wwwroot\OSL\default.html">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	  <Content Update="wwwroot\Reports\Content\empSchedule.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Reports\Content\mpePerformance.scss">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Reports\Content\siteRollUp.scss">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="wwwroot\Reports\EmpSchedule.html">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\Reports\MPEPerformance.html">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Reports\Scripts\empSchedule.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Reports\Scripts\empScheduleTable.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Reports\Scripts\mpePerformance.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Reports\Scripts\mpePerformanceTable.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Reports\Scripts\siteRollUp.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Reports\Scripts\siteRollUpLineChart.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Reports\Scripts\siteRollUpTable.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\Reports\SitePerformance.html">
