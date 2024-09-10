@@ -14,7 +14,7 @@ public class HubServices : Hub
     private readonly IInMemoryTagsRepository _tags;
     private readonly IInMemoryGeoZonesRepository _geoZones;
     private readonly IInMemorySiteInfoRepository _siteInfo;
-    private readonly IInMemoryEmpSchedulesRepository _empSchedules;
+    private readonly IInMemoryEmployeesRepository _empSchedules;
     private readonly IInMemoryCamerasRepository _cameraMarkers;
     private readonly ILogger<HubServices> _logger;
     private readonly IConfiguration _configuration;
@@ -26,7 +26,7 @@ public class HubServices : Hub
         IInMemoryTagsRepository tags,
         IInMemoryGeoZonesRepository zones,
         IInMemorySiteInfoRepository siteInfo,
-        IInMemoryEmpSchedulesRepository empSchedules,
+        IInMemoryEmployeesRepository empSchedules,
         IInMemoryCamerasRepository cameraMarkers,
         IConfiguration configuration)
     {

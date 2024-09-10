@@ -51,7 +51,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
             }
         }
     }
@@ -80,7 +80,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
             }
         }
     }
@@ -88,7 +88,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
     {
         if (_backgroundImages.TryGetValue(backgroundImage.id, out BackgroundImage currentBackgroundImage) && _backgroundImages.TryUpdate(backgroundImage.id, backgroundImage, currentBackgroundImage))
         {
-            _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
+            await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
         }
 
         bool saveToFile = false;
@@ -121,7 +121,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
             }
         }
     }

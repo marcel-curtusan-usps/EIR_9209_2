@@ -15,7 +15,7 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryTagsRepository _tags;
         private readonly IInMemoryEmailRepository _email;
         private readonly IInMemorySiteInfoRepository _siteInfo;
-        private readonly IInMemoryEmpSchedulesRepository _empSchedule;
+        private readonly IInMemoryEmployeesRepository _empSchedule;
         private readonly IInMemoryCamerasRepository _cameras;
         private readonly IConfiguration _configuration;
         private readonly ConcurrentDictionary<string, BaseEndpointService> _endPointServices = new();
@@ -27,7 +27,7 @@ namespace EIR_9209_2.Service
             IInMemoryTagsRepository tags,
             IInMemoryEmailRepository email,
             IInMemorySiteInfoRepository siteInfo,
-            IInMemoryEmpSchedulesRepository empSchedule,
+            IInMemoryEmployeesRepository empSchedule,
             IInMemoryCamerasRepository cameras,
             IConfiguration configuration)
         {

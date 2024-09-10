@@ -49,6 +49,18 @@
     ]
   },
   {
+    "Id": "1aa48e5a-7a36-4548-bd56-54c5ae2cf2d8",
+    "Name": "HCES",
+    "Description": "Human Capital Enterprise System",
+    "MessageTypes": [
+      {
+        "Id": "aadf59a2-4bb7-47dc-ad00-864d377fb5fb",
+        "Name": "getByFacilityID",
+        "Description": "By Facility ID"
+      }
+    ]
+  },
+  {
     "Id": "4ed5b34b-499a-478d-9f9b-011c26868832",
     "Name": "SV",
     "Description": "Surface Visibility ",

@@ -3,6 +3,6 @@
 public interface IFileService
 {
     Task<string> ReadFile(string path);
-    bool WriteFile(string path, string content);
-    bool WriteFileInAppConfig(string path, string content);
+    Task WriteFileInAppConfig(string path, string content);
+    Task WriteFileAsync(string fileName, string content);
 }

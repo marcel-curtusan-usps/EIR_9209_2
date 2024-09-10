@@ -415,7 +415,7 @@ async function Add_Connection() {
                 MillisecondsInterval: $('select[name=data_retrieve] option:selected').val(),
                 Name: $('select[name=connection_name] option:selected').val(),
                 IpAddress: $('input[type=text][name=ip_address]').val(),
-                Port: $.isNumeric($('input[type=text][name=port_number]').val()) ? parseInt($('input[id=hoursback_range]').val(), 10) : 0,
+                Port: Number.isNaN(Number($('input[type=text][name=port_number]').val())) ? parseInt($('input[id=hoursback_range]').val(), 10) : 0,
                 Url: $('input[type=text][name=url]').val(),
                 MessageType: $('select[name=message_type] option:selected').val(),
                 OAuthUrl: $('input[type=text][name=tokenurl]').val(),

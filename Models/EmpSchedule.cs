@@ -1,18 +1,19 @@
-﻿namespace EIR_9209_2.Models
+﻿// Ignore Spelling: EIN
+
+namespace EIR_9209_2.Models
 {
     public class EmployeeInfo
     {
-        public string EIN { get; set; } = "";
-        public string PayWeek { get; set; } = "";
-        public string PayLoc { get; set; } = "";
-        public string LastName { get; set; } = "";
-        public string FirstName { get; set; } = "";
-        public string MiddleInit { get; set; } = "";
-        public string DesActCode { get; set; } = "";
-        public string Title { get; set; } = "";
-        public string BaseOp { get; set; } = "";
-        public string TourNumber { get; set; } = "";
-        public List<Schedule> WeekSchedule { get; set; } = new List<Schedule>();
+        public required string EIN { get; set; } 
+        public required string PayWeek { get; set; } 
+        public required string PayLocation { get; set; }
+        public required string LastName { get; set; } 
+        public required string FirstName { get; set; } 
+        public required string MiddleInit { get; set; } 
+        public required string DesActCode { get; set; } 
+        public required string Title { get; set; } 
+        public required string BaseOp { get; set; } 
+        public required string TourNumber { get; set; } 
     }
 
     public class Schedule

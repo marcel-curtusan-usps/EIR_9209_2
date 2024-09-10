@@ -597,17 +597,37 @@ async function updateConnectiontypeDataTable(newdata, table) {
 }
 async function connectionTypeLoad(connName) {
     try {
-        $(document).ready(function () {
+        $(function () {
             if (!$.isEmptyObject(connName)) {
                 if ($('#connection_name option[value="blank"]').length == 0) {
                     $('<option/>').val("blank").html("").appendTo('#connection_name');
                     $('<option data-messagetype=blank>').val("blank").html("").appendTo('#message_type');
                 }
+
+                // Sort connName by description and name
+                connName.sort((a, b) => {
+                    if (a.description < b.description) return -1;
+                    if (a.description > b.description) return 1;
+                    if (a.name < b.name) return -1;
+                    if (a.name > b.name) return 1;
+                    return 0;
+                });
+                // Sort messageTypes within each connName
+                connName.forEach(conn => {
+                    conn.messageTypes.sort((a, b) => {
+                        if (a.description < b.description) return -1;
+                        if (a.description > b.description) return 1;
+                        if (a.name < b.name) return -1;
+                        if (a.name > b.name) return 1;
+                        return 0;
+                    });
+                });
                 $.each(connName, function (key, value) {
                     let name = this.name;
                     if ($('#connection_name option[value=' + name + ']').length == 0) {
                         $('<option/>').val(this.name).html(this.description + " (" + this.name + ")").appendTo('#connection_name');
                     }
+
                     $(this.messageTypes).each(function (key, value) {
                         let messagetype = this.name;
 

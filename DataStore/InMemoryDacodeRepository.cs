@@ -21,63 +21,89 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
 
         _ = LoadDataFromFile(filePath);
     }
-    public DesignationActivityToCraftType? Add(DesignationActivityToCraftType dacode)
+    public async Task<DesignationActivityToCraftType?> Add(DesignationActivityToCraftType dacode)
     {
-        if (_dacodeList.TryAdd(dacode.DesignationActivity, dacode))
+        bool saveToFile = false;
+        try
         {
-            if (_fileService.WriteFileInAppConfig(fileName, JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented)))
+            if (_dacodeList.TryAdd(dacode.DesignationActivity, dacode))
             {
-                return dacode;
-            }
-            else
-            {
-                _logger.LogError($"{fileName} was not update");
-                return null;
-            }
-        }
-        else
-        {
-            return null;
-        }
-    }
-    public DesignationActivityToCraftType? Remove(string dacodeId)
-    {
-        if (_dacodeList.TryRemove(dacodeId, out DesignationActivityToCraftType dacode))
-        {
-            if (_fileService.WriteFileInAppConfig(fileName, JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented)))
-            {
+                saveToFile = true;
                 return dacode;
             }
             else
             {
                 return null;
             }
-
         }
-        else
+        catch (Exception e)
         {
+            _logger.LogError(e.Message);
             return null;
         }
-    }
-    public DesignationActivityToCraftType? Update(DesignationActivityToCraftType dacode)
-    {
-        if (_dacodeList.TryGetValue(dacode.DesignationActivity, out DesignationActivityToCraftType? currentDacode) && _dacodeList.TryUpdate(dacode.DesignationActivity, dacode, currentDacode))
+        finally
         {
-            if (_fileService.WriteFileInAppConfig(fileName, JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented)))
+            if (saveToFile)
             {
-                return Get(dacode.DesignationActivity);
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented));
+            }
+        }
+    }
+    public async Task<DesignationActivityToCraftType?> Remove(string dacodeId)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (_dacodeList.TryRemove(dacodeId, out DesignationActivityToCraftType dacode))
+            {
+                saveToFile = true;
+                return dacode;
             }
             else
             {
                 return null;
             }
-
         }
-        else
+        catch (Exception e)
         {
+            _logger.LogError(e.Message);
             return null;
         }
-
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented));
+            }
+        }
+    }
+    public async Task<DesignationActivityToCraftType?> Update(DesignationActivityToCraftType dacode)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (_dacodeList.TryGetValue(dacode.DesignationActivity, out DesignationActivityToCraftType? currentDacode) && _dacodeList.TryUpdate(dacode.DesignationActivity, dacode, currentDacode))
+            {
+                saveToFile = true;
+                return currentDacode;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented));
+            }
+        }
     }
     public DesignationActivityToCraftType Get(string id)
     {

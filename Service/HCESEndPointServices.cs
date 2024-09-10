@@ -5,12 +5,12 @@ using Newtonsoft.Json.Linq;
 
 namespace EIR_9209_2.Service
 {
-    public class IVESEndPointServices : BaseEndpointService
+    public class HCESEndPointServices : BaseEndpointService
     {
         private readonly IInMemoryEmployeesRepository _empSchedules;
         private readonly IInMemorySiteInfoRepository _siteInfo;
 
-        public IVESEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemorySiteInfoRepository siteInfo, IInMemoryEmployeesRepository empSchedules)
+        public HCESEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemorySiteInfoRepository siteInfo, IInMemoryEmployeesRepository empSchedules)
             : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
         {
             _siteInfo = siteInfo;
@@ -26,19 +26,16 @@ namespace EIR_9209_2.Service
                 {
                     IQueryService queryService;
                     var now = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
-                    string FormatUrl = string.Format(_endpointConfig.Url, siteinfo.FinanceNumber, now.ToString("yyyyMMdd"));
+                    string FormatUrl = string.Format(_endpointConfig.Url);
                     string Finnum = siteinfo.FinanceNumber;
                     queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
                     var result = await queryService.GetIVESData(stoppingToken);
 
-                    if (_endpointConfig.MessageType == "getEmpInfo")
+                    if (_endpointConfig.MessageType == "getByFacilityID")
                     {
                         _ = Task.Run(async () => await ProcessEmployeeInfoData(result), stoppingToken);
                     }
-                    if (_endpointConfig.MessageType == "getEmpSchedule")
-                    {
-                        _ = Task.Run(async () => await ProcessEmpScheduleData(result), stoppingToken);
-                    }
+                    
                 }
             }
             catch (Exception ex)

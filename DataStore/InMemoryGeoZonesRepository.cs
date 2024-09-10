@@ -83,7 +83,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
+                await _fileService.WriteFileAsync(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
             }
         }
     }
@@ -113,7 +113,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
+                await _fileService.WriteFileAsync(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
             }
         }
     }
@@ -161,7 +161,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileNameDockDoor, GeoZoneDockDoorOutPutdata(_geoZoneDockDoorList.Select(x => x.Value).ToList()));
+                await _fileService.WriteFileAsync(fileNameDockDoor, GeoZoneDockDoorOutPutdata(_geoZoneDockDoorList.Select(x => x.Value).ToList()));
             }
         }
     }
@@ -191,7 +191,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileNameDockDoor, GeoZoneDockDoorOutPutdata(_geoZoneDockDoorList.Select(x => x.Value).ToList()));
+                await _fileService.WriteFileAsync(fileNameDockDoor, GeoZoneDockDoorOutPutdata(_geoZoneDockDoorList.Select(x => x.Value).ToList()));
             }
         }
     }
@@ -227,7 +227,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
+                await _fileService.WriteFileAsync(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
             }
         }
     }
@@ -267,7 +267,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
+                await _fileService.WriteFileAsync(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
             }
         }
     }
@@ -702,6 +702,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     {
         try
         {
+            await Task.Run(() => UpdateMPERunActivity(mpeList)).ConfigureAwait(false);
             foreach (MPERunPerformance mpe in mpeList)
             {
                 mpe.MpeId = string.Concat(mpe.MpeType, "-", mpe.MpeNumber.ToString().PadLeft(3, '0'));
@@ -710,7 +711,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 {
                     _MPENameList.Add(mpe.MpeId);
                 }
-                await Task.Run(() => UpdateMPERunActivity(mpe)).ConfigureAwait(false);
+                
                 var geoZone = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == mpe.MpeId).Select(y => y.Value).FirstOrDefault();
                 if (geoZone != null)
                 {
@@ -1006,72 +1007,75 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         return Enumerable.Range(0, hours).Select(i => localTime.AddHours(-hours).AddHours(i).ToString("yyyy-MM-dd HH:00")).ToList();
     }
 
-    public void UpdateMPERunActivity(MPERunPerformance mpe)
+    public async void UpdateMPERunActivity(List<MPERunPerformance> mpeList)
     {
         bool SaveToFile = false;
         SiteInformation siteinfo = _siteInfo.GetSiteInfo();
         try
         {
-            DateTime CurrentRunStart = !string.IsNullOrEmpty(mpe.CurrentRunStart)
-                      ? DateTime.ParseExact(mpe.CurrentRunStart, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
-                      : DateTime.MinValue;
-            DateTime CurrentRunEnd = !string.IsNullOrEmpty(mpe.CurrentRunEnd)
-             ? DateTime.ParseExact(mpe.CurrentRunEnd, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
-             : _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
-            string mpe_id = string.Concat(mpe.MpeId, @"_", new DateTime(CurrentRunStart.Year, CurrentRunStart.Month, CurrentRunStart.Day, CurrentRunStart.Hour, CurrentRunStart.Minute, 0, 0).ToString(""));
-
-            int.TryParse(mpe.MpeNumber, out int MpeNum);
-            int.TryParse(mpe.CurOperationId, out int CurOperationId);
-            int.TryParse(mpe.RpgEstVol, out int RpgEstVol);
-            int.TryParse(mpe.RpgExpectedThruput, out int RpgExpectedThruput);
-            int.TryParse(mpe.ActVolPlanVolNbr, out int ActVolPlanVolNbr);
-            int.TryParse(mpe.CurThruputOphr, out int CurThruputOphr);
-            int.TryParse(mpe.CurOperationId, out int OpNumber);
-            int.TryParse(mpe.TotSortplanVol, out int TotSortplanVol);
-            if (_MPERunActivity.ContainsKey(mpe_id) && _MPERunActivity.TryGetValue(mpe_id, out var activeRun))
+            foreach (var mpe in mpeList)
             {
-                activeRun.ActiveRun = false;
-                //check if current run end is greater than the CurrentRunEnd
+                DateTime CurrentRunStart = !string.IsNullOrEmpty(mpe.CurrentRunStart)
+                          ? DateTime.ParseExact(mpe.CurrentRunStart, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
+                          : DateTime.MinValue;
+                DateTime CurrentRunEnd = !string.IsNullOrEmpty(mpe.CurrentRunEnd)
+                 ? DateTime.ParseExact(mpe.CurrentRunEnd, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
+                 : _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
+                string mpe_id = string.Concat(mpe.MpeId, @"_", new DateTime(CurrentRunStart.Year, CurrentRunStart.Month, CurrentRunStart.Day, CurrentRunStart.Hour, CurrentRunStart.Minute, 0, 0).ToString(""));
 
-                if (activeRun.CurThruputOphr != CurThruputOphr && CurThruputOphr > 0)
+                int.TryParse(mpe.MpeNumber, out int MpeNum);
+                int.TryParse(mpe.CurOperationId, out int CurOperationId);
+                int.TryParse(mpe.RpgEstVol, out int RpgEstVol);
+                int.TryParse(mpe.RpgExpectedThruput, out int RpgExpectedThruput);
+                int.TryParse(mpe.ActVolPlanVolNbr, out int ActVolPlanVolNbr);
+                int.TryParse(mpe.CurThruputOphr, out int CurThruputOphr);
+                int.TryParse(mpe.CurOperationId, out int OpNumber);
+                int.TryParse(mpe.TotSortplanVol, out int TotSortplanVol);
+                if (_MPERunActivity.ContainsKey(mpe_id) && _MPERunActivity.TryGetValue(mpe_id, out var activeRun))
                 {
-                    activeRun.CurThruputOphr = CurThruputOphr;
-                    SaveToFile = true;
+                    activeRun.ActiveRun = false;
+                    //check if current run end is greater than the CurrentRunEnd
+
+                    if (activeRun.CurThruputOphr != CurThruputOphr && CurThruputOphr > 0)
+                    {
+                        activeRun.CurThruputOphr = CurThruputOphr;
+                        SaveToFile = true;
+                    }
+                    if (activeRun.TotSortplanVol != TotSortplanVol && TotSortplanVol > 0)
+                    {
+                        activeRun.TotSortplanVol = TotSortplanVol;
+                        SaveToFile = true;
+                    }
+
+                    if (activeRun.CurrentRunEnd != CurrentRunEnd)
+                    {
+                        activeRun.CurrentRunEnd = CurrentRunEnd;
+                        activeRun.ActiveRun = true;
+                        SaveToFile = true;
+                    }
                 }
-                if (activeRun.TotSortplanVol != TotSortplanVol && TotSortplanVol > 0)
+                else
                 {
-                    activeRun.TotSortplanVol = TotSortplanVol;
-                    SaveToFile = true;
+                    _MPERunActivity.TryAdd(mpe_id, new MPEActiveRun
+                    {
+                        ActiveRun = true,
+                        Type = "Run",
+                        MpeType = mpe.MpeType,
+                        MpeNumber = MpeNum,
+                        MpeId = mpe.MpeId,
+                        CurSortplan = mpe.CurSortplan,
+                        CurThruputOphr = CurThruputOphr,
+                        CurrentRunStart = CurrentRunStart,
+                        CurrentRunEnd = CurrentRunEnd,
+                        CurOperationId = CurOperationId,
+                        TotSortplanVol = TotSortplanVol,
+                        RpgEstVol = RpgEstVol,
+                        RpgExpectedThruput = RpgExpectedThruput,
+                        ActVolPlanVolNbr = ActVolPlanVolNbr
+
+                    });
+
                 }
-
-                if (activeRun.CurrentRunEnd != CurrentRunEnd)
-                {
-                    activeRun.CurrentRunEnd = CurrentRunEnd;
-                    activeRun.ActiveRun = true;
-                    SaveToFile = true;
-                }
-            }
-            else
-            {
-                _MPERunActivity.TryAdd(mpe_id, new MPEActiveRun
-                {
-                    ActiveRun = true,
-                    Type = "Run",
-                    MpeType = mpe.MpeType,
-                    MpeNumber = MpeNum,
-                    MpeId = mpe.MpeId,
-                    CurSortplan = mpe.CurSortplan,
-                    CurThruputOphr = CurThruputOphr,
-                    CurrentRunStart = CurrentRunStart,
-                    CurrentRunEnd = CurrentRunEnd,
-                    CurOperationId = CurOperationId,
-                    TotSortplanVol = TotSortplanVol,
-                    RpgEstVol = RpgEstVol,
-                    RpgExpectedThruput = RpgExpectedThruput,
-                    ActVolPlanVolNbr = ActVolPlanVolNbr
-
-                });
-
             }
         }
         catch (Exception e)
@@ -1089,12 +1093,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             });
             if (SaveToFile)
             {
-                _fileService.WriteFile("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
+                await _fileService.WriteFileAsync("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
             }
         }
     }
 
-    public Task LoadMPEPlan(JToken data)
+    public async Task LoadMPEPlan(JToken data)
     {
         // sample data
         // {
@@ -1226,12 +1230,10 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 }
 
             }
-            return Task.FromResult(true);
         }
         catch (Exception e)
         {
             _logger.LogError($"Error loading MPE Plan data {e.Message}");
-            return Task.FromResult(true);
         }
         finally
         {
@@ -1244,13 +1246,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             });
             if (SaveToFile)
             {
-                _fileService.WriteFile("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
+                await _fileService.WriteFileAsync("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
             }
         }
 
     }
 
-    public Task LoadWebEORMPERun(JToken data)
+    public async Task LoadWebEORMPERun(JToken data)
     {
         bool SaveToFile = false;
         try
@@ -1312,12 +1314,11 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 }
 
             }
-            return Task.FromResult(true);
         }
         catch (Exception e)
         {
             _logger.LogError($"Error loading MPE Plan data {e.Message}");
-            return Task.FromResult(true);
+    
         }
         finally
         {
@@ -1330,7 +1331,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             });
             if (SaveToFile)
             {
-                _fileService.WriteFile("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
+                await _fileService.WriteFileAsync("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
             }
         }
     }
@@ -1525,7 +1526,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (SaveToFile)
             {
-               // _fileService.WriteFile("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
+               // await _fileService.WriteFileAsync("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
             }
         }
     }

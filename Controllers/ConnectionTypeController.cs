@@ -22,7 +22,7 @@ namespace EIR_9209_2.Controllers
         /// </summary>
         /// <param name="value">The connection details.</param>
         /// <returns>The added connection.</returns>
-        public object PostAddNewConnectionType([FromBody] JObject value)
+        public async Task<object> PostAddNewConnectionType([FromBody] JObject value)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -34,7 +34,7 @@ namespace EIR_9209_2.Controllers
             //add the connection id
             contype.Id = Guid.NewGuid().ToString();
             //add to the connection repository
-            ConnectionType loadedCon = _connectiontypeRepository.AddType(contype);
+            ConnectionType loadedCon =await _connectiontypeRepository.AddType(contype);
             if (loadedCon != null)
             {
                 return Ok(loadedCon);
@@ -48,7 +48,7 @@ namespace EIR_9209_2.Controllers
         // PUT api/<Connection>/5
         [HttpPut]
         [Route("Update")]
-        public object PutConnectionType(string id, [FromBody] JObject value)
+        public async Task<object> PutConnectionType(string id, [FromBody] JObject value)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -57,11 +57,11 @@ namespace EIR_9209_2.Controllers
             }
             //convert the JObject to a Connection object
             //find id to update 
-            ConnectionType conToUpdate = _connectiontypeRepository.GetType(id);
+            ConnectionType conToUpdate = await _connectiontypeRepository.GetType(id);
             if (conToUpdate != null)
             {
                 ConnectionType connection = value.ToObject<ConnectionType>();
-                ConnectionType updatedCon = _connectiontypeRepository.UpdateType(connection);
+                ConnectionType updatedCon = await _connectiontypeRepository.UpdateType(connection);
                 if (updatedCon != null)
                 {
                     return Ok(updatedCon);
@@ -80,14 +80,14 @@ namespace EIR_9209_2.Controllers
         // DELETE api/<Connection>/5
         [HttpDelete]
         [Route("Delete")]
-        public object DeleteConnectionType(string id)
+        public async Task<object> DeleteConnectionType(string id)
         {
             //handle bad requests
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            ConnectionType removedCon = _connectiontypeRepository.RemoveType(id);
+            ConnectionType removedCon = await _connectiontypeRepository.RemoveType(id);
             if (removedCon != null)
             {
                 return removedCon;
@@ -106,7 +106,7 @@ namespace EIR_9209_2.Controllers
         // POST api/<Connection>
         [HttpPut]
         [Route("AddSubType")]
-        public object PostAddNewConnectionSubType(string id, [FromBody] JObject value)
+        public async Task<object> PostAddNewConnectionSubType(string id, [FromBody] JObject value)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -114,12 +114,12 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(ModelState);
             }
 
-            ConnectionType conToUpdate = _connectiontypeRepository.GetType(id);
+            ConnectionType conToUpdate =await _connectiontypeRepository.GetType(id);
             if (conToUpdate != null)
             {
                 Messagetype msgtype = value.ToObject<Messagetype>();
                 msgtype.Id = Guid.NewGuid().ToString();
-                Messagetype updatedCon = _connectiontypeRepository.AddSubType(id, msgtype);
+                Messagetype updatedCon = await _connectiontypeRepository.AddSubType(id, msgtype);
                 if (updatedCon != null)
                 {
                     return Ok(updatedCon);
@@ -143,7 +143,7 @@ namespace EIR_9209_2.Controllers
         // PUT api/<Connection>/5
         [HttpPut]
         [Route("UpdateSubType")]
-        public object PutSubType(string id, [FromBody] JObject value)
+        public async Task<object> PutSubType(string id, [FromBody] JObject value)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -152,12 +152,12 @@ namespace EIR_9209_2.Controllers
             }
             //convert the JObject to a Connection object
             //find id to update 
-            ConnectionType conToUpdate = _connectiontypeRepository.GetType(id);
+            ConnectionType conToUpdate = await _connectiontypeRepository.GetType(id);
             if (conToUpdate != null)
             {
 
                 Messagetype msgtype = value.ToObject<Messagetype>();
-                Messagetype updatedCon = _connectiontypeRepository.UpdateSubType(id, msgtype);
+                Messagetype updatedCon = await _connectiontypeRepository.UpdateSubType(id, msgtype);
                 if (updatedCon != null)
                 {
                     return Ok(updatedCon);
@@ -181,7 +181,7 @@ namespace EIR_9209_2.Controllers
         // DELETE api/<Connection>/5
         [HttpPost]
         [Route("DeleteSubType")]
-        public object DeleteConnectionSubType(string id, string subId)
+        public async Task<object> DeleteConnectionSubType(string id, string subId)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -190,7 +190,7 @@ namespace EIR_9209_2.Controllers
             }
             try
             {
-                Messagetype removedCon = _connectiontypeRepository.RemoveSubType(id, subId);
+                Messagetype removedCon = await _connectiontypeRepository.RemoveSubType(id, subId);
                 return Ok(removedCon);
             }
             catch (Exception)

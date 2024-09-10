@@ -22,7 +22,7 @@ public interface IInMemoryGeoZonesRepository
     void RunMPESummaryReport();
     Task<bool> UpdateMPERunInfo(List<MPERunPerformance> mpe);
     void ProcessIDSData(JToken result);
-    void UpdateMPERunActivity(MPERunPerformance mpe);
+    void UpdateMPERunActivity(List<MPERunPerformance> mpe);
     Task LoadMPEPlan(JToken data);
     Task LoadWebEORMPERun(JToken data);
         //List<TagTimeline> GetTagTimelineList(string ein);

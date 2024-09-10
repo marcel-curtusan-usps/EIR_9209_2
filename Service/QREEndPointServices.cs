@@ -7,10 +7,10 @@ namespace EIR_9209_2.Service
     {
         private readonly IInMemoryGeoZonesRepository _zones;
         private readonly IInMemoryTagsRepository _tags;
-        private readonly IInMemoryEmpSchedulesRepository _empSchedules;
+        private readonly IInMemoryEmployeesRepository _empSchedules;
         private readonly IInMemorySiteInfoRepository _siteInfo;
 
-        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository zones, IInMemoryTagsRepository tags, IInMemoryEmpSchedulesRepository empSchedules, IInMemorySiteInfoRepository siteInfo)
+        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository zones, IInMemoryTagsRepository tags, IInMemoryEmployeesRepository empSchedules, IInMemorySiteInfoRepository siteInfo)
             : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
         {
             _zones = zones;

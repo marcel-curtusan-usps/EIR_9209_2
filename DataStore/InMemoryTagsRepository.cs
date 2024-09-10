@@ -21,7 +21,7 @@ namespace EIR_9209_2.DataStore
         private readonly ILogger<InMemoryTagsRepository> _logger;
         protected readonly IHubContext<HubServices> _hubServices;
         private readonly IConfiguration _configuration;
-        private readonly IFileService FileService;
+        private readonly IFileService _fileService;
         private readonly IInMemoryDacodeRepository _dacode;
         private readonly string filePath = "";
         private readonly string fileName = "Tags.json";
@@ -31,7 +31,7 @@ namespace EIR_9209_2.DataStore
         private readonly string fileTagTimeline = "TagTimeline.json";
         public InMemoryTagsRepository(ILogger<InMemoryTagsRepository> logger, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryDacodeRepository dacode, IFileService fileService)
         {
-            FileService = fileService;
+            _fileService = fileService;
             _logger = logger;
             _configuration = configuration;
             _hubServices = hubServices;
@@ -69,7 +69,7 @@ namespace EIR_9209_2.DataStore
                 if (_tagList.TryAdd(tag.Properties.Id, tag))
                 {
                     await _hubServices.Clients.Group(tag.Properties.TagType).SendAsync($"add{tag.Properties.TagType}TagInfo", tag);
-                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    saveToFile = true;
                 }
             }
             catch (Exception e)
@@ -80,7 +80,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
             }
         }
@@ -92,7 +92,7 @@ namespace EIR_9209_2.DataStore
                 if (_tagList.TryRemove(connectionId, out GeoMarker? tag))
                 {
                     await _hubServices.Clients.Group(tag.Properties.TagType).SendAsync($"delete{tag.Properties.TagType}TagInfo", tag);
-                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    saveToFile = true;
                 }
             }
             catch (Exception e)
@@ -103,7 +103,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
             }
 
@@ -144,7 +144,7 @@ namespace EIR_9209_2.DataStore
         {
             return _vehicleTagList.Values.Where(r => r.Properties.Type.StartsWith("Autonomous")).Select(y => y).ToList();
         }
-        public void UpdateEmployeeInfo(JToken result)
+        public async void UpdateEmployeeInfo(JToken result)
         {
             bool savetoFile = false;
 
@@ -262,7 +262,7 @@ namespace EIR_9209_2.DataStore
                 if (savetoFile)
                 {
                     //save date to local file
-                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
             }
         }
@@ -316,7 +316,7 @@ namespace EIR_9209_2.DataStore
             try
             {
                 // Read data from file
-                var fileContent = await FileService.ReadFile(filePath);
+                var fileContent = await _fileService.ReadFile(filePath);
                 List<VehicleGeoMarker> data = JsonConvert.DeserializeObject<List<VehicleGeoMarker>>(fileContent);
 
                 if (data.Count > 0)
@@ -353,7 +353,7 @@ namespace EIR_9209_2.DataStore
             try
             {
                 // Read data from file
-                var fileContent = await FileService.ReadFile(filePath);
+                var fileContent = await _fileService.ReadFile(filePath);
 
                 // Parse the file content to get the data. This depends on the format of your file.
                 // Here's an example if your file was in JSON format and contained an array of T objects:
@@ -479,7 +479,7 @@ namespace EIR_9209_2.DataStore
         //}
 
   
-        public void UpdateBadgeTransactionScan(JObject transaction)
+        public async void UpdateBadgeTransactionScan(JObject transaction)
         {
             bool savetoFile = false;
             try
@@ -515,14 +515,8 @@ namespace EIR_9209_2.DataStore
             finally
             {
                 if (savetoFile)
-                {
-                    //save date to loacl file
-                    string BuildPath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
-                                       _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-                                                      _configuration[key: "ApplicationConfiguration:NassCode"],
-                                                                     _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-                                                                                    $"{_configuration[key: "InMemoryCollection:CollectionTags"]}.json");
-                    FileService.WriteFile(BuildPath, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                { 
+                    await _fileService.WriteFileAsync(filePath, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
             }
         }
@@ -530,7 +524,7 @@ namespace EIR_9209_2.DataStore
         {
             return _tagList.Where(r => r.Key == tagId).Select(y => y.Value.Properties.CraftName).FirstOrDefault();
         }
-        public bool UpdateTagDesignationActivity(DesignationActivityToCraftType daCode)
+        public async void UpdateTagDesignationActivity(DesignationActivityToCraftType daCode)
         {
             //update DasigbationActivity to CraftType
             bool savetoFile = false;
@@ -544,19 +538,17 @@ namespace EIR_9209_2.DataStore
                         savetoFile = true;
                     }
                 }
-                return true;
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return false;
             }
             finally
             {
                 if (savetoFile)
                 {
                     //save date to local file
-                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
             }
         }
@@ -666,8 +658,8 @@ namespace EIR_9209_2.DataStore
                 if (savetoFile)
                 {
                     //save date to local file
-                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
-                    FileService.WriteFile(vehicleFileName, JsonConvert.SerializeObject(_vehicleTagList.Values, Formatting.Indented));
+                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteFileAsync(vehicleFileName, JsonConvert.SerializeObject(_vehicleTagList.Values, Formatting.Indented));
                 }
             }
         }
@@ -725,21 +717,23 @@ namespace EIR_9209_2.DataStore
         }
         public async Task UpdateTagQPEInfo(List<Tags> tags, long responseTS)
         {
+            bool saveToFile = false;
+            bool saveVehicleToFile = false;
             try
             {
                 foreach (Tags qtitem in tags)
                 {
                     if (_tagList.ContainsKey(qtitem.TagId))
                     {
-                       Task.Run(() => ProcessQPEBadgeTag(qtitem)).ConfigureAwait(false);
+                        saveToFile = await Task.Run(() => ProcessQPEBadgeTag(qtitem)).ConfigureAwait(false);
                     }
                     else if (_vehicleTagList.ContainsKey(qtitem.TagId))
                     {
-                        Task.Run(() => ProcessQPEVehicleTag(qtitem)).ConfigureAwait(false);
+                        saveVehicleToFile = await Task.Run(() => ProcessQPEVehicleTag(qtitem)).ConfigureAwait(false);
                     }
                     else
                     {
-                        Task.Run(() => ProcessQPEBadgeTag(qtitem)).ConfigureAwait(false);
+                        saveToFile = await Task.Run(() => ProcessQPEBadgeTag(qtitem)).ConfigureAwait(false);
                     }
                 }
             }
@@ -747,10 +741,23 @@ namespace EIR_9209_2.DataStore
             {
                 _logger.LogError(e.Message);
             }
+            finally
+            {
+                if (saveToFile)
+                {
+                    //save date to local file
+                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                }
+                if (saveVehicleToFile)
+                {
+                    //save date to local file
+                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_vehicleTagList.Values, Formatting.Indented));
+                }
+            }
 
         }
 
-        private async void ProcessQPEVehicleTag(Tags qtitem)
+        private async Task<bool> ProcessQPEVehicleTag(Tags qtitem)
         {
             bool savetoFile = false;
             try
@@ -829,24 +836,18 @@ namespace EIR_9209_2.DataStore
                 {
                   await  _hubServices.Clients.Group(VTagData?.Properties.Type).SendAsync($"update{VTagData?.Properties.Type}TagPosition", positionLocationVehicleMarkersUpdate(VTagData));
                 }
+                return await Task.FromResult(savetoFile);
 
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
+                return await Task.FromResult(savetoFile);
             }
-            finally
-            {
-                if (savetoFile)
-                {
-                    //save date to local file
-                    FileService.WriteFile(vehicleFileName, JsonConvert.SerializeObject(_vehicleTagList.Values, Formatting.Indented));
-                }
-
-            }
+           
         }
 
-        private async void ProcessQPEBadgeTag(Tags qtitem)
+        private async Task<bool> ProcessQPEBadgeTag(Tags qtitem)
         {
             bool savetoFile = false;
             try
@@ -933,21 +934,15 @@ namespace EIR_9209_2.DataStore
                 {
                    await  _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", positionLocationMarkersUpdate(TagData));
                 }
+                return await Task.FromResult(savetoFile);
 
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
+                return await Task.FromResult(savetoFile);
             }
-            finally
-            {
-                if (savetoFile)
-                {
-                    //save date to local file
-                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
-                }
-
-            }
+           
 
         }
         private GeoMarker positionLocationMarkersUpdate(GeoMarker marker)
@@ -1021,7 +1016,7 @@ namespace EIR_9209_2.DataStore
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        async Task IInMemoryTagsRepository.UpdateTagCiscoSpacesClientInfo(JToken result)
+        public async Task UpdateTagCiscoSpacesClientInfo(JToken result)
         {
             bool savetoFile = false;
             try
@@ -1053,12 +1048,12 @@ namespace EIR_9209_2.DataStore
                 if (savetoFile)
                 {
                     //save date to local file
-                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
 
             }
         }
-        async Task IInMemoryTagsRepository.UpdateTagCiscoSpacesBLEInfo(JToken result)
+        public async Task UpdateTagCiscoSpacesBLEInfo(JToken result)
         {
             bool savetoFile = false;
             try
@@ -1090,13 +1085,13 @@ namespace EIR_9209_2.DataStore
                 if (savetoFile)
                 {
                     //save date to local file
-                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
 
             }
         }
 
-        async Task IInMemoryTagsRepository.UpdateTagCiscoSpacesAPInfo(JToken result)
+        public async Task UpdateTagCiscoSpacesAPInfo(JToken result)
         {
             bool savetoFile = false;
             try
@@ -1203,7 +1198,7 @@ namespace EIR_9209_2.DataStore
                 if (savetoFile)
                 {
                     //save date to local file
-                    FileService.WriteFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                 await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
 
             }

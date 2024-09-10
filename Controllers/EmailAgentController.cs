@@ -59,7 +59,7 @@ namespace EIR_9209_2.Controllers
         // POST api/<EmailAgentController>
         [HttpPost]
         [Route("Add")]
-        public object PostByAddNewEmail([FromBody] JObject newEmail)
+        public async Task<object> PostByAddNewEmail([FromBody] JObject newEmail)
         {
             try
             {
@@ -70,7 +70,7 @@ namespace EIR_9209_2.Controllers
                 // add newEmail to the _emailList
                 Email email = newEmail.ToObject<Email>();
                 email.Id = Guid.NewGuid().ToString();
-                Email result = _emailList.Add(email);
+                Email result = await _emailList.Add(email);
                 if (result == null)
                 {
                     return BadRequest("Email was not added");
@@ -93,14 +93,14 @@ namespace EIR_9209_2.Controllers
 
         [HttpPut]
         [Route("Update")]
-        public object PostByUpdateEmail(string id, [FromBody] JObject value)
+        public async Task<object> PostByUpdateEmail(string id, [FromBody] JObject value)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
             Email email = value.ToObject<Email>();
-            Email result = _emailList.Update(id, email);
+            Email result = await _emailList.Update(id, email);
             if (result == null)
             {
                 return BadRequest("Email was not updated");
@@ -115,13 +115,13 @@ namespace EIR_9209_2.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("Delete")]
-        public object Delete(string id)
+        public async Task<object> Delete(string id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var result = _emailList.Delete(id);
+            var result = await _emailList.Delete(id);
             if (result == null)
             {
                 return BadRequest("Email was not deleted");

@@ -4,9 +4,9 @@ public interface IInMemoryDacodeRepository
 {
     //Connection 
     DesignationActivityToCraftType Get(string id);
-    DesignationActivityToCraftType Add(DesignationActivityToCraftType dacode);
-    DesignationActivityToCraftType Remove(string dacodeId);
-    DesignationActivityToCraftType Update(DesignationActivityToCraftType dacode);
+    Task<DesignationActivityToCraftType> Add(DesignationActivityToCraftType dacode);
+    Task<DesignationActivityToCraftType> Remove(string dacodeId);
+    Task<DesignationActivityToCraftType> Update(DesignationActivityToCraftType dacode);
     IEnumerable<DesignationActivityToCraftType> GetAll();
 
 }

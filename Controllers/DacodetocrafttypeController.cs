@@ -70,7 +70,7 @@ namespace EIR_9209_2.Controllers
         /// </summary>
         /// <param name="value">The connection details.</param>
         /// <returns>The added connection.</returns>
-        public object PostAddNewDacodetocrafttype([FromBody] JObject value)
+        public async Task<object> PostAddNewDacodetocrafttype([FromBody] JObject value)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -80,7 +80,7 @@ namespace EIR_9209_2.Controllers
             //convert the JObject to a Connection object
             DesignationActivityToCraftType dacode = value.ToObject<DesignationActivityToCraftType>();
             //add to the connection repository
-            DesignationActivityToCraftType loadedDacode = _dacodeRepository.Add(dacode);
+            DesignationActivityToCraftType loadedDacode = await _dacodeRepository.Add(dacode);
             if (loadedDacode != null)
             {
                 //update all tag that have this da code
@@ -101,7 +101,7 @@ namespace EIR_9209_2.Controllers
         // PUT api/<DAcode>/5
         [HttpPut]
         [Route("Update")]
-        public object Put(string id, [FromBody] JObject value)
+        public async Task<object> Put(string id, [FromBody] JObject value)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -114,7 +114,7 @@ namespace EIR_9209_2.Controllers
             if (dacodeToUpdate != null)
             {
                 DesignationActivityToCraftType dacode = value.ToObject<DesignationActivityToCraftType>();
-                DesignationActivityToCraftType updatedDacode = _dacodeRepository.Update(dacode);
+                DesignationActivityToCraftType updatedDacode = await _dacodeRepository.Update(dacode);
                 if (updatedDacode != null)
                 {
                     //update all tag that have this da code
@@ -141,14 +141,14 @@ namespace EIR_9209_2.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("Delete")]
-        public object Delete(string id)
+        public async Task<object> Delete(string id)
         {
             //handle bad requests
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            DesignationActivityToCraftType removedDacode = _dacodeRepository.Remove(id);
+            DesignationActivityToCraftType removedDacode = await _dacodeRepository.Remove(id);
             if (removedDacode != null)
             {
                 //return Ok(_dacodeRepository.Get(id));

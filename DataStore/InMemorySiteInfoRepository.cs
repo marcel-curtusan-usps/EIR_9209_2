@@ -31,7 +31,7 @@ namespace EIR_9209_2.DataStore
         {
             if (_siteInfo.TryAdd(site.FdbId, site))
             {
-                FileService.WriteFile(fileName, JsonConvert.SerializeObject(_siteInfo.Values, Formatting.Indented));
+                FileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_siteInfo.Values, Formatting.Indented));
             }
         }
 
@@ -39,7 +39,7 @@ namespace EIR_9209_2.DataStore
         {
             if (_siteInfo.TryRemove(id, out _))
             {
-                FileService.WriteFile(fileName, JsonConvert.SerializeObject(_siteInfo.Values, Formatting.Indented));
+                FileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_siteInfo.Values, Formatting.Indented));
             }
         }
 
@@ -58,7 +58,7 @@ namespace EIR_9209_2.DataStore
             if (_siteInfo.TryGetValue(site.FdbId, out SiteInformation currentSite) && _siteInfo.TryUpdate(site.FdbId, site, currentSite))
             {
 
-                FileService.WriteFile(fileName, JsonConvert.SerializeObject(_siteInfo.Values, Formatting.Indented));
+                FileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_siteInfo.Values, Formatting.Indented));
             }
         }
 

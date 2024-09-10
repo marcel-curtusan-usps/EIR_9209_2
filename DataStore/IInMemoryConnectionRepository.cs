@@ -8,17 +8,17 @@ public interface IInMemoryConnectionRepository
     Task<Connection> Remove(string connectionId);
     Task<Connection> Update(Connection connection);
     IEnumerable<Connection> GetAll();
-    IEnumerable<Connection> GetbyType(string type);
+    Task<IEnumerable<Connection>> GetbyType(string type);
 
 
     //Connection types
-    ConnectionType AddType(ConnectionType connection);
-    ConnectionType RemoveType(string connectionId);
-    ConnectionType GetType(string id);
+    Task<ConnectionType> AddType(ConnectionType connection);
+    Task<ConnectionType> RemoveType(string connectionId);
+    Task<ConnectionType> GetType(string id);
     IEnumerable<ConnectionType> GetTypeAll();
     IEnumerable<ConnectionType> GetbyNameType(string type);
-    ConnectionType UpdateType(ConnectionType connection);
-    Messagetype AddSubType(string connectionId, Messagetype connection);
-    Messagetype UpdateSubType(string connectionId, Messagetype connection);
-    Messagetype RemoveSubType(string connectionId, string subId);
+    Task<ConnectionType> UpdateType(ConnectionType connection);
+    Task<Messagetype> AddSubType(string connectionId, Messagetype connection);
+    Task<Messagetype> UpdateSubType(string connectionId, Messagetype connection);
+    Task<Messagetype> RemoveSubType(string connectionId, string subId);
 }

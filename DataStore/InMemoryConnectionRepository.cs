@@ -11,7 +11,9 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     private readonly IConfiguration _configuration;
     private readonly IFileService _fileService;
     private readonly string filePath = "";
-    private readonly string fileName = "";
+    private readonly string fileName = "ConnectionList.json";
+    private readonly string connectionTypefilePath = "";
+    private readonly string connectionTypefileName = "ConnectionType.json";
     private readonly object _lock = new();
 
     public InMemoryConnectionRepository(ILogger<InMemoryConnectionRepository> logger, IHubContext<HubServices> hubServices, IConfiguration configuration, IFileService fileService)
@@ -19,7 +21,6 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
-        fileName = $"{_configuration[key: "InMemoryCollection:CollectionConnections"]}.json";
         filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
             _configuration[key: "ApplicationConfiguration:BaseDirectory"],
             _configuration[key: "ApplicationConfiguration:NassCode"],
@@ -28,11 +29,11 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         // Load Connection data from the first file into the first collection
         _ = LoadDataFromFile(filePath);
 
-        string conTypeFilePath = Path.Combine(Directory.GetCurrentDirectory(), _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{"ConnectionType"}.json");
+        connectionTypefilePath = Path.Combine(Directory.GetCurrentDirectory(), _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{connectionTypefileName}");
         // Load ConnectionType data from the first file into the first collection
-        _ = LoadConnectionTypeDataFromFile(conTypeFilePath);
+        _ = LoadConnectionTypeDataFromFile(connectionTypefilePath);
     }
-    public Task<Connection>? Add(Connection connection)
+    public async Task<Connection>? Add(Connection connection)
     {
         bool saveToFile = false;
         try
@@ -40,7 +41,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
             if (_connectionList.TryAdd(connection.Id, connection))
             {
                 saveToFile = true;
-                return Task.FromResult(connection);
+                return connection;
             }
             else
             {
@@ -57,11 +58,11 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
             }
         }
     }
-    public Task<Connection>? Remove(string connectionId)
+    public async Task<Connection>? Remove(string connectionId)
     {
         bool saveToFile = false;
         try
@@ -69,7 +70,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
             if (_connectionList.TryRemove(connectionId, out Connection connection))
             {
                 saveToFile = true;
-                return Task.FromResult(connection);
+                return await Task.FromResult(connection);
             }
             else
             {
@@ -86,17 +87,17 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
             }
         }
     }
-    public Task<Connection?> Update(Connection connection)
+    public async Task<Connection?> Update(Connection connection)
     {
         bool saveToFile = false;
         try
         {
             saveToFile = true;
-            return Task.FromResult(_connectionList.TryGetValue(connection.Id, out Connection? currentConnection) ? currentConnection : null);
+            return _connectionList.TryGetValue(connection.Id, out Connection? currentConnection) ? currentConnection : null;
         }
         catch (Exception e)
         {
@@ -107,7 +108,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
             }
         }
 
@@ -122,14 +123,10 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     {
         return _connectionList.Values;
     }
-    public IEnumerable<Connection> GetbyType(string type)
+    public async Task<IEnumerable<Connection>> GetbyType(string type)
     {
         return _connectionList.Where(r => r.Value.Name == type).Select(y => y.Value);
     }
-    /// <summary>
-    /// Updates a connection in the in-memory connection repository.
-    /// </summary>
-
     private async Task LoadDataFromFile(string filePath)
     {
         try
@@ -168,71 +165,95 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
             _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
         }
     }
-
-
-    public ConnectionType? AddType(ConnectionType connType)
+    public async Task<ConnectionType?> AddType(ConnectionType connType)
     {
-        if (_connectionTypeList.TryAdd(connType.Id, connType))
+        bool saveToFile = false;
+        try
         {
-            if (_fileService.WriteFileInAppConfig("ConnectionType.json", JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented)))
+            if (_connectionTypeList.TryAdd(connType.Id, connType))
             {
+                saveToFile = true;
                 return connType;
             }
             else
             {
-                _logger.LogError($"ConnectionType.json was not update");
                 return null;
-
             }
-
         }
-        else
+        catch (Exception e)
         {
+            _logger.LogError(e.Message);
             return null;
         }
-    }
-    public Messagetype? AddSubType(string connectionId, Messagetype connection)
-    {
-        if (_connectionTypeList.TryGetValue(connectionId, out ConnectionType? currentConnectionType))
+        finally
         {
-            currentConnectionType.MessageTypes.Add(connection);
-            if (_fileService.WriteFileInAppConfig("ConnectionType.json", JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented)))
+            if (saveToFile)
             {
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
+            }
+        }
+
+    }
+    public async Task<Messagetype?> AddSubType(string connectionId, Messagetype connection)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (_connectionTypeList.TryGetValue(connectionId, out ConnectionType? currentConnectionType))
+            {
+                currentConnectionType.MessageTypes.Add(connection);
+                saveToFile = true;
                 return connection;
             }
             else
             {
                 return null;
             }
-
         }
-        else
+        catch (Exception e)
         {
+            _logger.LogError(e.Message);
             return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
+            }
         }
     }
 
-    public ConnectionType? RemoveType(string connTypeId)
+    public async Task<ConnectionType?> RemoveType(string connTypeId)
     {
-        if (_connectionTypeList.TryRemove(connTypeId, out ConnectionType conn))
+        bool saveToFile = false;
+        try
         {
-            if (_fileService.WriteFileInAppConfig("ConnectionType.json", JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented)))
+            if (_connectionTypeList.TryRemove(connTypeId, out ConnectionType conn))
             {
+                saveToFile = true;
                 return conn;
             }
             else
             {
                 return null;
             }
-
         }
-        else
+        catch (Exception e)
         {
+            _logger.LogError(e.Message);
             return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
+            }
         }
     }
 
-    public ConnectionType GetType(string connTypeid)
+    public async Task<ConnectionType> GetType(string connTypeid)
     {
         _connectionTypeList.TryGetValue(connTypeid, out ConnectionType connectiontype);
         return connectiontype;
@@ -246,76 +267,110 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     {
         return _connectionTypeList.Where(r => r.Value.Name == name).Select(y => y.Value);
     }
-    public ConnectionType? UpdateType(ConnectionType connection)
+    public async Task<ConnectionType?> UpdateType(ConnectionType connection)
     {
-        if (_connectionTypeList.TryGetValue(connection.Id, out ConnectionType? currentConnectionType) && _connectionTypeList.TryUpdate(connection.Id, connection, currentConnectionType))
+        bool saveToFile = false;
+        try
         {
-            if (_fileService.WriteFileInAppConfig("ConnectionType.json", JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented)))
+            if (_connectionTypeList.TryGetValue(connection.Id, out ConnectionType? currentConnectionType) && _connectionTypeList.TryUpdate(connection.Id, connection, currentConnectionType))
             {
-                return GetType(connection.Id);
-            }
-            else
-            {
-                return null;
-            }
-
-        }
-        else
-        {
-            return null;
-        }
-    }
-    public Messagetype? UpdateSubType(string connectionId, Messagetype connection)
-    {
-        if (_connectionTypeList.TryGetValue(connectionId, out ConnectionType? currentConnectionType))
-        {
-            foreach (var msgtype in currentConnectionType.MessageTypes)
-            {
-                if (msgtype.Id == connection.Id)
-                {
-                    if (msgtype.Description != connection.Description)
-                    {
-                        msgtype.Description = connection.Description;
-                    }
-                    if (msgtype.Name != connection.Name)
-                    {
-                        msgtype.Name = connection.Name;
-                    }
-                }
-            }
-            if (_fileService.WriteFileInAppConfig("ConnectionType.json", JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented)))
-            {
+                saveToFile = true;
                 return connection;
             }
             else
             {
                 return null;
             }
-
         }
-        else
+        catch (Exception e)
         {
+            _logger.LogError(e.Message);
             return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
+            }
         }
     }
-    public Messagetype? RemoveSubType(string connectionId, string subId)
+    public async Task<Messagetype?> UpdateSubType(string connectionId, Messagetype connection)
     {
-        if (_connectionTypeList.TryGetValue(connectionId, out ConnectionType? currentConnectionType))
+        bool saveToFile = false;
+        try
         {
-            foreach (var msgtype in currentConnectionType.MessageTypes)
+            if (_connectionTypeList.TryGetValue(connectionId, out ConnectionType? currentConnectionType))
             {
-                if (msgtype.Id == subId)
+                foreach (var msgtype in currentConnectionType.MessageTypes)
                 {
-                    currentConnectionType.MessageTypes.Remove(msgtype);
-                    _fileService.WriteFileInAppConfig("ConnectionType.json", JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
-                    return msgtype;
+                    if (msgtype.Id == connection.Id)
+                    {
+                        if (msgtype.Description != connection.Description)
+                        {
+                            msgtype.Description = connection.Description;
+                        }
+                        if (msgtype.Name != connection.Name)
+                        {
+                            msgtype.Name = connection.Name;
+                        }
+                    }
                 }
+                saveToFile = true;
+                return connection;
             }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
             return null;
         }
-        else
+        finally
         {
+            if (saveToFile)
+            {
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
+            }
+        }
+    }
+    public async Task<Messagetype?> RemoveSubType(string connectionId, string subId)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (_connectionTypeList.TryGetValue(connectionId, out ConnectionType? currentConnectionType))
+            {
+                foreach (var msgtype in currentConnectionType.MessageTypes)
+                {
+                    if (msgtype.Id == subId)
+                    {
+                        currentConnectionType.MessageTypes.Remove(msgtype);
+                        saveToFile = true;
+                        return msgtype;
+                    }
+                }
+                return null;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
             return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
+            }
         }
     }
 

@@ -25,7 +25,7 @@ public class InMemoryEmailRepository : IInMemoryEmailRepository
         _ = LoadDataFromFile(filePath);
     }
 
-    public Email? Add(Email email)
+    public async Task<Email?> Add(Email email)
     {
         //add to email and also save to file
         bool saveToFile = false;
@@ -51,12 +51,12 @@ public class InMemoryEmailRepository : IInMemoryEmailRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented));
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented));
             }
         }
     }
 
-    public Email? Delete(string id)
+    public async Task<Email?> Delete(string id)
     {
         bool saveToFile = false;
         try
@@ -82,11 +82,11 @@ public class InMemoryEmailRepository : IInMemoryEmailRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented));
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented));
             }
         }
     }
-    public Email? Update(string id, Email email)
+    public async Task<Email?> Update(string id, Email email)
     {
         bool saveToFile = false;
         try
@@ -110,7 +110,7 @@ public class InMemoryEmailRepository : IInMemoryEmailRepository
         {
             if (saveToFile)
             {
-                _fileService.WriteFile(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented));
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented));
             }
         }
     }

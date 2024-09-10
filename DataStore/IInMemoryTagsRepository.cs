@@ -17,7 +17,7 @@ public interface IInMemoryTagsRepository
     void UpdateEmployeeInfo(JToken emp);
     void UpdateBadgeTransactionScan(JObject transaction);
     string GetCraftType(string tagId);
-    bool UpdateTagDesignationActivity(DesignationActivityToCraftType updatedDacode);
+    void UpdateTagDesignationActivity(DesignationActivityToCraftType updatedDacode);
     //void UpdateTagQPEInfo(List<Tags> tags);
     IEnumerable<JObject> SearchTag(string searchValue);
     List<string> GetTagByType(string tagType);

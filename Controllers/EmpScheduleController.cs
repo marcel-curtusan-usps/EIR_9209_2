@@ -6,9 +6,9 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EmpScheduleController(ILogger<EmpScheduleController> logger, IInMemoryEmpSchedulesRepository empschRepository) : ControllerBase
+    public class EmpScheduleController(ILogger<EmpScheduleController> logger, IInMemoryEmployeesRepository empschRepository) : ControllerBase
     {
-        private readonly IInMemoryEmpSchedulesRepository _empsch = empschRepository;
+        private readonly IInMemoryEmployeesRepository _empsch = empschRepository;
         private readonly ILogger<EmpScheduleController> _logger = logger;
 
         // GET: api/<EmpScheduleController>

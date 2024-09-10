@@ -26,7 +26,7 @@ async function start() {
         await connection.start();
         console.log("SignalR Connected.");
         retryCount = 0; // Reset retry count on successful connection
-        initializeApp();
+        initializeOSL();
 
     } catch (err) {
         console.log("Connection failed: ", err);
@@ -41,7 +41,7 @@ async function start() {
         }
     }
 };
-function initializeApp() {
+function initializeOSL() {
     // Load Application Info
     connection.invoke("GetApplicationInfo").then(function (data) {
         appData = JSON.parse(data);

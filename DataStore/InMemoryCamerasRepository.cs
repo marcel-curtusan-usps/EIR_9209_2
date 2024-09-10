@@ -56,7 +56,7 @@ namespace EIR_9209_2.DataStore
         }
 
 
-        public Task<CameraGeoMarker>? Add(CameraGeoMarker camera)
+        public async Task<CameraGeoMarker>? Add(CameraGeoMarker camera)
         {
             bool saveToFile = false;
             try
@@ -65,7 +65,7 @@ namespace EIR_9209_2.DataStore
                 if (_cameraMarkers.TryAdd(camera.Properties.Id, camera))
                 {
                     saveToFile = true;
-                    return Task.FromResult(camera);
+                    return camera;
                 }
                 else
                 {
@@ -82,11 +82,11 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    _fileService.WriteFile(fileName, CameraMarkersOutPutdata(_cameraMarkers.Select(x => x.Value).ToList()));
+                    await _fileService.WriteFileAsync(fileName, CameraMarkersOutPutdata(_cameraMarkers.Select(x => x.Value).ToList()));
                 }
             }
         }
-        public Task<CameraGeoMarker>? Delete(string cameraId)
+        public async Task<CameraGeoMarker>? Delete(string cameraId)
         {
             bool saveToFile = false;
             try
@@ -94,7 +94,7 @@ namespace EIR_9209_2.DataStore
                 if (_cameraMarkers.ContainsKey(cameraId) && _cameraMarkers.TryRemove(cameraId, out CameraGeoMarker? camera))
                 {
                     saveToFile = true;
-                    return Task.FromResult(camera);
+                    return camera;
                 }
                 else
                 {
@@ -111,7 +111,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    _fileService.WriteFile(fileName, CameraMarkersOutPutdata(_cameraMarkers.Select(x => x.Value).ToList()));
+                    await _fileService.WriteFileAsync(fileName, CameraMarkersOutPutdata(_cameraMarkers.Select(x => x.Value).ToList()));
                 }
             }
         }
@@ -243,7 +243,7 @@ namespace EIR_9209_2.DataStore
             }
         }
 
-        public Task<Cameras>? AddCameraInfo(Cameras camera)
+        public async Task<Cameras>? AddCameraInfo(Cameras camera)
         {
             bool saveToFile = false;
             try
@@ -251,7 +251,7 @@ namespace EIR_9209_2.DataStore
                 if (_cameraList.TryAdd(camera.Id, camera))
                 {
                     saveToFile = true;
-                    return Task.FromResult(camera);
+                    return camera;
                 }
                 else
                 {
@@ -268,12 +268,12 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    _fileService.WriteFile(cameraInfofileName, JsonConvert.SerializeObject(_cameraList.Values, Formatting.Indented));
+                    await _fileService.WriteFileAsync(cameraInfofileName, JsonConvert.SerializeObject(_cameraList.Values, Formatting.Indented));
                 }
             }
         }
 
-        public Task<Cameras>? UpdateCameraInfo(Cameras camera)
+        public async Task<Cameras>? UpdateCameraInfo(Cameras camera)
         {
             bool saveToFile = false;
             try
@@ -281,7 +281,7 @@ namespace EIR_9209_2.DataStore
                 if (_cameraList.ContainsKey(camera.Id) && _cameraList.TryGetValue(camera.Id, out Cameras c) && _cameraList.TryUpdate(camera.Id, camera, c))
                 {
                     saveToFile = true;
-                    return Task.FromResult(c);
+                    return c;
                 }
                 else
                 {
@@ -298,12 +298,12 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    _fileService.WriteFile(cameraInfofileName, JsonConvert.SerializeObject(_cameraList.Values, Formatting.Indented));
+                    await _fileService.WriteFileAsync(cameraInfofileName, JsonConvert.SerializeObject(_cameraList.Values, Formatting.Indented));
                 }
             }
         }
 
-        public Task<Cameras>? DeleteCameraInfo(string id)
+        public async Task<Cameras> DeleteCameraInfo(string id)
         {
             bool saveToFile = false;
             try
@@ -311,7 +311,7 @@ namespace EIR_9209_2.DataStore
                 if (_cameraList.TryRemove(id, out Cameras? camera))
                 {
                     saveToFile = true;
-                    return Task.FromResult(camera);
+                    return await Task.FromResult(camera);
                 }
                 else
                 {
@@ -328,12 +328,12 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    _fileService.WriteFile(cameraInfofileName, JsonConvert.SerializeObject(_cameraList.Values, Formatting.Indented));
+                    await _fileService.WriteFileAsync(cameraInfofileName, JsonConvert.SerializeObject(_cameraList.Values, Formatting.Indented));
                 }
             }
         }
 
-        public void LoadCameraData(List<Cameras> cameraList)
+        public async void LoadCameraData(List<Cameras> cameraList)
         {
             bool saveToFile = false;
             try
@@ -365,7 +365,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    _fileService.WriteFile(cameraInfofileName, JsonConvert.SerializeObject(_cameraList.Values, Formatting.Indented));
+                    await _fileService.WriteFileAsync(cameraInfofileName, JsonConvert.SerializeObject(_cameraList.Values, Formatting.Indented));
                 }
             }
         }
