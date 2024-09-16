@@ -401,7 +401,7 @@ namespace EIR_9209_2.DataStore
             return _QRETagTimelineResults.ContainsKey(hour);
 
         }
-        public List<TagTimeline> GetTagTimeline(DateTime hour)
+        public List<TagTimeline> GetCurrentTagTimeline(DateTime hour)
         {
             return _QRETagTimelineResults[hour];
         }
@@ -459,26 +459,7 @@ namespace EIR_9209_2.DataStore
             {
                 _QRETagTimelineResults.TryRemove(key, out var remove);
             });
-        }
-        //public List<TagTimeline> GetTagTimelineList(string EIN)
-        //{
-        //    List<TagTimeline> tagTimeline = new List<TagTimeline>();
-        //    _QRETagTimelineResults.Where(r => r.Key >= DateTime.Now.AddDays(-7)).Select(l => l.Value).ToList().ForEach(value =>
-        //    //_QRETagTimelineResults.Select(l => l.Value).ToList().ForEach(value =>
-        //    {
-        //        foreach (TagTimeline timeline in value)
-        //        {
-        //            if (timeline.Ein == EIN)
-        //            {
-        //                tagTimeline.Add(timeline);
-        //            }
-        //        }
-        //    });
-        //    var ReturnList = tagTimeline.OrderBy(x => x.Start).ThenBy(x => x.End).ToList();
-        //    return ReturnList;
-        //}
-
-  
+        }  
         public async void UpdateBadgeTransactionScan(JObject transaction)
         {
             bool savetoFile = false;
@@ -1201,6 +1182,26 @@ namespace EIR_9209_2.DataStore
                  await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
 
+            }
+        }
+
+        public Task<List<TagTimeline>> GetTagTimeline(string emp, DateTime day)
+        {
+            try
+            {
+                //i want to find all the tag timeline for the day
+                List<TagTimeline> tagTimeline = new List<TagTimeline>();
+                foreach (var item in _QRETagTimelineResults.Values)
+                {
+                    tagTimeline.AddRange(item.Where(r => r.Ein == emp && r.Start.Date == day.Date).Select(y => y).ToList());
+                }
+                return Task.FromResult(tagTimeline);
+            }
+            catch (Exception e)
+            {
+
+                _logger.LogError(e.Message);
+                return null;
             }
         }
     }

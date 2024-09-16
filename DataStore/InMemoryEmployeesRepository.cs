@@ -5,13 +5,14 @@ using Newtonsoft.Json.Linq;
 using PuppeteerSharp.Input;
 using System.Collections.Concurrent;
 using System.Data;
+using System.Globalization;
 
 
 public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
 {
     private readonly ConcurrentDictionary<string, EmployeeInfo> _empList = new();
     private readonly ConcurrentDictionary<string, Schedule> _empsch = new();
-    private readonly ConcurrentDictionary<string, ScheduleReport> _schReport = new();
+    private readonly ConcurrentDictionary<string, Dictionary<DateTime, ScheduleReport>> _schReport = new();
     private readonly ConcurrentDictionary<string, Dictionary<DateTime, EmployeeScheduleSummary>> _employeeScheduleDailySummary = new();
     private readonly IConfiguration _configuration;
     private readonly ILogger<InMemoryEmployeesRepository> _logger;
@@ -75,72 +76,6 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         }
     }
     public IEnumerable<EmployeeInfo> GetAll() => _empList.Values;
-    public object? getEmpSchedule()
-    {
-        //payweek
-        string payweek = _empList.Select(y => y.Value.PayWeek)
-            .FirstOrDefault() ?? "";
-        if (payweek == "")
-        {
-            return null;
-        }
-        else
-        {
-            return _schReport.Where(r => r.Value.PayWeek == payweek).Select(r => r.Value).ToList();
-        }
-    }
-    private string? GetDaySchedule(List<Schedule> wkschedule, string Day)
-    {
-        try
-        {
-            var curday = "OFF";
-            foreach (var wksch in wkschedule)
-            {
-                if (wksch.Day == Day)
-                {
-                    if (wksch.GroupName == "Holiday Off")
-                    {
-                        curday = "HOLOFF";
-                    }
-                    else if (wksch.HrLeave == wksch.HrSched)
-                    {
-                        curday = "LV";
-                    }
-                    else
-                    {
-                        curday = wksch.Btour + "-" + wksch.Etour;
-                    }
-                }
-            }
-            return curday;
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message);
-            return null;
-        }
-    }
-    private double? GetTotalHours(List<Schedule> wkschedule)
-    {
-        try
-        {
-            double totalhour = 0.00;
-            foreach (var wksch in wkschedule)
-            {
-                if (wksch.GroupName != "Holiday Off" && wksch.HrLeave != wksch.HrSched)
-                {
-                    totalhour += Convert.ToDouble(wksch.HrMove);
-                }
-            }
-            totalhour = Math.Round(totalhour, 2);
-            return totalhour;
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message);
-            return null;
-        }
-    }
     public async Task LoadEmployees(JToken data)
     {
         bool savetoFile = false;
@@ -198,125 +133,160 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         bool savetoFile = false;
         try
         {
-            foreach (var item in data["DATA"]!["EMPLOYEES"]!["DATA"]!)
+            var root = JsonConvert.DeserializeObject<Root>(data.ToString());
+           
+            foreach (var employeeitem in root.DATA.EMPLOYEES.DATA)
             {
-                var empsch = new Schedule
-                {
-                    EIN = item[0]!.ToString(),
-                    PayWeek = item[1]!.ToString(),
-                    Day = item[2]!.ToString(),
-                    HrCodeId = item[3]!.ToString(),
-                    GroupName = item[4]!.ToString(),
-                    BeginTourDtm = item[5]!.ToString(),
-                    EndTourDtm = item[6]!.ToString(),
-                    BeginLunchDtm = item[7]!.ToString(),
-                    EndLunchDtm = item[8]!.ToString(),
-                    BeginMoveDtm = item[9]!.ToString(),
-                    EndMoveDtm = item[10]!.ToString(),
-                    Btour = item[11]!.ToString(),
-                    Etour = item[12]!.ToString(),
-                    Blunch = item[13]!.ToString(),
-                    Elunch = item[14]!.ToString(),
-                    Bmove = item[15]!.ToString(),
-                    Emove = item[16]!.ToString(),
-                    SectionId = item[17]!.ToString(),
-                    SectionName = item[18]!.ToString(),
-                    OpCode = item[19]!.ToString(),
-                    SortOrder = item[20]!.ToString(),
-                    SfasCode = item[21]!.ToString(),
-                    RteZipCode = item[22]!.ToString(),
-                    RteNbr = item[23]!.ToString(),
-                    PvtInd = item[24]!.ToString(),
-                    HrLeave = item[25]!.ToString(),
-                    HrSched = item[26]!.ToString(),
-                    HrTour = item[27]!.ToString(),
-                    HrMove = item[28]!.ToString(),
-                    HrOt = item[29]!.ToString(),
-                    DayErrCnt = item[30]!.ToString()
 
-                };
                 _empsch.AddOrUpdate(
-                empsch.EIN,
-                empsch,
-                (existingKey, existingValue) =>
-                {
-                    // Update the existing value with the new value
-                    existingValue.PayWeek = empsch.PayWeek;
-                    existingValue.Day = empsch.Day;
-                    existingValue.HrCodeId = empsch.HrCodeId;
-                    existingValue.GroupName = empsch.GroupName;
-                    existingValue.BeginTourDtm = empsch.BeginTourDtm;
-                    existingValue.EndTourDtm = empsch.EndTourDtm;
-                    existingValue.BeginLunchDtm = empsch.BeginLunchDtm;
-                    existingValue.EndLunchDtm = empsch.EndLunchDtm;
-                    existingValue.BeginMoveDtm = empsch.BeginMoveDtm;
-                    existingValue.EndMoveDtm = empsch.EndMoveDtm;
-                    existingValue.Btour = empsch.Btour;
-                    existingValue.Etour = empsch.Etour;
-                    existingValue.Blunch = empsch.Blunch;
-                    existingValue.Elunch = empsch.Elunch;
-                    existingValue.Bmove = empsch.Bmove;
-                    existingValue.Emove = empsch.Emove;
-                    existingValue.SectionId = empsch.SectionId;
-                    existingValue.SectionName = empsch.SectionName;
-                    existingValue.OpCode = empsch.OpCode;
-                    existingValue.SortOrder = empsch.SortOrder;
-                    existingValue.SfasCode = empsch.SfasCode;
-                    existingValue.RteZipCode = empsch.RteZipCode;
-                    existingValue.RteNbr = empsch.RteNbr;
-                    existingValue.PvtInd = empsch.PvtInd;
-                    existingValue.HrLeave = empsch.HrLeave;
-                    existingValue.HrSched = empsch.HrSched;
-                    existingValue.HrTour = empsch.HrTour;
-                    existingValue.HrMove = empsch.HrMove;
-                    existingValue.HrOt = empsch.HrOt;
-                    existingValue.DayErrCnt = empsch.DayErrCnt;
-
-                    return existingValue;
-                });
-
+               string.Concat(employeeitem[0]?.ToString(), "_", employeeitem[1]?.ToString(), "_", Convert.ToInt32(employeeitem[2]?.ToString() ?? "0")),
+                      new Schedule
+                      {
+                          EIN = employeeitem[0]?.ToString(),
+                          PayWeek = employeeitem[1]?.ToString(),
+                          Day = Convert.ToInt32(employeeitem[2]?.ToString() ?? "0"),
+                          HrCodeId = Convert.ToInt32(employeeitem[3]?.ToString() ?? "0"),
+                          GroupName = employeeitem[4]?.ToString(),
+                          BeginTourDtm = employeeitem[5]?.ToString(),
+                          EndTourDtm = employeeitem[6]?.ToString(),
+                          BeginLunchDtm = employeeitem[7]?.ToString(),
+                          EndLunchDtm = employeeitem[8]?.ToString(),
+                          BeginMoveDtm = employeeitem[9]?.ToString(),
+                          EndMoveDtm = employeeitem[10]?.ToString(),
+                          Btour = employeeitem[11]?.ToString(),
+                          Etour = employeeitem[12]?.ToString(),
+                          Blunch = employeeitem[13]?.ToString(),
+                          Elunch = employeeitem[14]?.ToString(),
+                          Bmove = employeeitem[15]?.ToString(),
+                          Emove = employeeitem[16]?.ToString(),
+                          SectionId = Convert.ToInt32(employeeitem[17]?.ToString() ?? "0"),
+                          SectionName = employeeitem[18]?.ToString(),
+                          OpCode = employeeitem[19]?.ToString(),
+                          SortOrder = Convert.ToInt32(employeeitem[20]?.ToString() ?? "0"),
+                          SfasCode = employeeitem[21]?.ToString(),
+                          RteZipCode = employeeitem[22]?.ToString(),
+                          RteNbr = employeeitem[23]?.ToString(),
+                          PvtInd = employeeitem[24]?.ToString(),
+                          HrLeave = Convert.ToDouble(employeeitem[25]?.ToString() ?? "0"),
+                          HrSched = Convert.ToDouble(employeeitem[26]?.ToString() ?? "0"),
+                          HrTour = Convert.ToDouble(employeeitem[27]?.ToString() ?? "0"),
+                          HrMove = Convert.ToDouble(employeeitem[28]?.ToString() ?? "0"),
+                          HrOt = Convert.ToDouble(employeeitem[29]?.ToString() ?? "0"),
+                          DayErrCnt = Convert.ToDouble(employeeitem[30]?.ToString() ?? "0"),
+                      },
+               (existingKey, existingValue) =>
+               {
+                   // Update the existing value with the new value
+                   existingValue.PayWeek = employeeitem[1]?.ToString();
+                   existingValue.Day = Convert.ToInt32(employeeitem[2]?.ToString() ?? "0");
+                   existingValue.HrCodeId = Convert.ToInt32(employeeitem[3]?.ToString() ?? "0");
+                   existingValue.GroupName = employeeitem[4]?.ToString();
+                   existingValue.BeginTourDtm = employeeitem[5]?.ToString();
+                   existingValue.EndTourDtm = employeeitem[6]?.ToString();
+                   existingValue.BeginLunchDtm = employeeitem[7]?.ToString();
+                   existingValue.EndLunchDtm = employeeitem[8]?.ToString();
+                   existingValue.BeginMoveDtm = employeeitem[9]?.ToString();
+                   existingValue.EndMoveDtm = employeeitem[10]?.ToString();
+                   existingValue.Btour = employeeitem[11]?.ToString();
+                   existingValue.Etour = employeeitem[12]?.ToString();
+                   existingValue.Blunch = employeeitem[13]?.ToString();
+                   existingValue.Elunch = employeeitem[14]?.ToString();
+                   existingValue.Bmove = employeeitem[15]?.ToString();
+                   existingValue.Emove = employeeitem[16]?.ToString();
+                   existingValue.SectionId = Convert.ToInt32(employeeitem[17]?.ToString() ?? "0");
+                   existingValue.SectionName = employeeitem[18]?.ToString();
+                   existingValue.OpCode = employeeitem[19]?.ToString();
+                   existingValue.SortOrder = Convert.ToInt32(employeeitem[20]?.ToString() ?? "0");
+                   existingValue.SfasCode = employeeitem[21]?.ToString();
+                   existingValue.RteZipCode = employeeitem[22]?.ToString();
+                   existingValue.RteNbr = employeeitem[23]?.ToString();
+                   existingValue.PvtInd = employeeitem[24]?.ToString();
+                   existingValue.HrLeave = Convert.ToDouble(employeeitem[25]?.ToString() ?? "0");
+                   existingValue.HrSched = Convert.ToDouble(employeeitem[26]?.ToString() ?? "0");
+                   existingValue.HrTour = Convert.ToDouble(employeeitem[27]?.ToString() ?? "0");
+                   existingValue.HrMove = Convert.ToDouble(employeeitem[28]?.ToString() ?? "0");
+                   existingValue.HrOt = Convert.ToDouble(employeeitem[29]?.ToString() ?? "0");
+                   existingValue.DayErrCnt = Convert.ToDouble(employeeitem[30]?.ToString() ?? "0");
+                   savetoFile = true;
+                   return existingValue;
+               });
             }
-
+           
         }
         catch (Exception e)
         {
-            _logger.LogError($"Error loading Employee data {e.Message}");
+            _logger.LogError($"Error loading Employee schedule data: {e.Message}");
         }
         finally
         {
             if (savetoFile)
             {
-              await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_empList.Values, Formatting.Indented));
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_empList.Values, Formatting.Indented));
             }
         }
-
     }
-    public void RunEmployeeScheduleDailySummaryReport()
+    public async void RunEmpScheduleReport()
     {
         try
         {
-            var empEIN = _empList.Select(item => item.Value).Distinct().ToList();
-            if (empEIN.Any())
+            List<string> empList = _empList.Where(r => !string.IsNullOrEmpty(r.Value.EIN)).Select(item => item.Value.EIN).Distinct().ToList();
+            // If any employee is found
+            if (empList.Any())
             {
-                foreach (var ein in empEIN)
+                foreach (var emp in empList)
                 {
-                    var sch = _empsch.Where(r => r.Value.EIN == ein.EIN && r.Value.PayWeek == ein.PayWeek).Select(r => r.Value).ToList();
-                    if (sch.Any())
-                    {
-                        List<DateTime> days = sch.Where(r => r.PayWeek == ein.PayWeek).Select(r => DateTime.ParseExact(r.BeginTourDtm, "MMMM, dd yyyy HH:mm:ss",
-                                                   System.Globalization.CultureInfo.InvariantCulture)).Distinct().ToList();
+                    var empSchdate = _empsch.Where(r => r.Value.EIN == emp).Select(y => y.Value).OrderBy(o => o.Day).ToList();
 
-                        if (!_employeeScheduleDailySummary.ContainsKey(ein.EIN))
+                    if (empSchdate.Any())
+                    {
+                        List<DateTime> empDate = empSchdate
+                            .Select(x => DateTime.Parse(x.EndTourDtm, CultureInfo.CurrentCulture, DateTimeStyles.None))
+                            .OrderBy(o => o)
+                            .ToList();
+
+                        // Generate the full range of dates
+                        DateTime startDate = empDate.First();
+                        DateTime endDate = empDate.Last();
+
+                        // Find the nearest Saturday after or on the startDate
+                        DateTime startOfWeek = startDate.AddDays((6 - (int)startDate.DayOfWeek + 1) % 7);
+
+                        // Ensure the empDate list contains all 7 days of the week starting from the identified Saturday
+                        List<DateTime> fullWeekRange = Enumerable.Range(0, 7)
+                            .Select(offset => startOfWeek.AddDays(offset))
+                            .ToList();
+
+                        // Identify missing dates
+                        List<DateTime> missingDates = fullWeekRange.Except(empDate).ToList();
+
+                        // Add missing dates to empDate
+                        empDate.AddRange(missingDates);
+                        empDate = empDate.OrderBy(date => date).ToList();
+
+                        if (!_schReport.ContainsKey(emp))
                         {
-                            _employeeScheduleDailySummary.TryAdd(ein.EIN, new Dictionary<DateTime, EmployeeScheduleSummary>());
+                            _schReport.TryAdd(emp, new Dictionary<DateTime, ScheduleReport>());
                         }
-                        foreach (var schday in sch)
+
+                        foreach (var schDate in empDate)
                         {
-                            //var daySch = GetEmployeeDaySchedule(schday, days, ein);
-                            //lock (_employeeScheduleDailySummary)
-                            //{
-                            //    _employeeScheduleDailySummary[ein.EIN][day] = daySch;
-                            //}
+                            var schData = empSchdate.FirstOrDefault(r => r.EndTourDtm == schDate.ToString("MMMM, dd yyyy HH:mm:ss"));
+                            if (schData == null)
+                            {
+                                schData = new Schedule
+                                {
+                                    PayWeek = _empList[emp].PayWeek,
+                                    EIN = _empList[emp].EIN,
+                                    GroupName = "OFF",
+                                    Day = (int)schDate.DayOfWeek,
+                                    BeginTourDtm = schDate.ToString("MMMM, dd yyyy HH:mm:ss"),
+                                    EndTourDtm = schDate.ToString("MMMM, dd yyyy HH:mm:ss")
+                                };
+                            }
+                            var dailyInfo = await GetDailySummaryforEmployee(emp, schDate, schData);
+                           
+                                _schReport[emp][schDate.Date] = dailyInfo;
+                            
                         }
                     }
                 }
@@ -324,31 +294,48 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error running Employee Summary Report");
+            _logger.LogError(e, "Error running Employee Schedule Summary Report");
         }
-
     }
 
-    private EmployeeScheduleSummary? GetEmployeeDaySchedule(Schedule sch, DateTime day, EmployeeInfo ein)
+    private async Task<ScheduleReport> GetDailySummaryforEmployee(string emp, DateTime schDate, Schedule? schedule)
     {
         try
         {
-            string date = day.ToString("yyyy-MM-dd");
-            var selsHrs = new Dictionary<string, double>();
-            var tacsHrs = new Dictionary<string, double>();
-
-            //var selsTimeLine = _tags.GetTagTimelineList(date);
-            //if (selsTimeLine != null)
-            //{
-            //    selsHrs = selsTimeLine.GroupBy(e => e.Ein).ToDictionary(g => g.Key, g => g.Sum(e => e.Duration.TotalMilliseconds));
-            //}
-
-            return new EmployeeScheduleSummary
+            string dayFormat = schDate.ToString("yyyy-MM-dd");
+            var QRElaborHrs = new Dictionary<string, double>();
+            var TACSlaborHrs = new Dictionary<string, double>();
+            var entireDayThisEmp = await _tags.GetTagTimeline(emp, schDate);
+            if (entireDayThisEmp != null)
             {
-                FirstName = ein.FirstName,
-                PayWeek = sch.PayWeek,
-                SelsLaborHrs = selsHrs,
-                TACSLaborHrs = tacsHrs
+                QRElaborHrs = entireDayThisEmp.GroupBy(e => e.Ein).ToDictionary(g => g.Key, g => g.Sum(e => e.Duration.TotalMilliseconds));
+            }
+            var entireTASCThisEmp = await _tags.GetTagTimeline(emp, schDate);
+            if (entireTASCThisEmp != null)
+            {
+                TACSlaborHrs = entireTASCThisEmp.GroupBy(e => e.Ein).ToDictionary(g => g.Key, g => g.Sum(e => e.Duration.TotalMilliseconds));
+            }
+            return new ScheduleReport
+            {
+                PayWeek = schedule.PayWeek,
+                Date = dayFormat,
+                Day = schedule.Day,
+                DayName = schDate.DayOfWeek,
+                EIN = schedule.EIN,
+                WorkStatus = schedule.GroupName,
+                BeginTourHour = schedule.Btour,
+                EndTourHour = schedule.Etour,
+                OpCode = schedule.OpCode,
+                SectionName = schedule.SectionName,
+                LastName = _empList[schedule.EIN].LastName,
+                FirstName = _empList[schedule.EIN].FirstName,
+                TourNumber = _empList[schedule.EIN].TourNumber,
+                HrsLeave = schedule.HrLeave,
+                HrsSchedule = schedule.HrLeave,
+                HrsMove = schedule.HrMove,
+                DailyQREhr = QRElaborHrs.Sum(x => x.Value),
+                DailyTACShr = TACSlaborHrs.Sum(x => x.Value),
+                Percentage = (QRElaborHrs.Sum(x => x.Value) / TACSlaborHrs.Sum(x => x.Value)) * 100
             };
         }
         catch (Exception e)
@@ -358,9 +345,83 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         }
     }
 
-    public void RunEmpScheduleReport()
-    {
+    //private ScheduleReport GetDailySummaryforEmployee(string emp, DateTime schDate, Schedule? schedule)
+    //{
+    //    try
+    //    {
+    //        string dayFormat = schDate.ToString("yyyy-MM-dd");
+    //        var QRElaborHrs = new Dictionary<string, double>();
+    //        var TACSlaborHrs = new Dictionary<string, double>();
+    //        var entireDayThisEmp = _tags.GetTagTimeline(emp, schDate);
+    //        if (entireDayThisEmp != null)
+    //        {
+    //            QRElaborHrs = entireDayThisEmp.GroupBy(e => e.Ein).ToDictionary(g => g.Key, g => g.Sum(e => e.Duration.TotalMilliseconds));
+    //        }
+    //        var entireTASCThisEmp = _tags.GetTagTimeline(emp, schDate);
+    //        if (entireTASCThisEmp != null)
+    //        {
+    //            TACSlaborHrs = entireTASCThisEmp.GroupBy(e => e.Ein).ToDictionary(g => g.Key, g => g.Sum(e => e.Duration.TotalMilliseconds));
+    //        }
+    //        return new ScheduleReport
+    //        {
+    //            PayWeek = schedule.PayWeek,
+    //            Date = dayFormat,
+    //            Day = schedule.Day,
+    //            DayName = schDate.DayOfWeek,
+    //            EIN = schedule.EIN,
+    //            WorkStatus = schedule.GroupName,
+    //            BeginTourHour = schedule.Btour,
+    //            EndTourHour = schedule.Etour,
+    //            OpCode= schedule.OpCode,
+    //            LastName = _empList[schedule.EIN].LastName,
+    //            FirstName = _empList[schedule.EIN].FirstName,
+    //            TourNumber = _empList[schedule.EIN].TourNumber,
+    //            HrsLeave= schedule.HrLeave,
+    //            HrsSchedule = schedule.HrLeave,
+    //            HrsMove = schedule.HrMove,
+    //            DailyQREhr = QRElaborHrs.Sum(x => x.Value),
+    //            DailyTACShr = TACSlaborHrs.Sum(x => x.Value),
+    //            Percentage = (QRElaborHrs.Sum(x => x.Value) / TACSlaborHrs.Sum(x => x.Value)) * 100
+    //        };
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        _logger.LogError(e.Message);
+    //        return null;
+    //    }
+    //}
 
+    public Task<List<string>> GetPayWeeks()
+    {
+        try
+        {
+            //get a list of pay week form the schedule
+            var payWeeks = _empsch.Select(r => r.Value.PayWeek).Distinct().ToList();
+            return Task.FromResult(payWeeks);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Error loading Employee data {e.Message}");
+            return Task.FromResult(new List<string>());
+        }
     }
 
+    public Task<List<ScheduleReport>> GetEmployeesForPayWeek(string payWeek)
+    {
+        try
+        {
+            // Find all the employees for the given pay week from _schReport
+            var reportsForPayWeek = _schReport
+                .SelectMany(emp => emp.Value.Values)
+                .Where(report => report.PayWeek == payWeek)
+                .ToList();
+
+            return Task.FromResult(reportsForPayWeek);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Error loading Employee data {e.Message}");
+            return Task.FromResult(new List<ScheduleReport>());
+        }
+    }
 }

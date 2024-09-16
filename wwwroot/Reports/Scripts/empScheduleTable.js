@@ -1,18 +1,17 @@
 ﻿
 let valuesArray = null;
 let weekDates = [];
+$(function () {
+    Promise.all([createEmpScheduleDataTable('empScheduleData')]);
+
+});
 
 async function updateEmployeeSchedule(data) {
     try {
         if (data.length > 0) {
-            //Get dates for the week
-            weekDates = [data[0].weekDate1, data[0].weekDate2, data[0].weekDate3, data[0].weekDate4, data[0].weekDate5, data[0].weekDate6, data[0].weekDate7];
-            data = data[0].scheduleList;
-
-            Promise.all([
-                createEmpScheduleDataTable('empScheduleData'),
-                loadEmpScheduleDatatable(processScheduledata(data), 'empScheduleData')
-            ]);
+            let formatData = processScheduledata(data)
+            console.log(formatData);
+            Promise.all([updateEmpScheduleDataTable(formatData, 'empScheduleData')]);
         }
         else {
         }
@@ -22,36 +21,90 @@ async function updateEmployeeSchedule(data) {
 }
 function processScheduledata(data) {
     try {
-        valuesArray = Object.values(data);
-        var result = valuesArray.reduce((acc, curr) => {
-            let tacshr = '9.86';
-            let tacshrtotal = '38';
-            let selshrtotal = curr.totalselshr;
-            let totalhrs = curr.totalhr;
-            totalhrs += '<br><span class="tacshrSpan">' + tacshrtotal + '</span><span class="selshrSpan">' + selshrtotal + '</span>';
-            if (selshrtotal == 0) {
-                totalhrspercent = '';
-            } else {
-                totalhrspercent = '<br>' + Math.round(parseFloat(tacshrtotal) / parseFloat(selshrtotal) * 100 * 1) / 1 + '%';
+        const result = [];
+
+        // Group data by EIN
+        const groupedData = data.reduce((acc, curr) => {
+            if (!acc[curr.ein]) {
+                acc[curr.ein] = [];
             }
-            let employee = {
-                ein: curr.ein,
-                name: curr.firstName + ' ' + curr.lastName, 
-                tour: curr.tourNumber,
-                day1: getDayFormat(curr.day1hr, curr.day1selshr, tacshr),
-                day2: getDayFormat(curr.day2hr, curr.day2selshr, tacshr),
-                day3: getDayFormat(curr.day3hr, curr.day3selshr, tacshr),
-                day4: getDayFormat(curr.day4hr, curr.day4selshr, tacshr),
-                day5: getDayFormat(curr.day5hr, curr.day5selshr, tacshr),
-                day6: getDayFormat(curr.day6hr, curr.day6selshr, tacshr),
-                day7: getDayFormat(curr.day7hr, curr.day7selshr, tacshr),
-                hourstotal: totalhrs,
-                hourstotalpercent: totalhrspercent
-            };
-            acc.push(employee);
+            acc[curr.ein].push(curr);
             return acc;
-        }, []);
+        }, {});
+
+        // Transform each group
+        for (const ein in groupedData) {
+            const employeeData = groupedData[ein];
+            const employee = {
+                ein: ein, 
+                name: employeeData[0].firstName + ' ' + employeeData[0].lastName,
+                tour: employeeData[0].tourNumber,
+                day1: '',
+                day2: '',
+                day3: '',
+                day4: '',
+                day5: '',
+                day6: '',
+                day7: '',
+                totalScheduleHours: 0,
+                totalSelsHr: '',
+                totalTACSHr: '',
+                hourstotalpercent: ''
+            };
+
+            // Map days to the correct fields
+            employeeData.forEach(dayData => {
+                const dayIndex = parseInt(dayData.day) ;
+                employee[`day${dayIndex}`] = dayData;
+                // Accumulate the HrsSchedule
+                if (dayData.hrsSchedule) {
+                    employee.totalScheduleHours += Number(dayData.hrsSchedule) || 0;
+                }
+                // Accumulate the dailyQREhr
+                if (dayData.dailyQREhr) {
+                    employee.totalSelsHr += parseFloat(dayData.dailyQREhr) || 0;
+                }
+                // Accumulate the dailyTACShr
+                if (dayData.dailyTACShr) {
+                    employee.totalTACSHr += parseFloat(dayData.dailyTACShr) || 0;
+                }
+            });
+
+            result.push(employee);
+        }
+
         return result;
+        //let newresult = [];
+        //valuesArray = Object.values(data);
+        //var result = valuesArray.reduce((acc, curr) => {
+        //    let tacshr = '9.86';
+        //    let tacshrtotal = '38';
+        //    let selshrtotal = curr.totalselshr;
+        //    let totalhrs = curr.totalhr;
+        //    totalhrs += '<br><span class="tacshrSpan">' + tacshrtotal + '</span><span class="selshrSpan">' + selshrtotal + '</span>';
+        //    if (selshrtotal == 0) {
+        //        totalhrspercent = '';
+        //    } else {
+        //        totalhrspercent = '<br>' + Math.round(parseFloat(tacshrtotal) / parseFloat(selshrtotal) * 100 * 1) / 1 + '%';
+        //    }
+        //    let employee = {
+        //        ein: curr.ein,
+        //        name: curr.firstName + ' ' + curr.lastName, 
+        //        tour: curr.tourNumber,
+        //        day1: getDayFormat(curr.day1hr, curr.day1selshr, tacshr),
+        //        day2: getDayFormat(curr.day2hr, curr.day2selshr, tacshr),
+        //        day3: getDayFormat(curr.day3hr, curr.day3selshr, tacshr),
+        //        day4: getDayFormat(curr.day4hr, curr.day4selshr, tacshr),
+        //        day5: getDayFormat(curr.day5hr, curr.day5selshr, tacshr),
+        //        day6: getDayFormat(curr.day6hr, curr.day6selshr, tacshr),
+        //        day7: getDayFormat(curr.day7hr, curr.day7selshr, tacshr),
+        //        hourstotal: curr,
+        //        hourstotalpercent: totalhrspercent
+        //    };
+        //    acc.push(employee);
+        //    return acc;
+        //}, []);
+        //return result;
     } catch (e) {
         console.log(e);
     }
@@ -82,46 +135,75 @@ async function createEmpScheduleDataTable(table) {
                     "title": 'Tour',
                     "width": "5%",
                     "data": 'tour'
+                
                 },
                 {
-                    "title": 'Saturday<br>' + weekDates[0],
+                    "data": 'day1',
                     "width": "10%",
-                    "data": 'day1'
+                    mRender: function (full) {
+                        let displayVal;
+                        displayVal = getDayFormat(full)
+                        return displayVal;
+                    }
                 },
                 {
-                    "title": 'Sunday<br>' + weekDates[1],
+                    "data": 'day2',
                     "width": "10%",
-                    "data": 'day2'
+                    mRender: function (full, data) {
+                        let displayVal;
+                        displayVal = getDayFormat(full)
+                        return displayVal;
+                    }
                 },
                 {
-                    "title": 'Monday<br>' + weekDates[2],
+                    "data": 'day3',
                     "width": "10%",
-                    "data": 'day3'
+                    mRender: function (full, data) {
+                        let displayVal;
+                        displayVal = getDayFormat(full)
+                        return displayVal;
+                    }
                 },
                 {
-                    "title": 'Tuesday<br>' + weekDates[3],
+                    "data": 'day4',
                     "width": "10%",
-                    "data": 'day4'
+                    mRender: function (full, data) {
+                        let displayVal;
+                        displayVal = getDayFormat(full)
+                        return displayVal;
+                    }
                 },
                 {
-                    "title": 'Wednesday<br>' + weekDates[4],
+                    "data": 'day5',
                     "width": "10%",
-                    "data": 'day5'
+                    mRender: function (full, data) {
+                        let displayVal;
+                        displayVal = getDayFormat(full)
+                        return displayVal;
+                    }
                 },
                 {
-                    "title": 'Thursday<br>' + weekDates[5],
+                    "data": 'day6',
                     "width": "10%",
-                    "data": 'day6'
+                    mRender: function (full, data) {
+                        let displayVal;
+                        displayVal = getDayFormat(full)
+                        return displayVal;
+                    }
                 },
                 {
-                    "title": 'Friday<br>' + weekDates[6],
+                    "data": 'day7',
                     "width": "10%",
-                    "data": 'day7'
+                    mRender: function (full, data) {
+                        let displayVal;
+                        displayVal = getDayFormat(full)
+                        return displayVal;
+                    }
                 },
                 {
                     "title": 'Hours Total',
                     "width": "10%",
-                    "data": 'hourstotal'
+                    "data": 'totalScheduleHours'
                 },
                 {
                     "title": 'TACS vs SELS %',
@@ -129,8 +211,7 @@ async function createEmpScheduleDataTable(table) {
                     "data": 'hourstotalpercent'
                 }
             ]
-
-            let EmpScheduleDataTable = $('#' + table).DataTable({
+            $('#' + table).DataTable({
                 searching: true,
                 //dom: "flrtipB",
                 bFilter: true,
@@ -140,7 +221,7 @@ async function createEmpScheduleDataTable(table) {
                 autoWidth: false,
                 bInfo: false,
                 destroy: true,
-                scrollY: 600,
+                scrollY: 690,
                 scrollx: true,
                 scroller: true,
                 language: {
@@ -148,12 +229,27 @@ async function createEmpScheduleDataTable(table) {
                 },
                 aoColumns: columns,
                 columnDefs: [
-                    { targets: [2, 10, 11], className: 'dt-center' }
-                ],
-                sorting: [[2, "asc"], [11, "asc"]],
-            })
-            $('#' + table + ' thead').attr("class", "thead-dark");
-
+                    {
+                        orderable: false, // Disable sorting on all columns
+                        targets: '_all'
+                    }],
+                rowCallback: function (row, data, index) {
+                    for (let i = 1; i <= 7; i++) {
+                        let dayData = data[`day${i}`];
+                        if ($.isObject(dayData)) {
+                            if (dayData && /off/ig.test(dayData.workStatus)) {
+                                $('td', row).eq(i + 2).addClass('off');
+                            }
+                            else {
+                                $('td', row).eq(i + 2).addClass('innertbl top work');
+                            }
+                        }
+                        else {
+                            $('td', row).eq(i + 2).addClass('off');
+                        }
+                    }
+                },
+            });
             resolve();
             return false;
         });
@@ -161,26 +257,73 @@ async function createEmpScheduleDataTable(table) {
         throw new Error(e.toString());
     }
 }
-
-function getDayFormat(dayhr, selshr, tacshr) {
+function getDayFormat(dayhr) {
     let curday = '';
-    if (dayhr == 'OFF') {
-        curday = '<span class="offSpan">OFF</span>';
-    } else if (dayhr == 'HOLOFF') {
-        curday = '<span class="holoffSpan">HOLOFF</span>';
-    } else if (dayhr == 'LV') {
-        curday = '<span class="leaveSpan">LV</span>';
-    } else {
-        curday = '<span class="tourhrSpan">' + dayhr + '</span >';
-    }
-    if (dayhr == 'OFF' || dayhr == 'HOLOFF' || dayhr == 'LV') {
-        if (parseFloat(selshr) > 0) {
-            curday += '<br><span class="tacshrSpan">' + tacshr + '</span><span class="selshrSpan">' + selshr + '</span>';
+    if ($.isObject(dayhr)) {
+        if (/(OFF|'')/i.test(dayhr.workStatus)) {
+            curday = dayhr.workStatus;
+        } else if (/HOLOFF/i.test(dayhr.workStatus)) {
+            curday = '<span class="holoffSpan">HOLOFF</span>';
+        } else if (/Leave/i.test(dayhr.workStatus)) {
+            curday = '<td>LV</td>';
+        } else {
+            // Add a CSS class to the <tbody> element to center its content
+            curday = '<table width="100%"><tbody>';
+            curday += '<tr><td width="50%" class="bt">' + dayhr.beginTourHour + '</td><td width="50%" class="et">' + dayhr.endTourHour + '</td></tr>';
+            curday += '<tr class="multi"><td colspan="2" class="section">' + dayhr.sectionName + '</td></tr>';
+            curday += '<tr><td>' + dayhr.dailyTACShr + '</td><td>' + dayhr.dailyQREhr + '</td></tr>';
+            curday += '</tbody></table>';
+        }
+        if (/(HOLOFF|Leave)/i.test(dayhr.workStatus)) {
+            if (parseFloat(dayhr.dailyQREhr) > 0) {
+                curday += '<tr><td>' + dayhr.dailyTACShr + '</td><td>' + dayhr.dailyQREhr + '</td></tr>';
+            }
         }
     } else {
-        curday += '<br><span class="tacshrSpan">' + tacshr + '</span><span class="selshrSpan">' + selshr + '</span>';
+        curday = 'OFF';
     }
     return curday;
+}
+$.isObject = function (obj) {
+    return obj !== '' && obj !== null && typeof obj === 'object' && !Array.isArray(obj);
+};
+//function getDayFormat(dayhr) {
+//    let curday = '';
+//    if ($.Object(dayhr)) {
+//        curday = '<td>OFF</td>';
+//    }
+//    if (/(OFF|'')/i.test(dayhr.workStatus)) {
+//        curday = '<td>OFF</td>';
+//    } else if (/HOLOFF/i.test(dayhr.workStatus)) {
+//        curday = '<span class="holoffSpan">HOLOFF</span>';
+//    } else if (/Leave/i.test(dayhr.workStatus)) {
+//        curday = '<td>LV</td>';
+//    } else {
+//        curday = '<tr><td>' + dayhr.beginTourHour + '</td><td>' + dayhr.endTourHour + '</td></tr>';
+//        curday += '<tr><td>' + dayhr.dailyTACShr + '</td><td>' + dayhr.dailyQREhr + '</td></tr>';
+//    }
+//    if (/(HOLOFF|Leave)/i.test(dayhr.workStatus)) {
+//        if (parseFloat(dayhr.dailyQREhr) > 0) {
+//            curday += '<tr><td>' + dayhr.dailyTACShr + '</td><td>' + dayhr.dailyQREhr + '</td></tr>';
+//        }
+//    }
+//    //else {
+//    //    curday += '<br><span class="tacshrSpan">' + dayhr.dailyTACShr + '</span><span class="selshrSpan">' + dayhr.dailyQREhr + '</span>';
+//    //}
+//    return curday;
+//}
+async function updateEmpScheduleDataTable(newdata, table) {
+    let loadnew = true;
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        $('#' + table).DataTable().rows(function (idx, data, node) {
+            loadnew = false;
+            $('#' + table).DataTable().row(node).data(element).draw().invalidate();
+
+        })
+        if (loadnew) {
+            loadEmpScheduleDatatable(newdata, table);
+        }
+    }
 }
 async function loadEmpScheduleDatatable(data, table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {

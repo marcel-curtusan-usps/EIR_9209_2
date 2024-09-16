@@ -8,14 +8,13 @@ const connection = new signalR.HubConnectionBuilder()
 
 $(function () {
     setHeight();
-
-
     //makea ajax call to get the employee details
     $.ajax({
-        url: SiteURLconstructor(window.location) + '/EmpSchedule',
+        url: SiteURLconstructor(window.location) + '/api/EmpSchedule/PayWeekList',
         type: 'GET',
         success: function (data) {
-            Promise.all([updateEmployeeSchedule(data)]);
+
+            Promise.all([LoadPayWeekList(data[0])]);
 
         },
         error: function (error) {
@@ -25,35 +24,58 @@ $(function () {
             console.log(fail);
         }
     });
+
+
 });
-
-async function start() {
+async function LoadPayWeekList(payweek) {
     try {
-        //await connection.start().then(async () => {
-        //    //load siteinfo
-        //    await connection.invoke("GetSiteInformation").then(function (data) {
-        //        siteTours = data.tours;
-        //    }).catch(function (err) {
-        //        console.error(err);
-        //    });
-        //    await connection.invoke("GetMPESynopsis").then(async (data) => {
-        //        hourlyMPEdata = data.length > 0 ? data[0] : [];
-        //        Promise.all([updateMPEPerformanceSummaryStatus(data)]).then(function () {
-        //            connection.invoke("JoinGroup", "MPESynopsis").catch(function (err) {
-        //                return console.error(err.toString());
-        //            });
-
-        //        });
-        //    }).catch(function (err) {
-        //        console.error(err);
-        //    });
-
-        //});
-    } catch (err) {
-        console.log(err);
-        setTimeout(start, 5000);
+        //makea ajax call to get the employee details
+        $.ajax({
+            url: SiteURLconstructor(window.location) + '/api/EmpSchedule/EmployeesSchedule?payWeek='+ payweek,
+            type: 'GET',
+            success: function (data) {
+                console.log(data);
+                Promise.all([updateEmployeeSchedule(data)]);
+            },
+            error: function (error) {
+                console.log(error);
+            },
+            faulure: function (fail) {
+                console.log(fail);
+            }
+        });
+    } catch (e) {
+        console.log(e);
     }
-};
+}
+
+//async function start() {
+//    try {
+//        //await connection.start().then(async () => {
+//        //    //load siteinfo
+//        //    await connection.invoke("GetSiteInformation").then(function (data) {
+//        //        siteTours = data.tours;
+//        //    }).catch(function (err) {
+//        //        console.error(err);
+//        //    });
+//        //    await connection.invoke("GetMPESynopsis").then(async (data) => {
+//        //        hourlyMPEdata = data.length > 0 ? data[0] : [];
+//        //        Promise.all([updateMPEPerformanceSummaryStatus(data)]).then(function () {
+//        //            connection.invoke("JoinGroup", "MPESynopsis").catch(function (err) {
+//        //                return console.error(err.toString());
+//        //            });
+
+//        //        });
+//        //    }).catch(function (err) {
+//        //        console.error(err);
+//        //    });
+
+//        //});
+//    } catch (err) {
+//        console.log(err);
+//        setTimeout(start, 5000);
+//    }
+//};
 
 function setHeight() {
     let height = (this.window.innerHeight > 0 ? this.window.innerHeight : this.screen.height) - 1;
@@ -86,4 +108,4 @@ function SiteURLconstructor(winLoc) {
     }
 }
 // Start the connection.
-start();
+//start();

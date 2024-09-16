@@ -6,7 +6,7 @@ public interface IInMemoryEmployeesRepository
     Task LoadEmployees(JToken data);
     Task LoadEmpSchedule(JToken data);
     IEnumerable<EmployeeInfo> GetAll();
-    object getEmpSchedule();
     void RunEmpScheduleReport();
-
+    Task<List<string>> GetPayWeeks();
+    Task<List<ScheduleReport>> GetEmployeesForPayWeek(string payWeek);
 }

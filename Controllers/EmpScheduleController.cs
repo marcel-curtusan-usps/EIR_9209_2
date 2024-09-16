@@ -12,17 +12,52 @@ namespace EIR_9209_2.Controllers
         private readonly ILogger<EmpScheduleController> _logger = logger;
 
         // GET: api/<EmpScheduleController>
+        /// <summary>
+        /// this will provide the employee schedule for the pay week
+        /// </summary>
+        /// <param name="payWeek"></param>
+        /// <returns></returns>
         [HttpGet]
-        [Route("/EmpSchedule")]
-        public async Task<object> GetEmpSchedule()
+        [Route("EmployeesSchedule")]
+        public async Task<object> GetEmpSchedule(string payWeek)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return await Task.FromResult(BadRequest(ModelState));
+                if (!ModelState.IsValid)
+                {
+                    return await Task.FromResult(BadRequest(ModelState));
+                }
+                return await _empsch.GetEmployeesForPayWeek(payWeek);
             }
-            return _empsch.getEmpSchedule();
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+
         }
+        /// <summary>
+        /// This provide the a list of pay weeks
+        /// </summary>
+        /// <returns></returns>
 
-
+        [HttpGet]
+        [Route("PayWeekList")]
+        public async Task<object> GetPayWeek()
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return await Task.FromResult(BadRequest(ModelState));
+                }
+                return await _empsch.GetPayWeeks();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

@@ -1,7 +1,26 @@
-﻿@import url('../../content/bootstrap.css');
-@import url('../../content/bootstrap-grid.css');
-@import url('../../content/bootstrap-icons.css');
-@import url('../../content/bootstrap-reboot.css');
+﻿@import url('../../js/bootstrap/dist/css/bootstrap.min.css');
+@import url('../../js/bootstrap/dist/css/bootstrap.rtl.min.css');
+@import url('../../js/bootstrap/dist/css/bootstrap.rtl.css');
+@import url('../../js/bootstrap/dist/css/bootstrap.css');
+@import url('../../js/bootstrap/dist/css/bootstrap-grid.min.css');
+@import url('../../js/bootstrap/dist/css/bootstrap-grid.rtl.min.css');
+@import url('../../js/bootstrap/dist/css/bootstrap-grid.rtl.css');
+@import url('../../js/bootstrap/dist/css/bootstrap-grid.css');
+@import url('../../js/bootstrap/dist/css/bootstrap-reboot.min.css');
+@import url('../../js/bootstrap/dist/css/bootstrap-reboot.rtl.min.css');
+@import url('../../js/bootstrap/dist/css/bootstrap-reboot.rtl.css');
+@import url('../../js/bootstrap/dist/css/bootstrap-reboot.css');
+@import url('../../js/bootstrap/dist/css/bootstrap-utilities.min.css');
+@import url('../../js/bootstrap/dist/css/bootstrap-utilities.rtl.min.css');
+@import url('../../js/bootstrap/dist/css/bootstrap-utilities.rtl.css');
+@import url('../../js/bootstrap/dist/css/bootstrap-utilities.css');
+@import url('../../css/bootstrap-icons.min.css');
+@import url('../../css/bootstrap-icons.css');
+@import "../../css/bootstrap-icons";
+@import url('../../lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css');
+@import url('../../lib/bootstrap-datepicker/css/bootstrap-datepicker.css');
+@import url('../../lib/datatables.net-bs5/datatables.bootstrap5.min.css');
+@import url('../../lib/datatables.net-bs5/datatables.bootstrap5.css');
 
 html, body {
     min-height: 100%;
@@ -9,6 +28,16 @@ html, body {
     height: 100%;
     margin: 0;
 }
+/* Override Bootstrap table alternate row colors */
+.table-striped tbody tr:nth-child(odd) > td {
+    background-color: #d9e8f9;
+    /* Custom color for odd rows */
+}
+
+.table-striped tbody tr:nth-child(even) > td {
+    background-color: #ffffff; /* Custom color for even rows */
+}
+/*
 * {
     margin: 0;
     padding: 0;
@@ -54,4 +83,200 @@ html, body {
 }
 .detail-value {
     margin-top: 5px;
+}*/
+/* =========================
+General Doc Format
+===========================*/
+@media print {
+    .schedtbl tr, .schedtbl .tr {
+        page-break-inside: avoid;
+    }
+}
+.off {
+    background-color: rgb(221, 221, 221) !important;
+}
+.schedtbl table.daydetail tr:first-child td:first-child {
+    border-right: 1px solid black;
+}
+
+.schedtbl table.daydetail {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+div.otadmin {
+    display: inline-block;
+    border: 1px solid black;
+    cursor: pointer;
+    line-height: 13px;
+    padding: 1px;
+}
+
+div.otadmin:hover {
+    opacity: 0.8;
+}
+
+div.otred {
+    background-color: #ffcccc;
+}
+
+div.otgreen {
+    background-color: #ccffcc;
+}
+
+
+.schedtbl a {
+    text-decoration: none;
+}
+
+.schedtbl td.nohours .detail {
+    text-decoration: none !important;
+}
+
+
+.schedtbl caption {
+    font-size: 18px;
+}
+
+.schedtbl img {
+    border: none 0px #ffffff;
+}
+/*
+.schedtbl table {
+    table-layout: fixed;
+} */
+
+
+
+.schedtbl .float-left {
+    float: left !important
+}
+
+/*
+.schedtbl .headtotal td{
+	background-color: white;
+	color: black;
+	border-right: 1px solid white;
+	vertical-align: bottom;
+}*/
+
+#filter .lightbox_content .input_container label {
+    font-size: 15px !important;
+    /*line-height: 20px!important;*/
+}
+
+#filter {
+    font-size: 12px !important;
+    /*line-height: 20px!important;*/
+}
+
+.schedtbl td {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+
+.schedtbl .red {
+    color: red;
+    font-weight: bold;
+}
+
+.schedtbl .large {
+    font-size: 150%;
+    padding-left: 2pt;
+    padding-right: 2pt;
+}
+
+.schedtbl .btop {
+    border-top: solid 1px black !important;
+}
+
+.schedtbl .section {
+    border-top: solid 1px black !important;
+    word-wrap: break-word;
+}
+
+.schedtbl .lunch {
+    border-top: solid 1px black !important;
+}
+
+.schedtbl .bt {
+    border-right: 1px solid black;
+}
+
+
+.schedtbl .top {
+    vertical-align: top !important;
+}
+
+.schedtbl .partial {
+    border-top: solid 1px black !important;
+}
+.work {
+    background-color: rgb(204,255,204) !important;
+    vertical-align: top;
+}
+/*
+ .schedtbl>thead ,
+ .schedtbl tr {
+    display:table;
+    width:100%;
+    table-layout:fixed;
+}*/
+
+/*,
+ .schedtbl tbody*/
+
+/*.interactive .schedtbl>thead {
+    width: calc( 100% - 17px )
+}*/
+
+.schedtbl .select2-container--default .select2-search--inline .select2-search__field {
+    width: auto !important;
+}
+
+.schedtbl .bigdrop {
+    width: 600px !important;
+}
+
+/*#thedit:hover {
+    cursor: pointer;
+}*/
+
+
+.PageHeader button.attention {
+    background-color: rgb(9, 70, 138);
+    border-color: rgb(21, 125, 240);
+    color: #fff;
+}
+
+.PageHeader button.attention:hover,
+.PageHeader button.attention:active {
+    background-color: rgb(6, 47, 94);
+}
+
+
+.PageHeader button {
+    height: 28px;
+    display: inline-block;
+    background-color: #666;
+    font-weight: 700;
+    /*text-transform: uppercase;*/
+    color: #fff;
+    padding: 0 10px 0 10px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    /*margin: 0 0 25px 0;*/
+    margin: 0px;
+}
+
+.PageHeader button:hover,
+.PageHeader button:active {
+    background-color: #333;
+}
+
+table.ivestable th.thname {
+    text-align: left !important;
+    padding-left: 8px !important;
 }

@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <title>Employee Schedules</title>
     <link href="Content/empSchedule.css" rel="stylesheet" />
+    <link href="../lib/datatables.net-bs5/dataTables.bootstrap5.min.css" rel="stylesheet" />
 </head>
 <body>
 
@@ -59,7 +60,7 @@
 
                                         <div class="card-body p-1">
                                             <div class="table-responsive" style="padding-right: 36px;">
-                                                <table class="table table-striped table-sm table-hover mb-0 border-bottom" id="empScheduleData">
+                                                <table class="table schedtbl table-striped table-sm table-hover mb-0 border-bottom" style="border: 1px solid black; table-layout: fixed;"id="empScheduleData">
                                                     <thead class="table-dark">
                                                     </thead>
                                                     <tbody></tbody>
@@ -80,11 +81,12 @@
     <script src="../lib/jquery/jquery.min.js"></script>
     <script src="../js/microsoft/signalr/dist/browser/signalr.min.js"></script>
     <script src="../js/microsoft/signalr-protocol-msgpack/dist/browser/signalr-protocol-msgpack.min.js"></script>
-    <script src="../js/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../lib/luxon/luxon.min.js"></script>
-    <script src="../lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="../js/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="../lib/datatables.net/dataTables.min.js"></script>
     <script src="../lib/datatables.net-bs5/dataTables.bootstrap5.min.js"></script>
+    <script src="../js/microsoft/signalr/dist/browser/signalr.min.js"></script>
     <script src="Scripts/empSchedule.js"></script>
     <script src="Scripts/empScheduleTable.js"></script>
 </body>

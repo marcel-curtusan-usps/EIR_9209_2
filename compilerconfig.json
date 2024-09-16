@@ -2,5 +2,9 @@
   {
     "outputFile": "wwwroot/css/Site.css",
     "inputFile": "wwwroot/css/Site.scss"
+  },
+  {
+    "outputFile": "wwwroot/reports/content/empschedule.css",
+    "inputFile": "wwwroot/reports/content/empschedule.scss"
   }
 ]

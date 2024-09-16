@@ -31,7 +31,7 @@ $.extend(fotfmanager.client, {
     }
 });
 $(function () {
-    setHeight();;
+    setHeight();
     RequestDate = getUrlParameter("Date");
     //start connection 
     $.connection.hub.qs = { 'page_type': "SitePerformance".toUpperCase() };

@@ -108,7 +108,7 @@ namespace EIR_9209_2.Service
                             {
                                 if (currentHour == hour || pastHour == hour)
                                 {
-                                    var currentvalue = _tags.GetTagTimeline(hour);
+                                    var currentvalue = _tags.GetCurrentTagTimeline(hour);
 
                                     var newValue = await queryService.GetTotalTagTimeLine(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
                                         TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
