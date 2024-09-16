@@ -47,7 +47,7 @@ public class Connection
     public string OAuthUserName { get; set; } = "";
     public string OAuthPassword { get; set; } = "";
     public string OAuthClientId { get; set; } = "";
-    public int MillisecondsTimeout { get; set; } = 100;
+    public int MillisecondsTimeout { get; set; } = 60000;
     public string? MapId { get; set; } = "";
     public string? TenantId { get; set; } = "";
 }
