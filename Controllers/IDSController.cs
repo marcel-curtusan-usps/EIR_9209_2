@@ -136,27 +136,27 @@ namespace EIR_9209_2.Controllers
                 };
                 if (data.HasValues && data.Type == JTokenType.Object)
                 {
-                    JToken result = await _ids.GetOracleIDSData(data);
-                    if (result.HasValues)
-                    {
-                        _ = Task.Run(() => _geoZones.ProcessIDSData(result)).ConfigureAwait(false);
-                    }
-                    if (result.Type == JTokenType.Array)
-                    {
-                        return await Task.FromResult(Ok(result));
-                    }
-                    else
-                    {
-                        if (((JObject)result).ContainsKey("Error"))
-                        {
-                            return await Task.FromResult(BadRequest(result)).ConfigureAwait(false);
+                    return Ok(await _ids.GetOracleIDSData(data));
+                    //if (result.HasValues)
+                    //{
+                    //    _ = Task.Run(() => _geoZones.ProcessIDSData(result)).ConfigureAwait(false);
+                    //}
+                    //if (result.Type == JTokenType.Array)
+                    //{
+                    //    return await Task.FromResult(Ok(result));
+                    //}
+                    //else
+                    //{
+                    //    if (((JObject)result).ContainsKey("Error"))
+                    //    {
+                    //        return await Task.FromResult(BadRequest(result)).ConfigureAwait(false);
 
-                        }
-                        else
-                        {
-                            return await Task.FromResult(Ok(result));
-                        }
-                    }
+                    //    }
+                    //    else
+                    //    {
+                    //        return await Task.FromResult(Ok(result));
+                    //    }
+                    //}
 
                 }
                 else

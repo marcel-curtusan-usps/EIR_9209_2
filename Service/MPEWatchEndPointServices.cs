@@ -22,7 +22,10 @@ namespace EIR_9209_2.Service
                 string start_time = string.Concat(DateTime.Now.AddHours(-_endpointConfig.HoursBack).ToString("MM/dd/yyyy_"), "00:00:00");
                 string end_time = string.Concat(DateTime.Now.AddHours(_endpointConfig.HoursForward).ToString("MM/dd/yyyy_"), "23:59:59");
                 string FormatUrl = string.Format(_endpointConfig.Url, MpeWatch_id, _endpointConfig.MessageType, start_time, end_time);
-                queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(
+                        new Uri(FormatUrl),
+                        new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)
+                    ));
                 var result = await queryService.GetMPEWatchData(stoppingToken);
                 //process zone data
                 if (_endpointConfig.MessageType.ToLower() == "rpg_run_perf")

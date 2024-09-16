@@ -75,6 +75,8 @@ namespace EIR_9209_2.Service
             _endpointConfig.TenantId = updateCon.TenantId;
             _endpointConfig.MapId = updateCon.MapId;
             _endpointConfig.OutgoingApikey = updateCon.OutgoingApikey;
+            _endpointConfig.MillisecondsTimeout = updateCon.MillisecondsTimeout;
+            _endpointConfig.ApiConnected = false;
 
             if (updateCon.ActiveConnection)
             {
@@ -98,7 +100,7 @@ namespace EIR_9209_2.Service
                 {
                     _endpointConfig.Status = EWorkerServiceState.Running;
                     _endpointConfig.LasttimeApiConnected = DateTime.Now;
-
+                    _endpointConfig.ApiConnected = true;
                     await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, CancellationToken.None).ConfigureAwait(false);
 
                     await FetchDataFromEndpoint(stoppingToken).ConfigureAwait(false);
@@ -114,6 +116,7 @@ namespace EIR_9209_2.Service
             {
                 _logger.LogInformation("Stopping data collection for {Url}", _endpointConfig.Url);
                 _endpointConfig.Status = EWorkerServiceState.Stopped;
+                _endpointConfig.ApiConnected = false;
                 // Notify clients about the stopped status without terminating the connection
                 await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig,CancellationToken.None).ConfigureAwait(false);
             }

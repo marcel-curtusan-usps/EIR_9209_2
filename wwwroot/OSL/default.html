@@ -288,6 +288,18 @@
                             </select>
                             <span id="error_data_retrieve" class="text-danger"></span>
                         </div>
+                        <div class="form-group col">
+                            <label class="control-label">Timeout</label>
+                            <select id="connectionTimeout" class="form-control pb-1" name="connectionTimeout">
+                                <option value=""></option>
+                                <option value="30000">30 Second</option>
+                                <option value="60000">1 Minute</option>
+                                <option value="180000">3 Minute</option>
+                                <option value="300000">5 Minute</option>
+                                <option value="900000">15 Minute</option>
+                            </select>
+                            <span id="error_connectionTimeout" class="text-danger"></span>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

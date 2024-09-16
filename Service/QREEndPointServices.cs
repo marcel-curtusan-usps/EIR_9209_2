@@ -34,7 +34,7 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.MessageType == "AREA_AGGREGATION")
                     {
                         FormatUrl = string.Format(_endpointConfig.Url);
-                        queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                        queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
 
                         var now = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                         var endingHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
@@ -85,7 +85,7 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.MessageType == "TAG_TIMELINE")
                     {
                         FormatUrl = string.Format(_endpointConfig.Url);
-                        queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                        queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
 
                         var now = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                         var endingHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);

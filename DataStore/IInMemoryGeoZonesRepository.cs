@@ -21,7 +21,7 @@ public interface IInMemoryGeoZonesRepository
     List<MPEActiveRun> getMPERunActivity(string mpe);
     void RunMPESummaryReport();
     Task<bool> UpdateMPERunInfo(List<MPERunPerformance> mpe);
-    void ProcessIDSData(JToken result);
+    Task ProcessIDSData(JToken result);
     void UpdateMPERunActivity(List<MPERunPerformance> mpe);
     Task LoadMPEPlan(JToken data);
     Task LoadWebEORMPERun(JToken data);

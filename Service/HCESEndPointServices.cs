@@ -28,7 +28,7 @@ namespace EIR_9209_2.Service
                     var now = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                     string FormatUrl = string.Format(_endpointConfig.Url);
                     string Finnum = siteinfo.FinanceNumber;
-                    queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                    queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                     var result = await queryService.GetIVESData(stoppingToken);
 
                     if (_endpointConfig.MessageType == "getByFacilityID")

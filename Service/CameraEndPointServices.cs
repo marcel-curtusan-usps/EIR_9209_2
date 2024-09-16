@@ -31,7 +31,7 @@ namespace EIR_9209_2.Service
                     {
                         //process tag data
                         FormatUrl = string.Format(_endpointConfig.Url, siteinfo.FdbId);
-                        queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                        queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
 
                         var cresult = await queryService.GetCameraData(stoppingToken);
                         // Process the data as needed

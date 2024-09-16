@@ -878,7 +878,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async void ProcessIDSData(JToken result)
+    public async Task ProcessIDSData(JToken result)
     {
         try
         {

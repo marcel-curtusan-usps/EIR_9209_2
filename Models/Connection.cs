@@ -37,7 +37,7 @@ public class Connection
     public string MessageType { get; set; } = "";
     public string NassCode { get; set; } = "";
     public string OutgoingApikey { get; set; } = "";
-    public Int32 Port { get; set; } = 0;
+    public int Port { get; set; } = 0;
     public bool UdpConnection { get; set; } = false;
     public bool TcpIpConnection { get; set; } = false;
     public bool WsConnection { get; set; } = false;
@@ -47,7 +47,7 @@ public class Connection
     public string OAuthUserName { get; set; } = "";
     public string OAuthPassword { get; set; } = "";
     public string OAuthClientId { get; set; } = "";
-    public double TimeoutSeconds { get; set; } = 100;
+    public int MillisecondsTimeout { get; set; } = 100;
     public string? MapId { get; set; } = "";
     public string? TenantId { get; set; } = "";
 }

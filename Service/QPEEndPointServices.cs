@@ -22,7 +22,7 @@ namespace EIR_9209_2.Service
 
                 // Process tag data
                 string formatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType);
-                queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(formatUrl)));
+                queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(formatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                 var result = await queryService.GetQPETagData(stoppingToken).ConfigureAwait(false);
 
                 if (_endpointConfig.MessageType == "getTagData")

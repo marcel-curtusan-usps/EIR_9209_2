@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 
 internal class QueryService : IQueryService
@@ -15,6 +16,7 @@ internal class QueryService : IQueryService
     private readonly JsonSerializerSettings _jsonSettings;
     private readonly Uri _baseQueryUrlWithPort;
     private readonly Uri _fullUrl;
+    private readonly TimeSpan _timeout; // Add Timeout field
     protected readonly ILogger<BaseEndpointService> _logger;
 
     public QueryService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClient, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
@@ -23,6 +25,7 @@ internal class QueryService : IQueryService
         _httpClient = httpClient;
         _jsonSettings = jsonSettings;
         _fullUrl = new Uri(settings.FullUrl);
+        _timeout = settings.Timeout; // Initialize Timeout field
     }
 
     public QueryService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClient, IOAuth2AuthenticationService authService, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
@@ -33,6 +36,7 @@ internal class QueryService : IQueryService
         _jsonSettings = jsonSettings;
         _baseQueryUrlWithPort = new Uri(settings.BaseQueryUrlWithPort);
         _fullUrl = new Uri(settings.FullUrl);
+        _timeout = settings.Timeout; // Initialize Timeout field
     }
 
     public async Task<QuuppaTag> GetQPETagData(CancellationToken ct)
@@ -153,6 +157,7 @@ internal class QueryService : IQueryService
         try
         {
             var client = _httpClient.CreateClient();
+            client.Timeout = _timeout; // Set the timeout
             using var request = new HttpRequestMessage(HttpMethod.Get, queryUrl);
             request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true, NoStore = true };
             if (_authService != null)
@@ -185,6 +190,17 @@ internal class QueryService : IQueryService
             _logger.LogError(ex.Message);
             throw new Exception("An error occurred while deserializing the response body.", ex);
         }
+        catch (TaskCanceledException ex) when (ex.CancellationToken == ct)
+        {
+            _logger.LogInformation(queryUrl);
+            _logger.LogError("The request was canceled due to a timeout.");
+            throw new Exception("The request was canceled due to a timeout.", ex);
+        }
+        catch (OperationCanceledException ex)
+        {
+            _logger.LogError(ex.Message);
+            throw new Exception("An error occurred while connection.", ex);
+        }
         catch (Exception e)
         {
             _logger.LogInformation(queryUrl);
@@ -198,6 +214,7 @@ internal class QueryService : IQueryService
         try
         {
             var client = _httpClient.CreateClient();
+            client.Timeout = _timeout; // Set the timeout
             using var request = new HttpRequestMessage(HttpMethod.Post, queryUrl);
             if (_authService != null)
             {
@@ -229,6 +246,12 @@ internal class QueryService : IQueryService
             _logger.LogInformation(queryUrl);
             _logger.LogError(ex.Message);
             throw new Exception("An error occurred while deserializing the response body.", ex);
+        }
+        catch (TaskCanceledException ex) when (ex.CancellationToken == ct)
+        {
+            _logger.LogInformation(queryUrl);
+            _logger.LogError("The request was canceled due to a timeout.");
+            throw new Exception("The request was canceled due to a timeout.", ex);
         }
         catch (OperationCanceledException ex)
         {

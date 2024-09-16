@@ -113,9 +113,9 @@ async function updateDockDoorFeature(data) {
                 });
                 let dockDoorNumber = parseInt(geoZoneDockDoor._layers[leafletIds].feature.properties.doorNumber.match(/\d+/g)[0], 10);
                 if (geoZoneDockDoor._layers[leafletIds].feature.properties.tripDirectionInd !== "") {
-                    dockDoorNumber += "-" + geoZoneDockDoor._layers[leafletIds].feature.properties.tripDirectionInd
+                    dockDoorNumber += "-" + geoZoneDockDoor._layers[leafletIds].feature.properties.tripDirectionInd;
                 }
-                geoZoneDockDoor._layers[leafletIds].setTooltipContent(dockDoorNumber);
+                geoZoneDockDoor._layers[leafletIds].setTooltipContent(dockDoorNumber.toString()); // Ensure dockDoorNumber is a string
                 if (data.tripDirectionInd === "O" && data.tripMin > 0 && data.tripMin <= 30) {
                     if (geoZoneDockDoor._layers[leafletIds].feature.properties.containersNotLoaded > 0) {
                         if (geoZoneDockDoor._layers[leafletIds].hasOwnProperty("_tooltip")) {
@@ -125,8 +125,7 @@ async function updateDockDoorFeature(data) {
                                 }
                             }
                         }
-                    }
-                    else {
+                    } else {
                         if (geoZoneDockDoor._layers[leafletIds].hasOwnProperty("_tooltip")) {
                             if (geoZoneDockDoor._layers[leafletIds]._tooltip.hasOwnProperty("_container")) {
                                 if (geoZoneDockDoor._layers[leafletIds]._tooltip._container.classList.contains('doorflash')) {
@@ -145,8 +144,7 @@ async function updateDockDoorFeature(data) {
                                 }
                             }
                         }
-                    }
-                    else {
+                    } else {
                         if (geoZoneDockDoor._layers[leafletIds].hasOwnProperty("_tooltip")) {
                             if (geoZoneDockDoor._layers[leafletIds]._tooltip.hasOwnProperty("_container")) {
                                 if (geoZoneDockDoor._layers[leafletIds]._tooltip._container.classList.contains('doorflash')) {
@@ -155,8 +153,7 @@ async function updateDockDoorFeature(data) {
                             }
                         }
                     }
-                }
-                else {
+                } else {
                     if (geoZoneDockDoor._layers[leafletIds].hasOwnProperty("_tooltip")) {
                         if (geoZoneDockDoor._layers[leafletIds]._tooltip.hasOwnProperty("_container")) {
                             if (geoZoneDockDoor._layers[leafletIds]._tooltip._container.classList.contains('doorflash')) {
@@ -166,7 +163,7 @@ async function updateDockDoorFeature(data) {
                     }
                 }
             } catch (e) {
-                console.log(e)
+                console.log(e);
             }
         });
 }

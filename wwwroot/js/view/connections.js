@@ -136,6 +136,32 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             enableaipSubmit();
         }
     });
+    //connection Timeout Validation
+    if (!checkValue($('select[name=connectionTimeout] option:selected').val())) {
+        $('select[name=connectionTimeout]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_connectionTimeout]').text("Select Connection");
+    }
+    else {
+        $('select[name=connectionTimeout]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_connectionTimeout]').text("");
+    }
+    //Data Retrieve Occurrences Keyup
+    $('select[name=connectionTimeout]').on("change", function () {
+        if (!checkValue($('select[name=connectionTimeout] option:selected').val())) {
+            $('select[name=connectionTimeout]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_connectionTimeout]').text("Select Connection");
+        }
+        else {
+            $('select[name=connectionTimeout]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_connectionTimeout]').text("");
+        }
+        if (/^(udp|tcp)/i.test(connTypeRadio)) {
+            enabletcpipudpSubmit();
+        }
+        else if (/^(api)/i.test(connTypeRadio)) {
+            enableaipSubmit();
+        }
+    });
     // Address Validation
     if (!checkValue($('input[type=text][name=ip_address]').val())) {
         $('input[type=text][name=ip_address]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
@@ -413,6 +439,7 @@ async function Add_Connection() {
                 HoursBack: parseInt($('input[id=hoursback_range]').val(), 10),
                 HoursForward: parseInt($('input[id=hoursforward_range]').val(), 10),
                 MillisecondsInterval: $('select[name=data_retrieve] option:selected').val(),
+                MillisecondsTimeout: $('select[name=connectionTimeout] option:selected').val(),
                 Name: $('select[name=connection_name] option:selected').val(),
                 IpAddress: $('input[type=text][name=ip_address]').val(),
                 Port: Number.isNaN(Number($('input[type=text][name=port_number]').val())) ? parseInt($('input[id=hoursback_range]').val(), 10) : 0,
@@ -471,6 +498,7 @@ async function Edit_Connection(data) {
     $('input[type=text][id=port_number]').val(data.port);
     $('input[type=text][id=url]').val(data.url);
     filtermessage_type(data.name, data.messageType);
+    $('select[name=connectionTimeout]').val(data.millisecondsTimeout);
     $('select[name=data_retrieve]').val(data.millisecondsInterval);
     $('input[type=radio]').prop('disabled', true);
 
@@ -550,6 +578,7 @@ async function Edit_Connection(data) {
                 hoursBack: $('input[type=checkbox][id=hour_range]').is(':checked') ? parseInt($('input[id=hoursback_range]').val(), 10) : 0,
                 hoursForward: $('input[type=checkbox][id=hour_range]').is(':checked') ? parseInt($('input[id=hoursforward_range]').val(), 10) : 0,
                 millisecondsInterval: $('select[name=data_retrieve] option:selected').val(),
+                millisecondsTimeout: $('select[name=connectionTimeout] option:selected').val(),
                 name: $('select[name=connection_name] option:selected').val(),
                 ipAddress: $('input[type=text][id=ip_address]').val(),
                 port: $('input[type=text][name=port_number]').val(),

@@ -25,7 +25,7 @@ namespace EIR_9209_2.Service
                 if (_endpointConfig.MessageType == "CLIENT")
                 {
                     FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType, _endpointConfig.MapId, _endpointConfig.TenantId);
-                    queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                    queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                     var result = await queryService.GetCiscoSpacesData(stoppingToken);
 
                     // Process CLIENT data in a separate thread
@@ -35,7 +35,7 @@ namespace EIR_9209_2.Service
                 if (_endpointConfig.MessageType == "BLE_TAG")
                 {
                     FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType, _endpointConfig.MapId, _endpointConfig.TenantId);
-                    queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                    queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                     var result = await queryService.GetCiscoSpacesData(stoppingToken);
 
                     // Process tag data in a separate thread
@@ -45,7 +45,7 @@ namespace EIR_9209_2.Service
                 if (_endpointConfig.MessageType == "FLOOR")
                 {
                     FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType, _endpointConfig.MapId, _endpointConfig.TenantId);
-                    queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl)));
+                    queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                     var result = await queryService.GetCiscoSpacesData(stoppingToken);
 
                     // Process tag data in a separate thread
