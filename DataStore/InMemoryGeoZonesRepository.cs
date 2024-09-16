@@ -1389,7 +1389,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async void ProcessSVDoorsData(JToken result)
+    public async Task ProcessSVDoorsData(JToken result)
     {
         bool SaveToFile = false;
         try
@@ -1530,6 +1530,10 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
         }
     }
+    public async Task ProcessSVContainerData(JToken result)
+    {
+        throw new NotImplementedException();
+    }
     private DateTime GetSVDate(JObject scheduledDtm)
     {
         try
@@ -1591,4 +1595,6 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             return Enumerable.Empty<GeoZone>();
         }
     }
+
+
 }

@@ -333,7 +333,7 @@ namespace EIR_9209_2.DataStore
             }
         }
 
-        public async void LoadCameraData(List<Cameras> cameraList)
+        public async Task LoadCameraData(List<Cameras> cameraList)
         {
             bool saveToFile = false;
             try

@@ -28,7 +28,7 @@ namespace EIR_9209_2.Service
                 if (_endpointConfig.MessageType == "getTagData")
                 {
                     // Process tag data in a separate thread
-                    _ = Task.Run(() => ProcessQPETagData(result), stoppingToken).ConfigureAwait(false);
+                    await ProcessQPETagData(result);
                 }
             }
             catch (Exception ex)
@@ -39,7 +39,7 @@ namespace EIR_9209_2.Service
                 var updateCon = await _connection.Update(_endpointConfig).ConfigureAwait(false);
                 if (updateCon != null)
                 {
-                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, cancellationToken: stoppingToken).ConfigureAwait(false);
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None).ConfigureAwait(false);
                 }
             }
         }
@@ -50,7 +50,7 @@ namespace EIR_9209_2.Service
             {
                 if (result?.Tags != null)
                 {
-                    await Task.Run(() => _tags.UpdateTagQPEInfo(result.Tags, result.ResponseTS)).ConfigureAwait(false);
+                    await _tags.UpdateTagQPEInfo(result.Tags, result.ResponseTS);
                 }
             }
             catch (Exception e)

@@ -12,6 +12,6 @@ public interface IInMemoryCamerasRepository
     Task<Cameras> DeleteCameraInfo(string id);
     List<Cameras> GetCameraListAll();
     Task<Cameras> GetCameraListByIp(string Ip);
-    void LoadCameraData(List<Cameras> cameraList);
+    Task LoadCameraData(List<Cameras> cameraList);
     Task LoadCameraStills(byte[] result, string id);
 }

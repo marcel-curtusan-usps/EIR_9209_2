@@ -33,7 +33,7 @@ namespace EIR_9209_2.Service
 
                     if (_endpointConfig.MessageType == "getByFacilityID")
                     {
-                        _ = Task.Run(async () => await ProcessEmployeeInfoData(result), stoppingToken);
+                        await ProcessEmployeeInfoData(result);
                     }
                     
                 }
@@ -53,7 +53,7 @@ namespace EIR_9209_2.Service
             {
                 if (_endpointConfig.MessageType == "getEmpSchedule")
                 {
-                    await Task.Run(() => _empSchedules.RunEmpScheduleReport(), stoppingToken).ConfigureAwait(false);
+                    _empSchedules.RunEmpScheduleReport();
                 }
             }
         }
@@ -63,7 +63,7 @@ namespace EIR_9209_2.Service
             {
                 if (result is not null && ((JObject)result).ContainsKey("DATA"))
                 {
-                    await Task.Run(() => _empSchedules.LoadEmployees(result)).ConfigureAwait(false);
+                    _empSchedules.LoadEmployees(result);
                 }
             }
             catch (Exception e)
@@ -77,7 +77,7 @@ namespace EIR_9209_2.Service
             {
                 if (result is not null && ((JObject)result).ContainsKey("DATA"))
                 {
-                    await Task.Run(() => _empSchedules.LoadEmpSchedule(result)).ConfigureAwait(false);
+                    _empSchedules.LoadEmpSchedule(result);
                 }
             }
             catch (Exception e)

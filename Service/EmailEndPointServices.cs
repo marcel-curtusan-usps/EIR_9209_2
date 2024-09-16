@@ -28,7 +28,7 @@ namespace EIR_9209_2.Service
                     {
                         if (!categorizedEmails.ContainsKey(key))
                         {
-                            categorizedEmails[key] = new List<string>();
+                            categorizedEmails[key] = [];
                         }
                         categorizedEmails[key].Add(email.EmailAddress);
 

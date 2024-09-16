@@ -35,7 +35,7 @@ namespace EIR_9209_2.Service
 
                         var cresult = await queryService.GetCameraData(stoppingToken);
                         // Process the data as needed
-                        _ = Task.Run(() => ProcessCameraData(cresult), stoppingToken).ConfigureAwait(false);
+                        await ProcessCameraData(cresult);
                     }
                 }
                 if (_endpointConfig.MessageType == "getCameraStills")
@@ -55,19 +55,18 @@ namespace EIR_9209_2.Service
                             using (var httpClient = new HttpClient())
                             {
                                 result = await httpClient.GetByteArrayAsync(FormatUrl);
-                                _ = Task.Run(() => _camera.LoadCameraStills(result, camera.Properties.Id), stoppingToken).ConfigureAwait(false);
+                              await _camera.LoadCameraStills(result, camera.Properties.Id);
                             }
                         }
                         catch (Exception e)
                         {
                             _logger.LogError(e.Message);
                             result = Array.Empty<byte>();
-                         _ =  Task.Run(() => _camera.LoadCameraStills(result, camera.Properties.Id), stoppingToken).ConfigureAwait(false);
+                           await _camera.LoadCameraStills(result, camera.Properties.Id);
                         }
                     }
                 }
             }
-
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
@@ -79,7 +78,6 @@ namespace EIR_9209_2.Service
                     await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
                 }
             }
-           
         }
         private async Task ProcessCameraData(JToken result)
         {
@@ -116,7 +114,7 @@ namespace EIR_9209_2.Service
 
                     if (cameraList != null && cameraList.Any())
                     {
-                        await Task.Run(() => _camera.LoadCameraData(cameraList)).ConfigureAwait(false);
+                        await _camera.LoadCameraData(cameraList);
                     }
 
                 }

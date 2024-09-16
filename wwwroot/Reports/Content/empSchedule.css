@@ -24,8 +24,6 @@
  */
 @import url("../../lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css");
 @import url("../../lib/bootstrap-datepicker/css/bootstrap-datepicker.css");
-@import url("../../lib/datatables.net-bs5/datatables.bootstrap5.min.css");
-@import url("../../lib/datatables.net-bs5/datatables.bootstrap5.css");
 @font-face {
   font-display: block;
   font-family: "bootstrap-icons";

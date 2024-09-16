@@ -30,27 +30,27 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.MessageType.ToLower() == "doors")
                     {
                         // Process MPE data in a separate thread
-                        _ = Task.Run(() => ProcessDoorsData(result), stoppingToken).ConfigureAwait(false);
+                        await ProcessDoorsData(result);
                     }
                     if (_endpointConfig.MessageType.ToLower() == "getdoor_associated_trips")
                     {
                         // Process MPE data in a separate thread
-                        _ = Task.Run(() => ProcessGetdoorAssociatedTripsData(result), stoppingToken).ConfigureAwait(false);
+                        await ProcessGetdoorAssociatedTripsData(result);
                     }
                     if (_endpointConfig.MessageType.ToLower() == "trip_itinerary")
                     {
                         // Process MPE data in a separate thread
-                        _ = Task.Run(() => ProcessTripItineraryData(result), stoppingToken).ConfigureAwait(false);
+                        await ProcessTripItineraryData(result);
                     }
                     if (_endpointConfig.MessageType.ToLower() == "trips")
                     {
                         // Process MPE data in a separate thread
-                        _ = Task.Run(() => ProcessTripsData(result), stoppingToken).ConfigureAwait(false);
+                        await ProcessTripsData(result);
                     }
                     if (_endpointConfig.MessageType.ToLower() == "container")
                     {
                         // Process MPE data in a separate thread
-                        _ = Task.Run(() => ProcessContainerData(result), stoppingToken).ConfigureAwait(false);
+                        await ProcessContainerData(result);
                     }
                 }
             }
@@ -67,31 +67,38 @@ namespace EIR_9209_2.Service
             }
         }
 
-        private void ProcessGetdoorAssociatedTripsData(JToken result)
+        private async Task ProcessGetdoorAssociatedTripsData(JToken result)
         {
             throw new NotImplementedException();
         }
 
-        private void ProcessTripItineraryData(JToken result)
+        private async Task ProcessTripItineraryData(JToken result)
         {
             throw new NotImplementedException();
         }
 
-        private void ProcessTripsData(JToken result)
+        private async Task ProcessTripsData(JToken result)
         {
             throw new NotImplementedException();
         }
 
-        private void ProcessContainerData(JToken result)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ProcessDoorsData(JToken result)
+        private async Task ProcessContainerData(JToken result)
         {
             try
             {
-               _geoZones.ProcessSVDoorsData(result);
+                await _geoZones.ProcessSVContainerData(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
+        }
+
+        private async Task ProcessDoorsData(JToken result)
+        {
+            try
+            {
+                await _geoZones.ProcessSVDoorsData(result);
             }
             catch (Exception e)
             {
