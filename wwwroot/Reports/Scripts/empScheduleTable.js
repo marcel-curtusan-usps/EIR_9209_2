@@ -232,23 +232,36 @@ async function createEmpScheduleDataTable(table) {
                     {
                         orderable: false, // Disable sorting on all columns
                         targets: '_all'
-                    }],
-                rowCallback: function (row, data, index) {
-                    for (let i = 1; i <= 7; i++) {
-                        let dayData = data[`day${i}`];
-                        if ($.isObject(dayData)) {
-                            if (dayData && /off/ig.test(dayData.workStatus)) {
-                                $('td', row).eq(i + 2).addClass('off');
+                    },
+                    {
+                        targets: [3,4,5,6,7,8,9],
+                        createdCell: function (td, cellData, rowData, row, col) {
+                            if (/off/ig.test(cellData.workStatus)) {
+                                $(td).addClass('off');
+                            } else {
+                                $(td).addClass('innertbl top work');
                             }
-                            else {
-                                $('td', row).eq(i + 2).addClass('innertbl top work');
-                            }
-                        }
-                        else {
-                            $('td', row).eq(i + 2).addClass('off');
                         }
                     }
-                },
+                ],
+                //}
+                //rowCallback: function (row, data, index) {
+                //    for (let i = 1; i <= 7; i++) {
+                //        let dayData = data[`day${i}`];
+                //        if ($.isObject(dayData)) {
+                //            console.log(dayData.workStatus);
+                //            if (dayData && /off/ig.test(dayData.workStatus)) {
+                //                $('td', row).eq(i+1).addClass('off');
+                //            }
+                //            else {
+                //                $('td', row).eq(i + 2).addClass('innertbl top work');
+                //            }
+                //        }
+                //        else {
+                //            $('td', row).eq(i + 2).addClass('off');
+                //        }
+                //    }
+                //},
             });
             resolve();
             return false;
@@ -263,15 +276,15 @@ function getDayFormat(dayhr) {
         if (/(OFF|'')/i.test(dayhr.workStatus)) {
             curday = dayhr.workStatus;
         } else if (/HOLOFF/i.test(dayhr.workStatus)) {
-            curday = '<span class="holoffSpan">HOLOFF</span>';
+            curday = 'HOLOFF';
         } else if (/Leave/i.test(dayhr.workStatus)) {
-            curday = '<td>LV</td>';
+            curday = 'LV';
         } else {
             // Add a CSS class to the <tbody> element to center its content
             curday = '<table width="100%"><tbody>';
-            curday += '<tr><td width="50%" class="bt">' + dayhr.beginTourHour + '</td><td width="50%" class="et">' + dayhr.endTourHour + '</td></tr>';
-            curday += '<tr class="multi"><td colspan="2" class="section">' + dayhr.sectionName + '</td></tr>';
-            curday += '<tr><td>' + dayhr.dailyTACShr + '</td><td>' + dayhr.dailyQREhr + '</td></tr>';
+            curday += '<tr><td width="50%" class="bt work">' + dayhr.beginTourHour + '</td><td width="50%" class="et work">' + dayhr.endTourHour + '</td></tr>';
+            curday += '<tr class="multi"><td colspan="2" class="section work">' + dayhr.sectionName + '</td></tr>';
+            curday += '<tr><td class="tacshr">' + dayhr.dailyTACShr + '</td><td class="selshr">' + dayhr.dailyQREhr + '</td></tr>';
             curday += '</tbody></table>';
         }
         if (/(HOLOFF|Leave)/i.test(dayhr.workStatus)) {
