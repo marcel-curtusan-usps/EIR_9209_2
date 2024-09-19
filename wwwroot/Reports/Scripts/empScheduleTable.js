@@ -3,7 +3,6 @@ let valuesArray = null;
 let weekDates = [];
 $(function () {
     Promise.all([createEmpScheduleDataTable('empScheduleData')]);
-
 });
 
 async function updateEmployeeSchedule(data) {
@@ -67,6 +66,13 @@ function processScheduledata(data) {
                 // Accumulate the dailyTACShr
                 if (dayData.dailyTACShr) {
                     employee.totalTACSHr += parseFloat(dayData.dailyTACShr) || 0;
+                }
+                //get weekdates
+                if (!weekDates[dayIndex]) {
+                    let dayname = dayData.dayName.charAt(0).toUpperCase() + dayData.dayName.slice(1); 
+                    let splitdate = dayData.date.split('-');
+                    let dispdate = splitdate[1] + '/' + splitdate[2];
+                    weekDates[dayIndex] = dayname + '<br>' + dispdate;
                 }
             });
 
@@ -244,24 +250,14 @@ async function createEmpScheduleDataTable(table) {
                         }
                     }
                 ],
-                //}
-                //rowCallback: function (row, data, index) {
-                //    for (let i = 1; i <= 7; i++) {
-                //        let dayData = data[`day${i}`];
-                //        if ($.isObject(dayData)) {
-                //            console.log(dayData.workStatus);
-                //            if (dayData && /off/ig.test(dayData.workStatus)) {
-                //                $('td', row).eq(i+1).addClass('off');
-                //            }
-                //            else {
-                //                $('td', row).eq(i + 2).addClass('innertbl top work');
-                //            }
-                //        }
-                //        else {
-                //            $('td', row).eq(i + 2).addClass('off');
-                //        }
-                //    }
-                //},
+                headerCallback: function headerCallback(thead, data, start, end, display) {
+                    for (var i = 1; i <= 7; i++) {
+                        $(thead)
+                            .find('th')
+                            .eq(i+2)
+                            .html(weekDates[i]);
+                    }
+                }
             });
             resolve();
             return false;
