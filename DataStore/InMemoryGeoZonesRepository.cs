@@ -16,16 +16,14 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     private readonly ConcurrentDictionary<DateTime, List<AreaDwell>> _QREAreaDwellResults = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPERunActivity = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPEStandard = new();
-    private readonly IInMemorySiteInfoRepository _siteInfo;
     private readonly List<string> _MPENameList = new();
     private readonly List<string> _DockDoorList = new();
+    private readonly IInMemorySiteInfoRepository _siteInfo;
     private readonly IConfiguration _configuration;
     private readonly ILogger<InMemoryGeoZonesRepository> _logger;
     private readonly IFileService _fileService;
     protected readonly IHubContext<HubServices> _hubServices;
-    private readonly string filePath = "";
-    private readonly string fileName = "";
-    private readonly string filePathDockDoor = "";
+    private readonly string fileName = "Zone.json";
     private readonly string fileNameDockDoor = "ZonesDockDoor.json";
     public InMemoryGeoZonesRepository(ILogger<InMemoryGeoZonesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices,IInMemorySiteInfoRepository siteInfo)
     {
@@ -34,26 +32,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         _configuration = configuration;
         _hubServices = hubServices;
         _siteInfo = siteInfo;
-        fileName = $"{_configuration[key: "InMemoryCollection:CollectionZones"]}.json";
-        filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
-            _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-            _configuration[key: "ApplicationConfiguration:NassCode"],
-            _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-            $"{fileName}");
-        filePathDockDoor = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
-            _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-            _configuration[key: "ApplicationConfiguration:NassCode"],
-            _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-            $"{fileNameDockDoor}");
         // Load data from the first file into the first collection
-        _ = LoadDataFromFile(filePath);
+        LoadDataFromFile().Wait();
         // Load data from the first file into the first collection
-        _ = LoadDockDoorDataFromFile(filePathDockDoor);
+        LoadDockDoorDataFromFile().Wait();
 
     }
-
-
-
     public async Task<GeoZone>? Add(GeoZone geoZone)
     {
         bool saveToFile = false;
@@ -511,30 +495,31 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    private async Task LoadDataFromFile(string filePath)
+    private async Task LoadDataFromFile()
     {
         try
         {
             // Read data from file
-            var fileContent = await _fileService.ReadFile(filePath);
-
-            // Parse the file content to get the data. This depends on the format of your file.
-            // Here's an example if your file was in JSON format and contained an array of T objects:
-            List<GeoZone>? data = JsonConvert.DeserializeObject<List<GeoZone>>(fileContent);
-
-            // Insert the data into the MongoDB collection
-            if (data?.Count > 0)
+            var fileContent = await _fileService.ReadFile(fileName);
+            if (!string.IsNullOrEmpty(fileContent))
             {
-                foreach (GeoZone item in data.Select(r => r).ToList())
+                // Parse the file content to get the data. This depends on the format of your file.
+                List<GeoZone>? data = JsonConvert.DeserializeObject<List<GeoZone>>(fileContent);
+
+                // Insert the data into the MongoDB collection
+                if (data?.Count > 0)
                 {
-                    item.Properties.MPERunPerformance = new();
-                    _geoZoneList.TryAdd(item.Properties.Id, item);
-
-                    item.Properties.Type = GetZoneType(item.Properties.Name);
-
-                    if (item.Properties.Type == "MPE")
+                    foreach (GeoZone item in data.Select(r => r).ToList())
                     {
-                        _MPENameList.Add(item.Properties.Name);
+                        item.Properties.MPERunPerformance = new();
+                        _geoZoneList.TryAdd(item.Properties.Id, item);
+
+                        item.Properties.Type = GetZoneType(item.Properties.Name);
+
+                        if (item.Properties.Type == "MPE")
+                        {
+                            _MPENameList.Add(item.Properties.Name);
+                        }
                     }
                 }
             }
@@ -556,12 +541,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
         }
     }
-    private async Task LoadDockDoorDataFromFile(string filePath)
+    private async Task LoadDockDoorDataFromFile()
     {
         try
         {
             // Read data from file
-            var fileContent = await _fileService.ReadFile(filePath);
+            var fileContent = await _fileService.ReadFile(fileNameDockDoor);
 
             // Parse the file content to get the data. This depends on the format of your file.
             // Here's an example if your file was in JSON format and contained an array of T objects:
@@ -1010,7 +995,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     public async void UpdateMPERunActivity(List<MPERunPerformance> mpeList)
     {
         bool SaveToFile = false;
-        SiteInformation siteinfo = _siteInfo.GetSiteInfo();
+        SiteInformation siteinfo = await _siteInfo.GetSiteInfo();
         try
         {
             foreach (var mpe in mpeList)
@@ -1596,5 +1581,40 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
+    public Task<bool> ResetGeoZoneList()
+    {
+        try
+        {
+            _geoZoneList.Clear();
+            _geoZoneDockDoorList.Clear();
+            _mpeSummary.Clear();
+            _QREAreaDwellResults.Clear();
+            _MPENameList.Clear();
+            _DockDoorList.Clear();
+            _MPERunActivity.Clear();
+            return Task.FromResult(true);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return Task.FromResult(true);
+        }
+    }
 
+    public Task<bool> SetupGeoZoneData()
+    {
+        try
+        {
+            // Load data from the first file into the first collection
+            LoadDataFromFile().Wait();
+            // Load data from the first file into the first collection
+            LoadDockDoorDataFromFile().Wait();
+            return Task.FromResult(true);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return Task.FromResult(true);
+        }
+    }
 }

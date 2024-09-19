@@ -1,4 +1,6 @@
-﻿$('#AppSetting_value_Modal').on('hidden.bs.modal', function () {
+﻿let AppTable = "app_settingtable"
+
+$('#AppSetting_value_Modal').on('hidden.bs.modal', function () {
     $(this)
         .find("input[type=text],textarea,select")
         .css({ "border-color": "#D3D3D3" })
@@ -41,10 +43,23 @@ $('#AppSetting_value_Modal').on('shown.bs.modal', function () {
         }
     });
 });
-
-async function init_ApplicationConfiguration() {
+connection.on("updateApplicationConfiguration", async (data) => {
     try {
-        createAppSettingDataTable("app_settingtable");
+        return new Promise((resolve, reject) => {
+            Promise.all([updateAppSettingDataTable(formatdata(data), AppTable)]);
+            Promise.all([init_SiteInformation(data.NassCode)]);
+      
+            resolve();
+            return false;
+        });
+    } catch (e) {
+        throw new Error(e.toString());
+    }
+});
+async function init_applicationConfiguration() {
+    return new Promise((resolve, reject) => {
+    try {
+        createAppSettingDataTable(AppTable);
 
         //get data from application configuration controller
 
@@ -54,7 +69,7 @@ async function init_ApplicationConfiguration() {
             type: 'GET',
             success: function (data) {
                 Promise.all([init_SiteInformation(data.nassCode)]);
-                loadAppSettingDatatable(formatdata(data), "app_settingtable");
+                loadAppSettingDatatable(formatdata(data), AppTable);
             },
             error: function (error) {
                 $('span[id=error_apisubmitBtn]').text(error);
@@ -68,11 +83,16 @@ async function init_ApplicationConfiguration() {
                 //console.log(complete);
             }
         });
-
-
+        connection.invoke("JoinGroup", "ApplicationConfiguration").catch(function (err) {
+            return console.error(err.toString());
+        });
+        resolve();
+        return false;
     } catch (e) {
         throw new Error(e.toString());
-    }
+        reject();
+        }
+    });
 }
 //app setting
 function Get_Action_State() {
@@ -130,12 +150,16 @@ function Edit_AppSetting_Value(Data) {
         }
         if (!$.isEmptyObject(jsonObject)) {
             $.ajax({
-                url: SiteURLconstructor(window.location) + '/api/ApplicationConfiguration/Configuration',
-
-                type: 'GET',
+                url: SiteURLconstructor(window.location) + '/api/ApplicationConfiguration/Update',
+                data: JSON.stringify(jsonObject),
+                contentType: 'application/json',
+                type: 'POST',
                 success: function (data) {
                     $('span[id=error_appsettingvalue]').text("Data has been updated");
-                    updateAppSettingDataTable(formatdata(data), "app_settingtable");
+                    connection.invoke("GetApplicationInfo").then(function (data) {
+                        appData = JSON.parse(data);
+                        UpdateOSLattribution(appData);
+                    });
                 },
                 error: function (error) {
                     $('span[id=error_appsettingvalue]').text(error);
@@ -153,19 +177,6 @@ function Edit_AppSetting_Value(Data) {
                     }, 800);
                 }
             });
-            //fotfmanager.server.editAppSettingdata(JSON.stringify(jsonObject)).done(function (AppsettingData) {
-
-            //    $('span[id=error_appsettingvalue]').text("Data has been updated");
-            //    setTimeout(function () {
-            //        $("#AppSetting_value_Modal").modal('hide');
-            //        updateAppSettingDataTable(formatdata(AppsettingData), "app_settingtable");
-            //    }, 800);
-
-            //    //reload data
-
-            //    // Edit_AppSetting(table);
-
-            //});
         }
     });
     $('#AppSetting_value_Modal').modal('show');
@@ -204,7 +215,7 @@ function createAppSettingDataTable(table) {
                 "mDataProp": key,
                 //"mRender": function (data, type, full) {
                 "mRender": function () {
-                    if (/^Admin/i.test(appData.role)) {
+                    if (/^Admin/i.test(appData.Role)) {
                         return '<button class="btn btn-light btn-sm mx-1 pi-iconEdit editappsetting" name="editappsetting"></button>';
                     }
 
@@ -252,19 +263,17 @@ function loadAppSettingDatatable(data, table) {
     }
 }
 function updateAppSettingDataTable(newdata, table) {
-    let loadnew = true;
     if ($.fn.dataTable.isDataTable("#" + table)) {
         $('#' + table).DataTable().rows(function (idx, data, node) {
-            loadnew = false;
+            
             for (const element of newdata) {
-                if (data.KEY_NAME === element.KEY_NAME) {
-                    $('#' + table).DataTable().row(node).data(element).draw().invalidate();
+                if (data.KEY_NAME.toLowerCase() === element.KEY_NAME.toLowerCase()) {
+                    if (data.VALUE !== element.VALUE) {
+                        $('#' + table).DataTable().row(node).data(element).draw().invalidate();
+                    }
                 }
             }
         })
-        if (loadnew) {
-            loadAppSettingDatatable(newdata, table);
-        }
     }
 }
 
@@ -311,7 +320,7 @@ function formatdata(result) {
         }
 
     } catch (e) {
-        throw new Error(e.toString());
+        console.log(e);
     }
 
     return reformatdata;

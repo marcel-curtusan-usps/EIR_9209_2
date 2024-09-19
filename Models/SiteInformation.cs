@@ -3,25 +3,25 @@
 public class SiteInformation
 {
     [JsonProperty("siteId")]
-    public string SiteId { get; set; } = "";
+    public string SiteId { get; set; } = "000";
 
     [JsonProperty("type")]
     public string Type { get; set; } = "";
 
     [JsonProperty("name")]
-    public string Name { get; set; } = "";
+    public string Name { get; set; } = "No Site Configured";
 
     [JsonProperty("displayName")]
-    public string DisplayName { get; set; } = "";
+    public string DisplayName { get; set; } = "No Site Configured";
 
     [JsonProperty("timeZoneAbbr")]
-    public string TimeZoneAbbr { get; set; } = "";
+    public string TimeZoneAbbr { get; set; } = "EST1";
 
     [JsonProperty("financeNumber")]
-    public string FinanceNumber { get; set; } = "";
+    public string FinanceNumber { get; set; } = "00000000";
 
     [JsonProperty("zipCode")]
-    public string ZipCode { get; set; } = "";
+    public string ZipCode { get; set; } = "00000";
 
     [JsonProperty("areaCode")]
     public string AreaCode { get; set; } = "";

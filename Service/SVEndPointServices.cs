@@ -20,7 +20,7 @@ namespace EIR_9209_2.Service
             try
             {
                 IQueryService queryService;
-                SiteInformation siteinfo = _siteInfo.GetSiteInfo();
+                SiteInformation siteinfo = await _siteInfo.GetSiteInfo();
                 if (siteinfo != null)
                 {
                     string FormatUrl = string.Format(_endpointConfig.Url, siteinfo.SiteId);

@@ -1,6 +1,7 @@
 ﻿using EIR_9209_2.Models;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageRepository
 {
@@ -8,21 +9,14 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
     private readonly ILogger<InMemoryBackgroundImageRepository> _logger;
     private readonly IConfiguration _configuration;
     private readonly IFileService _fileService;
-    private readonly string filePath = "";
-    private readonly string fileName = "";
+    private readonly string fileName = "BackgroundImages.json";
     public InMemoryBackgroundImageRepository(ILogger<InMemoryBackgroundImageRepository> logger, IConfiguration configuration, IFileService fileService)
     {
         _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
-        fileName = $"{_configuration[key: "InMemoryCollection:CollectionBackgroundImages"]}.json";
-        filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
-            _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-            _configuration[key: "ApplicationConfiguration:NassCode"],
-            _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-           $"{fileName}");
         // Load data from the first file into the first collection
-        _ = LoadDataFromFile(filePath);
+        LoadDataFromFile().Wait();
 
     }
     public async Task<BackgroundImage>? Add(BackgroundImage backgroundImage)
@@ -132,23 +126,22 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
     }
     public IEnumerable<BackgroundImage> GetAll() => _backgroundImages.Values;
 
-    private async Task LoadDataFromFile(string filePath)
+    private async Task LoadDataFromFile()
     {
         try
         {
             // Read data from file
-            var fileContent = await _fileService.ReadFile(filePath);
-
-            // Parse the file content to get the data. This depends on the format of your file.
-            // Here's an example if your file was in JSON format and contained an array of T objects:
-            List<BackgroundImage> data = JsonConvert.DeserializeObject<List<BackgroundImage>>(fileContent);
-
-            // Insert the data into the MongoDB collection
-            if (data.Any())
+            var fileContent = await _fileService.ReadFile(fileName);
+            if (!string.IsNullOrEmpty(fileContent))
             {
-                foreach (BackgroundImage item in data.Select(r => r).ToList())
+                // Parse the file content to get the data. This depends on the format of your file.
+                var data = JsonConvert.DeserializeObject<List<BackgroundImage>>(fileContent) ?? new List<BackgroundImage>();
+                if (data.Count > 0)
                 {
-                    _backgroundImages.TryAdd(item.id, item);
+                    foreach (BackgroundImage item in data.Select(r => r).ToList())
+                    {
+                        _backgroundImages.TryAdd(item.id, item);
+                    }
                 }
             }
         }
@@ -170,5 +163,32 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         }
     }
 
+    public Task<bool> ResetBackgroundImageList()
+    {
+        try
+        {
+            _backgroundImages.Clear();
+            return Task.FromResult(true);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return Task.FromResult(true);
+        }
+    }
 
+    public Task<bool> SetupBackgroundImageList()
+    {
+        try
+        {
+            // Load data from the first file into the first collection
+            LoadDataFromFile().Wait();
+            return Task.FromResult(true);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return Task.FromResult(true);
+        }
+    }
 }

@@ -8,18 +8,14 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
     private readonly ILogger<InMemoryDacodeRepository> _logger;
     private readonly IConfiguration _configuration;
     private readonly IFileService _fileService;
-    private readonly string filePath = "";
-    private readonly string fileName = "";
+    private readonly string fileName = "DesignationActivity.json";
 
     public InMemoryDacodeRepository(ILogger<InMemoryDacodeRepository> logger, IConfiguration configuration, IFileService fileService)
     {
         _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
-        fileName = $"{_configuration[key: "InMemoryCollection:CollectionDACode"]}.json";
-        filePath = Path.Combine(Directory.GetCurrentDirectory(), _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{fileName}");
-
-        _ = LoadDataFromFile(filePath);
+        LoadDataFromFile().Wait();
     }
     public async Task<DesignationActivityToCraftType?> Add(DesignationActivityToCraftType dacode)
     {
@@ -116,23 +112,25 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
         return _dacodeList.Values;
     }
 
-    private async Task LoadDataFromFile(string filePath)
+    private async Task LoadDataFromFile()
     {
         try
         {
             // Read data from file
-            var fileContent = await _fileService.ReadFile(filePath);
-
-            // Parse the file content to get the data. This depends on the format of your file.
-            // Here's an example if your file was in JSON format and contained an array of T objects:
-            List<DesignationActivityToCraftType> data = JsonConvert.DeserializeObject<List<DesignationActivityToCraftType>>(fileContent);
-
-            // Insert the data into the MongoDB collection
-            if (data.Count != 0)
+            var fileContent = await _fileService.ReadFileFromRoot(fileName,"Configuration");
+            if (!string.IsNullOrEmpty(fileContent))
             {
-                foreach (DesignationActivityToCraftType item in data.Select(r => r).ToList())
+                // Parse the file content to get the data. This depends on the format of your file.
+                // Here's an example if your file was in JSON format and contained an array of T objects:
+                var data = JsonConvert.DeserializeObject<List<DesignationActivityToCraftType>>(fileContent) ?? new List<DesignationActivityToCraftType>();
+
+                // Insert the data into the MongoDB collection
+                if (data.Count != 0)
                 {
-                    _dacodeList.TryAdd(item.DesignationActivity, item);
+                    foreach (DesignationActivityToCraftType item in data.Select(r => r).ToList())
+                    {
+                        _dacodeList.TryAdd(item.DesignationActivity, item);
+                    }
                 }
             }
         }

@@ -6,5 +6,7 @@ public interface IInMemoryEmailRepository
     Task<Email> Add(Email email);
     Task<Email> Delete(string id);
     IEnumerable<Email> GetAll();
+    Task<bool> ResetEmailsList();
+    Task<bool> SetupEmailsList();
     Task<Email> Update(string id, Email email);
 }

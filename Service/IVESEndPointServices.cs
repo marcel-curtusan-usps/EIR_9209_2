@@ -21,7 +21,7 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                SiteInformation siteinfo = _siteInfo.GetSiteInfo();
+                SiteInformation siteinfo = await _siteInfo.GetSiteInfo();
                 if (siteinfo != null)
                 {
                     IQueryService queryService;

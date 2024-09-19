@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 public class InMemoryConnectionRepository : IInMemoryConnectionRepository
 {
@@ -10,9 +11,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     private readonly ILogger<InMemoryConnectionRepository> _logger;
     private readonly IConfiguration _configuration;
     private readonly IFileService _fileService;
-    private readonly string filePath = "";
     private readonly string fileName = "ConnectionList.json";
-    private readonly string connectionTypefilePath = "";
     private readonly string connectionTypefileName = "ConnectionType.json";
     private readonly object _lock = new();
 
@@ -21,17 +20,11 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
-        filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
-            _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-            _configuration[key: "ApplicationConfiguration:NassCode"],
-            _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-            $"{fileName}");
         // Load Connection data from the first file into the first collection
-        _ = LoadDataFromFile(filePath);
+        LoadDataFromFile().Wait();
 
-        connectionTypefilePath = Path.Combine(Directory.GetCurrentDirectory(), _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{connectionTypefileName}");
         // Load ConnectionType data from the first file into the first collection
-        _ = LoadConnectionTypeDataFromFile(connectionTypefilePath);
+        LoadConnectionTypeDataFromFile().Wait();
     }
     public async Task<Connection>? Add(Connection connection)
     {
@@ -127,24 +120,26 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
     {
         return _connectionList.Where(r => r.Value.Name == type).Select(y => y.Value);
     }
-    private async Task LoadDataFromFile(string filePath)
+    private async Task LoadDataFromFile()
     {
         try
         {
             // Read data from file
-            var fileContent = await _fileService.ReadFile(filePath);
-
-            // Parse the file content to get the data. This depends on the format of your file.
-            // Here's an example if your file was in JSON format and contained an array of T objects:
-            List<Connection> data = JsonConvert.DeserializeObject<List<Connection>>(fileContent);
-
-            // Insert the data into the MongoDB collection
-            if (data != null && data.Count != 0)
+            var fileContent = await _fileService.ReadFile(fileName);
+            if (!string.IsNullOrEmpty(fileContent))
             {
-                foreach (Connection item in data.Select(r => r).ToList())
+                // Parse the file content to get the data. This depends on the format of your file.
+                // Here's an example if your file was in JSON format and contained an array of T objects:
+                List<Connection>? data = JsonConvert.DeserializeObject<List<Connection>>(fileContent);
+
+                // Insert the data into the MongoDB collection
+                if (data != null && data.Count != 0)
                 {
-                    item.Status = EWorkerServiceState.Stopped;
-                    _connectionList.TryAdd(item.Id, item);
+                    foreach (Connection item in data.Select(r => r).ToList())
+                    {
+                        item.Status = EWorkerServiceState.Stopped;
+                        _connectionList.TryAdd(item.Id, item);
+                    }
                 }
             }
         }
@@ -165,6 +160,45 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
             _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
         }
     }
+    private async Task LoadConnectionTypeDataFromFile()
+    {
+        try
+        {
+            // Read data from file
+            var fileContent = await _fileService.ReadFileFromRoot(connectionTypefileName, "Configuration");
+            if (!string.IsNullOrEmpty(fileContent))
+            {
+                // Parse the file content to get the data. This depends on the format of your file.
+                // Here's an example if your file was in JSON format and contained an array of T objects:
+                List<ConnectionType>? data = JsonConvert.DeserializeObject<List<ConnectionType>>(fileContent);
+
+                if (data != null && data.Count != 0)
+                {
+                    foreach (ConnectionType item in data.Select(r => r).ToList())
+                    {
+                        _connectionTypeList.TryAdd(item.Id, item);
+                    }
+                }
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            // Handle the FileNotFoundException here
+            _logger.LogError($"File not found: {ex.FileName}");
+            // You can choose to throw an exception or take any other appropriate action
+        }
+        catch (IOException ex)
+        {
+            // Handle errors when reading the file
+            _logger.LogError($"An error occurred when reading the file: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            // Handle errors when parsing the JSON
+            _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
+        }
+    }
+
     public async Task<ConnectionType?> AddType(ConnectionType connType)
     {
         bool saveToFile = false;
@@ -374,41 +408,32 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         }
     }
 
-    private async Task LoadConnectionTypeDataFromFile(string conTypeFilePath)
+    public Task<bool> ResetConnectionsList()
     {
         try
         {
-            // Read data from file
-            var fileContent = await _fileService.ReadFile(conTypeFilePath);
+            _connectionList.Clear();
+            return Task.FromResult(true);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return Task.FromResult(true);
+        }
+    }
 
-            // Parse the file content to get the data. This depends on the format of your file.
-            // Here's an example if your file was in JSON format and contained an array of T objects:
-            List<ConnectionType> data = JsonConvert.DeserializeObject<List<ConnectionType>>(fileContent);
-
-            // Insert the data into the MongoDB collection
-            if (data.Count != 0)
-            {
-                foreach (ConnectionType item in data.Select(r => r).ToList())
-                {
-                    _connectionTypeList.TryAdd(item.Id, item);
-                }
-            }
-        }
-        catch (FileNotFoundException ex)
+    public Task<bool> SetupConnectionsList()
+    {
+        try
         {
-            // Handle the FileNotFoundException here
-            _logger.LogError($"File not found: {ex.FileName}");
-            // You can choose to throw an exception or take any other appropriate action
+            // Load Connection data from the first file into the first collection
+            LoadDataFromFile().Wait();
+            return Task.FromResult(true);
         }
-        catch (IOException ex)
+        catch (Exception e)
         {
-            // Handle errors when reading the file
-            _logger.LogError($"An error occurred when reading the file: {ex.Message}");
-        }
-        catch (JsonException ex)
-        {
-            // Handle errors when parsing the JSON
-            _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
+            _logger.LogError(e.Message);
+            return Task.FromResult(true);
         }
     }
 }

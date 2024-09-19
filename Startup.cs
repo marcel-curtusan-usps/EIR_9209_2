@@ -12,7 +12,7 @@ using System.Reflection;
 public class Startup
 {
     private readonly IWebHostEnvironment _hostingEnv;
-
+    private readonly Assembly _assembly;
     private IConfiguration Configuration { get; }
 
     /// <summary>
@@ -24,6 +24,10 @@ public class Startup
     {
         _hostingEnv = env;
         Configuration = configuration;
+        _assembly = Assembly.GetExecutingAssembly();
+        var applicationConfiguration = Configuration.GetSection("ApplicationConfiguration");
+        var applicationVersion = applicationConfiguration.GetSection("ApplicationVersion");
+        applicationVersion.Value = $"{_assembly.GetName().Version}";
     }
 
     /// <summary>
@@ -36,7 +40,10 @@ public class Startup
         services.AddLogging();
         //AddOptions(services);
         services.AddAuthentication(IISDefaults.AuthenticationScheme);
+        services.AddSingleton<IFilePathProvider, FilePathProvider>();
         services.AddSingleton<IFileService, FileService>();
+        services.AddSingleton<IResetApplication, ResetApplication>();
+        services.AddSingleton<IInMemoryApplicationRepository, InMemoryApplicationRepository>();
         services.AddSingleton<IEncryptDecrypt, EncryptDecrypt>();
         services.AddSingleton<IInMemorySiteInfoRepository, InMemorySiteInfoRepository>();
         services.AddSingleton<IInMemoryTACSReports, InMemoryTACSReports>();
@@ -107,12 +114,6 @@ public class Startup
                 options.UseInlineDefinitionsForEnums();
                 options.CustomSchemaIds(type => type.FullName);
                 options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
-                // c.IncludeXmlComments($"{AppContext.BaseDirectory}{Path.DirectorySeparatorChar}{_hostingEnv.ApplicationName}.xml");
-                // Sets the basePath property in the Swagger document generated
-                // c.DocumentFilter<BasePathFilter>("/api/v3");
-
-                // Include DataAnnotation attributes on Controller Action parameters as Swagger validation rules (e.g required, pattern, ..)
-                // Use [ValidateModelState] on Actions to actually validate it in C# as well!
                 options.OperationFilter<GeneratePathParamsValidationFilter>();
             });
     }
@@ -130,6 +131,7 @@ public class Startup
         app.UseAuthorization();
         var swaggerConfig = Configuration.GetSection("SwaggerConfiguration");
         var applicationConfiguration = Configuration.GetSection("ApplicationConfiguration");
+        
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
@@ -142,9 +144,6 @@ public class Startup
                 c.SwaggerEndpoint($"/{applicationConfiguration["ApplicationName"]}{swaggerConfig["Endpoint"]}", "CF API's");
             }
         });
-
-        //TODO: Use Https Redirection
-        // app.UseHttpsRedirection();
         app.UseFileServer();
         app.UseDefaultFiles();
         app.UseStaticFiles();

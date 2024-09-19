@@ -85,6 +85,11 @@ function createSiteInfoDataTable(table) {
     })
 }
 function loadSiteInfoDatatable(data, table) {
+    if ($.fn.dataTable.isDataTable('#' + table)) {
+        // For new version use table.destroy();
+        $('#' + table).DataTable().clear().draw(); // Empty the DOM element which contained DataTable
+        // The line above is needed if number of columns change in the Data
+    }
     if ($.fn.dataTable.isDataTable("#" + table)) {
         $('#' + table).DataTable().rows.add(data).draw();
     }

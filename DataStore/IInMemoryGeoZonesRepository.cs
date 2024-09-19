@@ -34,4 +34,6 @@ public interface IInMemoryGeoZonesRepository
     Task ProcessSVDoorsData(JToken result);
     Task<IEnumerable<GeoZone>> GetGeoZone(string zoneType);
     Task ProcessSVContainerData(JToken result);
+    Task<bool> ResetGeoZoneList();
+    Task<bool> SetupGeoZoneData();
 }

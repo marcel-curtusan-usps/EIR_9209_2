@@ -23,11 +23,8 @@ namespace EIR_9209_2.DataStore
         private readonly IConfiguration _configuration;
         private readonly IFileService _fileService;
         private readonly IInMemoryDacodeRepository _dacode;
-        private readonly string filePath = "";
         private readonly string fileName = "Tags.json";
-        private readonly string fileTagVehiclePath = "";
         private readonly string vehicleFileName = "VehicelTags.json";
-        private readonly string fileTagTimelinePath = "";
         private readonly string fileTagTimeline = "TagTimeline.json";
         public InMemoryTagsRepository(ILogger<InMemoryTagsRepository> logger, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryDacodeRepository dacode, IFileService fileService)
         {
@@ -36,27 +33,11 @@ namespace EIR_9209_2.DataStore
             _configuration = configuration;
             _hubServices = hubServices;
             _dacode = dacode;
-            filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
-                _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-                _configuration[key: "ApplicationConfiguration:NassCode"],
-                _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-                $"{fileName}");
+
             // Load data from the first file into the first collection
-            _ = LoadDataFromFile(filePath);
-
-            fileTagTimelinePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
-                _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-                _configuration[key: "ApplicationConfiguration:NassCode"],
-                _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-                $"{fileTagTimeline}");
-            _ = LoadTagTimelineFromFile(fileTagTimelinePath);
-
-            fileTagVehiclePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
-              _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-              _configuration[key: "ApplicationConfiguration:NassCode"],
-              _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-              $"{vehicleFileName}");
-            _ = LoadTagVehicleFromFile(fileTagVehiclePath);
+            LoadDataFromFile().Wait();
+            LoadTagTimelineFromFile().Wait();
+            LoadTagVehicleFromFile().Wait();
         }
 
   
@@ -266,33 +247,28 @@ namespace EIR_9209_2.DataStore
                 }
             }
         }
-        private async Task LoadTagTimelineFromFile(string filePath)
+        private async Task LoadTagTimelineFromFile()
         {
             try
             {
                 //// Read data from file
-                //var fileContent = await FileService.ReadFile(filePath);
-                //var data = JsonConvert.DeserializeObject<List<TagTimeline>[]>(fileContent);
-
-                //if (data!.Length > 0)
+                //var fileContent = await _fileService.ReadFile(fileTagTimeline);
+                //if (!string.IsNullOrEmpty(fileContent))
                 //{
-                //    DateTime Max = DateTime.MinValue;
-                //    foreach (List<TagTimeline> curdata in data)
-                //    {
-                //        DateTime hour = curdata!.Select(i => i.Hour).FirstOrDefault();
-                //        if (curdata!.Count > 0)
-                //        {
-                //            if (hour > Max)
-                //            {
-                //                Max = hour;
-                //            }
-                //            _QRETagTimelineResults.TryAdd(hour, curdata);
-                //        }
-                //    }
-                //    //Remove last hour in case not complete hour data
-                //    _QRETagTimelineResults.TryRemove(Max, out var remove);
-                //}
+                //    List<VehicleGeoMarker>? data = JsonConvert.DeserializeObject<List<VehicleGeoMarker>>(fileContent);
 
+                //    if (data != null && data.Count > 0)
+                //    {
+                //        foreach (VehicleGeoMarker curdata in data.Select(r => r).ToList())
+                //        {
+                //            curdata.Properties.Visible = true;
+                //            curdata.Properties.isPosition = false;
+                //            _vehicleTagList.TryAdd(curdata.Properties.Id, curdata);
+                //        }
+
+
+                //    }
+                //}
             }
             catch (FileNotFoundException ex)
             {
@@ -311,22 +287,24 @@ namespace EIR_9209_2.DataStore
                 _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
             }
         }
-        private async Task LoadTagVehicleFromFile(string filePath)
+        private async Task LoadTagVehicleFromFile()
         {
             try
             {
                 // Read data from file
-                var fileContent = await _fileService.ReadFile(filePath);
-                List<VehicleGeoMarker> data = JsonConvert.DeserializeObject<List<VehicleGeoMarker>>(fileContent);
-
-                if (data.Count > 0)
+                var fileContent = await _fileService.ReadFile(vehicleFileName);
+                if (!string.IsNullOrEmpty(fileContent))
                 {
-                    foreach (VehicleGeoMarker curdata in data.Select(r => r).ToList())
-                    {
-                        curdata.Properties.Visible = true;
-                        curdata.Properties.isPosition = false;
-                        _vehicleTagList.TryAdd(curdata.Properties.Id, curdata);
+                    List<VehicleGeoMarker>? data = JsonConvert.DeserializeObject<List<VehicleGeoMarker>>(fileContent);
 
+                    if (data != null && data.Count > 0)
+                    {
+                        foreach (VehicleGeoMarker curdata in data.Select(r => r).ToList())
+                        {
+                            curdata.Properties.Visible = true;
+                            curdata.Properties.isPosition = false;
+                            _vehicleTagList.TryAdd(curdata.Properties.Id, curdata);
+                        }
                     }
                 }
 
@@ -348,34 +326,36 @@ namespace EIR_9209_2.DataStore
                 _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
             }
         }
-        private async Task LoadDataFromFile(string filePath)
+        private async Task LoadDataFromFile()
         {
             try
             {
                 // Read data from file
-                var fileContent = await _fileService.ReadFile(filePath);
-
-                // Parse the file content to get the data. This depends on the format of your file.
-                // Here's an example if your file was in JSON format and contained an array of T objects:
-                List<GeoMarker> data = JsonConvert.DeserializeObject<List<GeoMarker>>(fileContent);
-
-                // Insert the data into the MongoDB collection
-                if (data?.Count != 0)
+                var fileContent = await _fileService.ReadFile(fileName);
+                if (!string.IsNullOrEmpty(fileContent))
                 {
-                    foreach (GeoMarker item in data.Select(r => r).ToList())
-                    {
-                        item.Properties.Visible = false;
-                        item.Properties.LocationMovementStatus = "noData";
-                        item.Properties.isPosition = false;
-                        item.Properties.posAge = 0;
-                        item.Properties.Zones = [];
-                        item.Properties.ZonesNames = "";
-                        if (string.IsNullOrEmpty(item.Properties.TagType) || item.Properties.TagType == "Person")
-                        {
-                            item.Properties.TagType = "Badge";
-                        }
+                    // Parse the file content to get the data. This depends on the format of your file.
+                    // Here's an example if your file was in JSON format and contained an array of T objects:
+                    List<GeoMarker>? data = JsonConvert.DeserializeObject<List<GeoMarker>>(fileContent);
 
-                        _tagList.TryAdd(item.Properties.Id, item);
+                    // Insert the data into the MongoDB collection
+                    if (data?.Count != 0)
+                    {
+                        foreach (GeoMarker item in data.Select(r => r).ToList())
+                        {
+                            item.Properties.Visible = false;
+                            item.Properties.LocationMovementStatus = "noData";
+                            item.Properties.isPosition = false;
+                            item.Properties.posAge = 0;
+                            item.Properties.Zones = [];
+                            item.Properties.ZonesNames = "";
+                            if (string.IsNullOrEmpty(item.Properties.TagType) || item.Properties.TagType == "Person")
+                            {
+                                item.Properties.TagType = "Badge";
+                            }
+
+                            _tagList.TryAdd(item.Properties.Id, item);
+                        }
                     }
                 }
             }
@@ -497,7 +477,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (savetoFile)
                 { 
-                    await _fileService.WriteFileAsync(filePath, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
             }
         }
@@ -1202,6 +1182,39 @@ namespace EIR_9209_2.DataStore
 
                 _logger.LogError(e.Message);
                 return null;
+            }
+        }
+
+        public Task<bool> ResetTagList()
+        {
+            try
+            {
+                _tagList.Clear();
+                _vehicleTagList.Clear();
+                _QRETagTimelineResults.Clear();
+                return Task.FromResult(true);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> SetupTagList()
+        {
+            try
+            {
+                // Load data from the first file into the first collection
+                LoadDataFromFile().Wait();
+                LoadTagTimelineFromFile().Wait();
+                LoadTagVehicleFromFile().Wait();
+                return Task.FromResult(true);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return Task.FromResult(true);
             }
         }
     }

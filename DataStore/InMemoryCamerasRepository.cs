@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System.Collections.Concurrent;
 using System.Data;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace EIR_9209_2.DataStore
@@ -18,9 +19,7 @@ namespace EIR_9209_2.DataStore
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _hostEnvironment;
         private readonly IFileService _fileService;
-        private readonly string filePath = "";
-        private readonly string cameralistfilePath = "";
-        private readonly string fileName = "";
+        private readonly string fileName = "Cameras.json";
         private readonly string cameraInfofileName = "CameraInfo.json";
         private readonly string imgFilePath = "";
         private readonly byte[] noimageresult = Array.Empty<byte>();
@@ -34,24 +33,9 @@ namespace EIR_9209_2.DataStore
             //No Image
             imgFilePath = Path.Combine(_hostEnvironment.WebRootPath, "css\\images", "NoImageFeed.jpg");
             noimageresult = File.ReadAllBytes(imgFilePath);
-
-            //load camera marker list
-            fileName = $"{_configuration[key: "InMemoryCollection:CollectionCameras"]}.json";
-            filePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
-                _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-                _configuration[key: "ApplicationConfiguration:NassCode"],
-                _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-                $"{fileName}");
-
-            //load camera list
-            cameralistfilePath = Path.Combine(_configuration[key: "ApplicationConfiguration:BaseDrive"],
-                  _configuration[key: "ApplicationConfiguration:BaseDirectory"],
-                  _configuration[key: "ApplicationConfiguration:NassCode"],
-                  _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-           $"{cameraInfofileName}");
-            //// Load data from the first file into the first collection
-            LoadDataFromFile(filePath);
-            LoadCameraInfoListDataFromFile(cameralistfilePath);
+            // Load data from the first file into the first collection
+            LoadDataFromFile().Wait();
+            LoadCameraInfoListDataFromFile().Wait();
 
         }
 
@@ -164,25 +148,27 @@ namespace EIR_9209_2.DataStore
         {
             return _cameraList.Values.OrderBy(y => y.Description).Select(y => y).ToList();
         }
-        private async Task LoadCameraInfoListDataFromFile(string filePath)
+        private async Task LoadCameraInfoListDataFromFile()
         {
             try
             {
                 // Read data from file
-                var fileContent = await _fileService.ReadFile(filePath);
-
-                // Parse the file content to get the data. This depends on the format of your file.
-                // Here's an example if your file was in JSON format and contained an array of T objects:
-                List<Cameras>? data = JsonConvert.DeserializeObject<List<Cameras>>(fileContent);
-
-                // Insert the data into the MongoDB collection
-                if (data?.Count > 0)
+                var fileContent = await _fileService.ReadFile(cameraInfofileName);
+                if (!string.IsNullOrEmpty(fileContent))
                 {
-                    foreach (Cameras item in data.Select(r => r).ToList())
+                    // Parse the file content to get the data. This depends on the format of your file.
+                    // Here's an example if your file was in JSON format and contained an array of T objects:
+                    List<Cameras>? data = JsonConvert.DeserializeObject<List<Cameras>>(fileContent);
+
+                    // Insert the data into the MongoDB collection
+                    if (data?.Count > 0)
                     {
-                        if (!_cameraList.ContainsKey(item.IP) && !string.IsNullOrEmpty(item.IP))
+                        foreach (Cameras item in data.Select(r => r).ToList())
                         {
-                            _cameraList.TryAdd(item.IP, item);
+                            if (!_cameraList.ContainsKey(item.IP) && !string.IsNullOrEmpty(item.IP))
+                            {
+                                _cameraList.TryAdd(item.IP, item);
+                            }
                         }
                     }
                 }
@@ -204,24 +190,25 @@ namespace EIR_9209_2.DataStore
                 _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
             }
         }
-        private async Task LoadDataFromFile(string filePath)
+        private async Task LoadDataFromFile()
         {
             try
             {
                 // Read data from file
-                var fileContent = await _fileService.ReadFile(filePath);
-
-                // Parse the file content to get the data. This depends on the format of your file.
-                // Here's an example if your file was in JSON format and contained an array of T objects:
-                List<CameraGeoMarker>? data = JsonConvert.DeserializeObject<List<CameraGeoMarker>>(fileContent);
-
-                // Insert the data into the MongoDB collection
-                if (data?.Count > 0)
+                var fileContent = await _fileService.ReadFile(fileName);
+                if (!string.IsNullOrEmpty(fileContent))
                 {
-                    foreach (CameraGeoMarker item in data.Select(r => r).ToList())
+                    // Parse the file content to get the data. This depends on the format of your file.
+                    List<CameraGeoMarker>? data = JsonConvert.DeserializeObject<List<CameraGeoMarker>>(fileContent);
+
+                    // Insert the data into the MongoDB collection
+                    if (data?.Count > 0)
                     {
-                        item.Properties.Base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(noimageresult);
-                        _cameraMarkers.TryAdd(item.Properties.Id, item);
+                        foreach (CameraGeoMarker item in data.Select(r => r).ToList())
+                        {
+                            item.Properties.Base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(noimageresult);
+                            _cameraMarkers.TryAdd(item.Properties.Id, item);
+                        }
                     }
                 }
             }
@@ -402,6 +389,37 @@ namespace EIR_9209_2.DataStore
         public Task<Cameras> GetCameraListByIp(string ip)
         {
             return Task.FromResult(_cameraList.Values.Where(y => y.IP == ip).Select(y => y).ToList().FirstOrDefault());
+        }
+
+        public Task<bool> ResetCamerasList()
+        {
+            try
+            {
+                _cameraMarkers.Clear();
+                _cameraList.Clear();
+                return Task.FromResult(true);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> SetupCamerasList()
+        {
+            try
+            {
+                // Load data from the first file into the first collection
+                LoadDataFromFile().Wait();
+                LoadCameraInfoListDataFromFile().Wait();
+                return Task.FromResult(true);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return Task.FromResult(true);
+            }
         }
 
         public class PropertyRenameAndIgnoreSerializerContractResolver : DefaultContractResolver

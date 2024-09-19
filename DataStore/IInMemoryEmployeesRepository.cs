@@ -9,4 +9,6 @@ public interface IInMemoryEmployeesRepository
     void RunEmpScheduleReport();
     Task<List<string>> GetPayWeeks();
     Task<List<ScheduleReport>> GetEmployeesForPayWeek(string payWeek);
+    Task<bool> ResetEmployeesList();
+    Task<bool> SetupEmployeesList();
 }

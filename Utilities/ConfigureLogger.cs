@@ -4,11 +4,14 @@ using Serilog.Events;
 using Serilog.Exceptions;
 using Serilog.Templates;
 using Serilog.Templates.Themes;
+using System.Configuration;
+using System.Reflection;
 
 namespace EIR_9209_2.Utilities
 {
     public static class ConfigureLogger
     {
+       
         public static bool TryConfigureSerilog(out string failureMessage)
         {
             failureMessage = string.Empty;
@@ -26,26 +29,8 @@ namespace EIR_9209_2.Utilities
                 failureMessage = $"Serilog could not start because an exception was encountered during configuration load:{Environment.NewLine}{e}";
                 return false;
             }
+         
 
-            try
-            {
-                var logFilePath = configuration.GetRequiredValue("Logger:LogFilePath");
-                if (!Directory.Exists(logFilePath))
-                {
-                    Directory.CreateDirectory(logFilePath);
-                }
-                var appHasPermissionToLogToSpecifiedFolder = FileAccessTester.CanCreateFilesAndWriteInFolder(logFilePath);
-                if (!appHasPermissionToLogToSpecifiedFolder)
-                {
-                    failureMessage = $"Serilog could not start because the application does not have permissions to write to the specified log directory {logFilePath}";
-                    return false;
-                }
-            }
-            catch (Exception e)
-            {
-                failureMessage = $"Serilog could not start because an exception was encountered during the log permissions verification check:{Environment.NewLine}{e}";
-                return false;
-            }
             try
             {
                 Serilog.Debugging.SelfLog.Enable(Console.Error);

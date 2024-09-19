@@ -14,4 +14,6 @@ public interface IInMemoryCamerasRepository
     Task<Cameras> GetCameraListByIp(string Ip);
     Task LoadCameraData(List<Cameras> cameraList);
     Task LoadCameraStills(byte[] result, string id);
+    Task<bool> ResetCamerasList();
+    Task<bool> SetupCamerasList();
 }

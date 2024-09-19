@@ -18,7 +18,6 @@ public class HubServices : Hub
     private readonly IInMemoryCamerasRepository _cameraMarkers;
     private readonly ILogger<HubServices> _logger;
     private readonly IConfiguration _configuration;
-    private readonly Assembly _assembly;
     public HubServices(ILogger<HubServices> logger,
         IInMemoryBackgroundImageRepository backgroundImages,
         IInMemoryConnectionRepository connectionList,
@@ -40,7 +39,6 @@ public class HubServices : Hub
         _empSchedules = empSchedules;
         _cameraMarkers = cameraMarkers;
         _configuration = configuration;
-        _assembly = Assembly.GetExecutingAssembly();
     }
     public async Task JoinGroup(string groupName)
     {
@@ -113,15 +111,15 @@ public class HubServices : Hub
     }
     public async Task<string> GetApplicationInfo()
     {
-        var siteInfo = _siteInfo.GetSiteInfo();
+        var siteInfo = await _siteInfo.GetSiteInfo();
         return JsonConvert.SerializeObject(new JObject
         {
-            ["name"] = "Connected Facilities",
-            ["version"] = $"{_assembly.GetName().Version}",
-            ["description"] = "EIR-9209 is a web application for EIR-9209",
-            ["siteName"] = siteInfo?.DisplayName,
-            ["user"] = GetUserName(Context.User),
-            ["role"] = "Admin"
+            ["ApplicationName"] = _configuration["ApplicationConfiguration:ApplicationName"],
+            ["ApplicationVersion"] = _configuration["ApplicationConfiguration:ApplicationVersion"],
+            ["ApplicationDescription"] = _configuration["ApplicationConfiguration:ApplicationDescription"],
+            ["SiteName"] = siteInfo?.DisplayName,
+            ["User"] = GetUserName(Context.User),
+            ["Role"] = "Admin"
         });
     }
 

@@ -21,4 +21,6 @@ public interface IInMemoryConnectionRepository
     Task<Messagetype> AddSubType(string connectionId, Messagetype connection);
     Task<Messagetype> UpdateSubType(string connectionId, Messagetype connection);
     Task<Messagetype> RemoveSubType(string connectionId, string subId);
+    Task<bool> ResetConnectionsList();
+    Task<bool> SetupConnectionsList();
 }

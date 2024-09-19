@@ -10,13 +10,13 @@ namespace EIR_9209_2.DatabaseCalls.IDS
     public class IDS(ILogger<IDS> logger, IConfiguration configuration, IFileService fileService, IEncryptDecrypt encryptDecrypt) : IIDS
     {
 
-        private readonly ILogger<IDS>? _logger = logger;
+        private readonly ILogger<IDS> _logger = logger;
         private readonly IConfiguration _configuration = configuration;
         private string query = string.Empty;
         private string OracleConnectionString = string.Empty;
         private JToken result = new JObject();
 
-        private readonly IFileService FileService = fileService;
+        private readonly IFileService _fileService = fileService;
         private readonly IEncryptDecrypt _encryptDecrypt = encryptDecrypt;
 
         public async Task<JToken> GetOracleIDSData(JToken Request_data)
@@ -30,9 +30,10 @@ namespace EIR_9209_2.DatabaseCalls.IDS
                     {
                         if (!string.IsNullOrEmpty(Request_data["queryName"]?.ToString()))
                         {
-                            string BuildPath = Path.Combine(Directory.GetCurrentDirectory(), _configuration[key: "ApplicationConfiguration:OracleQueryDirectory"], "IDS", $"{Request_data["queryName"]?.ToString()}.txt");
+                            string directory = Path.Combine(_configuration[key: "ApplicationConfiguration:OracleQueryDirectory"], "IDS");
+                            var fileName = $"{Request_data["queryName"]?.ToString()}.txt";
 
-                            query = await GetQueryContent(BuildPath);
+                            query = await _fileService.ReadFileFromRoot(fileName, directory);
                             if (!string.IsNullOrEmpty(query))
                             {
                                 using (OracleConnection connection = new OracleConnection(_encryptDecrypt.Decrypt(OracleConnectionString)))
@@ -169,27 +170,6 @@ namespace EIR_9209_2.DatabaseCalls.IDS
                     ["Error"] = string.Concat("Error: ", ex.Message),
                     ["Code"] = "6"
                 };
-            }
-
-        }
-
-        private async Task<string?> GetQueryContent(string buildPath)
-        {
-            try
-            {
-                return await FileService.ReadFile(buildPath);
-            }
-            catch (FileNotFoundException ex)
-            {
-                // Handle the FileNotFoundException here
-                _logger.LogError($"File not found: {ex.FileName}");
-                return null;
-            }
-            catch (IOException ex)
-            {
-                // Handle errors when reading the file
-                _logger.LogError($"An error occurred when reading the file: {ex.Message}");
-                return null;
             }
 
         }

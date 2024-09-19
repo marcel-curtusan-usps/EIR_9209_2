@@ -11,18 +11,14 @@ namespace EIR_9209_2.DataStore
         private readonly ILogger<InMemoryTACSReports> _logger;
         private readonly IConfiguration _configuration;
         private readonly IFileService _fileService;
-        private readonly string filePath = "";
-        private readonly string fileName = "";
+        private readonly string fileName = "TACSReportSummary.json";
 
         public InMemoryTACSReports(ILogger<InMemoryTACSReports> logger, IConfiguration configuration, IFileService fileService)
         {
             _fileService = fileService;
             _logger = logger;
             _configuration = configuration;
-            fileName = $"TACSReportSummary.json";
-            filePath = Path.Combine(Directory.GetCurrentDirectory(), _configuration[key: "ApplicationConfiguration:ConfigurationDirectory"], $"{fileName}");
-
-            _ = LoadDataFromFile(filePath);
+            LoadDataFromFile().Wait();
         }
 
         public void AddEmployeePayPeirods(List<TACSEmployeePayPeirod> employeePayPeirods)
@@ -33,23 +29,25 @@ namespace EIR_9209_2.DataStore
             }
         }
 
-        private async Task LoadDataFromFile(string filePath)
+        private async Task LoadDataFromFile()
         {
             try
             {
                 // Read data from file
-                var fileContent = await _fileService.ReadFile(filePath);
-
-                // Parse the file content to get the data. This depends on the format of your file.
-                // Here's an example if your file was in JSON format and contained an array of T objects:
-                List<TACSReportSummary> data = JsonConvert.DeserializeObject<List<TACSReportSummary>>(fileContent);
-
-                // Insert the data into the MongoDB collection
-                if (data.Count != 0)
+            
+                var fileContent = await _fileService.ReadFile(fileName);
+                if (!string.IsNullOrEmpty(fileContent))
                 {
-                    foreach (TACSReportSummary item in data.Select(r => r).ToList())
+                    // Parse the file content to get the data. This depends on the format of your file.
+                    List<TACSReportSummary>? data = JsonConvert.DeserializeObject<List<TACSReportSummary>>(fileContent);
+
+                    // Insert the data into the MongoDB collection
+                    if (data != null && data.Count != 0)
                     {
-                        _reportSummary.TryAdd(item.DateTime, item);
+                        foreach (TACSReportSummary item in data.Select(r => r).ToList())
+                        {
+                            _reportSummary.TryAdd(item.DateTime, item);
+                        }
                     }
                 }
             }

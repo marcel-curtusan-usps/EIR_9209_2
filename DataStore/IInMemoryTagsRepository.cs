@@ -1,6 +1,5 @@
 ﻿using EIR_9209_2.Models;
 using Newtonsoft.Json.Linq;
-using static EIR_9209_2.Models.GeoMarker;
 
 public interface IInMemoryTagsRepository
 {
@@ -18,19 +17,17 @@ public interface IInMemoryTagsRepository
     void UpdateBadgeTransactionScan(JObject transaction);
     string GetCraftType(string tagId);
     void UpdateTagDesignationActivity(DesignationActivityToCraftType updatedDacode);
-    //void UpdateTagQPEInfo(List<Tags> tags);
     IEnumerable<JObject> SearchTag(string searchValue);
     List<string> GetTagByType(string tagType);
     Task UpdateTagCiscoSpacesClientInfo(JToken result);
     Task UpdateTagCiscoSpacesBLEInfo(JToken result);
     Task UpdateTagCiscoSpacesAPInfo(JToken result);
     bool ExistingTagTimeline(DateTime hour);
-    Task<List<TagTimeline>> GetTagTimeline(string emp, DateTime hour);
-    
+    Task<List<TagTimeline>> GetTagTimeline(string emp, DateTime hour);    
     void UpdateTagTimeline(DateTime hour, List<TagTimeline> newValue, List<TagTimeline> currentvalue);
     void AddTagTimeline(DateTime hour, List<TagTimeline> newValue);
     void RemoveTagTimeline(DateTime hour);
     List<TagTimeline> GetCurrentTagTimeline(DateTime hour);
-    //List<TagTimeline> GetTagTimelineList(string ein);
-
+    Task<bool> ResetTagList();
+    Task<bool> SetupTagList();
 }

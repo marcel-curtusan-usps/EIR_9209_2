@@ -370,16 +370,26 @@ async function loadDockdoorDatatable(data, table) {
     }
 }
 async function updateDockdoorDataTable(newdata, table) {
-    let loadnew = true;
-    if ($.fn.dataTable.isDataTable("#" + table)) {
-        $('#' + table).DataTable().rows(function (idx, data, node) {
-            loadnew = false;
-            $('#' + table).DataTable().row(node).data(element).draw().invalidate();
+    try {
+        return new Promise((resolve, reject) => {
+            let loadnew = true;
+            if ($.fn.dataTable.isDataTable("#" + table)) {
+                $('#' + table).DataTable().rows(function (idx, data, node) {
+                    if (data.id === newdata.id) {
+                        loadnew = false;
+                        $('#' + table).DataTable().row(node).data(newdata).draw().invalidate();
+                    }
 
-        })
-        if (loadnew) {
-            loadDockdoorDatatable(newdata, table);
-        }
+                })
+                if (loadnew) {
+                    loadDockdoorDatatable(newdata, table);
+                }
+
+            } resolve();
+            return false;
+        });
+    } catch (e) {
+        throw new Error(e.toString());
     }
 }
 

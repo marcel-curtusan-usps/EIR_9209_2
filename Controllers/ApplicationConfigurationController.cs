@@ -1,6 +1,16 @@
-﻿using EIR_9209_2.Utilities;
+﻿using EIR_9209_2.DataStore;
+using EIR_9209_2.Models;
+using EIR_9209_2.Utilities;
+using Humanizer;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json.Linq;
+using PuppeteerSharp.Input;
+using System.Diagnostics;
+using System;
+using System.Text.RegularExpressions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,11 +18,14 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ApplicationConfigurationController(ILogger<ApplicationConfigurationController> logger, IConfiguration configuration, IEncryptDecrypt encryptDecrypt) : ControllerBase
+    public class ApplicationConfigurationController(ILogger<ApplicationConfigurationController> logger, IConfiguration configuration, IEncryptDecrypt encryptDecrypt, IHubContext<HubServices> hubContext, IResetApplication resetApplication, IInMemoryApplicationRepository application) : ControllerBase
     {
+        private readonly IResetApplication _resetApplication = resetApplication;
         private readonly ILogger<ApplicationConfigurationController> _logger = logger;
         private readonly IConfiguration _configuration = configuration;
+        private readonly IInMemoryApplicationRepository _application = application;
         private readonly IEncryptDecrypt _encryptDecrypt = encryptDecrypt;
+        private readonly IHubContext<HubServices> _hubContext = hubContext;
 
         // GET: api/<SiteConfigurationController>
         /// <summary>
@@ -23,32 +36,20 @@ namespace EIR_9209_2.Controllers
         [Route("AllConfiguration")]
         public object GetByAllConfiguration()
         {
-
-            // hold all settings as a dictionary
-            Dictionary<string, string?> configurationValues = [];
-
-            // Example: Retrieve a specific configuration section
-            var applicationSettings = _configuration.GetSection("ApplicationConfiguration");
-            if (applicationSettings.Exists())
+            try
             {
-                foreach (var setting in applicationSettings.GetChildren())
+                if (!ModelState.IsValid)
                 {
-                    if (setting.Key.EndsWith("ConnectionString"))
-                    {
-                        configurationValues.Add(setting.Key, _encryptDecrypt.Decrypt(setting.Value));
-                    }
-                    else
-                    {
-                        configurationValues.Add(setting.Key, setting.Value);
-                    }
-
+                    return BadRequest();
                 }
+
+                return Ok(GetAppSetting());
             }
-
-            // If you want to retrieve all configurations, you might need to iterate through all sections
-            // Note: Returning all settings might include sensitive information like connection strings
-
-            return Ok(configurationValues);
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
         }
         /// <summary>
         /// 
@@ -72,31 +73,106 @@ namespace EIR_9209_2.Controllers
         // PUT api/<SiteConfigurationController>/5
         [HttpPost]
         [Route("Update")]
-        public object PostByUpdateApplicationConfiguration([FromBody] JObject value)
+        public async Task<object> PostByUpdateApplicationConfiguration([FromBody] JObject value)
         {
-            // Example: Update a specific configuration setting
-            var applicationSettings = _configuration.GetSection("ApplicationConfiguration");
-            if (applicationSettings.Exists())
+            try
             {
-                //var setting = applicationSettings.GetSection(key);
-                //if (setting.Exists())
-                //{
-                //    if (key.EndsWith("ConnectionString"))
-                //    {
-                //        _encryptDecrypt.Encrypt(value);
-                //    }
-                //    else
-                //    {
-                //        setting.Value = value;
-                //    }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
+                // Example: Update a specific configuration setting
+                var applicationSettings = _configuration.GetSection("ApplicationConfiguration");
 
-                //    return Ok();
-                //}
+                if (applicationSettings.Exists())
+                {
+                    var setting = applicationSettings.GetSection("ApplicationName");
+                    if (value.Properties().Any(p => Regex.IsMatch(p.Name, "NassCode", RegexOptions.IgnoreCase)))
+                    {
+                        var nassCodeValue = value.Properties().First(p => Regex.IsMatch(p.Name, "NassCode", RegexOptions.IgnoreCase)).Value.ToString();
+
+                        setting = applicationSettings.GetSection("NassCode");
+                        var currentnassCodeValue = setting.Value;
+                        // <summary>
+                        //1.The code checks if the value of the setting is not equal to the nassCode provided in the value parameter. This condition is used to determine if the nassCode needs to be updated.
+                        //2.If the condition is true, the code enters the if block and executes the following steps:
+                        //a.It calls the _resetApplication.GetNewSiteInfo method with the nassCode value as a parameter.This method is responsible for retrieving new site information based on the provided nassCode.
+                        //b.If the GetNewSiteInfo method returns true, indicating that new site information is successfully retrieved, the code proceeds to update the setting.Value with the nassCode value.
+                        //c.After updating the setting.Value, the code calls the _resetApplication.Reset method.This method is responsible for resetting the application based on the updated configuration.
+                        //d.If the Reset method returns true, indicating that the application reset is successful, the code proceeds to update the application using the _application.Update method. This method updates the specified setting.Key with the new setting.Value.
+                        //e.Finally, the code calls the _resetApplication.Setup method, which performs the setup process for the application.
+                        //3.If the GetNewSiteInfo method returns false, indicating that new site information retrieval failed, the code enters the else block and returns a BadRequest response.
+                        // </summary>
+                        if (setting.Value != nassCodeValue)
+                        {
+                            setting.Value = nassCodeValue;
+                            if (await _resetApplication.GetNewSiteInfo(nassCodeValue))
+                            {
+                                if (await _resetApplication.Reset())
+                                {
+                                    await _application.Update(setting.Key, setting.Value);
+                                    bool SetupResult = await _resetApplication.Setup();
+                                }
+                            }
+                            else
+                            {
+                                setting.Value = currentnassCodeValue;
+                                return BadRequest();
+                            }
+                        }
+                        else
+                        {
+                            return BadRequest();
+                        }
+                    }
+                    else if (value.ContainsKey("ConnectionString"))
+                    {
+                        setting = applicationSettings.GetSection(value["ConnectionString"].ToString());
+                        setting.Value = _encryptDecrypt.Encrypt(value["ConnectionString"].ToString());
+                    }
+                    await _hubContext.Clients.Group("ApplicationConfiguration").SendAsync($"updateApplicationConfiguration", GetAppSetting(), cancellationToken: CancellationToken.None);
+                    return Ok();
+
+                }
+                return BadRequest();
             }
-
-            return BadRequest();
-
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
         }
 
+        private object? GetAppSetting()
+        {
+            try
+            {
+                Dictionary<string, string?> configurationValues = [];
+
+                // Example: Retrieve a specific configuration section
+                var applicationSettings = _configuration.GetSection("ApplicationConfiguration");
+                if (applicationSettings.Exists())
+                {
+                    foreach (var setting in applicationSettings.GetChildren())
+                    {
+                        if (setting.Key.EndsWith("ConnectionString"))
+                        {
+                            configurationValues.Add(setting.Key, _encryptDecrypt.Decrypt(setting.Value));
+                        }
+                        else
+                        {
+                            configurationValues.Add(setting.Key, setting.Value);
+                        }
+
+                    }
+                }
+                return configurationValues;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
+        }
     }
 }

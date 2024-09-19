@@ -16,7 +16,7 @@ namespace EIR_9209_2.Controllers
         //get site information
         [HttpGet]
         [Route("SiteInfo")]
-        public IActionResult Get()
+        public async Task<object> Get()
         {
             try
             {
@@ -24,7 +24,7 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var siteInformation = _siteInfo.GetSiteInfo();
+                var siteInformation = await _siteInfo.GetSiteInfo();
                 return Ok(siteInformation);
             }
             catch (Exception ex)

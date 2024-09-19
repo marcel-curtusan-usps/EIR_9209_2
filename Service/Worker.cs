@@ -15,7 +15,7 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryTagsRepository _tags;
         private readonly IInMemoryEmailRepository _email;
         private readonly IInMemorySiteInfoRepository _siteInfo;
-        private readonly IInMemoryEmployeesRepository _empSchedule;
+        private readonly IInMemoryEmployeesRepository _employees;
         private readonly IInMemoryCamerasRepository _cameras;
         private readonly IConfiguration _configuration;
         private readonly ConcurrentDictionary<string, BaseEndpointService> _endPointServices = new();
@@ -27,7 +27,7 @@ namespace EIR_9209_2.Service
             IInMemoryTagsRepository tags,
             IInMemoryEmailRepository email,
             IInMemorySiteInfoRepository siteInfo,
-            IInMemoryEmployeesRepository empSchedule,
+            IInMemoryEmployeesRepository employees,
             IInMemoryCamerasRepository cameras,
             IConfiguration configuration)
         {
@@ -42,7 +42,7 @@ namespace EIR_9209_2.Service
             _configuration = configuration;
             _email = email;
             _siteInfo = siteInfo;
-            _empSchedule = empSchedule;
+            _employees = employees;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -71,7 +71,7 @@ namespace EIR_9209_2.Service
                     endpointService = new QPEEndPointServices(_loggerFactory.CreateLogger<QPEEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _tags);
                     break;
                 case "QRE":
-                    endpointService = new QREEndPointServices(_loggerFactory.CreateLogger<QREEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _geoZones, _tags, _empSchedule, _siteInfo);
+                    endpointService = new QREEndPointServices(_loggerFactory.CreateLogger<QREEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _geoZones, _tags, _employees, _siteInfo);
                     break;
                 case "MPEWatch":
                     endpointService = new MPEWatchEndPointServices(_loggerFactory.CreateLogger<MPEWatchEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _geoZones);
@@ -89,7 +89,7 @@ namespace EIR_9209_2.Service
                     endpointService = new SMSWrapperEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _tags);
                     break;
                 case "IVES":
-                    endpointService = new IVESEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _siteInfo, _empSchedule);
+                    endpointService = new IVESEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _siteInfo, _employees);
                     break;
                 case "CiscoSpaces":
                     endpointService = new CiscoSpacesEndPointServices(_loggerFactory.CreateLogger<CiscoSpacesEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _tags);
@@ -112,7 +112,6 @@ namespace EIR_9209_2.Service
         {
             if (_endPointServices.TryRemove(endpointConfig.Id, out var endpointService))
             {
-                endpointService.Stop();
                 _logger.LogInformation("Stopped and removed endpoint {Id}.", endpointConfig.Id);
                 return true;
             }
@@ -135,6 +134,29 @@ namespace EIR_9209_2.Service
             else
             {
                 _logger.LogWarning("Endpoint {Url} not found.", updateConfig.Id);
+                return false;
+            }
+        }
+        public bool DeactivateAllEndpoints()
+        {
+            try
+            {
+                foreach (var endpoint in _connections.GetAll())
+                {
+                    if (_endPointServices.TryGetValue(endpoint.Id, out var endpointService))
+                    {
+                        endpoint.ActiveConnection = false;
+                        if (UpdateEndpoint(endpoint))
+                        {
+                            RemoveEndpoint(endpoint);
+                        } 
+                    }
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
                 return false;
             }
         }

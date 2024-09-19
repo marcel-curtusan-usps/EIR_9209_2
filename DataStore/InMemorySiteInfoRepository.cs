@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace EIR_9209_2.DataStore
 {
@@ -9,29 +10,24 @@ namespace EIR_9209_2.DataStore
         private readonly static ConcurrentDictionary<string, SiteInformation> _siteInfo = new();
         private readonly ILogger<InMemorySiteInfoRepository> _logger;
         private readonly IConfiguration _configuration;
-        private readonly IFileService FileService;
-        private readonly string filePath = "";
-        private readonly string fileName = "";
+        private readonly IFileService _fileService;
+        private readonly string fileName = "SiteInformation.json";
+
         public InMemorySiteInfoRepository(ILogger<InMemorySiteInfoRepository> logger, IConfiguration configuration, IFileService fileService)
         {
-            FileService = fileService;
+            _fileService = fileService;
             _logger = logger;
             _configuration = configuration;
-            fileName = $"{_configuration[key: "InMemoryCollection:CollectionSiteInformation"]}.json";
-            filePath = Path.Combine(configuration[key: "ApplicationConfiguration:BaseDrive"],
-                configuration[key: "ApplicationConfiguration:BaseDirectory"],
-                configuration[key: "ApplicationConfiguration:NassCode"],
-                configuration[key: "ApplicationConfiguration:ConfigurationDirectory"],
-                $"{fileName}");
             // Load data from the first file into the first collection
-            _ = LoadDataFromFile(filePath);
-
+            LoadDataFromFile().Wait();
         }
+
         public void Add(SiteInformation site)
         {
             if (_siteInfo.TryAdd(site.FdbId, site))
             {
-                FileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_siteInfo.Values, Formatting.Indented));
+                _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_siteInfo.Values.FirstOrDefault(), Formatting.Indented));
+         
             }
         }
 
@@ -39,7 +35,7 @@ namespace EIR_9209_2.DataStore
         {
             if (_siteInfo.TryRemove(id, out _))
             {
-                FileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_siteInfo.Values, Formatting.Indented));
+                _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_siteInfo.Values.FirstOrDefault(), Formatting.Indented));
             }
         }
 
@@ -48,9 +44,20 @@ namespace EIR_9209_2.DataStore
             _siteInfo.TryGetValue(id, out SiteInformation tag);
             return tag;
         }
-        public SiteInformation GetSiteInfo()
+        public Task<SiteInformation>? GetSiteInfo()
         {
-            return _siteInfo.Values.FirstOrDefault();
+            try
+            {
+                var info = _siteInfo.Values.FirstOrDefault();
+                info ??= new SiteInformation();
+                return Task.FromResult(info);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
+         
         }
 
         public void Update(SiteInformation site)
@@ -58,25 +65,26 @@ namespace EIR_9209_2.DataStore
             if (_siteInfo.TryGetValue(site.FdbId, out SiteInformation currentSite) && _siteInfo.TryUpdate(site.FdbId, site, currentSite))
             {
 
-                FileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_siteInfo.Values, Formatting.Indented));
+                _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_siteInfo.Values.FirstOrDefault(), Formatting.Indented));
             }
         }
 
-        private async Task LoadDataFromFile(string filePath)
+        private async Task LoadDataFromFile()
         {
             try
             {
                 // Read data from file
-                var fileContent = await FileService.ReadFile(filePath);
-
-                // Parse the file content to get the data. This depends on the format of your file.
-                // Here's an example if your file was in JSON format and contained an array of T objects:
-                SiteInformation data = JsonConvert.DeserializeObject<SiteInformation>(fileContent);
-
-                // Insert the data into the MongoDB collection
-                if (data != null)
+                var fileContent = await _fileService.ReadFile(fileName);
+                if (!string.IsNullOrEmpty(fileContent))
                 {
-                    _siteInfo.TryAdd(data.FdbId, data);
+                    // Parse the file content to get the data. This depends on the format of your file.
+                    SiteInformation? data = JsonConvert.DeserializeObject<SiteInformation>(fileContent);
+
+                    // Insert the data into the MongoDB collection
+                    if (data != null)
+                    {
+                        _siteInfo.TryAdd(data.FdbId, data);
+                    }
                 }
             }
             catch (FileNotFoundException ex)
@@ -123,22 +131,51 @@ namespace EIR_9209_2.DataStore
                 return DateTime.Now; // Default to local time
             }
         }
-        private static readonly Dictionary<string, string> CustomTimeZoneMappings = new Dictionary<string, string>
+
+        public Task<bool> ResetSiteInfoList()
+        {
+            try
             {
-            { "EST", "America/New_York" },
-            { "CST", "America/Chicago" },
-            { "MST", "America/Denver" },
-            { "PST", "America/Los_Angeles" },
-            { "AKST", "America/Anchorage" },
-            { "HST", "Pacific/Honolulu" },
-            { "EST1", "America/New_York" },
-            { "CST1", "America/Chicago" },
-            { "MST1", "America/Denver" },
-            { "PST1", "America/Los_Angeles" },
-            { "AKST1", "America/Anchorage" },
-            { "HST1", "Pacific/Honolulu" }
-                // Add other mappings as needed
-            };
+                _siteInfo.Clear();
+                return Task.FromResult(true);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> SetupSiteInfoList()
+        {
+            try
+            {
+                // Load data from the first file into the first collection
+                LoadDataFromFile().Wait();
+                return Task.FromResult(true);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return Task.FromResult(true);
+            }
+        }
+
+        private static readonly Dictionary<string, string> CustomTimeZoneMappings = new Dictionary<string, string>
+                {
+                    { "EST", "America/New_York" },
+                    { "CST", "America/Chicago" },
+                    { "MST", "America/Denver" },
+                    { "PST", "America/Los_Angeles" },
+                    { "AKST", "America/Anchorage" },
+                    { "HST", "Pacific/Honolulu" },
+                    { "EST1", "America/New_York" },
+                    { "CST1", "America/Chicago" },
+                    { "MST1", "America/Denver" },
+                    { "PST1", "America/Los_Angeles" },
+                    { "AKST1", "America/Anchorage" },
+                    { "HST1", "Pacific/Honolulu" }
+                };
     }
 
 }

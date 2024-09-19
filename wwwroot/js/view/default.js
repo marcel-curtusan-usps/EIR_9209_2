@@ -45,7 +45,7 @@ function initializeOSL() {
     // Load Application Info
     connection.invoke("GetApplicationInfo").then(function (data) {
         appData = JSON.parse(data);
-        if (/^(Admin|OIE)/i.test(appData.role)) {
+        if (/^(Admin|OIE)/i.test(appData.Role)) {
             init_geoman_editing();
             sidebar.addPanel({
                 id: 'setting',
@@ -53,12 +53,13 @@ function initializeOSL() {
                 position: 'bottom',
             });
         }
-        init_ApplicationConfiguration();
+        init_applicationConfiguration();
         init_connectiontType();
         init_connection();
         UpdateOSLattribution(appData);
+        init_osl();
         init_TagSearch();
-        init_backgroundImages(data);
+        init_backgroundImages();
         init_emailList();
         init_dacodetocraftType();
         init_tags();
@@ -68,7 +69,7 @@ function initializeOSL() {
         init_geoZoneMPE();
         init_geoZoneDockDoor();
         init_geoZoneArea();
-        $(`span[id="fotf-site-facility-name"]`).text(appData.name);
+        $(`span[id="fotf-site-facility-name"]`).text(appData.SiteName);
     }).catch(function (err) {
         console.error("Error loading application info: ", err);
     });

@@ -7,5 +7,6 @@ public interface IInMemoryBackgroundImageRepository
     Task<BackgroundImage> Remove(string id);
     BackgroundImage Get(string id);
     IEnumerable<BackgroundImage> GetAll();
-
+    Task<bool> ResetBackgroundImageList();
+    Task<bool> SetupBackgroundImageList();
 }

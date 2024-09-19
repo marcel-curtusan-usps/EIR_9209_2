@@ -87,7 +87,7 @@ L.easyButton({
 }).addTo(OSLmap);
 async function UpdateOSLattribution(data) {
     return new Promise((resolve, reject) => {
-        OSLmap.attributionControl.setPrefix("USPS " + data.name + " (" + data.version + ") | " + data.siteName);
+        OSLmap.attributionControl.setPrefix("USPS " + data.ApplicationName + " (" + data.ApplicationVersion + ") | " + data.SiteName);
         resolve();
         return false;
     });
