@@ -36,7 +36,7 @@ function processScheduledata(data) {
             const employeeData = groupedData[ein];
             const employee = {
                 ein: ein, 
-                name: employeeData[0].firstName + ' ' + employeeData[0].lastName,
+                name: employeeData[0].lastName + ' ' +employeeData[0].firstName,
                 tour: employeeData[0].tourNumber,
                 day1: '',
                 day2: '',
@@ -48,7 +48,7 @@ function processScheduledata(data) {
                 totalScheduleHours: 0,
                 totalSelsHr: '',
                 totalTACSHr: '',
-                hourstotalpercent: ''
+                hourstotalpercent: 0
             };
 
             // Map days to the correct fields
@@ -56,8 +56,8 @@ function processScheduledata(data) {
                 const dayIndex = parseInt(dayData.day) ;
                 employee[`day${dayIndex}`] = dayData;
                 // Accumulate the HrsSchedule
-                if (dayData.hrsSchedule) {
-                    employee.totalScheduleHours += Number(dayData.hrsSchedule) || 0;
+                if (dayData.hrsMove) {
+                    employee.totalScheduleHours += dayData.hrsMove;
                 }
                 // Accumulate the dailyQREhr
                 if (dayData.dailyQREhr) {
@@ -209,7 +209,11 @@ async function createEmpScheduleDataTable(table) {
                 {
                     "title": 'Hours Total',
                     "width": "10%",
-                    "data": 'totalScheduleHours'
+                    "data": 'totalScheduleHours',
+                    mRender: function (full, data) {
+                       
+                        return Math.round(full * 100) / 100;
+                    }
                 },
                 {
                     "title": 'TACS vs SELS %',
@@ -219,7 +223,6 @@ async function createEmpScheduleDataTable(table) {
             ]
             $('#' + table).DataTable({
                 searching: true,
-                //dom: "flrtipB",
                 bFilter: true,
                 bdeferRender: true,
                 bpaging: true,

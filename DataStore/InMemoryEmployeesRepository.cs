@@ -389,7 +389,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                 Day = schedule.Day,
                 DayName = schDate.DayOfWeek,
                 EIN = schedule.EIN,
-                WorkStatus = schedule.GroupName,
+                WorkStatus = (schedule.GroupName == "Working" && schedule.HrMove == 0.0) ? "Leave" : schedule.GroupName,
                 BeginTourHour = schedule.Btour,
                 EndTourHour = schedule.Etour,
                 OpCode = schedule.OpCode,

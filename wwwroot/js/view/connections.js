@@ -86,12 +86,12 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
     });
 
     //message Type Validation
-    if (!checkValue($('select[name=message_type] option:selected').val())) {
+    if (!checkValue($('select[name=connection_name] option:selected').val())) {
         $('select[name=message_type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
         $('span[id=error_message_type]').text("Select Connection Name First");
     }
     else {
-        $('select[name=message_type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('select[name=message_type]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
         $('span[id=error_message_type]').text("");
     }
     $('select[name=message_type]').on("change", function () {

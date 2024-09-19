@@ -28,7 +28,7 @@ namespace EIR_9209_2.Service
                 if (_endpointConfig.MessageType == "getTagData")
                 {
                     // Process tag data in a separate thread
-                    await ProcessQPETagData(result);
+                    await ProcessQPETagData(result, stoppingToken);
                 }
             }
             catch (Exception ex)
@@ -44,13 +44,13 @@ namespace EIR_9209_2.Service
             }
         }
 
-        private async Task ProcessQPETagData(QuuppaTag result)
+        private async Task ProcessQPETagData(QuuppaTag result, CancellationToken stoppingToken)
         {
             try
             {
                 if (result?.Tags != null)
                 {
-                    await _tags.UpdateTagQPEInfo(result.Tags, result.ResponseTS);
+                   await Task.Run(() => _tags.UpdateTagQPEInfo(result.Tags, result.ResponseTS), stoppingToken).ConfigureAwait(false);
                 }
             }
             catch (Exception e)
