@@ -229,61 +229,132 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             // If any employee is found
             if (empList.Any())
             {
+                // Ensure the empDate list contains all 7 days of the week starting from the identified Saturday
+                DateTime startOfWeek = new DateTime();
+                string payWeek = "";
+                List<DateTime> fullWeekRange = new List<DateTime>(new DateTime[7]);
+
                 foreach (var emp in empList)
                 {
-                    var empSchdate = _empsch.Where(r => r.Value.EIN == emp).Select(y => y.Value).OrderBy(o => o.Day).ToList();
+                    if (startOfWeek == DateTime.MinValue)
+                    {
+                        payWeek = _empList[emp].PayWeek;
+                        var curt = _empsch.Where(r => r.Value.EIN == emp && r.Value.PayWeek == payWeek).Select(y => y.Value).FirstOrDefault();
+                        var daydiff = (Int32.Parse(curt.Day!.ToString()) - 1) * -1;
+                        DateTime curdate = new DateTime();
+                        if (_empList[emp].TourNumber == "3")
+                        {
+                            curdate = DateTime.Parse(curt.BeginTourDtm, CultureInfo.CurrentCulture, DateTimeStyles.None);
+                        }
+                        else
+                        {
+                            curdate = DateTime.Parse(curt.EndTourDtm, CultureInfo.CurrentCulture, DateTimeStyles.None);
+                        }
+                        startOfWeek = new DateTime(curdate.Year, curdate.Month, curdate.Day, 0, 0, 0).AddDays(daydiff);
+                        fullWeekRange = Enumerable.Range(0, 7)
+                           .Select(offset => startOfWeek.AddDays(offset))
+                           .ToList();
+
+
+                        //List<DateTime> fullWeekRange = Enumerable.Range(0, 7)
+                        //    .Select(offset => startOfWeek.AddDays(offset))
+                        //    .ToList();
+
+                        //    firstdate = DateTime.ParseExact(item[6]!.ToString().ToString(), "MMMM, dd yyyy HH:mm:ss",
+                        //        System.Globalization.CultureInfo.InvariantCulture);
+                        //    var daydiff = (Int32.Parse(item[2]!.ToString()) - 1) * -1;
+                        //    weekdate = new DateTime(firstdate.Year, firstdate.Month, firstdate.Day, 0, 0, 0).AddDays(daydiff);
+                        //    for (var i = 0; i < 7; i++)
+                        //    {
+                        //        weekts[i] = weekdate.AddDays(i);
+                        //    }
+                        //    if (!_schReport.ContainsKey(payWeek))
+                        //    {
+                        //        ScheduleReport schrpt = new ScheduleReport
+                        //        {
+                        //            PayWeek = payWeek,
+                        //            WeekDate = weekts
+                        //        };
+                        //        _schReport.TryAdd(payWeek, schrpt);
+                        //    }
+                        //    else if (_schReport.TryGetValue(payWeek, out ScheduleReport? EmpData))
+                        //    {
+                        //        EmpData.WeekDate = weekts;
+                        //    }
+                    }
+                    var empSchdate = _empsch.Where(r => r.Value.EIN == emp && r.Value.PayWeek == payWeek).Select(y => y.Value).OrderBy(o => o.Day).ToList();
 
                     if (empSchdate.Any())
                     {
-                        List<DateTime> empDate = empSchdate
-                            .Select(x => DateTime.Parse(x.EndTourDtm, CultureInfo.CurrentCulture, DateTimeStyles.None))
-                            .OrderBy(o => o)
-                            .ToList();
+                        //List<DateTime> empDate = empSchdate
+                        //    .Select(x => DateTime.Parse(x.EndTourDtm, CultureInfo.CurrentCulture, DateTimeStyles.None))
+                        //    .OrderBy(o => o)
+                        //    .ToList();
 
                         // Generate the full range of dates
-                        DateTime startDate = empDate.First();
-                        DateTime endDate = empDate.Last();
+                        //DateTime startDate = empDate.First();
+                        //DateTime endDate = empDate.Last();
 
                         // Find the nearest Saturday after or on the startDate
-                        DateTime startOfWeek = startDate.AddDays((6 - (int)startDate.DayOfWeek + 1) % 7);
+                        //DateTime startOfWeek = startDate.AddDays((6 - (int)startDate.DayOfWeek + 1) % 7);
 
                         // Ensure the empDate list contains all 7 days of the week starting from the identified Saturday
-                        List<DateTime> fullWeekRange = Enumerable.Range(0, 7)
-                            .Select(offset => startOfWeek.AddDays(offset))
-                            .ToList();
+                        //List<DateTime> fullWeekRange = Enumerable.Range(0, 7)
+                        //    .Select(offset => startOfWeek.AddDays(offset))
+                        //    .ToList();
 
                         // Identify missing dates
-                        List<DateTime> missingDates = fullWeekRange.Except(empDate).ToList();
+                        //List<DateTime> missingDates = fullWeekRange.Except(empDate).ToList();
 
                         // Add missing dates to empDate
-                        empDate.AddRange(missingDates);
-                        empDate = empDate.OrderBy(date => date).ToList();
+                        //empDate.AddRange(missingDates);
+                        //empDate = empDate.OrderBy(date => date).ToList();
 
                         if (!_schReport.ContainsKey(emp))
                         {
                             _schReport.TryAdd(emp, new Dictionary<DateTime, ScheduleReport>());
                         }
 
-                        foreach (var schDate in empDate)
+                        for (var i=0; i<7; i++)
                         {
-                            var schData = empSchdate.FirstOrDefault(r => r.EndTourDtm == schDate.ToString("MMMM, dd yyyy HH:mm:ss"));
+                            var schData = empSchdate.FirstOrDefault(r => r.Day == i+1);
                             if (schData == null)
                             {
                                 schData = new Schedule
                                 {
-                                    PayWeek = _empList[emp].PayWeek,
-                                    EIN = _empList[emp].EIN,
+                                    PayWeek = payWeek,
+                                    EIN = emp,
                                     GroupName = "OFF",
-                                    Day = (int)schDate.DayOfWeek,
-                                    BeginTourDtm = schDate.ToString("MMMM, dd yyyy HH:mm:ss"),
-                                    EndTourDtm = schDate.ToString("MMMM, dd yyyy HH:mm:ss")
+                                    Day = i+1,
+                                    BeginTourDtm = fullWeekRange[i].ToString("MMMM, dd yyyy HH:mm:ss"),
+                                    EndTourDtm = fullWeekRange[i].ToString("MMMM, dd yyyy HH:mm:ss")
                                 };
                             }
-                            var dailyInfo = await GetDailySummaryforEmployee(emp, schDate, schData);
-                           
-                                _schReport[emp][schDate.Date] = dailyInfo;
-                            
+                            var dailyInfo = await GetDailySummaryforEmployee(emp, fullWeekRange[i], schData);
+
+                            _schReport[emp][fullWeekRange[i].Date] = dailyInfo;
+
                         }
+                        //foreach (var schDate in empDate)
+                        //{
+                        //    var schData = empSchdate.FirstOrDefault(r => r.EndTourDtm == schDate.ToString("MMMM, dd yyyy HH:mm:ss"));
+                        //    if (schData == null)
+                        //    {
+                        //        schData = new Schedule
+                        //        {
+                        //            PayWeek = _empList[emp].PayWeek,
+                        //            EIN = _empList[emp].EIN,
+                        //            GroupName = "OFF",
+                        //            Day = (int)schDate.DayOfWeek,
+                        //            BeginTourDtm = schDate.ToString("MMMM, dd yyyy HH:mm:ss"),
+                        //            EndTourDtm = schDate.ToString("MMMM, dd yyyy HH:mm:ss")
+                        //        };
+                        //    }
+                        //    var dailyInfo = await GetDailySummaryforEmployee(emp, schDate, schData);
+
+                        //    _schReport[emp][schDate.Date] = dailyInfo;
+
+                        //}
                     }
                 }
             }

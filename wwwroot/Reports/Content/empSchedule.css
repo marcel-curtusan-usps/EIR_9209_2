@@ -8436,6 +8436,14 @@ div.otgreen {
   vertical-align: top;
 }
 
+.tacshr {
+  background-color: #ffaf7a !important;
+}
+
+.selshr {
+  background-color: #7c9299 !important;
+}
+
 /*
  .schedtbl>thead ,
  .schedtbl tr {

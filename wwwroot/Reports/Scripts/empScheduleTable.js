@@ -3,7 +3,6 @@ let valuesArray = null;
 let weekDates = [];
 $(function () {
     Promise.all([createEmpScheduleDataTable('empScheduleData')]);
-
 });
 
 async function updateEmployeeSchedule(data) {
@@ -67,6 +66,13 @@ function processScheduledata(data) {
                 // Accumulate the dailyTACShr
                 if (dayData.dailyTACShr) {
                     employee.totalTACSHr += parseFloat(dayData.dailyTACShr) || 0;
+                }
+                //get weekdates
+                if (!weekDates[dayIndex]) {
+                    let dayname = dayData.dayName.charAt(0).toUpperCase() + dayData.dayName.slice(1); 
+                    let splitdate = dayData.date.split('-');
+                    let dispdate = splitdate[1] + '/' + splitdate[2];
+                    weekDates[dayIndex] = dayname + '<br>' + dispdate;
                 }
             });
 
@@ -232,23 +238,26 @@ async function createEmpScheduleDataTable(table) {
                     {
                         orderable: false, // Disable sorting on all columns
                         targets: '_all'
-                    }],
-                rowCallback: function (row, data, index) {
-                    for (let i = 1; i <= 7; i++) {
-                        let dayData = data[`day${i}`];
-                        if ($.isObject(dayData)) {
-                            if (dayData && /off/ig.test(dayData.workStatus)) {
-                                $('td', row).eq(i + 2).addClass('off');
+                    },
+                    {
+                        targets: [3,4,5,6,7,8,9],
+                        createdCell: function (td, cellData, rowData, row, col) {
+                            if (/off/ig.test(cellData.workStatus)) {
+                                $(td).addClass('off');
+                            } else {
+                                $(td).addClass('innertbl top work');
                             }
-                            else {
-                                $('td', row).eq(i + 2).addClass('innertbl top work');
-                            }
-                        }
-                        else {
-                            $('td', row).eq(i + 2).addClass('off');
                         }
                     }
-                },
+                ],
+                headerCallback: function headerCallback(thead, data, start, end, display) {
+                    for (var i = 1; i <= 7; i++) {
+                        $(thead)
+                            .find('th')
+                            .eq(i+2)
+                            .html(weekDates[i]);
+                    }
+                }
             });
             resolve();
             return false;
@@ -263,15 +272,15 @@ function getDayFormat(dayhr) {
         if (/(OFF|'')/i.test(dayhr.workStatus)) {
             curday = dayhr.workStatus;
         } else if (/HOLOFF/i.test(dayhr.workStatus)) {
-            curday = '<span class="holoffSpan">HOLOFF</span>';
+            curday = 'HOLOFF';
         } else if (/Leave/i.test(dayhr.workStatus)) {
-            curday = '<td>LV</td>';
+            curday = 'LV';
         } else {
             // Add a CSS class to the <tbody> element to center its content
             curday = '<table width="100%"><tbody>';
-            curday += '<tr><td width="50%" class="bt">' + dayhr.beginTourHour + '</td><td width="50%" class="et">' + dayhr.endTourHour + '</td></tr>';
-            curday += '<tr class="multi"><td colspan="2" class="section">' + dayhr.sectionName + '</td></tr>';
-            curday += '<tr><td>' + dayhr.dailyTACShr + '</td><td>' + dayhr.dailyQREhr + '</td></tr>';
+            curday += '<tr><td width="50%" class="bt work">' + dayhr.beginTourHour + '</td><td width="50%" class="et work">' + dayhr.endTourHour + '</td></tr>';
+            curday += '<tr class="multi"><td colspan="2" class="section work">' + dayhr.sectionName + '</td></tr>';
+            curday += '<tr><td class="tacshr">' + dayhr.dailyTACShr + '</td><td class="selshr">' + dayhr.dailyQREhr + '</td></tr>';
             curday += '</tbody></table>';
         }
         if (/(HOLOFF|Leave)/i.test(dayhr.workStatus)) {

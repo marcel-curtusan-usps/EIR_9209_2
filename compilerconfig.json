@@ -4,7 +4,7 @@
     "inputFile": "wwwroot/css/Site.scss"
   },
   {
-    "outputFile": "wwwroot/reports/content/empschedule.css",
-    "inputFile": "wwwroot/reports/content/empschedule.scss"
+    "outputFile": "wwwroot/reports/content/empSchedule.css",
+    "inputFile": "wwwroot/reports/content/empSchedule.scss"
   }
 ]
