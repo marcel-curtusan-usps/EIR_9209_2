@@ -41,7 +41,7 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented));
+                await _fileService.WriteFileInRoot(fileName, "Configuration", JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented));
             }
         }
     }
@@ -69,7 +69,7 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented));
+                await _fileService.WriteFileInRoot(fileName, "Configuration", JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented));
             }
         }
     }
@@ -97,7 +97,7 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented));
+                await _fileService.WriteFileInRoot(fileName, "Configuration", JsonConvert.SerializeObject(_dacodeList.Values, Formatting.Indented));
             }
         }
     }

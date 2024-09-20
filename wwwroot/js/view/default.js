@@ -213,3 +213,21 @@ function getIANATimeZone(abbreviation) {
 function getPostalTimeZone(abbreviation) {
     return postaltimeZoneMapping[abbreviation] || abbreviation;
 }
+function IPAddress_validator(value) {
+    let ipPattern = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+    let ipArray = value.match(ipPattern);
+    if (value === "0.0.0.0" || value === "255.255.255.255" || ipArray === null) {
+        return "Invalid IP Address";
+    } else {
+        for (let i = 1; i < ipArray.length; i++) {
+            let thisSegment = ipArray[i];
+            if (thisSegment > 255) {
+                return "Invalid IP Address";
+            }
+            if (i === 0 && thisSegment > 255) {
+                return "Invalid IP Address";
+            }
+        }
+    }
+    return value;
+}

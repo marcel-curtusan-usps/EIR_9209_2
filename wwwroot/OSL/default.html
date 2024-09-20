@@ -121,6 +121,13 @@
                             <select id="connection_name" class="form-control pb-1" title="Connection Names" name="connection_name">
                             </select>
                             <span id="error_connection_name" class="text-danger"></span>
+                            <div class="col">
+                                <label class="control-label" for="message_type">Message Type</label>
+                                <select id="message_type" class="form-control pb-1" titel="Message Type" name="message_type">
+                                </select>
+                                <span id="option-container" style="visibility: hidden; position: absolute;"></span>
+                                <span id="error_message_type" class="text-danger"></span>
+                            </div>
                         </div>
                         <div class="col">
                             <label class="control-label">Connection Options</label>
@@ -142,7 +149,7 @@
                                 <input id="api_connection" type="radio" class="custom-control-input" name="connectionType" />
                                 <label class="custom-control-label" for="api_connection">API</label>
                             </div>
-                            <div class="custom-control custom-switch">
+                            <!--<div class="custom-control custom-switch">
                                 <input id="udp_connection" type="radio" class="custom-control-input" name="connectionType" />
                                 <label class="custom-control-label" for="udp_connection">UDP Connection</label>
                             </div>
@@ -153,7 +160,7 @@
                             <div class="custom-control custom-switch">
                                 <input id="ws_connection" type="radio" class="custom-control-input" name="connectionType" />
                                 <label class="custom-control-label" for="ws_connection">WS Connection</label>
-                            </div>
+                            </div>-->
 
                         </div>
                         <div class="col">
@@ -183,7 +190,7 @@
                             <input id="ip_address" type="text" class="form-control" name="ip_address" />
                             <span id="error_ip_address" class="text-danger"></span>
                         </div>
-                        <div class="form-group col-4">
+                        <div class="form-group col-2">
                             <label class="control-label">Port Number</label>
                             <input id="port_number" type="text" class="form-control" name="port_number" />
                             <span id="error_port_number" class="text-danger"></span>
@@ -258,14 +265,8 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="form-group col">
-                            <label class="control-label" for="message_type">Message Type</label>
-                            <select id="message_type" class="form-control pb-1" titel="Message Type" name="message_type">
-                            </select>
-                            <span id="option-container" style="visibility: hidden; position: absolute;"></span>
-                            <span id="error_message_type" class="text-danger"></span>
-                        </div>
-                        <div class="form-group col">
+                      
+                        <div class="form-group col-4">
                             <label class="control-label">Retrieve Occurrences</label>
                             <select id="data_retrieve" class="form-control pb-1" name="data_retrieve">
                                 <option value=""></option>
@@ -288,7 +289,7 @@
                             </select>
                             <span id="error_data_retrieve" class="text-danger"></span>
                         </div>
-                        <div class="form-group col">
+                        <div class="form-group col-4">
                             <label class="control-label">Timeout</label>
                             <select id="connectionTimeout" class="form-control pb-1" name="connectionTimeout">
                                 <option value=""></option>
@@ -633,24 +634,26 @@
                     <button class="col-1 btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="form-group row">
-                                <div class="col">
-                                    <label class="col-form-label" id="conntype_label">Value:</label>
-                                    <input type="text" class="form-control" id="modalConnTypeID" />
-                                    <span class="text-info" id="error_modalConnTypeID"></span>
-                                </div>
-                            </div>
-                            <div class="form-group row valuediv" style="display: block">
-                                <div class="col">
-                                    <label class="col-form-label">Description:</label>
-                                    <input type="text" class="form-control" id="descValueID" />
-                                    <span class="text-info" id="error_descValueID"></span>
-                                </div>
-                            </div>
+                    <div class="row">
+                        <div class="col">
+                            <label class="col-form-label" id="conntype_label">Value:</label>
+                            <input type="text" class="form-control" id="modalConnTypeID" />
+                            <span class="text-info" id="error_modalConnTypeID"></span>
+                        </div>
+                        <div class="col">
+                            <label class="col-form-label">Description:</label>
+                            <input type="text" class="form-control" id="descValueID" />
+                            <span class="text-info" id="error_descValueID"></span>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col">
+                            <label class="col-form-label">Base URL</label>
+                            <input type="text" class="form-control" id="baseURLValueID" />
+                            <span class="text-info" id="error_baseURLValueID"></span>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <div class="col">

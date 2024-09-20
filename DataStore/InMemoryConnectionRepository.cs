@@ -223,7 +223,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
+                await _fileService.WriteFileInRoot(connectionTypefileName, "Configuration", JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
             }
         }
 
@@ -253,7 +253,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
+                await _fileService.WriteFileInRoot(connectionTypefileName, "Configuration", JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
             }
         }
     }
@@ -282,7 +282,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
+                await _fileService.WriteFileInRoot(connectionTypefileName, "Configuration", JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
             }
         }
     }
@@ -325,7 +325,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
+                await _fileService.WriteFileInRoot(connectionTypefileName, "Configuration", JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
             }
         }
     }
@@ -343,14 +343,20 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
                         if (msgtype.Description != connection.Description)
                         {
                             msgtype.Description = connection.Description;
+                            saveToFile = true;
                         }
                         if (msgtype.Name != connection.Name)
                         {
                             msgtype.Name = connection.Name;
+                            saveToFile = true;
+                        }
+                        if (msgtype.BaseURL != connection.BaseURL)
+                        {
+                            msgtype.BaseURL = connection.BaseURL;
+                            saveToFile = true;
                         }
                     }
                 }
-                saveToFile = true;
                 return connection;
             }
             else
@@ -367,7 +373,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
+                await _fileService.WriteFileInRoot(connectionTypefileName, "Configuration", JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
             }
         }
     }
@@ -403,7 +409,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
+                await _fileService.WriteFileInRoot(connectionTypefileName, "Configuration", JsonConvert.SerializeObject(_connectionTypeList.Values, Formatting.Indented));
             }
         }
     }

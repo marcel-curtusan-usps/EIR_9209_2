@@ -39,8 +39,17 @@ $('#ConnectionType_value_Modal').on('shown.bs.modal', function () {
         $('input[id=modalConnTypeID]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
         $('span[id=error_modalConnTypeID]').text("");
     }
+    if (!checkValue($('input[id=baseURLValueID]').val())) {
+        $('input[id=baseURLValueID]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_baseURLValueID]').text("Please Enter Base URL");
+    }
+    else {
+        $('input[id=baseURLValueID]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_baseURLValueID]').text("");
+    }
+    enableConnectionSubTypeSubmit();
     //modalConnTypeID
-    $('input[type=text][id=modalConnTypeID]').keyup(function () {
+    $('input[type=text][id=modalConnTypeID]').on("keyup", function () {
         if (!checkValue($('input[type=text][id=modalConnTypeID]').val())) {
             $('input[type=text][id=modalConnTypeID]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_modalConnTypeID]').text("Please Enter value");
@@ -49,9 +58,10 @@ $('#ConnectionType_value_Modal').on('shown.bs.modal', function () {
             $('input[type=text][id=modalConnTypeID]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_modalConnTypeID]').text("");
         }
+        enableConnectionSubTypeSubmit();
     });
     //descValueID
-    $('input[type=text][id=descValueID]').keyup(function () {
+    $('input[type=text][id=descValueID]').on("keyup", function () {
         if (!checkValue($('input[type=text][id=descValueID]').val())) {
             $('input[type=text][id=descValueID]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_descValueID]').text("Please Enter Value");
@@ -60,6 +70,19 @@ $('#ConnectionType_value_Modal').on('shown.bs.modal', function () {
             $('input[type=text][id=descValueID]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_descValueID]').text("");
         }
+        enableConnectionSubTypeSubmit();
+    });
+    //descValueID
+    $('input[type=text][id=baseURLValueID]').on("keyup", function () {
+        if (!checkValue($('input[type=text][id=baseURLValueID]').val())) {
+            $('input[type=text][id=baseURLValueID]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_baseURLValueID]').text("Please Enter Base URL");
+        }
+        else {
+            $('input[type=text][id=baseURLValueID]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_baseURLValueID]').text("");
+        }
+        enableConnectionSubTypeSubmit();
     });
 });
 async function init_connectiontType() {
@@ -226,7 +249,8 @@ async function Add_ConnectionType() {
             /* $('button[id=conntypevalue]')*/
             let jsonObject = {
                 name: $('input[id=modalConnTypeID]').val(),
-                description: $('input[id=descValueID]').val()
+                description: $('input[id=descValueID]').val(),
+                baseURL: $('input[id=baseURLValueID]').val()
             };
             if (!$.isEmptyObject(jsonObject)) {
                 //make a ajax call to get the employee details
@@ -279,7 +303,7 @@ async function Edit_Connectiontype(Data) {
             let jsonObject = {
                 id: Data.id,
                 name: $('input[id=modalConnTypeID]').val(),
-                description: $('input[id=descValueID]').val(),
+                description: $('input[id=descValueID]').val()
             };
 
             if (!$.isEmptyObject(jsonObject)) {
@@ -440,6 +464,7 @@ async function Add_ConnectionSubtype(data) {
             let jsonObject = {
                 name: $('input[id=modalConnTypeID]').val(),
                 description: $('input[id=descValueID]').val(),
+                baseURL: $('input[id=baseURLValueID]').val(),
                 id: ""
             };
             if (!$.isEmptyObject(jsonObject)) {
@@ -491,13 +516,14 @@ async function Edit_ConnectionSubtype(data, connId) {
 
         $('input[id=modalConnTypeID]').val(data.name);
         $('input[id=descValueID]').val(data.description);
-
+        $('input[id=baseURLValueID]').val(data.baseURL);
         $('button[id=conntypevalue]').off().on('click', function () {
             $('button[id=conntypevalue]').prop('disabled', true);
             let jsonObject = {
                 id: data.id,
                 name: $('input[id=modalConnTypeID]').val(),
-                description: $('input[id=descValueID]').val()
+                description: $('input[id=descValueID]').val(),
+                baseURL: $('input[id=baseURLValueID]').val()
             };
             if (!$.isEmptyObject(jsonObject)) {
                 //make a ajax call to get the Connection details
@@ -532,6 +558,17 @@ async function Edit_ConnectionSubtype(data, connId) {
         $('#ConnectionType_value_Modal').modal('show');
     } catch (e) {
         throw new Error(e.toString());
+    }
+}
+function enableConnectionSubTypeSubmit() {
+    if ($('input[id=modalConnTypeID]').hasClass('is-valid') &&
+        $('input[id=descValueID]').hasClass('is-valid') &&
+        $('input[id=baseURLValueID]').hasClass('is-valid') 
+    ) {
+        $('button[id=conntypevalue]').prop('disabled', false);
+    }
+    else {
+        $('button[id=conntypevalue]').prop('disabled', true);
     }
 }
 function Delete_ConnectionSubtype(data, connId) {
@@ -627,12 +664,12 @@ async function connectionTypeLoad(connName) {
                     if ($('#connection_name option[value=' + name + ']').length == 0) {
                         $('<option/>').val(this.name).html(this.description + " (" + this.name + ")").appendTo('#connection_name');
                     }
-
                     $(this.messageTypes).each(function (key, value) {
                         let messagetype = this.name;
-
+                        let baseUrl = this.baseURL;
+                        let conType = this.connectionType;
                         if ($('#message_type option[value=' + messagetype + ']').length == 0) {
-                            $('<option data-messagetype=' + name + '>').val(messagetype).html(this.description).appendTo('#message_type');
+                            $('<option data-messagetype=' + name + ' data-baseUrl=' + baseUrl + ' data-conType=' + conType + '>').val(messagetype).html(this.description).appendTo('#message_type');
                         }
                     });
                 });
