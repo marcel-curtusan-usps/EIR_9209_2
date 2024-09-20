@@ -247,6 +247,10 @@ async function createEmpScheduleDataTable(table) {
                         createdCell: function (td, cellData, rowData, row, col) {
                             if (/off/ig.test(cellData.workStatus)) {
                                 $(td).addClass('off');
+                            } else if (/leave/ig.test(cellData.workStatus)) {
+                                $(td).addClass('leave');
+                            } else if (/holoff/ig.test(cellData.workStatus)) {
+                                $(td).addClass('holoff');
                             } else {
                                 $(td).addClass('innertbl top work');
                             }
@@ -272,10 +276,8 @@ async function createEmpScheduleDataTable(table) {
 function getDayFormat(dayhr) {
     let curday = '';
     if ($.isObject(dayhr)) {
-        if (/(OFF|'')/i.test(dayhr.workStatus)) {
+        if (/(OFF|HOLOFF|'')/i.test(dayhr.workStatus)) {
             curday = dayhr.workStatus;
-        } else if (/HOLOFF/i.test(dayhr.workStatus)) {
-            curday = 'HOLOFF';
         } else if (/Leave/i.test(dayhr.workStatus)) {
             curday = 'LV';
         } else {
@@ -283,12 +285,25 @@ function getDayFormat(dayhr) {
             curday = '<table width="100%"><tbody>';
             curday += '<tr><td width="50%" class="bt work">' + dayhr.beginTourHour + '</td><td width="50%" class="et work">' + dayhr.endTourHour + '</td></tr>';
             curday += '<tr class="multi"><td colspan="2" class="section work">' + dayhr.sectionName + '</td></tr>';
-            curday += '<tr><td class="tacshr">' + dayhr.dailyTACShr + '</td><td class="selshr">' + dayhr.dailyQREhr + '</td></tr>';
+            if (dayhr.hrsLeave > 0) {
+                curday += '<tr class="multi"><td colspan="2" class="section leave">LV</td></tr>';
+                curday += '<tr class="multi"><td colspan="2" class="section leave">' + dayhr.hrsLeave + '</td></tr>';
+            }
+            curday += '<tr><td class="bt section tacshr">' + Math.round(dayhr.dailyTACShr * 100) / 100 + '</td><td class="et section selshr">' + Math.round(dayhr.dailyQREhr * 100) / 100 + '</td></tr>';
             curday += '</tbody></table>';
         }
-        if (/(HOLOFF|Leave)/i.test(dayhr.workStatus)) {
-            if (parseFloat(dayhr.dailyQREhr) > 0) {
-                curday += '<tr><td>' + dayhr.dailyTACShr + '</td><td>' + dayhr.dailyQREhr + '</td></tr>';
+        if (/(HOLOFF|Leave|OFF)/i.test(dayhr.workStatus)) {
+            if (parseFloat(dayhr.dailyQREhr) > 0 || parseFloat(dayhr.dailyQREhr) > 0) {
+                curday = '<table width="100%"><tbody>';
+                if (/(OFF|'')/i.test(dayhr.workStatus)) {
+                    curday += '<tr class="multi"><td colspan="2" class="off">' + dayhr.workStatus + '</td></tr>';
+                } else if (/HOLOFF/i.test(dayhr.workStatus)) {
+                    curday += '<tr class="multi"><td colspan="2" class="holoff">' + dayhr.workStatus + '</td></tr>';
+                } else if (/Leave/i.test(dayhr.workStatus)) {
+                    curday += '<tr class="multi"><td colspan="2" class="leave">LV</td></tr>';
+                }
+                curday += '<tr><td class="bt section tacshr">' + Math.round(dayhr.dailyTACShr * 100) / 100 + '</td><td class="et section selshr">' + Math.round(dayhr.dailyQREhr * 100) / 100 + '</td></tr>';
+                curday += '</tbody></table>';
             }
         }
     } else {

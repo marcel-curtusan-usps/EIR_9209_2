@@ -375,12 +375,12 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             var entireDayThisEmp = await _tags.GetTagTimeline(emp, schDate);
             if (entireDayThisEmp != null)
             {
-                QRElaborHrs = entireDayThisEmp.GroupBy(e => e.Ein).ToDictionary(g => g.Key, g => g.Sum(e => e.Duration.TotalMilliseconds));
+                QRElaborHrs = entireDayThisEmp.GroupBy(e => e.Ein).ToDictionary(g => g.Key, g => g.Sum(e => e.Duration.TotalMilliseconds / 60 / 60 / 1000));
             }
             var entireTASCThisEmp = await _tags.GetTagTimeline(emp, schDate);
             if (entireTASCThisEmp != null)
             {
-                TACSlaborHrs = entireTASCThisEmp.GroupBy(e => e.Ein).ToDictionary(g => g.Key, g => g.Sum(e => e.Duration.TotalMilliseconds));
+                TACSlaborHrs = entireTASCThisEmp.GroupBy(e => e.Ein).ToDictionary(g => g.Key, g => g.Sum(e => e.Duration.TotalMilliseconds / 60 / 60 / 1000));
             }
             return new ScheduleReport
             {
