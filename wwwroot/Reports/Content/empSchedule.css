@@ -8316,10 +8316,6 @@ General Doc Format
     page-break-inside: avoid;
   }
 }
-.off {
-  background-color: rgb(221, 221, 221) !important;
-}
-
 .schedtbl table.daydetail tr:first-child td:first-child {
   border-right: 1px solid black;
 }
@@ -8431,17 +8427,29 @@ div.otgreen {
   border-top: solid 1px black !important;
 }
 
+.off {
+  background-color: rgb(221, 221, 221);
+}
+
+.leave {
+  background-color: #f4c0ff;
+}
+
+.holoff {
+  background-color: #d9e8f9;
+}
+
 .work {
-  background-color: rgb(204, 255, 204) !important;
+  background-color: rgb(204, 255, 204);
   vertical-align: top;
 }
 
 .tacshr {
-  background-color: #ffaf7a !important;
+  background-color: #ffaf7a;
 }
 
 .selshr {
-  background-color: #7c9299 !important;
+  background-color: #7c9299;
 }
 
 /*
