@@ -70,7 +70,7 @@ namespace EIR_9209_2.Controllers
                 }
 
                 JObject valueJson = JObject.Parse(value);
-                BackgroundImage? newImage = valueJson.ToObject<BackgroundImage>();
+                OSLImage? newImage = valueJson.ToObject<OSLImage>();
                 newImage.coordinateSystemId = Guid.NewGuid().ToString();
                 // convert the file to a byte array to image
                 byte[] fileBytes;

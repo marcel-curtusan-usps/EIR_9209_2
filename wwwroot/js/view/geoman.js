@@ -549,8 +549,6 @@ function VaildateForm(FormType) {
         enableZoneSubmit();
     }
     else if (/(DockDoor)/i.test(FormType)) {
-        $('textarea[id="bin_bins"]').val("");
-
         $.ajax({
             url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?Type=DockDoor',
             contentType: 'application/json',
@@ -646,21 +644,46 @@ function VaildateForm(FormType) {
         enableZoneSubmit();
     }
     else if (/(AGVLocation)/i.test(FormType)) {
-        $('<option/>').val('**AGVLocation Not Listed').html('**AGVLocation Not Listed').appendTo('select[id=zone_select_name]');
-        $('div[id=manual_numberdiv]').css('display', 'none');
+
+        $.ajax({
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?Type=AGVLocation',
+            contentType: 'application/json',
+            type: 'GET',
+            success: function (data) {
+                data.push('**AGVLocation Not Listed');
+                if (data.length > 0) {
+                    //sort 
+                    data.sort();
+                    $.each(data, function () {
+                        $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
+                    })
+                }
+            },
+            error: function (error) {
+
+                console.log(error);
+            },
+            faulure: function (fail) {
+                console.log(fail);
+            },
+            complete: function (complete) {
+                //console.log(complete);
+            }
+        });
+  
         enableAGVLocationSubmit();
     }
     else if (/^(Area)$/i.test(FormType)) {
         $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?Type=MPE',
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?Type=Area',
             contentType: 'application/json',
             type: 'GET',
-            success: function (mpedata) {
-                mpedata.push('**Area Not Listed');
-                if (mpedata.length > 0) {
+            success: function (data) {
+                data.push('**Area Not Listed');
+                if (data.length > 0) {
                     //sort 
-                    mpedata.sort();
-                    $.each(mpedata, function () {
+                    data.sort();
+                    $.each(data, function () {
                         $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
                     })
                 }

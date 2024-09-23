@@ -83,7 +83,7 @@
         "Id": "330e0f86-8d07-4972-8f13-64acae0ddea9",
         "Name": "trips",
         "Description": "Inbound and Outbound trips at the site",
-        "BaseURL": "https://{0}/svx/trips/triprange?searchLevel=3&searchValue={1}&lowerBound={2}&upperBound={32}&colocated=undefined"
+        "BaseURL": "https://{0}/svx/trips/triprange?searchLevel=3&searchValue={1}&lowerBound={2}&upperBound={3}&colocated=undefined"
       },
       {
         "Id": "7dce5774-2319-461c-b5f1-3c4c499992e8",
@@ -308,19 +308,19 @@
         "Id": "f751fc78-45e9-4057-afd4-dbc5f3896c0f",
         "Name": "rpg_plan",
         "Description": "RPG Run Plan",
-        "BaseURL": "http://{0}:8080/ords/mpemaster/mpemaster.api_page.get_data_by_time?id={0}&data_source={1}&start_time={2}&end_time={3}"
+        "BaseURL": "http://{0}:8080/ords/mpemaster/mpemaster.api_page.get_data_by_time?id={1}&data_source={2}&start_time={3}&end_time={4}"
       },
       {
         "Id": "f5845943-1fff-4fb2-a5ee-97645803399d",
         "Name": "dps_run_estm",
         "Description": "DPS Run Status",
-        "BaseURL": "http://{0}:8080/ords/mpemaster/mpemaster.api_page.get_data_by_time?id={0}&data_source={1}&start_time={2}&end_time={3}"
+        "BaseURL": "http://{0}:8080/ords/mpemaster/mpemaster.api_page.get_data_by_time?id={1}&data_source={2}&start_time={3}&end_time={4}"
       },
       {
         "Id": "af5438cc-e132-4780-9d77-b0a4e4e2ed9c",
         "Name": "rpg_run_perf",
         "Description": "MPE Run Status",
-        "BaseURL": "http://{0}:8080/ords/mpemaster/mpemaster.api_page.get_data_by_time?id={0}&data_source={1}&start_time={2}&end_time={3}"
+        "BaseURL": "http://{0}:8080/ords/mpemaster/mpemaster.api_page.get_data_by_time?id={1}&data_source={2}&start_time={3}&end_time={4}"
       }
     ]
   },

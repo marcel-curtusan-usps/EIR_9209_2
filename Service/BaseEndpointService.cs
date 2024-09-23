@@ -64,6 +64,8 @@ namespace EIR_9209_2.Service
         {
             Stop(restart: false);
             _endpointConfig.MillisecondsInterval = updateCon.MillisecondsInterval;
+            _endpointConfig.Hostname = updateCon.Hostname;
+            _endpointConfig.IpAddress = updateCon.IpAddress;
             _endpointConfig.HoursBack = updateCon.HoursBack;
             _endpointConfig.HoursForward = updateCon.HoursForward;
             _endpointConfig.ActiveConnection = updateCon.ActiveConnection;

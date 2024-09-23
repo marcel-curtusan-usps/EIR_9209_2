@@ -21,27 +21,28 @@ namespace EIR_9209_2.Service
                 string MpeWatch_id = "1";
                 string start_time = string.Concat(DateTime.Now.AddHours(-_endpointConfig.HoursBack).ToString("MM/dd/yyyy_"), "00:00:00");
                 string end_time = string.Concat(DateTime.Now.AddHours(_endpointConfig.HoursForward).ToString("MM/dd/yyyy_"), "23:59:59");
-                string FormatUrl = string.Format(_endpointConfig.Url, MpeWatch_id, _endpointConfig.MessageType, start_time, end_time);
+                string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname: _endpointConfig.IpAddress;
+                string FormatUrl = string.Format(_endpointConfig.Url, server, MpeWatch_id, _endpointConfig.MessageType, start_time, end_time);
                 queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(
                         new Uri(FormatUrl),
                         new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)
                     ));
                 var result = await queryService.GetMPEWatchData(stoppingToken);
                 //process zone data
-                if (_endpointConfig.MessageType.ToLower() == "rpg_run_perf")
+                if (_endpointConfig.MessageType.Equals("rpg_run_perf", StringComparison.CurrentCultureIgnoreCase))
                 {
                     // Process MPE data in a separate thread
-                    _ = Task.Run(async () => await ProcessMPEWatchRunPerfData(result), stoppingToken).ConfigureAwait(false);
+                    await ProcessMPEWatchRunPerfData(result, stoppingToken);
                 }
-                if (_endpointConfig.MessageType.ToLower() == "rpg_plan")
+                if (_endpointConfig.MessageType.Equals("rpg_plan", StringComparison.CurrentCultureIgnoreCase))
                 {
                     // Process MPE data in a separate thread
-                    _ = Task.Run(async () => await ProcessMPEWatchRpgPlanData(result), stoppingToken).ConfigureAwait(false);
+                   await ProcessMPEWatchRpgPlanData(result, stoppingToken);
                 }
-                if (_endpointConfig.MessageType.ToLower() == "dps_run_estm")
+                if (_endpointConfig.MessageType.Equals("dps_run_estm", StringComparison.CurrentCultureIgnoreCase))
                 {
                     // Process MPE data in a separate thread
-                    _ = Task.Run(() => ProcessMPEWatchDPSRunData(result), stoppingToken).ConfigureAwait(false);
+                    await ProcessMPEWatchDPSRunData(result, stoppingToken);
                 }
             }
             catch (Exception ex)
@@ -56,7 +57,7 @@ namespace EIR_9209_2.Service
                 }
             }
         }
-        private async Task ProcessMPEWatchRpgPlanData(JToken result)
+        private async Task ProcessMPEWatchRpgPlanData(JToken result, CancellationToken stoppingToken)
         {
             try
             {
@@ -65,7 +66,7 @@ namespace EIR_9209_2.Service
                     var data = result.SelectToken("data");
                     if (data != null)
                     {
-                        await _geoZones.LoadMPEPlan(data);
+                        await Task.Run(() => _geoZones.LoadMPEPlan(data), stoppingToken).ConfigureAwait(false);
                     }
                 }
             }
@@ -74,7 +75,7 @@ namespace EIR_9209_2.Service
                 _logger.LogError(e.Message);
             }
         }
-        private void ProcessMPEWatchDPSRunData(JToken result)
+        private async Task ProcessMPEWatchDPSRunData(JToken result, CancellationToken stoppingToken)
         {
             try
             {
@@ -83,7 +84,7 @@ namespace EIR_9209_2.Service
                     var data = result.SelectToken("data");
                     if (data != null)
                     {
-
+                        await Task.Run(() => _geoZones.LoadMPEPlan(data), stoppingToken).ConfigureAwait(false);
                     }
                 }
             }
@@ -93,7 +94,7 @@ namespace EIR_9209_2.Service
             }
         }
 
-        private async Task ProcessMPEWatchRunPerfData(JToken result)
+        private async Task ProcessMPEWatchRunPerfData(JToken result, CancellationToken stoppingToken)
         {
             try
             {
@@ -109,7 +110,7 @@ namespace EIR_9209_2.Service
                         List<MPERunPerformance>? mpeList = data.ToObject<List<MPERunPerformance>>();
                         if (mpeList != null && mpeList.Any())
                         {
-                            await Task.Run(() => _geoZones.UpdateMPERunInfo(mpeList)).ConfigureAwait(false);
+                            await Task.Run(() => _geoZones.UpdateMPERunInfo(mpeList), stoppingToken).ConfigureAwait(false);
                         }
                     }
                 }

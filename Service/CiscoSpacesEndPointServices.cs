@@ -22,9 +22,10 @@ namespace EIR_9209_2.Service
                 IQueryService queryService;
                 //process tag data
                 string FormatUrl = "";
-                if (_endpointConfig.MessageType == "CLIENT")
+                string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
+                if (_endpointConfig.MessageType.Equals("CLIENT", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType, _endpointConfig.MapId, _endpointConfig.TenantId);
+                    FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType, _endpointConfig.MapId, _endpointConfig.TenantId);
                     queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                     var result = await queryService.GetCiscoSpacesData(stoppingToken);
 
@@ -32,9 +33,9 @@ namespace EIR_9209_2.Service
                     Action processData = () => _tags.UpdateTagCiscoSpacesClientInfo(result);
                     await Task.Run(processData).ConfigureAwait(false);
                 }
-                if (_endpointConfig.MessageType == "BLE_TAG")
+                if (_endpointConfig.MessageType.Equals("BLE_TAG", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType, _endpointConfig.MapId, _endpointConfig.TenantId);
+                    FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType, _endpointConfig.MapId, _endpointConfig.TenantId);
                     queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                     var result = await queryService.GetCiscoSpacesData(stoppingToken);
 
@@ -42,9 +43,9 @@ namespace EIR_9209_2.Service
                     Action processData = () => _tags.UpdateTagCiscoSpacesBLEInfo(result);
                     await Task.Run(processData).ConfigureAwait(false);
                 }
-                if (_endpointConfig.MessageType == "FLOOR")
+                if (_endpointConfig.MessageType.Equals("FLOOR", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType, _endpointConfig.MapId, _endpointConfig.TenantId);
+                    FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType, _endpointConfig.MapId, _endpointConfig.TenantId);
                     queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                     var result = await queryService.GetCiscoSpacesData(stoppingToken);
 

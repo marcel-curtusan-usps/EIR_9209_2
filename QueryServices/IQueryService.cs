@@ -18,4 +18,5 @@ public interface IQueryService
     Task<JToken> GetCiscoSpacesData(CancellationToken stoppingToken);
     Task<JToken> GetCameraData(CancellationToken stoppingToken);
     Task<byte[]> GetPictureData(CancellationToken stoppingToken);
+    Task<QPEProjectInfo> GetQPEProjectInfo(CancellationToken stoppingToken);
 }

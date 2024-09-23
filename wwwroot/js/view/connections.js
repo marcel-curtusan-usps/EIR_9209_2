@@ -171,19 +171,21 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
     });
 
     //Hostname Keyup
-    $('input[type=text][name=hostanme]').on("keyup", () => {
-        if ($(this).val().trim() !== "") {
-            $('input[type=text][name=ip_address]').prop('disabled', true);
+    $('input[type=text][name=hostname]').on("keyup", () => {
+         if (!checkValue($('input[type=text][name=hostname]').val().trim())) {
+             $('input[id=ip_address]').prop('disabled', false);
+        
         } else {
-            $('input[type=text][name=ip_address]').prop('disabled', false);
+             $('input[id=ip_address]').prop('disabled', true);
+             $('input[id=ip_address]').val("");
         }
-        if (!checkValue($('input[type=text][name=hostanme]').val())) {
-            $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-valid');
-            $('span[id=error_hostanme]').text("");
+        if (!checkValue($('input[type=text][name=hostname]').val())) {
+            $('input[type=text][name=hostname]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-valid');
+            $('span[id=error_hostname]').text("");
         }
         else {
-            $('input[type=text][name=hostanme]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_hostanme]').text("");
+            $('input[type=text][name=hostname]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_hostname]').text("");
         }
         if (/^(udp|tcp)/i.test(connTypeRadio)) {
             enabletcpipudpSubmit();
@@ -195,8 +197,9 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
 
     //IP Address Keyup
     $('input[type=text][name=ip_address]').on("keyup", function () {
-        if ($(this).val().trim() !== "") {
-            $('input[type=text][name=hostname]').prop('disabled', true);
+        if (!checkValue($('input[type=text][name=ip_address]').val().trim())) {
+            $('input[name=hostname]').prop('disabled', true);
+            $('input[id=hostname]').val("");
         } else {
             $('input[type=text][name=hostname]').prop('disabled', false);
         }
@@ -442,210 +445,225 @@ connection.on("updateConnection", async (data) => {
 
 async function Add_Connection() {
     try {
-        $('div[id="serveripmenu"]').css("display", "");
-        $('div[id="endpointurl"]').css("display", "");
-        $('#modalHeader_ID').text('Add Connection');
-        $('select[name=connectionTimeout]').val(60000).trigger('change');
-
-        $('button[id=apisubmitBtn]').off().on('click', function () {
-            $('button[id=apisubmitBtn]').prop('disabled', true);
-            $('input[type=checkbox][name=ws_connection]').prop('disabled', false);
-            $('input[type=checkbox][name=udp_connection]').prop('disabled', false);
-            $('input[type=checkbox][name=tcpip_connection]').prop('disabled', false);
-            let jsonObject = {
-                ActiveConnection: $('input[type=checkbox][name=active_connection]').prop('checked'),
-                ApiConnection: $('input[type=radio][id=api_connection]').prop('checked'),
-                UdpConnection: $('input[type=radio][id=udp_connection]').prop('checked'),
-                TcpIpConnection: $('input[type=radio][id=tcpip_connection]').prop('checked'),
-                WsConnection: $('input[type=radio][id=ws_connection]').prop('checked'),
-                HoursBack: parseInt($('input[id=hoursback_range]').val(), 10),
-                HoursForward: parseInt($('input[id=hoursforward_range]').val(), 10),
-                MillisecondsInterval: $('select[name=data_retrieve] option:selected').val(),
-                MillisecondsTimeout: $('select[name=connectionTimeout] option:selected').val(),
-                Name: $('select[name=connection_name] option:selected').val(),
-                IpAddress: $('input[type=text][name=ip_address]').val(),
-                Port: Number.isNaN(Number($('input[type=text][name=port_number]').val())) ? parseInt($('input[id=hoursback_range]').val(), 10) : 0,
-                Url: $('input[type=text][name=url]').val(),
-                MessageType: $('select[name=message_type] option:selected').val(),
-                OAuthUrl: $('input[type=text][name=tokenurl]').val(),
-                OAuthUserName: $('input[type=text][name=tokenusername]').val(),
-                OAuthPassword: $('input[type=text][name=tokenpassword]').val(),
-                OAuthClientId: $('input[type=text][name=tokenclientId]').val(),
-                OutgoingApikey: $('input[type=text][name=bearerToken]').val(),
-                MapId: $('input[type=text][name=ciscoSpaceMapId]').val(),
-                TenantId: $('input[type=text][name=ciscoSpacetenantId]').val(),
-                //CreatedByUsername: User.UserId,
-                // NassCode: User.Facility_NASS_Code
-            };
-            if (!$.isEmptyObject(jsonObject)) {
-                //make a ajax call to get the employee details
-                $.ajax({
-                    url: SiteURLconstructor(window.location) + '/api/Connections/Add',
-                    data: JSON.stringify(jsonObject),
-                    contentType: 'application/json',
-                    type: 'POST',
-                    success: function (data) {
-                        $('#content').html(data);
-                        sidebar.open('connections');
-                        setTimeout(function () { $("#API_Connection_Modal").modal('hide'); sidebar.open('connections'); }, 500);
-                    },
-                    error: function (error) {
-                        $('span[id=error_apisubmitBtn]').text(error);
-                        $('button[id=apisubmitBtn]').prop('disabled', false);
-                        //console.log(error);
-                    },
-                    faulure: function (fail) {
-                        console.log(fail);
-                    },
-                    complete: function (complete) {
-                        console.log(complete);
-                    }
-                });
-            }
-        });
-        $('#API_Connection_Modal').modal('show');
+        if (appData.SiteName === "No Site Configured") {
+            $('#SiteNotConfiguredModal').modal('show');
+        }
+        else {
+            $('div[id="serveripmenu"]').css("display", "");
+            $('div[id="endpointurl"]').css("display", "");
+            $('#modalHeader_ID').text('Add Connection');
+            $('select[name=connectionTimeout]').val(60000).trigger('change');
+            $('button[id=apisubmitBtn]').off().on('click', function () {
+                $('button[id=apisubmitBtn]').prop('disabled', true);
+                $('input[type=checkbox][name=ws_connection]').prop('disabled', false);
+                $('input[type=checkbox][name=udp_connection]').prop('disabled', false);
+                $('input[type=checkbox][name=tcpip_connection]').prop('disabled', false);
+                let jsonObject = {
+                    ActiveConnection: $('input[type=checkbox][name=active_connection]').prop('checked'),
+                    ApiConnection: $('input[type=radio][id=api_connection]').prop('checked'),
+                    UdpConnection: $('input[type=radio][id=udp_connection]').prop('checked'),
+                    TcpIpConnection: $('input[type=radio][id=tcpip_connection]').prop('checked'),
+                    WsConnection: $('input[type=radio][id=ws_connection]').prop('checked'),
+                    HoursBack: parseInt($('input[id=hoursback_range]').val(), 10),
+                    HoursForward: parseInt($('input[id=hoursforward_range]').val(), 10),
+                    MillisecondsInterval: $('select[name=data_retrieve] option:selected').val(),
+                    MillisecondsTimeout: $('select[name=connectionTimeout] option:selected').val(),
+                    Name: $('select[name=connection_name] option:selected').val(),
+                    IpAddress: $('input[type=text][name=ip_address]').val(),
+                    Port: Number.isNaN(Number($('input[type=text][name=port_number]').val())) ? parseInt($('input[id=hoursback_range]').val(), 10) : 0,
+                    Url: $('input[type=text][name=url]').val(),
+                    MessageType: $('select[name=message_type] option:selected').val(),
+                    OAuthUrl: $('input[type=text][name=tokenurl]').val(),
+                    OAuthUserName: $('input[type=text][name=tokenusername]').val(),
+                    OAuthPassword: $('input[type=text][name=tokenpassword]').val(),
+                    OAuthClientId: $('input[type=text][name=tokenclientId]').val(),
+                    OutgoingApikey: $('input[type=text][name=bearerToken]').val(),
+                    MapId: $('input[type=text][name=ciscoSpaceMapId]').val(),
+                    TenantId: $('input[type=text][name=ciscoSpacetenantId]').val(),
+                    //CreatedByUsername: User.UserId,
+                    // NassCode: User.Facility_NASS_Code
+                };
+                if (!$.isEmptyObject(jsonObject)) {
+                    //make a ajax call to get the employee details
+                    $.ajax({
+                        url: SiteURLconstructor(window.location) + '/api/Connections/Add',
+                        data: JSON.stringify(jsonObject),
+                        contentType: 'application/json',
+                        type: 'POST',
+                        success: function (data) {
+                            $('#content').html(data);
+                            sidebar.open('connections');
+                            setTimeout(function () { $("#API_Connection_Modal").modal('hide'); sidebar.open('connections'); }, 500);
+                        },
+                        error: function (error) {
+                            $('span[id=error_apisubmitBtn]').text(error);
+                            $('button[id=apisubmitBtn]').prop('disabled', false);
+                            //console.log(error);
+                        },
+                        faulure: function (fail) {
+                            console.log(fail);
+                        },
+                        complete: function (complete) {
+                            console.log(complete);
+                        }
+                    });
+                }
+            });
+            $('#API_Connection_Modal').modal('show');
+        }
     } catch (e) {
         throw new Error(e.toString());
     }
 }
 async function Edit_Connection(data) {
-    $('#modalHeader_ID').text('Edit Connection');
-    $('input[type=checkbox][id=active_connection]').prop('checked', data.activeConnection);
-    $('input[type=text][id=ip_address]').val(data.ipAddress);
-    $('input[type=text][id=hostname]').val(data.hostName);
-    $('input[type=text][id=port_number]').val(data.port);
-    $('input[type=text][id=url]').val(data.url);
-    filtermessage_type(data.name, data.messageType);
-    $('select[name=connectionTimeout]').val(data.millisecondsTimeout);
-    $('select[name=data_retrieve]').val(data.millisecondsInterval);
-    $('input[type=radio]').prop('disabled', true);
-
-    if (/^(CiscoSpaces)/i.test(data.name)) {
-        $('input[type=checkbox][id=bearerToken]').prop('checked', true);
-        $('input[type=text][name=bearerToken]').val(data.outgoingApikey);
-        $('input[type=text][name=ciscoSpaceMapId]').val(data.mapId);
-        $('input[type=text][name=ciscoSpacetenantId]').val(data.tenantId);
-        $('div[id="CiscoSpacesmenu"]').css("display", "");
-        onBearerConnection();
+    if (appData.SiteName === "No Site Configured") {
+        $('#SiteNotConfiguredModal').modal('show');
     }
     else {
-        $('input[type=radio][id=bearerToken]').prop('checked', false);
-        $('div[id="CiscoSpacesmenu"]').css("display", "none");
-        $('input[type=text][name=bearerToken]').val("");
-        $('input[type=text][name=ciscoSpaceMapId]').val("");
-        $('input[type=text][name=ciscoSpacetenantId]').val("");
-        offBearerConnection();
-    }
+        $('#modalHeader_ID').text('Edit Connection');
+        $('input[type=checkbox][id=active_connection]').prop('checked', data.activeConnection);
+        $('input[type=text][id=ip_address]').val(data.ipAddress);
+        $('input[type=text][id=hostname]').val(data.hostname);
+        $('input[type=text][id=port_number]').val(data.port);
+        $('input[type=text][id=url]').val(data.url);
+        filtermessage_type(data.name, data.messageType);
+        $('select[name=connectionTimeout]').val(data.millisecondsTimeout);
+        $('select[name=data_retrieve]').val(data.millisecondsInterval);
+        $('input[type=radio]').prop('disabled', true);
 
-
-    if (checkValue(data.oAuthUrl)) {
-        $('input[type=checkbox][id=OAuthconnection]').prop('checked', true);
-        $('input[type=text][name=tokenurl]').prop("disabled", false).val(data.oAuthUrl);
-        $('input[type=text][name=tokenusername]').prop("disabled", false).val(data.oAuthUserName);
-        $('input[type=text][name=tokenpassword]').prop("disabled", false).val(data.oAuthPassword);
-        $('input[type=text][name=tokenclientId]').prop("disabled", false).val(data.oAuthClientId);
-        onOAuthConnection();
-
-    }
-    if (data.apiConnection) {
-        $('input[type=radio][id=api_connection]').prop('checked', data.apiConnection);
-        onAPIConnection();
-    }
-    if (data.udpConnection) {
-        $('input[type=radio][id=udp_connection]').prop('checked', data.udpConnection);
-        onudptcpipConnection();
-    }
-    if (data.tcpIpConnection) {
-        $('input[type=radio][id=tcpip_connection]').prop('checked', data.tcpIpConnection);
-        onudptcpipConnection();
-    }
-    if (data.wsConnection) {
-        $('input[type=radio][id=ws_connection]').prop('checked', data.wsConnection);
-    }
-    connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
-    if (data.hoursBack > 0 || data.hoursForward > 0) {
-
-        $('.hoursbackvalue').html($.isNumeric(data.hoursBack) ? parseInt(data.hoursBack, 10) : 0);
-        $('input[id=hoursback_range]').val($.isNumeric(data.hoursBack) ? parseInt(data.hoursBack, 10) : 0);
-        $('.hours_range_row').css("display", "");
-        $('.hoursforwardvalue').html($.isNumeric(data.hoursForward) ? parseInt(data.hoursForward, 10) : 0);
-        $('input[id=hoursforward_range]').val($.isNumeric(data.hoursForward) ? parseInt(data.hoursForward, 10) : 0);
-        $('.hours_range_row').css("display", "");
-        $('input[type=checkbox][id=hour_range]').prop('checked', true);
-
-    }
-    else {
-        $('.hoursbackvalue').html($.isNumeric(data.hoursBack) ? parseInt(data.hoursBack, 10) : 0);
-        $('input[id=hoursback_range]').val($.isNumeric(data.hoursBack) ? parseInt(data.hoursBack, 10) : 0);
-        $('.hours_range_row').css("display", "none");
-        $('.hoursforwardvalue').html($.isNumeric(data.hoursForward) ? parseInt(data.hoursForward, 10) : 0);
-        $('input[id=hoursforward_range]').val($.isNumeric(data.hoursForward) ? parseInt(data.hoursForward, 10) : 0);
-        $('.hours_range_row').css("display", "none");
-        $('input[type=checkbox][id=hour_range]').prop('checked', false);
-    }
-    $('button[id=apisubmitBtn]').prop('disabled', true);
-    $('button[id=apisubmitBtn]').off().on('click', function () {
-        try {
-            $('button[id=apisubmitBtn]').prop('disabled', true);
-            let jsonObject = {
-                activeConnection: $('input[type=checkbox][name=active_connection]').is(':checked'),
-                apiConnection: $('input[type=radio][id=api_connection]').is(':checked'),
-                udpConnection: $('input[type=radio][id=udp_connection]').is(':checked'),
-                tcpIpConnection: $('input[type=radio][id=tcpip_connection]').is(':checked'),
-                wsConnection: $('input[type=radio][name=ws_connection]').is(':checked'),
-                hoursBack: $('input[type=checkbox][id=hour_range]').is(':checked') ? parseInt($('input[id=hoursback_range]').val(), 10) : 0,
-                hoursForward: $('input[type=checkbox][id=hour_range]').is(':checked') ? parseInt($('input[id=hoursforward_range]').val(), 10) : 0,
-                millisecondsInterval: $('select[name=data_retrieve] option:selected').val(),
-                millisecondsTimeout: $('select[name=connectionTimeout] option:selected').val(),
-                name: $('select[name=connection_name] option:selected').val(),
-                ipAddress: $('input[type=text][id=ip_address]').val(),
-                port: $('input[type=text][name=port_number]').val(),
-                url: $('input[type=text][name=url]').val(),
-                messageType: $('select[name=message_type] option:selected').val(),
-                OutgoingApikey: $('input[type=text][name=bearerToken]').val(),
-                MapId: $('input[type=text][name=ciscoSpaceMapId]').val(),
-                TenantId: $('input[type=text][name=ciscoSpacetenantId]').val(),
-                //CreatedByUsername: User.UserId,
-                //lastupdateByUsername: User.UserId,
-                id: data.id
-            };
-            if (!$.isEmptyObject(jsonObject)) {
-                //check if the OAuth is checked
-                if ($('input[type=checkbox][name=OAuthconnection]').is(':checked')) {
-                    jsonObject.OAuthUrl = $('input[type=text][name=tokenurl]').val();
-                    jsonObject.OAuthUserName = $('input[type=text][name=tokenusername]').val();
-                    jsonObject.OAuthPassword = $('input[type=text][name=tokenpassword]').val();
-                    jsonObject.OAuthClientId = $('input[type=text][name=tokenclientId]').val();
-                }
-                //make a ajax call to get the Connection details
-                $.ajax({
-                    url: SiteURLconstructor(window.location) + '/api/Connections/Update',
-                    contentType: 'application/json-patch+json',
-                    type: 'POST',
-                    data: JSON.stringify(jsonObject),
-                    success: function (data) {
-
-                        sidebar.open('connections');
-                        setTimeout(function () { $("#API_Connection_Modal").modal('hide'); sidebar.open('connections'); }, 500);
-                    },
-                    error: function (error) {
-                        $('span[id=error_apisubmitBtn]').text(data.name + " " + data.messageType + " Connection was not Updated");
-                        //console.log(error);
-                    },
-                    faulure: function (fail) {
-                        console.log(fail);
-                    },
-                    complete: function (complete) {
-                       // console.log(complete);
-                    }
-                });
-            }
-
-        } catch (e) {
-            $('span[id=error_apisubmitBtn]').text(e);
+        if (/^(CiscoSpaces)/i.test(data.name)) {
+            $('input[type=checkbox][id=bearerToken]').prop('checked', true);
+            $('input[type=text][name=bearerToken]').val(data.outgoingApikey);
+            $('input[type=text][name=ciscoSpaceMapId]').val(data.mapId);
+            $('input[type=text][name=ciscoSpacetenantId]').val(data.tenantId);
+            $('div[id="CiscoSpacesmenu"]').css("display", "");
+            onBearerConnection();
         }
-    });
-    $('#API_Connection_Modal').modal('show');
+        else {
+            $('input[type=radio][id=bearerToken]').prop('checked', false);
+            $('div[id="CiscoSpacesmenu"]').css("display", "none");
+            $('input[type=text][name=bearerToken]').val("");
+            $('input[type=text][name=ciscoSpaceMapId]').val("");
+            $('input[type=text][name=ciscoSpacetenantId]').val("");
+            offBearerConnection();
+        }
+
+
+        if (checkValue(data.oAuthUrl)) {
+            $('input[type=checkbox][id=OAuthconnection]').prop('checked', true);
+            $('input[type=text][name=tokenurl]').prop("disabled", false).val(data.oAuthUrl);
+            $('input[type=text][name=tokenusername]').prop("disabled", false).val(data.oAuthUserName);
+            $('input[type=text][name=tokenpassword]').prop("disabled", false).val(data.oAuthPassword);
+            $('input[type=text][name=tokenclientId]').prop("disabled", false).val(data.oAuthClientId);
+            onOAuthConnection();
+
+        }
+        if (data.apiConnection) {
+            $('input[type=radio][id=api_connection]').prop('checked', data.apiConnection);
+            onAPIConnection();
+        }
+        if (data.udpConnection) {
+            $('input[type=radio][id=udp_connection]').prop('checked', data.udpConnection);
+            onudptcpipConnection();
+        }
+        if (data.tcpIpConnection) {
+            $('input[type=radio][id=tcpip_connection]').prop('checked', data.tcpIpConnection);
+            onudptcpipConnection();
+        }
+        if (data.wsConnection) {
+            $('input[type=radio][id=ws_connection]').prop('checked', data.wsConnection);
+        }
+        connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
+        if (data.hoursBack > 0 || data.hoursForward > 0) {
+
+            $('.hoursbackvalue').html($.isNumeric(data.hoursBack) ? parseInt(data.hoursBack, 10) : 0);
+            $('input[id=hoursback_range]').val($.isNumeric(data.hoursBack) ? parseInt(data.hoursBack, 10) : 0);
+            $('.hours_range_row').css("display", "");
+            $('.hoursforwardvalue').html($.isNumeric(data.hoursForward) ? parseInt(data.hoursForward, 10) : 0);
+            $('input[id=hoursforward_range]').val($.isNumeric(data.hoursForward) ? parseInt(data.hoursForward, 10) : 0);
+            $('.hours_range_row').css("display", "");
+            $('input[type=checkbox][id=hour_range]').prop('checked', true);
+
+        }
+        else {
+            $('.hoursbackvalue').html($.isNumeric(data.hoursBack) ? parseInt(data.hoursBack, 10) : 0);
+            $('input[id=hoursback_range]').val($.isNumeric(data.hoursBack) ? parseInt(data.hoursBack, 10) : 0);
+            $('.hours_range_row').css("display", "none");
+            $('.hoursforwardvalue').html($.isNumeric(data.hoursForward) ? parseInt(data.hoursForward, 10) : 0);
+            $('input[id=hoursforward_range]').val($.isNumeric(data.hoursForward) ? parseInt(data.hoursForward, 10) : 0);
+            $('.hours_range_row').css("display", "none");
+            $('input[type=checkbox][id=hour_range]').prop('checked', false);
+        }
+        $('button[id=apisubmitBtn]').prop('disabled', true);
+        $('button[id=apisubmitBtn]').off().on('click', function () {
+            try {
+                $('button[id=apisubmitBtn]').prop('disabled', true);
+                let jsonObject = {
+                    activeConnection: $('input[type=checkbox][name=active_connection]').is(':checked'),
+                    apiConnection: $('input[type=radio][id=api_connection]').is(':checked'),
+                    udpConnection: $('input[type=radio][id=udp_connection]').is(':checked'),
+                    tcpIpConnection: $('input[type=radio][id=tcpip_connection]').is(':checked'),
+                    wsConnection: $('input[type=radio][name=ws_connection]').is(':checked'),
+                    hoursBack: $('input[type=checkbox][id=hour_range]').is(':checked') ? parseInt($('input[id=hoursback_range]').val(), 10) : 0,
+                    hoursForward: $('input[type=checkbox][id=hour_range]').is(':checked') ? parseInt($('input[id=hoursforward_range]').val(), 10) : 0,
+                    millisecondsInterval: $('select[name=data_retrieve] option:selected').val(),
+                    millisecondsTimeout: $('select[name=connectionTimeout] option:selected').val(),
+                    name: $('select[name=connection_name] option:selected').val(),
+                    ipAddress: $('input[type=text][id=ip_address]').val(),
+                    port: $('input[type=text][name=port_number]').val(),
+                    url: $('input[type=text][name=url]').val(),
+                    messageType: $('select[name=message_type] option:selected').val(),
+                    OutgoingApikey: $('input[type=text][name=bearerToken]').val(),
+                    MapId: $('input[type=text][name=ciscoSpaceMapId]').val(),
+                    TenantId: $('input[type=text][name=ciscoSpacetenantId]').val(),
+                    //CreatedByUsername: User.UserId,
+                    //lastupdateByUsername: User.UserId,
+                    id: data.id
+                };
+                if (!$.isEmptyObject(jsonObject)) {
+                    //check if the OAuth is checked
+                    if ($('input[type=checkbox][name=OAuthconnection]').is(':checked')) {
+                        jsonObject.OAuthUrl = $('input[type=text][name=tokenurl]').val();
+                        jsonObject.OAuthUserName = $('input[type=text][name=tokenusername]').val();
+                        jsonObject.OAuthPassword = $('input[type=text][name=tokenpassword]').val();
+                        jsonObject.OAuthClientId = $('input[type=text][name=tokenclientId]').val();
+                    }
+                    //make a ajax call to get the Connection details
+                    $.ajax({
+                        url: SiteURLconstructor(window.location) + '/api/Connections/Update',
+                        contentType: 'application/json-patch+json',
+                        type: 'POST',
+                        data: JSON.stringify(jsonObject),
+                        success: function (data) {
+
+                            sidebar.open('connections');
+                            setTimeout(function () { $("#API_Connection_Modal").modal('hide'); sidebar.open('connections'); }, 500);
+                        },
+                        error: function (error) {
+                            $('span[id=error_apisubmitBtn]').text(data.name + " " + data.messageType + " Connection was not Updated");
+                            //console.log(error);
+                        },
+                        faulure: function (fail) {
+                            console.log(fail);
+                        },
+                        complete: function (complete) {
+                            // console.log(complete);
+                        }
+                    });
+                }
+
+            } catch (e) {
+                $('span[id=error_apisubmitBtn]').text(e);
+            }
+        });
+        if (checkValue(data.ipAddress)) {
+            $('input[id=ip_address]').trigger('keyup');
+        }
+        if (checkValue(data.hostname)) {
+            $('input[id=hostname]').trigger('keyup');
+        }
+        $('#API_Connection_Modal').modal('show');
+    }
 };
 async function Remove_Connection(data) {
     try {
@@ -1001,9 +1019,9 @@ function onAPIConnection() {
     $('div[id="endpointurl"]').css("display", "");
     $('input[type=text][name=url]').prop("disabled", false);
     $('select[name=data_retrieve]').prop("disabled", false);
-    $('input[type=text][name=url]').val("").trigger('keyup');
-    $('select[name=data_retrieve]').val("").trigger('change');
-    $('select[name=message_type]').val("").trigger('change');
+    $('input[type=text][name=url]').trigger('keyup');
+    $('select[name=data_retrieve]').trigger('change');
+    $('select[name=message_type]').trigger('change');
     enableaipSubmit();
 }
 function onudptcpipConnection() {
@@ -1011,10 +1029,10 @@ function onudptcpipConnection() {
     $('div[id="OAuthmenu"]').css("display", "none");
     $('div[id="serveripmenu"]').css("display", "");
     $('input[type=text][name=url]').prop("disabled", false);
-    $('input[type=text][name=hostanme]').prop("disabled", false);
-    $('input[type=text][name=hostanme]').val('');
-    $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-    $('span[id=error_hostanme]').text("");
+    $('input[type=text][name=hostname]').prop("disabled", false);
+    $('input[type=text][name=hostname]').val('');
+    $('input[type=text][name=hostname]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+    $('span[id=error_hostname]').text("");
     if (!checkValue($('input[type=text][name=ip_address]').val())) {
         $('input[type=text][name=ip_address]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
         $('span[id=error_ip_address]').text("Please Enter Valid IP address");

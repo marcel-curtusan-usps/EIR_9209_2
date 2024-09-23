@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageRepository
 {
-    private readonly static ConcurrentDictionary<string, BackgroundImage> _backgroundImages = new();
+    private readonly static ConcurrentDictionary<string, OSLImage> _backgroundImages = new();
     private readonly ILogger<InMemoryBackgroundImageRepository> _logger;
     private readonly IConfiguration _configuration;
     private readonly IFileService _fileService;
@@ -19,7 +19,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         LoadDataFromFile().Wait();
 
     }
-    public async Task<BackgroundImage>? Add(BackgroundImage backgroundImage)
+    public async Task<OSLImage>? Add(OSLImage backgroundImage)
     {
         bool saveToFile = false;
         try
@@ -49,12 +49,12 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
             }
         }
     }
-    public async Task<BackgroundImage>? Remove(string id)
+    public async Task<OSLImage>? Remove(string id)
     {
         bool saveToFile = false;
         try
         {
-            if (_backgroundImages.TryRemove(id, out BackgroundImage backgroundImage))
+            if (_backgroundImages.TryRemove(id, out OSLImage backgroundImage))
             {
                 saveToFile = true;
                 return await Task.FromResult(backgroundImage);
@@ -78,9 +78,9 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
             }
         }
     }
-    public async Task<BackgroundImage>? Update(BackgroundImage backgroundImage)
+    public async Task<OSLImage>? Update(OSLImage backgroundImage)
     {
-        if (_backgroundImages.TryGetValue(backgroundImage.id, out BackgroundImage currentBackgroundImage) && _backgroundImages.TryUpdate(backgroundImage.id, backgroundImage, currentBackgroundImage))
+        if (_backgroundImages.TryGetValue(backgroundImage.id, out OSLImage currentBackgroundImage) && _backgroundImages.TryUpdate(backgroundImage.id, backgroundImage, currentBackgroundImage))
         {
             await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
         }
@@ -88,10 +88,10 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         bool saveToFile = false;
         try
         {
-            if (_backgroundImages.TryGetValue(backgroundImage.id, out BackgroundImage? currentimage) && _backgroundImages.TryUpdate(backgroundImage.id, backgroundImage, currentimage))
+            if (_backgroundImages.TryGetValue(backgroundImage.id, out OSLImage? currentimage) && _backgroundImages.TryUpdate(backgroundImage.id, backgroundImage, currentimage))
             {
                 saveToFile = true;
-                if (_backgroundImages.TryGetValue(backgroundImage.id, out BackgroundImage? osl))
+                if (_backgroundImages.TryGetValue(backgroundImage.id, out OSLImage? osl))
                 {
 
                     return await Task.FromResult(osl);
@@ -119,13 +119,145 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
             }
         }
     }
-    public BackgroundImage Get(string id)
+    public OSLImage Get(string id)
     {
-        _backgroundImages.TryGetValue(id, out BackgroundImage? backgroundImage);
+        _backgroundImages.TryGetValue(id, out OSLImage? backgroundImage);
         return backgroundImage;
     }
-    public IEnumerable<BackgroundImage> GetAll() => _backgroundImages.Values;
+    public IEnumerable<OSLImage> GetAll() => _backgroundImages.Values;
+    public async Task ProcessBackgroundImage(List<CoordinateSystem> coordinateSystems)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (coordinateSystems.Count > 0)
+            {
+                foreach (var coordinateSystem in coordinateSystems)
+                {
+                    if (coordinateSystem.backgroundImages.Count > 0)
+                    {
+                        foreach (var backgroundImage in coordinateSystem.backgroundImages)
+                        {
+                            if (_backgroundImages.ContainsKey(backgroundImage.id))
+                            {
+                                if (_backgroundImages.TryGetValue(backgroundImage.id, out OSLImage currentOSL))
+                                {
+                                    if (currentOSL.name != backgroundImage.name)
+                                    {
+                                        currentOSL.name = backgroundImage.name;
+                                        saveToFile = true;
+                                    }
+                                    if (currentOSL.base64 != backgroundImage.base64)
+                                    {
+                                        currentOSL.base64 = backgroundImage.base64;
+                                        saveToFile = true;
+                                    }
+                                    if (currentOSL.widthMeter != backgroundImage.widthMeter)
+                                    {
+                                        currentOSL.widthMeter = backgroundImage.widthMeter;
+                                        saveToFile = true;
+                                    }
+                                    if (currentOSL.heightMeter != backgroundImage.heightMeter)
+                                    {
+                                        currentOSL.heightMeter = backgroundImage.heightMeter;
+                                        saveToFile = true;
+                                    }
+                                    if (currentOSL.xMeter != backgroundImage.xMeter)
+                                    {
+                                        currentOSL.xMeter = backgroundImage.xMeter;
+                                        saveToFile = true;
+                                    }
+                                    if (currentOSL.yMeter != backgroundImage.yMeter)
+                                    {
+                                        currentOSL.yMeter = backgroundImage.yMeter;
+                                        saveToFile = true;
+                                    }
+                                    if (currentOSL.origoX != backgroundImage.origoX)
+                                    {
+                                        currentOSL.origoX = backgroundImage.origoX;
+                                        saveToFile = true;
+                                    }
+                                    if (currentOSL.origoY != backgroundImage.origoY)
+                                    {
+                                        currentOSL.origoY = backgroundImage.origoY;
+                                        saveToFile = true;
+                                    }
+                                    if (currentOSL.metersPerPixelX != backgroundImage.metersPerPixelX)
+                                    {
+                                        currentOSL.metersPerPixelX = backgroundImage.metersPerPixelX;
+                                        saveToFile = true;
+                                    }
+                                    if (currentOSL.metersPerPixelY != backgroundImage.metersPerPixelY)
+                                    {
+                                        currentOSL.metersPerPixelY = backgroundImage.metersPerPixelY;
+                                        saveToFile = true;
+                                    }
+                                    if (currentOSL.rotation != backgroundImage.rotation)
+                                    {
+                                        currentOSL.rotation = backgroundImage.rotation;
+                                        saveToFile = true;
+                                    }
+                                    if (currentOSL.alpha != backgroundImage.alpha)
+                                    {
+                                        currentOSL.alpha = backgroundImage.alpha;
+                                        saveToFile = true;
+                                    }
+                                    if (currentOSL.visible != backgroundImage.visible)
+                                    {
+                                        currentOSL.visible = backgroundImage.visible;
+                                        saveToFile = true;
+                                    }
+                                    if (currentOSL.fileName != backgroundImage.fileName)
+                                    {
+                                        currentOSL.fileName = backgroundImage.fileName;
+                                        saveToFile = true;
+                                    }
 
+                                }
+                            }
+                            else
+                            {
+                                _backgroundImages.TryAdd(backgroundImage.id, new OSLImage {
+                                    coordinateSystemId = coordinateSystem.id,
+                                    id = backgroundImage.id,
+                                    name = backgroundImage.name,
+                                    base64 = backgroundImage.base64,
+                                    widthMeter = backgroundImage.widthMeter,
+                                    heightMeter = backgroundImage.heightMeter,
+                                    xMeter = backgroundImage.xMeter,
+                                    yMeter = backgroundImage.yMeter,
+                                    origoX = backgroundImage.origoX,
+                                    origoY = backgroundImage.origoY,
+                                    metersPerPixelX = backgroundImage.metersPerPixelX,
+                                    metersPerPixelY = backgroundImage.metersPerPixelY,
+                                    rotation = backgroundImage.rotation,
+                                    alpha = backgroundImage.alpha,
+                                    visible = backgroundImage.visible,
+                                    fileName = backgroundImage.fileName,
+                                    updateStatus = backgroundImage.updateStatus
+
+                                });
+                                saveToFile = true;
+                            }
+                       
+                        }
+                    }
+                
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_backgroundImages.Select(x => x.Value).ToList()));
+            }
+        }
+    }
     private async Task LoadDataFromFile()
     {
         try
@@ -135,10 +267,10 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
             if (!string.IsNullOrEmpty(fileContent))
             {
                 // Parse the file content to get the data. This depends on the format of your file.
-                var data = JsonConvert.DeserializeObject<List<BackgroundImage>>(fileContent) ?? new List<BackgroundImage>();
+                var data = JsonConvert.DeserializeObject<List<OSLImage>>(fileContent) ?? new List<OSLImage>();
                 if (data.Count > 0)
                 {
-                    foreach (BackgroundImage item in data.Select(r => r).ToList())
+                    foreach (OSLImage item in data.Select(r => r).ToList())
                     {
                         _backgroundImages.TryAdd(item.id, item);
                     }
@@ -191,4 +323,6 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
             return Task.FromResult(true);
         }
     }
+
+
 }

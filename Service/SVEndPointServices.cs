@@ -23,31 +23,32 @@ namespace EIR_9209_2.Service
                 SiteInformation siteinfo = await _siteInfo.GetSiteInfo();
                 if (siteinfo != null)
                 {
-                    string FormatUrl = string.Format(_endpointConfig.Url, siteinfo.SiteId);
+                    string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
+                    string FormatUrl = string.Format(_endpointConfig.Url, server, siteinfo.SiteId);
                     queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                     var result = await queryService.GetSVDoorData(stoppingToken);
                     //process zone data
-                    if (_endpointConfig.MessageType.ToLower() == "doors")
+                    if (_endpointConfig.MessageType.Equals("doors", StringComparison.CurrentCultureIgnoreCase))
                     {
                         // Process MPE data in a separate thread
-                        await ProcessDoorsData(result);
+                        await ProcessDoorsData(result, stoppingToken);
                     }
-                    if (_endpointConfig.MessageType.ToLower() == "getdoor_associated_trips")
+                    if (_endpointConfig.MessageType.Equals("getdoor_associated_trips", StringComparison.CurrentCultureIgnoreCase))
                     {
                         // Process MPE data in a separate thread
                         await ProcessGetdoorAssociatedTripsData(result);
                     }
-                    if (_endpointConfig.MessageType.ToLower() == "trip_itinerary")
+                    if (_endpointConfig.MessageType.Equals("trip_itinerary", StringComparison.CurrentCultureIgnoreCase))
                     {
                         // Process MPE data in a separate thread
                         await ProcessTripItineraryData(result);
                     }
-                    if (_endpointConfig.MessageType.ToLower() == "trips")
+                    if (_endpointConfig.MessageType.Equals("trips", StringComparison.CurrentCultureIgnoreCase))
                     {
                         // Process MPE data in a separate thread
                         await ProcessTripsData(result);
                     }
-                    if (_endpointConfig.MessageType.ToLower() == "container")
+                    if (_endpointConfig.MessageType.Equals("container", StringComparison.CurrentCultureIgnoreCase))
                     {
                         // Process MPE data in a separate thread
                         await ProcessContainerData(result);
@@ -94,11 +95,11 @@ namespace EIR_9209_2.Service
             }
         }
 
-        private async Task ProcessDoorsData(JToken result)
+        private async Task ProcessDoorsData(JToken result, CancellationToken stoppingToken)
         {
             try
             {
-                await _geoZones.ProcessSVDoorsData(result);
+                await Task.Run(() => _geoZones.ProcessSVDoorsData(result), stoppingToken).ConfigureAwait(false);
             }
             catch (Exception e)
             {

@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using static EIR_9209_2.DataStore.InMemoryCamerasRepository;
 
@@ -16,8 +17,10 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     private readonly ConcurrentDictionary<DateTime, List<AreaDwell>> _QREAreaDwellResults = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPERunActivity = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPEStandard = new();
-    private readonly List<string> _MPENameList = new();
-    private readonly List<string> _DockDoorList = new();
+    private readonly List<string> _MPENameList = [];
+    private readonly List<string> _DockDoorList = [];
+    private readonly List<string> _BullpenList = [];
+    private readonly List<string> _AGVLocationList = [];
     private readonly IInMemorySiteInfoRepository _siteInfo;
     private readonly IConfiguration _configuration;
     private readonly ILogger<InMemoryGeoZonesRepository> _logger;
@@ -654,22 +657,32 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     {
         try
         {
-            // Filter and select from _geoZoneList
-            var geoZoneNames = _geoZoneList
-                .Where(r => r.Value.Properties.Type.Normalize() == type.Normalize())
-                .Select(y => y.Value.Properties.Name)
-                .ToList();
+            if (type.Equals("MPE", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return _MPENameList;
+            }
+            else if (type.Equals("DockDoor", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return _DockDoorList;
+            }
+            else if (type.Equals("AGVLocation", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return _AGVLocationList;
+            }
+            else if (type.Equals("Bullpen", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return _DockDoorList;
+            }
+            else
+            {
+                // Filter and select from _geoZoneList
+                var geoZoneNames = _geoZoneList
+                    .Where(r => r.Value.Properties.Type.Normalize() == type.Normalize())
+                    .Select(y => y.Value.Properties.Name)
+                    .ToList();
 
-            // Filter and select from _geoZoneDockDoorList
-            var dockDoorNames = _geoZoneDockDoorList
-                .Where(r => r.Value.Properties.Type.Normalize() == type.Normalize())
-                .Select(y => y.Value.Properties.Name)
-                .ToList();
-
-            // Combine the results and ensure uniqueness
-            var allMPEZones = geoZoneNames.Concat(dockDoorNames).Distinct().ToList();
-
-            return await Task.FromResult(allMPEZones);
+                return await Task.FromResult(geoZoneNames);
+            }
         }
         catch (Exception e)
         { 
@@ -696,7 +709,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 {
                     _MPENameList.Add(mpe.MpeId);
                 }
-                
+
                 var geoZone = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == mpe.MpeId).Select(y => y.Value).FirstOrDefault();
                 if (geoZone != null)
                 {
@@ -821,6 +834,9 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             _logger.LogError(e.Message);
             return await Task.FromResult(false);
         }
+        finally {
+            _ = Task.Run(() => RunMPESummaryReport()).ConfigureAwait(false);
+        } 
     }
 
     private void BinFullProcess(string mpeId, string status, string fullBins)
@@ -1000,10 +1016,11 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             foreach (var mpe in mpeList)
             {
+                mpe.MpeId = string.Concat(mpe.MpeType, "-", mpe.MpeNumber.ToString().PadLeft(3, '0'));
                 DateTime CurrentRunStart = !string.IsNullOrEmpty(mpe.CurrentRunStart)
                           ? DateTime.ParseExact(mpe.CurrentRunStart, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
                           : DateTime.MinValue;
-                DateTime CurrentRunEnd = !string.IsNullOrEmpty(mpe.CurrentRunEnd)
+                DateTime CurrentRunEnd = (!string.IsNullOrEmpty(mpe.CurrentRunEnd) && mpe.CurrentRunEnd != "0")
                  ? DateTime.ParseExact(mpe.CurrentRunEnd, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
                  : _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                 string mpe_id = string.Concat(mpe.MpeId, @"_", new DateTime(CurrentRunStart.Year, CurrentRunStart.Month, CurrentRunStart.Day, CurrentRunStart.Hour, CurrentRunStart.Minute, 0, 0).ToString(""));
@@ -1114,7 +1131,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 //this is a temporary fix until the MPEWatch team fix the issue
                 if (item["sort_program_name"].ToString().StartsWith("ATU"))
                 {
-                    int.TryParse(item["machine_num"].ToString().Substring(1), out int mpeNumber);
+                    int.TryParse(item["machine_num"].ToString(), out int mpeNumber);
 
                     item["mpe_type"] = "ATU";
                     item["mpe_name"] = string.Concat("ATU", "-", mpeNumber.ToString().PadLeft(3, '0'));
@@ -1122,7 +1139,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 }
                 if (item["sort_program_name"].ToString().StartsWith("USS") || item["sort_program_name"].ToString().StartsWith("M-USS"))
                 {
-                    int.TryParse(item["machine_num"].ToString().Substring(1), out int mpeNumber);
+                    int.TryParse(item["machine_num"].ToString(), out int mpeNumber);
 
                     item["mpe_type"] = "USS";
                     item["mpe_name"] = string.Concat("USS", "-", mpeNumber.ToString().PadLeft(3, '0'));
@@ -1130,7 +1147,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 }
                 if (item["sort_program_name"].ToString().StartsWith("HSTS"))
                 {
-                    int.TryParse(item["machine_num"].ToString().Substring(1), out int mpeNumber);
+                    int.TryParse(item["machine_num"].ToString(), out int mpeNumber);
 
                     item["mpe_type"] = "HSTS";
                     item["mpe_name"] = string.Concat("HSTS", "-", mpeNumber.ToString().PadLeft(3, '0'));
@@ -1138,7 +1155,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 }
                 if (item["mpe_type"].ToString().StartsWith("UNK"))
                 {
-                    int.TryParse(item["machine_num"].ToString().Substring(1), out int mpeNumber);
+                    int.TryParse(item["machine_num"].ToString(), out int mpeNumber);
                     item["mpe_type"] = "APPS";
                     item["mpe_name"] = string.Concat("APPS", "-", mpeNumber.ToString().PadLeft(3, '0'));
                 }
@@ -1616,5 +1633,189 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             _logger.LogError(e.Message);
             return Task.FromResult(true);
         }
+    }
+
+    public async Task ProcessQPEGeoZone(List<CoordinateSystem> coordinateSystems)
+    {
+        bool saveToFile = false;
+        bool docdoorsaveToFile = false;
+        try
+        {
+            if (coordinateSystems.Count > 0)
+            {
+                foreach (var coordinateSystem in coordinateSystems)
+                {
+                    if (coordinateSystem.zones.Count > 0)
+                    {
+                        foreach (var zone in coordinateSystem.zones)
+                        {
+                            var TempGeometry = QuuppaZoneGeometry(zone.polygonData);
+                            var geoZone = _geoZoneList.Where(r => r.Value.Properties.Id == zone.id).Select(y => y.Value).FirstOrDefault();
+                            var geoZoneDockDoor = _geoZoneDockDoorList.Where(r => r.Value.Properties.Id == zone.id).Select(y => y.Value).FirstOrDefault();
+                            
+                            if (geoZone != null)
+                            {
+                                if (geoZone.Geometry.Coordinates.ToString() != TempGeometry.Coordinates.ToString())
+                                {
+                                    geoZone.Geometry.Coordinates = TempGeometry.Coordinates;
+                                    await _hubServices.Clients.Group(geoZone.Properties.Type).SendAsync($"update{geoZone.Properties.Type}zoneShape", geoZone.Geometry.Coordinates);
+                                    saveToFile = true;
+                                }
+                                if (geoZone.Properties.Name != geoZone.Properties.Name)
+                                {
+                                    geoZone.Properties.Name = zone.name;
+                                    await _hubServices.Clients.Group(geoZone.Properties.Type).SendAsync($"update{geoZone.Properties.Type}zoneShape", geoZone.Properties);
+                                    saveToFile = true;
+                                }
+                            }
+                            else if (geoZoneDockDoor != null)
+                            {
+                                if (geoZoneDockDoor.Geometry.Coordinates.ToString() != TempGeometry.Coordinates.ToString())
+                                {
+                                    geoZoneDockDoor.Geometry.Coordinates = TempGeometry.Coordinates;
+                                    await _hubServices.Clients.Group(geoZoneDockDoor.Properties.Type).SendAsync($"update{geoZoneDockDoor.Properties.Type}zoneShape", geoZoneDockDoor.Geometry.Coordinates);
+                                    docdoorsaveToFile = true;
+                                }
+                                if (geoZoneDockDoor.Properties.Name != geoZoneDockDoor.Properties.Name)
+                                {
+                                    geoZoneDockDoor.Properties.Name = zone.name;
+                                    await _hubServices.Clients.Group(geoZoneDockDoor.Properties.Type).SendAsync($"update{geoZoneDockDoor.Properties.Type}zoneShape", geoZoneDockDoor.Properties);
+                                    docdoorsaveToFile = true;
+                                }
+                            }
+                            else
+                            {
+                                string zoneType = GetZoneType(zone.name);
+                                if (zoneType.Equals("MPE", StringComparison.CurrentCultureIgnoreCase))
+                                {
+                                    if (!_MPENameList.Contains(zone.name))
+                                    {
+                                        _MPENameList.Add(zone.name);
+                                    }
+                                    string[] mpeSplit = zone.name.Split('-');
+                                    if (_geoZoneList.TryAdd(zone.id, new GeoZone
+                                    {
+                                        Geometry = TempGeometry,
+                                        Properties = new Properties
+                                        {
+                                            Id = zone.id,
+                                            Name = zone.name,
+                                            MpeName = mpeSplit.Length > 1 ? mpeSplit[0] : mpeSplit[0],
+                                            MpeNumber = mpeSplit.Length > 1 ? mpeSplit[1] : "0",
+                                            Type = zoneType,
+                                            Visible = true,
+                                            FloorId = coordinateSystem.id
+                                        }
+
+                                    }))
+                                    {
+                                        saveToFile = true;
+                                    }
+                                }
+                                else if (zoneType.Equals("DockDoor", StringComparison.CurrentCultureIgnoreCase))
+                                {
+                                    if (!_DockDoorList.Contains(zone.name))
+                                    {
+                                        _DockDoorList.Add(zone.name);
+                                    }
+                                    if (_geoZoneDockDoorList.TryAdd(zone.id, new GeoZoneDockDoor
+                                    {
+                                        Geometry = TempGeometry,
+                                        Properties = new DockDoorProperties
+                                        {
+                                            Id = zone.id,
+                                            Name = zone.name,
+                                            DoorNumber = ExtractNumbers(zone.name),
+                                            Type = zoneType,
+                                            Visible = true,
+                                            FloorId = coordinateSystem.id
+                                        }
+                                    }))
+                                    {
+                                        docdoorsaveToFile = true;
+                                    }
+                                }
+                                else
+                                {
+                                    if (_geoZoneList.TryAdd(zone.id, new GeoZone
+                                    {
+                                        Geometry = TempGeometry,
+                                        Properties = new Properties
+                                        {
+                                            Id = zone.id,
+                                            Name = zone.name,
+                                            Type = zoneType,
+                                            Visible = zone.visible,
+                                            FloorId = coordinateSystem.id
+                                        }
+
+                                    }))
+                                    {
+                                        saveToFile = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteFileAsync(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
+            }
+            if (docdoorsaveToFile)
+            {
+                await _fileService.WriteFileAsync(fileNameDockDoor, GeoZoneDockDoorOutPutdata(_geoZoneDockDoorList.Select(x => x.Value).ToList()));
+            }
+        }
+    }
+    private Geometry QuuppaZoneGeometry(string polygonData)
+    {
+        try
+        {
+            JObject geometry = new JObject();
+            JArray temp = new JArray();
+
+            string[] polygonDatasplit = polygonData.Split('|');
+            if (polygonDatasplit.Length > 0)
+            {
+                JArray xyar = new JArray();
+                foreach (var polygonitem in polygonDatasplit)
+                {
+                    string[] polygonitemsplit = polygonitem.Split(',');
+                    xyar.Add(new JArray(Convert.ToDouble(polygonitemsplit[0]), Convert.ToDouble(polygonitemsplit[1])));
+                }
+                temp.Add(xyar);
+            }
+
+            geometry["coordinates"] = temp;
+
+            return geometry.ToObject<Geometry>();          
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+       
+    }
+
+    // ...
+
+    public string ExtractNumbers(string input)
+    {
+        string pattern = @"\d+";
+        MatchCollection matches = Regex.Matches(input, pattern);
+        string result = string.Join("", matches.Select(m => m.Value));
+        return result;
     }
 }

@@ -667,9 +667,8 @@ async function connectionTypeLoad(connName) {
                     $(this.messageTypes).each(function (key, value) {
                         let messagetype = this.name;
                         let baseUrl = this.baseURL;
-                        let conType = this.connectionType;
                         if ($('#message_type option[value=' + messagetype + ']').length == 0) {
-                            $('<option data-messagetype=' + name + ' data-baseUrl=' + baseUrl + ' data-conType=' + conType + '>').val(messagetype).html(this.description).appendTo('#message_type');
+                            $('<option data-messagetype=' + name + ' data-baseUrl=' + baseUrl + '>').val(messagetype).html(this.description).appendTo('#message_type');
                         }
                     });
                 });

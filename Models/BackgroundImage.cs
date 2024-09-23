@@ -1,6 +1,6 @@
 ﻿namespace EIR_9209_2.Models
 {
-    public class BackgroundImage
+    public class OSLImage
     {
         public double widthMeter { get; set; } = 0.0;
         public double xMeter { get; set; } = 0.0;

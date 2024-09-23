@@ -24,13 +24,15 @@ namespace EIR_9209_2.Service
             {
                 IQueryService queryService;
                 string FormatUrl = "";
-                if (_endpointConfig.MessageType == "Cameras")
+                string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
+                if (_endpointConfig.MessageType.Equals("Cameras", StringComparison.CurrentCultureIgnoreCase))
                 {
+                 
                     SiteInformation siteinfo = await _siteInfo.GetSiteInfo();
                     if (siteinfo != null)
                     {
                         //process tag data
-                        FormatUrl = string.Format(_endpointConfig.Url, siteinfo.FdbId);
+                        FormatUrl = string.Format(_endpointConfig.Url, server, siteinfo.FdbId);
                         queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
 
                         var cresult = await queryService.GetCameraData(stoppingToken);
@@ -38,7 +40,7 @@ namespace EIR_9209_2.Service
                         await ProcessCameraData(cresult);
                     }
                 }
-                if (_endpointConfig.MessageType == "getCameraStills")
+                if (_endpointConfig.MessageType.Equals("getCameraStills", StringComparison.CurrentCultureIgnoreCase))
                 {
                     //process camera list and get pictures
                     foreach (CameraGeoMarker camera in _camera.GetAll())
@@ -50,7 +52,7 @@ namespace EIR_9209_2.Service
                             {
                                 continue;
                             }
-                            FormatUrl = string.Format(_endpointConfig.Url, camera.Properties.CameraName);
+                            FormatUrl = string.Format(_endpointConfig.Url, server, camera.Properties.CameraName);
 
                             using (var httpClient = new HttpClient())
                             {

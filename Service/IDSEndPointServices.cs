@@ -17,7 +17,8 @@ namespace EIR_9209_2.Service
             try
             {
                 IQueryService queryService;
-                string FormatUrl = string.Format(_endpointConfig.Url, _endpointConfig.MessageType, _endpointConfig.HoursBack, _endpointConfig.HoursForward);
+                string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
+                string FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType, _endpointConfig.HoursBack, _endpointConfig.HoursForward);
                 queryService = new QueryService(_logger, _httpClientFactory, jsonSettings,
                     new QueryServiceSettings(
                         new Uri(FormatUrl),
@@ -25,7 +26,7 @@ namespace EIR_9209_2.Service
                     ));
                var result = await queryService.GetIDSData(stoppingToken);
                 // Process the data as needed
-                await ProcessIDSdata(result);
+                await ProcessIDSdata(result,stoppingToken);
             }
 
             catch (Exception ex)
@@ -41,9 +42,9 @@ namespace EIR_9209_2.Service
             }
         }
 
-        private async Task ProcessIDSdata(JToken result)
+        private async Task ProcessIDSdata(JToken result, CancellationToken stoppingToken)
         {
-            await _geoZones.ProcessIDSData(result);
+            await Task.Run(() => _geoZones.ProcessIDSData(result), stoppingToken).ConfigureAwait(false);
         }
     }
 }

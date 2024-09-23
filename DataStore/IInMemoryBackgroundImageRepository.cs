@@ -2,11 +2,12 @@
 
 public interface IInMemoryBackgroundImageRepository
 {
-    Task<BackgroundImage> Add(BackgroundImage backgroundImage);
-    Task<BackgroundImage> Update(BackgroundImage backgroundImage);
-    Task<BackgroundImage> Remove(string id);
-    BackgroundImage Get(string id);
-    IEnumerable<BackgroundImage> GetAll();
+    Task<OSLImage> Add(OSLImage backgroundImage);
+    Task<OSLImage> Update(OSLImage backgroundImage);
+    Task<OSLImage> Remove(string id);
+    OSLImage Get(string id);
+    IEnumerable<OSLImage> GetAll();
     Task<bool> ResetBackgroundImageList();
     Task<bool> SetupBackgroundImageList();
+    Task ProcessBackgroundImage(List<CoordinateSystem> coordinateSystems);
 }

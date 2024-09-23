@@ -18,9 +18,11 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryEmployeesRepository _employees;
         private readonly IInMemoryCamerasRepository _cameras;
         private readonly IConfiguration _configuration;
+        private readonly IInMemoryBackgroundImageRepository _backgroundImage;
         private readonly ConcurrentDictionary<string, BaseEndpointService> _endPointServices = new();
 
-        public Worker(ILogger<Worker> logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory,
+        public Worker(ILogger<Worker> logger, ILoggerFactory loggerFactory,
+            IHttpClientFactory httpClientFactory,
             IInMemoryConnectionRepository connections,
             IHubContext<HubServices> hubServices,
             IInMemoryGeoZonesRepository geoZones,
@@ -29,7 +31,8 @@ namespace EIR_9209_2.Service
             IInMemorySiteInfoRepository siteInfo,
             IInMemoryEmployeesRepository employees,
             IInMemoryCamerasRepository cameras,
-            IConfiguration configuration)
+            IConfiguration configuration, 
+            IInMemoryBackgroundImageRepository backgroundImage)
         {
             _logger = logger;
             _hubServices = hubServices;
@@ -43,6 +46,7 @@ namespace EIR_9209_2.Service
             _email = email;
             _siteInfo = siteInfo;
             _employees = employees;
+            _backgroundImage = backgroundImage;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -68,7 +72,7 @@ namespace EIR_9209_2.Service
             switch (endpointConfig.Name)
             {
                 case "QPE":
-                    endpointService = new QPEEndPointServices(_loggerFactory.CreateLogger<QPEEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _tags);
+                    endpointService = new QPEEndPointServices(_loggerFactory.CreateLogger<QPEEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _tags, _geoZones, _backgroundImage);
                     break;
                 case "QRE":
                     endpointService = new QREEndPointServices(_loggerFactory.CreateLogger<QREEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _geoZones, _tags, _employees, _siteInfo);
@@ -86,7 +90,7 @@ namespace EIR_9209_2.Service
                     endpointService = new SVEndPointServices(_loggerFactory.CreateLogger<SVEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _geoZones, _siteInfo);
                     break;
                 case "SMS_Wrapper":
-                    endpointService = new SMSWrapperEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _tags);
+                    endpointService = new SMSWrapperEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _tags, _siteInfo);
                     break;
                 case "IVES":
                     endpointService = new IVESEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _siteInfo, _employees);

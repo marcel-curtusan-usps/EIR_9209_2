@@ -26,14 +26,14 @@ namespace EIR_9209_2.Service
                 {
                     IQueryService queryService;
                     var now = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
-                    string FormatUrl = string.Format(_endpointConfig.Url);
-                    string Finnum = siteinfo.FinanceNumber;
+                    string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
+                    string FormatUrl = string.Format(_endpointConfig.Url, server, siteinfo.FinanceNumber);
                     queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                     var result = await queryService.GetIVESData(stoppingToken);
 
-                    if (_endpointConfig.MessageType == "getByFacilityID")
+                    if (_endpointConfig.MessageType.Equals("getByFacilityID", StringComparison.CurrentCultureIgnoreCase) )
                     {
-                        await ProcessEmployeeInfoData(result);
+                        await ProcessEmployeeInfoData(result, stoppingToken);
                     }
                     
                 }
@@ -57,13 +57,13 @@ namespace EIR_9209_2.Service
                 }
             }
         }
-        private async Task ProcessEmployeeInfoData(JToken result)
+        private async Task ProcessEmployeeInfoData(JToken result, CancellationToken stoppingToken)
         {
             try
             {
                 if (result is not null && ((JObject)result).ContainsKey("DATA"))
                 {
-                    _empSchedules.LoadEmployees(result);
+                    await Task.Run(() => _empSchedules.LoadEmployees(result), stoppingToken).ConfigureAwait(false);
                 }
             }
             catch (Exception e)
@@ -71,20 +71,5 @@ namespace EIR_9209_2.Service
                 _logger.LogError(e.Message);
             }
         }
-        private async Task ProcessEmpScheduleData(JToken result)
-        {
-            try
-            {
-                if (result is not null && ((JObject)result).ContainsKey("DATA"))
-                {
-                    _empSchedules.LoadEmpSchedule(result);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-            }
-        }
-
     }
 }

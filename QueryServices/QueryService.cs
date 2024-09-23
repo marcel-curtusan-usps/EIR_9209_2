@@ -43,6 +43,10 @@ internal class QueryService : IQueryService
     {
         return await GetQueryResults<QuuppaTag>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
     }
+    public async Task<QPEProjectInfo> GetQPEProjectInfo(CancellationToken ct)
+    {
+        return await GetQueryResults<QPEProjectInfo>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
+    }
     public async Task<JToken> GetIDSData(CancellationToken ct)
     {
         return await GetQueryResults<dynamic>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);

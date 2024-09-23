@@ -36,4 +36,5 @@ public interface IInMemoryGeoZonesRepository
     Task ProcessSVContainerData(JToken result);
     Task<bool> ResetGeoZoneList();
     Task<bool> SetupGeoZoneData();
+    Task ProcessQPEGeoZone(List<CoordinateSystem> coordinateSystems);
 }

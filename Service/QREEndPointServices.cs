@@ -31,9 +31,10 @@ namespace EIR_9209_2.Service
                     IQueryService queryService;
                     string FormatUrl = "";
                     //process tag data
-                    if (_endpointConfig.MessageType == "AREA_AGGREGATION")
+                    if (_endpointConfig.MessageType.Equals("TAG_TIMELINE", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        FormatUrl = string.Format(_endpointConfig.Url);
+                        string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
+                        FormatUrl = string.Format(_endpointConfig.Url, server);
                         queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
 
                         var now = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
@@ -82,7 +83,7 @@ namespace EIR_9209_2.Service
                         }
 
                     }
-                    if (_endpointConfig.MessageType == "TAG_TIMELINE")
+                    if (_endpointConfig.MessageType.Equals("TAG_TIMELINE", StringComparison.CurrentCultureIgnoreCase))
                     {
                         FormatUrl = string.Format(_endpointConfig.Url);
                         queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));

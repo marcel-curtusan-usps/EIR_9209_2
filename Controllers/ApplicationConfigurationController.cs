@@ -86,49 +86,66 @@ namespace EIR_9209_2.Controllers
 
                 if (applicationSettings.Exists())
                 {
-                    var setting = applicationSettings.GetSection("ApplicationName");
+                    var appName = applicationSettings.GetSection("ApplicationName");
                     if (value.Properties().Any(p => Regex.IsMatch(p.Name, "NassCode", RegexOptions.IgnoreCase)))
                     {
+                        var NassCode = applicationSettings.GetSection("NassCode");
                         var nassCodeValue = value.Properties().First(p => Regex.IsMatch(p.Name, "NassCode", RegexOptions.IgnoreCase)).Value.ToString();
-
-                        setting = applicationSettings.GetSection("NassCode");
-                        var currentnassCodeValue = setting.Value;
-                        // <summary>
-                        //1.The code checks if the value of the setting is not equal to the nassCode provided in the value parameter. This condition is used to determine if the nassCode needs to be updated.
-                        //2.If the condition is true, the code enters the if block and executes the following steps:
-                        //a.It calls the _resetApplication.GetNewSiteInfo method with the nassCode value as a parameter.This method is responsible for retrieving new site information based on the provided nassCode.
-                        //b.If the GetNewSiteInfo method returns true, indicating that new site information is successfully retrieved, the code proceeds to update the setting.Value with the nassCode value.
-                        //c.After updating the setting.Value, the code calls the _resetApplication.Reset method.This method is responsible for resetting the application based on the updated configuration.
-                        //d.If the Reset method returns true, indicating that the application reset is successful, the code proceeds to update the application using the _application.Update method. This method updates the specified setting.Key with the new setting.Value.
-                        //e.Finally, the code calls the _resetApplication.Setup method, which performs the setup process for the application.
-                        //3.If the GetNewSiteInfo method returns false, indicating that new site information retrieval failed, the code enters the else block and returns a BadRequest response.
-                        // </summary>
-                        if (setting.Value != nassCodeValue)
+                        if (nassCodeValue == "")
                         {
-                            setting.Value = nassCodeValue;
-                            if (await _resetApplication.GetNewSiteInfo(nassCodeValue))
+                            NassCode.Value = nassCodeValue;
+
+                            if (await _resetApplication.Reset())
                             {
-                                if (await _resetApplication.Reset())
-                                {
-                                    await _application.Update(setting.Key, setting.Value);
-                                    bool SetupResult = await _resetApplication.Setup();
+                                if (await _application.Update(NassCode.Key, NassCode.Value))
+                                { 
+                                
                                 }
-                            }
-                            else
-                            {
-                                setting.Value = currentnassCodeValue;
-                                return BadRequest();
                             }
                         }
                         else
                         {
-                            return BadRequest();
+                            
+                            var currentnassCodeValue = NassCode.Value;
+                            // <summary>
+                            //1.The code checks if the value of the setting is not equal to the nassCode provided in the value parameter. This condition is used to determine if the nassCode needs to be updated.
+                            //2.If the condition is true, the code enters the if block and executes the following steps:
+                            //a.It calls the _resetApplication.GetNewSiteInfo method with the nassCode value as a parameter.This method is responsible for retrieving new site information based on the provided nassCode.
+                            //b.If the GetNewSiteInfo method returns true, indicating that new site information is successfully retrieved, the code proceeds to update the setting.Value with the nassCode value.
+                            //c.After updating the setting.Value, the code calls the _resetApplication.Reset method.This method is responsible for resetting the application based on the updated configuration.
+                            //d.If the Reset method returns true, indicating that the application reset is successful, the code proceeds to update the application using the _application.Update method. This method updates the specified setting.Key with the new setting.Value.
+                            //e.Finally, the code calls the _resetApplication.Setup method, which performs the setup process for the application.
+                            //3.If the GetNewSiteInfo method returns false, indicating that new site information retrieval failed, the code enters the else block and returns a BadRequest response.
+                            // </summary>
+                            if (NassCode.Value != nassCodeValue)
+                            {
+                                NassCode.Value = nassCodeValue;
+                                if (await _resetApplication.GetNewSiteInfo(nassCodeValue))
+                                {
+                                    if (await _resetApplication.Reset())
+                                    {
+                                        if (await _application.Update(NassCode.Key, NassCode.Value))
+                                        {
+                                            bool SetupResult = await _resetApplication.Setup();
+                                        }                                       
+                                    }
+                                }
+                                else
+                                {
+                                    NassCode.Value = currentnassCodeValue;
+                                    return BadRequest();
+                                }
+                            }
+                            else
+                            {
+                                return BadRequest();
+                            }
                         }
                     }
                     else if (value.ContainsKey("ConnectionString"))
                     {
-                        setting = applicationSettings.GetSection(value["ConnectionString"].ToString());
-                        setting.Value = _encryptDecrypt.Encrypt(value["ConnectionString"].ToString());
+                      var  ConnectionString = applicationSettings.GetSection(value["ConnectionString"].ToString());
+                        ConnectionString.Value = _encryptDecrypt.Encrypt(value["ConnectionString"].ToString());
                     }
                     await _hubContext.Clients.Group("ApplicationConfiguration").SendAsync($"updateApplicationConfiguration", GetAppSetting(), cancellationToken: CancellationToken.None);
                     return Ok();

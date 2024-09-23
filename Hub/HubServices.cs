@@ -105,7 +105,7 @@ public class HubServices : Hub
     //{
     //    return Clients.All;
     //}
-    public async Task<IEnumerable<BackgroundImage>> GetBackgroundImages()
+    public async Task<IEnumerable<OSLImage>> GetBackgroundImages()
     {
         return await Task.Run(_backgroundImages.GetAll);
     }
