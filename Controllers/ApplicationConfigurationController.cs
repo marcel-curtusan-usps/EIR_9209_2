@@ -3,6 +3,7 @@ using EIR_9209_2.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Text.RegularExpressions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -91,8 +92,8 @@ namespace EIR_9209_2.Controllers
                             if (await _resetApplication.Reset())
                             {
                                 if (await _application.Update(NassCode.Key, NassCode.Value))
-                                { 
-                                
+                                {
+                                    _logger.LogInformation($"NASS Code have been update {nassCodeValue}");
                                 }
                             }
                         }
@@ -135,10 +136,27 @@ namespace EIR_9209_2.Controllers
                             }
                         }
                     }
-                    else if (value.ContainsKey("ConnectionString"))
+                    else if (value.ContainsKey("IdsConnectionString"))
                     {
-                      var  ConnectionString = applicationSettings.GetSection(value["ConnectionString"].ToString());
-                        ConnectionString.Value = _encryptDecrypt.Encrypt(value["ConnectionString"].ToString());
+                        var currentValue = value.Properties().First(p => Regex.IsMatch(p.Name.ToString(), "IdsConnectionString", RegexOptions.IgnoreCase)).Value.ToString();
+                        var ConnectionString = applicationSettings.GetSection("IdsConnectionString");
+                        ConnectionString.Value = _encryptDecrypt.Encrypt(currentValue);
+                        if (await _application.Update(ConnectionString.Key, ConnectionString.Value))
+                        {
+                            _logger.LogInformation($"Base drive have been update {ConnectionString.Value}");
+
+                        }
+                    }
+                    else if (value.Properties().Any(p => Regex.IsMatch(p.Name, "BaseDrive", RegexOptions.IgnoreCase)))
+                    {
+                        var currentBaseDriveValue = value.Properties().First(p => Regex.IsMatch(p.Name, "BaseDrive", RegexOptions.IgnoreCase)).Value.ToString();
+                        var BaseDrive = applicationSettings.GetSection("BaseDrive");
+                        BaseDrive.Value = currentBaseDriveValue;
+                        if (await _application.Update(BaseDrive.Key, BaseDrive.Value))
+                        {
+                            _logger.LogInformation($"Base drive have been update {BaseDrive.Value}");
+
+                        }
                     }
                     await _hubContext.Clients.Group("ApplicationConfiguration").SendAsync($"updateApplicationConfiguration", GetAppSetting(), cancellationToken: CancellationToken.None);
                     return Ok();
