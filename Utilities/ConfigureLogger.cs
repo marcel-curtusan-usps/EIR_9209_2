@@ -14,6 +14,7 @@ namespace EIR_9209_2.Utilities
         {
             failureMessage = string.Empty;
             IConfigurationRoot configuration;
+            var logFilePath = Helper.GetLogFilePath();
             try
             {
                 configuration = new ConfigurationBuilder()
@@ -30,7 +31,6 @@ namespace EIR_9209_2.Utilities
 
             try
             {
-                var logFilePath = string.Format(configuration.GetRequiredValue("Logger:LogFilePath"), Helper.GetAppName());
                 if (!Directory.Exists(logFilePath))
                 {
                     Directory.CreateDirectory(logFilePath);
@@ -48,6 +48,7 @@ namespace EIR_9209_2.Utilities
             }
             try
             {
+                
                 Serilog.Debugging.SelfLog.Enable(Console.Error);
                 var loggerConfiguration = new LoggerConfiguration()
                     .MinimumLevel.Is(Enum.Parse<LogEventLevel>(configuration.GetRequiredValue("Logger:MinimumLevel")))
@@ -65,10 +66,10 @@ namespace EIR_9209_2.Utilities
                     loggerConfiguration.WriteTo.Console(formatter: new ExpressionTemplate(formatterExpression, theme: TemplateTheme.Literate));
                 }
 
-                if (configuration.GetValue<bool>("Logger:LogToFile"))
+                if (!string.IsNullOrEmpty(logFilePath))
                 {
                     loggerConfiguration.WriteTo.File(
-                        path: Path.Combine(string.Format(configuration.GetRequiredValue("Logger:LogFilePath"), Helper.GetAppName()), "logfile.txt"),
+                        path: Path.Combine(logFilePath, "logfile.txt"),
                         rollOnFileSizeLimit: true,
                         fileSizeLimitBytes: configuration.GetRequiredValue<long>("Logger:PerFileMaximumSizeInBytes"),
                         rollingInterval: RollingInterval.Day,

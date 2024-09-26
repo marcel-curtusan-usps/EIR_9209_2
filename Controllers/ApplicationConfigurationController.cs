@@ -143,7 +143,7 @@ namespace EIR_9209_2.Controllers
                         ConnectionString.Value = _encryptDecrypt.Encrypt(currentValue);
                         if (await _application.Update(ConnectionString.Key, ConnectionString.Value))
                         {
-                            _logger.LogInformation($"Base drive have been update {ConnectionString.Value}");
+                            _logger.LogInformation($"IDS Connection String drive have been update {ConnectionString.Value}");
 
                         }
                     }
