@@ -16,13 +16,13 @@ namespace EIR_9209_2.Service
         {
             try
             {
+                string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
                 IOAuth2AuthenticationService authService;
-                authService = new OAuth2AuthenticationService(_logger, _httpClientFactory, new OAuth2AuthenticationServiceSettings("", "", "", "", _endpointConfig.OutgoingApikey), jsonSettings);
+                authService = new OAuth2AuthenticationService(_logger, _httpClientFactory, new OAuth2AuthenticationServiceSettings(server,"", "", "", "", _endpointConfig.OutgoingApikey), jsonSettings);
 
                 IQueryService queryService;
                 //process tag data
                 string FormatUrl = "";
-                string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
                 if (_endpointConfig.MessageType.Equals("CLIENT", StringComparison.CurrentCultureIgnoreCase))
                 {
                     FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType, _endpointConfig.MapId, _endpointConfig.TenantId);

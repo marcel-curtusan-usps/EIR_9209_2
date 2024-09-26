@@ -10,7 +10,7 @@ if (!ConfigureLogger.TryConfigureSerilog(out var failureMessage))
     Console.WriteLine($"An error occurred: {failureMessage}");
     return;
 }
-Log.Information("Starting up");
+Log.Information("Starting Application {AppName} version {Version}", Helper.GetAppName(), Helper.GetCurrentVersion());
 try
 {
     CreateWebHostBuilder(args).Build().Run();

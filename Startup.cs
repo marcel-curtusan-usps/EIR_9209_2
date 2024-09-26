@@ -2,17 +2,19 @@
 using EIR_9209_2.DataStore;
 using EIR_9209_2.Service;
 using EIR_9209_2.Utilities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Server.IISIntegration;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System.Reflection;
+using System.Text;
 
 public class Startup
 {
     private readonly IWebHostEnvironment _hostingEnv;
-    private readonly Assembly _assembly;
     private IConfiguration Configuration { get; }
 
     /// <summary>
@@ -24,10 +26,6 @@ public class Startup
     {
         _hostingEnv = env;
         Configuration = configuration;
-        _assembly = Assembly.GetExecutingAssembly();
-        var applicationConfiguration = Configuration.GetSection("ApplicationConfiguration");
-        var applicationVersion = applicationConfiguration.GetSection("ApplicationVersion");
-        applicationVersion.Value = $"{_assembly.GetName().Version}";
     }
 
     /// <summary>
@@ -38,8 +36,8 @@ public class Startup
     {
         // Configure logging
         services.AddLogging();
-        //AddOptions(services);
-        services.AddAuthentication(IISDefaults.AuthenticationScheme);
+        services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate(); // Add Windows Authentication
+        services.AddAuthorization(); // Add authorization services
         services.AddSingleton<IFilePathProvider, FilePathProvider>();
         services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<IResetApplication, ResetApplication>();
@@ -60,7 +58,6 @@ public class Startup
         services.AddSingleton<EmailService>();
         services.AddSingleton<Worker>();
         services.AddHostedService(p => p.GetRequiredService<Worker>());
-        services.AddHttpClient();
         //add SignalR to the services
         services.AddSignalR(options =>
             {
@@ -79,7 +76,7 @@ public class Startup
                  .AllowAnyOrigin();
             });
         });
-        services.AddSingleton<HubServices>();
+      
         // Add framework services.
         services.AddMvc(options =>
             {
@@ -95,11 +92,11 @@ public class Startup
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "1.0.0.1",
-                    Title = "Connected Facilities (CF)",
+                    Title = $"{Helper.GetAppName()}",
                     Description = "Swagger - OpenAPI 3.0",
                     Contact = new OpenApiContact()
                     {
-                        Name = "Connected Facilities API Support",
+                        Name = $"{Helper.GetAppName()} API Support",
                         Email = "cf-sels_support@usps.gov"
                     },
                     License = new OpenApiLicense
@@ -116,6 +113,9 @@ public class Startup
                 options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
                 options.OperationFilter<GeneratePathParamsValidationFilter>();
             });
+        services.AddControllers();
+        services.AddHttpClient();
+        services.AddSingleton<HubServices>();
     }
 
 
@@ -128,40 +128,39 @@ public class Startup
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
     {
         app.UseRouting();
-        app.UseAuthorization();
-        var swaggerConfig = Configuration.GetSection("SwaggerConfiguration");
-        var applicationConfiguration = Configuration.GetSection("ApplicationConfiguration");
+        app.UseAuthentication(); // Ensure authentication middleware is added
+        app.UseAuthorization(); // Ensure authorization middleware is added
+        var swaggerConfig = Configuration.GetSection("Swagger");
         
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
             if (env.IsDevelopment())
             {
-                c.SwaggerEndpoint(swaggerConfig["Endpoint"], "CF API's");
+                c.SwaggerEndpoint(swaggerConfig["Endpoint"], $"{Helper.GetAppName()} API's");
             }
             else
             {
-                c.SwaggerEndpoint($"/{applicationConfiguration["ApplicationName"]}{swaggerConfig["Endpoint"]}", "CF API's");
+                c.SwaggerEndpoint($"/{Helper.GetAppName}{swaggerConfig["Endpoint"]}", $"{Helper.GetAppName()} API's");
             }
         });
-        app.UseFileServer();
-        app.UseDefaultFiles();
-        app.UseStaticFiles();
+        // Configure FileServerOptions
+        var fileServerOptions = new FileServerOptions
+        {
+            EnableDefaultFiles = true, // Enable serving default files like index.html or default.html
+            EnableDirectoryBrowsing = true // Enable directory browsing (useful for development)
+        };
+
+
+        app.UseFileServer(fileServerOptions); // Use the configured FileServerOptions
+      
+
+        app.UseDefaultFiles(); // Use the configured options
+        app.UseStaticFiles(); // Serve static files
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
             endpoints.MapHub<HubServices>("/hubServics");
         });
-
-        if (env.IsDevelopment())
-        {
-            app.UseDeveloperExceptionPage();
-        }
-        else
-        {
-            //TODO: Enable production exception handling (https://docs.microsoft.com/en-us/aspnet/core/fundamentals/error-handling)
-            app.UseExceptionHandler("/Error");
-            app.UseHsts();
-        }
     }
 }

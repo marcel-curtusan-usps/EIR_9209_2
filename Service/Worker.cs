@@ -164,22 +164,5 @@ namespace EIR_9209_2.Service
                 return false;
             }
         }
-
-        public override async Task StopAsync(CancellationToken stoppingToken)
-        {
-            _logger.LogInformation("Worker is stopping.");
-
-            //foreach (var service in _endpointServices.Values)
-            //{
-            //    service.Stop();
-            //}
-
-            await base.StopAsync(stoppingToken);
-        }
-
-        public override Task StartAsync(CancellationToken cancellationToken)
-        {
-            return base.StartAsync(cancellationToken);
-        }
     }
 }

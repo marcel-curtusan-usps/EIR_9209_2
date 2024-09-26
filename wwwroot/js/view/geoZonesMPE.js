@@ -195,14 +195,12 @@ let geoZoneMPE = new L.GeoJSON(null, {
     onEachFeature: function (feature, layer) {
 
         layer.zoneId = feature.properties.id;
-        if (!isMPEZoneRemoved) {
-            layer.on('click', function (e) {
+        layer.on('click', function (e) {
                 OSLmap.setView(e.sourceTarget.getCenter(), 3);
                 Promise.all([loadMachineData(feature.properties, 'machinetable')]);
-          
 
             });
-        }
+        
         layer.bindTooltip(feature.properties.name + "<br/>" + "Staffing: " + (feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0"), {
             permanent: true,
             interactive: true,

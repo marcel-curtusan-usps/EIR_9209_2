@@ -1,10 +1,13 @@
 ﻿using EIR_9209_2.DataStore;
 using EIR_9209_2.Models;
+using EIR_9209_2.Utilities;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Reflection;
 using System.Security.Claims;
+using System.Security.Principal;
+using System.Text.RegularExpressions;
 
 public class HubServices : Hub
 {
@@ -18,6 +21,7 @@ public class HubServices : Hub
     private readonly IInMemoryCamerasRepository _cameraMarkers;
     private readonly ILogger<HubServices> _logger;
     private readonly IConfiguration _configuration;
+    private readonly IWebHostEnvironment _env;
     public HubServices(ILogger<HubServices> logger,
         IInMemoryBackgroundImageRepository backgroundImages,
         IInMemoryConnectionRepository connectionList,
@@ -27,7 +31,8 @@ public class HubServices : Hub
         IInMemorySiteInfoRepository siteInfo,
         IInMemoryEmployeesRepository empSchedules,
         IInMemoryCamerasRepository cameraMarkers,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IWebHostEnvironment env)    
     {
         _logger = logger;
         _backgroundImages = backgroundImages;
@@ -39,6 +44,7 @@ public class HubServices : Hub
         _empSchedules = empSchedules;
         _cameraMarkers = cameraMarkers;
         _configuration = configuration;
+        _env = env;
     }
     public async Task JoinGroup(string groupName)
     {
@@ -112,17 +118,93 @@ public class HubServices : Hub
     public async Task<string> GetApplicationInfo()
     {
         var siteInfo = await _siteInfo.GetSiteInfo();
-        return JsonConvert.SerializeObject(new JObject
+        if (_env.IsDevelopment())
         {
-            ["ApplicationName"] = _configuration["ApplicationConfiguration:ApplicationName"],
-            ["ApplicationVersion"] = _configuration["ApplicationConfiguration:ApplicationVersion"],
-            ["ApplicationDescription"] = _configuration["ApplicationConfiguration:ApplicationDescription"],
-            ["SiteName"] = siteInfo?.DisplayName,
-            ["User"] = GetUserName(Context.User),
-            ["Role"] = "Admin"
-        });
+            return JsonConvert.SerializeObject(new JObject
+            {
+                ["ApplicationName"] = _configuration["ApplicationConfiguration:ApplicationName"],
+                ["ApplicationVersion"] = Helper.GetCurrentVersion(),
+                ["ApplicationDescription"] = _configuration["ApplicationConfiguration:ApplicationDescription"],
+                ["SiteName"] = siteInfo?.DisplayName,
+                ["User"] = Context.User.Identity.IsAuthenticated ? await GetUserName(Context.User) : "CF Admin",
+                ["Role"] = Context.User.Identity.IsAuthenticated ? await GetUserRole(Context.User) : "Admin"
+            });
+        }
+        else
+        {
+            return JsonConvert.SerializeObject(new JObject
+            {
+                ["ApplicationName"] = _configuration["ApplicationConfiguration:ApplicationName"],
+                ["ApplicationVersion"] = Helper.GetCurrentVersion(),
+                ["ApplicationDescription"] = _configuration["ApplicationConfiguration:ApplicationDescription"],
+                ["SiteName"] = siteInfo?.DisplayName,
+                ["User"] = Context.User.Identity.IsAuthenticated ? await GetUserName(Context.User) : "Operator",
+                ["Role"] = Context.User.Identity.IsAuthenticated ? await GetUserRole(Context.User) : "Operator"
+            });
+        }
     }
 
+    private Task<string> GetUserName(ClaimsPrincipal? user)
+    {
+        return Task.FromResult(user?.Identity?.Name ?? string.Empty);
+    }
+    private async Task<string> GetUserRole(ClaimsPrincipal? user)
+    {
+        try
+        {
+            var userGroups = await GetUserGroups(user).ConfigureAwait(false);
+            return GetRoleFromGroups(userGroups);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return "Operator";
+        }
+    }
+    private string GetRoleFromGroups(IEnumerable<string> userGroups)
+    {
+        var roles = new Dictionary<string, string>
+        {
+            { "AdminRole", "Admin" },
+            { "PlantManager", "PM" },
+            { "MaintenanceRole", "Maintenance" },
+            { "OIE", "OIE" }
+        };
+
+        foreach (var role in roles)
+        {
+            var configRoles = _configuration[$"UserRole:{role.Key}"]?.Split(',').Select(r => r.Trim()).ToList() ?? new List<string>();
+            if (configRoles.Intersect(userGroups, StringComparer.OrdinalIgnoreCase).Any())
+            {
+                return role.Value;
+            }
+        }
+
+        return "Operator";
+    }
+    private Task<IEnumerable<string>> GetUserGroups(ClaimsPrincipal? user)
+    {
+        if (user == null)
+        {
+            return Task.FromResult(Enumerable.Empty<string>());
+        }
+
+        if (user is not WindowsPrincipal windowsPrincipal)
+        {
+            return Task.FromResult(Enumerable.Empty<string>());
+        }
+
+        if (windowsPrincipal.Identity is not WindowsIdentity windowsIdentity)
+        {
+            return Task.FromResult(Enumerable.Empty<string>());
+        }
+
+        var groups = windowsIdentity.Groups
+                                    .Select(g => g.Translate(typeof(NTAccount)).ToString().TrimStart(@"USA\".ToCharArray()))
+                                    .ToList();
+
+        return Task.FromResult<IEnumerable<string>>(groups);
+    }
     public async Task<IEnumerable<GeoMarker>> GetBadgeTags()
     {
         return await Task.Run(() => _tags.GetTagsType("Badge")).ConfigureAwait(false);
@@ -156,7 +238,7 @@ public class HubServices : Hub
         return await Task.Run(_cameraMarkers.GetAll).ConfigureAwait(false);
     }
 
-    private string? GetUserName(ClaimsPrincipal? user) => user?.Identity?.Name;
+    //private Task string? GetUserName(ClaimsPrincipal? user) => user?.Identity?.Name;
 
 
     // worker request for data of connection list

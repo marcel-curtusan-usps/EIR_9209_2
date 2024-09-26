@@ -13,6 +13,7 @@
     "https": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": "https://localhost:7287/OSL/default.html",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
@@ -22,7 +23,6 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "OSL/default.html",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

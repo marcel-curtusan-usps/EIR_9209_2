@@ -1,15 +1,8 @@
 ﻿using EIR_9209_2.DataStore;
-using EIR_9209_2.Models;
 using EIR_9209_2.Utilities;
-using Humanizer;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.VisualBasic;
 using Newtonsoft.Json.Linq;
-using PuppeteerSharp.Input;
-using System.Diagnostics;
-using System;
 using System.Text.RegularExpressions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860

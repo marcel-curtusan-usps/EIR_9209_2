@@ -71,7 +71,7 @@ public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDispos
                     { "client_id", _authSettings.ClientId }
         });
 
-            var postResponse = await client.PostAsync(_authSettings.TokenUrl, content);
+            var postResponse = await client.PostAsync(string.Format(_authSettings.TokenUrl,_authSettings.Serever), content);
             postResponse.EnsureSuccessStatusCode();
 
             var responseBody = await postResponse.Content.ReadAsStringAsync();

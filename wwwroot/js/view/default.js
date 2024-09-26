@@ -62,13 +62,13 @@ function initializeOSL() {
         init_backgroundImages();
         init_emailList();
         init_dacodetocraftType();
-        init_tags();
-        init_tagsAGV();
-        init_tagsPIV();
-        init_accessPoints();
+        init_geoZoneArea();  
         init_geoZoneMPE();
         init_geoZoneDockDoor();
-        init_geoZoneArea();
+        init_accessPoints();
+        init_tagsAGV();
+        init_tagsPIV();
+        init_tags();
         $(`span[id="fotf-site-facility-name"]`).text(appData.SiteName);
     }).catch(function (err) {
         console.error("Error loading application info: ", err);
