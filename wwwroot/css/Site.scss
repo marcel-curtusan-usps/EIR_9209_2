@@ -1,30 +1,34 @@
-﻿@import url('../js/bootstrap/dist/css/bootstrap-grid.min.css');
-@import url('../js/bootstrap/dist/css/bootstrap-grid.rtl.min.css');
-@import url('../js/bootstrap/dist/css/bootstrap-grid.rtl.css');
-@import url('../js/bootstrap/dist/css/bootstrap-grid.css');
-@import url('../js/bootstrap/dist/css/bootstrap-reboot.min.css');
-@import url('../js/bootstrap/dist/css/bootstrap-reboot.rtl.min.css');
-@import url('../js/bootstrap/dist/css/bootstrap-reboot.rtl.css');
-@import url('../js/bootstrap/dist/css/bootstrap-reboot.css');
-@import url('../js/bootstrap/dist/css/bootstrap-utilities.min.css');
-@import url('../js/bootstrap/dist/css/bootstrap-utilities.rtl.min.css');
-@import url('../js/bootstrap/dist/css/bootstrap-utilities.rtl.css');
-@import url('../js/bootstrap/dist/css/bootstrap-utilities.css');
-@import url('../js/bootstrap/dist/css/bootstrap.min.css');
-@import url('../js/bootstrap/dist/css/bootstrap.rtl.min.css');
-@import url('../js/bootstrap/dist/css/bootstrap.rtl.css');
-@import url('../js/bootstrap/dist/css/bootstrap.css');
-@import url('../js/leaflet/dist/leaflet.css');
+﻿@import url('../lib/bootstrap/dist/css/bootstrap.css');
+@import url('../lib/bootstrap/dist/css/bootstrap.min.css');
+@import url('../lib/bootstrap/dist/css/bootstrap.rtl.css');
+@import url('../lib/bootstrap/dist/css/bootstrap.rtl.min.css');
+@import url('../lib/bootstrap/dist/css/bootstrap-grid.css');
+@import url('../lib/bootstrap/dist/css/bootstrap-grid.min.css');
+@import url('../lib/bootstrap/dist/css/bootstrap-grid.rtl.css');
+@import url('../lib/bootstrap/dist/css/bootstrap-grid.rtl.min.css');
+@import url('../lib/bootstrap/dist/css/bootstrap-reboot.css');
+@import url('../lib/bootstrap/dist/css/bootstrap-reboot.min.css');
+@import url('../lib/bootstrap/dist/css/bootstrap-reboot.rtl.css');
+@import url('../lib/bootstrap/dist/css/bootstrap-reboot.rtl.min.css');
+@import url('../lib/bootstrap/dist/css/bootstrap-utilities.css');
+@import url('../lib/bootstrap/dist/css/bootstrap-utilities.min.css');
+@import url('../lib/bootstrap/dist/css/bootstrap-utilities.rtl.css');
+@import url('../lib/bootstrap/dist/css/bootstrap-utilities.rtl.min.css');
+@import url('../lib/leaflet/leaflet.min.css');
+@import url('../lib/leaflet-sidebar-v2/css/leaflet-sidebar.min.css');
 @import url('../lib/geoman-io/dist/leaflet-geoman.css');
-@import url('../js/leaflet/leaflet-sidebar-v2/css/leaflet-sidebar.min.css');
-@import url('../js/leaflet/leaflet-sidebar-v2/css/leaflet-sidebar.css');
-@import "../js/leaflet/leaflet-sidebar-v2/css/leaflet-sidebar";
-@import url('../js/leaflet/leaflet-sidebar-v2/css/_base.min.css');
-@import url('../js/leaflet/leaflet-sidebar-v2/css/_base.css');
-@import "../js/leaflet/leaflet-sidebar-v2/css/base";
 @import url('../lib/leaflet-easybutton/src/easy-button.css');
 @import url('../lib/datatables.net-bs5/datatables.bootstrap5.css');
 
+
+.leaflet-sidebar-tabs > li, .leaflet-sidebar-tabs > ul > li {
+    width: 100%;
+    height: 40px;
+    color: #eee;
+    font-size: 12pt;
+    overflow: hidden;
+    transition: all 80ms
+}
 html, body {
     width: 100%;
     height: 100%;

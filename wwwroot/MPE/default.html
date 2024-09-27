@@ -5,11 +5,86 @@
     <title></title>
 </head>
 <body>
+    <div class="card w-100" style="padding: 0px;">
+        <div class="card-header">
+            <div class="container-fluid">
+                <div class="row justify-content-md-center">
+                    <div class="col-2 float-right" style="padding: 0rem;">
+                        <label class="control-label" style="font-size: 3rem;" id="mpeName_text"></label>
+                        <label class="control-label" style="font-size: 3rem; font-weight: bolder;" id="mpeName"></label>
+                    </div>
+                    <div class="col-2" style="padding: 0rem;">
+                        <label class="control-label float-right" style="font-size: 3rem;" id="opn_text">Operation:</label>
+                    </div>
+                    <div class="col-2" style="padding: 0rem;">
+                        <label class="control-label float-left" style="font-size: 3rem; font-weight: bolder;" id="opn"></label>
+                    </div>
+                    <div class="col-3 text-center align-content-center" style="padding: 0rem;">
+                        <i class="bi-clock-history mt-2 mr-2"></i>
+                    </div>
+                    <div class="col-2" style="padding: 0rem;">
+                        <label class="control-label float-right" style="font-size: 3rem; font-weight: bolder;" id="countdown"></label>
+                    </div>
+                </div>
+                <!--<div class="row">
+                    <div class="col-5 float-right" style="padding: 0rem;">
+                    </div>
+                    <div class="col-5" style="padding: 0rem;">
+                        <label class="control-label float-right" style="font-size: 3rem;" id="plansortprogram">Planned Sort Program:</label>
+                    </div>
+                    <div class="col" style="padding: 0rem;">
+                        <label class="control-label" style="font-size: 3rem; font-weight: bolder;" id="plansortprogram_name_text"></label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-5 float-right" style="padding: 0rem;">
+                    </div>
+                    <div class="col-5" style="padding: 0rem;">
+                        <label class="control-label float-right" style="font-size: 3rem;" id="sortprogram">Sort Program:</label>
+                    </div>
+                    <div class="col" style="padding: 0rem;">
+                        <label class="control-label float-right" style="font-size: 3rem; font-weight: bolder;" id="sortplan_name_text"></label>
+                    </div>
+                </div>-->
+            </div>
+        </div>
+        <div class="card-body" style="padding: 0px;">
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped" id="mpeStatustable">
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-10" style="padding: 0rem;">
+
+                        <label class="control-label float-left" style="font-size: 3rem;" id="countdowntext"></label>
+
+                    </div>
+                    <div class="col" style="padding: 0rem;">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col" style="padding: 0rem;">
+                        <label class="control-label float-left" style="font-size: 3rem;" id="mpe_status_txt">Machine Status:</label>
+                    </div>
+                    <div class="col" style="padding: 0rem;">
+                        <label class="control-label float-right" style="font-size: 3rem; font-weight: bolder;" id="mpe_status"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="../lib/jquery/jquery.min.js"></script>
+    <script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="../lib/microsoft/signalr-protocol-msgpack/dist/browser/signalr-protocol-msgpack.min.js"></script>
     <script src="../lib/luxon/luxon.min.js"></script>
-    <script src="../lib/bootstrap/bootstrap.bundle.min.js"></script>
-    <script src="../lib/bootstrap/bootstrap.min.js"></script>
-    <script src="../js/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script src="../lib/bootstrap/dist/js/bootstrap.js"></script>
     <script src="../lib/datatables.net/dataTables.min.js"></script>
     <script src="../lib/datatables.net-bs5/dataTables.bootstrap5.min.js"></script>
     <script src="Scripts/mpeView.js"></script>

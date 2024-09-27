@@ -20,6 +20,7 @@ public class Connection
     public bool ActiveConnection { get; set; } = false;
     public string AdminEmailRecepient { get; set; } = "";
     public bool ApiConnected { get; set; } = false;
+    [JsonProperty("name")]
     public string Name { get; set; } = "";
     public string CreatedByUsername { get; set; } = "";
     public DateTime CreatedDate { get; set; } = DateTime.Now;

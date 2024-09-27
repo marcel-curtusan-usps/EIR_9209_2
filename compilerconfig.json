@@ -6,5 +6,17 @@
   {
     "outputFile": "wwwroot/reports/content/empSchedule.css",
     "inputFile": "wwwroot/reports/content/empSchedule.scss"
+  },
+  {
+    "outputFile": "wwwroot/Reports/Content/mpePerformance.css",
+    "inputFile": "wwwroot/Reports/Content/mpePerformance.scss"
+  },
+  {
+    "outputFile": "wwwroot/Reports/Content/siteRollUp.css",
+    "inputFile": "wwwroot/Reports/Content/siteRollUp.scss"
+  },
+  {
+    "outputFile": "wwwroot/MPE/Content/mpeView.css",
+    "inputFile": "wwwroot/MPE/Content/mpeView.scss"
   }
 ]

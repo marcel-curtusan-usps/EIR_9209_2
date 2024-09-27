@@ -28,6 +28,10 @@
 		<Compile Remove="MongoDBServices\**" />
 		<Compile Remove="SiteIdentity\**" />
 		<Compile Remove="Tags\**" />
+		<Compile Remove="wwwroot\js\bootstrap\**" />
+		<Compile Remove="wwwroot\js\leaflet\**" />
+		<Compile Remove="wwwroot\js\microsoft\**" />
+		<Compile Remove="wwwroot\js\view\**" />
 		<Content Remove="BackgroundImage\**" />
 		<Content Remove="Connection\**" />
 		<Content Remove="GeoZones\**" />
@@ -35,6 +39,10 @@
 		<Content Remove="MongoDBServices\**" />
 		<Content Remove="SiteIdentity\**" />
 		<Content Remove="Tags\**" />
+		<Content Remove="wwwroot\js\bootstrap\**" />
+		<Content Remove="wwwroot\js\leaflet\**" />
+		<Content Remove="wwwroot\js\microsoft\**" />
+		<Content Remove="wwwroot\js\view\**" />
 		<EmbeddedResource Remove="BackgroundImage\**" />
 		<EmbeddedResource Remove="Connection\**" />
 		<EmbeddedResource Remove="GeoZones\**" />
@@ -42,6 +50,10 @@
 		<EmbeddedResource Remove="MongoDBServices\**" />
 		<EmbeddedResource Remove="SiteIdentity\**" />
 		<EmbeddedResource Remove="Tags\**" />
+		<EmbeddedResource Remove="wwwroot\js\bootstrap\**" />
+		<EmbeddedResource Remove="wwwroot\js\leaflet\**" />
+		<EmbeddedResource Remove="wwwroot\js\microsoft\**" />
+		<EmbeddedResource Remove="wwwroot\js\view\**" />
 		<None Remove="BackgroundImage\**" />
 		<None Remove="Connection\**" />
 		<None Remove="GeoZones\**" />
@@ -49,6 +61,10 @@
 		<None Remove="MongoDBServices\**" />
 		<None Remove="SiteIdentity\**" />
 		<None Remove="Tags\**" />
+		<None Remove="wwwroot\js\bootstrap\**" />
+		<None Remove="wwwroot\js\leaflet\**" />
+		<None Remove="wwwroot\js\microsoft\**" />
+		<None Remove="wwwroot\js\view\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -121,7 +137,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="8.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.8" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.3" />
 		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.4.0" />
@@ -154,53 +170,8 @@
 	<ItemGroup>
 		<None Include="bundleconfig.json" />
 		<None Include="compilerconfig.json" />
-		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-grid.css.map" />
-		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-grid.min.css.map" />
-		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-grid.rtl.css.map" />
-		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-grid.rtl.min.css.map" />
-		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-reboot.css.map" />
-		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-reboot.min.css.map" />
-		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-reboot.rtl.css.map" />
-		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-reboot.rtl.min.css.map" />
-		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-utilities.css.map" />
-		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-utilities.min.css.map" />
-		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-utilities.rtl.css.map" />
-		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap-utilities.rtl.min.css.map" />
-		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap.css.map" />
-		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap.min.css.map" />
-		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap.rtl.css.map" />
-		<None Include="wwwroot\js\bootstrap\dist\css\bootstrap.rtl.min.css.map" />
-		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.bundle.js.map" />
-		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.bundle.min.js" />
-		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.bundle.min.js.map" />
-		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.esm.js.map" />
-		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.esm.min.js" />
-		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.esm.min.js.map" />
-		<None Include="wwwroot\js\bootstrap\dist\js\bootstrap.min.js.map" />
-		<None Include="wwwroot\js\leaflet\dist\leaflet-src.esm.js" />
-		<None Include="wwwroot\js\leaflet\dist\leaflet-src.esm.js.map" />
-		<None Include="wwwroot\js\leaflet\dist\leaflet-src.js.map" />
-		<None Include="wwwroot\js\leaflet\dist\leaflet.js.map" />
-		<None Include="wwwroot\js\leaflet\leaflet-sidebar-v2\js\leaflet-sidebar.min.js" />
-		<None Include="wwwroot\js\microsoft\signalr-protocol-msgpack\dist\browser\signalr-protocol-msgpack.js.map" />
-		<None Include="wwwroot\js\microsoft\signalr-protocol-msgpack\dist\browser\signalr-protocol-msgpack.min.js" />
-		<None Include="wwwroot\js\microsoft\signalr-protocol-msgpack\dist\browser\signalr-protocol-msgpack.min.js.map" />
-		<None Include="wwwroot\js\microsoft\signalr\dist\browser\signalr.js.map" />
-		<None Include="wwwroot\js\microsoft\signalr\dist\browser\signalr.min.js" />
-		<None Include="wwwroot\js\microsoft\signalr\dist\browser\signalr.min.js.map" />
 		<None Include="wwwroot\lib\bootstrap-datepicker\css\bootstrap-datepicker.css.map" />
 		<None Include="wwwroot\lib\bootstrap-datepicker\js\bootstrap-datepicker.min.js" />
-		<None Include="wwwroot\lib\bootstrap\bootstrap.bundle.js" />
-		<None Include="wwwroot\lib\bootstrap\bootstrap.bundle.js.map" />
-		<None Include="wwwroot\lib\bootstrap\bootstrap.bundle.min.js" />
-		<None Include="wwwroot\lib\bootstrap\bootstrap.bundle.min.js.map" />
-		<None Include="wwwroot\lib\bootstrap\bootstrap.esm.js" />
-		<None Include="wwwroot\lib\bootstrap\bootstrap.esm.js.map" />
-		<None Include="wwwroot\lib\bootstrap\bootstrap.esm.min.js" />
-		<None Include="wwwroot\lib\bootstrap\bootstrap.esm.min.js.map" />
-		<None Include="wwwroot\lib\bootstrap\bootstrap.js.map" />
-		<None Include="wwwroot\lib\bootstrap\bootstrap.min.js" />
-		<None Include="wwwroot\lib\bootstrap\bootstrap.min.js.map" />
 		<None Include="wwwroot\lib\bootstrap\LICENSE" />
 		<None Include="wwwroot\lib\chartjs-adapter-luxon\chartjs-adapter-luxon.umd.min.js" />
 		<None Include="wwwroot\lib\chartjs-plugin-datalabels\chartjs-plugin-datalabels.esm.js" />
@@ -257,109 +228,79 @@
 	  <Content Update="wwwroot\css\images\NoImageFeed.jpg">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\bootstrap\dist\css\bootstrap-grid.css">
+	  <Content Update="wwwroot\js\accessPoints.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\bootstrap\dist\css\bootstrap-reboot.css">
+	  <Content Update="wwwroot\js\applicationConfiguration.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\bootstrap\dist\css\bootstrap-utilities.css">
+	  <Content Update="wwwroot\js\connections.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\bootstrap\dist\css\bootstrap.css">
+	  <Content Update="wwwroot\js\connectionTypes.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\leaflet\dist\images\layers-2x.png">
+	  <Content Update="wwwroot\js\dacodetocraftTypes.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\leaflet\dist\images\layers.png">
+	  <Content Update="wwwroot\js\default.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\leaflet\dist\images\marker-icon-2x.png">
+	  <Content Update="wwwroot\js\email.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\leaflet\dist\images\marker-icon.png">
+	  <Content Update="wwwroot\js\ganttChart.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\leaflet\dist\images\marker-shadow.png">
+	  <Content Update="wwwroot\js\geoman.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\leaflet\dist\leaflet.css">
+	  <Content Update="wwwroot\js\geoZones.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\view\accessPoints.js">
+	  <Content Update="wwwroot\js\geoZonesAGV.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\view\applicationConfiguration.js">
+	  <Content Update="wwwroot\js\geoZonesArea.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\view\connections.js">
+	  <Content Update="wwwroot\js\geoZonesBin.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\view\connectionTypes.js">
+	  <Content Update="wwwroot\js\geoZonesDockDoors.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\view\dacodetocraftTypes.js">
+	  <Content Update="wwwroot\js\geoZonesMPE.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\view\default.js">
+	  <Content Update="wwwroot\js\indoorMap.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\view\email.js">
+	  <Content Update="wwwroot\js\lineChart.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\view\ganttChart.js">
+	  <Content Update="wwwroot\js\osl.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\view\geoman.js">
+	  <Content Update="wwwroot\js\siteInformation.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\view\geoZones.js">
+	  <Content Update="wwwroot\js\tagsAGVVehicles.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\view\geoZonesAGV.js">
+	  <Content Update="wwwroot\js\tagsCamera.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\view\geoZonesArea.js">
+	  <Content Update="wwwroot\js\tagsEmployee.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\view\geoZonesBin.js">
+	  <Content Update="wwwroot\js\tagsPIVVehicles.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\view\geoZonesDockDoors.js">
+	  <Content Update="wwwroot\js\tagsSearch.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\js\view\geoZonesMPE.js">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="wwwroot\js\view\indoorMap.js">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="wwwroot\js\view\lineChart.js">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="wwwroot\js\view\osl.js">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="wwwroot\js\view\siteInformation.js">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="wwwroot\js\view\tagsAGVVehicles.js">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="wwwroot\js\view\tagsCamera.js">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="wwwroot\js\view\tagsEmployee.js">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="wwwroot\js\view\tagsPIVVehicles.js">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="wwwroot\js\view\tagsSearch.js">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="wwwroot\js\view\webEORUploads.js">
+	  <Content Update="wwwroot\js\webEORUploads.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\lib\bootstrap-datepicker\css\bootstrap-datepicker.css">
@@ -369,9 +310,6 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\lib\bootstrap-datepicker\locales\bootstrap-datepicker.en-US.min.js">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="wwwroot\lib\bootstrap\bootstrap.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\lib\chartjs-adapter-luxon\chartjs-adapter-luxon.umd.js">

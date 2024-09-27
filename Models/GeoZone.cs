@@ -1,11 +1,15 @@
-﻿namespace EIR_9209_2.Models
+﻿using Newtonsoft.Json;
+
+namespace EIR_9209_2.Models
 {
     public class GeoZone
     {
+
+        [JsonProperty("type")] 
         public string Type { get; set; } = "Feature";
-
+        [JsonProperty("geometry")]
         public Geometry Geometry { get; set; } = new Geometry();
-
+        [JsonProperty("properties")]
         public Properties Properties { get; set; } = new Properties();
     }
 
@@ -29,8 +33,9 @@
 
     public class Geometry
     {
+        [JsonProperty("type")]
         public string Type { get; set; } = "Polygon";
-
+        [JsonProperty("coordinates")]
         public List<List<List<double>>> Coordinates { get; set; } = new List<List<List<double>>>();
     }
 }
