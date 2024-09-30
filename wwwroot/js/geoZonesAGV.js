@@ -183,8 +183,7 @@ function Get_location_Code(location) {
     }
     return Post;
 }
-let locationReg = new RegExp('(^[A-Z0-9][A-Z0-9][A-Z0-9])+([A-Z0-9][A-Z0-9][A-Z0-9])+([0-9][0-9][0-9])+([0-9][0-9][0-9]$)', 'i');
-
+let locationReg = new RegExp('^[A-Z0-9]{3}[A-Z0-9]{3}[0-9]{3}[0-9]{3}$', 'i');
 
 let agvlocationinmission_Table = $('table[id=locationinmissiontable]');
 let agvlocationinmission_Table_Body = agvlocationinmission_Table.find('tbody');

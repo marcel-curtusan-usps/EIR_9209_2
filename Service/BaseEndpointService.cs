@@ -60,7 +60,7 @@ namespace EIR_9209_2.Service
             }
         }
 
-        public async void Update(Connection updateCon)
+        public async Task Update(Connection updateCon)
         {
             Stop(restart: false);
             _endpointConfig.MillisecondsInterval = updateCon.MillisecondsInterval;
