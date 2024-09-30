@@ -119,7 +119,7 @@
                 <div class="modal-body">
                     <div class="row mb-3">
                         <div class="col-4">
-                            <label class="control-label">Connection Name</label>
+                            <label for="connection_name" class="control-label">Connection Name</label>
                             <select id="connection_name" class="form-control pb-1" title="Connection Names" name="connection_name">
                             </select>
                             <span id="error_connection_name" class="text-danger"></span>
@@ -514,7 +514,9 @@
                             </div>
 
                             <div class="col">
-                                <label class="control-label">Warning Action</label><textarea id="warning_action" type="text" rows="3" class="form-control"></textarea><span id="error_warning_action" class="text-danger"></span>
+                                <label for="warning_action" class="control-label">Warning Action</label>
+                                <textarea id="warning_action" type="text" rows="3" class="form-control"></textarea>
+                                <span id="error_warning_action" class="text-danger"></span>
                             </div>
                         </div>
 
@@ -557,8 +559,8 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-12 text-center">
-                            <h4 class="remove-body" style="color: red"></h4>
-                            <h4 style="color: red">Do you want to proceed ?</h4>
+                            <h4 class="remove-body"></h4>
+                            <h4 class="remove-body">Do you want to proceed ?</h4>
                         </div>
                     </div>
                 </div>
@@ -723,8 +725,8 @@
                 <div class="modal-body" id="modal_Add_AppSettingInfo_modalbody">
                     <div class="row">
                         <div class="col-12 text-center">
-                            <h4 class="remove-body" style="color: red"></h4>
-                            <h4 style="color: red">Do you want to proceed ?</h4>
+                            <h4 class="remove-body"></h4>
+                            <h4 class="remove-body">Do you want to proceed ?</h4>
                         </div>
                     </div>
                 </div>
@@ -748,9 +750,9 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-12 text-center">
-                            <h4 class="remove-body" style="color: red"></h4>
-                            <h4 style="color: red">Site is not Configured! Please Configure the Site</h4>
-                            <h4 style="color: red">Please Configure Site NASS Code</h4>
+                            <h4 class="remove-body"></h4>
+                            <h4 class="remove-body">Site is not Configured! Please Configure the Site</h4>
+                            <h4 class="remove-body">Please Configure Site NASS Code</h4>
                         </div>
                     </div>
                 </div>
@@ -772,8 +774,8 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-12 text-center">
-                            <h4 class="remove-body" style="color: red"></h4>
-                            <h4 style="color: red">Do you want to proceed ?</h4>
+                            <h4 class="remove-body"></h4>
+                            <h4 class="remove-body">Do you want to proceed ?</h4>
                         </div>
                     </div>
                 </div>
@@ -797,8 +799,8 @@
                 <div class="modal-body" id="modalConTypebody">
                     <div class="row">
                         <div class="col-12 text-center">
-                            <h4 class="remove-body" style="color: red"></h4>
-                            <h4 style="color: red">Do you want to proceed ?</h4>
+                            <h4 class="remove-body"></h4>
+                            <h4 class="remove-body">Do you want to proceed ?</h4>
                         </div>
                     </div>
                 </div>
@@ -826,8 +828,8 @@
                 <div class="modal-body" id="modalDacodebody">
                     <div class="row">
                         <div class="col-12 text-center">
-                            <h4 class="remove-body" style="color: red"></h4>
-                            <h4 style="color: red">Do you want to proceed ?</h4>
+                            <h4 class="remove-body"></h4>
+                            <h4 class="remove-body">Do you want to proceed ?</h4>
                         </div>
                     </div>
                 </div>
@@ -856,8 +858,8 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-12 text-center">
-                            <h4 class="remove-body" style="color: red"></h4>
-                            <h4 style="color: red">Do you want to proceed ?</h4>
+                            <h4 class="remove-body"></h4>
+                            <h4 class="remove-body">Do you want to proceed ?</h4>
                         </div>
                     </div>
                 </div>
@@ -1786,6 +1788,7 @@
                             </div>
                             <div class="card-body pb-0">
                                 <div class="form-group col">
+                                    <label for="tripSelector" class="control-label">Trip Selector</label>
                                     <select id="tripSelector" title="Trip Selector" class="form-control pb-1" name="tripSelector">
                                         <option value=""></option>
                                     </select>

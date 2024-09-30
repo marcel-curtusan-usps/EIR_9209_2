@@ -617,41 +617,34 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     }
     private string GetZoneType(string name)
     {
-        try
+        if (string.IsNullOrEmpty(name))
         {
-            if (!string.IsNullOrEmpty(name))
-            {
-                if (Regex.IsMatch(name, _configuration[key: "ZoneConfiguration:AGVLocation"], RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                {
-                    return "AGVLocation";
-                }
-                else if (Regex.IsMatch(name, _configuration[key: "ZoneConfiguration:Dockdoor"], RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                {
-                    return "DockDoor";
-                }
-                else if (Regex.IsMatch(name, _configuration[key: "ZoneConfiguration:Area"], RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                {
-                    return "Area";
-                }
-                else if (Regex.IsMatch(name, _configuration[key: "ZoneConfiguration:Viewport"], RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                {
-                    return "ViewPorts";
-                }
-                else
-                {
-                    return "MPE";
-                }
-            }
-            else
-            {
-                return "None";
-            }
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message);
             return "None";
         }
+
+        var agvLocationPattern = _configuration[key: "ZoneConfiguration:AGVLocation"];
+        var dockDoorPattern = _configuration[key: "ZoneConfiguration:Dockdoor"];
+        var areaPattern = _configuration[key: "ZoneConfiguration:Area"];
+        var viewportPattern = _configuration[key: "ZoneConfiguration:Viewport"];
+
+        if (!string.IsNullOrEmpty(agvLocationPattern) && Regex.IsMatch(name, agvLocationPattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
+        {
+            return "AGVLocation";
+        }
+        if (!string.IsNullOrEmpty(dockDoorPattern) && Regex.IsMatch(name, dockDoorPattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
+        {
+            return "DockDoor";
+        }
+        if (!string.IsNullOrEmpty(areaPattern) && Regex.IsMatch(name, areaPattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
+        {
+            return "Area";
+        }
+        if (!string.IsNullOrEmpty(viewportPattern) && Regex.IsMatch(name, viewportPattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
+        {
+            return "ViewPorts";
+        }
+
+        return "MPE";
     }
     public async Task<List<string>> GetZoneNameList(string type)
     {
