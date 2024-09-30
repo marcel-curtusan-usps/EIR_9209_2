@@ -210,7 +210,7 @@ let geoZoneMPE = new L.GeoJSON(null, {
         }).openTooltip();
 
     },
-    filter: function (feature, layer) {
+    filter: function (feature) {
         return feature.properties.visible;
     }
 });
@@ -245,7 +245,7 @@ async function init_geoZoneMPE() {
                 // handle error
                 console.error(err);
             });
-            $(document).on('change', '.leaflet-control-layers-selector', function (e) {
+            $(document).on('change', '.leaflet-control-layers-selector', function (_e) {
                 let sp = this.nextElementSibling;
                 if (/^(MPE Zones)$/ig.test(sp.innerHTML.trim())) {
                     if (this.checked) {
@@ -278,7 +278,6 @@ async function init_geoZoneMPE() {
         }
         catch (e) {
             throw new Error(e.toString());
-            reject();
         }
     });
 }
@@ -1025,7 +1024,6 @@ function creatMpeStandardDataTable(table) {
         "name": "",
         "opn": "",
         "starttime": "",
-        "endtime": "",
         "endtime": "",
         "setuptime": "",
         "teardown": "",
