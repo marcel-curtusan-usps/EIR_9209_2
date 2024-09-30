@@ -521,7 +521,7 @@
                         <div class="col-6 form-group">
                             <div class="d-flex justify-content-center my-2">
                                 <div class="w-75">
-                                    <label class="control-label">Critical Condition: <span class="font-weight-bold text-primary ml-2 critical_conditionpickvalue"></span></label>
+                                    <label for="critical_condition" class="control-label">Critical Condition: <span class="font-weight-bold text-primary ml-2 critical_conditionpickvalue"></span></label>
                                     <input type="range" class="custom-range" id="critical_condition" min="0" max="60" value="0" />
                                 </div>
                             </div>
@@ -609,8 +609,8 @@
                             </div>
                             <div class="form-group row value_row_toggle" style="display: none;">
                                 <div class="col-sm text-center">
-                                    <label class="control-label" for="vendor_prefix">Value</label>
-                                    <input type="checkbox" name="appsetting_value" data-toggle="toggle" data-on="True" data-off="False" data-width="100" data-height="25" />
+                                    <label class="control-label" for="appsetting_value">Value</label>
+                                    <input type="checkbox" id="appsetting_value" name="appsetting_value" data-toggle="toggle" data-on="True" data-off="False" data-width="100" data-height="25" />
                                 </div>
 
                             </div>
@@ -1858,17 +1858,29 @@
                                             </tr>
                                             <tr class="filters">
                                                 <td>
-                                                    <input class="frow-comp-1" id="dest" type="text" placeholder="Dest" />
+                                                    <label>
+                                                        Dest:
+                                                        <input class="frow-comp-1" id="dest" type="text" placeholder="Dest" />
+                                                    </label>
                                                 </td>
                                                 <td>
-                                                    <input class="frow-comp-2" id="location" type="text" placeholder="Location" />
+                                                    <label>
+                                                        Location:
+                                                        <input class="frow-comp-2" id="location" type="text" placeholder="Location" />
+                                                    </label>
                                                 </td>
                                                 <td></td>
                                                 <td>
-                                                    <input class="frow-comp-3" id="placard" type="text" placeholder="Placard" />
+                                                    <label>
+                                                        Placard:
+                                                        <input class="frow-comp-3" id="placard" type="text" placeholder="Placard" />
+                                                    </label>
                                                 </td>
                                                 <td>
-                                                    <input class="frow-comp-4" id="status" type="text" placeholder="Status" />
+                                                    <label>
+                                                        Status:
+                                                        <input class="frow-comp-4" id="status" type="text" placeholder="Status" />
+                                                    </label>
                                                 </td>
                                             </tr>
                                         </thead>
@@ -2475,7 +2487,7 @@
                         <div class="card-header">
                             <h6 class="control-label sectionHeader pl-1 d-flex justify-content-between">Badge / Equipment Search</h6>
                             <div class="input-group flex-fill px-0 mt-2 mx-3 mr-p5rem">
-                                <input type="text" id="inputsearchbtn" class="form-control input-border-light" placeholder="Enter badge or equipment ID" aria-label="Tag / Equipment Name" aria-describedby="searchbtn" style="font-size: 14px;" />
+                                <input type="text" id="inputsearchbtn" class="form-control input-border-light" placeholder="Enter badge or equipment ID" aria-label="Tag / Equipment Name" aria-describedby="searchbtn" />
                             </div>
                             <p class="smaller text-secondary mb-0 mt-1 ml-2">Start search by entering any letter or number of a badge or vehicle ID</p>
                         </div>

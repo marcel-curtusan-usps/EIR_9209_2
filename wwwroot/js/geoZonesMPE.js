@@ -232,7 +232,7 @@ async function findMpeZoneLeafletIds(zoneId) {
     });
 }
 async function init_geoZoneMPE() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
         try {
             //int mpe standard table 
             creatMpeStandardDataTable(mpeStandardTable);
