@@ -50,29 +50,29 @@
                 <div class="modal-body">
                     <div class="row mb-3">
                         <div class="col-4">
-                            <label class="control-label">First Name</label>
-                            <input label="" id="emailFirstName" type="text" class="form-control" name="emailFirstName" />
+                            <label for="emailFirstName" class="control-label">First Name</label>
+                            <input id="emailFirstName" type="text" class="form-control" name="emailFirstName" />
                             <span id="error_emailFirstName" class="text-danger"></span>
                         </div>
                         <div class="col-4">
-                            <label class="control-label">Last Name</label>
-                            <input label="" id="emailLastName" type="text" class="form-control" name="emailLastName" />
+                            <label for="emailLastName" class="control-label">Last Name</label>
+                            <input id="emailLastName" type="text" class="form-control" name="emailLastName" />
                             <span id="error_emailLastName" class="text-danger"></span>
                         </div>
                         <div class="col-4">
-                            <label class="control-label">ACE Id</label>
-                            <input label="" id="aceId" type="text" class="form-control" name="aceId" />
+                            <label for="aceId" class="control-label">ACE Id</label>
+                            <input id="aceId" type="text" class="form-control" name="aceId" />
                             <span id="error_aceId" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="form-group col-4">
-                            <label class="control-label">Email Address</label>
-                            <input label="" id="emailAddress" type="text" class="form-control" name="emailAddress" />
+                            <label for="emailAddress" class="control-label">Email Address</label>
+                            <input id="emailAddress" type="text" class="form-control" name="emailAddress" />
                             <span id="error_emailAddress" class="text-danger"></span>
                         </div>
                         <div class="form-group col-3">
-                            <label class="control-label">Report Name</label>
+                            <label for="reportName" class="control-label">Report Name</label>
                             <select id="reportName" class="form-control pb-1" name="reportName">
                                 <option value=""></option>
                                 <option value="MPE">MPE Synopsis </option>
@@ -81,7 +81,7 @@
                             <span id="error_reportName" class="text-danger"></span>
                         </div>
                         <div class="form-group col-3">
-                            <label class="control-label">MPE Name</label>
+                            <label for="mpeNameList" class="control-label">MPE Name</label>
                             <select id="mpeNameList" class="form-control pb-1" name="mpeNameList">
                                 <option value=""></option>
                             </select>
@@ -91,8 +91,9 @@
                             <label class="control-label">State Options</label>
                             <div class="custom-control custom-switch">
                                 <div class="custom-control custom-switch">
-                                    <input label="" id="enabled_email" type="checkbox" class="custom-control-input" name="enabled_email" />
                                     <label class="custom-control-label" for="enabled_email">Enabled</label>
+                                    <input id="enabled_email" type="checkbox" class="custom-control-input" name="enabled_email" />
+
                                 </div>
                             </div>
                         </div>
@@ -134,11 +135,11 @@
                             <label class="control-label">Connection Options</label>
                             <div class="custom-control custom-switch">
                                 <div class="custom-control custom-switch">
-                                    <input label="" id="active_connection" type="checkbox" class="custom-control-input" name="active_connection" />
+                                    <input id="active_connection" type="checkbox" class="custom-control-input" name="active_connection" />
                                     <label class="custom-control-label" for="active_connection">Active Connection</label>
                                 </div>
                                 <div class="custom-control custom-switch">
-                                    <input label="" id="hour_range" type="checkbox" class="custom-control-input" name="hour_range" />
+                                    <input id="hour_range" type="checkbox" class="custom-control-input" name="hour_range" />
                                     <label class="custom-control-label" for="hour_range">Hour Range</label>
 
                                 </div>
@@ -147,19 +148,19 @@
                         <div class="col">
                             <label class="control-label">Connection Type</label>
                             <div class="custom-control custom-switch">
-                                <input label="" id="api_connection" type="radio" class="custom-control-input" name="connectionType" />
+                                <input id="api_connection" type="radio" class="custom-control-input" name="connectionType" />
                                 <label class="custom-control-label" for="api_connection">API</label>
                             </div>
                             <!--<div class="custom-control custom-switch">
-                                <input label="" id="udp_connection" type="radio" class="custom-control-input" name="connectionType" />
+                                <input id="udp_connection" type="radio" class="custom-control-input" name="connectionType" />
                                 <label class="custom-control-label" for="udp_connection">UDP Connection</label>
                             </div>
                             <div class="custom-control custom-switch">
-                                <input label="" id="tcpip_connection" type="radio" class="custom-control-input" name="connectionType" />
+                                <input id="tcpip_connection" type="radio" class="custom-control-input" name="connectionType" />
                                 <label class="custom-control-label" for="tcpip_connection">TCP/IP Server</label>
                             </div>
                             <div class="custom-control custom-switch">
-                                <input label="" id="ws_connection" type="radio" class="custom-control-input" name="connectionType" />
+                                <input id="ws_connection" type="radio" class="custom-control-input" name="connectionType" />
                                 <label class="custom-control-label" for="ws_connection">WS Connection</label>
                             </div>-->
 
@@ -168,13 +169,13 @@
                             <label class="control-label">Authorization Type</label>
                             <div class="custom-control custom-switch">
                                 <div class="custom-control custom-switch">
-                                    <input label="" id="OAuthconnection" type="checkbox" class="custom-control-input" name="OAuthconnection" />
+                                    <input id="OAuthconnection" type="checkbox" class="custom-control-input" name="OAuthconnection" />
                                     <label class="custom-control-label" for="OAuthconnection">OAuth2</label>
                                 </div>
                             </div>
                             <div class="custom-control custom-switch">
                                 <div class="custom-control custom-switch">
-                                    <input label="" id="bearerToken" type="checkbox" class="custom-control-input" name="bearerToken" />
+                                    <input id="bearerToken" type="checkbox" class="custom-control-input" name="bearerToken" />
                                     <label class="custom-control-label" for="bearerToken">Bearer Token</label>
                                 </div>
                             </div>
@@ -182,67 +183,67 @@
                     </div>
                     <div class="row mb-3" id="serveripmenu">
                         <div class="form-group col-4">
-                            <label class="control-label">Host Name</label>
-                            <input label="" id="hostname" type="text" class="form-control" name="hostname" />
+                            <label for="hostname" class="control-label">Host Name</label>
+                            <input id="hostname" type="text" class="form-control" name="hostname" />
                             <span id="error_hostname" class="text-danger"></span>
                         </div>
                         <div class="form-group col-4">
-                            <label class="control-label">IP Address</label>
-                            <input label="" id="ip_address" type="text" class="form-control" name="ip_address" />
+                            <label for="ip_address" class="control-label">IP Address</label>
+                            <input id="ip_address" type="text" class="form-control" name="ip_address" />
                             <span id="error_ip_address" class="text-danger"></span>
                         </div>
                         <div class="form-group col-2">
-                            <label class="control-label">Port Number</label>
-                            <input label="" id="port_number" type="text" class="form-control" name="port_number" />
+                            <label for="port_number" class="control-label">Port Number</label>
+                            <input id="port_number" type="text" class="form-control" name="port_number" />
                             <span id="error_port_number" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="row mb-3" id="endpointurl">
                         <div class="form-group col">
-                            <label class="control-label">URL</label>
-                            <input label="" id="url" type="text" class="form-control" name="url" />
+                            <label for="url" class="control-label">URL</label>
+                            <input id="url" type="text" class="form-control" name="url" />
                             <span id="error_url" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="row mb-3" id="CiscoSpacesmenu" style="display: none">
                         <div class="form-group col-8">
-                            <label class="control-label">Map Id</label>
-                            <input label="" id="ciscoSpaceMapId" type="text" class="form-control" name="ciscoSpaceMapId" />
+                            <label for="ciscoSpaceMapId" class="control-label">Map Id</label>
+                            <input id="ciscoSpaceMapId" type="text" class="form-control" name="ciscoSpaceMapId" />
                             <span id="error_ciscoSpaceMapId" class="text-danger"></span>
                         </div>
                         <div class="form-group col-4">
-                            <label class="control-label">Tenant Id</label>
-                            <input label="" id="ciscoSpacetenantId" type="text" class="form-control" name="ciscoSpacetenantId" />
+                            <label for="ciscoSpacetenantId" class="control-label">Tenant Id</label>
+                            <input id="ciscoSpacetenantId" type="text" class="form-control" name="ciscoSpacetenantId" />
                             <span id="error_ciscoSpacetenantId" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="row mb-3" id="BearerTokenmenu" style="display: none">
                         <div class="form-group col-12">
-                            <label class="control-label">Bearer Token</label>
-                            <input label="" id="bearerToken" type="text" class="form-control" name="bearerToken" />
+                            <label for="bearerToken" class="control-label">Bearer Token</label>
+                            <input id="bearerToken" type="text" class="form-control" name="bearerToken" />
                             <span id="error_bearerToken" class="text-danger"></span>
                         </div>
 
                     </div>
                     <div class="row mb-3" id="OAuthmenu" style="display: none">
                         <div class="form-group col-12">
-                            <label class="control-label">Token URL</label>
-                            <input label="" id="tokenurl" type="text" class="form-control" name="tokenurl" />
+                            <label for="tokenurl" class="control-label">Token URL</label>
+                            <input id="tokenurl" type="text" class="form-control" name="tokenurl" />
                             <span id="error_tokenurl" class="text-danger"></span>
                         </div>
                         <div class="form-group col-4">
-                            <label class="control-label">UserName</label>
-                            <input label="" id="tokenusername" type="text" class="form-control" name="tokenusername" />
+                            <label for="tokenusername" class="control-label">UserName</label>
+                            <input id="tokenusername" type="text" class="form-control" name="tokenusername" />
                             <span id="error_tokenusername" class="text-danger"></span>
                         </div>
                         <div class="form-group col-4">
-                            <label class="control-label">Password</label>
-                            <input label="" id="tokenpassword" type="text" class="form-control" name="tokenpassword" />
+                            <label for="tokenpassword" class="control-label">Password</label>
+                            <input id="tokenpassword" type="text" class="form-control" name="tokenpassword" />
                             <span id="error_tokenpassword" class="text-danger"></span>
                         </div>
                         <div class="form-group col-4">
-                            <label class="control-label">Client Id</label>
-                            <input label="" id="tokenclientId" type="text" class="form-control" name="tokenclientId" />
+                            <label for="tokenclientId" class="control-label">Client Id</label>
+                            <input id="tokenclientId" type="text" class="form-control" name="tokenclientId" />
                             <span id="error_tokenclientId" class="text-danger"></span>
                         </div>
                     </div>
@@ -250,8 +251,8 @@
                         <div class="col-6">
                             <div class="d-flex justify-content-center my-2">
                                 <div class="w-100">
-                                    <label class="control-label" for="hoursback_range">Hours Backwards: <span class="font-weight-bold text-primary ml-2 hoursbackvalue"></span></label>
-                                    <input label="" type="range" title="Hours Backwards" class="custom-range" id="hoursback_range" min="0" max="336" value="0" />
+                                    <label form="hoursback_range" class="control-label" for="hoursback_range">Hours Backwards: <span class="font-weight-bold text-primary ml-2 hoursbackvalue"></span></label>
+                                    <input type="range" title="Hours Backwards" class="custom-range" id="hoursback_range" min="0" max="336" value="0" />
                                 </div>
                             </div>
                         </div>
@@ -260,7 +261,7 @@
                             <div class="d-flex justify-content-center my-2">
                                 <div class="w-100">
                                     <label class="control-label" for="hoursforward_range">Hours Forward: <span class="font-weight-bold text-primary ml-2 hoursforwardvalue"></span></label>
-                                    <input label="" type="range" title="Hours Forward" class="custom-range" id="hoursforward_range" min="0" max="336" value="0" />
+                                    <input type="range" title="Hours Forward" class="custom-range" id="hoursforward_range" min="0" max="336" value="0" />
                                 </div>
                             </div>
                         </div>
@@ -268,7 +269,7 @@
                     <div class="row mb-3">
 
                         <div class="form-group col-4">
-                            <label class="control-label">Retrieve Occurrences</label>
+                            <label for="data_retrieve" class="control-label">Retrieve Occurrences</label>
                             <select id="data_retrieve" class="form-control pb-1" name="data_retrieve">
                                 <option value=""></option>
                                 <option value="0">Listener</option>
@@ -291,7 +292,7 @@
                             <span id="error_data_retrieve" class="text-danger"></span>
                         </div>
                         <div class="form-group col-4">
-                            <label class="control-label">Timeout</label>
+                            <label for="connectionTimeout" class="control-label">Timeout</label>
                             <select id="connectionTimeout" class="form-control pb-1" name="connectionTimeout">
                                 <option value=""></option>
                                 <option value="30000">30 Second</option>
@@ -326,51 +327,51 @@
                     <div class="form-row">
                         <div class="col-4">
                             <label class="control-label" for="oslName_txt">Name</label>
-                            <input label="" type="text" class="form-control" id="oslName_txt" aria-describedby="BckImageName" />
+                            <input type="text" class="form-control" id="oslName_txt" aria-describedby="BckImageName" />
                         </div>
                     </div>
                     <div id="oslDetailsForm" style="display: none;">
                         <div class="row flex">
                             <div class="col-6">
                                 <label class="control-label" for="BckImageId_txt">Id</label>
-                                <input label="" type="text" class="form-control" id="BckImageId_txt" aria-describedby="BckImageId" />
+                                <input type="text" class="form-control" id="BckImageId_txt" aria-describedby="BckImageId" />
                             </div>
                             <div class="col-6">
                                 <label class="control-label" for="CoordinateSystemId_txt">Coordinate System Id</label>
-                                <input label="" type="text" class="form-control" id="CoordinateSystemId_txt" aria-describedby="coordinateSystemId" />
+                                <input type="text" class="form-control" id="CoordinateSystemId_txt" aria-describedby="coordinateSystemId" />
                             </div>
                             <div class="col-2">
                                 <label class="control-label" for="WidthMeter_txt">Width Meter</label>
-                                <input label="" type="text" class="form-control" id="WidthMeter_txt" aria-describedby="widthMeter" />
+                                <input type="text" class="form-control" id="WidthMeter_txt" aria-describedby="widthMeter" />
                             </div>
                             <div class="col-2">
                                 <label class="control-label" for="HeightMeter_txt">Height Meter</label>
-                                <input label="" type="text" class="form-control" id="HeightMeter_txt" aria-describedby="heightMeter" />
+                                <input type="text" class="form-control" id="HeightMeter_txt" aria-describedby="heightMeter" />
                             </div>
 
                             <div class="col-2">
-                                <label class="control-label">Origin X</label>
-                                <input label="" class="form-control" id="OrigoX_txt" type="text" placeholder="Origo X" />
+                                <label for="OrigoX_txt" class="control-label">Origin X</label>
+                                <input class="form-control" id="OrigoX_txt" type="text" placeholder="Origo X" />
                             </div>
                             <div class="col-2">
-                                <label class="control-label">Origin Y</label>
-                                <input label="" class="form-control" id="OrigoY_txt" type="text" placeholder="Origo Y" />
+                                <label for="OrigoY_txt" class="control-label">Origin Y</label>
+                                <input class="form-control" id="OrigoY_txt" type="text" placeholder="Origo Y" />
                             </div>
                             <div class="col-2">
-                                <label class="control-label">Y Meter</label>
-                                <input label="" class="form-control" id="YMeter_txt" type="text" placeholder="Y Meter" />
+                                <label for="YMeter_txt" class="control-label">Y Meter</label>
+                                <input class="form-control" id="YMeter_txt" type="text" placeholder="Y Meter" />
                             </div>
                             <div class="col-2">
-                                <label class="control-label">XMeter</label>
-                                <input label="" class="form-control" id="XMeter_txt" type="text" placeholder="X Meter" />
+                                <label for="XMeter_txt" class="control-label">XMeter</label>
+                                <input class="form-control" id="XMeter_txt" type="text" placeholder="X Meter" />
                             </div>
                             <div class="col-2">
-                                <label class="control-label">Y Meters Per Pixel</label>
-                                <input label="" class="form-control" id="MetersPerPixelY_txt" type="text" placeholder="Y MetersPerPixel" />
+                                <label for="MetersPerPixelY_txt" class="control-label">Y Meters Per Pixel</label>
+                                <input class="form-control" id="MetersPerPixelY_txt" type="text" placeholder="Y MetersPerPixel" />
                             </div>
                             <div class="col-2">
-                                <label class="control-label">X Meters Per Pixel</label>
-                                <input label="" class="form-control" id="MetersPerPixelX_txt" type="text" placeholder="X MetersPerPixel" />
+                                <label for="MetersPerPixelX_txt" class="control-label">X Meters Per Pixel</label>
+                                <input class="form-control" id="MetersPerPixelX_txt" type="text" placeholder="X MetersPerPixel" />
                             </div>
                         </div>
                     </div>
@@ -379,13 +380,13 @@
                             <label class="control-label" for="floorname">Image</label>
                             <div class="input-group">
                                 <div class="custom-file">
-                                    <input label="" type="file" class="custom-file-input" id="fupload" aria-describedby="fupload" />
+                                    <input type="file" class="custom-file-input" id="fupload" aria-describedby="fupload" />
                                     <label class="custom-file-label" for="fupload">Choose file</label>
                                 </div>
                             </div>
                         </div>
                         <div class="col-4">
-                            <label class="control-label">Pixel Per Meters</label>
+                            <label for="metersPerPixel" class="control-label">Pixel Per Meters</label>
                             <select id="metersPerPixel" class="form-control pb-1" name="metersPerPixel">
                                 <option value=""></option>
                                 <option value="0.0529166667">0.01 Pixel Per Meter</option>
@@ -434,7 +435,7 @@
                             <label class="control-label" for="filename">File</label>
                             <div class="input-group">
                                 <div class="custom-file">
-                                    <input label="" type="file" class="custom-file-input" id="webEORfupload" aria-describedby="webEORfupload" />
+                                    <input type="file" class="custom-file-input" id="webEORfupload" aria-describedby="webEORfupload" />
                                     <label class="custom-file-label" for="webEORfupload">Choose file</label>
                                 </div>
                             </div>
@@ -470,14 +471,14 @@
                 <div class="modal-body">
                     <div class="row mb-3">
                         <div class="col-6">
-                            <label class="control-label">Name</label>
-                            <input label="" id="condition_name" type="text" class="form-control" name="condition_name" />
+                            <label for="condition_name" class="control-label">Name</label>
+                            <input id="condition_name" type="text" class="form-control" name="condition_name" />
                             <span id="error_condition_name" class="text-danger"></span>
                         </div>
                         <div class="col-6">
                             <label class="control-label">Condition Options</label><div class="custom-control custom-switch">
                                 <div class="custom-control custom-switch">
-                                    <input label="" id="condition_active" type="checkbox" class="custom-control-input" name="condition_active" />
+                                    <input id="condition_active" type="checkbox" class="custom-control-input" name="condition_active" />
                                     <label class="custom-control-label" for="condition_active">Active Condition</label>
                                 </div>
                             </div>
@@ -485,12 +486,12 @@
                     </div>
                     <div class="row mb-3">
                         <div class="form-group col-6">
-                            <label class="control-label">Condition</label>
-                            <input label="" id="condition" type="text" class="form-control" name="condition" />
+                            <label for="condition" class="control-label">Condition</label>
+                            <input id="condition" type="text" class="form-control" name="condition" />
                             <span id="error_condition" class="text-danger"></span>
                         </div>
                         <div class="form-group col-6">
-                            <label class="control-label">Condition Type</label>
+                            <label for="condition_type" class="control-label">Condition Type</label>
                             <select id="condition_type" class="form-control" name="condition_type">
                                 <option value=""></option>
                                 <!--<option value="automation">Automation</option>-->
@@ -507,8 +508,8 @@
                         <div class="form-group col-6">
                             <div class="d-flex justify-content-center my-2">
                                 <div class="w-75">
-                                    <label class="control-label">Warning Condition: <span class="font-weight-bold text-primary ml-2 warning_conditionpickvalue"></span></label>
-                                    <input label="" type="range" class="custom-range" id="warning_condition" min="0" max="60" value="0" />
+                                    <label for="warning_condition" class="control-label">Warning Condition: <span class="font-weight-bold text-primary ml-2 warning_conditionpickvalue"></span></label>
+                                    <input type="range" class="custom-range" id="warning_condition" min="0" max="60" value="0" />
                                 </div>
                             </div>
 
@@ -521,7 +522,7 @@
                             <div class="d-flex justify-content-center my-2">
                                 <div class="w-75">
                                     <label class="control-label">Critical Condition: <span class="font-weight-bold text-primary ml-2 critical_conditionpickvalue"></span></label>
-                                    <input label="" type="range" class="custom-range" id="critical_condition" min="0" max="60" value="0" />
+                                    <input type="range" class="custom-range" id="critical_condition" min="0" max="60" value="0" />
                                 </div>
                             </div>
                             <div class="col">
@@ -588,28 +589,28 @@
                         <div class="card-body">
                             <div class="form-group row">
                                 <div class="col">
-                                    <label class="col-form-label">Attribute:</label>
-                                    <input label="" class="form-control" disabled="disabled" id="modalKeyID" />
+                                    <label for="modalKeyID" class="col-form-label">Attribute:</label>
+                                    <input class="form-control" disabled="disabled" id="modalKeyID" />
                                 </div>
                             </div>
                             <div class="form-group row valuediv" style="display: block">
                                 <div class="col">
-                                    <label class="col-form-label">Value:</label>
-                                    <input label="" class="form-control" id="modalValueID" />
+                                    <label for="modalValueID" class="col-form-label">Value:</label>
+                                    <input class="form-control" id="modalValueID" />
                                     <span class="text-info" id="error_modalValueID"></span>
                                 </div>
                             </div>
                             <div class="form-group row timezonediv" style="display: none">
                                 <div class="col">
-                                    <label class="col-form-label">Value:</label>
+                                    <label for="timezoneValueID" class="col-form-label">Value:</label>
                                     <select class="form-control" id="timezoneValueID"></select>
                                     <span class="text-info" id="error_timezoneValueID"></span>
                                 </div>
                             </div>
                             <div class="form-group row value_row_toggle" style="display: none;">
                                 <div class="col-sm text-center">
-                                    <label runat="server" class="control-label" for="vendor_prefix">Value</label>
-                                    <input label="" type="checkbox" name="appsetting_value" data-toggle="toggle" data-on="True" data-off="False" data-width="100" data-height="25" />
+                                    <label class="control-label" for="vendor_prefix">Value</label>
+                                    <input type="checkbox" name="appsetting_value" data-toggle="toggle" data-on="True" data-off="False" data-width="100" data-height="25" />
                                 </div>
 
                             </div>
@@ -637,20 +638,20 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col">
-                            <label class="col-form-label" id="conntype_label">Value:</label>
-                            <input label="" type="text" class="form-control" id="modalConnTypeID" />
+                            <label for="modalConnTypeID" class="col-form-label" id="conntype_label">Value:</label>
+                            <input type="text" class="form-control" id="modalConnTypeID" />
                             <span class="text-info" id="error_modalConnTypeID"></span>
                         </div>
                         <div class="col">
-                            <label class="col-form-label">Description:</label>
-                            <input label="" type="text" class="form-control" id="descValueID" />
+                            <label for="descValueID" class="col-form-label">Description:</label>
+                            <input type="text" class="form-control" id="descValueID" />
                             <span class="text-info" id="error_descValueID"></span>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col">
-                            <label class="col-form-label">Base URL</label>
-                            <input label="" type="text" class="form-control" id="baseURLValueID" />
+                            <label for="baseURLValueID" class="col-form-label">Base URL</label>
+                            <input type="text" class="form-control" id="baseURLValueID" />
                             <span class="text-info" id="error_baseURLValueID"></span>
                         </div>
                     </div>
@@ -683,15 +684,15 @@
                         <div class="card-body">
                             <div class="form-group row">
                                 <div class="col">
-                                    <label class="col-form-label" id="dacodetype_label">Designation Activity:</label>
-                                    <input label="" type="text" class="form-control" id="modalDacodeTypeID" />
+                                    <label for="modalDacodeTypeID" class="col-form-label" id="dacodetype_label">Designation Activity:</label>
+                                    <input type="text" class="form-control" id="modalDacodeTypeID" />
                                     <span class="text-info" id="error_modalDacodeTypeID"></span>
                                 </div>
                             </div>
                             <div class="form-group row valuediv" style="display: block">
                                 <div class="col">
-                                    <label class="col-form-label">Craft Type:</label>
-                                    <input label="" type="text" class="form-control" id="craftValueID" />
+                                    <label for="craftValueID" class="col-form-label">Craft Type:</label>
+                                    <input type="text" class="form-control" id="craftValueID" />
                                     <span class="text-info" id="error_craftValueID"></span>
                                 </div>
                             </div>
@@ -963,20 +964,20 @@
                 <div class="modal-body pt-0 text-center" id="addedit_camera_modalbody">
                     <div class="row mb-3">
                         <div class="form-group col-4">
-                            <label class="control-label">Camera Name</label>
-                            <input label="" id="camera_name" type="text" class="form-control" name="camera_name" />
+                            <label for="camera_name" class="control-label">Camera Name</label>
+                            <input id="camera_name" type="text" class="form-control" name="camera_name" />
                             <span id="error_camera_name" class="text-danger"></span>
                         </div>
                         <div class="form-group col-8">
-                            <label class="control-label">Description</label>
-                            <input label="" id="camera_description" type="text" class="form-control" name="camera_description" />
+                            <label for="camera_description" class="control-label">Description</label>
+                            <input id="camera_description" type="text" class="form-control" name="camera_description" />
                             <span id="error_camera_description" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="form-group col-4">
-                            <label class="control-label">Camera Model</label>
-                            <input label="" id="camera_model" type="text" class="form-control" name="camera_model" />
+                            <label for="camera_model" class="control-label">Camera Model</label>
+                            <input id="camera_model" type="text" class="form-control" name="camera_model" />
                             <span id="error_camera_model" class="text-danger"></span>
                         </div>
                     </div>
@@ -1007,39 +1008,39 @@
                     <div class="row mr-0 ml-0" id="personform" style="display: none">
                         <div class="row mr-0 ml-0">
                             <div class="form-group col-3">
-                                <label class="control-label">First Name</label>
-                                <input label="" id="empFirstName" type="text" class="form-control" name="empFirstName" />
+                                <label for="empFirstName" class="control-label">First Name</label>
+                                <input id="empFirstName" type="text" class="form-control" name="empFirstName" />
                                 <span id="error_empFirstName" class="text-danger"></span>
                             </div>
                             <div class="form-group col-3">
-                                <label class="control-label">Last Name</label>
-                                <input label="" id="empLastName" type="text" class="form-control" name="empLastName" />
+                                <label for="empLastName" class="control-label">Last Name</label>
+                                <input id="empLastName" type="text" class="form-control" name="empLastName" />
                                 <span id="error_empLastName" class="text-danger"></span>
                             </div>
                             <div class="form-group col-3">
-                                <label class="control-label">EIN</label>
-                                <input label="" id="employeeEIN" type="text" class="form-control" name="employeeEIN" />
+                                <label for="employeeEIN" class="control-label">EIN</label>
+                                <input id="employeeEIN" type="text" class="form-control" name="employeeEIN" />
                                 <span id="error_employeeEIN" class="text-danger"></span>
                             </div>
                             <div class="form-group col-3">
-                                <label class="control-label">EncodedID</label>
-                                <input label="" id="tagEncodedID" type="text" class="form-control" name="tagEncodedID" />
+                                <label for="tagEncodedID" class="control-label">EncodedID</label>
+                                <input id="tagEncodedID" type="text" class="form-control" name="tagEncodedID" />
                                 <span id="error_tagEncodedID" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="row mr-0 ml-0">
                             <div class="form-group col-3">
-                                <label class="control-label">Designation Activity Code</label>
-                                <input label="" id="tagDACode" type="text" class="form-control" name="tagDACode" />
+                                <label for="tagDACode" class="control-label">Designation Activity Code</label>
+                                <input id="tagDACode" type="text" class="form-control" name="tagDACode" />
                                 <span id="error_tagDACode" class="text-danger"></span>
                             </div>
                             <div class="form-group col-3">
-                                <label class="control-label">Pay Location</label>
-                                <input label="" id="paylocation" type="text" class="form-control" name="paylocation" />
+                                <label for="paylocation" class="control-label">Pay Location</label>
+                                <input id="paylocation" type="text" class="form-control" name="paylocation" />
                                 <span id="error_paylocation" class="text-danger"></span>
                             </div>
                             <div class="form-group col-3">
-                                <label class="control-label">Craft Type</label>
+                                <label for="tagCraftName_select" class="control-label">Craft Type</label>
                                 <select id="tagCraftName_select" title="Craft Type" class="form-control" name="tagCraftName_select">
                                     <option value=""></option>
                                     <option value="Clerk">Clerk</option>
@@ -1054,17 +1055,17 @@
                     </div>
                     <div class="row mr-0 ml-0">
                         <div class="form-group col-3">
-                            <label class="control-label">Tag BLE MAC</label>
-                            <input label="" id="tag_id" type="text" class="form-control" name="tag_id" disabled="disabled" />
+                            <label for="tag_id" class="control-label">Tag BLE MAC</label>
+                            <input id="tag_id" type="text" class="form-control" name="tag_id" disabled="disabled" />
                             <span id="error_tag_id" class="text-danger"></span>
                         </div>
                         <div class="form-group col-3">
-                            <label class="control-label">TAG Name</label>
-                            <input label="" id="tag_name" type="text" class="form-control" name="tag_name" />
+                            <label for="tag_name" class="control-label">TAG Name</label>
+                            <input id="tag_name" type="text" class="form-control" name="tag_name" />
                             <span id="error_tag_name" class="text-danger"></span>
                         </div>
                         <div class="form-group col-3">
-                            <label class="control-label">Type</label>
+                            <label for="tagType_select" class="control-label">Type</label>
                             <select id="tagType_select" title="Tag Type" class="form-control" name="tagType_select">
                                 <option value=""></option>
                                 <option value="PIVVehicle">Vehicle</option>
@@ -1102,16 +1103,16 @@
                 <div class="modal-body">
                     <div class="row mr-0 ml-0">
                         <div class="form-group col-4">
-                            <label class="control-label">Zone ID</label>
-                            <input label="" id="machine_id" type="text" class="form-control" name="machine_id" disabled="disabled" /><span id="error_machine_id" class="text-danger"></span>
+                            <label for="machine_id" class="control-label">Zone ID</label>
+                            <input id="machine_id" type="text" class="form-control" name="machine_id" disabled="disabled" /><span id="error_machine_id" class="text-danger"></span>
                         </div>
                         <div class="form-group col-3">
-                            <label class="control-label">IP Address</label>
-                            <input label="" id="machine_ip" type="text" class="form-control" name="machine_ip" disabled="disabled" /><span id="error_machine_ip" class="text-danger"></span>
+                            <label for="machine_ip" class="control-label">IP Address</label>
+                            <input id="machine_ip" type="text" class="form-control" name="machine_ip" disabled="disabled" /><span id="error_machine_ip" class="text-danger"></span>
 
                         </div>
                         <div class="form-group col-3">
-                            <label class="control-label">Zone Type</label>
+                            <label for="zone_Type" class="control-label">Zone Type</label>
                             <select id="zone_Type" title="Zone Type" class="form-control" name="zone_Type">
                                 <option value="">None</option>
                                 <option value="DockDoor">DockDoor Zone</option>
@@ -1126,7 +1127,7 @@
                     </div>
                     <div class="row mr-0 ml-0" id="machine_select_row">
                         <div class="form-group col-3">
-                            <label class="control-label">Name</label>
+                            <label for="machine_zone_select_name" class="control-label">Name</label>
                             <select id="machine_zone_select_name" title="Zone Select Name" class="form-control" name="machine_zone_select_name">
                                 <option value=""></option>
                             </select>
@@ -1135,21 +1136,29 @@
                     </div>
                     <div class="row mr-0 ml-0" id="machine_manual_row">
                         <div class="form-group col-2">
-                            <label class="control-label">Name</label><input label="" id="machine_name" type="text" class="form-control" name="machine_name" /><span id="errormachine_name" class="text-danger"></span>
+                            <label for="machine_name" class="control-label">Name</label>
+                            <input id="machine_name" type="text" class="form-control" name="machine_name" />
+                            <span id="errormachine_name" class="text-danger"></span>
                         </div>
                         <div class="form-group col-2">
-                            <label class="control-label">Number</label><input label="" id="machine_number" type="text" class="form-control" name="machine_number" /><span id="error_machine_number" class="text-danger"></span>
+                            <label for="machine_number" class="control-label">Number</label>
+                            <input id="machine_number" type="text" class="form-control" name="machine_number" />
+                            <span id="error_machine_number" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="row mr-0 ml-0">
                         <div class="form-group col-2">
-                            <label class="control-label">Zone LDC</label><input label="" id="zone_ldc" type="text" class="form-control" name="zone_ldc" /><span id="errorzone_ldc" class="text-danger"></span>
+                            <label for="zone_ldc" class="control-label">Zone LDC</label>
+                            <input id="zone_ldc" type="text" class="form-control" name="zone_ldc" />
+                            <span id="errorzone_ldc" class="text-danger"></span>
                         </div>
                         <div class="form-group col-3">
-                            <label class="control-label">Pay Location</label><input label="" id="zone_paylocation" type="text" class="form-control" name="zone_paylocation" /><span id="errorzone_paylocation" class="text-danger"></span>
+                            <label for="zone_paylocation" class="control-label">Pay Location</label>
+                            <input id="zone_paylocation" type="text" class="form-control" name="zone_paylocation" />
+                            <span id="errorzone_paylocation" class="text-danger"></span>
                         </div>
                         <div class="form-group col-3">
-                            <label class="control-label">Pay Location Color</label>
+                            <label for="zonePayLocationColor" class="control-label">Pay Location Color</label>
                             <select id="zonePayLocationColor" title="Select Pay Location Color" class="form-control pb-1" name="zonePayLocationColor">
                                 <option value="">Choose a color:</option>
                                 <option value="#FF0000">Red</option>
@@ -1174,13 +1183,13 @@
                             <span id="error_zonePayLocationColor" class="text-danger"></span>
                         </div>
                         <div class="form-group col-3">
-                            <label class="control-label">Group</label>
+                            <label for="mpe_group_select" class="control-label">Group</label>
                             <select id="mpe_group_select" title="Select Group Name" class="form-control pb-1" name="mpe_group_select">
                             </select>
                         </div>
                         <div id="mpegroupname_div" class="form-group col-4">
-                            <label class="control-label">Enter New Group Name</label>
-                            <input label="" id="mpegroupname" title="New Group Name" type="text" class="form-control" name="mpegroupname" placeholder="Ex. Parcels North" />
+                            <label for="mpegroupname" class="control-label">Enter New Group Name</label>
+                            <input id="mpegroupname" title="New Group Name" type="text" class="form-control" name="mpegroupname" placeholder="Ex. Parcels North" />
                             <span id="error_mpegroupname" class="text-danger"></span>
                         </div>
                     </div>
@@ -1188,7 +1197,7 @@
                     <div class="row mr-0 ml-0" style="padding: 15px;">
                         <div class="form-group col-12">
                             <h4 id="mpestandard_h2" class="d-inline">MPE Standard </h4>
-                            <input label="" type="button" class="btn btn-outline-success float-right d-inline" id="mpestandard_btn" value="Add" />
+                            <input type="button" class="btn btn-outline-success float-right d-inline" id="mpestandard_btn" value="Add" />
                         </div>
                         <div class="card-body pb-0">
                             <div class="table-responsive">
@@ -1204,47 +1213,47 @@
                             <div class="row flex">
                                 <div class="col-4">
                                     <label class="control-label">Name</label>
-                                    <input label="" class="form-control name_txt" id="" type="text" placeholder="Run Name" />
+                                    <input class="form-control name_txt" id="" type="text" placeholder="Run Name" />
                                 </div>
                                 <div class="col-2">
                                     <label class="control-label">OPN</label>
-                                    <input label="" class="form-control GUID_txt" id="" type="hidden" />
-                                    <input label="" class="form-control OPN_txt" id="" type="text" placeholder="000" />
+                                    <input class="form-control GUID_txt" id="" type="hidden" />
+                                    <input class="form-control OPN_txt" id="" type="text" placeholder="000" />
                                 </div>
                                 <div class="col-2">
                                     <label class="control-label">Start Time</label>
-                                    <input label="" class="form-control starttime_txt 24hr_txt" id="" type="text" placeholder="00:00" />
+                                    <input class="form-control starttime_txt 24hr_txt" id="" type="text" placeholder="00:00" />
                                 </div>
                                 <div class="col-2">
                                     <label class="control-label">End Time</label>
-                                    <input label="" class="form-control endtime_txt 24hr_txt" id="" type="text" placeholder="00:00" />
+                                    <input class="form-control endtime_txt 24hr_txt" id="" type="text" placeholder="00:00" />
                                 </div>
                                 <div class="col-2">
                                     <label class="control-label">&nbsp;</label>
-                                    <input label="" type="button" class="btn btn-outline-danger float-right d-inline mpestandard_btn_delete" style="margin-top: 20px;" id="" value="Delete" />
-                                    <input label="" type="button" class="btn btn-outline-success float-right d-inline mpestandard_btn_save" style="margin-top: 20px; margin-right: 10px;" id="" value="Save" />
+                                    <input type="button" class="btn btn-outline-danger float-right d-inline mpestandard_btn_delete" style="margin-top: 20px;" id="" value="Delete" />
+                                    <input type="button" class="btn btn-outline-success float-right d-inline mpestandard_btn_save" style="margin-top: 20px; margin-right: 10px;" id="" value="Save" />
                                 </div>
                             </div>
                             <div class="row flex">
                                 <div class="col-2">
                                     <label class="control-label">Setup (min)</label>
-                                    <input label="" class="form-control setuptime_txt number_txt" id="" type="text" placeholder="00" />
+                                    <input class="form-control setuptime_txt number_txt" id="" type="text" placeholder="00" />
                                 </div>
                                 <div class="col-2">
                                     <label class="control-label">Tear Down (min)</label>
-                                    <input label="" class="form-control teardowntime_txt number_txt" id="" type="text" placeholder="00" />
+                                    <input class="form-control teardowntime_txt number_txt" id="" type="text" placeholder="00" />
                                 </div>
                                 <div class="col-2">
                                     <label class="control-label">Changeover (min)</label>
-                                    <input label="" class="form-control changeovertime_txt number_txt" id="" type="text" placeholder="00" />
+                                    <input class="form-control changeovertime_txt number_txt" id="" type="text" placeholder="00" />
                                 </div>
                                 <div class="col-2">
                                     <label class="control-label">Pcs/Hr</label>
-                                    <input label="" class="form-control psc_hr_txt number_txt" id="" type="text" placeholder="00" />
+                                    <input class="form-control psc_hr_txt number_txt" id="" type="text" placeholder="00" />
                                 </div>
                                 <div class="col-2">
                                     <label class="control-label">Staffing Per Hour</label>
-                                    <input label="" class="form-control staff_hr_txt number_txt" id="" type="text" placeholder="00" />
+                                    <input class="form-control staff_hr_txt number_txt" id="" type="text" placeholder="00" />
                                 </div>
 
 
@@ -1276,15 +1285,15 @@
                 <div class="modal-body">
                     <div class="row mr-0 ml-0">
                         <div class="form-group col-4">
-                            <label class="control-label">Zone ID</label>
-                            <input label="" id="dockdoor_id" type="text" class="form-control" name="dockdoor_id" disabled="disabled" /><span id="error_dockdoor_id" class="text-danger"></span>
+                            <label for="dockdoor_id" class="control-label">Zone ID</label>
+                            <input id="dockdoor_id" type="text" class="form-control" name="dockdoor_id" disabled="disabled" /><span id="error_dockdoor_id" class="text-danger"></span>
                         </div>
 
                     </div>
                     <div class="row mr-0 ml-0">
                         <div class="form-group col">
-                            <label class="control-label">External URL</label>
-                            <input label="" id="dockdoorexternalUrl" type="text" class="form-control" name="dockdoorexternalUrl" /><span id="error_dockdoorexternalUrl" class="text-danger"></span>
+                            <label for="dockdoorexternalUrl" class="control-label">External URL</label>
+                            <input id="dockdoorexternalUrl" type="text" class="form-control" name="dockdoorexternalUrl" /><span id="error_dockdoorexternalUrl" class="text-danger"></span>
 
                         </div>
                     </div>
@@ -1314,12 +1323,14 @@
                 <div class="modal-body">
                     <div class="row mr-0 ml-0">
                         <div class="form-group col">
-                            <label class="control-label">Tag ID</label><span id="modal_tag_id" class="form-control" name="tag_id"></span>
+                            <label class="control-label">Tag ID</label>
+                            <span id="modal_tag_id" class="form-control" name="tag_id"></span>
                         </div>
                     </div>
                     <div class="row mr-0 ml-0">
                         <div class="form-group col">
-                            <label class="control-label">Tag Name</label><input label="" id="edit_tag_name" type="text" class="form-control" name="tag_name" val="" />
+                            <label for="edit_tag_name" class="control-label">Tag Name</label>
+                            <input id="edit_tag_name" type="text" class="form-control" name="tag_name" val="" />
                         </div>
                     </div>
 
@@ -1566,13 +1577,13 @@
                                     </div>
                                     <div class="row mb-3" id="manual_row" style="display: none;">
                                         <div class="col" id="manual_namediv">
-                                            <label class="control-label" for="manual_name">Name</label>
-                                            <input label="" id="manual_name" type="text" class="form-control" name="manual_name" />
+                                            <label  class="control-label" for="manual_name">Name</label>
+                                            <input id="manual_name" type="text" class="form-control" name="manual_name" />
                                             <span id="error_manual_name" class="text-danger"></span>
                                         </div>
                                         <div class="col" id="manual_numberdiv">
                                             <label class="control-label" for="manual_number">Number</label>
-                                            <input label="" id="manual_number" type="text" class="form-control" name="manual_number" />
+                                            <input id="manual_number" type="text" class="form-control" name="manual_number" />
                                             <span id="error_manual_number" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -1598,7 +1609,7 @@
                                                     <span class="font-weight-bold text-primary ms-2" id="cameraDirectionvalue"></span>
                                                 </div>
                                                 <div class="row ms-1">
-                                                    <input label="" type="range" min="0" max="359" value="180" step="1" id="cameraDirection" class="custom-range" />
+                                                    <input type="range" min="0" max="359" value="180" step="1" id="cameraDirection" class="custom-range" />
                                                 </div>
                                                 <div class="row ms-1">
                                                     <span class="control-label">Camera facing direction on page: 0&#176;/360&#176; Up | 90&#176; Right | 180&#176; Down | 270&#176; Left</span>
@@ -1790,7 +1801,7 @@
                         <div class="card-header pl-1 d-flex flex-row">
                             <h6 class="control-label sectionHeader ml-1">Vehicle Info</h6>
                             <div class="custom-control custom-switch ml-3">
-                                <input label="" id="followvehicle" type="checkbox" class="custom-control-input" name="followvehicle" />
+                                <input id="followvehicle" type="checkbox" class="custom-control-input" name="followvehicle" />
                                 <label class="vehicleInfo custom-control-label" for="followvehicle">Follow Vehicle</label>
 
                             </div>
@@ -1847,17 +1858,17 @@
                                             </tr>
                                             <tr class="filters">
                                                 <td>
-                                                    <input label="" class="frow-comp-1" id="dest" type="text" placeholder="Dest" />
+                                                    <input class="frow-comp-1" id="dest" type="text" placeholder="Dest" />
                                                 </td>
                                                 <td>
-                                                    <input label="" class="frow-comp-2" id="location" type="text" placeholder="Location" />
+                                                    <input class="frow-comp-2" id="location" type="text" placeholder="Location" />
                                                 </td>
                                                 <td></td>
                                                 <td>
-                                                    <input label="" class="frow-comp-3" id="placard" type="text" placeholder="Placard" />
+                                                    <input class="frow-comp-3" id="placard" type="text" placeholder="Placard" />
                                                 </td>
                                                 <td>
-                                                    <input label="" class="frow-comp-4" id="status" type="text" placeholder="Status" />
+                                                    <input class="frow-comp-4" id="status" type="text" placeholder="Status" />
                                                 </td>
                                             </tr>
                                         </thead>
@@ -2124,10 +2135,10 @@
                                             </tr>
                                             <tr class="filters">
                                                 <td>
-                                                    <input label="" class="frow-comp-1" id="badge" type="text" placeholder="Badge" />
+                                                    <input class="frow-comp-1" id="badge" type="text" placeholder="Badge" />
                                                 </td>
                                                 <td>
-                                                    <input label="" class="frow-comp-2" id="overtimebage_time" type="text" placeholder="Overtime" />
+                                                    <input class="frow-comp-2" id="overtimebage_time" type="text" placeholder="Overtime" />
                                                 </td>
                                             </tr>
                                         </thead>
@@ -2464,7 +2475,7 @@
                         <div class="card-header">
                             <h6 class="control-label sectionHeader pl-1 d-flex justify-content-between">Badge / Equipment Search</h6>
                             <div class="input-group flex-fill px-0 mt-2 mx-3 mr-p5rem">
-                                <input label="" type="text" id="inputsearchbtn" class="form-control input-border-light" placeholder="Enter badge or equipment ID" aria-label="Tag / Equipment Name" aria-describedby="searchbtn" style="font-size: 14px;" />
+                                <input type="text" id="inputsearchbtn" class="form-control input-border-light" placeholder="Enter badge or equipment ID" aria-label="Tag / Equipment Name" aria-describedby="searchbtn" style="font-size: 14px;" />
                             </div>
                             <p class="smaller text-secondary mb-0 mt-1 ml-2">Start search by entering any letter or number of a badge or vehicle ID</p>
                         </div>
