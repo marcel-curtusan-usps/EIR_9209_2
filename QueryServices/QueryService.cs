@@ -292,7 +292,7 @@ internal class QueryService : IQueryService
     {
         const string userRegexPattern = @"^(.+?)\s(.+?)\s\((\d+)\)$"; //expected pattern FIRSTNAME LASTNAME (EIN)
         return results
-            .Where(r => Regex.Match(r.User, userRegexPattern).Success)
+            .Where(r => Regex.Match(r.User, userRegexPattern,).Success)
             .Select(r => new TagTimeline
             {
                 Hour = hour,

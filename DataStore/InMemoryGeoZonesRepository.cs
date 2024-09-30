@@ -46,7 +46,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         bool saveToFile = false;
         try
         {
-            if (!Regex.IsMatch(geoZone.Properties.Type, "^(MPE)", RegexOptions.IgnoreCase))
+            if (!Regex.IsMatch(geoZone.Properties.Type, "^(MPE)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
             {
                 geoZone.Properties.MPERunPerformance = null;
             }
@@ -302,20 +302,20 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     }
     public object getMPESummary(string area)
     {
-        return _mpeSummary.Where(r => Regex.IsMatch(r.Key, "(" + area + ")", RegexOptions.IgnoreCase)).Select(r => r.Value).ToList();
+        return _mpeSummary.Where(r => Regex.IsMatch(r.Key, "(" + area + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Select(r => r.Value).ToList();
 
     }
     public Task<List<MPESummary>> getMPESummaryDateRange(string area, DateTime startDT, DateTime endDT)
     {
         var ty = startDT.Date;
         //i want to select all the area that matches the area and is between startDT and endDT
-        var result = _mpeSummary.Where(r => Regex.IsMatch(r.Key, "(" + area + ")", RegexOptions.IgnoreCase)).SelectMany(y => y.Value)
+        var result = _mpeSummary.Where(r => Regex.IsMatch(r.Key, "(" + area + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).SelectMany(y => y.Value)
             .Where(u => u.Key >= startDT && u.Key <= endDT).Select(y => y.Value).ToList();
         return Task.FromResult(result);
     }
     public List<MPEActiveRun> getMPERunActivity(string area)
     {
-        return _MPERunActivity.Where(r => Regex.IsMatch(r.Key, "(" + area + ")", RegexOptions.IgnoreCase)).Select(r => r.Value).ToList();
+        return _MPERunActivity.Where(r => Regex.IsMatch(r.Key, "(" + area + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Select(r => r.Value).ToList();
 
     }
 
@@ -447,24 +447,24 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             {
                 //if where pieces Sorted is available the calculate the actual yield using the sorted pieces
 
-                var clerkAndMailHandlerCountThisHour = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds) / (1000 * 60 * 60);
+                var clerkAndMailHandlerCountThisHour = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds) / (1000 * 60 * 60);
                 actualYieldcal = piecesForYield != null && clerkAndMailHandlerCountThisHour > 0 ? piecesForYield.Value / clerkAndMailHandlerCountThisHour : 0.0;
                 if (mpe.HourlyData.Where(r => r.Hour == hour).Select(y => y.Count).Any())
                 {
-                    actualYieldcal = mpe.HourlyData.Where(r => r.Hour == hour).Select(y => y.Count).First() / (entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds) / (1000 * 60 * 60));
+                    actualYieldcal = mpe.HourlyData.Where(r => r.Hour == hour).Select(y => y.Count).First() / (entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds) / (1000 * 60 * 60));
                 }
                 laborHrs = entriesThisArea.GroupBy(e => e.Type).ToDictionary(g => g.Key, g => g.Sum(e => e.DwellTimeDurationInArea.TotalMilliseconds));
                 laborCounts = entriesThisArea.GroupBy(e => e.Type).ToDictionary(g => g.Key, g => g.Count());
-                clerkDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
-                maintDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(maintenance)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
-                mhDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(mail handler)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
-                supervisorDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(supervisor)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+                clerkDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+                maintDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(maintenance)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+                mhDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+                supervisorDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(supervisor)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
                 otherDwellTime = entriesThisArea.Where(e => !Regex.IsMatch(e.Type, "^(clerk|supervisor|mail handler|maintenance)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
-                clerkPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk)", RegexOptions.IgnoreCase)).Count();
-                mhPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(mail handler)", RegexOptions.IgnoreCase)).Count();
-                maintPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(maintenance)", RegexOptions.IgnoreCase)).Count();
-                supervisorPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(supervisor)", RegexOptions.IgnoreCase)).Count();
-                otherPresent = entriesThisArea.Where(e => !Regex.IsMatch(e.Type, "^(clerk|supervisor|mail handler|maintenance)", RegexOptions.IgnoreCase)).Count();
+                clerkPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Count();
+                mhPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Count();
+                maintPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(maintenance)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Count();
+                supervisorPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(supervisor)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Count();
+                otherPresent = entriesThisArea.Where(e => !Regex.IsMatch(e.Type, "^(clerk|supervisor|mail handler|maintenance)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Count();
             }
             return new MPESummary
             {
@@ -621,19 +621,19 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (!string.IsNullOrEmpty(name))
             {
-                if (Regex.IsMatch(name, _configuration[key: "ZoneConfiguration:AGVLocation"], RegexOptions.IgnoreCase))
+                if (Regex.IsMatch(name, _configuration[key: "ZoneConfiguration:AGVLocation"], RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
                 {
                     return "AGVLocation";
                 }
-                else if (Regex.IsMatch(name, _configuration[key: "ZoneConfiguration:Dockdoor"], RegexOptions.IgnoreCase))
+                else if (Regex.IsMatch(name, _configuration[key: "ZoneConfiguration:Dockdoor"], RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
                 {
                     return "DockDoor";
                 }
-                else if (Regex.IsMatch(name, _configuration[key: "ZoneConfiguration:Area"], RegexOptions.IgnoreCase))
+                else if (Regex.IsMatch(name, _configuration[key: "ZoneConfiguration:Area"], RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
                 {
                     return "Area";
                 }
-                else if (Regex.IsMatch(name, _configuration[key: "ZoneConfiguration:Viewport"], RegexOptions.IgnoreCase))
+                else if (Regex.IsMatch(name, _configuration[key: "ZoneConfiguration:Viewport"], RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
                 {
                     return "ViewPorts";
                 }

@@ -165,7 +165,7 @@ namespace EIR_9209_2.DataStore
                         //check FirstName value is not null and update the FirstName value
                         if (empData.ContainsKey("firstName"))
                         {
-                            if (!Regex.IsMatch(currentTag.Properties.EmpFirstName, $"^{Regex.Escape(empData["firstName"].ToString())}$", RegexOptions.IgnoreCase))
+                            if (!Regex.IsMatch(currentTag.Properties.EmpFirstName, $"^{Regex.Escape(empData["firstName"].ToString())}$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
                             {
                                 currentTag.Properties.EmpFirstName = empData["firstName"].ToString();
                                 savetoFile = true;
@@ -174,7 +174,7 @@ namespace EIR_9209_2.DataStore
                         //check LastName value is not null and update the LastName value
                         if (empData.ContainsKey("lastName"))
                         {
-                            if (!Regex.IsMatch(currentTag.Properties.EmpLastName, $"^{Regex.Escape(empData["lastName"].ToString())}$", RegexOptions.IgnoreCase))
+                            if (!Regex.IsMatch(currentTag.Properties.EmpLastName, $"^{Regex.Escape(empData["lastName"].ToString())}$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
                             {
                                 currentTag.Properties.EmpLastName = empData["lastName"].ToString();
                                 savetoFile = true;
@@ -183,7 +183,7 @@ namespace EIR_9209_2.DataStore
                         //check title value is not null and update the title value
                         if (empData.ContainsKey("title"))
                         {
-                            if (!Regex.IsMatch(currentTag.Properties.Title, $"^{Regex.Escape(empData["title"].ToString())}$", RegexOptions.IgnoreCase))
+                            if (!Regex.IsMatch(currentTag.Properties.Title, $"^{Regex.Escape(empData["title"].ToString())}$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
                             {
                                 currentTag.Properties.Title = empData["title"].ToString();
                                 savetoFile = true;
@@ -627,12 +627,12 @@ namespace EIR_9209_2.DataStore
         public IEnumerable<JObject> SearchTag(string searchValue)
         {
             var badgeQuery = _tagList.Where(sl =>
-                Regex.IsMatch(sl.Value.Properties.Id, "(" + searchValue + ")", RegexOptions.IgnoreCase)
-                || Regex.IsMatch(sl.Value.Properties.EIN, "(" + searchValue + ")", RegexOptions.IgnoreCase)
-                || Regex.IsMatch(sl.Value.Properties.EncodedId, "(" + searchValue + ")", RegexOptions.IgnoreCase)
-                || Regex.IsMatch(sl.Value.Properties.CraftName, "(" + searchValue + ")", RegexOptions.IgnoreCase)
-                || Regex.IsMatch(sl.Value.Properties.EmpFirstName, "(" + searchValue + ")", RegexOptions.IgnoreCase)
-                || Regex.IsMatch(sl.Value.Properties.EmpLastName, "(" + searchValue + ")", RegexOptions.IgnoreCase)
+                Regex.IsMatch(sl.Value.Properties.Id, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+                || Regex.IsMatch(sl.Value.Properties.EIN, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+                || Regex.IsMatch(sl.Value.Properties.EncodedId, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+                || Regex.IsMatch(sl.Value.Properties.CraftName, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+                || Regex.IsMatch(sl.Value.Properties.EmpFirstName, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+                || Regex.IsMatch(sl.Value.Properties.EmpLastName, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
               ).Select(r => r.Value.Properties).ToList();
             var badgeSearchReuslt = (from sr in badgeQuery
                                      select new JObject
@@ -652,8 +652,8 @@ namespace EIR_9209_2.DataStore
                                      }).ToList();
             
             var vehicelQuery = _vehicleTagList.Where(sl =>
-           Regex.IsMatch(sl.Value.Properties.Id, "(" + searchValue + ")", RegexOptions.IgnoreCase)
-           || Regex.IsMatch(sl.Value.Properties.Name, "(" + searchValue + ")", RegexOptions.IgnoreCase)
+           Regex.IsMatch(sl.Value.Properties.Id, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+           || Regex.IsMatch(sl.Value.Properties.Name, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
          ).Select(r => r.Value.Properties).ToList();
 
             var vehicelSearchReuslt = (from sr in vehicelQuery

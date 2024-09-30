@@ -81,7 +81,7 @@ namespace EIR_9209_2.DatabaseCalls.IDS
                                             {
                                                 if (property.Key != "queryName")
                                                 {
-                                                    if (!string.IsNullOrEmpty((string)property.Value) && Regex.IsMatch(query, "(\\:" + property.Key + ")", RegexOptions.IgnoreCase))
+                                                    if (!string.IsNullOrEmpty((string)property.Value) && Regex.IsMatch(query, "(\\:" + property.Key + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
                                                     {
                                                         if (property.Value.Type == JTokenType.Date)
                                                         {

@@ -81,10 +81,10 @@ namespace EIR_9209_2.Controllers
                 if (applicationSettings.Exists())
                 {
                     var appName = applicationSettings.GetSection("ApplicationName");
-                    if (value.Properties().Any(p => Regex.IsMatch(p.Name, "NassCode", RegexOptions.IgnoreCase)))
+                    if (value.Properties().Any(p => Regex.IsMatch(p.Name, "NassCode", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))))
                     {
                         var NassCode = applicationSettings.GetSection("NassCode");
-                        var nassCodeValue = value.Properties().First(p => Regex.IsMatch(p.Name, "NassCode", RegexOptions.IgnoreCase)).Value.ToString();
+                        var nassCodeValue = value.Properties().First(p => Regex.IsMatch(p.Name, "NassCode", RegexOptions.IgnoreCase,TimeSpan.FromSeconds(10))).Value.ToString();
                         if (nassCodeValue == "")
                         {
                             NassCode.Value = nassCodeValue;
@@ -138,7 +138,7 @@ namespace EIR_9209_2.Controllers
                     }
                     else if (value.ContainsKey("IdsConnectionString"))
                     {
-                        var currentValue = value.Properties().First(p => Regex.IsMatch(p.Name.ToString(), "IdsConnectionString", RegexOptions.IgnoreCase)).Value.ToString();
+                        var currentValue = value.Properties().First(p => Regex.IsMatch(p.Name.ToString(), "IdsConnectionString", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Value.ToString();
                         var ConnectionString = applicationSettings.GetSection("IdsConnectionString");
                         ConnectionString.Value = _encryptDecrypt.Encrypt(currentValue);
                         if (await _application.Update(ConnectionString.Key, ConnectionString.Value))
@@ -147,9 +147,9 @@ namespace EIR_9209_2.Controllers
 
                         }
                     }
-                    else if (value.Properties().Any(p => Regex.IsMatch(p.Name, "BaseDrive", RegexOptions.IgnoreCase)))
+                    else if (value.Properties().Any(p => Regex.IsMatch(p.Name, "BaseDrive", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))))
                     {
-                        var currentBaseDriveValue = value.Properties().First(p => Regex.IsMatch(p.Name, "BaseDrive", RegexOptions.IgnoreCase)).Value.ToString();
+                        var currentBaseDriveValue = value.Properties().First(p => Regex.IsMatch(p.Name, "BaseDrive", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Value.ToString();
                         var BaseDrive = applicationSettings.GetSection("BaseDrive");
                         BaseDrive.Value = currentBaseDriveValue;
                         if (await _application.Update(BaseDrive.Key, BaseDrive.Value))
