@@ -37,7 +37,17 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         // Configure logging
-        services.AddLogging();
+        services.AddLogging(loggingBuilder =>
+        {
+            loggingBuilder.ClearProviders(); // Clear default providers
+            loggingBuilder.AddConsole(); // Add console logging
+            loggingBuilder.AddDebug(); // Add debug logging
+            loggingBuilder.AddConfiguration(Configuration.GetSection("Logging")); // Add configuration from appsettings.json
+
+            // Optional: Add other logging providers as needed
+            // loggingBuilder.AddEventLog();
+            // loggingBuilder.AddFile("Logs/myapp-{Date}.txt"); // Example of adding file logging
+        });
         services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate(); // Add Windows Authentication
         services.AddAuthorization(); // Add authorization services
         services.AddSingleton<IFilePathProvider, FilePathProvider>();

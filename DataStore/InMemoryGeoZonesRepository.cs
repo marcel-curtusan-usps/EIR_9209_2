@@ -1152,25 +1152,25 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     item["mpe_type"] = "APPS";
                     item["mpe_name"] = string.Concat("APPS", "-", mpeNumber.ToString().PadLeft(3, '0'));
                 }
-                int operationNumber = 0;
-                DateTime.TryParse(item["rpg_start_dtm"]?.ToString(), out DateTime rpg_start_dtm);
-                DateTime.TryParse(item["rpg_end_dtm"]?.ToString(), out DateTime rpg_end_dtm);
-                DateTime.TryParse(item["mpew_start_15min_dtm"]?.ToString(), out DateTime mpew_start_15min_dtm);
-                DateTime.TryParse(item["mpew_end_15min_dtm"]?.ToString(), out DateTime mpew_end_15min_dtm);
-                int.TryParse(item["rpg_pieces_fed"]?.ToString(), out int rpg_pieces_fed);
-                int.TryParse(item["rpg_expected_thruput"]?.ToString().Replace(" pcs/hr", ""), out int rpg_expected_thruput);
+                int? operationNumber = 0;
+                _ = DateTime.TryParse(item["rpg_start_dtm"]?.ToString(), out DateTime rpg_start_dtm);
+                _ = DateTime.TryParse(item["rpg_end_dtm"]?.ToString(), out DateTime rpg_end_dtm);
+                _ = DateTime.TryParse(item["mpew_start_15min_dtm"]?.ToString(), out DateTime mpew_start_15min_dtm);
+                _ = DateTime.TryParse(item["mpew_end_15min_dtm"]?.ToString(), out DateTime mpew_end_15min_dtm);
+                _ = int.TryParse(item["rpg_pieces_fed"]?.ToString(), out int rpg_pieces_fed);
+                _ = int.TryParse(item["rpg_expected_thruput"]?.ToString().Replace(" pcs/hr", ""), out int rpg_expected_thruput);
                 // Extract the first 3 digits from mail_operation_nbr
-                int.TryParse(item["mail_operation_nbr"]?.ToString(), out int mail_operation_nbr);
+                _ = int.TryParse(item["mail_operation_nbr"]?.ToString(), out int mail_operation_nbr);
                 if (mail_operation_nbr != 0)
                 {
                     operationNumber = int.Parse(mail_operation_nbr.ToString().Substring(0, 3));
                 }
-                int.TryParse(item["machine_num"]?.ToString(), out int machine_num);
-                string mpe_name = item["mpe_name"]?.ToString();
-                string mpe_type = item["mpe_type"]?.ToString();
-                string sort_program_name = item["sort_program_name"]?.ToString();
-                string mods_date = item["mods_date"]?.ToString();
-                string mpe_id = string.Concat(mpe_name, @"_", new DateTime(rpg_start_dtm.Year, rpg_start_dtm.Month, rpg_start_dtm.Day, rpg_start_dtm.Hour, rpg_start_dtm.Minute, 0, 0).ToString(""));
+                _ = int.TryParse(item["machine_num"]?.ToString(), out int machine_num);
+                string? mpe_name = item["mpe_name"]?.ToString();
+                string? mpe_type = item["mpe_type"]?.ToString();
+                string? sort_program_name = item["sort_program_name"]?.ToString();
+                string? mods_date = item["mods_date"]?.ToString();
+                string? mpe_id = string.Concat(mpe_name, @"_", new DateTime(rpg_start_dtm.Year, rpg_start_dtm.Month, rpg_start_dtm.Day, rpg_start_dtm.Hour, rpg_start_dtm.Minute, 0, 0).ToString(""));
 
                 if (_MPERunActivity.ContainsKey(mpe_id) && _MPERunActivity.TryGetValue(mpe_id, out MPEActiveRun activeRun))
                 {
@@ -1215,7 +1215,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                         CurThruputOphr = rpg_expected_thruput,
                         CurrentRunStart = rpg_start_dtm,
                         CurrentRunEnd = rpg_end_dtm,
-                        CurOperationId = operationNumber,
+                        CurOperationId = (int)operationNumber,
                         TotSortplanVol = rpg_pieces_fed,
                         RpgEstVol = rpg_pieces_fed,
                         RpgExpectedThruput = rpg_expected_thruput,
