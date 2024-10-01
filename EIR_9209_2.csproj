@@ -6,10 +6,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
-		<AssemblyVersion>2.0.5.36</AssemblyVersion>
+		<AssemblyVersion>2.0.5.37</AssemblyVersion>
 		<OutputType>Exe</OutputType>
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-		<FileVersion>2.0.5.36</FileVersion>
+		<FileVersion>2.0.5.37</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -84,8 +84,6 @@
 	<ItemGroup>
 		<Content Remove="bundleconfig.json" />
 		<Content Remove="compilerconfig.json" />
-		<Content Remove="wwwroot\lib\geoman-io\dist\leaflet-geoman.d.ts" />
-		<Content Remove="wwwroot\lib\geoman-io\leaflet-geoman-free\dist\leaflet-geoman.d.ts" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -170,43 +168,19 @@
 	<ItemGroup>
 		<None Include="bundleconfig.json" />
 		<None Include="compilerconfig.json" />
-		<None Include="wwwroot\lib\bootstrap-datepicker\css\bootstrap-datepicker.css.map" />
-		<None Include="wwwroot\lib\bootstrap-datepicker\js\bootstrap-datepicker.min.js" />
-		<None Include="wwwroot\lib\bootstrap\LICENSE" />
-		<None Include="wwwroot\lib\chartjs-adapter-luxon\chartjs-adapter-luxon.umd.min.js" />
-		<None Include="wwwroot\lib\chartjs-plugin-datalabels\chartjs-plugin-datalabels.esm.js" />
-		<None Include="wwwroot\lib\chartjs-plugin-datalabels\chartjs-plugin-datalabels.esm.min.js" />
-		<None Include="wwwroot\lib\chartjs-plugin-datalabels\chartjs-plugin-datalabels.min.js" />
-		<None Include="wwwroot\lib\chartjs\chart.cjs.map" />
-		<None Include="wwwroot\lib\chartjs\chart.js.map" />
-		<None Include="wwwroot\lib\chartjs\chart.min.js" />
-		<None Include="wwwroot\lib\chartjs\chart.umd.js" />
-		<None Include="wwwroot\lib\chartjs\chart.umd.js.map" />
-		<None Include="wwwroot\lib\chartjs\chart.umd.min.js" />
-		<None Include="wwwroot\lib\chartjs\helpers.cjs.map" />
-		<None Include="wwwroot\lib\chartjs\helpers.js.map" />
-		<None Include="wwwroot\lib\chartjs\helpers.min.js" />
-		<None Include="wwwroot\lib\datatables.net-bs5\dataTables.bootstrap5.min.js" />
-		<None Include="wwwroot\lib\datatables.net\dataTables.min.js" />
-		<None Include="wwwroot\lib\geoman-io\dist\leaflet-geoman.min.js" />
-		<None Include="wwwroot\lib\geoman-io\leaflet-geoman-free\dist\leaflet-geoman.min.js" />
-		<None Include="wwwroot\lib\geoman-io\leaflet-geoman-free\LICENSE" />
-		<None Include="wwwroot\lib\geoman-io\leaflet-geoman-free\README.md" />
-		<None Include="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.min.js" />
-		<None Include="wwwroot\lib\jquery-validation\additional-methods.min.js" />
-		<None Include="wwwroot\lib\jquery-validation\jquery.validate.min.js" />
-		<None Include="wwwroot\lib\jquery-validation\LICENSE.md" />
-		<None Include="wwwroot\lib\jquery\jquery.min.js" />
-		<None Include="wwwroot\lib\jquery\jquery.min.map" />
-		<None Include="wwwroot\lib\leaflet.marker.slideto\LICENSE" />
-		<None Include="wwwroot\lib\leaflet.marker.slideto\README.md" />
-		<None Include="wwwroot\lib\luxon\luxon.js.map" />
-		<None Include="wwwroot\lib\luxon\luxon.min.js" />
-		<None Include="wwwroot\lib\luxon\luxon.min.js.map" />
 		<Page Include="wwwroot\Reports\Content\empSchedule.scss" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Content Update="wwwroot\css\bootstrap-icons.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\css\bootstrap-icons.min.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\css\bootstrap-icons.scss">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="wwwroot\css\fonts\bootstrap-icons.woff">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
@@ -226,6 +200,15 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\css\images\NoImageFeed.jpg">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\css\Site.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\css\Site.min.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\css\Site.scss">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\js\accessPoints.js">
@@ -306,22 +289,190 @@
 	  <Content Update="wwwroot\lib\bootstrap-datepicker\css\bootstrap-datepicker.css">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap-datepicker\css\bootstrap-datepicker.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap-datepicker\css\bootstrap-datepicker.min.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="wwwroot\lib\bootstrap-datepicker\js\bootstrap-datepicker.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap-datepicker\js\bootstrap-datepicker.min.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\lib\bootstrap-datepicker\locales\bootstrap-datepicker.en-US.min.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap.min.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap.min.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.js.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="wwwroot\lib\chartjs-adapter-luxon\chartjs-adapter-luxon.umd.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\chartjs-adapter-luxon\chartjs-adapter-luxon.umd.min.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\chartjs-plugin-datalabels\chartjs-plugin-datalabels.esm.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\chartjs-plugin-datalabels\chartjs-plugin-datalabels.esm.min.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\lib\chartjs-plugin-datalabels\chartjs-plugin-datalabels.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	  <Content Update="wwwroot\lib\chartjs-plugin-datalabels\chartjs-plugin-datalabels.min.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\chartjs\chart.cjs.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="wwwroot\lib\chartjs\chart.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	  <Content Update="wwwroot\lib\chartjs\chart.js.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\chartjs\chart.min.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\chartjs\chart.umd.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\chartjs\chart.umd.js.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\chartjs\chart.umd.min.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\chartjs\helpers.cjs.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="wwwroot\lib\chartjs\helpers.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\chartjs\helpers.js.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\chartjs\helpers.min.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\lib\datatables.net-bs5\dataTables.bootstrap5.css">
@@ -330,7 +481,16 @@
 	  <Content Update="wwwroot\lib\datatables.net-bs5\dataTables.bootstrap5.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	  <Content Update="wwwroot\lib\datatables.net-bs5\dataTables.bootstrap5.min.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\datatables.net-bs5\dataTables.bootstrap5.min.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="wwwroot\lib\datatables.net\dataTables.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\datatables.net\dataTables.min.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\lib\geoman-io\dist\leaflet-geoman.css">
@@ -339,37 +499,163 @@
 	  <Content Update="wwwroot\lib\geoman-io\dist\leaflet-geoman.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	  <Content Update="wwwroot\lib\geoman-io\dist\leaflet-geoman.min.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="wwwroot\lib\geoman-io\leaflet-geoman-free\dist\leaflet-geoman.css">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\lib\geoman-io\leaflet-geoman-free\dist\leaflet-geoman.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	  <Content Update="wwwroot\lib\geoman-io\leaflet-geoman-free\dist\leaflet-geoman.min.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.min.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\lib\jquery-validation\additional-methods.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	  <Content Update="wwwroot\lib\jquery-validation\additional-methods.min.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="wwwroot\lib\jquery-validation\jquery.validate.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\jquery-validation\jquery.validate.min.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\lib\jquery\jquery.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	  <Content Update="wwwroot\lib\jquery\jquery.min.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="wwwroot\lib\leaflet-easybutton\src\easy-button.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet-easybutton\src\easy-button.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet-sidebar-v2\css\leaflet-sidebar.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet-sidebar-v2\css\leaflet-sidebar.min.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet-sidebar-v2\js\leaflet-sidebar.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet-sidebar-v2\js\leaflet-sidebar.min.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\lib\leaflet.marker.slideto\Leaflet.Marker.SlideTo.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	  <Content Update="wwwroot\lib\leaflet\images\layers-2x.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet\images\layers.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet\images\marker-icon-2x.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet\images\marker-icon.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet\images\marker-shadow.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet\leaflet-src.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet\leaflet-src.js.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet\leaflet-src.min.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet\leaflet.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet\leaflet.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet\leaflet.js.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet\leaflet.min.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\leaflet\leaflet.min.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="wwwroot\lib\luxon\luxon.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\luxon\luxon.js.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\luxon\luxon.min.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\luxon\luxon.min.js.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\microsoft\signalr-protocol-msgpack\dist\browser\signalr-protocol-msgpack.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\microsoft\signalr-protocol-msgpack\dist\browser\signalr-protocol-msgpack.js.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\microsoft\signalr-protocol-msgpack\dist\browser\signalr-protocol-msgpack.min.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\microsoft\signalr-protocol-msgpack\dist\browser\signalr-protocol-msgpack.min.js.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\microsoft\signalr\dist\browser\signalr.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\microsoft\signalr\dist\browser\signalr.js.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\microsoft\signalr\dist\browser\signalr.min.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\microsoft\signalr\dist\browser\signalr.min.js.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\MPE\Content\mpeView.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\MPE\Content\mpeView.min.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\MPE\Content\mpeView.scss">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\MPE\default.html">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\MPE\Scripts\mpeView.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\OSL\default.html">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	  <Content Update="wwwroot\Reports\Content\empSchedule.min.css">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="wwwroot\Reports\Content\mpePerformance.scss">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Reports\Content\siteRollUp.min.css">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\Reports\Content\siteRollUp.scss">
