@@ -661,7 +661,7 @@ async function connectionTypeLoad(connName) {
                     });
                 });
                 $.each(connName, function (key, value) {
-                    let name = this.Name;
+                    let name = this.name;
                     if ($('#connection_name option[value=' + name + ']').length == 0) {
                         $('<option/>').val(this.name).html(this.description + " (" + this.name + ")").appendTo('#connection_name');
                     }

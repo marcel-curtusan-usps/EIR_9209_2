@@ -520,7 +520,7 @@ function formattagdata(result) {
                 "KEY_NAME": "",
                 "VALUE": ""
             };
-            if (/^(admin)/i.test(appData.role) && !$.isPlainObject(result[key]) && /^(empFirstName|empLastName)/ig.test(key)) {
+            if (/^(admin)/i.test(appData.Role) && !$.isPlainObject(result[key]) && /^(empFirstName|empLastName)/ig.test(key)) {
                 switch (key) {
                     case "empFirstName":
                         temp['INDEX'] = 0;

@@ -29,7 +29,7 @@ namespace EIR_9209_2.Service
 
                     if (_endpointConfig.MessageType.Equals("FDBIDEmployeeList", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType, siteinfo.SiteId);
+                        FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType, siteinfo.FacilityId);
                     }
                     if (_endpointConfig.MessageType.Equals("NASSCodeEmployeeList", StringComparison.CurrentCultureIgnoreCase))
                     {

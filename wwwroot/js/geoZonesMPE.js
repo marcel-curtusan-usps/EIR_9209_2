@@ -264,15 +264,16 @@ async function init_geoZoneMPE() {
             connection.invoke("JoinGroup", "MPE").catch(function (err) {
                 return console.error(err.toString());
             });
-            $('button[name=machineinfoedit]').off().on('click', function () {
-                /* close the sidebar */
-                sidebar.close();
-                var id = $(this).attr('id');
-                if (checkValue(id)) {
-                    Promise.all([Edit_Machine_Info(id)]);
-                }
-            });
-
+            if (/^(admin)/i.test(appData.Role) && !$.isPlainObject(result[key]) && /^(empFirstName|empLastName)/ig.test(key)) {
+                $('button[name=machineinfoedit]').off().on('click', function () {
+                    /* close the sidebar */
+                    sidebar.close();
+                    var id = $(this).attr('id');
+                    if (checkValue(id)) {
+                        Promise.all([Edit_Machine_Info(id)]);
+                    }
+                });
+            }
             resolve();
             return false;
         }
@@ -393,7 +394,7 @@ async function loadMachineData(data, table) {
         $('div[id=machine_div]').css('display', 'block');
         $('div[id=ctstabs_div]').css('display', 'block');
         $('button[name=machineinfoedit]').attr('id', data.id);
-        if (/^(Admin|Maintenance)/i.test(appData.role)) {
+        if (/^(Admin|Maintenance)/i.test(appData.Role)) {
             $('button[name=machineinfoedit]').css('display', 'block');
         }
         $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPE/default.html?MPEStatus=' + data.name, style: 'color:white;' }).html("View").appendTo($('span[name=mpeview]'));

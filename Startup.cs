@@ -37,19 +37,8 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         // Configure logging
-        services.AddLogging(loggingBuilder =>
-        {
-            loggingBuilder.ClearProviders(); // Clear default providers
-            loggingBuilder.AddConsole(); // Add console logging
-            loggingBuilder.AddDebug(); // Add debug logging
-            loggingBuilder.AddConfiguration(Configuration.GetSection("Logging")); // Add configuration from appsettings.json
-
-            // Optional: Add other logging providers as needed
-            // loggingBuilder.AddEventLog();
-            // loggingBuilder.AddFile("Logs/myapp-{Date}.txt"); // Example of adding file logging
-        });
-        services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate(); // Add Windows Authentication
-        services.AddAuthorization(); // Add authorization services
+        services.AddLogging();
+        services.AddAuthentication(IISDefaults.AuthenticationScheme); // Add Windows Authentication
         services.AddSingleton<IFilePathProvider, FilePathProvider>();
         services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<IResetApplication, ResetApplication>();
@@ -70,6 +59,7 @@ public class Startup
         services.AddSingleton<EmailService>();
         services.AddSingleton<Worker>();
         services.AddHostedService(p => p.GetRequiredService<Worker>());
+        services.AddHttpClient();
         //add SignalR to the services
         services.AddSignalR(options =>
             {
@@ -88,7 +78,8 @@ public class Startup
                  .AllowAnyOrigin();
             });
         });
-      
+   
+        services.AddSingleton<HubServices>();
         // Add framework services.
         services.AddMvc(options =>
             {
@@ -124,10 +115,8 @@ public class Startup
                 options.CustomSchemaIds(type => type.FullName);
                 options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
                 options.OperationFilter<GeneratePathParamsValidationFilter>();
-            });
-        services.AddControllers();
-        services.AddHttpClient();
-        services.AddSingleton<HubServices>();
+            });       
+
     }
 
 
@@ -156,17 +145,7 @@ public class Startup
                 c.SwaggerEndpoint($"/{Helper.GetAppName}{swaggerConfig["Endpoint"]}", $"{Helper.GetAppName()} API's");
             }
         });
-        // Configure FileServerOptions
-        var fileServerOptions = new FileServerOptions
-        {
-            EnableDefaultFiles = true, // Enable serving default files like index.html or default.html
-            EnableDirectoryBrowsing = true // Enable directory browsing (useful for development)
-        };
-
-
-        app.UseFileServer(fileServerOptions); // Use the configured FileServerOptions
-      
-
+        app.UseFileServer(); 
         app.UseDefaultFiles(); // Use the configured options
         app.UseStaticFiles(); // Serve static files
         app.UseEndpoints(endpoints =>
@@ -174,5 +153,15 @@ public class Startup
             endpoints.MapControllers();
             endpoints.MapHub<HubServices>("/hubServics");
         });
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        else
+        {
+            //TODO: Enable production exception handling (https://docs.microsoft.com/en-us/aspnet/core/fundamentals/error-handling)
+            app.UseExceptionHandler("/Error");
+            app.UseHsts();
+        }
     }
 }

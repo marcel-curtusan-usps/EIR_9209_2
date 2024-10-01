@@ -182,7 +182,7 @@
         "Id": "f5539389-2d82-45e5-ab4d-857263e37a21",
         "Name": "FDBIDEmployeeList",
         "Description": "List of badges at site ",
-        "BaseURL": null
+        "BaseURL": "http://{0}/SMSWrapper/api/EmployeeList/{1}?fdbid={2}"
       },
       {
         "Id": "f5539389-2d82-45e5-ab4d-857263e37a51",

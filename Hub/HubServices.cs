@@ -67,26 +67,14 @@ public class HubServices : Hub
     {
         await Clients.Caller.SendAsync(method, user, message.ToString());
     }
-    //public override async Task OnConnectedAsync()
-    //{
-    //    Console.WriteLine("Client connected: " + Context.ConnectionId);
-    //    _connectionIds.TryAdd(Context.ConnectionId, Context.ConnectionId);
-    //    await base.OnConnectedAsync();
-    //}
+    public override async Task OnConnectedAsync()
+    {
+        _logger.LogInformation($"Client connected: {Context.ConnectionId} UserName: {await GetUserName(Context.User)}, DateTime:{DateTime.Now.ToString()}" );
+        await base.OnConnectedAsync();
+    }
 
     public override async Task OnDisconnectedAsync(Exception exception)
     {
-        //string removedConnectionId;
-        //_connectionIds.TryRemove(Context.ConnectionId, out removedConnectionId);
-        //// Remove the connection from the group in the _groups dictionary
-        //foreach (var group in _groups)
-        //{
-        //    if (group.Value.Contains(Context.ConnectionId))
-        //    {
-        //        group.Value.Remove(Context.ConnectionId);
-        //        break;
-        //    }
-        //}
         string userId = Context.ConnectionId;
         if (exception != null)
         {
@@ -97,20 +85,6 @@ public class HubServices : Hub
 
         await base.OnDisconnectedAsync(exception);
     }
-    //public async Task<List<string>> GetConnectedClientsInGroup(string groupName)
-    //{
-    //    if (_groups.TryGetValue(groupName, out var connections))
-    //    {
-    //        return connections.ToList();
-    //    }
-
-    //    return new List<string>();
-    //}
-
-    //public async Task<List<string>> GetAllGroups()
-    //{
-    //    return Clients.All;
-    //}
     public async Task<IEnumerable<OSLImage>> GetBackgroundImages()
     {
         return await Task.Run(_backgroundImages.GetAll);
