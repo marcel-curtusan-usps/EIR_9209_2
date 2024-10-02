@@ -264,7 +264,7 @@ async function init_geoZoneMPE() {
             connection.invoke("JoinGroup", "MPE").catch(function (err) {
                 return console.error(err.toString());
             });
-            if (/^(admin)/i.test(appData.Role) && !$.isPlainObject(result[key]) && /^(empFirstName|empLastName)/ig.test(key)) {
+            if (/^(admin)/i.test(appData.Role)) {
                 $('button[name=machineinfoedit]').off().on('click', function () {
                     /* close the sidebar */
                     sidebar.close();
@@ -669,7 +669,7 @@ function VaildateEstComplete(estComplet) {
         let est = luxon.DateTime.fromISO(estComplet);
         //if (est._isValid && est.year === luxon.DateTime.local().year) {
         if (est.year && est.year === luxon.DateTime.local().year) {
-            return est.toFormat("yyyy-MM-dd hh:mm:ss a");
+            return est.toFormat("yyyy-MM-dd HH:mm:ss");
         }
         else {
             return "Estimate Not Available";
