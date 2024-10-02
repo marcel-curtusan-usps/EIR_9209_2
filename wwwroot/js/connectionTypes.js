@@ -383,8 +383,8 @@ async function Delete_Connectiontype(data) {
 async function createConnectiontypeSubtable(parentid, table, row_data) {
     try {
         let arrayColums = [{
-            "Name": "",
-            "Description": "",
+            "name": "",
+            "description": "",
             "Action": ""
         }]
         let columns = [];

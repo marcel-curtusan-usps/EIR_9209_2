@@ -52,7 +52,7 @@ namespace EIR_9209_2.Service
                             {
                                 continue;
                             }
-                            FormatUrl = string.Format(_endpointConfig.Url, server, camera.Properties.CameraName);
+                            FormatUrl = string.Format(_endpointConfig.Url, camera.Properties.IP);
 
                             using (var httpClient = new HttpClient())
                             {

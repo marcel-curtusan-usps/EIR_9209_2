@@ -379,14 +379,25 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             onAPIConnection();
         }
     }));
-    if ($("input[type=checkbox][name='OAuthconnection']").on("change", () => {
+    if ($("input[type=checkbox][name='oAuth2']").on("change", () => {
         connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
         if (/^(api)/i.test(connTypeRadio)) {
-            if ($('input[type=checkbox][name=OAuthconnection]').is(':checked')) {
+            if ($('input[type=checkbox][name=oAuth2]').is(':checked')) {
                 onOAuthConnection();
             }
             else {
                 offOAuthConnection();
+            }
+        }
+    }));
+    if ($("input[type=checkbox][name='basicAuth']").on("change", () => {
+        connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
+        if (/^(api)/i.test(connTypeRadio)) {
+            if ($('input[type=checkbox][name=basicAuth]').is(':checked')) {
+                onBasicAuthConnection();
+            }
+            else {
+                offBasicAuthConnection();
             }
         }
     }));
@@ -475,15 +486,35 @@ async function Add_Connection() {
                     Url: $('input[type=text][name=url]').val(),
                     MessageType: $('select[name=message_type] option:selected').val(),
                     OAuthUrl: $('input[type=text][name=tokenurl]').val(),
-                    OAuthUserName: $('input[type=text][name=tokenusername]').val(),
-                    OAuthPassword: $('input[type=text][name=tokenpassword]').val(),
-                    OAuthClientId: $('input[type=text][name=tokenclientId]').val(),
-                    OutgoingApikey: $('input[type=text][name=bearerToken]').val(),
-                    MapId: $('input[type=text][name=ciscoSpaceMapId]').val(),
-                    TenantId: $('input[type=text][name=ciscoSpacetenantId]').val(),
                     //CreatedByUsername: User.UserId,
                     // NassCode: User.Facility_NASS_Code
                 };
+                //check if the Basic Auth is checked
+                if ($('input[type=checkbox][name=basicAuth]').is(':checked')) {
+                    jsonObject.AuthType = "basicAuth";
+                    jsonObject.OAuthUserName = $('input[type=text][name=tokenusername]').val();
+                    jsonObject.OAuthPassword = $('input[type=text][name=tokenpassword]').val();
+                    jsonObject.OAuthClientId = $('input[type=text][name=tokenclientId]').val();
+                }
+                //check if the Bearer Token is checked
+                if ($('input[type=checkbox][name=bearerToken]').is(':checked')) {
+                    jsonObject.AuthType = "bearerToken";
+                    jsonObject.OutgoingApikey = $('input[type=text][name=bearerToken]').val();
+                    jsonObject.MapId = $('input[type=text][name=ciscoSpaceMapId]').val();
+                    jsonObject.TenantId = $('input[type=text][name=ciscoSpacetenantId]').val();
+                    jsonObject.OAuthUrl = $('input[type=text][name=tokenurl]').val();
+                    jsonObject.OAuthUserName = $('input[type=text][name=tokenusername]').val();
+                    jsonObject.OAuthPassword = $('input[type=text][name=tokenpassword]').val();
+                    jsonObject.OAuthClientId = $('input[type=text][name=tokenclientId]').val();
+                }
+                //check if the OAuth is checked
+                if ($('input[type=checkbox][name=oAuth2]').is(':checked')) {
+                    jsonObject.AuthType = "oAuth2";
+                    jsonObject.OAuthUrl = $('input[type=text][name=tokenurl]').val();
+                    jsonObject.OAuthUserName = $('input[type=text][name=tokenusername]').val();
+                    jsonObject.OAuthPassword = $('input[type=text][name=tokenpassword]').val();
+                    jsonObject.OAuthClientId = $('input[type=text][name=tokenclientId]').val();
+                }
                 if (!$.isEmptyObject(jsonObject)) {
                     //make a ajax call to get the employee details
                     $.ajax({
@@ -532,31 +563,46 @@ async function Edit_Connection(data) {
         $('select[name=data_retrieve]').val(data.millisecondsInterval);
         $('input[type=radio]').prop('disabled', true);
 
-        if (/^(CiscoSpaces)/i.test(data.name)) {
-            $('input[type=checkbox][id=bearerToken]').prop('checked', true);
-            $('input[type=text][name=bearerToken]').val(data.outgoingApikey);
-            $('input[type=text][name=ciscoSpaceMapId]').val(data.mapId);
-            $('input[type=text][name=ciscoSpacetenantId]').val(data.tenantId);
-            $('div[id="CiscoSpacesmenu"]').css("display", "");
-            onBearerConnection();
-        }
-        else {
-            $('input[type=radio][id=bearerToken]').prop('checked', false);
-            $('div[id="CiscoSpacesmenu"]').css("display", "none");
-            $('input[type=text][name=bearerToken]').val("");
-            $('input[type=text][name=ciscoSpaceMapId]').val("");
-            $('input[type=text][name=ciscoSpacetenantId]').val("");
-            offBearerConnection();
-        }
-
-
-        if (checkValue(data.oAuthUrl)) {
-            $('input[type=checkbox][id=OAuthconnection]').prop('checked', true);
+        //if (/^(CiscoSpaces)/i.test(data.name)) {
+        //    $('input[type=checkbox][id=bearerToken]').prop('checked', true);
+        //    $('input[type=text][name=bearerToken]').val(data.outgoingApikey);
+        //    $('input[type=text][name=ciscoSpaceMapId]').val(data.mapId);
+        //    $('input[type=text][name=ciscoSpacetenantId]').val(data.tenantId);
+        //    $('div[id="CiscoSpacesmenu"]').css("display", "");
+        //    onBearerConnection();
+        //}
+        //else {
+        //    $('input[type=radio][id=bearerToken]').prop('checked', false);
+        //    $('div[id="CiscoSpacesmenu"]').css("display", "none");
+        //    $('input[type=text][name=bearerToken]').val("");
+        //    $('input[type=text][name=ciscoSpaceMapId]').val("");
+        //    $('input[type=text][name=ciscoSpacetenantId]').val("");
+        //    offBearerConnection();
+        //}
+        if (/^(oAuth2)/i.test(data.authType)) {
+            $('input[type=checkbox][id=oAuth2]').prop('checked', true);
             $('input[type=text][name=tokenurl]').prop("disabled", false).val(data.oAuthUrl);
             $('input[type=text][name=tokenusername]').prop("disabled", false).val(data.oAuthUserName);
             $('input[type=text][name=tokenpassword]').prop("disabled", false).val(data.oAuthPassword);
             $('input[type=text][name=tokenclientId]').prop("disabled", false).val(data.oAuthClientId);
             onOAuthConnection();
+
+        }
+        if (/^(bearerToken)/i.test(data.authType)) {
+            $('input[type=checkbox][id=bearerToken]').prop('checked', true);
+          
+            $('input[type=text][name=tokenusername]').prop("disabled", false).val(data.oAuthUserName);
+            $('input[type=text][name=tokenpassword]').prop("disabled", false).val(data.oAuthPassword);
+            $('input[type=text][name=tokenclientId]').prop("disabled", false).val(data.oAuthClientId);
+            onBearerConnection();
+
+        }
+        if (/^(basicAuth)/i.test(data.authType)) {
+            $('input[type=checkbox][id=basicAuth]').prop('checked', true);
+            $('input[type=text][name=tokenusername]').prop("disabled", false).val(data.oAuthUserName);
+            $('input[type=text][name=tokenpassword]').prop("disabled", false).val(data.oAuthPassword);
+            $('input[type=text][name=tokenclientId]').prop("disabled", false).val(data.oAuthClientId);
+            onBasicAuthConnection();
 
         }
         if (data.apiConnection) {
@@ -615,21 +661,40 @@ async function Edit_Connection(data) {
                     port: $('input[type=text][name=port_number]').val(),
                     url: $('input[type=text][name=url]').val(),
                     messageType: $('select[name=message_type] option:selected').val(),
-                    OutgoingApikey: $('input[type=text][name=bearerToken]').val(),
-                    MapId: $('input[type=text][name=ciscoSpaceMapId]').val(),
-                    TenantId: $('input[type=text][name=ciscoSpacetenantId]').val(),
+                    
                     //CreatedByUsername: User.UserId,
                     //lastupdateByUsername: User.UserId,
                     id: data.id
                 };
+                //check if the Basic Auth is checked
+                if ($('input[type=checkbox][name=basicAuth]').is(':checked')) {
+                    jsonObject.AuthType = "basicAuth";
+                    jsonObject.OAuthUserName = $('input[type=text][name=tokenusername]').val();
+                    jsonObject.OAuthPassword = $('input[type=text][name=tokenpassword]').val();
+                    jsonObject.OAuthClientId = $('input[type=text][name=tokenclientId]').val();
+                }
+                //check if the Bearer Token is checked
+                if ($('input[type=checkbox][name=bearerToken]').is(':checked')) {
+                    jsonObject.AuthType = "bearerToken";
+                    jsonObject.OutgoingApikey = $('input[type=text][name=bearerToken]').val();
+                    jsonObject.MapId = $('input[type=text][name=ciscoSpaceMapId]').val();
+                    jsonObject.TenantId = $('input[type=text][name=ciscoSpacetenantId]').val();
+                    jsonObject.OAuthUrl = $('input[type=text][name=tokenurl]').val();
+                    jsonObject.OAuthUserName = $('input[type=text][name=tokenusername]').val();
+                    jsonObject.OAuthPassword = $('input[type=text][name=tokenpassword]').val();
+                    jsonObject.OAuthClientId = $('input[type=text][name=tokenclientId]').val();
+                }
+                //check if the OAuth is checked
+                if ($('input[type=checkbox][name=oAuth2]').is(':checked')) {
+                    jsonObject.AuthType = "oAuth2";
+                    jsonObject.OAuthUrl = $('input[type=text][name=tokenurl]').val();
+                    jsonObject.OAuthUserName = $('input[type=text][name=tokenusername]').val();
+                    jsonObject.OAuthPassword = $('input[type=text][name=tokenpassword]').val();
+                    jsonObject.OAuthClientId = $('input[type=text][name=tokenclientId]').val();
+                }
+
                 if (!$.isEmptyObject(jsonObject)) {
-                    //check if the OAuth is checked
-                    if ($('input[type=checkbox][name=OAuthconnection]').is(':checked')) {
-                        jsonObject.OAuthUrl = $('input[type=text][name=tokenurl]').val();
-                        jsonObject.OAuthUserName = $('input[type=text][name=tokenusername]').val();
-                        jsonObject.OAuthPassword = $('input[type=text][name=tokenpassword]').val();
-                        jsonObject.OAuthClientId = $('input[type=text][name=tokenclientId]').val();
-                    }
+                
                     //make a ajax call to get the Connection details
                     $.ajax({
                         url: SiteURLconstructor(window.location) + '/api/Connections/Update',
@@ -1106,6 +1171,46 @@ function offOAuthConnection() {
     $('input[type=text][name=tokenusername]').prop("disabled", false).val("");
     $('input[type=text][name=tokenpassword]').prop("disabled", false).val("");
     $('input[type=text][name=tokenclientId]').prop("disabled", false).val("");
+};
+function onBasicAuthConnection() {
+    $('div[id="OAuthmenu"]').css("display", "");
+    $('input[type=text][name=tokenurl]').prop("disabled", true).css('display', "none").val("");
+    //$('input[type=text][name=tokenusername]').prop("disabled", false).css('display', "").val("");
+    //$('input[type=text][name=tokenpassword]').prop("disabled", false).css('display', "").val("");
+    //$('input[type=text][name=tokenclientId]').prop("disabled", false).css('display', "").val("");
+    if (!checkValue($('input[type=text][name=tokenusername]').val())) {
+        $('input[type=text][name=tokenusername]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_tokenusername]').text("Please Enter UserName");
+    }
+    else {
+        $('input[type=text][name=tokenusername]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_tokenusername]').text("");
+    }
+    if (!checkValue($('input[type=text][name=tokenpassword]').val())) {
+        $('input[type=text][name=tokenpassword]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_tokenpassword]').text("Please Enter Password");
+    }
+    else {
+        $('input[type=text][name=tokenpassword]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_tokenpassword]').text("");
+    }
+    if (!checkValue($('input[type=text][name=tokenclientId]').val())) {
+        $('input[type=text][name=tokenclientId]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_tokenclientId]').text("Please Enter Client Id");
+    }
+    else {
+        $('input[type=text][name=tokenclientId]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_tokenclientId]').text("");
+    }
+
+}
+function offBasicAuthConnection() {
+
+    $('div[id="OAuthmenu"]').css("display", "none");
+    $('input[type=text][name=tokenurl]').prop("disabled", false).val("").removeClass('is-invalid').removeClass('is-valid');
+    $('input[type=text][name=tokenusername]').prop("disabled", false).val("").removeClass('is-invalid').removeClass('is-valid');
+    $('input[type=text][name=tokenpassword]').prop("disabled", false).val("").removeClass('is-invalid').removeClass('is-valid');
+    $('input[type=text][name=tokenclientId]').prop("disabled", false).val("").removeClass('is-invalid').removeClass('is-valid');
 };
 function onBearerConnection() {
     $('div[id="BearerTokenmenu"]').css("display", "");

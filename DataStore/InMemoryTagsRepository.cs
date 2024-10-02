@@ -23,16 +23,18 @@ namespace EIR_9209_2.DataStore
         private readonly IConfiguration _configuration;
         private readonly IFileService _fileService;
         private readonly IInMemoryDacodeRepository _dacode;
+        private readonly IInMemoryEmployeesRepository _emp;
         private readonly string fileName = "Tags.json";
         private readonly string vehicleFileName = "VehicelTags.json";
         private readonly string fileTagTimeline = "TagTimeline.json";
-        public InMemoryTagsRepository(ILogger<InMemoryTagsRepository> logger, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryDacodeRepository dacode, IFileService fileService)
+        public InMemoryTagsRepository(ILogger<InMemoryTagsRepository> logger, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryDacodeRepository dacode, IFileService fileService, IInMemoryEmployeesRepository emp)
         {
             _fileService = fileService;
             _logger = logger;
             _configuration = configuration;
             _hubServices = hubServices;
             _dacode = dacode;
+            _emp = emp;
 
             // Load data from the first file into the first collection
             LoadDataFromFile().Wait();
@@ -125,128 +127,7 @@ namespace EIR_9209_2.DataStore
         {
             return _vehicleTagList.Values.Where(r => r.Properties.Type.StartsWith("Autonomous")).Select(y => y).ToList();
         }
-        public async void UpdateEmployeeInfo(JToken result)
-        {
-            bool savetoFile = false;
-
-            try
-            {
-                foreach (JObject empData in result.OfType<JObject>())
-                {
-                    GeoMarker? TagData = null;
-                    if (empData.ContainsKey("tagId") && !string.IsNullOrEmpty(empData["tagId"].ToString()))
-                    {
-                        _tagList.TryGetValue(empData["tagId"].ToString(), out TagData);
-
-                    }
-                    else if (empData.ContainsKey("ein") && !string.IsNullOrEmpty(empData["ein"].ToString()))
-                    {
-                        TagData = _tagList.Where(r => r.Value.Properties.EIN == empData["ein"].ToString()).Select(y => y.Value).FirstOrDefault();
-                    }
-
-                    if (TagData != null && _tagList.TryGetValue(TagData.Properties.Id, out GeoMarker currentTag))
-                    {
-                        //check if tag type is not null and update the tag type
-
-                        currentTag.Properties.TagType = "Badge";
-                        savetoFile = true;
-
-
-                        //check EIN value is not null and update the EIN value
-                        if (empData.ContainsKey("ein"))
-                        {
-                            if (!string.IsNullOrEmpty(empData["ein"].ToString()) && currentTag.Properties.EIN != empData["ein"].ToString())
-                            {
-                                currentTag.Properties.EIN = empData["ein"].ToString();
-
-                                savetoFile = true;
-                            }
-                        }
-                        //check FirstName value is not null and update the FirstName value
-                        if (empData.ContainsKey("firstName"))
-                        {
-                            if (!Regex.IsMatch(currentTag.Properties.EmpFirstName, $"^{Regex.Escape(empData["firstName"].ToString())}$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                            {
-                                currentTag.Properties.EmpFirstName = empData["firstName"].ToString();
-                                savetoFile = true;
-                            }
-                        }
-                        //check LastName value is not null and update the LastName value
-                        if (empData.ContainsKey("lastName"))
-                        {
-                            if (!Regex.IsMatch(currentTag.Properties.EmpLastName, $"^{Regex.Escape(empData["lastName"].ToString())}$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                            {
-                                currentTag.Properties.EmpLastName = empData["lastName"].ToString();
-                                savetoFile = true;
-                            }
-                        }
-                        //check title value is not null and update the title value
-                        if (empData.ContainsKey("title"))
-                        {
-                            if (!Regex.IsMatch(currentTag.Properties.Title, $"^{Regex.Escape(empData["title"].ToString())}$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                            {
-                                currentTag.Properties.Title = empData["title"].ToString();
-                                savetoFile = true;
-                            }
-                        }
-                        //check encodedId value is not null and update the title value
-                        if (empData.ContainsKey("encodedId"))
-                        {
-                            if (!string.IsNullOrEmpty(empData["encodedId"].ToString()) && currentTag.Properties.EncodedId != empData["encodedId"].ToString())
-                            {
-                                currentTag.Properties.EncodedId = empData["encodedId"].ToString();
-                                savetoFile = true;
-                            }
-                        }
-
-                        //check designationActivity value is not null and update the designationActivity value
-                        if (empData.ContainsKey("designationActivity"))
-                        {
-                            if (!string.IsNullOrEmpty(empData["designationActivity"].ToString()) && currentTag.Properties.DesignationActivity != empData["designationActivity"].ToString())
-                            {
-                                if (string.IsNullOrEmpty(currentTag.Properties.DesignationActivity))
-                                {
-                                    currentTag.Properties.DesignationActivity = empData["designationActivity"].ToString();
-                                    savetoFile = true;
-                                }
-
-                                var daCode = _dacode.Get(empData["designationActivity"].ToString());
-                                if (daCode != null)
-                                {
-                                    currentTag.Properties.CraftName = daCode.CraftType;
-                                    savetoFile = true;
-                                }
-
-
-                            }
-
-
-                        }
-                        //check paylocation value is not null and update the paylocation value
-                        if (empData.ContainsKey("paylocation"))
-                        {
-                            if (!string.IsNullOrEmpty(empData["paylocation"].ToString()) && currentTag.Properties.EmpPayLocation != empData["paylocation"].ToString())
-                            {
-                                currentTag.Properties.EmpPayLocation = empData["paylocation"].ToString();
-                                savetoFile = true;
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-            }
-            finally
-            {
-                if (savetoFile)
-                {
-                    //save date to local file
-                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
-                }
-            }
-        }
+   
         private async Task LoadTagTimelineFromFile()
         {
             try
@@ -586,7 +467,7 @@ namespace EIR_9209_2.DataStore
                         if (tagInfo.ContainsKey("designationActivity"))
                         {
                             TagData.Properties.DesignationActivity = tagInfo["designationActivity"].ToString();
-                            var daCode = _dacode.Get(tagInfo["designationActivity"].ToString());
+                            var daCode = await _dacode.Get(tagInfo["designationActivity"].ToString());
                             if (daCode != null)
                             {
                                 TagData.Properties.DesignationActivity = daCode.DesignationActivity;
@@ -676,7 +557,7 @@ namespace EIR_9209_2.DataStore
             var finalReuslt = badgeSearchReuslt.Concat(vehicelSearchReuslt);
             return finalReuslt;
         }
-        public async Task UpdateTagQPEInfo(List<Tags> tags, long responseTS)
+        public async Task<bool> UpdateTagQPEInfo(List<Tags> tags, long responseTS, CancellationToken stoppingToken)
         {
             bool saveToFile = false;
             bool saveVehicleToFile = false;
@@ -684,6 +565,11 @@ namespace EIR_9209_2.DataStore
             {
                 foreach (Tags qtitem in tags)
                 {
+                    //check if cancellationToken has been called
+                    if (stoppingToken.IsCancellationRequested)
+                    {
+                        return false;
+                    }
                     if (_tagList.ContainsKey(qtitem.TagId))
                     {
                         saveToFile = await Task.Run(() => ProcessQPEBadgeTag(qtitem)).ConfigureAwait(false);
@@ -697,10 +583,12 @@ namespace EIR_9209_2.DataStore
                         saveToFile = await Task.Run(() => ProcessQPEBadgeTag(qtitem)).ConfigureAwait(false);
                     }
                 }
+                return true;
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
+                return false;
             }
             finally
             {
@@ -817,6 +705,13 @@ namespace EIR_9209_2.DataStore
                 long posAge = -1;
                 bool visable = false;
                 List<double> positionLocation = [0, 0];
+                EmployeeInfo? employeeInfo = await _emp.GetEmployeeByBLE(qtitem.TagId);
+                DesignationActivityToCraftType? daCode = null;
+                if (employeeInfo != null)
+                {
+                    daCode = await _dacode.Get(employeeInfo.DesActCode);
+                }
+               
                 lock (_tagList)
                 {
                     _tagList.TryGetValue(qtitem.TagId, out TagData);
@@ -849,6 +744,14 @@ namespace EIR_9209_2.DataStore
                         TagData.Geometry.Coordinates = positionLocation;
                         TagData.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
                         TagData.Properties.Visible = visable;
+                        TagData.Properties.EIN = employeeInfo != null ? employeeInfo.EmployeeId :"";
+                        TagData.Properties.EmpFirstName = employeeInfo != null ? employeeInfo.FirstName : "";
+                        TagData.Properties.EmpLastName = employeeInfo != null ? employeeInfo.LastName : "";
+                        TagData.Properties.EncodedId = employeeInfo != null ? employeeInfo.EncodedId : "";
+                        TagData.Properties.CardHolderId = employeeInfo != null ? employeeInfo.CardholderId : 0;
+                        TagData.Properties.DesignationActivity = employeeInfo != null ? employeeInfo.DesActCode : "";
+                        TagData.Properties.CraftName = daCode != null ? daCode.CraftType : "";
+
                         if (string.IsNullOrEmpty(TagData.Properties.TagType))
                         {
                             TagData.Properties.TagType = "Badge";
@@ -861,6 +764,7 @@ namespace EIR_9209_2.DataStore
                     }
                     else
                     {
+
                         TagData = new GeoMarker
                         {
                             Geometry = new MarkerGeometry
@@ -879,7 +783,14 @@ namespace EIR_9209_2.DataStore
                                 PositionTS = qtitem.LocationTS,
                                 TagType = "Badge",
                                 Visible = visable,
-                                isPosition = visable
+                                isPosition = visable,
+                                EIN = employeeInfo != null ? employeeInfo.EmployeeId : "",
+                                EmpFirstName = employeeInfo != null ? employeeInfo.FirstName : "",
+                                EmpLastName = employeeInfo != null ? employeeInfo.LastName : "",
+                                EncodedId = employeeInfo != null ? employeeInfo.EncodedId : "",
+                                CardHolderId = employeeInfo != null ? employeeInfo.CardholderId : 0,
+                                DesignationActivity = employeeInfo != null ? employeeInfo.DesActCode : "",
+                                CraftName = daCode != null ? daCode.CraftType : ""
                             }
                         };
 

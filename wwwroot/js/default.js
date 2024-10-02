@@ -69,6 +69,7 @@ function initializeOSL() {
         init_accessPoints();
         init_tagsAGV();
         init_tagsPIV();
+        init_tagsCamera();
         init_tags();
         $(`span[id="fotf-site-facility-name"]`).text(appData.SiteName);
     }).catch(function (err) {

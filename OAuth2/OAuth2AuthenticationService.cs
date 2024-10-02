@@ -1,5 +1,6 @@
 ﻿using EIR_9209_2.Service;
 using Newtonsoft.Json;
+using System.Text;
 
 public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDisposable
 {
@@ -47,11 +48,17 @@ public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDispos
     }
     private async Task AddAuthHeaderCore(HttpRequestMessage request, CancellationToken ct)
     {
-        if (!string.IsNullOrEmpty(_authSettings.BearerToken))
+        if (_authSettings.AuthType == "basicAuth")
+        {
+            var credentials = $"{_authSettings.UserName}:{_authSettings.Password}";
+            var encodedCredentials = Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials));
+            request.Headers.Add("Authorization", $"Basic {encodedCredentials}");
+        }
+        if (_authSettings.AuthType == "bearerToken")
         {
             request.Headers.Add("Authorization", $"Bearer {_authSettings.BearerToken}");
         }
-        else
+        if (_authSettings.AuthType == "oAuth2")
         {
             await AuthenticateAsync(ct);
             request.Headers.Add("Authorization", $"Bearer {_accessToken}");

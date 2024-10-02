@@ -3,7 +3,7 @@
 public interface IInMemoryDacodeRepository
 {
     //Connection 
-    DesignationActivityToCraftType Get(string id);
+    Task<DesignationActivityToCraftType> Get(string id);
     Task<DesignationActivityToCraftType> Add(DesignationActivityToCraftType dacode);
     Task<DesignationActivityToCraftType> Remove(string dacodeId);
     Task<DesignationActivityToCraftType> Update(DesignationActivityToCraftType dacode);

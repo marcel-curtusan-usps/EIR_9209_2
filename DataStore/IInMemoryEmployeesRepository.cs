@@ -11,4 +11,7 @@ public interface IInMemoryEmployeesRepository
     Task<List<ScheduleReport>> GetEmployeesForPayWeek(string payWeek);
     Task<bool> ResetEmployeesList();
     Task<bool> SetupEmployeesList();
+    Task<bool> LoadHECSEmployees(Hces result, CancellationToken stoppingToken);
+    Task<bool> LoadSMSEmployeeInfo(List<SMSWrapperEmployeeInfo> result, CancellationToken stoppingToken);
+    Task<EmployeeInfo> GetEmployeeByBLE(string id);
 }

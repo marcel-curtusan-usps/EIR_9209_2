@@ -24,34 +24,16 @@
     "Description": "Informed Visibility Ent System",
     "MessageTypes": [
       {
-        "Id": "f5556416-4cc4-43e3-b2e1-1245ab8683ce",
-        "Name": "schedules",
-        "Description": "Staff Schedules",
-        "BaseURL": "https://{0}/rest/ives/v1/sch/employee/finno/{1}/func/1/dt/{2}"
-      },
-      {
-        "Id": "728b2c55-108d-4a67-aed4-a33d9815bac8",
-        "Name": "payWeeks",
-        "Description": "Staff pay week",
-        "BaseURL": "https://{0}/rest/ives/v1/sch/work/finno/{1}/func/1/dt/{2}"
-      },
-      {
-        "Id": "4f4ed93a-d713-45b5-a088-f4450b809845",
-        "Name": "getStaffBySite",
-        "Description": "Staff Counts by Sites",
-        "BaseURL": null
-      },
-      {
         "Id": "59d0e4ee-9ba2-40e0-aeb3-721c0bf60d1c",
         "Name": "getEmpInfo",
-        "Description": "Employee Info by Finance Number",
-        "BaseURL": null
+        "Description": "Staff Info by Finance Number",
+        "BaseURL": "https://{0}/rest/ives/v1/sch/employee/finno/{1}/func/1/dt/{2}"
       },
       {
         "Id": "0ef2b6cf-7893-4759-9d23-dafe499e894e",
         "Name": "getEmpSchedule",
-        "Description": "Employee Schedule by Finance Number",
-        "BaseURL": null
+        "Description": "Staff Schedule by Finance Number",
+        "BaseURL": "https://{0}/rest/ives/v1/sch/work/finno/{1}/func/1/dt/{2}"
       }
     ]
   },
@@ -64,7 +46,7 @@
         "Id": "aadf59a2-4bb7-47dc-ad00-864d377fb5fb",
         "Name": "getByFacilityID",
         "Description": "By Facility ID",
-        "BaseURL": "https://{0}/RESTAdapter/HCES/HANA/Data/Request?ver=2"
+        "BaseURL": "https://{0}/RESTAdapter/HCES/HANA/Data/Request/PII?ver=2"
       }
     ]
   },

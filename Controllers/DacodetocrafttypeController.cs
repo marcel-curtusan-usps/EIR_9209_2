@@ -110,7 +110,7 @@ namespace EIR_9209_2.Controllers
             }
             //convert the JObject to a Connection object
             //find id to update 
-            DesignationActivityToCraftType dacodeToUpdate = _dacodeRepository.Get(id);
+            DesignationActivityToCraftType dacodeToUpdate = await _dacodeRepository.Get(id);
             if (dacodeToUpdate != null)
             {
                 DesignationActivityToCraftType dacode = value.ToObject<DesignationActivityToCraftType>();

@@ -6,8 +6,9 @@
     public string Password { get; }
     public string ClientId { get; }
     public string BearerToken { get; }
+    public string AuthType { get; }
 
-    public OAuth2AuthenticationServiceSettings(string server,string tokenUrl, string username, string password, string clientId, string bearerToken)
+    public OAuth2AuthenticationServiceSettings(string server,string tokenUrl, string username, string password, string clientId, string bearerToken, string authType)
     {
         Serever = server;
         TokenUrl = tokenUrl;
@@ -15,5 +16,6 @@
         Password = password;
         ClientId = clientId;
         BearerToken = bearerToken;
+        AuthType = authType;
     }
 }

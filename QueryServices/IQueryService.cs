@@ -13,10 +13,11 @@ public interface IQueryService
         TimeSpan timeSpan3, TimeSpan timeSpan4, TimeSpan timeSpan5, List<(string areaId, string areaName)> allAreaIds, int areasBatchCount, CancellationToken stoppingToken);
     Task<List<TagTimeline>> GetTotalTagTimeLine(DateTime hour, DateTime dateTime, TimeSpan timeSpan1, TimeSpan timeSpan2,
         TimeSpan timeSpan3, TimeSpan timeSpan4, TimeSpan timeSpan5, List<(string areaId, string areaName)> allAreaIds, int areasBatchCount, CancellationToken stoppingToken);
-    Task<JToken> GetSMSWrapperData(CancellationToken stoppingToken);
+    Task<List<SMSWrapperEmployeeInfo>> GetSMSWrapperData(CancellationToken stoppingToken);
     Task<JToken> GetIVESData(CancellationToken stoppingToken);
     Task<JToken> GetCiscoSpacesData(CancellationToken stoppingToken);
     Task<JToken> GetCameraData(CancellationToken stoppingToken);
     Task<byte[]> GetPictureData(CancellationToken stoppingToken);
     Task<QPEProjectInfo> GetQPEProjectInfo(CancellationToken stoppingToken);
+    Task<Hces> GetHCESData(CancellationToken stoppingToken, string facilityId, string oAuthClientId, string oAuthClientId1);
 }

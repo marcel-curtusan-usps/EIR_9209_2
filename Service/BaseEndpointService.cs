@@ -141,7 +141,9 @@ namespace EIR_9209_2.Service
             ContractResolver = new DefaultContractResolver
             {
                 NamingStrategy = new CamelCaseNamingStrategy()
-            }
+            },
+            Formatting = Formatting.Indented
+
         };
         public void Dispose()
         {

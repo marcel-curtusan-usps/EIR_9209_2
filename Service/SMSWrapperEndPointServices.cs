@@ -1,4 +1,5 @@
 ﻿using EIR_9209_2.DataStore;
+using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
 
@@ -6,13 +7,13 @@ namespace EIR_9209_2.Service
 {
     public class SMSWrapperEndPointServices : BaseEndpointService
     {
-        private readonly IInMemoryTagsRepository _tags;
+        private readonly IInMemoryEmployeesRepository _emp;
         private readonly IInMemorySiteInfoRepository _siteInfo;
 
-        public SMSWrapperEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryTagsRepository tags, IInMemorySiteInfoRepository siteInfo)
+        public SMSWrapperEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryEmployeesRepository emp, IInMemorySiteInfoRepository siteInfo)
             : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
         {
-            _tags = tags;
+            _emp = emp;
             _siteInfo = siteInfo;
         }
 
@@ -40,7 +41,7 @@ namespace EIR_9209_2.Service
                         queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                         var result = await queryService.GetSMSWrapperData(stoppingToken);
                         // Process tag data in a separate thread
-                        await ProcessFDBIDEmployeeListData(result, stoppingToken);
+                        await ProcessEmployeeListData(result, stoppingToken);
                     }
                 }
             }
@@ -57,13 +58,13 @@ namespace EIR_9209_2.Service
             }
         }
 
-        private async Task ProcessFDBIDEmployeeListData(JToken result, CancellationToken stoppingToken)
+        private async Task ProcessEmployeeListData(List<SMSWrapperEmployeeInfo> result, CancellationToken stoppingToken)
         {
             try
             {
                 if (result is not null)
                 {
-                    await Task.Run(() => _tags.UpdateEmployeeInfo(result),stoppingToken).ConfigureAwait(false);
+                    await _emp.LoadSMSEmployeeInfo(result, stoppingToken);
 
                 }
             }

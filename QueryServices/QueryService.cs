@@ -1,5 +1,6 @@
 ﻿using EIR_9209_2.Models;
 using EIR_9209_2.Service;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net;
@@ -55,9 +56,9 @@ internal class QueryService : IQueryService
     {
         return await GetPostQueryResults<dynamic>(_fullUrl.AbsoluteUri, new object(), ct).ConfigureAwait(false);
     }
-    public async Task<JToken> GetSMSWrapperData(CancellationToken ct)
+    public async Task<List<SMSWrapperEmployeeInfo>> GetSMSWrapperData(CancellationToken ct)
     {
-        return await GetQueryResults<dynamic>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
+        return await GetQueryResults<List<SMSWrapperEmployeeInfo>>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
     }
     public async Task<JToken> GetIVESData(CancellationToken ct)
     {
@@ -82,6 +83,17 @@ internal class QueryService : IQueryService
     public async Task<byte[]> GetPictureData(CancellationToken ct)
     {
         return await GetQueryResults<byte[]>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
+    }
+    public Task<Hces> GetHCESData(CancellationToken stoppingToken, string fieldname,string fieldvalue, string appid)
+    {
+       var query = new ReportQueryHCESBuilder()
+            .WithAppId(appid)
+            .WithFilter(fieldname, fieldvalue)
+            .WithPageSize(5000)
+            .WithPageNumber(1)
+            .Build();
+
+        return GetPostQueryResults<Hces>(_fullUrl.AbsoluteUri, query, stoppingToken);
     }
     public async Task<List<(string areaId, string areaName)>> GetAreasAsync(CancellationToken ct)
     {
@@ -236,6 +248,7 @@ internal class QueryService : IQueryService
             }
             else
             {
+                _logger.LogError($"Error Code:{response.StatusCode} for {queryUrl}");
                 throw new Exception($"The response code is {response.StatusCode}.");
             }
         }
@@ -308,4 +321,6 @@ internal class QueryService : IQueryService
             }).ToList();
 
     }
+
+
 }

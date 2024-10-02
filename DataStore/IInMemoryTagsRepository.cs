@@ -7,13 +7,12 @@ public interface IInMemoryTagsRepository
     Task Delete(string tagId);
     Task<object> UpdateTagUIInfo(JObject tagInfo);
     //void UpdateTagQPEInfo(List<Tags> tags, long responseTS);
-    Task UpdateTagQPEInfo(List<Tags> tags, long responseTS);
+    Task<bool> UpdateTagQPEInfo(List<Tags> tags, long responseTS, CancellationToken stoppingToken);
     object Get(string id);
     List<GeoMarker> GetAll();
     List<GeoMarker> GetTagsType(string type);
     List<VehicleGeoMarker> GetAllPIV();
     List<VehicleGeoMarker> GetAllAGV();
-    void UpdateEmployeeInfo(JToken emp);
     void UpdateBadgeTransactionScan(JObject transaction);
     string GetCraftType(string tagId);
     void UpdateTagDesignationActivity(DesignationActivityToCraftType updatedDacode);

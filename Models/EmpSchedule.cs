@@ -3,20 +3,6 @@
 
 namespace EIR_9209_2.Models
 {
-    public class EmployeeInfo
-    {
-        public required string EIN { get; set; } 
-        public required string PayWeek { get; set; } 
-        public required string PayLocation { get; set; }
-        public required string LastName { get; set; } 
-        public required string FirstName { get; set; } 
-        public required string MiddleInit { get; set; } 
-        public required string DesActCode { get; set; } 
-        public required string Title { get; set; } 
-        public required string BaseOp { get; set; } 
-        public required string TourNumber { get; set; } 
-    }
-
     public class Schedule
     {
         public string EIN { get; set; } 

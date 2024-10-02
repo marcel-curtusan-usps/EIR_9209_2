@@ -101,10 +101,10 @@ public class InMemoryDacodeRepository : IInMemoryDacodeRepository
             }
         }
     }
-    public DesignationActivityToCraftType Get(string id)
+    public async Task<DesignationActivityToCraftType> Get(string code)
     {
-        _dacodeList.TryGetValue(id, out DesignationActivityToCraftType? dacode);
-        return dacode;
+      return _dacodeList.Where(r => r.Key == code).Select(r => r.Value).FirstOrDefault();
+      
     }
 
     public IEnumerable<DesignationActivityToCraftType> GetAll()

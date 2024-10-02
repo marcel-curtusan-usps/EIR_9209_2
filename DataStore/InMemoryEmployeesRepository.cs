@@ -2,12 +2,14 @@
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Bcpg.OpenPgp;
 using PuppeteerSharp.Input;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
-
+using System.Text.RegularExpressions;
 
 public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
 {
@@ -18,19 +20,23 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
     private readonly IConfiguration _configuration;
     private readonly ILogger<InMemoryEmployeesRepository> _logger;
     private readonly IFileService _fileService;
-    private readonly IInMemoryTagsRepository _tags;
+    //private readonly IInMemoryTagsRepository _tags;
     protected readonly IHubContext<HubServices> _hubServices;
     private readonly string fileName = "Employees.json";
-    public InMemoryEmployeesRepository(ILogger<InMemoryEmployeesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices, IInMemoryTagsRepository tags)
+    public InMemoryEmployeesRepository(ILogger<InMemoryEmployeesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices)
     {
         _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
-        _hubServices = hubServices;
-        _tags = tags;
+        //_hubServices = hubServices;
+        //_tags = tags;
         // Load data from the first file into the first collection
         LoadDataFromFile().Wait();
 
+    }
+    public Task<EmployeeInfo> GetEmployeeByBLE(string id)
+    {
+      return  Task.FromResult(_empList.Where(r => r.Value.BleId == id).Select(r => r.Value).FirstOrDefault());
     }
     private async Task LoadDataFromFile()
     {
@@ -49,7 +55,10 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                 {
                     foreach (EmployeeInfo item in data.Select(r => r).ToList())
                     {
-                        _empList.TryAdd(item.EIN, item);
+                        if (!string.IsNullOrEmpty(item.EmployeeId))
+                        {
+                            _empList.TryAdd(item.EmployeeId, item);
+                        }
                     }
                 }
             }
@@ -81,7 +90,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             {
                 var employeeInfo = new EmployeeInfo
                 {
-                    EIN = item[0]!.ToString(),
+                    EmployeeId = item[0]!.ToString(),
                     PayWeek = item[1]!.ToString(),
                     PayLocation = item[2]!.ToString(),
                     LastName = item[3]!.ToString(),
@@ -93,7 +102,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                     TourNumber = item[9]!.ToString()
                 };
                 _empList.AddOrUpdate(
-                    employeeInfo.EIN,
+                    employeeInfo.EmployeeId,
                     employeeInfo,
                     (existingKey, existingValue) =>
                     {
@@ -225,7 +234,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
     {
         try
         {
-            List<string> empList = _empList.Where(r => !string.IsNullOrEmpty(r.Value.EIN)).Select(item => item.Value.EIN).Distinct().ToList();
+            List<string> empList = _empList.Where(r => !string.IsNullOrEmpty(r.Value.EmployeeId)).Select(item => item.Value.EmployeeId).Distinct().ToList();
             // If any employee is found
             if (empList.Any())
             {
@@ -372,16 +381,16 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             string dayFormat = schDate.ToString("yyyy-MM-dd");
             var QRElaborHrs = new Dictionary<string, double>();
             var TACSlaborHrs = new Dictionary<string, double>();
-            var entireDayThisEmp = await _tags.GetTagTimeline(emp, schDate);
-            if (entireDayThisEmp != null)
-            {
-                QRElaborHrs = entireDayThisEmp.GroupBy(e => e.Ein).ToDictionary(g => g.Key, g => g.Sum(e => e.Duration.TotalMilliseconds / 60 / 60 / 1000));
-            }
-            var entireTASCThisEmp = await _tags.GetTagTimeline(emp, schDate);
-            if (entireTASCThisEmp != null)
-            {
-                TACSlaborHrs = entireTASCThisEmp.GroupBy(e => e.Ein).ToDictionary(g => g.Key, g => g.Sum(e => e.Duration.TotalMilliseconds / 60 / 60 / 1000));
-            }
+            //var entireDayThisEmp = await _tags.GetTagTimeline(emp, schDate);
+            //if (entireDayThisEmp != null)
+            //{
+            //    QRElaborHrs = entireDayThisEmp.GroupBy(e => e.Ein).ToDictionary(g => g.Key, g => g.Sum(e => e.Duration.TotalMilliseconds / 60 / 60 / 1000));
+            //}
+            //var entireTASCThisEmp = await _tags.GetTagTimeline(emp, schDate);
+            //if (entireTASCThisEmp != null)
+            //{
+            //    TACSlaborHrs = entireTASCThisEmp.GroupBy(e => e.Ein).ToDictionary(g => g.Key, g => g.Sum(e => e.Duration.TotalMilliseconds / 60 / 60 / 1000));
+            //}
             return new ScheduleReport
             {
                 PayWeek = schedule.PayWeek,
@@ -523,4 +532,319 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             return Task.FromResult(true);
         }
     }
+
+    public async Task<bool> LoadHECSEmployees(Hces result, CancellationToken stoppingToken)
+    {
+        bool savetoFile = false;
+
+        try
+        {
+            if (result.row.Count > 0)
+            {
+                //loop through the result rows
+                foreach (var row in result.row)
+                {
+                    //check if cancellationToken has been called
+                    if (stoppingToken.IsCancellationRequested)
+                    {
+                        return false;
+                    }
+                    EmployeeInfo employeeInfo = new();
+                    //employeeGroup
+                    string employeeGroup = "";
+                    //employeeSubGroup
+                    string employeeSubGroup = "";
+                    //loop through the field name and value
+                    row.field.ForEach(f =>
+                    {
+                        //get the field name and value
+                        var fieldName = f.name;
+                        var fieldValue = f.value;
+                        if (fieldName == "EIN")
+                        {
+                            employeeInfo.EmployeeId = fieldValue;
+                        }
+                        if (fieldName == "lastName")
+                        {
+                            employeeInfo.LastName = fieldValue;
+                        }
+                        if (fieldName == "firstName")
+                        {
+                            employeeInfo.FirstName = fieldValue;
+                        }
+                        if (fieldName == "employeeGroup")
+                        {
+                            employeeGroup = fieldValue;
+                        }
+                        if (fieldName == "employeeSubGroup")
+                        {
+                            employeeSubGroup = fieldValue;
+                        }
+                        if (fieldName == "facilityID")
+                        {
+                            employeeInfo.FacilityID = fieldValue;
+                        }
+                        if (fieldName == "position")
+                        {
+                            employeeInfo.Position = fieldValue;
+                        }
+                        if (fieldName == "dutyStationFINNBR")
+                        {
+                            employeeInfo.DutyStationFINNBR = fieldValue;
+                        }
+                        if (fieldName == "employeeStatus")
+                        {
+                            employeeInfo.EmployeeStatus = fieldValue;
+                        }
+                    });
+                    employeeInfo.DesActCode = $"{employeeGroup}{employeeSubGroup}";
+                    if (!_empList.ContainsKey(employeeInfo.EmployeeId) && _empList.TryAdd(employeeInfo.EmployeeId, employeeInfo))
+                    {
+                        savetoFile = true;
+                    }
+                    else
+                    {
+                        if (_empList.TryGetValue(employeeInfo.EmployeeId, out EmployeeInfo currentEmp))
+                        {
+                            if (currentEmp.FirstName != employeeInfo.FirstName)
+                            {
+                                currentEmp.FirstName = employeeInfo.FirstName;
+                                savetoFile = true;
+                            }
+                            if (currentEmp.LastName != employeeInfo.LastName)
+                            {
+                                currentEmp.LastName = employeeInfo.LastName;
+                                savetoFile = true;
+                            }
+                            if (currentEmp.PayLocation != employeeInfo.PayLocation)
+                            {
+                                currentEmp.PayLocation = employeeInfo.PayLocation;
+                                savetoFile = true;
+                            }
+                            if (currentEmp.DesActCode != employeeInfo.DesActCode)
+                            {
+                                currentEmp.DesActCode = employeeInfo.DesActCode;
+                                savetoFile = true;
+                            }
+                            if (currentEmp.DutyStationFINNBR != employeeInfo.DutyStationFINNBR)
+                            {
+                                currentEmp.DutyStationFINNBR = employeeInfo.DutyStationFINNBR;
+                                savetoFile = true;
+                            }
+                            if (currentEmp.Position != employeeInfo.Position)
+                            {
+                                currentEmp.Position = employeeInfo.Position;
+                                savetoFile = true;
+                            }
+                            if (currentEmp.FacilityID != employeeInfo.FacilityID)
+                            {
+                                currentEmp.FacilityID = employeeInfo.FacilityID;
+                                savetoFile = true;
+                            }
+                            if (currentEmp.EmployeeStatus != employeeInfo.EmployeeStatus)
+                            {
+                                currentEmp.EmployeeStatus = employeeInfo.EmployeeStatus;
+                                savetoFile = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return true;
+        }
+        finally
+        {
+            if (savetoFile)
+            {
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_empList.Values, Formatting.Indented));
+            }
+        }
+    }
+
+    public async Task<bool> LoadSMSEmployeeInfo(List<SMSWrapperEmployeeInfo> result, CancellationToken stoppingToken)
+    {
+        bool savetoFile = false;
+
+        try
+        {
+            foreach (var empData in result)
+            {
+                //check if cancellationToken has been called
+                if (stoppingToken.IsCancellationRequested)
+                {
+                    return false;
+                }
+
+                if (!string.IsNullOrEmpty(empData.Ein))
+                {
+                    if (_empList.ContainsKey(empData.Ein) && _empList.TryGetValue(empData.Ein, out EmployeeInfo currentEmp))
+                    {
+                        if (currentEmp.FirstName != empData.FirstName)
+                        {
+                            currentEmp.FirstName = empData.FirstName;
+                            savetoFile = true;
+                        }
+                        if (currentEmp.LastName != empData.LastName)
+                        {
+                            currentEmp.LastName = empData.LastName;
+                            savetoFile = true;
+                        }
+                        if (currentEmp.PayLocation != empData.PayLocation)
+                        {
+                            currentEmp.PayLocation = empData.PayLocation;
+                            savetoFile = true;
+                        }
+                        if (currentEmp.CardholderId != empData.CardholderId)
+                        {
+                            currentEmp.CardholderId = empData.CardholderId;
+                            savetoFile = true;
+                        }
+                        if (currentEmp.BleId != empData.TagId)
+                        {
+                            currentEmp.BleId = empData.TagId;
+                            savetoFile = true;
+                        }
+                        if (currentEmp.EncodedId != empData.EncodedId)
+                        {
+                            currentEmp.EncodedId = empData.EncodedId;
+                            savetoFile = true;
+                        }
+                    }
+                }
+                else
+                {
+                    if (_empList.TryAdd(empData.Ein, new EmployeeInfo
+                    {
+                        FirstName = empData.FirstName,
+                        LastName = empData.LastName,
+                        EmployeeId = empData.Ein,
+                        PayLocation = empData.PayLocation,
+                        Title = empData.Title,
+                        DesActCode = empData.DesignationActivity,
+                        BleId = empData.TagId,
+                        EncodedId = empData.EncodedId,
+                    }))
+                    {
+                        savetoFile = true;
+
+                    }
+                }
+            
+
+                //if (empData.ContainsKey("ein") && !string.IsNullOrEmpty(empData["ein"].ToString()))
+                //{
+                //    TagData = _tagList.Where(r => r.Value.Properties.EIN == empData["ein"].ToString()).Select(y => y.Value).FirstOrDefault();
+                //}
+
+                //if (TagData != null && _tagList.TryGetValue(TagData.Properties.Id, out GeoMarker currentTag))
+                //{
+                //    //check if tag type is not null and update the tag type
+
+                //    currentTag.Properties.TagType = "Badge";
+                //    savetoFile = true;
+
+
+                //    //check EIN value is not null and update the EIN value
+                //    if (empData.ContainsKey("ein"))
+                //    {
+                //        if (!string.IsNullOrEmpty(empData["ein"].ToString()) && currentTag.Properties.EIN != empData["ein"].ToString())
+                //        {
+                //            currentTag.Properties.EIN = empData["ein"].ToString();
+
+                //            savetoFile = true;
+                //        }
+                //    }
+                //    //check FirstName value is not null and update the FirstName value
+                //    if (empData.ContainsKey("firstName"))
+                //    {
+                //        if (!Regex.IsMatch(currentTag.Properties.EmpFirstName, $"^{Regex.Escape(empData["firstName"].ToString())}$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
+                //        {
+                //            currentTag.Properties.EmpFirstName = empData["firstName"].ToString();
+                //            savetoFile = true;
+                //        }
+                //    }
+                //    //check LastName value is not null and update the LastName value
+                //    if (empData.ContainsKey("lastName"))
+                //    {
+                //        if (!Regex.IsMatch(currentTag.Properties.EmpLastName, $"^{Regex.Escape(empData["lastName"].ToString())}$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
+                //        {
+                //            currentTag.Properties.EmpLastName = empData["lastName"].ToString();
+                //            savetoFile = true;
+                //        }
+                //    }
+                //    //check title value is not null and update the title value
+                //    if (empData.ContainsKey("title"))
+                //    {
+                //        if (!Regex.IsMatch(currentTag.Properties.Title, $"^{Regex.Escape(empData["title"].ToString())}$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
+                //        {
+                //            currentTag.Properties.Title = empData["title"].ToString();
+                //            savetoFile = true;
+                //        }
+                //    }
+                //    //check encodedId value is not null and update the title value
+                //    if (empData.ContainsKey("encodedId"))
+                //    {
+                //        if (!string.IsNullOrEmpty(empData["encodedId"].ToString()) && currentTag.Properties.EncodedId != empData["encodedId"].ToString())
+                //        {
+                //            currentTag.Properties.EncodedId = empData["encodedId"].ToString();
+                //            savetoFile = true;
+                //        }
+                //    }
+
+                //    //check designationActivity value is not null and update the designationActivity value
+                //    if (empData.ContainsKey("designationActivity"))
+                //    {
+                //        if (!string.IsNullOrEmpty(empData["designationActivity"].ToString()) && currentTag.Properties.DesignationActivity != empData["designationActivity"].ToString())
+                //        {
+                //            if (string.IsNullOrEmpty(currentTag.Properties.DesignationActivity))
+                //            {
+                //                currentTag.Properties.DesignationActivity = empData["designationActivity"].ToString();
+                //                savetoFile = true;
+                //            }
+
+                //            var daCode = _dacode.Get(empData["designationActivity"].ToString());
+                //            if (daCode != null)
+                //            {
+                //                currentTag.Properties.CraftName = daCode.CraftType;
+                //                savetoFile = true;
+                //            }
+
+
+                //        }
+
+
+                //    }
+                //    //check paylocation value is not null and update the paylocation value
+                //    if (empData.ContainsKey("paylocation"))
+                //    {
+                //        if (!string.IsNullOrEmpty(empData["paylocation"].ToString()) && currentTag.Properties.EmpPayLocation != empData["paylocation"].ToString())
+                //        {
+                //            currentTag.Properties.EmpPayLocation = empData["paylocation"].ToString();
+                //            savetoFile = true;
+                //        }
+                //    }
+                //}
+            }
+            return true;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return true;
+        }
+        finally {
+            if (savetoFile)
+            {
+                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_empList.Values, Formatting.Indented));
+            }
+        }
+    }
+
+
 }

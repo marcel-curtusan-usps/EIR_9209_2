@@ -135,7 +135,7 @@ async function findCameraLeafletIds(markerId) {
         reject(new Error('No layer found with the given markerId'));
     });
 }
-async function init_markerCameras() {
+async function init_tagsCamera() {
     return new Promise((resolve, reject) => {
         try {
             //load cameras

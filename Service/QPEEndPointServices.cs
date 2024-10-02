@@ -72,7 +72,7 @@ namespace EIR_9209_2.Service
             {
                 if (result?.Tags != null)
                 {
-                   await Task.Run(() => _tags.UpdateTagQPEInfo(result.Tags, result.ResponseTS), stoppingToken).ConfigureAwait(false);
+                  await _tags.UpdateTagQPEInfo(result.Tags, result.ResponseTS, stoppingToken);
                 }
             }
             catch (Exception e)
