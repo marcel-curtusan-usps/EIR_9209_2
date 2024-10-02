@@ -539,7 +539,8 @@ function formatmachinetoprow(properties) {
         stateBadge: getstatebadge(properties),
         yieldCalNumber: getYiedCalNumber(properties.mpeRunPerformance),
         stateText: getstateText(properties),
-        estComp: VaildateEstComplete(properties.mpeRunPerformance.rpg),// checkValue(properties.MPEWatchData.rpg_est_comp_time) ? properties.MPEWatchData.rpg_est_comp_time : "Estimate Not Available",
+        //estComp: VaildateEstComplete(properties.mpeRunPerformance.rpg),// checkValue(properties.MPEWatchData.rpg_est_comp_time) ? properties.MPEWatchData.rpg_est_comp_time : "Estimate Not Available",
+        estComp: VaildateEstComplete(properties.mpeRunPerformance.rpgEstimatedCompletion),
         rpgStart: luxon.DateTime.fromISO(properties.mpeRunPerformance.rpgStartDtm).toFormat("yyyy-LL-dd HH:mm:ss"),
         rpgEnd: luxon.DateTime.fromISO(properties.mpeRunPerformance.rpgEndDtm).toFormat("yyyy-LL-dd HH:mm:ss"),
         expThroughput: properties.mpeRunPerformance.expectedThroughput,
@@ -666,8 +667,9 @@ function VaildateEstComplete(estComplet) {
 
     try {
         let est = luxon.DateTime.fromISO(estComplet);
-        if (est._isValid && est.year() === luxon.DateTime.local().year()) {
-            return est.toFormat("MM/DD/YYYY hh:mm:ss A");
+        //if (est._isValid && est.year === luxon.DateTime.local().year) {
+        if (est.year && est.year === luxon.DateTime.local().year) {
+            return est.toFormat("yyyy-MM-dd hh:mm:ss a");
         }
         else {
             return "Estimate Not Available";

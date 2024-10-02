@@ -84,6 +84,7 @@ namespace EIR_9209_2.Models
 
         [JsonProperty("rpg_est_comp_time")]
         public string RpgEstCompTime { get; set; } = "";
+        public DateTime RpgEstimatedCompletion { get; set; } = DateTime.MinValue;
 
         [JsonProperty("hourly_data")]
         public List<HourlyData> HourlyData { get; set; } = new List<HourlyData>();

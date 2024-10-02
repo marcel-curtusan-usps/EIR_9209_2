@@ -813,6 +813,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 
                             pushUIUpdate = true;
                         }
+                        if (geoZone.Properties.MPERunPerformance.RpgEstimatedCompletion != mpe.RpgEstimatedCompletion)
+                        {
+                            geoZone.Properties.MPERunPerformance.RpgEstimatedCompletion = mpe.RpgEstimatedCompletion;
+
+                            pushUIUpdate = true;
+                        }
                     }
                     if (pushUIUpdate)
                     {
@@ -1026,6 +1032,21 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 int.TryParse(mpe.CurThruputOphr, out int CurThruputOphr);
                 int.TryParse(mpe.CurOperationId, out int OpNumber);
                 int.TryParse(mpe.TotSortplanVol, out int TotSortplanVol);
+
+                double RpgEstimatedHrs = 0;
+                DateTime RpgEstimatedCompletion = DateTime.MinValue;
+                if (!string.IsNullOrEmpty(mpe.CurrentRunEnd) && mpe.CurrentRunEnd != "0")
+                {
+                    mpe.RpgEstimatedCompletion = DateTime.MinValue;
+                }
+                else
+                {
+                    if (CurThruputOphr > 0 && RpgEstVol > 0)
+                    {
+                        RpgEstimatedHrs = ((double)RpgEstVol - (double)TotSortplanVol) / (double)CurThruputOphr;
+                        RpgEstimatedCompletion = CurrentRunEnd.AddHours(RpgEstimatedHrs);
+                    }
+                }
                 if (_MPERunActivity.ContainsKey(mpe_id) && _MPERunActivity.TryGetValue(mpe_id, out var activeRun))
                 {
                     activeRun.ActiveRun = false;
@@ -1046,6 +1067,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     {
                         activeRun.CurrentRunEnd = CurrentRunEnd;
                         activeRun.ActiveRun = true;
+                        mpe.RpgEstimatedCompletion = RpgEstimatedCompletion;
                         SaveToFile = true;
                     }
                 }
@@ -1067,7 +1089,6 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                         RpgEstVol = RpgEstVol,
                         RpgExpectedThruput = RpgExpectedThruput,
                         ActVolPlanVolNbr = ActVolPlanVolNbr
-
                     });
 
                 }
@@ -1161,6 +1182,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 _ = int.TryParse(item["rpg_expected_thruput"]?.ToString().Replace(" pcs/hr", ""), out int rpg_expected_thruput);
                 // Extract the first 3 digits from mail_operation_nbr
                 _ = int.TryParse(item["mail_operation_nbr"]?.ToString(), out int mail_operation_nbr);
+
                 if (mail_operation_nbr != 0)
                 {
                     operationNumber = int.Parse(mail_operation_nbr.ToString().Substring(0, 3));
