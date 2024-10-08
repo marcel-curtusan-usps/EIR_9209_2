@@ -1,4 +1,4 @@
-﻿
+﻿const MPETable = "machinetable"
 //on close clear all inputs
 $('#Zone_Modal').on('hidden.bs.modal', function () {
     $(this)
@@ -197,7 +197,7 @@ let geoZoneMPE = new L.GeoJSON(null, {
         layer.zoneId = feature.properties.id;
         layer.on('click', function (e) {
                 OSLmap.setView(e.sourceTarget.getCenter(), 3);
-                Promise.all([loadMachineData(feature.properties, 'machinetable')]);
+            Promise.all([loadMachineData(feature.properties, MPETable)]);
 
             });
         
@@ -292,10 +292,33 @@ connection.on("deleteMPEzone", async (zoneDate) => {
 
 });
 connection.on("updateMPEzone", async (mpeZonedata) => {
+    try {
     await findMpeZoneLeafletIds(mpeZonedata.properties.id)
         .then(leafletIds => {
-            geoZoneMPE._layers[leafletIds].properties = mpeZonedata.properties;
+            // Assuming mpeZonedata is the object containing the new properties
+            const newProperties = mpeZonedata.properties;
+
+            // Loop through the properties and update the values
+            for (const key in newProperties) {
+                if (key !== 'mpeRunPerformance') {
+                    
+                    if (key == 'name') {
+                        // Check if the property name is different and update the tooltip
+                        geoZoneMPE._layers[leafletIds].feature.properties[key] = newProperties[key];
+                        geoZoneMPE._layers[leafletIds].bindTooltip(newProperties[key] + "<br/>" + "Staffing: " + feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0");
+                        
+                    }
+                    else {
+
+                        geoZoneMPE._layers[leafletIds].feature.properties[key] = newProperties[key];
+                    }
+                }
+            }
         });
+    }
+    catch (e) {
+        throw new Error(e.toString());
+    }
 
 });
 connection.on("updateMPEzoneRunPerformance", async (data) => {
@@ -310,6 +333,9 @@ connection.on("updateMPEzoneRunPerformance", async (data) => {
                 fillColor: GetMacineBackground(data),
                 lastOpacity: 0.2
             });
+            if ($('div[id=machine_div]').is(':visible') && $('div[id=machine_div]').attr("data-id") === data.zoneId) {
+                Promise.all([loadMachineData(geoZoneMPE._layers[leafletIds].feature.properties, MPETable)]);
+            }
         });
 });
 async function addMPEFeature(data) {
@@ -785,7 +811,7 @@ async function Edit_Machine_Info(id) {
                     }
                 });
                 $.ajax({
-                    url: SiteURLconstructor(window.location) + '/api/Zone/MPENames',
+                    url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?Type=MPE',
                     contentType: 'application/json',
                     type: 'GET',
                     success: function (mpedata) {
@@ -908,79 +934,77 @@ async function Edit_Machine_Info(id) {
              
                 $('input[id=mpestandard_btn]').off().on('click', function () {
 
-                   
+                    //Edit MPE Testing
+                    $('.mpestandard_row_div').each(function () {
+                        let mpestandard_row = $(this);
+                        let OPN_text = mpestandard_row.find('.OPN_txt').val();
+                        let starttime_txt = mpestandard_row.find('.starttime_txt').val();
+                        let endtime_txt = mpestandard_row.find('.endtime_txt').val();
+                        let setuptime_txt = mpestandard_row.find('.setuptime_txt').val();
+                        let teardowntime_txt = mpestandard_row.find('.teardowntime_txt').val();
+                        let changeovertime_txt = mpestandard_row.find('.changeovertime_txt').val();
+                        let name_txt = mpestandard_row.find('.name_txt').val();
+                        let psc_hr_txt = mpestandard_row.find('.psc_hr_txt').val();
+                        let staff_hr_txt = mpestandard_row.find('.staff_hr_txt').val();
+                        let rowvalue = {
+                            GUID: guid_txt,
+                            MPE: MPEwNUMBER,
+                            OPN: OPN_text,
+                            StartTime: starttime_txt,
+                            EndTime: endtime_txt,
+                            SetupTimeDuration: setuptime_txt,
+                            ChangeoverTimeDuration: changeovertime_txt,
+                            PulldownTime: teardowntime_txt,
+                            Name: name_txt,
+                            PcsFeedHours: psc_hr_txt,
+                            StaffHours: staff_hr_txt
+                        };
+
+                        console.log(rowvalue);
+                    });
                 });
                 //submit button for MPEENGStandard
                 $('button[id=machinesubmitBtn]').off().on('click', function () {
                     try {
-                        //Edit MPE Testing
-                        $('.mpestandard_row_div').each(function () {
-                            let mpestandard_row = $(this);
-                            let OPN_text = mpestandard_row.find('.OPN_txt').val();
-                            let starttime_txt = mpestandard_row.find('.starttime_txt').val();
-                            let endtime_txt = mpestandard_row.find('.endtime_txt').val();
-                            let setuptime_txt = mpestandard_row.find('.setuptime_txt').val();
-                            let teardowntime_txt = mpestandard_row.find('.teardowntime_txt').val();
-                            let changeovertime_txt = mpestandard_row.find('.changeovertime_txt').val();
-                            let name_txt = mpestandard_row.find('.name_txt').val();
-                            let psc_hr_txt = mpestandard_row.find('.psc_hr_txt').val();
-                            let staff_hr_txt = mpestandard_row.find('.staff_hr_txt').val();
-                            let rowvalue = {
-                                GUID: guid_txt,
-                                MPE: MPEwNUMBER,
-                                OPN: OPN_text,
-                                StartTime: starttime_txt,
-                                EndTime: endtime_txt,
-                                SetupTimeDuration: setuptime_txt,
-                                ChangeoverTimeDuration: changeovertime_txt,
-                                PulldownTime: teardowntime_txt,
-                                Name: name_txt,
-                                PcsFeedHours: psc_hr_txt,
-                                StaffHours: staff_hr_txt
-                            };
-
-                            console.log(rowvalue);
-                        });
-                      
                         let jsonObject = {};
                         $('button[id=machinesubmitBtn]').prop('disabled', true);
                         if (!$('select[name=machine_zone_select_name] option:selected').val() === "" || $('select[name=machine_zone_select_name] option:selected').val() !== '**Machine Not Listed') {
                             let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
-                            jsonObject["mpeName"] =  machineName = selectedMachine[0];
-                            jsonObject["mpeNumber"] = machineNumber = selectedMachine[1];
+                            jsonObject.MpeName =  machineName = selectedMachine[0];
+                            jsonObject.MpeNumber = machineNumber = selectedMachine[1];
                             if ($('select[name=zonePayLocationColor] option:selected').val() !== Data.Name) {
                                 jsonObject["name"] = $('select[name=machine_zone_select_name] option:selected').val();
                             }
                         }
                         else {
-                            jsonObject["mpeName"] = $('input[type=text][name=machine_name]').val();
-                            jsonObject["mpeNumber"] = $('input[type=text][name=machine_number]').val();
+                            jsonObject.MpeName = $('input[type=text][name=machine_name]').val();
+                            jsonObject.MpeNumber = $('input[type=text][name=machine_number]').val();
                             let name = $('input[type=text][name=machine_name]').val() + "-" + $('input[type=text][name=machine_number]').val();
                             if (name !== Data.Name) {
-                                jsonObject["name"] = $('select[name=machine_zone_select_name] option:selected').val();
+                                jsonObject.Name = $('select[name=machine_zone_select_name] option:selected').val();
                             }
                         }
                         if (Data.floorId !== baselayerid) {
-                            jsonObject["floorId"] = $('input[type=text][name=machine_ip]').val();
+                            jsonObjec.FloorId = $('input[type=text][name=machine_ip]').val();
                         }
                         if ($('input[type=text][name=machine_ip]').val() !== Data.MPE_IP) {
-                            jsonObject["mpeIpAddress"] = $('input[type=text][name=machine_ip]').val();
+                            jsonObject.MpeIpAddress = $('input[type=text][name=machine_ip]').val();
                         }
                         if ($('input[type=text][name=zone_ldc]').val() !== Data.Zone_LDC) {
-                            jsonObject["zone_LDC"] = $('input[type=text][name=zone_ldc]').val();
+                            jsonObject.LDC = $('input[type=text][name=zone_ldc]').val();
                         }
                         if ($('input[type=text][name=zone_paylocation]').val() !== Data.Zone_PayLocation) {
-                            jsonObject["zonePayLocation"] = $('input[type=text][name=zone_paylocation]').val();
+                            jsonObject.PayLocation = $('input[type=text][name=zone_paylocation]').val();
                         }
                         if ($('select[name=zonePayLocationColor] option:selected').val() !== Data.zonePayLocationColor) {
-                            jsonObject["zonePayLocationColor"] = $('select[name=zonePayLocationColor] option:selected').val();
+                            jsonObject.PayLocationColor = $('select[name=zonePayLocationColor] option:selected').val();
                         }
                         if ($('select[name=zone_Type] option:selected').val() !== Data.type) {
-                            jsonObject["type"] = $('select[name=zone_Type] option:selected').val();
+                            jsonObject.Type = $('select[name=zone_Type] option:selected').val();
                         }
                         /*Assign values for Group Name*/
                         if ($('select[name=mpe_group_select] option:selected').val() !== Data.mpeGroup) {
-                            jsonObject["mpeGroup"] = $('select[name=mpe_group_select] option:selected').val();
+                            jsonObject.MpeGroup = $('select[name=mpe_group_select] option:selected').val();
                         }
                         
                         if (!$.isEmptyObject(jsonObject)) {
@@ -992,7 +1016,7 @@ async function Edit_Machine_Info(id) {
                                 data: JSON.stringify(jsonObject),
                                 type: 'POST',
                                 success: function (response) {
-                                    $('span[id=error_machinesubmitBtn]').text("" + jsonObject["name"] +" Zone has been Updated.");
+                                    $('span[id=error_machinesubmitBtn]').text("" + jsonObject.Name +" Zone has been Updated.");
                                         setTimeout(function () { $("#Zone_Modal").modal('hide'); }, 1500);
                                 },
                                 error: function (error) {

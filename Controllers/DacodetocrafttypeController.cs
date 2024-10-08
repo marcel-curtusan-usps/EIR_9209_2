@@ -65,11 +65,7 @@ namespace EIR_9209_2.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Add")]
-        /// <summary>
-        /// Adds a new connection.
-        /// </summary>
-        /// <param name="value">The connection details.</param>
-        /// <returns>The added connection.</returns>
+
         public async Task<object> PostAddNewDacodetocrafttype([FromBody] JObject value)
         {
             //handle bad requests

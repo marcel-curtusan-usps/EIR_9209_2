@@ -16,7 +16,7 @@ public interface IInMemoryTagsRepository
     void UpdateBadgeTransactionScan(JObject transaction);
     string GetCraftType(string tagId);
     void UpdateTagDesignationActivity(DesignationActivityToCraftType updatedDacode);
-    IEnumerable<JObject> SearchTag(string searchValue);
+    Task<IEnumerable<JObject>> SearchTag(string searchValue);
     List<string> GetTagByType(string tagType);
     Task UpdateTagCiscoSpacesClientInfo(JToken result);
     Task UpdateTagCiscoSpacesBLEInfo(JToken result);

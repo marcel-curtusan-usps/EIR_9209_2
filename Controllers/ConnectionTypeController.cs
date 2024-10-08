@@ -13,15 +13,14 @@ namespace EIR_9209_2.Controllers
     public class ConnectionTypesController(IInMemoryConnectionRepository connectiontypeRepository) : ControllerBase
     {
         private readonly IInMemoryConnectionRepository _connectiontypeRepository = connectiontypeRepository;
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         // POST api/<Connection>
         [HttpPost]
         [Route("Add")]
-        /// <summary>
-        /// Adds a new connection.
-        /// </summary>
-        /// <param name="value">The connection details.</param>
-        /// <returns>The added connection.</returns>
         public async Task<object> PostAddNewConnectionType([FromBody] JObject value)
         {
             //handle bad requests

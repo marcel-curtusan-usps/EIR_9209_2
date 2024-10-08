@@ -24,8 +24,11 @@ namespace EIR_9209_2.Models
         public string MpeName { get; set; } = "";
         public string MpeNumber { get; set; } = "";
         public string MpeGroup { get; set; } = "";
+        public string LDC { get; set; } = "";
+        public string PayLocation { get; set; } = "";
+        public string PayLocationColor { get; set; } = "";
         public string MpeIpAddress { get; set; } = "";
-        public MPERunPerformance? MPERunPerformance { get; set; } = new();
+        public MPERunPerformance? MPERunPerformance { get; set; } 
         public string? DataSource { get; set; } = "";
         public string? Emails { get; set; } = "";
         public string Bins { get; set; } = "";

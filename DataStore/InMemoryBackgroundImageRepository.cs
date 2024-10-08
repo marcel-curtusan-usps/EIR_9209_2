@@ -19,7 +19,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         LoadDataFromFile().Wait();
 
     }
-    public async Task<OSLImage>? Add(OSLImage backgroundImage)
+    public async Task<OSLImage?> Add(OSLImage backgroundImage)
     {
         bool saveToFile = false;
         try
@@ -32,7 +32,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
             }
             else
             {
-                _logger.LogError($"Zone File list was not saved...");
+                _logger.LogError($"Background Image {fileName} File list was not saved...");
                 return null;
             }
         }
@@ -49,7 +49,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
             }
         }
     }
-    public async Task<OSLImage>? Remove(string id)
+    public async Task<OSLImage?> Remove(string id)
     {
         bool saveToFile = false;
         try
@@ -61,7 +61,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
             }
             else
             {
-                _logger.LogError($"Zone File list was not saved...");
+                _logger.LogError($"Background Image {fileName} File list was not saved...");
                 return null;
             }
         }
@@ -78,7 +78,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
             }
         }
     }
-    public async Task<OSLImage>? Update(OSLImage backgroundImage)
+    public async Task<OSLImage?> Update(OSLImage backgroundImage)
     {
         if (_backgroundImages.TryGetValue(backgroundImage.id, out OSLImage currentBackgroundImage) && _backgroundImages.TryUpdate(backgroundImage.id, backgroundImage, currentBackgroundImage))
         {

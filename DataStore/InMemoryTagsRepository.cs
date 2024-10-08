@@ -505,7 +505,7 @@ namespace EIR_9209_2.DataStore
                 }
             }
         }
-        public IEnumerable<JObject> SearchTag(string searchValue)
+        public Task<IEnumerable<JObject>> SearchTag(string searchValue)
         {
             var badgeQuery = _tagList.Where(sl =>
                 Regex.IsMatch(sl.Value.Properties.Id, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
@@ -555,7 +555,7 @@ namespace EIR_9209_2.DataStore
                                        }).ToList();
 
             var finalReuslt = badgeSearchReuslt.Concat(vehicelSearchReuslt);
-            return finalReuslt;
+            return (Task<IEnumerable<JObject>>)finalReuslt;
         }
         public async Task<bool> UpdateTagQPEInfo(List<Tags> tags, long responseTS, CancellationToken stoppingToken)
         {

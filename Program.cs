@@ -26,11 +26,6 @@ finally
     Log.CloseAndFlush();
 
 }
-/// <summary>
-/// Create the web host builder.
-/// </summary>
-/// <param name="args"></param>
-/// <returns>IWebHostBuilder</returns>
 static IHostBuilder CreateWebHostBuilder(string[] args) =>
     Host.CreateDefaultBuilder(args)
     .UseSerilog()

@@ -39,9 +39,9 @@ namespace EIR_9209_2.Controllers
             //handle bad requests
             if (!ModelState.IsValid)
             {
-                return await Task.FromResult(BadRequest(ModelState));
+                return BadRequest(ModelState);
             }
-            return Ok(_tags.Get(tagId));
+            return Ok( _tags.Get(tagId));
         }
 
         /// <summary>
@@ -72,10 +72,10 @@ namespace EIR_9209_2.Controllers
             //handle bad requests
             if (!ModelState.IsValid)
             {
-                return await Task.FromResult(BadRequest(ModelState));
+                return BadRequest(ModelState);
             }
             string searchValue = string.IsNullOrEmpty(value) ? "" : HttpUtility.UrlDecode(value).Replace("\"", "");
-            var query = await Task.Run(() => _tags.SearchTag(searchValue)).ConfigureAwait(false);
+            var query = await _tags.SearchTag(searchValue);
             return Ok(query);
         }
         //add new tag

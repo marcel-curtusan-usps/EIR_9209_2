@@ -66,7 +66,7 @@ namespace EIR_9209_2.Service
                     var data = result.SelectToken("data");
                     if (data != null)
                     {
-                        await Task.Run(() => _geoZones.LoadMPEPlan(data), stoppingToken).ConfigureAwait(false);
+                        await _geoZones.LoadMPEPlan(data, stoppingToken);
                     }
                 }
             }
@@ -84,7 +84,7 @@ namespace EIR_9209_2.Service
                     var data = result.SelectToken("data");
                     if (data != null)
                     {
-                        await Task.Run(() => _geoZones.LoadMPEPlan(data), stoppingToken).ConfigureAwait(false);
+                       /// await Task.Run(() => _geoZones.LoadMPEPlan(data), stoppingToken).ConfigureAwait(false);
                     }
                 }
             }
@@ -110,7 +110,7 @@ namespace EIR_9209_2.Service
                         List<MPERunPerformance>? mpeList = data.ToObject<List<MPERunPerformance>>();
                         if (mpeList != null && mpeList.Any())
                         {
-                            await Task.Run(() => _geoZones.UpdateMPERunInfo(mpeList), stoppingToken).ConfigureAwait(false);
+                            await _geoZones.UpdateMPERunInfo(mpeList, stoppingToken);
                         }
                     }
                 }

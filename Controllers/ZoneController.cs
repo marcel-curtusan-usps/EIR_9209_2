@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
+using NuGet.Protocol;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -113,7 +114,7 @@ namespace EIR_9209_2.Controllers
                 }
                 if (zone["properties"]?["type"]?.ToString() == "DockDoor")
                 {
-                    GeoZoneDockDoor updatedDockDoorZone = zone.ToObject<GeoZoneDockDoor>();
+                    GeoZoneDockDoor? updatedDockDoorZone = zone?.ToObject<GeoZoneDockDoor>();
 
                     var dockDoorZone = await _zonesRepository.UpdateDockDoor(updatedDockDoorZone);
                     if (dockDoorZone != null)
@@ -128,12 +129,12 @@ namespace EIR_9209_2.Controllers
                 }
                 else
                 {
-                    GeoZone updatedZone = zone.ToObject<GeoZone>();
+                    Properties updatedZone = zone?.ToObject<Properties>();
 
                     var geoZone = await _zonesRepository.UiUpdate(updatedZone);
                     if (geoZone != null)
                     {
-                        await _hubContext.Clients.Group(geoZone.Properties.Type).SendAsync($"update{geoZone.Properties.Type}zone", geoZone);
+                       await _hubContext.Clients.Group(geoZone.Properties.Type).SendAsync($"update{geoZone.Properties.Type}zone", geoZone);
                         return Ok(geoZone);
                     }
                     else
@@ -160,24 +161,33 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest();
                 }
-                var geoZone = await _zonesRepository.Remove(id);
-                var dockDoorZone = await _zonesRepository.RemoveDockDoor(id);
-
-                if (dockDoorZone != null)
-                {
-                    await _hubContext.Clients.Group(dockDoorZone.Properties.Type).SendAsync($"delete{dockDoorZone.Properties.Type}zone", dockDoorZone);
-                    return Ok(dockDoorZone);
-                }
-               else if (geoZone != null)
+                var zone = await _zonesRepository.Get(id);
+                if (zone != null)
                 {
 
-                    await _hubContext.Clients.Group(geoZone.Properties.Type).SendAsync($"delete{geoZone.Properties.Type}zone", geoZone);
-                    return Ok(geoZone);
+                    var geoZone = await _zonesRepository.Remove(id);
+                    var dockDoorZone = await _zonesRepository.RemoveDockDoor(id);
 
+                    if (dockDoorZone != null)
+                    {
+                        await _hubContext.Clients.Group(dockDoorZone.Properties.Type).SendAsync($"delete{dockDoorZone.Properties.Type}zone", dockDoorZone);
+                        return Ok(dockDoorZone);
+                    }
+                    else if (geoZone != null)
+                    {
+
+                        await _hubContext.Clients.Group(geoZone.Properties.Type).SendAsync($"delete{geoZone.Properties.Type}zone", geoZone);
+                        return Ok(geoZone);
+
+                    }
+                    else
+                    {
+                        return BadRequest(new JObject { ["message"] = "Zone was not removed" });
+                    }
                 }
                 else
                 {
-                    return BadRequest(new JObject { ["message"] = "Zone was not removed" });
+                    return BadRequest(new JObject { ["message"] = "Zone was not found" });
                 }
 
             }

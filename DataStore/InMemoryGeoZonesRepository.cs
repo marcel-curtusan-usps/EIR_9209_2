@@ -41,7 +41,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         LoadDockDoorDataFromFile().Wait();
 
     }
-    public async Task<GeoZone>? Add(GeoZone geoZone)
+    public async Task<GeoZone?> Add(GeoZone geoZone)
     {
         bool saveToFile = false;
         try
@@ -57,7 +57,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
             else
             {
-                _logger.LogError($"Zone File list was not saved...");
+                _logger.LogError($"Zone File {fileName} list was not saved...");
                 return null;
             }
         }
@@ -75,7 +75,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async Task<GeoZone>? Remove(string geoZoneId)
+    public async Task<GeoZone?> Remove(string geoZoneId)
     {
         bool saveToFile = false;
         try
@@ -87,7 +87,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
             else
             {
-                _logger.LogError($"Zone File list was not saved...");
+                _logger.LogError($"Zone File {fileName} list was not saved...");
                 return null;
             }
         }
@@ -105,7 +105,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async Task<GeoZoneDockDoor>? AddDockDoor(GeoZoneDockDoor newgeoZone)
+    public async Task<GeoZoneDockDoor?> AddDockDoor(GeoZoneDockDoor newgeoZone)
     {
         bool saveToFile = false;
         try
@@ -135,7 +135,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
             else
             {
-                _logger.LogError($"Zone File list was not saved...");
+                _logger.LogError($"Dockdoor Zone File {fileNameDockDoor} list was not saved...");
                 return null;
             }
         }
@@ -153,7 +153,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async Task<GeoZoneDockDoor>? RemoveDockDoor(string geoZoneId)
+    public async Task<GeoZoneDockDoor?> RemoveDockDoor(string geoZoneId)
     {
         bool saveToFile = false;
         try
@@ -165,7 +165,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
             else
             {
-                _logger.LogError($"Zone File list was not saved...");
+                _logger.LogError($"Dock door Zone File {fileNameDockDoor} list was not saved...");
                 return null;
             }
         }
@@ -182,63 +182,59 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
         }
     }
-    public async Task<JObject> Update(JObject properties)
-    {
-        bool saveToFile = false;
-        try
-        {
-            if (_geoZoneList.TryGetValue(properties["id"].ToString(), out GeoZone Properties))
-            {
-                //check if properties then update the properties type
-                if (properties.ContainsKey("type"))
-                {
-                    Properties.Properties.Type = properties["type"].ToString();
-                    saveToFile = true;
-                }
-
-
-                return await Task.FromResult(properties);
-            }
-            else
-            {
-                _logger.LogError($"Zone File list was not saved...");
-                return null;
-            }
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message);
-            return null;
-        }
-        finally
-        {
-            if (saveToFile)
-            {
-                await _fileService.WriteFileAsync(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
-            }
-        }
-    }
+  
     public Task<GeoZoneDockDoor> UpdateDockDoor(GeoZoneDockDoor geoZone)
     {
         throw new NotImplementedException();
     }
-    public async Task<GeoZone>? UiUpdate(GeoZone geoZone)
+    public async Task<GeoZone?> UiUpdate(Properties NewGeoZoneProperties)
     {
         bool saveToFile = false;
         try
         {
-            if (_geoZoneList.TryGetValue(geoZone.Properties.Id, out GeoZone? currentConnection) && _geoZoneList.TryUpdate(geoZone.Properties.Id, geoZone, currentConnection))
+            if (_geoZoneList.ContainsKey(NewGeoZoneProperties.Id) &&  _geoZoneList.TryGetValue(NewGeoZoneProperties.Id, out GeoZone? currentGeoZone))
             {
-                saveToFile = true;
-                if (_geoZoneList.TryGetValue(geoZone.Properties.Id, out GeoZone? zone))
+                if (currentGeoZone.Properties.Name != NewGeoZoneProperties.Name)
                 {
-
-                    return await Task.FromResult(zone);
+                    currentGeoZone.Properties.Name = NewGeoZoneProperties.Name;
+                    saveToFile = true;
                 }
-                else
+                if (currentGeoZone.Properties.MpeGroup != NewGeoZoneProperties.MpeGroup)
                 {
-                    return null;
+                    currentGeoZone.Properties.MpeGroup = NewGeoZoneProperties.MpeGroup;
+                    saveToFile = true;
                 }
+                if (currentGeoZone.Properties.MpeName != NewGeoZoneProperties.MpeName)
+                {
+                    currentGeoZone.Properties.MpeName = NewGeoZoneProperties.MpeName;
+                    saveToFile = true;
+                }
+                if (currentGeoZone.Properties.MpeNumber != NewGeoZoneProperties.MpeNumber)
+                {
+                    currentGeoZone.Properties.MpeNumber = NewGeoZoneProperties.MpeNumber;
+                    saveToFile = true;
+                }
+                if (currentGeoZone.Properties.MpeIpAddress != NewGeoZoneProperties.MpeIpAddress)
+                {
+                    currentGeoZone.Properties.MpeIpAddress = NewGeoZoneProperties.MpeIpAddress;
+                    saveToFile = true;
+                }
+                if (currentGeoZone.Properties.LDC != NewGeoZoneProperties.LDC)
+                {
+                    currentGeoZone.Properties.LDC = NewGeoZoneProperties.LDC;
+                    saveToFile = true;
+                }
+                if (currentGeoZone.Properties.PayLocation != NewGeoZoneProperties.PayLocation)
+                {
+                    currentGeoZone.Properties.PayLocation = NewGeoZoneProperties.PayLocation;
+                    saveToFile = true;
+                }
+                if (currentGeoZone.Properties.PayLocationColor != NewGeoZoneProperties.PayLocationColor)
+                {
+                    currentGeoZone.Properties.PayLocationColor = NewGeoZoneProperties.PayLocationColor;
+                    saveToFile = true;
+                }
+                return currentGeoZone;
             }
             else
             {
@@ -689,20 +685,45 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
        
     }
 
-    public async Task<bool> UpdateMPERunInfo(List<MPERunPerformance> mpeList)
+    public async Task<bool> UpdateMPERunInfo(List<MPERunPerformance> mpeList, CancellationToken stoppingToken)
     {
         try
         {
             await Task.Run(() => UpdateMPERunActivity(mpeList)).ConfigureAwait(false);
             foreach (MPERunPerformance mpe in mpeList)
             {
+                if (stoppingToken.IsCancellationRequested)
+                {
+                    return false;
+                }
                 mpe.MpeId = string.Concat(mpe.MpeType, "-", mpe.MpeNumber.ToString().PadLeft(3, '0'));
+                DateTime CurrentRunEnd = (!string.IsNullOrEmpty(mpe.CurrentRunEnd) && mpe.CurrentRunEnd != "0")
+              ? DateTime.ParseExact(mpe.CurrentRunEnd, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
+              : _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                 //if mpename not in MPE list add it
                 if (!_MPENameList.Contains(mpe.MpeId))
                 {
                     _MPENameList.Add(mpe.MpeId);
                 }
 
+                int.TryParse(mpe.RpgEstVol, out int RpgEstVol);
+                int.TryParse(mpe.CurThruputOphr, out int CurThruputOphr);
+                int.TryParse(mpe.TotSortplanVol, out int TotSortplanVol);
+                double RpgEstimatedHrs = 0;
+                DateTime RpgEstimatedCompletion = DateTime.MinValue;
+                if (!string.IsNullOrEmpty(mpe.CurrentRunEnd) && mpe.CurrentRunEnd != "0")
+                {
+                    mpe.RpgEstimatedCompletion = DateTime.MinValue;
+                }
+                else
+                {
+                    if (CurThruputOphr > 0 && RpgEstVol > 0)
+                    {
+                        RpgEstimatedHrs = ((double)RpgEstVol - (double)TotSortplanVol) / (double)CurThruputOphr;
+                        RpgEstimatedCompletion = CurrentRunEnd.AddHours(RpgEstimatedHrs);
+                    }
+                }
+                mpe.RpgEstimatedCompletion = RpgEstimatedCompletion;
                 var geoZone = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == mpe.MpeId).Select(y => y.Value).FirstOrDefault();
                 if (geoZone != null)
                 {
@@ -758,6 +779,11 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                         if (geoZone.Properties.MPERunPerformance.CurrentRunEnd != mpe.CurrentRunEnd)
                         {
                             geoZone.Properties.MPERunPerformance.CurrentRunEnd = mpe.CurrentRunEnd;
+                            pushUIUpdate = true;
+                        }
+                        if (geoZone.Properties.MPERunPerformance.RpgEstVol != mpe.RpgEstVol)
+                        {
+                            geoZone.Properties.MPERunPerformance.RpgEstVol = mpe.RpgEstVol;
                             pushUIUpdate = true;
                         }
                         if (geoZone.Properties.MPERunPerformance.CurOperationId != mpe.CurOperationId)
@@ -1033,20 +1059,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 int.TryParse(mpe.CurOperationId, out int OpNumber);
                 int.TryParse(mpe.TotSortplanVol, out int TotSortplanVol);
 
-                double RpgEstimatedHrs = 0;
-                DateTime RpgEstimatedCompletion = DateTime.MinValue;
-                if (!string.IsNullOrEmpty(mpe.CurrentRunEnd) && mpe.CurrentRunEnd != "0")
-                {
-                    mpe.RpgEstimatedCompletion = DateTime.MinValue;
-                }
-                else
-                {
-                    if (CurThruputOphr > 0 && RpgEstVol > 0)
-                    {
-                        RpgEstimatedHrs = ((double)RpgEstVol - (double)TotSortplanVol) / (double)CurThruputOphr;
-                        RpgEstimatedCompletion = CurrentRunEnd.AddHours(RpgEstimatedHrs);
-                    }
-                }
+            
                 if (_MPERunActivity.ContainsKey(mpe_id) && _MPERunActivity.TryGetValue(mpe_id, out var activeRun))
                 {
                     activeRun.ActiveRun = false;
@@ -1067,7 +1080,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     {
                         activeRun.CurrentRunEnd = CurrentRunEnd;
                         activeRun.ActiveRun = true;
-                        mpe.RpgEstimatedCompletion = RpgEstimatedCompletion;
+                       // mpe.RpgEstimatedCompletion = RpgEstimatedCompletion;
                         SaveToFile = true;
                     }
                 }
@@ -1113,8 +1126,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
         }
     }
-
-    public async Task LoadMPEPlan(JToken data)
+    public async Task<bool> LoadMPEPlan(JToken data, CancellationToken stoppingToken)
     {
         // sample data
         // {
@@ -1141,6 +1153,10 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             foreach (var item in data)
             {
+                if (stoppingToken.IsCancellationRequested)
+                {
+                    return false;
+                }
                 //this to handle the unknown mpe_type for APPS
                 //this is a temporary fix until the MPEWatch team fix the issue
                 if (item["sort_program_name"].ToString().StartsWith("ATU"))
@@ -1245,12 +1261,14 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     });
                     SaveToFile = true;
                 }
-
             }
+            return true;
         }
         catch (Exception e)
         {
             _logger.LogError($"Error loading MPE Plan data {e.Message}");
+
+            return false;
         }
         finally
         {
@@ -1555,12 +1573,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     {
         try
         {
-            DateTime tripDtm = new DateTime((int)scheduledDtm["year"],
-                                                  (int)scheduledDtm["month"] + 1,
-                                                  (int)scheduledDtm["dayOfMonth"],
-                                                  (int)scheduledDtm["hourOfDay"],
-                                                  (int)scheduledDtm["minute"],
-                                                  (int)scheduledDtm["second"], DateTimeKind.Local);
+            DateTime tripDtm = new(year: (int)scheduledDtm["year"],
+                                                  month: (int)scheduledDtm["month"] + 1,
+                                                  day: (int)scheduledDtm["dayOfMonth"],
+                                                  hour: (int)scheduledDtm["hourOfDay"],
+                                                  minute: (int)scheduledDtm["minute"],
+                                                  second: (int)scheduledDtm["second"], kind: DateTimeKind.Local);
             return tripDtm;
         }
         catch (Exception e)
@@ -1832,5 +1850,18 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         MatchCollection matches = Regex.Matches(input, pattern);
         string result = string.Join("", matches.Select(m => m.Value));
         return result;
+    }
+
+    public Task<MPERunPerformance> GetGeoZoneMPEPerformanceData(string zoneName)
+    {
+        try
+        {
+            return Task.FromResult(_geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == zoneName).Select(y => y.Value.Properties.MPERunPerformance).ToList().FirstOrDefault());
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
     }
 }

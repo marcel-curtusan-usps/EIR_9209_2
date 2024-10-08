@@ -199,6 +199,10 @@ public class HubServices : Hub
     {
         return await Task.Run(() => _geoZones.GetGeoZone(zoneType)).ConfigureAwait(false);
     }
+    public async Task<MPERunPerformance> GetGeoZoneMPEData(string zoneName)
+    {
+        return await _geoZones.GetGeoZoneMPEPerformanceData(zoneName);
+    }
     public async Task<IEnumerable<GeoZoneDockDoor>> GetDockDoorGeoZones()
     {
         return await Task.Run(_geoZones.GetDockDoor).ConfigureAwait(false);

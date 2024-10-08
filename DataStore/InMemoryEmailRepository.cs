@@ -117,8 +117,6 @@ public class InMemoryEmailRepository : IInMemoryEmailRepository
     /// <summary>
     /// Updates a email in the in-memory email repository.
     /// </summary>
-    /// <param name="FilePath"></param>
-
     private async Task LoadDataFromFile()
     {
         try

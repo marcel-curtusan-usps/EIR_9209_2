@@ -8,8 +8,7 @@ public interface IInMemoryGeoZonesRepository
     Task<GeoZoneDockDoor> AddDockDoor(GeoZoneDockDoor geoZone);
     Task<GeoZoneDockDoor> RemoveDockDoor(string geoZoneId);
     Task<GeoZoneDockDoor> UpdateDockDoor(GeoZoneDockDoor geoZone);
-    Task<JObject> Update(JObject geoZone);
-    Task<GeoZone> UiUpdate(GeoZone geoZone);
+    Task<GeoZone> UiUpdate(Properties geoZone);
     Task<object> Get(string id);
     IEnumerable<GeoZone> GetAll();
     Task<List<string>> GetZoneNameList(string type);
@@ -20,10 +19,10 @@ public interface IInMemoryGeoZonesRepository
     object getMPESummary(string mpe);
     List<MPEActiveRun> getMPERunActivity(string mpe);
     void RunMPESummaryReport();
-    Task<bool> UpdateMPERunInfo(List<MPERunPerformance> mpe);
+    Task<bool> UpdateMPERunInfo(List<MPERunPerformance> mpe, CancellationToken stoppingToken);
     Task ProcessIDSData(JToken result);
     void UpdateMPERunActivity(List<MPERunPerformance> mpe);
-    Task LoadMPEPlan(JToken data);
+    Task<bool> LoadMPEPlan(JToken data, CancellationToken stoppingToken);
     Task LoadWebEORMPERun(JToken data);
         //List<TagTimeline> GetTagTimelineList(string ein);
     Task<object?> GetMPENameList();
@@ -37,4 +36,5 @@ public interface IInMemoryGeoZonesRepository
     Task<bool> ResetGeoZoneList();
     Task<bool> SetupGeoZoneData();
     Task ProcessQPEGeoZone(List<CoordinateSystem> coordinateSystems);
+    Task<MPERunPerformance> GetGeoZoneMPEPerformanceData(string zoneName);
 }
