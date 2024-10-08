@@ -702,6 +702,21 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 {
                     _MPENameList.Add(mpe.MpeId);
                 }
+                //calculate estimated completion time
+                int.TryParse(mpe.RpgEstVol, out int RpgEstVol);
+                int.TryParse(mpe.CurThruputOphr, out int CurThruputOphr);
+                int.TryParse(mpe.TotSortplanVol, out int TotSortplanVol);
+
+                double RpgEstimatedHrs = 0;
+                DateTime RpgEstimatedCompletion = DateTime.MinValue;
+                if (string.IsNullOrEmpty(mpe.CurrentRunEnd) || mpe.CurrentRunEnd == "0")
+                {
+                    if (CurThruputOphr > 0 && RpgEstVol > 0)
+                    {
+                        RpgEstimatedHrs = ((double)RpgEstVol - (double)TotSortplanVol) / (double)CurThruputOphr;
+                        RpgEstimatedCompletion = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now).AddHours(RpgEstimatedHrs);
+                    }
+                }
 
                 var geoZone = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == mpe.MpeId).Select(y => y.Value).FirstOrDefault();
                 if (geoZone != null)
@@ -712,6 +727,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     {
                         geoZone.Properties.MPERunPerformance = mpe;
                         geoZone.Properties.MPERunPerformance.MpeId = mpe.MpeId;
+                        geoZone.Properties.MPERunPerformance.RpgEstimatedCompletion = RpgEstimatedCompletion;
                         geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
                         pushUIUpdate = true;
                     }
@@ -749,7 +765,11 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                             geoZone.Properties.MPERunPerformance.TotSortplanVol = mpe.TotSortplanVol;
                             pushUIUpdate = true;
                         }
-
+                        if (geoZone.Properties.MPERunPerformance.RpgEstVol != mpe.RpgEstVol)
+                        {
+                            geoZone.Properties.MPERunPerformance.RpgEstVol = mpe.RpgEstVol;
+                            pushUIUpdate = true;
+                        }
                         if (geoZone.Properties.MPERunPerformance.CurrentRunStart != mpe.CurrentRunStart)
                         {
                             geoZone.Properties.MPERunPerformance.CurrentRunStart = mpe.CurrentRunStart;
@@ -813,9 +833,9 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 
                             pushUIUpdate = true;
                         }
-                        if (geoZone.Properties.MPERunPerformance.RpgEstimatedCompletion != mpe.RpgEstimatedCompletion)
+                        if (geoZone.Properties.MPERunPerformance.RpgEstimatedCompletion != RpgEstimatedCompletion)
                         {
-                            geoZone.Properties.MPERunPerformance.RpgEstimatedCompletion = mpe.RpgEstimatedCompletion;
+                            geoZone.Properties.MPERunPerformance.RpgEstimatedCompletion = RpgEstimatedCompletion;
 
                             pushUIUpdate = true;
                         }
@@ -1033,20 +1053,6 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 int.TryParse(mpe.CurOperationId, out int OpNumber);
                 int.TryParse(mpe.TotSortplanVol, out int TotSortplanVol);
 
-                double RpgEstimatedHrs = 0;
-                DateTime RpgEstimatedCompletion = DateTime.MinValue;
-                if (!string.IsNullOrEmpty(mpe.CurrentRunEnd) && mpe.CurrentRunEnd != "0")
-                {
-                    mpe.RpgEstimatedCompletion = DateTime.MinValue;
-                }
-                else
-                {
-                    if (CurThruputOphr > 0 && RpgEstVol > 0)
-                    {
-                        RpgEstimatedHrs = ((double)RpgEstVol - (double)TotSortplanVol) / (double)CurThruputOphr;
-                        RpgEstimatedCompletion = CurrentRunEnd.AddHours(RpgEstimatedHrs);
-                    }
-                }
                 if (_MPERunActivity.ContainsKey(mpe_id) && _MPERunActivity.TryGetValue(mpe_id, out var activeRun))
                 {
                     activeRun.ActiveRun = false;
@@ -1062,12 +1068,15 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                         activeRun.TotSortplanVol = TotSortplanVol;
                         SaveToFile = true;
                     }
-
+                    if (activeRun.RpgEstVol != RpgEstVol && RpgEstVol > 0)
+                    {
+                        activeRun.RpgEstVol = RpgEstVol;
+                        SaveToFile = true;
+                    }
                     if (activeRun.CurrentRunEnd != CurrentRunEnd)
                     {
                         activeRun.CurrentRunEnd = CurrentRunEnd;
                         activeRun.ActiveRun = true;
-                        mpe.RpgEstimatedCompletion = RpgEstimatedCompletion;
                         SaveToFile = true;
                     }
                 }
