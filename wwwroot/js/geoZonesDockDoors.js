@@ -241,33 +241,61 @@ async function LoadDockDoorTable(data) {
         else {
             $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + 'Dockdoor/Dockdoor.aspx?DockDoor=' + data.doorNumber, style: 'color:white;' }).html("View").appendTo($('span[name=doorview]'));
         }
-
-        //container_Table_Body.empty();
-        let reultData = [];
-        let newresult = [];
-        let counter = 0;
-        if (data.hasOwnProperty("legSiteName")) {
-            reultData["siteName"] = { "siteName": data.legSiteName };
-        }
-        if (data.hasOwnProperty("route")) {
-            reultData["routTrip"] = { "routTrip": data.route + "-" + data.trip };
-        }
-        if (data.hasOwnProperty("tripDirectionInd")) {
-            reultData["direction"] = { "direction": data.tripDirectionInd };
-        }
-        if (data.hasOwnProperty("scheduledDtm")) {
-            reultData["scheduled"] = { "scheduled": data.scheduledDtm };
-        }
-        for (let key in reultData) {
-            if (/^(siteName|routTrip|direction|scheduled)/.test(key)) {
-                newresult[counter] = reultData[key];
-                reultData[key]["name"] = key;
-                reultData[key]["sortorder"] = dockdoortableKeyDisplay[key] == null ? 200 : dockdoortableKeyDisplay[key].sortorder;
-                counter++;
+        let dataArray = [];
+        $.each(data, function (key) {
+            let tabledataObject = {};
+            if (data.hasOwnProperty("legSiteName")) {
+                if (/^legSiteName$/i.test(key)) {
+                    tabledataObject = {
+                        "order": 1,
+                        "Name": "Site Name",
+                        "Value": "(" + data.legSiteId+ ") -- " +data.legSiteName
+                    }
+                    dataArray.push(tabledataObject);
+                }
             }
-            
-        }
-        updateDockdoorDataTable(newresult, "dockdoortable");
+            if (data.hasOwnProperty("route")) {
+                if (/^route$/i.test(key)) {
+                    tabledataObject = {
+                        "order": 2,
+                        "Name": "Rout Trip",
+                        "Value": data.route !== '' ? data.route + "-" + data.trip : ""
+                    }
+                    dataArray.push(tabledataObject);
+                }
+            }
+            if (data.hasOwnProperty("tripDirectionInd")) {
+                if (/^tripDirectionInd$/i.test(key)) {
+                    tabledataObject = {
+                        "order": 3,
+                        "Name": "Direction",
+                        "Value": data.tripDirectionInd === "" ? "" : data.tripDirectionInd === "O" ? "Out-bound" : "In-bound"
+                    }
+                    dataArray.push(tabledataObject);
+                }
+            }
+            if (data.hasOwnProperty("trailerBarcode")) {
+                if (/^trailerBarcode/i.test(key)) {
+                    tabledataObject = {
+                        "order": 3,
+                        "Name": "Trailer arcode",
+                        "Value": data.trailerBarcode 
+                    }
+                    dataArray.push(tabledataObject);
+                }
+            }
+            if (data.hasOwnProperty("scheduledDtm")) {
+                if (/^scheduledDtm/i.test(key)) {
+                    tabledataObject = {
+                        "order": 4,
+                        "Name": "Scheduled",
+                        "Value": vaildateTime(data.scheduledDtm)
+                    }
+                    dataArray.push(tabledataObject);
+                }
+            }
+        });
+        Promise.all([updateDockdoorDataTable(dataArray, "dockdoortable")]);
         sidebar.open('home');
 
     }
@@ -324,22 +352,39 @@ async function createDockdoorDataTable(table) {
         $('#' + table).DataTable().clear().draw(); // Empty the DOM element which contained DataTable
         // The line above is needed if number of columns change in the Data
     }
-    let columns = [
-        {
-            data: 'sortorder',
-            title: 'sortorder'
-        },
-        {
-            data: 'name',
-            title: 'Name',
-            width: '21%',
-            mRender: function (full, data) {
-                let displayVal;
-                displayVal = dockdoortableKeyDisplay[full] == null ? full : dockdoortableKeyDisplay[full].disp;
-                return displayVal;
+    let arrayColums = {
+        "order": "",
+        "Name": "",
+        "Value": "",
+    };
+    let columns = [];
+    let tempc = {};
+    $.each(arrayColums, function (key) {
+        tempc = {};
+     
+        if (/Name/i.test(key)) {
+            tempc = {
+                "title": "Name",
+                "mDataProp": key,
+                "width": '25%',
+                "className": "display"
             }
         }
-    ]
+        else if (/Value/i.test(key)) {
+            tempc = {
+                "title": 'Value',
+                "mDataProp": key,
+                "width": '75%'
+            }
+        }
+        else {
+            tempc = {
+                "title": capitalize_Words(key.replace(/\_/, ' ')),
+                "mDataProp": key
+            }
+        }
+        columns.push(tempc);
+    });
     $('#' + table).DataTable({
         dom: 'Bfrtip',
         bFilter: false,
@@ -360,7 +405,11 @@ async function createDockdoorDataTable(table) {
         {
             orderable: false, // Disable sorting on all columns
             targets: '_all'
-        }]
+            }],
+        rowCallback: function (row, data) {
+            $(row).find('td:eq(0)').css('text-align', 'right');
+        }
+
     })
 
 }
@@ -374,12 +423,16 @@ async function updateDockdoorDataTable(newdata, table) {
         return new Promise((resolve, reject) => {
             let loadnew = true;
             if ($.fn.dataTable.isDataTable("#" + table)) {
+               
                 $('#' + table).DataTable().rows(function (idx, data, node) {
-                    if (data.id === newdata.id) {
-                        loadnew = false;
-                        $('#' + table).DataTable().row(node).data(newdata).draw().invalidate();
+                    loadnew = false;
+                    if (newdata.length > 0) {
+                        $.each(newdata, function () {
+                            if (data.Name === this.Name) {
+                                $('#' + table).DataTable().row(node).data(this).draw().invalidate();
+                            }
+                        })
                     }
-
                 })
                 if (loadnew) {
                     loadDockdoorDatatable(newdata, table);
@@ -392,40 +445,17 @@ async function updateDockdoorDataTable(newdata, table) {
         throw new Error(e.toString());
     }
 }
-
-
-//let container_Table = $('table[id=containertable]');
-//let container_Table_Body = container_Table.find('tbody');
-//function formatctscontainerrow(properties, zoneid) {
-//    return $.extend(properties, {
-//        zone_id: zoneid,
-//        id: properties.placardBarcode,
-//        dest: checkValue(properties.dest) ? properties.dest : "",
-//        location: checkValue(properties.location) ? properties.location : "",
-//        placard: properties.placardBarcode,
-//        status: properties.constainerStatus,
-//        backgroundcolorstatus: properties.constainerStatus === "Unloaded" ? "table-secondary" : properties.constainerStatus === "Close" ? "table-primary" : properties.constainerStatus === "Loaded" ? "table-success" : "table-danger"
-//    });
-//}
-//let container_row_template = '<tr>' +
-//    '<td data-input="dest" class="text-center">{dest}</td>' +
-//    '<td data-input="location" class="text-center">{location}</td>' +
-//    '<td data-input="found-icon" class="text-center"></td>' +
-//    '<td data-input="placard" class="text-center"><a data-doorid={zone_id} data-placardid={placard} class="containerdetails">{placard}</a></td>' +
-//    '<td data-input="status" class="text-center {backgroundcolorstatus}">{status}</td>' +
-//    '</tr>"';
-//let dockdoortop_Table = $('table[id=dockdoortable]');
-//let dockdoortop_Table_Body = dockdoortop_Table.find('tbody');
-//let dockdoortop_row_template = '<tr data-id={zone_id} >' +
-//    '<td class="text-right" style="border-right-style:solid" >{name}</td>' +
-//    '<td class="text-left">{value}</td>' +
-//    '</tr>';
-let dockdoortableKeyDisplay = {
-    "siteName": { disp: "Site Name", sortorder: 0 },
-    "routTrip": { disp: "Route-Trip", sortorder: 5 },
-    "trailerBarcode": { disp: "Trailer Barcode", sortorder: 12 },
-    "loadPercent": { disp: "Load Percent", sortorder: 15 },
-    "direction": { disp: "Direction", sortorder: 21 },
-    "scheduled": { disp: "Scheduled", sortorder: 22 },
-    "arriveTime": { disp: "Actual Arrive Time", sortorder: 35 }
-};
+function vaildateTime(data) {
+    try {
+        let est = luxon.DateTime.fromISO(data);
+        //if (est._isValid && est.year === luxon.DateTime.local().year) {
+        if (est.year && est.year === luxon.DateTime.local().year) {
+            return est.toFormat("yyyy-MM-dd HH:mm:ss");
+        }
+        else {
+            return "Estimate Not Available";
+        }
+    } catch (e) {
+        throw new Error(e.toString());
+    }
+}

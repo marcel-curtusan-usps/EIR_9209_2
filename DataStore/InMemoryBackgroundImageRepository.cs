@@ -125,7 +125,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         return backgroundImage;
     }
     public IEnumerable<OSLImage> GetAll() => _backgroundImages.Values;
-    public async Task ProcessBackgroundImage(List<CoordinateSystem> coordinateSystems)
+    public async Task<bool> ProcessBackgroundImage(List<CoordinateSystem> coordinateSystems, CancellationToken stoppingToken)
     {
         bool saveToFile = false;
         try
@@ -134,10 +134,20 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
             {
                 foreach (var coordinateSystem in coordinateSystems)
                 {
+                    if (stoppingToken.IsCancellationRequested)
+                    {
+                        saveToFile = false;
+                        return false;
+                    }
                     if (coordinateSystem.backgroundImages.Count > 0)
                     {
                         foreach (var backgroundImage in coordinateSystem.backgroundImages)
                         {
+                            if (stoppingToken.IsCancellationRequested)
+                            {
+                                saveToFile = false;
+                                return false;
+                            }
                             if (_backgroundImages.ContainsKey(backgroundImage.id))
                             {
                                 if (_backgroundImages.TryGetValue(backgroundImage.id, out OSLImage currentOSL))
@@ -245,10 +255,12 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
                 
                 }
             }
+            return true;
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
+            return false;
         }
         finally
         {

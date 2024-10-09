@@ -6,10 +6,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
-		<AssemblyVersion>2.0.5.42</AssemblyVersion>
+		<AssemblyVersion>2.0.5.43</AssemblyVersion>
 		<OutputType>Exe</OutputType>
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-		<FileVersion>2.0.5.42</FileVersion>
+		<FileVersion>2.0.5.43</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

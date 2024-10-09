@@ -29,12 +29,12 @@ public interface IInMemoryGeoZonesRepository
     Task<object?> GetDockDoorNameList();
     Task<object?> GetMPEGroupList(string type);
     Task<List<MPESummary>> getMPESummaryDateRange(string mpe, DateTime startDT, DateTime endDT);
-    IEnumerable<GeoZoneDockDoor>? GetDockDoor();
+    Task<List<GeoZoneDockDoor>> GetDockDoor();
     Task ProcessSVDoorsData(JToken result);
     Task<IEnumerable<GeoZone>> GetGeoZone(string zoneType);
     Task ProcessSVContainerData(JToken result);
     Task<bool> ResetGeoZoneList();
     Task<bool> SetupGeoZoneData();
-    Task ProcessQPEGeoZone(List<CoordinateSystem> coordinateSystems);
+    Task<bool> ProcessQPEGeoZone(List<CoordinateSystem> coordinateSystems, CancellationToken stoppingToken);
     Task<MPERunPerformance> GetGeoZoneMPEPerformanceData(string zoneName);
 }

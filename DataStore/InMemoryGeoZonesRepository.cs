@@ -292,9 +292,9 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
     public IEnumerable<GeoZone> GetAll() => _geoZoneList.Values;
-    public IEnumerable<GeoZoneDockDoor>? GetDockDoor()
+    public async Task<List<GeoZoneDockDoor>?> GetDockDoor()
     {
-        return _geoZoneDockDoorList.Values;
+        return _geoZoneDockDoorList.Where(r => r.Value.Properties.Type == "").Select(y => y.Value).ToList();
     }
     public object getMPESummary(string area)
     {
@@ -923,8 +923,6 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 var geoZone = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == mpeName).Select(y => y.Value).FirstOrDefault();
                 lock (_geoZoneList)
                 {
-
-
                     if (geoZone != null && geoZone.Properties.MPERunPerformance != null)
                     {
                         if (geoZone.Properties.MPERunPerformance.MpeId != mpeName)
@@ -1017,7 +1015,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 }
                 if (pushDBUpdate)
                 {
-                    await _hubServices.Clients.Group("MPEZones").SendAsync($"update{geoZone.Properties.Type}zoneRunPerformance", geoZone.Properties.MPERunPerformance);
+                    await _hubServices.Clients.Group(geoZone.Properties.Type).SendAsync($"update{geoZone.Properties.Type}zoneRunPerformance", geoZone.Properties.MPERunPerformance);
                 }
             }
             _ = Task.Run(() => RunMPESummaryReport()).ConfigureAwait(false); 
@@ -1672,7 +1670,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async Task ProcessQPEGeoZone(List<CoordinateSystem> coordinateSystems)
+    public async Task<bool> ProcessQPEGeoZone(List<CoordinateSystem> coordinateSystems, CancellationToken stoppingToken)
     {
         bool saveToFile = false;
         bool docdoorsaveToFile = false;
@@ -1682,10 +1680,20 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             {
                 foreach (var coordinateSystem in coordinateSystems)
                 {
+                    if (stoppingToken.IsCancellationRequested)
+                    {
+                        saveToFile = false;
+                        return false;
+                    }
                     if (coordinateSystem.zones.Count > 0)
                     {
                         foreach (var zone in coordinateSystem.zones)
                         {
+                            if (stoppingToken.IsCancellationRequested)
+                            {
+                                saveToFile = false;
+                                return false;
+                            }
                             var TempGeometry = QuuppaZoneGeometry(zone.polygonData);
                             var geoZone = _geoZoneList.Where(r => r.Value.Properties.Id == zone.id).Select(y => y.Value).FirstOrDefault();
                             var geoZoneDockDoor = _geoZoneDockDoorList.Where(r => r.Value.Properties.Id == zone.id).Select(y => y.Value).FirstOrDefault();
@@ -1798,10 +1806,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 
                 }
             }
+            return true;
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
+            return false;
         }
         finally
         {

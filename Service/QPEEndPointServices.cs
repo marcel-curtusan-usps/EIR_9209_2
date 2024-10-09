@@ -57,8 +57,8 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                await Task.Run(() => _zones.ProcessQPEGeoZone(result.coordinateSystems), stoppingToken).ConfigureAwait(false);
-                await Task.Run(() => _backgroundImage.ProcessBackgroundImage(result.coordinateSystems), stoppingToken).ConfigureAwait(false);
+                await _zones.ProcessQPEGeoZone(result.coordinateSystems, stoppingToken);
+                await _backgroundImage.ProcessBackgroundImage(result.coordinateSystems, stoppingToken);
             }
             catch (Exception e)
             {

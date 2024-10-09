@@ -2,6 +2,7 @@
 //connection types
 let siteInfotable = "siteInfotable";
 async function init_SiteInformation(siteNassCode) {
+    return new Promise((resolve, reject) => {
     try {
         createSiteInfoDataTable(siteInfotable);
 
@@ -29,11 +30,17 @@ async function init_SiteInformation(siteNassCode) {
                 //console.log(complete);
             }
         });
-
+        connection.invoke("JoinGroup", "SiteInformation").catch(function (err) {
+            return console.error(err.toString());
+        });
+        resolve();
+        return false;
 
     } catch (e) {
         throw new Error(e.toString());
-    }
+        reject();
+        }
+    });
 }
 function createSiteInfoDataTable(table) {
     let arrayColums = [{

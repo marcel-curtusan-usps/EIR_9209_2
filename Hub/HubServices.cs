@@ -70,6 +70,7 @@ public class HubServices : Hub
     public override async Task OnConnectedAsync()
     {
         _logger.LogInformation($"Client connected: {Context.ConnectionId} UserName: {await GetUserName(Context.User)}, DateTime:{DateTime.Now.ToString()}" );
+
         await base.OnConnectedAsync();
     }
 
@@ -205,7 +206,7 @@ public class HubServices : Hub
     }
     public async Task<IEnumerable<GeoZoneDockDoor>> GetDockDoorGeoZones()
     {
-        return await Task.Run(_geoZones.GetDockDoor).ConfigureAwait(false);
+        return await _geoZones.GetDockDoor();
     }
     public async Task<IEnumerable<EmployeeInfo>> GetEmpSchedules()
     {

@@ -9,5 +9,5 @@ public interface IInMemoryBackgroundImageRepository
     IEnumerable<OSLImage> GetAll();
     Task<bool> ResetBackgroundImageList();
     Task<bool> SetupBackgroundImageList();
-    Task ProcessBackgroundImage(List<CoordinateSystem> coordinateSystems);
+    Task<bool> ProcessBackgroundImage(List<CoordinateSystem> coordinateSystems, CancellationToken stoppingToken);
 }

@@ -568,6 +568,8 @@ namespace EIR_9209_2.DataStore
                     //check if cancellationToken has been called
                     if (stoppingToken.IsCancellationRequested)
                     {
+                        saveVehicleToFile = false;
+                        saveToFile = false;
                         return false;
                     }
                     if (_tagList.ContainsKey(qtitem.TagId))

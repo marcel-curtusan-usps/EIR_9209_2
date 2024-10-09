@@ -111,7 +111,7 @@ namespace EIR_9209_2.Utilities
                     var clearBackgroundImage = await _backgroundImage.ResetBackgroundImageList();
                     var clearConnections = await _connections.ResetConnectionsList();
                     var clearEmails = await _email.ResetEmailsList();
-                 
+                    var clearSiteInfo = await _siteInfo.ResetSiteInfoList();
                     var clearEmployees = await _employees.ResetEmployeesList();
                     var clearCameras = await _cameras.ResetCamerasList();
                     return true;
@@ -132,7 +132,7 @@ namespace EIR_9209_2.Utilities
         {
             try
             {
-
+                var clearSiteInfo = await _siteInfo.SetupSiteInfoList();
                 var setupZones = await _geoZones.SetupGeoZoneData();
                 var setupTags = await _tags.SetupTagList();
                 var setupBackgroundImage = await _backgroundImage.SetupBackgroundImageList();

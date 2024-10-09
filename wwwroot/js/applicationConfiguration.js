@@ -58,39 +58,39 @@ connection.on("updateApplicationConfiguration", async (data) => {
 });
 async function init_applicationConfiguration() {
     return new Promise((resolve, reject) => {
-    try {
-        createAppSettingDataTable(AppTable);
+        try {
+            createAppSettingDataTable(AppTable);
 
-        //get data from application configuration controller
+            //get data from application configuration controller
 
-        $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/ApplicationConfiguration/AllConfiguration',
+            $.ajax({
+                url: SiteURLconstructor(window.location) + '/api/ApplicationConfiguration/AllConfiguration',
 
-            type: 'GET',
-            success: function (data) {
-                Promise.all([init_SiteInformation(data.nassCode)]);
-                loadAppSettingDatatable(formatdata(data), AppTable);
-            },
-            error: function (error) {
-                $('span[id=error_apisubmitBtn]').text(error);
-                $('button[id=apisubmitBtn]').prop('disabled', false);
-                //console.log(error);
-            },
-            faulure: function (fail) {
-                console.log(fail);
-            },
-            complete: function (complete) {
-                //console.log(complete);
-            }
-        });
-        connection.invoke("JoinGroup", "ApplicationConfiguration").catch(function (err) {
-            return console.error(err.toString());
-        });
-        resolve();
-        return false;
-    } catch (e) {
-        throw new Error(e.toString());
-        reject();
+                type: 'GET',
+                success: function (data) {
+                    Promise.all([init_SiteInformation(data.nassCode)]);
+                    loadAppSettingDatatable(formatdata(data), AppTable);
+                },
+                error: function (error) {
+                    $('span[id=error_apisubmitBtn]').text(error);
+                    $('button[id=apisubmitBtn]').prop('disabled', false);
+                    //console.log(error);
+                },
+                faulure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    //console.log(complete);
+                }
+            });
+            connection.invoke("JoinGroup", "ApplicationConfiguration").catch(function (err) {
+                return console.error(err.toString());
+            });
+            resolve();
+            return false;
+        } catch (e) {
+            throw new Error(e.toString());
+            reject();
         }
     });
 }
