@@ -169,7 +169,6 @@
 	<ItemGroup>
 		<None Include="bundleconfig.json" />
 		<None Include="compilerconfig.json" />
-		<Page Include="wwwroot\Reports\Content\empSchedule.scss" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -654,9 +653,6 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\OSL\default.html">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="wwwroot\Reports\Content\empSchedule.min.css">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\Reports\Content\mpePerformance.scss">

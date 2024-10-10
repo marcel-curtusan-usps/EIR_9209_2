@@ -10,9 +10,11 @@ async function updateEmployeeSchedule(data) {
         if (data.length > 0) {
             let formatData = processScheduledata(data)
             console.log(formatData);
+            $('#empScheduleData').DataTable().clear().draw(); // Empty the DOM element which contained DataTable
             Promise.all([updateEmpScheduleDataTable(formatData, 'empScheduleData')]);
         }
         else {
+            $('#empScheduleData').DataTable().clear().draw(); // Empty the DOM element which contained DataTable
         }
     } catch (e) {
         console.log(e);
@@ -80,37 +82,6 @@ function processScheduledata(data) {
         }
 
         return result;
-        //let newresult = [];
-        //valuesArray = Object.values(data);
-        //var result = valuesArray.reduce((acc, curr) => {
-        //    let tacshr = '9.86';
-        //    let tacshrtotal = '38';
-        //    let selshrtotal = curr.totalselshr;
-        //    let totalhrs = curr.totalhr;
-        //    totalhrs += '<br><span class="tacshrSpan">' + tacshrtotal + '</span><span class="selshrSpan">' + selshrtotal + '</span>';
-        //    if (selshrtotal == 0) {
-        //        totalhrspercent = '';
-        //    } else {
-        //        totalhrspercent = '<br>' + Math.round(parseFloat(tacshrtotal) / parseFloat(selshrtotal) * 100 * 1) / 1 + '%';
-        //    }
-        //    let employee = {
-        //        ein: curr.ein,
-        //        name: curr.firstName + ' ' + curr.lastName, 
-        //        tour: curr.tourNumber,
-        //        day1: getDayFormat(curr.day1hr, curr.day1selshr, tacshr),
-        //        day2: getDayFormat(curr.day2hr, curr.day2selshr, tacshr),
-        //        day3: getDayFormat(curr.day3hr, curr.day3selshr, tacshr),
-        //        day4: getDayFormat(curr.day4hr, curr.day4selshr, tacshr),
-        //        day5: getDayFormat(curr.day5hr, curr.day5selshr, tacshr),
-        //        day6: getDayFormat(curr.day6hr, curr.day6selshr, tacshr),
-        //        day7: getDayFormat(curr.day7hr, curr.day7selshr, tacshr),
-        //        hourstotal: curr,
-        //        hourstotalpercent: totalhrspercent
-        //    };
-        //    acc.push(employee);
-        //    return acc;
-        //}, []);
-        //return result;
     } catch (e) {
         console.log(e);
     }
@@ -247,7 +218,7 @@ async function createEmpScheduleDataTable(table) {
                         createdCell: function (td, cellData, rowData, row, col) {
                             if (/off/ig.test(cellData.workStatus)) {
                                 $(td).addClass('off');
-                            } else if (/leave/ig.test(cellData.workStatus)) {
+                            } else if (/Leave/ig.test(cellData.workStatus)) {
                                 $(td).addClass('leave');
                             } else if (/holoff/ig.test(cellData.workStatus)) {
                                 $(td).addClass('holoff');
@@ -344,7 +315,7 @@ async function updateEmpScheduleDataTable(newdata, table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {
         $('#' + table).DataTable().rows(function (idx, data, node) {
             loadnew = false;
-            $('#' + table).DataTable().row(node).data(element).draw().invalidate();
+            $('#' + table).DataTable().row(node).data(newdata).draw().invalidate();
 
         })
         if (loadnew) {

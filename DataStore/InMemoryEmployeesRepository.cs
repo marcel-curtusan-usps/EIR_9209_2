@@ -245,9 +245,9 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
 
                 foreach (var emp in empList)
                 {
-                    if (startOfWeek == DateTime.MinValue)
+                    if (startOfWeek == DateTime.MinValue && _empsch.Count() > 0)
                     {
-                        payWeek = _empList[emp].PayWeek;
+                        payWeek = _empsch.Select(r => r.Value.PayWeek).Distinct().ToList().FirstOrDefault();
                         var curt = _empsch.Where(r => r.Value.EIN == emp && r.Value.PayWeek == payWeek).Select(y => y.Value).FirstOrDefault();
                         var daydiff = (Int32.Parse(curt.Day!.ToString()) - 1) * -1;
                         DateTime curdate = new DateTime();

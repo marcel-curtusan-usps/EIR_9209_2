@@ -294,7 +294,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     public IEnumerable<GeoZone> GetAll() => _geoZoneList.Values;
     public async Task<List<GeoZoneDockDoor>?> GetDockDoor()
     {
-        return _geoZoneDockDoorList.Where(r => r.Value.Properties.Type == "").Select(y => y.Value).ToList();
+        return _geoZoneDockDoorList.Where(r => r.Value.Properties.Type == "DockDoor").Select(y => y.Value).ToList();
     }
     public object getMPESummary(string area)
     {

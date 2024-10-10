@@ -37,7 +37,7 @@ async function init_SiteInformation(siteNassCode) {
         return false;
 
     } catch (e) {
-        throw new Error(e.toString());
+        console.log(e);
         reject();
         }
     });

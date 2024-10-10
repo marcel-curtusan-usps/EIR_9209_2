@@ -2081,37 +2081,48 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!--<div class="card w-100">
-                            <div class="card-header pl-1">
-                                <h6 class="sectionHeader ml-1 mb-1">Staffing Report</h6>
-                            </div>
+                        <div class="card w-100">
+                            <h6 class="card-header pl-1">STAR Report</h6>
                             <div class="card-body overflow-auto">
-                                <div class="table-responsive">
-                                    <table aria-describedby="" class="table table-sm table-hover mb-1 border-bottom" id="staffingtable">
-                                        <thead class="table-dark">
-                                            <tr>
-                                                <th>Icon</th>
-                                                <th>Type</th>
-                                                <th>Scheduled</th>
-                                                <th>Scan</th>
-                                                <th>In-Building</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <th style="text-align: right">Total:</th>
-                                                <th></th>
-                                                <th></th>
-                                                <th></th>
-                                                <th></th>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
+                                <div class="input-group mb-2 mx-3">
+                                    <!-- API Buttons -->
+                                    <div role="group" class="d-flex btn-block" aria-label="STAR Report">
+
+                                        <a type="button" class="btn btn-light flex-fill mr-3" href="../Reports/EmpSchedule.html" target="_blank">STAR Report</a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>-->
+                        </div>
+                        <!--<div class="card w-100">
+        <div class="card-header pl-1">
+            <h6 class="sectionHeader ml-1 mb-1">Staffing Report</h6>
+        </div>
+        <div class="card-body overflow-auto">
+            <div class="table-responsive">
+                <table aria-describedby="" class="table table-sm table-hover mb-1 border-bottom" id="staffingtable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Icon</th>
+                            <th>Type</th>
+                            <th>Scheduled</th>
+                            <th>Scan</th>
+                            <th>In-Building</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th style="text-align: right">Total:</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>-->
                     </div>
                     <!--<div id="div_userinfo" class="container-fluid">
                         <div class="card w-100">
@@ -2865,15 +2876,17 @@
         </div>
     </div>
     <script src="../lib/jquery/jquery.js"></script>
+    <script src="../lib/jquery-validation/jquery.validate.js"></script>
+    <script src="../lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
     <script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
     <script src="../lib/microsoft/signalr-protocol-msgpack/dist/browser/signalr-protocol-msgpack.min.js"></script>
     <script src="../lib/luxon/luxon.min.js"></script>
     <script src="../lib/chartjs/chart.umd.min.js"></script>
     <script src="../lib/chartjs-adapter-luxon/chartjs-adapter-luxon.umd.min.js"></script>
     <script src="../lib/chartjs-plugin-datalabels/chartjs-plugin-datalabels.min.js"></script>
-    <script src="../lib/twitter-bootstrap/js/bootstrap.min.js"></script>
-    <script src="../lib/twitter-bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="../lib/datatables.net/dataTables.min.js"></script>
+    <script src="../lib/bootstrap/js/bootstrap.js"></script>
+    <script src="../lib/bootstrap/js/bootstrap.bundle.js"></script>
+    <script src="../lib/datatables.net/datatables.js"></script>
     <script src="../lib/leaflet/leaflet.js"></script>
     <script src="../lib/leaflet-sidebar-v2/js/leaflet-sidebar.min.js"></script>
     <script src="../lib/geoman-io/dist/leaflet-geoman.min.js"></script>

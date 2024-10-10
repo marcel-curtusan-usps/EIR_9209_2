@@ -4,10 +4,6 @@
     "inputFile": "wwwroot/css/Site.scss"
   },
   {
-    "outputFile": "wwwroot/reports/content/empSchedule.css",
-    "inputFile": "wwwroot/reports/content/empSchedule.scss"
-  },
-  {
     "outputFile": "wwwroot/Reports/Content/mpePerformance.css",
     "inputFile": "wwwroot/Reports/Content/mpePerformance.scss"
   },
@@ -18,5 +14,9 @@
   {
     "outputFile": "wwwroot/MPE/Content/mpeView.css",
     "inputFile": "wwwroot/MPE/Content/mpeView.scss"
+  },
+  {
+    "outputFile": "wwwroot/Reports/Content/empSchedule.css",
+    "inputFile": "wwwroot/Reports/Content/empSchedule.scss"
   }
 ]

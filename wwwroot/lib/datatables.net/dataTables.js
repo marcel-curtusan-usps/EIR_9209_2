@@ -1,11 +1,11 @@
-/*! DataTables 2.1.4
+/*! DataTables 2.1.8
  * © SpryMedia Ltd - datatables.net/license
  */
 
 /**
  * @summary     DataTables
  * @description Paginate, search and order HTML tables
- * @version     2.1.4
+ * @version     2.1.8
  * @author      SpryMedia Ltd
  * @contact     www.datatables.net
  * @copyright   SpryMedia Ltd.
@@ -254,6 +254,7 @@
 				"caption",
 				"layout",
 				"orderDescReverse",
+				"typeDetect",
 				[ "iCookieDuration", "iStateDuration" ], // backwards compat
 				[ "oSearch", "oPreviousSearch" ],
 				[ "aoSearchCols", "aoPreSearchCols" ],
@@ -477,7 +478,7 @@
 				} );
 			}
 			else {
-				_fnCallbackFire( oSettings, null, 'i18n', [oSettings]);
+				_fnCallbackFire( oSettings, null, 'i18n', [oSettings], true);
 				_fnInitialise( oSettings );
 			}
 		} );
@@ -1053,7 +1054,8 @@
 			active: 'current',
 			button: 'dt-paging-button',
 			container: 'dt-paging',
-			disabled: 'disabled'
+			disabled: 'disabled',
+			nav: ''
 		}
 	} );
 	
@@ -1216,7 +1218,7 @@
 		// is essential here
 		if ( prop2 !== undefined ) {
 			for ( ; i<ien ; i++ ) {
-				if ( a[ order[i] ][ prop ] ) {
+				if ( a[ order[i] ] && a[ order[i] ][ prop ] ) {
 					out.push( a[ order[i] ][ prop ][ prop2 ] );
 				}
 			}
@@ -1316,8 +1318,11 @@
 		}
 	
 		// It is faster to just run `normalize` than it is to check if
-		// we need to with a regex!
-		var res = str.normalize("NFD");
+		// we need to with a regex! (Check as it isn't available in old
+		// Safari)
+		var res = str.normalize
+			? str.normalize("NFD")
+			: str;
 	
 		// Equally, here we check if a regex is needed or not
 		return res.length !== str.length
@@ -2252,7 +2257,7 @@
 	 */
 	function _typeResult (typeDetect, res) {
 		return res === true
-			? typeDetect.name
+			? typeDetect._name
 			: res;
 	}
 	
@@ -2269,12 +2274,6 @@
 		var i, ien, j, jen, k, ken;
 		var col, detectedType, cache;
 	
-		// If SSP then we don't have the full data set, so any type detection would be
-		// unreliable and error prone
-		if (_fnDataSource( settings ) === 'ssp') {
-			return;
-		}
-	
 		// For each column, spin over the data type detection functions, seeing if one matches
 		for ( i=0, ien=columns.length ; i<ien ; i++ ) {
 			col = columns[i];
@@ -2284,6 +2283,12 @@
 				col.sType = col._sManualType;
 			}
 			else if ( ! col.sType ) {
+				// With SSP type detection can be unreliable and error prone, so we provide a way
+				// to turn it off.
+				if (! settings.typeDetect) {
+					return;
+				}
+	
 				for ( j=0, jen=types.length ; j<jen ; j++ ) {
 					var typeDetect = types[j];
 	
@@ -3035,8 +3040,8 @@
 	 * @returns 
 	 */
 	function _fnGetRowDisplay (settings, rowIdx) {
-		let rowModal = settings.aoData[rowIdx];
-		let columns = settings.aoColumns;
+		var rowModal = settings.aoData[rowIdx];
+		var columns = settings.aoColumns;
 	
 		if (! rowModal.displayData) {
 			// Need to render and cache
@@ -3120,6 +3125,9 @@
 				) {
 					_fnWriteCell(nTd, display[i]);
 				}
+	
+				// column class
+				_addClass(nTd, oCol.sClass);
 	
 				// Visibility - add or remove as required
 				if ( oCol.bVisible && create )
@@ -3238,9 +3246,6 @@
 		else {
 			settings.aoFooter = detected;
 		}
-	
-		// ARIA role for the rows
-		$(target).children('tr').attr('role', 'row');
 	
 		// Every cell needs to be passed through the renderer
 		$(target).children('tr').children('th, td')
@@ -3452,7 +3457,6 @@
 					var td = aoData.anCells[i];
 	
 					_addClass(td, _ext.type.className[col.sType]); // auto class
-					_addClass(td, col.sClass); // column class
 					_addClass(td, oSettings.oClasses.tbody.cell); // all cells
 				}
 	
@@ -4333,6 +4337,7 @@
 		}
 		settings.aiDisplay = settings.aiDisplayMaster.slice();
 	
+		_fnColumnTypes(settings);
 		_fnDraw( settings, true );
 		_fnInitComplete( settings );
 		_fnProcessingDisplay( settings, false );
@@ -5226,21 +5231,37 @@
 		// is because of Responsive which might remove `col` elements, knocking the alignment
 		// of the indexes out.
 		if (settings.aiDisplay.length) {
-			// Get the column sizes from the first row in the table
-			var colSizes = table.children('tbody').eq(0).children('tr').eq(0).children('th, td').map(function (vis) {
-				return {
-					idx: _fnVisibleToColumnIndex(settings, vis),
-					width: $(this).outerWidth()
+			// Get the column sizes from the first row in the table. This should really be a
+			// [].find, but it wasn't supported in Chrome until Sept 2015, and DT has 10 year
+			// browser support
+			var firstTr = null;
+	
+			for (i=settings._iDisplayStart ; i<settings.aiDisplay.length ; i++) {
+				var idx = settings.aiDisplay[i];
+				var tr = settings.aoData[idx].nTr;
+	
+				if (tr) {
+					firstTr = tr;
+					break;
 				}
-			});
+			}
 	
-			// Check against what the colgroup > col is set to and correct if needed
-			for (var i=0 ; i<colSizes.length ; i++) {
-				var colEl = settings.aoColumns[ colSizes[i].idx ].colEl[0];
-				var colWidth = colEl.style.width.replace('px', '');
+			if (firstTr) {
+				var colSizes = $(firstTr).children('th, td').map(function (vis) {
+					return {
+						idx: _fnVisibleToColumnIndex(settings, vis),
+						width: $(this).outerWidth()
+					}
+				});
 	
-				if (colWidth !== colSizes[i].width) {
-					colEl.style.width = colSizes[i].width + 'px';
+				// Check against what the colgroup > col is set to and correct if needed
+				for (var i=0 ; i<colSizes.length ; i++) {
+					var colEl = settings.aoColumns[ colSizes[i].idx ].colEl[0];
+					var colWidth = colEl.style.width.replace('px', '');
+	
+					if (colWidth !== colSizes[i].width) {
+						colEl.style.width = colSizes[i].width + 'px';
+					}
 				}
 			}
 		}
@@ -6768,6 +6789,7 @@
 			return new _Api( context, data );
 		}
 	
+		var i;
 		var settings = [];
 		var ctxSettings = function ( o ) {
 			var a = _toSettings( o );
@@ -6777,7 +6799,7 @@
 		};
 	
 		if ( Array.isArray( context ) ) {
-			for ( var i=0, ien=context.length ; i<ien ; i++ ) {
+			for ( i=0 ; i<context.length ; i++ ) {
 				ctxSettings( context[i] );
 			}
 		}
@@ -6792,7 +6814,16 @@
 	
 		// Initial data
 		if ( data ) {
-			this.push.apply(this, data);
+			// Chrome can throw a max stack error if apply is called with
+			// too large an array, but apply is faster.
+			if (data.length < 10000) {
+				this.push.apply(this, data);
+			}
+			else {
+				for (i=0 ; i<data.length ; i++) {
+					this.push(data[i]);
+				}
+			}
 		}
 	
 		// selector
@@ -7675,7 +7706,7 @@
 	// Reduce the API instance to the first item found
 	var _selector_first = function ( old )
 	{
-		let inst = new _Api(old.context[0]);
+		var inst = new _Api(old.context[0]);
 	
 		// Use a push rather than passing to the constructor, since it will
 		// merge arrays down automatically, which isn't what is wanted here
@@ -9670,7 +9701,7 @@
 				fn.call(this);
 			}
 			else {
-				this.on('init', function () {
+				this.on('init.dt.DT', function () {
 					fn.call(this);
 				});
 			}
@@ -9823,7 +9854,7 @@
 	 *  @type string
 	 *  @default Version number
 	 */
-	DataTable.version = "2.1.4";
+	DataTable.version = "2.1.8";
 	
 	/**
 	 * Private data store, containing all of the settings objects that are
@@ -11923,7 +11954,10 @@
 		colgroup: null,
 	
 		/** Delay loading of data */
-		deferLoading: null
+		deferLoading: null,
+	
+		/** Allow auto type detection */
+		typeDetect: true
 	};
 	
 	/**
@@ -12145,7 +12179,7 @@
 	
 			// Add type detection and sorting specific to this date format - we need to be able to identify
 			// date type columns as such, rather than as numbers in extensions. Hence the need for this.
-			if (! DataTable.ext.type.order[typeName]) {
+			if (! DataTable.ext.type.order[typeName + '-pre']) {
 				DataTable.type(typeName, {
 					detect: function (d) {
 						// The renderer will give the value to type detect as the type!
@@ -12384,7 +12418,7 @@
 			return {
 				className: _extTypes.className[name],
 				detect: _extTypes.detect.find(function (fn) {
-					return fn.name === name;
+					return fn._name === name;
 				}),
 				order: {
 					pre: _extTypes.order[name + '-pre'],
@@ -12402,10 +12436,10 @@
 		var setDetect = function (detect) {
 			// `detect` can be a function or an object - we set a name
 			// property for either - that is used for the detection
-			Object.defineProperty(detect, "name", {value: name});
+			Object.defineProperty(detect, "_name", {value: name});
 	
 			var idx = _extTypes.detect.findIndex(function (item) {
-				return item.name === name;
+				return item._name === name;
 			});
 	
 			if (idx === -1) {
@@ -12468,13 +12502,13 @@
 	// Get a list of types
 	DataTable.types = function () {
 		return _extTypes.detect.map(function (fn) {
-			return fn.name;
+			return fn._name;
 		});
 	};
 	
 	var __diacriticSort = function (a, b) {
-		a = a.toString().toLowerCase();
-		b = b.toString().toLowerCase();
+		a = a !== null && a !== undefined ? a.toString().toLowerCase() : '';
+		b = b !== null && b !== undefined ? b.toString().toLowerCase() : '';
 	
 		// Checked for `navigator.languages` support in `oneOf` so this code can't execute in old
 		// Safari and thus can disable this check
@@ -13131,7 +13165,11 @@
 	
 		var host = $('<div/>')
 			.addClass(settings.oClasses.paging.container + (opts.type ? ' paging_' + opts.type : ''))
-			.append('<nav>');
+			.append(
+				$('<nav>')
+					.attr('aria-label', 'pagination')
+					.addClass(settings.oClasses.paging.nav)
+			);
 		var draw = function () {
 			_pagingDraw(settings, host.children(), opts);
 		};
@@ -13184,15 +13222,17 @@
 			all        = len === -1,
 			page = all ? 0 : Math.ceil( start / len ),
 			pages = all ? 1 : Math.ceil( visRecords / len ),
-			buttons = plugin(opts)
+			buttons = [],
+			buttonEls = [],
+			buttonsNested = plugin(opts)
 				.map(function (val) {
 					return val === 'numbers'
 						? _pagingNumbers(page, pages, opts.buttons, opts.boundaryNumbers)
 						: val;
-				})
-				.flat();
+				});
 	
-		var buttonEls = [];
+		// .flat() would be better, but not supported in old Safari
+		buttons = buttons.concat.apply(buttons, buttonsNested);
 	
 		for (var i=0 ; i<buttons.length ; i++) {
 			var button = buttons[i];
@@ -13471,14 +13511,14 @@
 	
 		// Save text node content for macro updating
 		var textNodes = [];
-		div.find('label')[0].childNodes.forEach(function (el) {
+		Array.from(div.find('label')[0].childNodes).forEach(function (el) {
 			if (el.nodeType === Node.TEXT_NODE) {
 				textNodes.push({
 					el: el,
 					text: el.textContent
 				});
 			}
-		})
+		});
 	
 		// Update the label text in case it has an entries value
 		var updateEntries = function (len) {

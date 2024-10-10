@@ -13,9 +13,16 @@ $(function () {
         url: SiteURLconstructor(window.location) + '/api/EmpSchedule/PayWeekList',
         type: 'GET',
         success: function (data) {
-
-            Promise.all([LoadPayWeekList(data[0])]);
-
+            if (data.length > 0) {
+                //sort 
+                data.sort();
+                $.each(data, function () {
+                    $('<option/>').val(this).html(this).appendTo('select[id=payweek]');
+                });
+                let currentpayweek = data[0];
+                $('select[name=payweek]').val(currentpayweek);
+                Promise.all([LoadPayWeekList(currentpayweek)]);
+            }
         },
         error: function (error) {
             console.log(error);
@@ -24,7 +31,11 @@ $(function () {
             console.log(fail);
         }
     });
-
+    $('select[name=payweek]').on("change", function () {
+        let payweekSelected = $('select[name=payweek] option:selected').val();
+     
+        Promise.all([LoadPayWeekList(payweekSelected)]);
+    })
 
 });
 async function LoadPayWeekList(payweek) {
@@ -36,6 +47,7 @@ async function LoadPayWeekList(payweek) {
             success: function (data) {
                 console.log(data);
                 Promise.all([updateEmployeeSchedule(data)]);
+           
             },
             error: function (error) {
                 console.log(error);
@@ -48,35 +60,6 @@ async function LoadPayWeekList(payweek) {
         console.log(e);
     }
 }
-
-//async function start() {
-//    try {
-//        //await connection.start().then(async () => {
-//        //    //load siteinfo
-//        //    await connection.invoke("GetSiteInformation").then(function (data) {
-//        //        siteTours = data.tours;
-//        //    }).catch(function (err) {
-//        //        console.error(err);
-//        //    });
-//        //    await connection.invoke("GetMPESynopsis").then(async (data) => {
-//        //        hourlyMPEdata = data.length > 0 ? data[0] : [];
-//        //        Promise.all([updateMPEPerformanceSummaryStatus(data)]).then(function () {
-//        //            connection.invoke("JoinGroup", "MPESynopsis").catch(function (err) {
-//        //                return console.error(err.toString());
-//        //            });
-
-//        //        });
-//        //    }).catch(function (err) {
-//        //        console.error(err);
-//        //    });
-
-//        //});
-//    } catch (err) {
-//        console.log(err);
-//        setTimeout(start, 5000);
-//    }
-//};
-
 function setHeight() {
     let height = (this.window.innerHeight > 0 ? this.window.innerHeight : this.screen.height) - 1;
     let screenTop = (this.window.screenTop > 0 ? this.window.screenTop : 1) - 1;
