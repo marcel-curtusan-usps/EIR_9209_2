@@ -286,12 +286,14 @@ function startCountdown(targetTime) {
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
         // Display the countdown in an element
+        $('label[id=countdownText]').css('display', 'block') 
         $('label[id=countdown]').html(hours + "h " + minutes + "m " + seconds + "s ");
 
         // Clear the interval when the countdown reaches 0
         if (distance < 0) {
             clearInterval(timer);
             $('label[id=countdown]').html("");
+            $('label[id=countdownText]').css('display', 'none');
         }
     }, 1000);
 }

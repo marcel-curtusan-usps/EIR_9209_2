@@ -79,7 +79,7 @@ div.otgreen {
 .schedtbl table {
     table-layout: fixed;
 } */
-.schedtbl .float-left {
+.schedtbl .float-start {
   float: left !important;
 }
 
