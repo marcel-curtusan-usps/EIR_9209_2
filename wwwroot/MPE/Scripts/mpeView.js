@@ -298,7 +298,7 @@ function startCountdown(targetTime) {
     }, 1000);
 }
 function MPEStatus(data) {
-    if (/^0$/i.test(data.curSortplan)) {
+    if (/(^0$|^$)/i.test(data.curSortplan)) {
         return "Idle";
     }
     else {
