@@ -5,6 +5,7 @@ let ianaTimeZone = "";
 let CurrentTripMin = 0;
 let MPEName = "";
 let retryCount = 0;
+let timer;
 const MPETabel = "mpeStatustable";
 const maxRetries = 5;
 const mpeViewConnection = new signalR.HubConnectionBuilder()
@@ -31,8 +32,26 @@ $(function () {
     document.title = $.urlParam("mpeStatus");
     RequestDate = getUrlParameter("Date");
     $(document).prop('title', " Machine View" + ' (' + MPEName + ')');
+    $.ajax({
+        url: SiteURLconstructor(window.location) + '/api/SiteInformation/SiteInfo',
+        type: 'GET',
+        success: function (data) {
+            //if data is not null
+            if (data != null) {
+                siteInfo = data;
+                // Use the mapping function to get the correct IANA time zone
+                ianaTimeZone = getIANATimeZone(getPostalTimeZone(data.timeZoneAbbr));
+                localdateTime = luxon.DateTime.local().setZone(ianaTimeZone).setZone("system", { keepLocalTime: true });
+            }
+        },
+        error: function (error) {
+            console.log(error);
+        },
+        failure: function (fail) {
+            console.log(fail);
+        }
+    });
 });
-
 
 async function mpeViewSignalRstart() {
     try {
@@ -245,6 +264,36 @@ async function buildDataTable(data) {
         //}
     });
     updateMpeDataTable(dataArray, "mpeStatustable");
+    clearInterval(timer);
+    startCountdown(data.rpgEstimatedCompletion);
+}
+function startCountdown(targetTime) {
+    let targetDate = luxon.DateTime.fromISO(targetTime, { zone: ianaTimeZone });
+
+    // Update the countdown every second
+    timer = setInterval(() => {
+
+        // Get the current date and time in milliseconds
+        let now = luxon.DateTime.local().setZone(ianaTimeZone);
+
+        // Calculate the distance between now and the target date
+        let distance = targetDate - now;
+
+        // Time calculations for days, hours, minutes and seconds
+        //const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Display the countdown in an element
+        $('label[id=countdown]').html(hours + "h " + minutes + "m " + seconds + "s ");
+
+        // Clear the interval when the countdown reaches 0
+        if (distance < 0) {
+            clearInterval(timer);
+            $('label[id=countdown]').html("");
+        }
+    }, 1000);
 }
 function MPEStatus(data) {
     if (/^0$/i.test(data.curSortplan)) {
@@ -272,6 +321,40 @@ function showConnectionStatus(message) {
         statusElement.style.display = 'block';
     }
 }
+// Mapping of standard time zone abbreviations to IANA time zones
+const timeZoneMapping = {
+    'PST': 'America/Los_Angeles',
+    'PDT': 'America/Los_Angeles',
+    'MST': 'America/Denver',
+    'MDT': 'America/Denver',
+    'CST': 'America/Chicago',
+    'CDT': 'America/Chicago',
+    'EST': 'America/New_York',
+    'EDT': 'America/New_York',
+    'HST': 'Pacific/Honolulu',
+    'AKST': 'America/Anchorage',
+    'AKDT': 'America/Anchorage',
+    'AEST': 'Australia/Sydney',
+    'AEDT': 'Australia/Sydney',
+    'ACST': 'Australia/Adelaide',
+    'ACDT': 'Australia/Adelaide',
+    'AWST': 'Australia/Perth',
+    'JST': 'Asia/Tokyo'
+};
+const postaltimeZoneMapping = {
+    'PST1': 'PDT',
+    'MST1': 'MDT',
+    'CST1': 'CDT',
+    'EST1': 'EDT'
+};
+
+// Function to get the IANA time zone from a standard abbreviation
+function getIANATimeZone(abbreviation) {
+    return timeZoneMapping[abbreviation] || abbreviation;
+}
+function getPostalTimeZone(abbreviation) {
+    return postaltimeZoneMapping[abbreviation] || abbreviation;
+}
 var getUrlParameter = function getUrlParameter(sParam) {
     var sPageURL = window.location.search.substring(1),
         sURLVariables = sPageURL.split('&'),
@@ -287,52 +370,10 @@ var getUrlParameter = function getUrlParameter(sParam) {
     }
     return false;
 };
-function startTimer(SVdtm) {
-    if (!!SVdtm) {
-        let duration = calculatescheduledDuration(SVdtm);
-        let timer = setInterval(function () {
-            if (!!duration && duration._isValid) {
-                CurrentTripMin = duration.asMinutes();
-
-                duration = moment.duration(duration.asSeconds() - Timerinterval, 'seconds');
-                $('label[id=countdown]').html(duration.format("d [days] hh:mm:ss ", { trunc: true }));
-
-            }
-            else {
-                stopTimer()
-            }
-
-        }, 1000);
-
-        TimerID = timer;
-
-        return timer;
-    }
-    else {
-        stopTimer()
-    }
-};
-function calculatescheduledDuration(t) {
-    if (!!t) {
-        let timenow = moment(DateTimeNow);
-        let conditiontime = moment(t);
-        if (conditiontime._isValid && conditiontime.year() === timenow.year()) {
-            if (timenow > conditiontime) {
-                return moment.duration(timenow.diff(conditiontime));
-            }
-            else {
-                return moment.duration(conditiontime.diff(timenow));
-            }
-        }
-        else {
-            return "";
-        }
-    }
-}
 function VaildateEstComplete(estComplet, type) {
 
     try {
-        let est = luxon.DateTime.fromISO(estComplet);
+        let est = luxon.DateTime.fromISO(estComplet, { zone: ianaTimeZone });
         //if (est._isValid && est.year === luxon.DateTime.local().year) {
         if (est.year && est.year === luxon.DateTime.local().year) {
             return est.toFormat("yyyy-MM-dd HH:mm:ss");
