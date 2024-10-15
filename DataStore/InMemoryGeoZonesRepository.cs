@@ -577,26 +577,26 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     item.Properties.ContainersNotLoaded = 0;
                   
 
-                    if (string.IsNullOrEmpty(item.Properties.DoorNumber))
-                    {
-                        string dockNumber = item.Properties.Name.Replace("DockDoor", "");
-                        //check if dock number is number 
-                        if (Int32.TryParse(dockNumber, out int doornumber))
-                        {
-                            item.Properties.DoorNumber = doornumber.ToString();
-                        }
-                        else
-                        {
-                            item.Properties.DoorNumber = dockNumber;
-                        }
-                    }
+                    //if (string.IsNullOrEmpty(item.Properties.DoorNumber))
+                    //{
+                    //    string dockNumber = item.Properties.Name.Replace("DockDoor", "");
+                    //    //check if dock number is number 
+                    //    if (Int32.TryParse(dockNumber, out int doornumber))
+                    //    {
+                    //        item.Properties.DoorNumber = doornumber.ToString();
+                    //    }
+                    //    else
+                    //    {
+                    //        item.Properties.DoorNumber = dockNumber;
+                    //    }
+                    //}
 
                     //check if door exits in _DockDoorList
                     if (!_DockDoorList.Contains(item.Properties.DoorNumber))
                     {
                         _DockDoorList.Add(item.Properties.DoorNumber);
                     }
-                    _geoZoneDockDoorList.TryAdd(item.Properties.Id, item);
+                    _geoZoneDockDoorList.TryAdd(item.Properties.DoorNumber, item);
                 }
                 
             }
@@ -1454,7 +1454,6 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                         return false;
                     }
                     bool updateUI = false;
-                    GeoZoneDockDoor geoZone = new GeoZoneDockDoor();
                     if (item.ContainsKey("doorNumber"))
                     {
                         string doorNumber = item["doorNumber"].ToString();
@@ -1464,8 +1463,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                             _DockDoorList.Add(doorNumber);
                         }
                         //find door number in _geoZoneDockDoorList
-                        geoZone = _geoZoneDockDoorList.Where(r => r.Value.Properties.DoorNumber == doorNumber).Select(y => y.Value).FirstOrDefault();
-                        if (geoZone != null)
+                        if (_geoZoneDockDoorList.TryGetValue(doorNumber, out GeoZoneDockDoor? geoZone))
                         {
                             if (item.ContainsKey("routeTripId"))
                             {
@@ -1559,7 +1557,6 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                                 await _hubServices.Clients.Group(geoZone.Properties.Type).SendAsync($"update{geoZone.Properties.Type}zone", geoZone.Properties);
                             }
                         }
-                        
                     }
                 
                 }
