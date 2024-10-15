@@ -1,4 +1,5 @@
-﻿using EIR_9209_2.DataStore;
+﻿using EIR_9209_2.DatabaseCalls.IDS;
+using EIR_9209_2.DataStore;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 
@@ -20,6 +21,7 @@ namespace EIR_9209_2.Service
         private readonly IConfiguration _configuration;
         private readonly IInMemoryBackgroundImageRepository _backgroundImage;
         private readonly ILoggerService _loggerService;
+        private readonly IIDS _ids;
         private readonly ConcurrentDictionary<string, BaseEndpointService> _endPointServices = new();
 
         public Worker(ILogger<Worker> logger, ILoggerFactory loggerFactory,
@@ -34,7 +36,8 @@ namespace EIR_9209_2.Service
             IInMemoryCamerasRepository cameras,
             IConfiguration configuration, 
             IInMemoryBackgroundImageRepository backgroundImage,
-            ILoggerService loggerService)
+            ILoggerService loggerService,
+            IIDS ids)
         {
             _logger = logger;
             _hubServices = hubServices;
@@ -50,6 +53,7 @@ namespace EIR_9209_2.Service
             _employees = employees;
             _backgroundImage = backgroundImage;
             _loggerService = loggerService;
+            _ids = ids;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -84,7 +88,7 @@ namespace EIR_9209_2.Service
                     endpointService = new MPEWatchEndPointServices(_loggerFactory.CreateLogger<MPEWatchEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _geoZones);
                     break;
                 case "IDS":
-                    endpointService = new IDSEndPointServices(_loggerFactory.CreateLogger<IDSEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _geoZones);
+                    endpointService = new IDSEndPointServices(_loggerFactory.CreateLogger<IDSEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _geoZones,_ids);
                     break;
                 case "Email":
                     endpointService = new EmailEndPointServices(_loggerFactory.CreateLogger<EmailEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _email);

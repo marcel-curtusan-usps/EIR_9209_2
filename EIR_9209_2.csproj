@@ -162,7 +162,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="BasicAuth\" />
 		<Folder Include="Properties\PublishProfiles\" />
 		<Folder Include="wwwroot\images\" />
 	</ItemGroup>

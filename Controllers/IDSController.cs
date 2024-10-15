@@ -9,7 +9,6 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = "BasicAuthentication")]
     public class IDSController : ControllerBase
     {
         private readonly ILogger<IDSController> _logger;

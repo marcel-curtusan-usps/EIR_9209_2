@@ -40,8 +40,6 @@ public class Startup
         // Configure logging
         services.AddLogging();
         services.AddAuthentication(IISDefaults.AuthenticationScheme); // Add Windows Authentication
-        services.AddAuthentication("BasicAuthentication")
-          .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
         services.AddSingleton<IFilePathProvider, FilePathProvider>();
         services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<ILoggerService, LoggerService>();
