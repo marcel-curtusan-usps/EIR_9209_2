@@ -136,7 +136,7 @@ namespace EIR_9209_2.Controllers
                             }
                         }
                     }
-                    else if (value.ContainsKey("IdsConnectionString"))
+                    else if (value.Properties().Any(p => Regex.IsMatch(p.Name, "IdsConnectionString", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))))
                     {
                         var currentValue = value.Properties().First(p => Regex.IsMatch(p.Name.ToString(), "IdsConnectionString", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Value.ToString();
                         var ConnectionString = applicationSettings.GetSection("IdsConnectionString");

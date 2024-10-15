@@ -141,7 +141,10 @@
                                 <div class="custom-control custom-switch">
                                     <input id="hour_range" type="checkbox" class="custom-control-input" name="hour_range" />
                                     <label class="custom-control-label" for="hour_range">Hour Range</label>
-
+                                </div>
+                                <div class="custom-control custom-switch">
+                                    <input id="logdata" type="checkbox" class="custom-control-input" name="logdata" />
+                                    <label class="custom-control-label" for="logdata">Log Data Retrieved</label>
                                 </div>
                             </div>
                         </div>
@@ -1134,7 +1137,7 @@
                             <span id="error_machine_zone_name" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="row mr-0 ml-0" id="machine_manual_row">
+                    <div class="row mr-0 ml-0" id="machine_manual_row" style="display:none">
                         <div class="form-group col-2">
                             <label for="machine_name" class="control-label">Name</label>
                             <input id="machine_name" type="text" class="form-control" name="machine_name" />

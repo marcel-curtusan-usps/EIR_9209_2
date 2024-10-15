@@ -129,7 +129,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         {
             if (savetoFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_empList.Values, Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_empList.Values, Formatting.Indented));
             }
         }
     }
@@ -226,7 +226,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         {
             if (savetoFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_empList.Values, Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_empList.Values, Formatting.Indented));
             }
         }
     }
@@ -234,13 +234,13 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
     {
         try
         {
-            List<string> empList = _empList.Where(r => !string.IsNullOrEmpty(r.Value.EmployeeId)).Select(item => item.Value.EmployeeId).Distinct().ToList();
+            List<string?> empList = _empList.Where(r => !string.IsNullOrEmpty(r.Value.EmployeeId)).Select(item => item.Value.EmployeeId).Distinct().ToList();
             // If any employee is found
             if (empList.Any())
             {
                 // Ensure the empDate list contains all 7 days of the week starting from the identified Saturday
                 DateTime startOfWeek = new DateTime();
-                string payWeek = "";
+                string? payWeek = "";
                 List<DateTime> fullWeekRange = new List<DateTime>(new DateTime[7]);
 
                 foreach (var emp in empList)
@@ -249,7 +249,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                     {
                         payWeek = _empsch.Select(r => r.Value.PayWeek).Distinct().ToList().FirstOrDefault();
                         var curt = _empsch.Where(r => r.Value.EIN == emp && r.Value.PayWeek == payWeek).Select(y => y.Value).FirstOrDefault();
-                        var daydiff = (Int32.Parse(curt.Day!.ToString()) - 1) * -1;
+                        var daydiff = (curt.Day - 1) * -1;
                         DateTime curdate = new DateTime();
                         if (_empList[emp].TourNumber == "3")
                         {
@@ -662,7 +662,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         {
             if (savetoFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_empList.Values, Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_empList.Values, Formatting.Indented));
             }
         }
     }
@@ -841,7 +841,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         finally {
             if (savetoFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_empList.Values, Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_empList.Values, Formatting.Indented));
             }
         }
     }

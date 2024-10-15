@@ -9,8 +9,8 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryGeoZonesRepository _geoZones; 
         private readonly IInMemorySiteInfoRepository _siteInfo;
 
-        public SVEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository geozone, IInMemorySiteInfoRepository siteInfo)
-            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
+        public SVEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryGeoZonesRepository geozone, IInMemorySiteInfoRepository siteInfo)
+            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
             _geoZones = geozone;
             _siteInfo = siteInfo;
@@ -27,9 +27,18 @@ namespace EIR_9209_2.Service
                     string FormatUrl = string.Format(_endpointConfig.Url, server, siteinfo.SiteId);
                     queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                     var result = await queryService.GetSVDoorData(stoppingToken);
+
                     //process zone data
                     if (_endpointConfig.MessageType.Equals("doors", StringComparison.CurrentCultureIgnoreCase))
                     {
+                        if (_endpointConfig.LogData)
+                        {
+                            // Start a new thread to handle the logging
+                            Task.Run(() => _loggerService.LogData(result,
+                                _endpointConfig.MessageType,
+                                _endpointConfig.Name,
+                                FormatUrl), stoppingToken);
+                        }
                         // Process MPE data in a separate thread
                         await ProcessDoorsData(result, stoppingToken);
                     }
@@ -67,7 +76,6 @@ namespace EIR_9209_2.Service
                 }
             }
         }
-
         private async Task ProcessGetdoorAssociatedTripsData(JToken result)
         {
             throw new NotImplementedException();
@@ -99,7 +107,7 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                await Task.Run(() => _geoZones.ProcessSVDoorsData(result), stoppingToken).ConfigureAwait(false);
+                await _geoZones.ProcessSVDoorsData(result, stoppingToken);
             }
             catch (Exception e)
             {

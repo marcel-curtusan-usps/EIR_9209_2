@@ -11,11 +11,12 @@ namespace EIR_9209_2.Service
     {
         private readonly IInMemoryCamerasRepository _camera;
         private readonly IInMemorySiteInfoRepository _siteInfo;
-        public CameraEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemorySiteInfoRepository siteInfo, IInMemoryCamerasRepository camera)
-                : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
+        public CameraEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemorySiteInfoRepository siteInfo, IInMemoryCamerasRepository camera)
+                : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
             _siteInfo = siteInfo;
             _camera = camera;
+
         }
         protected override async Task FetchDataFromEndpoint(CancellationToken stoppingToken)
         {

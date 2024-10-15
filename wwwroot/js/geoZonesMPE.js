@@ -305,7 +305,7 @@ connection.on("updateMPEzone", async (mpeZonedata) => {
                     if (key == 'name') {
                         // Check if the property name is different and update the tooltip
                         geoZoneMPE._layers[leafletIds].feature.properties[key] = newProperties[key];
-                        geoZoneMPE._layers[leafletIds].bindTooltip(newProperties[key] + "<br/>" + "Staffing: " + feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0");
+                        geoZoneMPE._layers[leafletIds].setTooltipContent(newProperties[key] + "<br/>" + "Staffing: " + geoZoneMPE._layers[leafletIds].feature.properties.hasOwnProperty("CurrentStaff") ? geoZoneMPE._layers[leafletIds].feature.properties.CurrentStaff : "0");
                         
                     }
                     else {
@@ -333,7 +333,7 @@ connection.on("updateMPEzoneRunPerformance", async (data) => {
                 fillColor: GetMacineBackground(data),
                 lastOpacity: 0.2
             });
-            if ($('div[id=machine_div]').is(':visible') && $('div[id=machine_div]').attr("data-id") === data.zoneId) {
+            if (!$('#sidebar').hasClass('collapsed') && $('div[id=machine_div]').attr("data-id") === data.zoneId) {
                 Promise.all([loadMachineData(geoZoneMPE._layers[leafletIds].feature.properties, MPETable)]);
             }
         });
@@ -749,302 +749,370 @@ function padLeft(string, length, paddingCharacter) {
 
     return paddedString;
 }
-async function Edit_Machine_Info(id) {
-    $('#modalZoneHeader_ID').text('Edit Machine Info');
-
-    sidebar.close('connections');
-
-    $('button[id=machinesubmitBtn]').prop('disabled', true);
-    try {
-        if (geoZoneMPE.hasOwnProperty("_layers")) {
-            let layerindex = -0;
-            let Data = {};
-            $.map(geoZoneMPE._layers, function (layer, i) {
-                if (layer.hasOwnProperty("feature") && layer.feature.properties.id === id) {
-                    Data = layer.feature.properties;
-                    layerindex = layer._leaflet_id;
-                    return false;
+async function getlistofMPE() {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?Type=MPE',
+            contentType: 'application/json',
+            type: 'GET',
+            success: function (mpedata) {
+                if (mpedata.length > 0) {
+                    mpedata.sort();
+                    mpedata.push('**Machine Not Listed');
+           
+                    $('select[id=machine_zone_select_name]').css('display', '');
+                    $('select[id=machine_zone_select_name]').empty();
+                    $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
+                    $('select[id=machine_zone_select_name]').val("");
+                    $.each(mpedata, function () {
+                        $('<option/>').val(this).html(this).appendTo('#machine_zone_select_name');
+                    })
 
                 }
-            });
-            if (layerindex !== -0 && !$.isEmptyObject(Data)) {
-                let MPEwNUMBER = Data.MPE_Type + "-" + (padLeft(Data.MPE_Number, 3, "0"))
-                $('input[id=machine_ip]').val(Data.MPE_IP)
-                $('select[id=zone_Type]').val(Data.type);
-                $.ajax({
-                    url: SiteURLconstructor(window.location) + '/api/MPE/MPEStandard?Name=' + MPEwNUMBER ,
-                    contentType: 'application/json',
-                    type: 'GET',
-                    success: function (mpedata) {
-                        if (mpedata.length > 0) {
-                            mpedata.sort();
-                            mpedata.push('**Machine Not Listed');
-                            $('#machine_manual_row').css('display', 'none');
-                            $('#machine_select_row').css('display', '');
-                            $('select[id=machine_zone_select_name]').css('display', '');
-                            $('select[id=machine_zone_select_name]').empty();
-                            $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
-                            $('select[id=machine_zone_select_name]').val("");
-                            $.each(mpedata, function () {
-                                $('<option/>').val(this).html(this).appendTo('#machine_zone_select_name');
-                            })
-                            $('select[id=machine_zone_select_name]').val(Data.name.toString());
-                        }
-                        else {
-                            $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
-                            $('<option/>').val("**Machine Not Listed").html("**Machine Not Listed").appendTo('select[id=machine_zone_select_name]');
-                            $('select[id=machine_zone_select_name]').val("**Machine Not Listed");
-                            $('#machine_manual_row').css('display', '');
-                            $('#machine_select_row').css('display', 'none');
-                            $('select[id=machine_zone_select_name]').css('display', 'none');
-                        }
-                    },
-                    error: function (error) {
+                else {
+                    $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
+                    $('<option/>').val("**Machine Not Listed").html("**Machine Not Listed").appendTo('select[id=machine_zone_select_name]');
+                    $('select[id=machine_zone_select_name]').val("**Machine Not Listed");
+                    $('#machine_manual_row').css('display', '');
+                    $('#machine_select_row').css('display', 'none');
+                    $('select[id=machine_zone_select_name]').css('display', 'none');
+                }
+            },
+            error: function (error) {
 
-                        console.log(error);
-                    },
-                    faulure: function (fail) {
-                        console.log(fail);
-                    },
-                    complete: function (complete) {
-                        console.log(complete);
-                    }
-                });
-                $.ajax({
-                    url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?Type=MPE',
-                    contentType: 'application/json',
-                    type: 'GET',
-                    success: function (mpedata) {
-                        if (mpedata.length > 0) {
-                            mpedata.sort();
-                            mpedata.push('**Machine Not Listed');
-                            $('#machine_manual_row').css('display', 'none');
-                            $('#machine_select_row').css('display', '');
-                            $('select[id=machine_zone_select_name]').css('display', '');
-                            $('select[id=machine_zone_select_name]').empty();
-                            $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
-                            $('select[id=machine_zone_select_name]').val("");
-                            $.each(mpedata, function () {
-                                $('<option/>').val(this).html(this).appendTo('#machine_zone_select_name');
-                            })
-                            $('select[id=machine_zone_select_name]').val(Data.name.toString());
-                        }
-                        else {
-                            $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
-                            $('<option/>').val("**Machine Not Listed").html("**Machine Not Listed").appendTo('select[id=machine_zone_select_name]');
-                            $('select[id=machine_zone_select_name]').val("**Machine Not Listed");
-                            $('#machine_manual_row').css('display', '');
-                            $('#machine_select_row').css('display', 'none');
-                            $('select[id=machine_zone_select_name]').css('display', 'none');
-                        }
-                    },
-                    error: function (error) {
-
-                        console.log(error);
-                    },
-                    faulure: function (fail) {
-                        console.log(fail);
-                    },
-                    complete: function (complete) {
-                        console.log(complete);
-                    }
-                });
-                $('select[id=machine_zone_select_name]').change(function () {
-                    if ($('select[name=machine_zone_select_name] option:selected').val() === '**Machine Not Listed') {
-                        $('#machine_manual_row').css('display', '');
-                        $('#machine_select_row').css('display', 'none');
-                    }
-                    else {
-                        $('#machine_manual_row').css('display', 'none');
-                        $('#machine_select_row').css('display', '');
-                    }
-                    if ($('select[name=machine_zone_select_name] option:selected').val() === '') {
-                        $('button[id=machinesubmitBtn]').prop('disabled', true);
-                    }
-                    else {
-                        $('button[id=machinesubmitBtn]').prop('disabled', false);
-                    }
-                });
-                $.ajax({
-                    url: SiteURLconstructor(window.location) + '/api/MPE/MPEGroups?Type=MPE',
-                    contentType: 'application/json',
-                    type: 'GET',
-                    success: function (mpeGroupData) {
-                            $('select[id=mpe_group_select]').empty();
-                            if (mpeGroupData.length > 0) {
-                                mpeGroupData.push('');
-                                mpeGroupData.sort();
-                                mpeGroupData.push('**Group Not Listed');
-                                $('#mpegroupname_div').css('display', 'none');
-                                $('select[id=mpe_group_select]').css('display', '');
-                                $.each(mpeGroupData, function () {
-                                    $('<option/>').val(this).html(this).appendTo('#mpe_group_select');
-                                })
-                                $('select[id=mpe_group_select]').val(Data.MPE_Group.toString());
-                            }
-                            else {
-                                $('<option/>').val("**Group Not Listed").html("**Group Not Listed").appendTo('select[id=mpe_group_select]');
-                                $('<option/>').val("").html("").appendTo('select[id=mpe_group_select]');
-                                $('select[id=mpe_group_select]').val("");
-                                $('#mpegroupname_div').css('display', 'none');
-                                /*enableNewGroupName();*/
-                            }
-                    },
-                    error: function (error) {
-
-                        console.log(error);
-                    },
-                    faulure: function (fail) {
-                        console.log(fail);
-                    },
-                    complete: function (complete) {
-                        console.log(complete);
-                    }
-                });
-                /*Onchange Validate Machine Group Name*/
-                $('select[id=mpe_group_select]').change(function () {
-                    if ($('select[name=mpe_group_select] option:selected').val() === '**Group Not Listed') {
-                        $('#mpegroupname_div').css('display', '');
-                        enableNewGroupName();
-                    }
-                    else {
-                        $('#mpegroupname_div').css('display', 'none');
-                        $('input[id=mpegroupname]').val("");
-                        $('button[id=machinesubmitBtn]').prop('disabled', false);
-                    }
-                });
-
-                /*Validate new group name textbox not empty*/
-                $('input[type=text][name=mpegroupname]').keyup(function () {
-                    enableNewGroupName();
-                });
-
-                $('input[type=text][name=machine_name]').val(Data.MPE_Type);
-                $('input[type=text][name=machine_number]').val(Data.MPE_Number);
-                $('input[type=text][name=zone_ldc]').val(Data.Zone_LDC);
-                $('input[type=text][name=machine_id]').val(Data.id);
-                $('input[type=text][name=machine_ip]').val(Data.MPE_IP);
-                $('input[type=text][name=zone_paylocation]').val(Data.zonePayLocation);
-                $('select[id=zonePayLocationColor]').val(Data.zonePayLocationColor);
-
-                //get MPEENGStandard
-                //empty values of the div.
-                $('#mpestandard_div').html("");
-      
-             
-                $('input[id=mpestandard_btn]').off().on('click', function () {
-
-                    //Edit MPE Testing
-                    $('.mpestandard_row_div').each(function () {
-                        let mpestandard_row = $(this);
-                        let OPN_text = mpestandard_row.find('.OPN_txt').val();
-                        let starttime_txt = mpestandard_row.find('.starttime_txt').val();
-                        let endtime_txt = mpestandard_row.find('.endtime_txt').val();
-                        let setuptime_txt = mpestandard_row.find('.setuptime_txt').val();
-                        let teardowntime_txt = mpestandard_row.find('.teardowntime_txt').val();
-                        let changeovertime_txt = mpestandard_row.find('.changeovertime_txt').val();
-                        let name_txt = mpestandard_row.find('.name_txt').val();
-                        let psc_hr_txt = mpestandard_row.find('.psc_hr_txt').val();
-                        let staff_hr_txt = mpestandard_row.find('.staff_hr_txt').val();
-                        let rowvalue = {
-                            GUID: guid_txt,
-                            MPE: MPEwNUMBER,
-                            OPN: OPN_text,
-                            StartTime: starttime_txt,
-                            EndTime: endtime_txt,
-                            SetupTimeDuration: setuptime_txt,
-                            ChangeoverTimeDuration: changeovertime_txt,
-                            PulldownTime: teardowntime_txt,
-                            Name: name_txt,
-                            PcsFeedHours: psc_hr_txt,
-                            StaffHours: staff_hr_txt
-                        };
-
-                        console.log(rowvalue);
-                    });
-                });
-                //submit button for MPEENGStandard
-                $('button[id=machinesubmitBtn]').off().on('click', function () {
-                    try {
-                        let jsonObject = {};
-                        $('button[id=machinesubmitBtn]').prop('disabled', true);
-                        if (!$('select[name=machine_zone_select_name] option:selected').val() === "" || $('select[name=machine_zone_select_name] option:selected').val() !== '**Machine Not Listed') {
-                            let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
-                            jsonObject.MpeName =  machineName = selectedMachine[0];
-                            jsonObject.MpeNumber = machineNumber = selectedMachine[1];
-                            if ($('select[name=zonePayLocationColor] option:selected').val() !== Data.Name) {
-                                jsonObject["name"] = $('select[name=machine_zone_select_name] option:selected').val();
-                            }
-                        }
-                        else {
-                            jsonObject.MpeName = $('input[type=text][name=machine_name]').val();
-                            jsonObject.MpeNumber = $('input[type=text][name=machine_number]').val();
-                            let name = $('input[type=text][name=machine_name]').val() + "-" + $('input[type=text][name=machine_number]').val();
-                            if (name !== Data.Name) {
-                                jsonObject.Name = $('select[name=machine_zone_select_name] option:selected').val();
-                            }
-                        }
-                        if (Data.floorId !== baselayerid) {
-                            jsonObjec.FloorId = $('input[type=text][name=machine_ip]').val();
-                        }
-                        if ($('input[type=text][name=machine_ip]').val() !== Data.MPE_IP) {
-                            jsonObject.MpeIpAddress = $('input[type=text][name=machine_ip]').val();
-                        }
-                        if ($('input[type=text][name=zone_ldc]').val() !== Data.Zone_LDC) {
-                            jsonObject.LDC = $('input[type=text][name=zone_ldc]').val();
-                        }
-                        if ($('input[type=text][name=zone_paylocation]').val() !== Data.Zone_PayLocation) {
-                            jsonObject.PayLocation = $('input[type=text][name=zone_paylocation]').val();
-                        }
-                        if ($('select[name=zonePayLocationColor] option:selected').val() !== Data.zonePayLocationColor) {
-                            jsonObject.PayLocationColor = $('select[name=zonePayLocationColor] option:selected').val();
-                        }
-                        if ($('select[name=zone_Type] option:selected').val() !== Data.type) {
-                            jsonObject.Type = $('select[name=zone_Type] option:selected').val();
-                        }
-                        /*Assign values for Group Name*/
-                        if ($('select[name=mpe_group_select] option:selected').val() !== Data.mpeGroup) {
-                            jsonObject.MpeGroup = $('select[name=mpe_group_select] option:selected').val();
-                        }
-                        
-                        if (!$.isEmptyObject(jsonObject)) {
-                            jsonObject["id"] = Data.id;
-
-                            $.ajax({
-                                url: SiteURLconstructor(window.location) + '/api/Zone/Update',
-                                contentType: 'application/json',
-                                data: JSON.stringify(jsonObject),
-                                type: 'POST',
-                                success: function (response) {
-                                    $('span[id=error_machinesubmitBtn]').text("" + jsonObject.Name +" Zone has been Updated.");
-                                        setTimeout(function () { $("#Zone_Modal").modal('hide'); }, 1500);
-                                },
-                                error: function (error) {
-
-                                    console.log(error);
-                                },
-                                faulure: function (fail) {
-                                    console.log(fail);
-                                },
-                                complete: function (complete) {
-                                }
-                            });
-                        }
-                    } catch (e) {
-                        $('span[id=error_machinesubmitBtn]').text(e);
-                    }
-                });
-                $('#Zone_Modal').modal('show');
+                console.log(error);
+            },
+            faulure: function (fail) {
+                console.log(fail);
+            },
+            complete: function (complete) {
+                console.log(complete);
+            }
+        });
+        resolve();
+        return true;
+    });
+}
+async function getlistofMPEGroups() {
+    $.ajax({
+        url: SiteURLconstructor(window.location) + '/api/MPE/MPEGroups?Type=MPE',
+        contentType: 'application/json',
+        type: 'GET',
+        success: function (mpeGroupData) {
+            $('select[id=mpe_group_select]').empty();
+            if (mpeGroupData.length > 0) {
+                mpeGroupData.push('');
+                mpeGroupData.sort();
+                mpeGroupData.push('**Group Not Listed');
+                $('#mpegroupname_div').css('display', 'none');
+                $('select[id=mpe_group_select]').css('display', '');
+                $.each(mpeGroupData, function () {
+                    $('<option/>').val(this).html(this).appendTo('#mpe_group_select');
+                })
+               
             }
             else {
-                $('label[id=error_machinesubmitBtn]').text("Invalid Zone ID");
-                $('#Zone_Modal').modal('show');
+                $('<option/>').val("**Group Not Listed").html("**Group Not Listed").appendTo('select[id=mpe_group_select]');
+                $('<option/>').val("").html("").appendTo('select[id=mpe_group_select]');
+                $('select[id=mpe_group_select]').val("");
+                $('#mpegroupname_div').css('display', 'none');
+                /*enableNewGroupName();*/
             }
+        },
+        error: function (error) {
+
+            console.log(error);
+        },
+        faulure: function (fail) {
+            console.log(fail);
+        },
+        complete: function (complete) {
+            console.log(complete);
         }
-    } catch (e) {
-        throw new Error(e.toString());
+    });
+}
+async function Edit_Machine_Info(id) {
+    $('#modalZoneHeader_ID').text('Edit Machine Info');
+    sidebar.close('connections');
+    $('button[id=machinesubmitBtn]').prop('disabled', true);
+    $('#machine_manual_row').css('display', 'none');
+    $('#machine_select_row').css('display', 'block');
+    await Promise.all([getlistofMPE(), getlistofMPEGroups()]);
+
+    if (!geoZoneMPE.hasOwnProperty("_layers")) return;
+
+    let Data = {};
+    let MPEwNUMBER = "";
+
+    try {
+        const leafletIds = await findMpeZoneLeafletIds(id);
+        Data = geoZoneMPE._layers[leafletIds].feature.properties;
+        if ($.isEmptyObject(Data)) return;
+        MPEwNUMBER = Data.name;
+        $('input[id=machine_id]').val(Data.id);
+        $('input[id=machine_ip]').val(Data.mpeIpAddress);
+        $('select[id=zone_Type]').val(Data.type);
+        $('select[id=machine_zone_select_name]').val(Data.name);
+        $('select[id=mpe_group_select]').val(Data.mpeGroup);
+
+      
+
+        const mpedata = await $.ajax({
+            url: `${SiteURLconstructor(window.location)}/api/MPE/MPEStandard?Name=${MPEwNUMBER}`,
+            contentType: 'application/json',
+            type: 'GET'
+        });
+        if (mpedata.length > 0) {
+
+        }
+        if ($('select[name=machine_zone_select_name] option:selected').val() !== '**Machine Not Listed') {
+            $('#machine_manual_row').hide();
+            $('#machine_select_row').show();
+    
+        } else {
+            $('#machine_manual_row').show();
+            $('#machine_select_row').hide();
+        }
+        const $machineZoneSelect = $('select[id=machine_zone_select_name]');
+        $machineZoneSelect.on("change", function () {
+            if ($('select[name=machine_zone_select_name] option:selected').val() === '**Machine Not Listed') {
+                // Handle the case where the machine is not listed
+            }
+        });
+        $('#Zone_Modal').modal('show');
+    } catch (error) {
+        console.error("Error fetching machine info: ", error);
     }
-} mpestandardtable
+}
+//async function Edit_Machine_Info(id) {
+//    $('#modalZoneHeader_ID').text('Edit Machine Info');
+
+//    sidebar.close('connections');
+//   await Promise.all([getlistofMPE(), getlistofMPEGroups()]);
+//    $('button[id=machinesubmitBtn]').prop('disabled', true);
+//    try {
+//        if (geoZoneMPE.hasOwnProperty("_layers")) {
+//            let layerindex = -0;
+//            let Data = {};
+//            let MPEwNUMBER = "";
+//            await findMpeZoneLeafletIds(id)
+//                .then(leafletIds => {
+//                    Data = geoZoneMPE._layers[leafletIds].feature.properties;
+//                    MPEwNUMBER = Data.name
+             
+
+//                }).then(async () => {
+//                    $('input[id=machine_ip]').val(Data.mpeIpAddress)
+//                    $('select[id=zone_Type]').val(Data.type);
+//                    $('select[id=machine_zone_select_name]').val(Data.name);
+//                    $('select[id=mpe_group_select]').val(Data.mpeGroup);
+
+
+//                    if (!$.isEmptyObject(Data)) {
+
+
+//                        $.ajax({
+//                            url: SiteURLconstructor(window.location) + '/api/MPE/MPEStandard?Name=' + MPEwNUMBER,
+//                            contentType: 'application/json',
+//                            type: 'GET',
+//                            success: function (mpedata) {
+//                                if (mpedata.length > 0) {
+//                                    mpedata.sort();
+//                                    mpedata.push('**Machine Not Listed');
+//                                    $('#machine_manual_row').css('display', 'none');
+//                                    $('#machine_select_row').css('display', '');
+//                                    $('select[id=machine_zone_select_name]').css('display', '');
+//                                    $('select[id=machine_zone_select_name]').empty();
+//                                    $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
+//                                    $('select[id=machine_zone_select_name]').val("");
+//                                    $.each(mpedata, function () {
+//                                        $('<option/>').val(this).html(this).appendTo('#machine_zone_select_name');
+//                                    })
+//                                    $('select[id=machine_zone_select_name]').val(Data.name.toString());
+//                                }
+//                                else {
+//                                    $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
+//                                    $('<option/>').val("**Machine Not Listed").html("**Machine Not Listed").appendTo('select[id=machine_zone_select_name]');
+//                                    $('select[id=machine_zone_select_name]').val("**Machine Not Listed");
+//                                    $('#machine_manual_row').css('display', '');
+//                                    $('#machine_select_row').css('display', 'none');
+//                                    $('select[id=machine_zone_select_name]').css('display', 'none');
+//                                }
+//                            },
+//                            error: function (error) {
+
+//                                console.log(error);
+//                            },
+//                            faulure: function (fail) {
+//                                console.log(fail);
+//                            },
+//                            complete: function (complete) {
+//                                console.log(complete);
+//                            }
+//                        });
+
+//                        $('select[id=machine_zone_select_name]').on("change", function () {
+//                            if ($('select[name=machine_zone_select_name] option:selected').val() === '**Machine Not Listed') {
+//                                $('#machine_manual_row').css('display', '');
+//                                $('#machine_select_row').css('display', 'none');
+//                            }
+//                            else {
+//                                $('#machine_manual_row').css('display', 'none');
+//                                $('#machine_select_row').css('display', '');
+//                            }
+//                            if ($('select[name=machine_zone_select_name] option:selected').val() === '') {
+//                                $('button[id=machinesubmitBtn]').prop('disabled', true);
+//                            }
+//                            else {
+//                                $('button[id=machinesubmitBtn]').prop('disabled', false);
+//                            }
+//                        });
+
+//                        /*Onchange Validate Machine Group Name*/
+//                        $('select[id=mpe_group_select]').on("change", function () {
+//                            if ($('select[name=mpe_group_select] option:selected').val() === '**Group Not Listed') {
+//                                $('#mpegroupname_div').css('display', '');
+//                                enableNewGroupName();
+//                            }
+//                            else {
+//                                $('#mpegroupname_div').css('display', 'none');
+//                                $('input[id=mpegroupname]').val("");
+//                                $('button[id=machinesubmitBtn]').prop('disabled', false);
+//                            }
+//                        });
+
+//                        /*Validate new group name textbox not empty*/
+//                        $('input[type=text][name=mpegroupname]').keyup(function () {
+//                            enableNewGroupName();
+//                        });
+
+//                        $('input[type=text][name=machine_name]').val(Data.MPE_Type);
+//                        $('input[type=text][name=machine_number]').val(Data.MPE_Number);
+//                        $('input[type=text][name=zone_ldc]').val(Data.Zone_LDC);
+//                        $('input[type=text][name=machine_id]').val(Data.id);
+//                        $('input[type=text][name=machine_ip]').val(Data.MPE_IP);
+//                        $('input[type=text][name=zone_paylocation]').val(Data.zonePayLocation);
+//                        $('select[id=zonePayLocationColor]').val(Data.zonePayLocationColor);
+
+//                        //get MPEENGStandard
+//                        //empty values of the div.
+//                        $('#mpestandard_div').html("");
+
+
+//                        $('input[id=mpestandard_btn]').off().on('click', function () {
+
+//                            //Edit MPE Testing
+//                            $('.mpestandard_row_div').each(function () {
+//                                let mpestandard_row = $(this);
+//                                let OPN_text = mpestandard_row.find('.OPN_txt').val();
+//                                let starttime_txt = mpestandard_row.find('.starttime_txt').val();
+//                                let endtime_txt = mpestandard_row.find('.endtime_txt').val();
+//                                let setuptime_txt = mpestandard_row.find('.setuptime_txt').val();
+//                                let teardowntime_txt = mpestandard_row.find('.teardowntime_txt').val();
+//                                let changeovertime_txt = mpestandard_row.find('.changeovertime_txt').val();
+//                                let name_txt = mpestandard_row.find('.name_txt').val();
+//                                let psc_hr_txt = mpestandard_row.find('.psc_hr_txt').val();
+//                                let staff_hr_txt = mpestandard_row.find('.staff_hr_txt').val();
+//                                let rowvalue = {
+//                                    GUID: guid_txt,
+//                                    MPE: MPEwNUMBER,
+//                                    OPN: OPN_text,
+//                                    StartTime: starttime_txt,
+//                                    EndTime: endtime_txt,
+//                                    SetupTimeDuration: setuptime_txt,
+//                                    ChangeoverTimeDuration: changeovertime_txt,
+//                                    PulldownTime: teardowntime_txt,
+//                                    Name: name_txt,
+//                                    PcsFeedHours: psc_hr_txt,
+//                                    StaffHours: staff_hr_txt
+//                                };
+
+//                                console.log(rowvalue);
+//                            });
+//                        });
+//                        //submit button for MPEENGStandard
+//                        $('button[id=machinesubmitBtn]').off().on('click', function () {
+//                            try {
+//                                let jsonObject = {};
+//                                $('button[id=machinesubmitBtn]').prop('disabled', true);
+//                                if (!$('select[name=machine_zone_select_name] option:selected').val() === "" || $('select[name=machine_zone_select_name] option:selected').val() !== '**Machine Not Listed') {
+//                                    let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
+//                                    jsonObject.MpeName = machineName = selectedMachine[0];
+//                                    jsonObject.MpeNumber = machineNumber = selectedMachine[1];
+//                                    if ($('select[name=zonePayLocationColor] option:selected').val() !== Data.Name) {
+//                                        jsonObject["name"] = $('select[name=machine_zone_select_name] option:selected').val();
+//                                    }
+//                                }
+//                                else {
+//                                    jsonObject.MpeName = $('input[type=text][name=machine_name]').val();
+//                                    jsonObject.MpeNumber = $('input[type=text][name=machine_number]').val();
+//                                    let name = $('input[type=text][name=machine_name]').val() + "-" + $('input[type=text][name=machine_number]').val();
+//                                    if (name !== Data.Name) {
+//                                        jsonObject.Name = $('select[name=machine_zone_select_name] option:selected').val();
+//                                    }
+//                                }
+//                                if (Data.floorId !== baselayerid) {
+//                                    jsonObjec.FloorId = $('input[type=text][name=machine_ip]').val();
+//                                }
+//                                if ($('input[type=text][name=machine_ip]').val() !== Data.MPE_IP) {
+//                                    jsonObject.MpeIpAddress = $('input[type=text][name=machine_ip]').val();
+//                                }
+//                                if ($('input[type=text][name=zone_ldc]').val() !== Data.Zone_LDC) {
+//                                    jsonObject.LDC = $('input[type=text][name=zone_ldc]').val();
+//                                }
+//                                if ($('input[type=text][name=zone_paylocation]').val() !== Data.Zone_PayLocation) {
+//                                    jsonObject.PayLocation = $('input[type=text][name=zone_paylocation]').val();
+//                                }
+//                                if ($('select[name=zonePayLocationColor] option:selected').val() !== Data.zonePayLocationColor) {
+//                                    jsonObject.PayLocationColor = $('select[name=zonePayLocationColor] option:selected').val();
+//                                }
+//                                if ($('select[name=zone_Type] option:selected').val() !== Data.type) {
+//                                    jsonObject.Type = $('select[name=zone_Type] option:selected').val();
+//                                }
+//                                /*Assign values for Group Name*/
+//                                if ($('select[name=mpe_group_select] option:selected').val() !== Data.mpeGroup) {
+//                                    jsonObject.MpeGroup = $('select[name=mpe_group_select] option:selected').val();
+//                                }
+
+//                                if (!$.isEmptyObject(jsonObject)) {
+//                                    jsonObject["id"] = Data.id;
+
+//                                    $.ajax({
+//                                        url: SiteURLconstructor(window.location) + '/api/Zone/Update',
+//                                        contentType: 'application/json',
+//                                        data: JSON.stringify(jsonObject),
+//                                        type: 'POST',
+//                                        success: function (response) {
+//                                            $('span[id=error_machinesubmitBtn]').text("" + jsonObject.Name + " Zone has been Updated.");
+//                                            setTimeout(function () { $("#Zone_Modal").modal('hide'); }, 1500);
+//                                        },
+//                                        error: function (error) {
+
+//                                            console.log(error);
+//                                        },
+//                                        faulure: function (fail) {
+//                                            console.log(fail);
+//                                        },
+//                                        complete: function (complete) {
+//                                        }
+//                                    });
+//                                }
+//                            } catch (e) {
+//                                $('span[id=error_machinesubmitBtn]').text(e);
+//                            }
+//                        });
+//                        $('#Zone_Modal').modal('show');
+//                    }
+//                    else {
+//                        $('label[id=error_machinesubmitBtn]').text("Invalid Zone ID");
+//                        $('#Zone_Modal').modal('show');
+//                    }
+//                });
+//        }
+//    } catch (e) {
+//        throw new Error(e.toString());
+//    }
+//} 
 function creatMpeStandardDataTable(table) {
     let Actioncolumn = true;
     let arrayColums = [{

@@ -66,7 +66,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    await _fileService.WriteFileAsync(fileName, CameraMarkersOutPutdata(_cameraMarkers.Select(x => x.Value).ToList()));
+                    await _fileService.WriteConfigurationFile(fileName, CameraMarkersOutPutdata(_cameraMarkers.Select(x => x.Value).ToList()));
                 }
             }
         }
@@ -95,7 +95,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    await _fileService.WriteFileAsync(fileName, CameraMarkersOutPutdata(_cameraMarkers.Select(x => x.Value).ToList()));
+                    await _fileService.WriteConfigurationFile(fileName, CameraMarkersOutPutdata(_cameraMarkers.Select(x => x.Value).ToList()));
                 }
             }
         }
@@ -255,7 +255,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    await _fileService.WriteFileAsync(cameraInfofileName, JsonConvert.SerializeObject(_cameraList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(cameraInfofileName, JsonConvert.SerializeObject(_cameraList.Values, Formatting.Indented));
                 }
             }
         }
@@ -285,7 +285,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    await _fileService.WriteFileAsync(cameraInfofileName, JsonConvert.SerializeObject(_cameraList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(cameraInfofileName, JsonConvert.SerializeObject(_cameraList.Values, Formatting.Indented));
                 }
             }
         }
@@ -315,7 +315,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    await _fileService.WriteFileAsync(cameraInfofileName, JsonConvert.SerializeObject(_cameraList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(cameraInfofileName, JsonConvert.SerializeObject(_cameraList.Values, Formatting.Indented));
                 }
             }
         }
@@ -352,7 +352,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    await _fileService.WriteFileAsync(cameraInfofileName, JsonConvert.SerializeObject(_cameraList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(cameraInfofileName, JsonConvert.SerializeObject(_cameraList.Values, Formatting.Indented));
                 }
             }
         }

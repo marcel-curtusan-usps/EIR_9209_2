@@ -45,7 +45,7 @@ public class InMemoryEmailRepository : IInMemoryEmailRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented));
             }
         }
     }
@@ -76,7 +76,7 @@ public class InMemoryEmailRepository : IInMemoryEmailRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented));
             }
         }
     }
@@ -104,7 +104,7 @@ public class InMemoryEmailRepository : IInMemoryEmailRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_emailList.Values, Formatting.Indented));
             }
         }
     }

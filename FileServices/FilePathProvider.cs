@@ -7,7 +7,7 @@ public class FilePathProvider : IFilePathProvider
         _configuration = configuration;
     }
 
-    public async Task<string> GetFilePath()
+    public Task<string> GetConfigurationDirectory()
     {
         string baseDrive = _configuration["ApplicationConfiguration:BaseDrive"] ?? throw new ArgumentNullException("BaseDrive");
         string baseDirectory = _configuration["ApplicationConfiguration:BaseDirectory"] ?? throw new ArgumentNullException("BaseDirectory");
@@ -17,15 +17,28 @@ public class FilePathProvider : IFilePathProvider
         string filePath = Path.Combine(baseDrive, baseDirectory, nassCode, configurationDirectory);
         if (string.IsNullOrEmpty(nassCode))
         {
-            return "";
+            return Task.FromResult("");
         }
-        return filePath;
+        return Task.FromResult(filePath);
     }
+    public Task<string> GetLogDirectory()
+    {
+        string baseDrive = _configuration["ApplicationConfiguration:BaseDrive"] ?? throw new ArgumentNullException("BaseDrive");
+        string baseDirectory = _configuration["ApplicationConfiguration:BaseDirectory"] ?? throw new ArgumentNullException("BaseDirectory");
+        string nassCode = _configuration["ApplicationConfiguration:NassCode"] ?? throw new ArgumentNullException("NassCode");
+        string configurationDirectory = _configuration["ApplicationConfiguration:LogDirectory"] ?? throw new ArgumentNullException("LogDirectory");
 
-    public async Task<string> GetBasePath(string directory)
+        string filePath = Path.Combine(baseDrive, baseDirectory, nassCode, configurationDirectory);
+        if (string.IsNullOrEmpty(nassCode))
+        {
+            return Task.FromResult("");
+        }
+        return Task.FromResult(filePath);
+    }
+    public Task<string> GetBasePath(string directory)
     {
         string filePath = Path.Combine(Directory.GetCurrentDirectory(), directory);
-        return filePath;
+        return Task.FromResult(filePath);
     }
 }
    

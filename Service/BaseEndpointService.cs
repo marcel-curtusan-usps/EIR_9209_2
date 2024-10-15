@@ -11,12 +11,13 @@ namespace EIR_9209_2.Service
         protected readonly IConfiguration _configuration;
         protected readonly IHubContext<HubServices> _hubContext;
         protected readonly IInMemoryConnectionRepository _connection;
+        protected readonly ILoggerService _loggerService;
         protected Connection _endpointConfig;
         private CancellationTokenSource _cancellationTokenSource = new();
         private Task? _task = null;
         private PeriodicTimer? _timer = null;
 
-        protected BaseEndpointService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection)
+        protected BaseEndpointService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService)
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
@@ -24,6 +25,7 @@ namespace EIR_9209_2.Service
             _hubContext = hubContext;
             _connection = connection;
             _endpointConfig = endpointConfig;
+            _loggerService = loggerService;
         }
 
         public void Start()
@@ -78,6 +80,7 @@ namespace EIR_9209_2.Service
             _endpointConfig.MapId = updateCon.MapId;
             _endpointConfig.OutgoingApikey = updateCon.OutgoingApikey;
             _endpointConfig.MillisecondsTimeout = updateCon.MillisecondsTimeout;
+            _endpointConfig.LogData = updateCon.LogData;
             _endpointConfig.ApiConnected = false;
 
             if (updateCon.ActiveConnection)

@@ -11,8 +11,8 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryEmployeesRepository _emp;
         private readonly IInMemorySiteInfoRepository _siteInfo;
 
-        public HCESEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemorySiteInfoRepository siteInfo, IInMemoryEmployeesRepository emp)
-            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
+        public HCESEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemorySiteInfoRepository siteInfo, IInMemoryEmployeesRepository emp)
+            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
             _siteInfo = siteInfo;
             _emp = emp;

@@ -7,8 +7,8 @@ namespace EIR_9209_2.Service
     internal class IDSEndPointServices : BaseEndpointService
     {
         private readonly IInMemoryGeoZonesRepository _geoZones;
-        public IDSEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository geozone)
-                : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
+        public IDSEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryGeoZonesRepository geozone)
+                : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
             _geoZones = geozone;
         }

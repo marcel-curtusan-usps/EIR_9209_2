@@ -19,6 +19,7 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryCamerasRepository _cameras;
         private readonly IConfiguration _configuration;
         private readonly IInMemoryBackgroundImageRepository _backgroundImage;
+        private readonly ILoggerService _loggerService;
         private readonly ConcurrentDictionary<string, BaseEndpointService> _endPointServices = new();
 
         public Worker(ILogger<Worker> logger, ILoggerFactory loggerFactory,
@@ -32,7 +33,8 @@ namespace EIR_9209_2.Service
             IInMemoryEmployeesRepository employees,
             IInMemoryCamerasRepository cameras,
             IConfiguration configuration, 
-            IInMemoryBackgroundImageRepository backgroundImage)
+            IInMemoryBackgroundImageRepository backgroundImage,
+            ILoggerService loggerService)
         {
             _logger = logger;
             _hubServices = hubServices;
@@ -47,6 +49,7 @@ namespace EIR_9209_2.Service
             _siteInfo = siteInfo;
             _employees = employees;
             _backgroundImage = backgroundImage;
+            _loggerService = loggerService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -72,37 +75,37 @@ namespace EIR_9209_2.Service
             switch (endpointConfig.Name)
             {
                 case "QPE":
-                    endpointService = new QPEEndPointServices(_loggerFactory.CreateLogger<QPEEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _tags, _geoZones, _backgroundImage);
+                    endpointService = new QPEEndPointServices(_loggerFactory.CreateLogger<QPEEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _tags, _geoZones, _backgroundImage);
                     break;
                 case "QRE":
-                    endpointService = new QREEndPointServices(_loggerFactory.CreateLogger<QREEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _geoZones, _tags, _employees, _siteInfo);
+                    endpointService = new QREEndPointServices(_loggerFactory.CreateLogger<QREEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _geoZones, _tags, _employees, _siteInfo);
                     break;
                 case "MPEWatch":
-                    endpointService = new MPEWatchEndPointServices(_loggerFactory.CreateLogger<MPEWatchEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _geoZones);
+                    endpointService = new MPEWatchEndPointServices(_loggerFactory.CreateLogger<MPEWatchEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _geoZones);
                     break;
                 case "IDS":
-                    endpointService = new IDSEndPointServices(_loggerFactory.CreateLogger<IDSEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _geoZones);
+                    endpointService = new IDSEndPointServices(_loggerFactory.CreateLogger<IDSEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _geoZones);
                     break;
                 case "Email":
-                    endpointService = new EmailEndPointServices(_loggerFactory.CreateLogger<EmailEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _email);
+                    endpointService = new EmailEndPointServices(_loggerFactory.CreateLogger<EmailEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _email);
                     break;
                 case "SV":
-                    endpointService = new SVEndPointServices(_loggerFactory.CreateLogger<SVEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _geoZones, _siteInfo);
+                    endpointService = new SVEndPointServices(_loggerFactory.CreateLogger<SVEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _geoZones, _siteInfo);
                     break;
                 case "SMS_Wrapper":
-                    endpointService = new SMSWrapperEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _employees, _siteInfo);
+                    endpointService = new SMSWrapperEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _employees, _siteInfo);
                     break;
                 case "HCES":
-                    endpointService = new HCESEndPointServices(_loggerFactory.CreateLogger<HCESEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _siteInfo, _employees);
+                    endpointService = new HCESEndPointServices(_loggerFactory.CreateLogger<HCESEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _siteInfo, _employees);
                     break;
                 case "IVES":
-                    endpointService = new IVESEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _siteInfo, _employees);
+                    endpointService = new IVESEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _siteInfo, _employees);
                     break;
                 case "CiscoSpaces":
-                    endpointService = new CiscoSpacesEndPointServices(_loggerFactory.CreateLogger<CiscoSpacesEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _tags);
+                    endpointService = new CiscoSpacesEndPointServices(_loggerFactory.CreateLogger<CiscoSpacesEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _tags);
                     break;
                 case "Web_Camera":
-                    endpointService = new CameraEndPointServices(_loggerFactory.CreateLogger<CiscoSpacesEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _siteInfo, _cameras);
+                    endpointService = new CameraEndPointServices(_loggerFactory.CreateLogger<CiscoSpacesEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _siteInfo, _cameras);
                     break;
                 default:
                     _logger.LogWarning("Unknown endpoint {Name}", endpointConfig.Name);

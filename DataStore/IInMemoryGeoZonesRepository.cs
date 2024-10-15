@@ -30,7 +30,7 @@ public interface IInMemoryGeoZonesRepository
     Task<object?> GetMPEGroupList(string type);
     Task<List<MPESummary>> getMPESummaryDateRange(string mpe, DateTime startDT, DateTime endDT);
     Task<List<GeoZoneDockDoor>> GetDockDoor();
-    Task ProcessSVDoorsData(JToken result);
+    Task<bool> ProcessSVDoorsData(JToken result, CancellationToken stoppingToken);
     Task<IEnumerable<GeoZone>> GetGeoZone(string zoneType);
     Task ProcessSVContainerData(JToken result);
     Task<bool> ResetGeoZoneList();

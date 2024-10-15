@@ -51,7 +51,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
             }
         }
     }
@@ -80,7 +80,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
             }
         }
     }
@@ -101,7 +101,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_connectionList.Values, Formatting.Indented));
             }
         }
 

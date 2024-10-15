@@ -10,8 +10,8 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryEmployeesRepository _empSchedules;
         private readonly IInMemorySiteInfoRepository _siteInfo;
 
-        public IVESEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemorySiteInfoRepository siteInfo, IInMemoryEmployeesRepository empSchedules)
-            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
+        public IVESEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemorySiteInfoRepository siteInfo, IInMemoryEmployeesRepository empSchedules)
+            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
             _siteInfo = siteInfo;
             _empSchedules = empSchedules;

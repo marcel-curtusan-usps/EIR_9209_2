@@ -10,8 +10,8 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryEmployeesRepository _emp;
         private readonly IInMemorySiteInfoRepository _siteInfo;
 
-        public SMSWrapperEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryEmployeesRepository emp, IInMemorySiteInfoRepository siteInfo)
-            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
+        public SMSWrapperEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryEmployeesRepository emp, IInMemorySiteInfoRepository siteInfo)
+            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
             _emp = emp;
             _siteInfo = siteInfo;

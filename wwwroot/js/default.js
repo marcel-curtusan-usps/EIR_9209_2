@@ -121,8 +121,11 @@ function capitalize_Words(str) {
     });
 }
 function SiteURLconstructor(winLoc) {
-    if (/^(.CF)/i.test(winLoc.pathname)) {
-        return winLoc.origin + "/CF";
+    let pathname = winLoc.pathname;
+    let match = pathname.match(/^\/([^\/]*)/);
+    let urlPath = match[1];
+    if (/^(.CF)/i.test(urlPath)) {
+        return winLoc.origin + "/" + urlPath;
     }
     else {
         return winLoc.origin;

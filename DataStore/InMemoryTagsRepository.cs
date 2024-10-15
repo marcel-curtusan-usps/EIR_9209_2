@@ -63,7 +63,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
             }
         }
@@ -86,7 +86,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
             }
 
@@ -358,7 +358,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (savetoFile)
                 { 
-                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
             }
         }
@@ -390,7 +390,7 @@ namespace EIR_9209_2.DataStore
                 if (savetoFile)
                 {
                     //save date to local file
-                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
             }
         }
@@ -500,8 +500,8 @@ namespace EIR_9209_2.DataStore
                 if (savetoFile)
                 {
                     //save date to local file
-                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
-                    await _fileService.WriteFileAsync(vehicleFileName, JsonConvert.SerializeObject(_vehicleTagList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(vehicleFileName, JsonConvert.SerializeObject(_vehicleTagList.Values, Formatting.Indented));
                 }
             }
         }
@@ -597,12 +597,12 @@ namespace EIR_9209_2.DataStore
                 if (saveToFile)
                 {
                     //save date to local file
-                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
                 if (saveVehicleToFile)
                 {
                     //save date to local file
-                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_vehicleTagList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_vehicleTagList.Values, Formatting.Indented));
                 }
             }
 
@@ -922,7 +922,7 @@ namespace EIR_9209_2.DataStore
                 if (savetoFile)
                 {
                     //save date to local file
-                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
 
             }
@@ -959,7 +959,7 @@ namespace EIR_9209_2.DataStore
                 if (savetoFile)
                 {
                     //save date to local file
-                    await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
 
             }
@@ -1072,7 +1072,7 @@ namespace EIR_9209_2.DataStore
                 if (savetoFile)
                 {
                     //save date to local file
-                 await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                 await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
 
             }

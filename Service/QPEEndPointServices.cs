@@ -1,6 +1,7 @@
 ﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
+using NuGet.Protocol;
 
 namespace EIR_9209_2.Service
 {
@@ -10,8 +11,8 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryGeoZonesRepository _zones;
         private readonly IInMemoryBackgroundImageRepository _backgroundImage;
 
-        public QPEEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryTagsRepository tags, IInMemoryGeoZonesRepository zones, IInMemoryBackgroundImageRepository backgroundImage)
-            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
+        public QPEEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryTagsRepository tags, IInMemoryGeoZonesRepository zones, IInMemoryBackgroundImageRepository backgroundImage)
+            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
             _tags = tags;
             _zones = zones;
@@ -30,13 +31,26 @@ namespace EIR_9209_2.Service
                 if (_endpointConfig.MessageType.Equals("getTagData", StringComparison.CurrentCultureIgnoreCase))
                 {
                     // Process tag data in a separate thread
-                    var result = await queryService.GetQPETagData(stoppingToken).ConfigureAwait(false);
+                    var result = await queryService.GetQPETagData(stoppingToken);
+                    if (_endpointConfig.LogData)
+                    {
+                        // Start a new thread to handle the logging
+                        Task.Run(() => _loggerService.LogData(result.ToJson(),
+                            _endpointConfig.MessageType,
+                            _endpointConfig.Name,
+                            formatUrl), stoppingToken);
+                    }
                     await ProcessQPETagData(result, stoppingToken);
                 }
                 if (_endpointConfig.MessageType.Equals("getProjectInfo", StringComparison.CurrentCultureIgnoreCase))
                 {
                     // Process tag data in a separate thread
-                    var result = await queryService.GetQPEProjectInfo(stoppingToken).ConfigureAwait(false);
+                    var result = await queryService.GetQPEProjectInfo(stoppingToken);
+                    // Start a new thread to handle the logging
+                    Task.Run(() => _loggerService.LogData(result.ToJson(),
+                        _endpointConfig.MessageType,
+                        _endpointConfig.Name,
+                        formatUrl), stoppingToken);
                     await ProcessQPEProjectInfo(result, stoppingToken);
                 }
             }

@@ -6,8 +6,8 @@ namespace EIR_9209_2.Service
     {
         private readonly IInMemoryTagsRepository _tags;
 
-        public CiscoSpacesEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryTagsRepository tags)
-            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
+        public CiscoSpacesEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryTagsRepository tags)
+            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
             _tags = tags;
         }

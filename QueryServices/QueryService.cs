@@ -187,6 +187,7 @@ internal class QueryService : IQueryService
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
+
                 return JsonConvert.DeserializeObject<T>(responseBody, _jsonSettings);
             }
             else

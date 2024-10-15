@@ -41,6 +41,7 @@ public class Startup
         services.AddAuthentication(IISDefaults.AuthenticationScheme); // Add Windows Authentication
         services.AddSingleton<IFilePathProvider, FilePathProvider>();
         services.AddSingleton<IFileService, FileService>();
+        services.AddSingleton<ILoggerService, LoggerService>();
         services.AddSingleton<IResetApplication, ResetApplication>();
         services.AddSingleton<IInMemoryApplicationRepository, InMemoryApplicationRepository>();
         services.AddSingleton<IEncryptDecrypt, EncryptDecrypt>();
@@ -132,17 +133,17 @@ public class Startup
         app.UseAuthentication(); // Ensure authentication middleware is added
         app.UseAuthorization(); // Ensure authorization middleware is added
         var swaggerConfig = Configuration.GetSection("Swagger");
-        
+        var applicationConfiguration = Configuration.GetSection("ApplicationConfiguration");
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
             if (env.IsDevelopment())
             {
-                c.SwaggerEndpoint(swaggerConfig["Endpoint"], $"{Helper.GetAppName()} API's");
+                c.SwaggerEndpoint(swaggerConfig["Endpoint"], $"{applicationConfiguration["ApplicationName"]} API's");
             }
             else
             {
-                c.SwaggerEndpoint($"/{Helper.GetAppName}{swaggerConfig["Endpoint"]}", $"{Helper.GetAppName()} API's");
+                c.SwaggerEndpoint($"/{applicationConfiguration["ApplicationName"]}{swaggerConfig["Endpoint"]}", $"{applicationConfiguration["ApplicationName"]} API's");
             }
         });
         app.UseFileServer(); 

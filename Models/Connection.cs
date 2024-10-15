@@ -18,6 +18,7 @@ public class Connection
         }
     }
     public bool ActiveConnection { get; set; } = false;
+    public bool LogData { get; set; } = false;
     public string AdminEmailRecepient { get; set; } = "";
     public bool ApiConnected { get; set; } = false;
     [JsonProperty("name")]

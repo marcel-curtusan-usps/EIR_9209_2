@@ -45,7 +45,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
             }
         }
     }
@@ -74,7 +74,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
             }
         }
     }
@@ -82,7 +82,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
     {
         if (_backgroundImages.TryGetValue(backgroundImage.id, out OSLImage currentBackgroundImage) && _backgroundImages.TryUpdate(backgroundImage.id, backgroundImage, currentBackgroundImage))
         {
-            await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
+            await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
         }
 
         bool saveToFile = false;
@@ -115,7 +115,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
             }
         }
     }
@@ -266,7 +266,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, JsonConvert.SerializeObject(_backgroundImages.Select(x => x.Value).ToList()));
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Select(x => x.Value).ToList()));
             }
         }
     }

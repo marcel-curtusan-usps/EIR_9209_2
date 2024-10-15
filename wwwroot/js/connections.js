@@ -12,7 +12,7 @@ $('#API_Connection_Modal').on('hidden.bs.modal', function () {
         .end()
         .find("input[type=radio]")
         .prop('disabled', false)
-        .prop('checked', false).change()
+        .prop('checked', false).trigger('change')
         .end()
         .find("span[class=text]")
         .css("border-color", "#FF0000")
@@ -20,7 +20,7 @@ $('#API_Connection_Modal').on('hidden.bs.modal', function () {
         .text("")
         .end()
         .find('input[type=checkbox]')
-        .prop('checked', false).change()
+        .prop('checked', false).trigger('change')
         .end();
     offOAuthConnection();
     sidebar.open('connections');
@@ -169,16 +169,11 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             enableaipSubmit();
         }
     });
+    $('input[type=text][name=hostname], input[type=text][name=ip_address]').on('keyup change', checkAndDisableInputs);
 
     //Hostname Keyup
     $('input[type=text][name=hostname]').on("keyup", () => {
-         if (!checkValue($('input[type=text][name=hostname]').val().trim())) {
-             $('input[id=ip_address]').prop('disabled', false);
-        
-        } else {
-             $('input[id=ip_address]').prop('disabled', true);
-             $('input[id=ip_address]').val("");
-        }
+        checkAndDisableInputs();
         if (!checkValue($('input[type=text][name=hostname]').val())) {
             $('input[type=text][name=hostname]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-valid');
             $('span[id=error_hostname]').text("");
@@ -197,12 +192,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
 
     //IP Address Keyup
     $('input[type=text][name=ip_address]').on("keyup", function () {
-        if (!checkValue($('input[type=text][name=ip_address]').val().trim())) {
-            $('input[name=hostname]').prop('disabled', true);
-            $('input[id=hostname]').val("");
-        } else {
-            $('input[type=text][name=hostname]').prop('disabled', false);
-        }
+        checkAndDisableInputs();
         if (IPAddress_validator($('input[type=text][name=ip_address]').val()) === 'Invalid IP Address') {
             $('input[type=text][name=ip_address]').css("border-color", "#FF0000");
             $('span[id=error_ip_address]').text("Please Enter Valid IP Address!");
@@ -358,6 +348,13 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             $('.hours_range_row').css("display", "");
         }
     });
+    //logdata
+    $('input[type=checkbox][name=logdata]').on("change", () => {
+        connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
+        if (/^(api)/i.test(connTypeRadio)) {
+            onAPIConnection();
+        }
+    });
     //radio check
     if ($("input[type=radio][name='connectionType']").on("change", () => {
         connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
@@ -412,12 +409,24 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             }
         }
     }));
-
+    checkAndDisableInputs();
     //$('input[type=checkbox][name=ws_connection]').change(() => {
     //    onUpdateWS();
     //});
 });
+function checkAndDisableInputs() {
+    const hostnameInput = $('input[type=text][name=hostname]');
+    const ipAddressInput = $('input[type=text][name=ip_address]');
 
+    if (hostnameInput.val().trim()) {
+        ipAddressInput.prop('disabled', true);
+    } else if (ipAddressInput.val().trim()) {
+        hostnameInput.prop('disabled', true);
+    } else {
+        hostnameInput.prop('disabled', false);
+        ipAddressInput.prop('disabled', false);
+    }
+}
 /// receive messages from server 
 connection.on("addConnection", async (data) => {
     try {
@@ -470,11 +479,11 @@ async function Add_Connection() {
                 $('input[type=checkbox][name=udp_connection]').prop('disabled', false);
                 $('input[type=checkbox][name=tcpip_connection]').prop('disabled', false);
                 let jsonObject = {
-                    ActiveConnection: $('input[type=checkbox][name=active_connection]').prop('checked'),
-                    ApiConnection: $('input[type=radio][id=api_connection]').prop('checked'),
-                    UdpConnection: $('input[type=radio][id=udp_connection]').prop('checked'),
-                    TcpIpConnection: $('input[type=radio][id=tcpip_connection]').prop('checked'),
-                    WsConnection: $('input[type=radio][id=ws_connection]').prop('checked'),
+                    ActiveConnection: $('input[type=checkbox][name=active_connection]').is(':checked'),
+                    ApiConnection: $('input[type=radio][id=api_connection]').is(':checked'),
+                    UdpConnection: $('input[type=radio][id=udp_connection]').is(':checked'),
+                    TcpIpConnection: $('input[type=radio][id=tcpip_connection]').is(':checked'),
+                    WsConnection: $('input[type=radio][id=ws_connection]').is(':checked'),
                     HoursBack: parseInt($('input[id=hoursback_range]').val(), 10),
                     HoursForward: parseInt($('input[id=hoursforward_range]').val(), 10),
                     MillisecondsInterval: $('select[name=data_retrieve] option:selected').val(),
@@ -486,6 +495,7 @@ async function Add_Connection() {
                     Url: $('input[type=text][name=url]').val(),
                     MessageType: $('select[name=message_type] option:selected').val(),
                     OAuthUrl: $('input[type=text][name=tokenurl]').val(),
+                    LogData: $('input[type=checkbox][name=logdata]').is(':checked')
                     //CreatedByUsername: User.UserId,
                     // NassCode: User.Facility_NASS_Code
                 };
@@ -554,8 +564,13 @@ async function Edit_Connection(data) {
     else {
         $('#modalHeader_ID').text('Edit Connection');
         $('input[type=checkbox][id=active_connection]').prop('checked', data.activeConnection);
-        $('input[type=text][id=ip_address]').val(data.ipAddress);
-        $('input[type=text][id=hostname]').val(data.hostname);
+        $('input[type=checkbox][name=logdata]').prop('checked', data.logData);
+        if (checkValue(data.ipAddress)) {
+            $('input[type=text][id=ip_address]').val(data.ipAddress).trigger('keyup');
+        }
+        if (checkValue(data.hostname)) {
+            $('input[type=text][id=hostname]').val(data.hostname).trigger('keyup');
+        }
         $('input[type=text][id=port_number]').val(data.port);
         $('input[type=text][id=url]').val(data.url);
         filtermessage_type(data.name, data.messageType);
@@ -661,7 +676,7 @@ async function Edit_Connection(data) {
                     port: $('input[type=text][name=port_number]').val(),
                     url: $('input[type=text][name=url]').val(),
                     messageType: $('select[name=message_type] option:selected').val(),
-                    
+                    logData: $('input[type=checkbox][name=logdata]').is(':checked'),
                     //CreatedByUsername: User.UserId,
                     //lastupdateByUsername: User.UserId,
                     id: data.id

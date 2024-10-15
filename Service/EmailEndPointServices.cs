@@ -6,8 +6,8 @@ namespace EIR_9209_2.Service
     public class EmailEndPointServices : BaseEndpointService
     {
         private readonly IInMemoryEmailRepository _email;
-        public EmailEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryEmailRepository email)
-              : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
+        public EmailEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryEmailRepository email)
+              : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection , loggerService)
         {
             _email = email;
         }

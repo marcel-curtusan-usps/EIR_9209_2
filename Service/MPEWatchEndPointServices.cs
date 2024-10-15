@@ -8,8 +8,8 @@ namespace EIR_9209_2.Service
     {
         private readonly IInMemoryGeoZonesRepository _geoZones;
 
-        public MPEWatchEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, IInMemoryGeoZonesRepository geozone)
-            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection)
+        public MPEWatchEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryGeoZonesRepository geozone)
+            : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
             _geoZones = geozone;
         }
@@ -31,16 +31,40 @@ namespace EIR_9209_2.Service
                 //process zone data
                 if (_endpointConfig.MessageType.Equals("rpg_run_perf", StringComparison.CurrentCultureIgnoreCase))
                 {
+                    if (_endpointConfig.LogData)
+                    {
+                        // Start a new thread to handle the logging
+                        Task.Run(() => _loggerService.LogData(result,
+                            _endpointConfig.MessageType,
+                            _endpointConfig.Name,
+                            FormatUrl), stoppingToken);
+                    }
                     // Process MPE data in a separate thread
                     await ProcessMPEWatchRunPerfData(result, stoppingToken);
                 }
                 if (_endpointConfig.MessageType.Equals("rpg_plan", StringComparison.CurrentCultureIgnoreCase))
                 {
+                    if (_endpointConfig.LogData)
+                    {
+                        // Start a new thread to handle the logging
+                        Task.Run(() => _loggerService.LogData(result,
+                            _endpointConfig.MessageType,
+                            _endpointConfig.Name,
+                            FormatUrl), stoppingToken);
+                    }
                     // Process MPE data in a separate thread
-                   await ProcessMPEWatchRpgPlanData(result, stoppingToken);
+                    await ProcessMPEWatchRpgPlanData(result, stoppingToken);
                 }
                 if (_endpointConfig.MessageType.Equals("dps_run_estm", StringComparison.CurrentCultureIgnoreCase))
                 {
+                    if (_endpointConfig.LogData)
+                    {
+                        // Start a new thread to handle the logging
+                        Task.Run(() => _loggerService.LogData(result,
+                            _endpointConfig.MessageType,
+                            _endpointConfig.Name,
+                            FormatUrl), stoppingToken);
+                    }
                     // Process MPE data in a separate thread
                     await ProcessMPEWatchDPSRunData(result, stoppingToken);
                 }

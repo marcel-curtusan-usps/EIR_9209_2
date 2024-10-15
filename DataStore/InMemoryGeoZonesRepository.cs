@@ -70,7 +70,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
+                await _fileService.WriteConfigurationFile(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
             }
         }
     }
@@ -100,7 +100,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
+                await _fileService.WriteConfigurationFile(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
             }
         }
     }
@@ -148,7 +148,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileNameDockDoor, GeoZoneDockDoorOutPutdata(_geoZoneDockDoorList.Select(x => x.Value).ToList()));
+                await _fileService.WriteConfigurationFile(fileNameDockDoor, GeoZoneDockDoorOutPutdata(_geoZoneDockDoorList.Select(x => x.Value).ToList()));
             }
         }
     }
@@ -178,7 +178,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileNameDockDoor, GeoZoneDockDoorOutPutdata(_geoZoneDockDoorList.Select(x => x.Value).ToList()));
+                await _fileService.WriteConfigurationFile(fileNameDockDoor, GeoZoneDockDoorOutPutdata(_geoZoneDockDoorList.Select(x => x.Value).ToList()));
             }
         }
     }
@@ -250,7 +250,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
+                await _fileService.WriteConfigurationFile(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
             }
         }
     }
@@ -369,7 +369,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             //}
         }
     }
-    public void RunMPESummaryReport()
+    public async void RunMPESummaryReport()
     {
         try
         {
@@ -381,17 +381,23 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     var mpe = _geoZoneList.Where(r => r.Value.Properties.Name == area && r.Value.Properties.Type == "MPE").Select(y => y.Value.Properties).FirstOrDefault();
                     if (mpe != null)
                     {
-                        List<DateTime> hoursInMpeDateTime = mpe.MPERunPerformance.HourlyData.Select(x => DateTime.Parse(x.Hour, CultureInfo.CurrentCulture, DateTimeStyles.None)).ToList();
+                        List<DateTime>? hoursInMpeDateTime = mpe.MPERunPerformance?.HourlyData.Select(x => DateTime.Parse(x.Hour, CultureInfo.CurrentCulture, DateTimeStyles.None)).ToList();
                         if (!_mpeSummary.ContainsKey(area))
                         {
                             _mpeSummary.TryAdd(area, new Dictionary<DateTime, MPESummary>());
                         }
-                        foreach (var hour in hoursInMpeDateTime)
+                        if (hoursInMpeDateTime != null)
                         {
-                            var hourlySummaryForHourAndArea = GetHourlySummaryForHourAndArea(area, hour, mpe.MPERunPerformance);
-                            lock (_mpeSummary[area])
+                            foreach (var hour in hoursInMpeDateTime)
                             {
-                                _mpeSummary[area][hour] = hourlySummaryForHourAndArea;
+                                var hourlySummaryForHourAndArea = await GetHourlySummaryForHourAndArea(area, hour, mpe.MPERunPerformance);
+                                if (hourlySummaryForHourAndArea != null)
+                                {
+                                    lock (_mpeSummary[area])
+                                    {
+                                        _mpeSummary[area][hour] = hourlySummaryForHourAndArea;
+                                    }
+                                }
                             }
                         }
                     }
@@ -404,7 +410,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    private MPESummary? GetHourlySummaryForHourAndArea(string area, DateTime Dateandhour, MPERunPerformance mpe)
+    private Task<MPESummary>? GetHourlySummaryForHourAndArea(string area, DateTime Dateandhour, MPERunPerformance mpe)
     {
         try
         {
@@ -462,7 +468,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 supervisorPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(supervisor)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Count();
                 otherPresent = entriesThisArea.Where(e => !Regex.IsMatch(e.Type, "^(clerk|supervisor|mail handler|maintenance)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Count();
             }
-            return new MPESummary
+            var r = new MPESummary
             {
                 laborHrs = laborHrs,
                 laborCounts = laborCounts,
@@ -486,6 +492,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 standardPiecseFeed = standardPiecseFeed,
                 standardStaffHrs = standardStaffHrs
             };
+            return Task.FromResult(r);
         }
         catch (Exception e)
         {
@@ -1124,7 +1131,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             });
             if (SaveToFile)
             {
-                await _fileService.WriteFileAsync("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
+                await _fileService.WriteConfigurationFile("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
             }
         }
     }
@@ -1283,7 +1290,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             });
             if (SaveToFile)
             {
-                await _fileService.WriteFileAsync("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
+                await _fileService.WriteConfigurationFile("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
             }
         }
 
@@ -1368,7 +1375,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             });
             if (SaveToFile)
             {
-                await _fileService.WriteFileAsync("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
+                await _fileService.WriteConfigurationFile("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
             }
         }
     }
@@ -1426,7 +1433,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async Task ProcessSVDoorsData(JToken result)
+    public async Task<bool> ProcessSVDoorsData(JToken result, CancellationToken stoppingToken)
     {
         bool SaveToFile = false;
         try
@@ -1441,7 +1448,11 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     .ToList();
                 foreach (JObject item in sortedItems)
                 {
-                 
+                    if (stoppingToken.IsCancellationRequested)
+                    {
+                        SaveToFile = false;
+                        return false;
+                    }
                     bool updateUI = false;
                     GeoZoneDockDoor geoZone = new GeoZoneDockDoor();
                     if (item.ContainsKey("doorNumber"))
@@ -1554,10 +1565,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 }
 
             }
+            return true;
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
+            return false;
         }
         finally
         {
@@ -1817,11 +1830,11 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteFileAsync(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
+                await _fileService.WriteConfigurationFile(fileName, GeoZoneOutPutdata(_geoZoneList.Select(x => x.Value).ToList()));
             }
             if (docdoorsaveToFile)
             {
-                await _fileService.WriteFileAsync(fileNameDockDoor, GeoZoneDockDoorOutPutdata(_geoZoneDockDoorList.Select(x => x.Value).ToList()));
+                await _fileService.WriteConfigurationFile(fileNameDockDoor, GeoZoneDockDoorOutPutdata(_geoZoneDockDoorList.Select(x => x.Value).ToList()));
             }
         }
     }
