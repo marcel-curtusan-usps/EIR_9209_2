@@ -31,7 +31,10 @@ namespace EIR_9209_2.Service
 
                     IQueryService queryService;
                     string FormatUrl = string.Format(_endpointConfig.Url, server);
-                    queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
+                    queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings,
+                        new QueryServiceSettings(new Uri(FormatUrl),
+                        new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)
+                        ));
                     if (_endpointConfig.MessageType.Equals("getByFacilityID", StringComparison.CurrentCultureIgnoreCase))
                     {
                         var result = await queryService.GetHCESData(stoppingToken, "facilityID", siteinfo.FacilityId, _endpointConfig.OAuthClientId);

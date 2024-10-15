@@ -16,10 +16,13 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                IQueryService queryService;
+                
                 string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
+                IOAuth2AuthenticationService authService;
+                authService = new OAuth2AuthenticationService(_logger, _httpClientFactory, new OAuth2AuthenticationServiceSettings(server, "", _endpointConfig.OAuthUserName, _endpointConfig.OAuthPassword, _endpointConfig.OAuthClientId, "", _endpointConfig.AuthType), jsonSettings);
+                IQueryService queryService;
                 string FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType, _endpointConfig.HoursBack, _endpointConfig.HoursForward);
-                queryService = new QueryService(_logger, _httpClientFactory, jsonSettings,
+                queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings,
                     new QueryServiceSettings(
                         new Uri(FormatUrl),
                         new TimeSpan(0,0,0,0,_endpointConfig.MillisecondsTimeout)

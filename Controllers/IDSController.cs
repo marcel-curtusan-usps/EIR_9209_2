@@ -1,4 +1,5 @@
 ﻿using EIR_9209_2.DatabaseCalls.IDS;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
@@ -8,6 +9,7 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = "BasicAuthentication")]
     public class IDSController : ControllerBase
     {
         private readonly ILogger<IDSController> _logger;

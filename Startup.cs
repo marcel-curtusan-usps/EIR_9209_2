@@ -4,6 +4,7 @@ using EIR_9209_2.Service;
 using EIR_9209_2.Utilities;
 using MessagePack;
 using MessagePack.Resolvers;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Server.IISIntegration;
@@ -39,6 +40,8 @@ public class Startup
         // Configure logging
         services.AddLogging();
         services.AddAuthentication(IISDefaults.AuthenticationScheme); // Add Windows Authentication
+        services.AddAuthentication("BasicAuthentication")
+          .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
         services.AddSingleton<IFilePathProvider, FilePathProvider>();
         services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<ILoggerService, LoggerService>();
