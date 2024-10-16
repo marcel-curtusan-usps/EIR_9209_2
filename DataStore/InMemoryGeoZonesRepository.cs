@@ -1432,12 +1432,19 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             return "";
         }
     }
-
+    #region
+    /// <summary>
+    /// dock door processing from SV Web
+    /// </summary>
+    /// <param name="result"></param>
+    /// <param name="stoppingToken"></param>
+    /// <returns></returns>
     public async Task<bool> ProcessSVDoorsData(JToken result, CancellationToken stoppingToken)
     {
         bool SaveToFile = false;
         try
-        {   // Ensure result is a JArray
+        {
+            // Ensure result is a JArray
             if (result is JArray resultArray)
             {
                 // Convert to list and sort by doorNumber
@@ -1446,6 +1453,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     .Where(item => item.ContainsKey("doorNumber"))
                     .OrderBy(item => item["doorNumber"].ToString())
                     .ToList();
+
                 foreach (JObject item in sortedItems)
                 {
                     if (stoppingToken.IsCancellationRequested)
@@ -1453,114 +1461,36 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                         SaveToFile = false;
                         return false;
                     }
+
                     bool updateUI = false;
-                    if (item.ContainsKey("doorNumber"))
+                    string doorNumber = item["doorNumber"]?.ToString() ?? string.Empty;
+
+                    // Check if door exists in _DockDoorList
+                    if (!_DockDoorList.Contains(doorNumber))
                     {
-                        string doorNumber = item["doorNumber"].ToString();
-                        //check if door exits in _DockDoorList
-                        if (!_DockDoorList.Contains(doorNumber))
+                        _DockDoorList.Add(doorNumber);
+                    }
+
+                    // Find door number in _geoZoneDockDoorList
+                    if (_geoZoneDockDoorList.TryGetValue(doorNumber, out GeoZoneDockDoor? geoZone))
+                    {
+                        if (item.ContainsKey("routeTripId"))
                         {
-                            _DockDoorList.Add(doorNumber);
+                            updateUI = UpdateGeoZoneProperties(item, geoZone);
                         }
-                        //find door number in _geoZoneDockDoorList
-                        if (_geoZoneDockDoorList.TryGetValue(doorNumber, out GeoZoneDockDoor? geoZone))
+                        else
                         {
-                            if (item.ContainsKey("routeTripId"))
-                            {
-                                if (!geoZone.Properties.IsTripAtDoor)
-                                {
-                                    geoZone.Properties.IsTripAtDoor = true;
-                                    updateUI = true;
-                                }
-                                //if TripDirectionInd is not equal to item["tripDirectionInd"].ToString()
-                                if (geoZone.Properties.TripDirectionInd != item["tripDirectionInd"].ToString())
-                                {
-                                    geoZone.Properties.TripDirectionInd = item["tripDirectionInd"].ToString();
-                                    updateUI = true;
-                                }
-                                if (geoZone.Properties.RouteTripId != (int)item["routeTripId"])
-                                {
-                                    geoZone.Properties.RouteTripId = (int)item["routeTripId"];
-                                    updateUI = true;
-                                }
-                                if (geoZone.Properties.RouteTripLegId != (int)item["routeTripLegId"])
-                                {
-                                    geoZone.Properties.RouteTripLegId = (int)item["routeTripLegId"];
-                                    updateUI = true;
-                                }
-                                if (geoZone.Properties.Route != item["route"].ToString())
-                                {
-                                    geoZone.Properties.Route = item["route"].ToString();
-                                    updateUI = true;
-                                }
-                                if (geoZone.Properties.Trip != item["trip"].ToString())
-                                {
-                                    geoZone.Properties.Trip = item["trip"].ToString();
-                                    updateUI = true;
-                                }
-                                if (geoZone.Properties.LegSiteName != item["legSiteName"].ToString())
-                                {
-                                    geoZone.Properties.LegSiteName = item["legSiteName"].ToString();
-                                    updateUI = true;
-                                }
-                                if (geoZone.Properties.LegSiteId != item["legSiteId"].ToString())
-                                {
-                                    geoZone.Properties.LegSiteId = item["legSiteId"].ToString();
-                                    updateUI = true;
-                                }
-                                if (item.ContainsKey("status") && geoZone.Properties.Status != item["status"].ToString())
-                                {
-                                    geoZone.Properties.Status = item["status"].ToString();
-                                    updateUI = true;
-                                }
-                                else
-                                {
-                                    geoZone.Properties.Status = "";
-                                    updateUI = true;
-                                }
-                                if (geoZone.Properties.ScheduledDtm != GetSVDate((JObject)item["scheduledDtm"]))
-                                {
-                                    geoZone.Properties.ScheduledDtm = GetSVDate((JObject)item["scheduledDtm"]);
-                                    updateUI = true;
-                                }
-                                int tripMin = GetTripMin(GetSVDate((JObject)item["scheduledDtm"]));
-                                if (geoZone.Properties.TripMin != tripMin)
-                                {
-                                    geoZone.Properties.TripMin = tripMin;
-                                    updateUI = true;
-                                }
+                            ResetGeoZoneProperties(geoZone);
+                            updateUI = true;
+                        }
 
-                                geoZone.Properties.ContainersNotLoaded = 0;
-                            }
-                            else
-                            {
-                                if (geoZone.Properties.IsTripAtDoor)
-                                {
-                                    geoZone.Properties.IsTripAtDoor = false;
-                                    updateUI = true;
-                                }
-                                geoZone.Properties.TripDirectionInd = "";
-                                geoZone.Properties.RouteTripId = 0;
-                                geoZone.Properties.RouteTripLegId = 0;
-                                geoZone.Properties.Route = "";
-                                geoZone.Properties.Trip = "";
-                                geoZone.Properties.LegSiteName = "";
-                                geoZone.Properties.LegSiteId = "";
-                                geoZone.Properties.Status = "";
-                                geoZone.Properties.TripMin = 0;
-                                geoZone.Properties.ContainersNotLoaded = 0;
-
-
-                            }
-                            if (updateUI)
-                            {
-                                await _hubServices.Clients.Group(geoZone.Properties.Type).SendAsync($"update{geoZone.Properties.Type}zone", geoZone.Properties);
-                            }
+                        if (updateUI)
+                        {
+                            await _hubServices.Clients.Group(geoZone.Properties.Type)
+                                .SendAsync($"update{geoZone.Properties.Type}zone", geoZone.Properties);
                         }
                     }
-                
                 }
-
             }
             return true;
         }
@@ -1573,10 +1503,107 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (SaveToFile)
             {
-               // await _fileService.WriteFileAsync("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
+                // await _fileService.WriteFileAsync("MPEActiveRun.json", JsonConvert.SerializeObject(_MPERunActivity.Values, Formatting.Indented));
             }
         }
+
+   
     }
+    private bool UpdateGeoZoneProperties(JObject item, GeoZoneDockDoor geoZone)
+    {
+        bool updateUI = false;
+
+        // Use local variables to hold property values
+        var tripDirectionInd = geoZone.Properties.TripDirectionInd;
+        var routeTripId = geoZone.Properties.RouteTripId;
+        var routeTripLegId = geoZone.Properties.RouteTripLegId;
+        var route = geoZone.Properties.Route;
+        var trip = geoZone.Properties.Trip;
+        var legSiteName = geoZone.Properties.LegSiteName;
+        var legSiteId = geoZone.Properties.LegSiteId;
+        var status = geoZone.Properties.Status;
+        var scheduledDtm = geoZone.Properties.ScheduledDtm;
+        var tripMin = geoZone.Properties.TripMin;
+        var isTripAtDoor = geoZone.Properties.IsTripAtDoor;
+
+        // Update properties using local variables
+        updateUI |= UpdateProperty(item, "tripDirectionInd", ref tripDirectionInd);
+        bool routeTripIdUpdated = UpdateProperty(item, "routeTripId", ref routeTripId);
+        bool routeTripLegIdUpdated = UpdateProperty(item, "routeTripLegId", ref routeTripLegId);
+        updateUI |= routeTripIdUpdated;
+        updateUI |= routeTripLegIdUpdated;
+        updateUI |= UpdateProperty(item, "route", ref route);
+        updateUI |= UpdateProperty(item, "trip", ref trip);
+        updateUI |= UpdateProperty(item, "legSiteName", ref legSiteName);
+        updateUI |= UpdateProperty(item, "legSiteId", ref legSiteId);
+        updateUI |= UpdateProperty(item, "status", ref status, true);
+        updateUI |= UpdateProperty(item, "scheduledDtm", ref scheduledDtm, true, GetSVDate);
+        // Calculate tripMin from scheduledDtm
+        var newTripMin = GetTripMin(scheduledDtm);
+
+        // Check if tripMin has changed
+        if (tripMin != newTripMin)
+        {
+            tripMin = newTripMin;
+            updateUI = true;
+        }
+
+        // Set IsTripAtDoor to true if routeTripId or routeTripLegId is updated
+        if (routeTripIdUpdated || routeTripLegIdUpdated)
+        {
+            isTripAtDoor = true;
+            updateUI = true;
+        }
+        // Assign updated values back to properties
+        geoZone.Properties.TripDirectionInd = tripDirectionInd;
+        geoZone.Properties.RouteTripId = routeTripId;
+        geoZone.Properties.RouteTripLegId = routeTripLegId;
+        geoZone.Properties.Route = route;
+        geoZone.Properties.Trip = trip;
+        geoZone.Properties.LegSiteName = legSiteName;
+        geoZone.Properties.LegSiteId = legSiteId;
+        geoZone.Properties.Status = status;
+        geoZone.Properties.ScheduledDtm = scheduledDtm;
+        geoZone.Properties.TripMin = tripMin;
+        geoZone.Properties.IsTripAtDoor = isTripAtDoor;
+        return updateUI;
+    }
+
+    private void ResetGeoZoneProperties(GeoZoneDockDoor geoZone)
+    {
+        geoZone.Properties.IsTripAtDoor = false;
+        geoZone.Properties.TripDirectionInd = string.Empty;
+        geoZone.Properties.RouteTripId = 0;
+        geoZone.Properties.RouteTripLegId = 0;
+        geoZone.Properties.Route = string.Empty;
+        geoZone.Properties.Trip = string.Empty;
+        geoZone.Properties.LegSiteName = string.Empty;
+        geoZone.Properties.LegSiteId = string.Empty;
+        geoZone.Properties.Status = string.Empty;
+        geoZone.Properties.TripMin = 0;
+        geoZone.Properties.ContainersNotLoaded = 0;
+    }
+
+    private bool UpdateProperty<T>(JObject item, string key, ref T property, bool isNullable = false, Func<JObject, T>? converter = null)
+    {
+        if (item.ContainsKey(key))
+        {
+            var newValue = converter != null ? converter((JObject)item[key]) : (T)Convert.ChangeType(item[key], typeof(T));
+            if (!EqualityComparer<T>.Default.Equals(property, newValue))
+            {
+                property = newValue;
+                return true;
+            }
+        }
+        else if (isNullable)
+        {
+            property = default!;
+            return true;
+        }
+        return false;
+    }
+    #endregion
+
     public async Task ProcessSVContainerData(JToken result)
     {
         throw new NotImplementedException();

@@ -55,6 +55,7 @@ connection.on("deleteDockDoorzone", async (zoneDate) => {
 });
 connection.on("updateDockDoorzone", async (zoneDate) => {
     //need to update bin zone
+    console.log(zoneDate);
     Promise.all([ updateDockDoorFeature(zoneDate)]);
 });
 connection.on("updateDockDoorTrip", async (data) => {
