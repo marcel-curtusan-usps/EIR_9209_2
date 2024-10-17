@@ -124,7 +124,7 @@ function SiteURLconstructor(winLoc) {
     let pathname = winLoc.pathname;
     let match = pathname.match(/^\/([^\/]*)/);
     let urlPath = match[1];
-    if (/^(.CF)/i.test(urlPath)) {
+    if (/^(CF)/i.test(urlPath)) {
         return winLoc.origin + "/" + urlPath;
     }
     else {

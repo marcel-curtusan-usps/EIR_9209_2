@@ -32,7 +32,7 @@ namespace EIR_9209_2.Service
                     IQueryService queryService;
                     string FormatUrl = "";
                     //process tag data
-                    if (_endpointConfig.MessageType.Equals("TAG_TIMELINE", StringComparison.CurrentCultureIgnoreCase))
+                    if (_endpointConfig.MessageType.Equals("AREA_AGGREGATION", StringComparison.CurrentCultureIgnoreCase))
                     {
                         FormatUrl = string.Format(_endpointConfig.Url, server);
                         queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
@@ -45,7 +45,7 @@ namespace EIR_9209_2.Service
 
                         var allAreaIds = await queryService.GetAreasAsync(stoppingToken);
 
-                        int areasBatchCount = 24;
+                        int areasBatchCount = 20;
                         Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREMinTimeOnArea"], out int MinTimeOnArea); //get the value from appsettings.json
                         Int32.TryParse(_configuration[key: "ApplicationConfiguration:QRETimeStep"], out int TimeStep); //get the value from appsettings.json
                         Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREActivationTime"], out int ActivationTime); //get the value from appsettings.json
@@ -78,8 +78,7 @@ namespace EIR_9209_2.Service
                                 _zones.AddAreaDwell(hour, newValue);
 
                             }
-                            //// Process tag data in a separate thread
-                            await Task.Run(() => _zones.RunMPESummaryReport(), stoppingToken).ConfigureAwait(false);
+                    
                         }
 
                     }
@@ -96,7 +95,7 @@ namespace EIR_9209_2.Service
                         var pastHour = currentHour.AddHours(-1);
 
                         var allAreaIds = await queryService.GetAreasAsync(stoppingToken);
-                        int areasBatchCount = 24;
+                        int areasBatchCount = 20;
                         Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREMinTimeOnArea"], out int MinTimeOnArea); //get the value from appsettings.json
                         Int32.TryParse(_configuration[key: "ApplicationConfiguration:QRETimeStep"], out int TimeStep); //get the value from appsettings.json
                         Int32.TryParse(_configuration[key: "ApplicationConfiguration:QREActivationTime"], out int ActivationTime); //get the value from appsettings.json
@@ -132,7 +131,7 @@ namespace EIR_9209_2.Service
                                 _tags.AddTagTimeline(hour, newValue);
 
                             }
-                            await Task.Run(() => _empSchedules.RunEmpScheduleReport(), stoppingToken).ConfigureAwait(false);
+                            _ = Task.Run(() => _empSchedules.RunEmpScheduleReport());
                         }
                     }
                 }
@@ -153,12 +152,12 @@ namespace EIR_9209_2.Service
                 //run summary report
                 if (_endpointConfig.MessageType == "AREA_AGGREGATION")
                 {
-                    await Task.Run(() => _zones.RunMPESummaryReport(), stoppingToken).ConfigureAwait(false);
+                   _ = Task.Run(() => _zones.RunMPESummaryReport());
                 }
                 //run employee schedule report
                 if (_endpointConfig.MessageType == "TAG_TIMELINE")
                 {
-                    await Task.Run(() => _empSchedules.RunEmpScheduleReport(), stoppingToken).ConfigureAwait(false);
+                    _ = Task.Run(() => _empSchedules.RunEmpScheduleReport());
                 }
             }
         }
