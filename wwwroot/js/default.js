@@ -46,6 +46,8 @@ function initializeOSL() {
     // Load Application Info
     connection.invoke("GetApplicationInfo").then(function (data) {
         appData = JSON.parse(data);
+        ianaTimeZone = getIANATimeZone(getPostalTimeZone(data.TimeZoneAbbr));
+        Promise.all([updateOSLattribution(appData)]);
         if (/^(Admin|OIE)/i.test(appData.Role)) {
             init_geoman_editing();
             sidebar.addPanel({
@@ -53,16 +55,16 @@ function initializeOSL() {
                 tab: '<span class="iconCenter"><i class="pi-iconGearFill"></i></span>',
                 position: 'bottom',
             });
+            Promise.all([init_applicationConfiguration()]);
+            Promise.all([init_SiteInformation()]);
+            init_connectiontType();
+            init_emailList();
+            init_dacodetocraftType();
         }
-        init_applicationConfiguration();
-        init_connectiontType();
         init_connection();
-        UpdateOSLattribution(appData);
+        init_backgroundImages();
         init_osl();
         init_TagSearch();
-        init_backgroundImages();
-        init_emailList();
-        init_dacodetocraftType();
         init_geoZoneArea();  
         init_geoZoneMPE();
         init_geoZoneDockDoor();

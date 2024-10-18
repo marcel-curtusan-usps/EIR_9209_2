@@ -1,34 +1,20 @@
 ﻿
 //connection types
 let siteInfotable = "siteInfotable";
-async function init_SiteInformation(siteNassCode) {
+async function init_SiteInformation() {
     return new Promise((resolve, reject) => {
     try {
         createSiteInfoDataTable(siteInfotable);
-
-        //get data from application configuration controller
-
-        $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/SiteInformation/SiteInfo',
-
-            type: 'GET',
-            success: function (data) {
-                siteInfo = data;
-                ianaTimeZone = getIANATimeZone(getPostalTimeZone(data.timeZoneAbbr));
-                $(document).prop('title', data.displayName + ' (' + data.siteId + ')');
-                $('#fotf-site-facility-name').empty();
-                $('#fotf-site-facility-name').append(data.displayName);
-                loadSiteInfoDatatable(formatSiteInfodata(data), siteInfotable);
-            },
-            error: function (error) {
-                console.log(error);
-            },
-            faulure: function (fail) {
-                console.log(fail);
-            },
-            complete: function (complete) {
-                //console.log(complete);
-            }
+        connection.invoke("GetSiteInfo").then(function (data) {
+            siteInfo = data;
+           
+            $(document).prop('title', data.displayName + ' (' + data.siteId + ')');
+            $('#fotf-site-facility-name').empty();
+            $('#fotf-site-facility-name').append(data.displayName);
+            loadSiteInfoDatatable(formatSiteInfodata(data), siteInfotable);
+        }).catch(function (err) {
+            // handle error
+            console.error(err);
         });
         connection.invoke("JoinGroup", "SiteInformation").catch(function (err) {
             return console.error(err.toString());

@@ -208,6 +208,7 @@ async function createEmpScheduleDataTable(table) {
                     zeroRecords: "No Data"
                 },
                 aoColumns: columns,
+                order: [[3, 'desc']],
                 columnDefs: [
                     {
                         orderable: false, // Disable sorting on all columns

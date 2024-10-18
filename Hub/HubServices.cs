@@ -22,6 +22,7 @@ public class HubServices : Hub
     private readonly ILogger<HubServices> _logger;
     private readonly IConfiguration _configuration;
     private readonly IWebHostEnvironment _env;
+    private readonly IEncryptDecrypt _encryptDecrypt;
     public HubServices(ILogger<HubServices> logger,
         IInMemoryBackgroundImageRepository backgroundImages,
         IInMemoryConnectionRepository connectionList,
@@ -32,7 +33,8 @@ public class HubServices : Hub
         IInMemoryEmployeesRepository empSchedules,
         IInMemoryCamerasRepository cameraMarkers,
         IConfiguration configuration,
-        IWebHostEnvironment env)    
+        IWebHostEnvironment env,
+        IEncryptDecrypt encryptDecrypt)    
     {
         _logger = logger;
         _backgroundImages = backgroundImages;
@@ -45,6 +47,7 @@ public class HubServices : Hub
         _cameraMarkers = cameraMarkers;
         _configuration = configuration;
         _env = env;
+        _encryptDecrypt = encryptDecrypt;
     }
     public async Task JoinGroup(string groupName)
     {
@@ -70,7 +73,7 @@ public class HubServices : Hub
     public override async Task OnConnectedAsync()
     {
         _logger.LogInformation($"Client connected: {Context.ConnectionId} UserName: {await GetUserName(Context.User)}, DateTime:{DateTime.Now.ToString()}" );
-
+ 
         await base.OnConnectedAsync();
     }
 
@@ -85,6 +88,33 @@ public class HubServices : Hub
         // await Groups.RemoveFromGroupAsync(userId, groupName);
 
         await base.OnDisconnectedAsync(exception);
+    }
+    public async Task<SiteInformation> GetSiteInfo()
+    {
+        return await Task.Run(_siteInfo.GetSiteInfo);
+    }
+    public async Task<object> GetApplicationConfiguration()
+    {
+        Dictionary<string, string?> configurationValues = [];
+
+        // Example: Retrieve a specific configuration section
+        var applicationSettings = _configuration.GetSection("ApplicationConfiguration");
+        if (applicationSettings.Exists())
+        {
+            foreach (var setting in applicationSettings.GetChildren())
+            {
+                if (setting.Key.EndsWith("ConnectionString"))
+                {
+                    configurationValues.Add(setting.Key, _encryptDecrypt.Decrypt(setting.Value));
+                }
+                else
+                {
+                    configurationValues.Add(setting.Key, setting.Value);
+                }
+
+            }
+        }
+        return await Task.FromResult(configurationValues);
     }
     public async Task<IEnumerable<OSLImage>> GetBackgroundImages()
     {
@@ -101,8 +131,9 @@ public class HubServices : Hub
                 ["ApplicationVersion"] = Helper.GetCurrentVersion(),
                 ["ApplicationDescription"] = _configuration["ApplicationConfiguration:ApplicationDescription"],
                 ["SiteName"] = siteInfo?.DisplayName,
-                ["User"] = Context.User.Identity.IsAuthenticated ? await GetUserName(Context.User) : "CF Admin",
-                ["Role"] = Context.User.Identity.IsAuthenticated ? await GetUserRole(Context.User) : "Admin"
+                ["TimeZoneAbbr"] = siteInfo?.TimeZoneAbbr,
+                ["User"] = Context.User.Identity.IsAuthenticated ? await GetUserName(Context.User) : "Operator",
+                ["Role"] = Context.User.Identity.IsAuthenticated ? await GetUserRole(Context.User) : "Operator"
             });
         }
         else
@@ -113,6 +144,7 @@ public class HubServices : Hub
                 ["ApplicationVersion"] = Helper.GetCurrentVersion(),
                 ["ApplicationDescription"] = _configuration["ApplicationConfiguration:ApplicationDescription"],
                 ["SiteName"] = siteInfo?.DisplayName,
+                ["TimeZoneAbbr"] = siteInfo?.TimeZoneAbbr,
                 ["User"] = Context.User.Identity.IsAuthenticated ? await GetUserName(Context.User) : "Operator",
                 ["Role"] = Context.User.Identity.IsAuthenticated ? await GetUserRole(Context.User) : "Operator"
             });
@@ -216,9 +248,6 @@ public class HubServices : Hub
     {
         return await Task.Run(_cameraMarkers.GetAll).ConfigureAwait(false);
     }
-
-    //private Task string? GetUserName(ClaimsPrincipal? user) => user?.Identity?.Name;
-
 
     // worker request for data of connection list
     public async Task<IEnumerable<Connection>> GetConnectionList()

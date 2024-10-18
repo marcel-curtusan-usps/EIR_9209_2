@@ -787,11 +787,13 @@ async function init_connection() {
     try {
         return new Promise((resolve, reject) => {
             createConnectionDataTable(ConnectionListtable);
-            $('button[name=addconnection]').off().on('click', function () {
-                /* close the sidebar */
-                sidebar.close();
-                Promise.all([Add_Connection()]);
-            });
+            if (/^(Admin|OIE)/i.test(appData.Role)) {
+                $('button[name=addconnection]').off().on('click', function () {
+                    /* close the sidebar */
+                    sidebar.close();
+                    Promise.all([Add_Connection()]);
+                });
+            }
             //loading connections
             connection.invoke("GetConnectionList").then(function (data) {
                 if (data.length > 0) {
@@ -812,7 +814,7 @@ async function init_connection() {
     }
 }
 function createConnectionDataTable(table) {
-    let Actioncolumn = true;
+    let Actioncolumn = false;
     let arrayColums = [{
         "name": "",
         "messageType": "",
@@ -895,9 +897,15 @@ function createConnectionDataTable(table) {
                 "width": "20%",
                 "mDataProp": key,
                 "mRender": function (data, type, full) {
-                    Actioncolumn = true;
-                    return '<button class="btn btn-light btn-sm mx-1 pi-iconEdit connectionedit" name="connectionedit"></button>' +
-                        '<button class="btn btn-light btn-sm mx-1 pi-trashFill connectiondelete" name="connectiondelete"></button>'
+                    if (/^(Admin|OIE)/i.test(appData.Role)) {
+                        Actioncolumn = true;
+                        return '<button class="btn btn-light btn-sm mx-1 pi-iconEdit connectionedit" name="connectionedit"></button>' +
+                            '<button class="btn btn-light btn-sm mx-1 pi-trashFill connectiondelete" name="connectiondelete"></button>'
+                    }
+                    else
+                    {
+                        return "";
+                    }
                 }
             }
         }

@@ -47,7 +47,6 @@ connection.on("updateApplicationConfiguration", async (data) => {
     try {
         return new Promise((resolve, reject) => {
             Promise.all([updateAppSettingDataTable(formatdata(data), AppTable)]);
-            Promise.all([init_SiteInformation(data.NassCode)]);
       
             resolve();
             return false;
@@ -60,29 +59,33 @@ async function init_applicationConfiguration() {
     return new Promise((resolve, reject) => {
         try {
             createAppSettingDataTable(AppTable);
-
-            //get data from application configuration controller
-
-            $.ajax({
-                url: SiteURLconstructor(window.location) + '/api/ApplicationConfiguration/AllConfiguration',
-
-                type: 'GET',
-                success: function (data) {
-                    Promise.all([init_SiteInformation(data.nassCode)]);
-                    loadAppSettingDatatable(formatdata(data), AppTable);
-                },
-                error: function (error) {
-                    $('span[id=error_apisubmitBtn]').text(error);
-                    $('button[id=apisubmitBtn]').prop('disabled', false);
-                    //console.log(error);
-                },
-                faulure: function (fail) {
-                    console.log(fail);
-                },
-                complete: function (complete) {
-                    //console.log(complete);
-                }
+        
+            ////get data from application configuration controller
+            connection.invoke("GetApplicationConfiguration").then(function (data) {
+                loadAppSettingDatatable(formatdata(data), AppTable);
+            }).catch(function (err) {
+                // handle error
+                console.error(err);
             });
+            //$.ajax({
+            //    url: SiteURLconstructor(window.location) + '/api/ApplicationConfiguration/AllConfiguration',
+
+            //    type: 'GET',
+            //    success: function (data) {
+            //        loadAppSettingDatatable(formatdata(data), AppTable);
+            //    },
+            //    error: function (error) {
+            //        $('span[id=error_apisubmitBtn]').text(error);
+            //        $('button[id=apisubmitBtn]').prop('disabled', false);
+            //        //console.log(error);
+            //    },
+            //    faulure: function (fail) {
+            //        console.log(fail);
+            //    },
+            //    complete: function (complete) {
+            //        //console.log(complete);
+            //    }
+            //});
             connection.invoke("JoinGroup", "ApplicationConfiguration").catch(function (err) {
                 return console.error(err.toString());
             });
@@ -158,7 +161,7 @@ function Edit_AppSetting_Value(Data) {
                     $('span[id=error_appsettingvalue]').text("Data has been updated");
                     connection.invoke("GetApplicationInfo").then(function (data) {
                         appData = JSON.parse(data);
-                        UpdateOSLattribution(appData);
+                        Promise.all([updateOSLattribution(appData)]);
                     });
                 },
                 error: function (error) {
