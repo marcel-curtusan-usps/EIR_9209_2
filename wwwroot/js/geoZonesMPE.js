@@ -333,7 +333,7 @@ connection.on("updateMPEzoneRunPerformance", async (data) => {
                 fillColor: GetMacineBackground(data),
                 lastOpacity: 0.2
             });
-            if (!$('#sidebar').hasClass('collapsed') && $('div[id=machine_div]').attr("data-id") === data.zoneId) {
+            if ($('div[id=machine_div]').is(':visible') && $('div[id=machine_div]').attr("data-id") === data.zoneId) {
                 Promise.all([loadMachineData(geoZoneMPE._layers[leafletIds].feature.properties, MPETable)]);
             }
         });

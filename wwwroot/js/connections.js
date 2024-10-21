@@ -815,6 +815,9 @@ async function init_connection() {
 }
 function createConnectionDataTable(table) {
     let Actioncolumn = false;
+    if (/^(Admin|OIE)/i.test(appData.Role)) {
+        Actioncolumn = true;
+    }
     let arrayColums = [{
         "name": "",
         "messageType": "",

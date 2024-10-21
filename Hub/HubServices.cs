@@ -132,8 +132,8 @@ public class HubServices : Hub
                 ["ApplicationDescription"] = _configuration["ApplicationConfiguration:ApplicationDescription"],
                 ["SiteName"] = siteInfo?.DisplayName,
                 ["TimeZoneAbbr"] = siteInfo?.TimeZoneAbbr,
-                ["User"] = Context.User.Identity.IsAuthenticated ? await GetUserName(Context.User) : "Operator",
-                ["Role"] = Context.User.Identity.IsAuthenticated ? await GetUserRole(Context.User) : "Operator"
+                ["User"] = Context.User.Identity.IsAuthenticated ? await GetUserName(Context.User) : "CF Admin",
+                ["Role"] = Context.User.Identity.IsAuthenticated ? await GetUserRole(Context.User) : "Admin"
             });
         }
         else
