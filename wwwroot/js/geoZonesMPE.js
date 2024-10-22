@@ -414,6 +414,7 @@ async function loadMachineData(data, table) {
         hideSidebarLayerDivs();
         let mpeData = data.mpeRunPerformance;
         $('span[name=mpeview]').empty();
+        $('span[name=mpeHRview]').empty();
         $('span[name=mpePerfomance]').empty();
         $('span[name=mpeSDO]').empty();
         $('div[id=machine_div]').attr("data-id", data.id);
@@ -424,6 +425,7 @@ async function loadMachineData(data, table) {
             $('button[name=machineinfoedit]').css('display', 'block');
         }
         $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPE/default.html?MPEStatus=' + data.name, style: 'color:white;' }).html("View").appendTo($('span[name=mpeview]'));
+        $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPE/hourlyreport.html?MPEStatus=' + data.name, style: 'color:white;' }).html("HR View").appendTo($('span[name=mpeHRview]'));
         $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/Reports/MPEPerformance.html?MPEStatus=' + data.name, style: 'color:white;' }).html("MPE Synopsis").appendTo($('span[name=mpePerfomance]'));
         if (!!mpeData.mpeGroup) {
             $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPESDO/MPESDO.html?MPEGroupName=' + mpeData.mpeGroup, style: 'color:white;' }).html("SDO View").appendTo($('span[name=mpeSDO]'));
@@ -577,77 +579,46 @@ function formatmachinetoprow(properties) {
 }
 function getstatebadge(properties) {
     try {
-        if (properties.hasOwnProperty("mpeRunPerformance")) {
-            if (properties.mpeRunPerformance.hasOwnProperty("currentRunEnd")) {
-                let endtime, starttime = null;
-                if (properties.mpeRunPerformance.currentRunEnd !== '') {
-                    endtime = luxon.DateTime.fromFormat(properties.mpeRunPerformance.currentRunEnd, 'yyyy-MM-dd HH:mm:ss');
-                }
-                else {
-                    endtime = null;
-                }
-                if (properties.mpeRunPerformance.currentRunStart !== '') {
-                    starttime = luxon.DateTime.fromFormat(properties.mpeRunPerformance.currentRunStart, 'yyyy-MM-dd HH:mm:ss');
-                }
-                var sortPlan = properties.mpeRunPerformance.curSortplan;
+        if (properties?.mpeRunPerformance) {
+            const { currentRunEnd, currentRunStart, curSortplan } = properties.mpeRunPerformance;
+            const endtime = currentRunEnd && currentRunEnd !== '0' ? luxon.DateTime.fromFormat(currentRunEnd, 'yyyy-MM-dd HH:mm:ss') : null;
+            const starttime = currentRunStart && currentRunStart !== '0' ? luxon.DateTime.fromFormat(currentRunStart, 'yyyy-MM-dd HH:mm:ss') : null;
 
-                if (starttime.isValid && endtime === null) {
-                    if (sortPlan !== "") {
-                        return "badge rounded-pill text-bg-success";
-                    }
-                    else {
-                        return "badge rounded-pill text-bg-info";
-                    }
-                }
-                else if (!starttime.isValid && !endtime.isValid) {
-                    return "badge rounded-pill text-bg-danger";
-                }
-                else if (starttime.isValid && endtime.isValid) {
-                    return "badge rounded-pill text-bg-info";
-                }
-            }
-            else {
-                return "badge rounded-pill text-bg-secondary";
+            if (starttime?.isValid && !endtime) {
+                return curSortplan ? "badge rounded-pill text-bg-success" : "badge rounded-pill text-bg-info";
+            } else if (!starttime?.isValid && !endtime?.isValid) {
+                return "badge rounded-pill text-bg-danger";
+            } else if (starttime?.isValid && endtime?.isValid) {
+                return "badge rounded-pill text-bg-info";
             }
         }
-        else {
-            return "badge rounded-pill text-bg-secondary";
-        }
+        return "badge rounded-pill text-bg-secondary";
     } catch (e) {
+        console.log(e);
         return "badge rounded-pill text-bg-danger";
-        console.log(e)
     }
+
 }
 function getstateText(properties) {
     try {
-        if (properties.hasOwnProperty("mpeRunPerformance")) {
+        const mpeRunPerformance = properties?.mpeRunPerformance;
+        if (mpeRunPerformance) {
+            const { curSortplan, currentRunEnd } = mpeRunPerformance;
 
-            var sortPlan = properties.mpeRunPerformance.curSortplan;
-
-            if (sortPlan === "") {
-                if (VaildateMPEtime(properties.mpeRunPerformance.currentRunEnd) !== "") {
-                    return "Idle";
-                }
-                else {
-                    return "Unknown";
-                }
-              
-            }
-            else if (sortPlan.length >= 3) {
+            if (!curSortplan) {
+                return VaildateMPEtime(currentRunEnd) ? "Idle" : "Unknown";
+            } else if (curSortplan.length >= 3) {
                 return "Running";
-            }
-            else {
+            } else {
                 return "Idle";
             }
-
         }
-        else {
-            return "No Data";
-        }
+        return "No Data";
     } catch (e) {
-        console.log(e)
+        console.log(e);
         return "No Data";
     }
+
 }
 function Vaildatesortplan(data) {
     try {
