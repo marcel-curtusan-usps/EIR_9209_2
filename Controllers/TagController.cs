@@ -41,7 +41,7 @@ namespace EIR_9209_2.Controllers
             {
                 return BadRequest(ModelState);
             }
-            return Ok( _tags.Get(tagId));
+            return Ok(_tags.Get(tagId));
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace EIR_9209_2.Controllers
                 BadRequest(ModelState);
             }
 
-           var taginfo = await _tags.UpdateTagUIInfo(value);
+            var taginfo = await _tags.UpdateTagUIInfo(value);
 
             return Ok(taginfo);
         }
@@ -139,15 +139,86 @@ namespace EIR_9209_2.Controllers
 
             return Ok();
         }
-        //[HttpGet]
-        //[Route("GetTagTimelineList")]
-        //public async Task<object> GetTagTimelineByEIN(string ein)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return await Task.FromResult(BadRequest(ModelState));
-        //    }
-        //    return _tags.GetTagTimelineList(ein);
-        //}
+        [HttpPost]
+        [Route("UploadTagAssociation")]
+        public async Task<IActionResult> UploadCSV(IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                {
+                    return BadRequest("No file uploaded.");
+                }
+                JArray tagAssociationArray = [];
+                using (var reader = new StreamReader(file.OpenReadStream()))
+                {
+                    //loop through the CSV file and process the data
+                    //this is where you would save the data to the database
+                    //or send it to the front end
+                    //or do whatever you need to do with the data
+                    // Read the CSV file and process the data
+                    var fileContent = await reader.ReadToEndAsync();
+
+                    // Split the file content into lines
+                    var lines = fileContent.Split('\n');
+                    if (lines.Length < 2)
+                    {
+                        return BadRequest("CSV file is empty or does not contain enough data.");
+                    }
+
+                    // Read the header line
+                    var headerLine = lines[0].Replace("\"", "").Replace("\\", "").Trim();
+                    var headers = headerLine.Split(',');
+
+                    // Check if the header contains the required field "type"
+                    if (!headers.Contains("type", StringComparer.OrdinalIgnoreCase))
+                    {
+                        return BadRequest("CSV file does not contain the required 'type' field in the header.");
+                    }
+                    // Check if the header contains the required field "type"
+                    if (!headers.Contains("tagId", StringComparer.OrdinalIgnoreCase))
+                    {
+                        return BadRequest("CSV file does not contain the required 'tagId' field in the header.");
+                    }
+                    // Loop through the lines and process the data
+                    for (int i = 1; i < lines.Length; i++)
+                    {
+                        var line = lines[i];
+
+                        // Skip empty lines
+                        if (string.IsNullOrWhiteSpace(line))
+                        {
+                            continue;
+                        }
+
+                        // Remove quotes and backslashes from the line
+                        var cleanLine = line.Replace("\"", "").Replace("\\", "").Trim();
+
+                        // Split the line into values
+                        var fields = cleanLine.Split(',');
+
+                        // Validate the data from each field
+                        if (fields.Length != headers.Length) // Check the number of fields
+                        {
+                            return BadRequest("Invalid data format");
+                        }
+
+                        // Create a JSON object using the headers as keys
+                        var jsonObject = new JObject();
+                        for (int j = 0; j < headers.Length; j++)
+                        {
+                            jsonObject[headers[j]] = fields[j];
+                        }
+
+                        tagAssociationArray.Add(jsonObject);
+                    }
+                }
+                return Ok(new JObject { ["message"] = "Tag Association data was uploaded successfully." });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

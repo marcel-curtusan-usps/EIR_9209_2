@@ -46,6 +46,7 @@ function initializeOSL() {
     // Load Application Info
     connection.invoke("GetApplicationInfo").then(function (data) {
         appData = JSON.parse(data);
+        Promise.all([setUserProfile()]);
         ianaTimeZone = getIANATimeZone(getPostalTimeZone(data.TimeZoneAbbr));
         Promise.all([updateOSLattribution(appData)]);
         if (/^(Admin|OIE)/i.test(appData.Role)) {
@@ -105,6 +106,15 @@ function showConnectionStatus(message) {
 }
 // Start the connection.
 start();
+async function setUserProfile() {
+    if (!$.isEmptyObject(appData)) {
+        var userid = appData.User;
+        $('#userfullname').text(userid);
+        $('#useremail').text(appData.EmailAddress);
+        $('#userphone').text(appData.Phone);
+        $('#usertitel').text(appData.Role);
+    }
+}
 function checkValue(value) {
     switch (value) {
         case "": return false;

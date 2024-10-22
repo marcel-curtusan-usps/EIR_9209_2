@@ -133,6 +133,8 @@ public class HubServices : Hub
                 ["SiteName"] = siteInfo?.DisplayName,
                 ["TimeZoneAbbr"] = siteInfo?.TimeZoneAbbr,
                 ["User"] = Context.User.Identity.IsAuthenticated ? await GetUserName(Context.User) : "CF Admin",
+                ["EmailAddress"] = Context.User.Identity.IsAuthenticated ? await GetUserEmail(Context.User) : "cf-sels_support@usps.gov",
+                ["Phone"] = Context.User.Identity.IsAuthenticated ? await GetUserPhone(Context.User) : "555-555-1234",
                 ["Role"] = Context.User.Identity.IsAuthenticated ? await GetUserRole(Context.User) : "Admin"
             });
         }
@@ -146,9 +148,25 @@ public class HubServices : Hub
                 ["SiteName"] = siteInfo?.DisplayName,
                 ["TimeZoneAbbr"] = siteInfo?.TimeZoneAbbr,
                 ["User"] = Context.User.Identity.IsAuthenticated ? await GetUserName(Context.User) : "Operator",
+                ["EmailAddress"] = Context.User.Identity.IsAuthenticated ? await GetUserEmail(Context.User) : "",
+                ["Phone"] = Context.User.Identity.IsAuthenticated ? await GetUserPhone(Context.User) : "",
                 ["Role"] = Context.User.Identity.IsAuthenticated ? await GetUserRole(Context.User) : "Operator"
             });
         }
+    }
+
+    private async Task<string> GetUserEmail(ClaimsPrincipal user)
+    {
+        //get the user email from claims
+        var email = user?.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value;
+        return await Task.FromResult(email ?? string.Empty);
+    }
+
+    private async Task<string> GetUserPhone(ClaimsPrincipal user)
+    {
+        //get the user phone from claims
+        var phone = user?.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/phone")?.Value;
+        return await Task.FromResult(phone ?? string.Empty);
     }
 
     private Task<string> GetUserName(ClaimsPrincipal? user)
