@@ -18,5 +18,9 @@
   {
     "outputFile": "wwwroot/Reports/Content/empSchedule.css",
     "inputFile": "wwwroot/Reports/Content/empSchedule.scss"
+  },
+  {
+    "outputFile": "wwwroot/MPE/Content/mpeHourly.css",
+    "inputFile": "wwwroot/MPE/Content/mpeHourly.scss"
   }
 ]
