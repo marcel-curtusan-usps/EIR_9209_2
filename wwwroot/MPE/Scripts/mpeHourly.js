@@ -150,6 +150,7 @@ async function buildDataTable(data) {
 
     const desiredArray = interval.splitBy({ minutes: 60 }).map((d) => d.start);
     colHourcount = desiredArray.length;
+    tourHours = [];
     for (let i = 0; i < colHourcount; i++) {
         let displayHour = desiredArray[i].hour.toString().padStart(2, '0') + ':00';
         tourHours.push(displayHour);
@@ -246,7 +247,7 @@ async function buildDataTable(data) {
             deltadiff = "";
         }
         tabledataDelta["Hour" + i] = deltadiff;
-        tabledataRejectRate["Hour" + i] = rejectrate + ' %';
+        tabledataRejectRate["Hour" + i] = rejectrate + '%';
     }
     tabledataDelta["TourTotal"] = totaldelta;
     let totalrejectrate = 0;
