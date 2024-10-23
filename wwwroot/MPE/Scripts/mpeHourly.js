@@ -130,33 +130,47 @@ mpeHourlyStart();
  */
 function getTour() {
     let curtour = "";
-    let tourstlist = Object.keys(siteTours)
-        .filter(key => /tour1Start|tour2Start|tour3Start/i.test(key))
-        .map(key => siteTours[key].split(":")[0])
-        .sort();
-
+    let tourstlist = [];
+    $.each(siteTours, function (key, value) {
+        if (/tour1Start|tour2Start|tour3Start/i.test(key)) {
+            let tourstart = value.split(":")[0];
+            tourstlist.push(tourstart);
+        }
+    });
+    tourstlist.sort();
     let now = luxon.DateTime.local().setZone(ianaTimeZone);
     let starthour = "";
     let endhour = "";
 
     if (now.hour >= tourstlist[2] || now.hour < tourstlist[0]) {
         curtour = 1;
-        let nowtmp = now.hour < tourstlist[0] ? now.minus({ hours: 24 }) : now.plus({ hours: 24 });
-        starthour = `${nowtmp.year}-${nowtmp.month}-${nowtmp.day} ${siteTours.tour1Start}`;
-        endhour = `${now.year}-${now.month}-${now.day} ${siteTours.tour1End}`;
+        let nowtmp = now;
+        if (nowtmp.hour < tourstlist[0]) {
+            nowtmp = nowtmp.minus({ hours: 24 });
+            starthour = nowtmp.year + '-' + nowtmp.month + '-' + nowtmp.day + ' ' + siteTours.tour1Start;
+            endhour = now.year + '-' + now.month + '-' + now.day + ' ' + siteTours.tour1End;
+        } else if (nowtmp.hour >= tourstlist[2]) {
+            nowtmp = nowtmp.plus({ hours: 24 });
+            starthour = now.year + '-' + now.month + '-' + now.day + ' ' + siteTours.tour1Start;
+            endhour = nowtmp.year + '-' + nowtmp.month + '-' + nowtmp.day + ' ' + siteTours.tour1End;
+        }
     } else if (now.hour < tourstlist[1]) {
         curtour = 2;
-        starthour = `${now.year}-${now.month}-${now.day} ${siteTours.tour2Start}`;
-        endhour = `${now.year}-${now.month}-${now.day} ${siteTours.tour2End}`;
+        //start time
+        starthour = now.year + '-' + now.month + '-' + now.day + ' ' + siteTours.tour2Start;
+        //end time
+        endhour = now.year + '-' + now.month + '-' + now.day + ' ' + siteTours.tour2End;
     } else {
         curtour = 3;
-        starthour = `${now.year}-${now.month}-${now.day} ${siteTours.tour3Start}`;
-        endhour = `${now.year}-${now.month}-${now.day} ${siteTours.tour3End}`;
+        //start time
+        starthour = now.year + '-' + now.month + '-' + now.day + ' ' + siteTours.tour3Start;
+        //end time
+        endhour = now.year + '-' + now.month + '-' + now.day + ' ' + siteTours.tour3End;
     }
-
     MPEhourlyMindate = luxon.DateTime.fromFormat(starthour, 'yyyy-MM-dd hh:mm', { zone: ianaTimeZone });
     MPEhourlyMaxdate = luxon.DateTime.fromFormat(endhour, 'yyyy-MM-dd hh:mm', { zone: ianaTimeZone });
     return curtour;
+}
 }
 /**
  * Capitalizes the first letter of each word in a string.
