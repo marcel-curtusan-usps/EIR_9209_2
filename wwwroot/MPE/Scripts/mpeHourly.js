@@ -171,7 +171,7 @@ function getTour() {
     MPEhourlyMaxdate = luxon.DateTime.fromFormat(endhour, 'yyyy-MM-dd hh:mm', { zone: ianaTimeZone });
     return curtour;
 }
-}
+
 /**
  * Capitalizes the first letter of each word in a string.
  * @param {string} str - The string to capitalize.
