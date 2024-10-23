@@ -122,6 +122,9 @@
 	  <Content Include="OracleQuery\TSA\TSAPrinterUsage.txt">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+		<None Update="web.config">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
