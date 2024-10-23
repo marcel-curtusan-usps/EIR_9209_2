@@ -125,7 +125,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="leaflet" Version="0.7.3" />
 		<PackageReference Include="MailKit" Version="4.8.0" />
 		<PackageReference Include="Mediator.Abstractions" Version="2.1.7" />
 		<PackageReference Include="Mediator.SourceGenerator" Version="2.1.7">

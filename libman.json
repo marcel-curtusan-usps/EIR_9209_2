@@ -107,6 +107,15 @@
     },
     {
       "provider": "cdnjs",
+      "library": "datatables.net@2.1.8",
+      "destination": "wwwroot/lib/datatables.net/",
+      "files": [
+        "dataTables.min.js",
+        "dataTables.js"
+      ]
+    },
+    {
+      "provider": "cdnjs",
       "library": "bootstrap@5.3.3",
       "destination": "wwwroot/lib/bootstrap/",
       "files": [
@@ -146,7 +155,6 @@
         "js/bootstrap.bundle.js.map",
         "js/bootstrap.bundle.min.js",
         "js/bootstrap.bundle.min.js.map",
-        "scss/forms/_form-range.scss",
         "scss/forms/_form-control.scss",
         "scss/forms/_form-check.scss",
         "scss/forms/_floating-labels.scss",
@@ -154,6 +162,7 @@
         "js/bootstrap.js.map",
         "js/bootstrap.min.js",
         "js/bootstrap.min.js.map",
+        "scss/forms/_form-range.scss",
         "scss/forms/_form-select.scss",
         "scss/forms/_form-text.scss",
         "scss/forms/_input-group.scss",
@@ -242,15 +251,6 @@
         "scss/_utilities.scss",
         "scss/_variables-dark.scss",
         "scss/_variables.scss"
-      ]
-    },
-    {
-      "provider": "cdnjs",
-      "library": "datatables.net@2.1.8",
-      "destination": "wwwroot/lib/datatables.net/",
-      "files": [
-        "dataTables.min.js",
-        "dataTables.js"
       ]
     }
   ]
