@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="Content/default.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="card">
+        <div class="card-header header">
+            <h2 id="headerLabel">Kiosk ID:<span id="kisokIdSpan"></span></h2>
+        </div>
+        <div class="card-body text-center" id="landing" style="display:block">
+            <div class="container-fluid p-0 d-flex justify-content-center align-items-center">
+                <div class="welcomeCenter text-center">
+                    <p class="welcomeMessage"> Welcome! </p>
+                    <p class="please"> Please scan your badge </p>
+                    <div class="input-group mb-3">
+                        <label for="encodedId" class="visually-hidden">Encoded ID:</label>
+                        <input type="text" class="form-control encodedId" name="encodedId" id="encodedId" aria-label="Encoded Id">
+                        <button id="submitBtn" type="button" class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+            </div>
+        <div class="card-body" id="root" style="display:none">
+            <div class="kiosk-container">
+                <div class="mainGrid">
+                    <div class="row">
+                        <div class="col">
+                            <div class="topBar">
+                                <div class="component" id="profile">
+                                    <p class="prof-id"></p>
+                                    <i class="bi-person"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="col">
+                                <div class="component" id="schedule-box">
+                                    <h2>TACS Log</h2>
+                                    <div class="row" id="labels">
+                                        <div style="flex: 1 1 0%;">
+                                            <p>Op Code</p>
+                                        </div>
+                                        <div style="flex: 1 1 0%;">
+                                            <p>Event</p>
+                                        </div>
+                                        <div style="flex: 1 1 0%;">
+                                            <p>Date &amp; Time</p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3>Error</h3>
+                                        <p>An error occurred</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="Keypad-parent">
+                                <div class="display"></div>
+                                <div class="component" id="keypad">
+                                    <button>1</button>
+                                    <button>2</button>
+                                    <button>3</button>
+                                    <button>4</button>
+                                    <button>5</button>
+                                    <button>6</button>
+                                    <button>7</button>
+                                    <button>8</button>
+                                    <button>9</button>
+                                    <button>0</button>
+                                    <button>←</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="component" id="topCodesContainer">
+                                <button class="topCodeButton">000</button>
+                                <button class="topCodeButton">123</button>
+                                <button class="topCodeButton">555</button>
+                                <button class="topCodeButton">789</button>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="flexContainer">
+                                <div class="component" id="button-container">
+                                    <button type="button" class="clockButtons" id="bt">Begin Tour (BT)</button>
+                                    <button type="button" class="clockButtons" id="ol">Out to Lunch (OL)</button>
+                                    <button type="button" class="clockButtons" id="il">In from Lunch (IL)</button>
+                                    <button type="button" class="clockButtons" id="et">End Tour (ET)</button>
+                                    <button type="button" class="clockButtons" id="mv">Move (MV)</button>
+                                    <div id="cancel-container">
+                                        <button type="button" class="clockButtons" id="cancelBtn">Cancel</button>
+                                    </div>
+                                    <div class="confirm-container">
+                                        <button type="button" class="clockButtons" disabled="" id="confirm">Confirm</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="card-footer text-body-secondary footer">
+            <p class="date" id="footerDate">10/23/2024 | 11:15:18 AM</p>
+            <p class="USPS" id="footerLabel">USPS</p>
+        </div>
+    </div>
+    <script src="../lib/jquery/jquery.min.js"></script>
+    <script src="../lib/luxon/luxon.js"></script>
+    <script src="../lib/jquery-validation/jquery.validate.js"></script>
+    <script src="../lib/jquery-validation/additional-methods.js"></script>
+    <script src="../lib/datatables.net/datatables.js"></script>
+    <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script src="../lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="../lib/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="../lib/microsoft/signalr/dist/browser/signalr.js"></script>
+    <script src="../lib/microsoft/signalr-protocol-msgpack/dist/browser/signalr-protocol-msgpack.js"></script>
+    <script src="Scripts/default.js"></script>
+</body>
+</html>

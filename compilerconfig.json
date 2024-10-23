@@ -22,5 +22,9 @@
   {
     "outputFile": "wwwroot/MPE/Content/mpeHourly.css",
     "inputFile": "wwwroot/MPE/Content/mpeHourly.scss"
+  },
+  {
+    "outputFile": "wwwroot/CRS/Content/default.css",
+    "inputFile": "wwwroot/CRS/Content/default.scss"
   }
 ]
