@@ -17,6 +17,7 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryEmailRepository _email;
         private readonly IInMemorySiteInfoRepository _siteInfo;
         private readonly IInMemoryEmployeesRepository _employees;
+        private readonly IInMemoryEmployeesSchedule _schedule;
         private readonly IInMemoryCamerasRepository _cameras;
         private readonly IConfiguration _configuration;
         private readonly IInMemoryBackgroundImageRepository _backgroundImage;
@@ -37,7 +38,7 @@ namespace EIR_9209_2.Service
             IConfiguration configuration, 
             IInMemoryBackgroundImageRepository backgroundImage,
             ILoggerService loggerService,
-            IIDS ids)
+            IIDS ids, IInMemoryEmployeesSchedule schedule)
         {
             _logger = logger;
             _hubServices = hubServices;
@@ -54,6 +55,7 @@ namespace EIR_9209_2.Service
             _backgroundImage = backgroundImage;
             _loggerService = loggerService;
             _ids = ids;
+            _schedule = schedule;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -82,7 +84,7 @@ namespace EIR_9209_2.Service
                     endpointService = new QPEEndPointServices(_loggerFactory.CreateLogger<QPEEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _tags, _geoZones, _backgroundImage);
                     break;
                 case "QRE":
-                    endpointService = new QREEndPointServices(_loggerFactory.CreateLogger<QREEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _geoZones, _tags, _employees, _siteInfo);
+                    endpointService = new QREEndPointServices(_loggerFactory.CreateLogger<QREEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _geoZones, _tags, _employees, _schedule, _siteInfo);
                     break;
                 case "MPEWatch":
                     endpointService = new MPEWatchEndPointServices(_loggerFactory.CreateLogger<MPEWatchEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _geoZones);
@@ -103,7 +105,7 @@ namespace EIR_9209_2.Service
                     endpointService = new HCESEndPointServices(_loggerFactory.CreateLogger<HCESEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _siteInfo, _employees);
                     break;
                 case "IVES":
-                    endpointService = new IVESEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _siteInfo, _employees);
+                    endpointService = new IVESEndPointServices(_loggerFactory.CreateLogger<SMSWrapperEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _siteInfo, _employees, _schedule);
                     break;
                 case "CiscoSpaces":
                     endpointService = new CiscoSpacesEndPointServices(_loggerFactory.CreateLogger<CiscoSpacesEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _tags);

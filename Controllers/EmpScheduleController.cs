@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EIR_9209_2.DataStore;
+using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -6,10 +7,11 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EmpScheduleController(ILogger<EmpScheduleController> logger, IInMemoryEmployeesRepository empschRepository) : ControllerBase
+    public class EmpScheduleController(ILogger<EmpScheduleController> logger, IInMemoryEmployeesRepository empschRepository, IInMemoryEmployeesSchedule schedule) : ControllerBase
     {
         private readonly IInMemoryEmployeesRepository _empsch = empschRepository;
         private readonly ILogger<EmpScheduleController> _logger = logger;
+        private readonly IInMemoryEmployeesSchedule _schedule = schedule;
 
         // GET: api/<EmpScheduleController>
         /// <summary>
@@ -27,7 +29,7 @@ namespace EIR_9209_2.Controllers
                 {
                     return await Task.FromResult(BadRequest(ModelState));
                 }
-                return await _empsch.GetEmployeesForPayWeek(payWeek);
+                return await _schedule.GetEmployeesForPayWeek(payWeek);
             }
             catch (Exception e)
             {
@@ -51,7 +53,7 @@ namespace EIR_9209_2.Controllers
                 {
                     return await Task.FromResult(BadRequest(ModelState));
                 }
-                return await _empsch.GetPayWeeks();
+                return await _schedule.GetPayWeeks();
             }
             catch (Exception e)
             {

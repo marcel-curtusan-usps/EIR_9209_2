@@ -7,14 +7,17 @@ namespace EIR_9209_2.Service
 {
     public class IVESEndPointServices : BaseEndpointService
     {
-        private readonly IInMemoryEmployeesRepository _empSchedules;
+        private readonly IInMemoryEmployeesRepository _emp;
+        private readonly IInMemoryEmployeesSchedule _schedules;
         private readonly IInMemorySiteInfoRepository _siteInfo;
 
-        public IVESEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemorySiteInfoRepository siteInfo, IInMemoryEmployeesRepository empSchedules)
+        public IVESEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemorySiteInfoRepository siteInfo, IInMemoryEmployeesRepository emp, IInMemoryEmployeesSchedule empSchedules)
             : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
             _siteInfo = siteInfo;
-            _empSchedules = empSchedules;
+            _emp = emp;
+            _schedules = empSchedules;
+
         }
 
         protected override async Task FetchDataFromEndpoint(CancellationToken stoppingToken)
@@ -59,7 +62,7 @@ namespace EIR_9209_2.Service
             {
                 if (_endpointConfig.MessageType == "getEmpSchedule")
                 {
-                  _empSchedules.RunEmpScheduleReport();
+                  _schedules.RunEmpScheduleReport();
                 }
             }
         }
@@ -69,7 +72,7 @@ namespace EIR_9209_2.Service
             {
                 if (result is not null && ((JObject)result).ContainsKey("DATA"))
                 {
-                    await Task.Run(() => _empSchedules.LoadEmployees(result), stoppingToken).ConfigureAwait(false);
+                    await Task.Run(() => _emp.LoadEmployees(result), stoppingToken).ConfigureAwait(false);
                 }
             }
             catch (Exception e)
@@ -83,7 +86,7 @@ namespace EIR_9209_2.Service
             {
                 if (result is not null && ((JObject)result).ContainsKey("DATA"))
                 {
-                    await Task.Run(() => _empSchedules.LoadEmpSchedule(result), stoppingToken).ConfigureAwait(false); 
+                    await Task.Run(() => _schedules.LoadEmpSchedule(result), stoppingToken).ConfigureAwait(false); 
                 }
             }
             catch (Exception e)

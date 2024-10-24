@@ -21,6 +21,7 @@ namespace EIR_9209_2.Utilities
         private readonly IInMemoryEmployeesRepository _employees;
         private readonly IInMemoryCamerasRepository _cameras;
         private readonly IFileService _fileService;
+        private readonly IInMemoryEmployeesSchedule _schedule;
         private readonly Worker _worker;
 
         public ResetApplication(ILogger<ResetApplication> logger, 
@@ -34,6 +35,7 @@ namespace EIR_9209_2.Utilities
             IInMemoryEmployeesRepository employees,
             IInMemoryCamerasRepository cameras,
             IFileService fileService,
+            IInMemoryEmployeesSchedule schedule,
             Worker worker)
         {
             _logger = logger;
@@ -48,6 +50,7 @@ namespace EIR_9209_2.Utilities
             _employees = employees;
             _worker = worker;
             _fileService = fileService;
+            _schedule = schedule;
         }
 
         public async Task<bool> GetNewSiteInfo(string? newNassCode)
@@ -113,6 +116,7 @@ namespace EIR_9209_2.Utilities
                     var clearEmails = await _email.ResetEmailsList();
                     var clearSiteInfo = await _siteInfo.ResetSiteInfoList();
                     var clearEmployees = await _employees.ResetEmployeesList();
+                    var clearSchedule = await _schedule.ResetScheduleList();
                     var clearCameras = await _cameras.ResetCamerasList();
                     return true;
                 }

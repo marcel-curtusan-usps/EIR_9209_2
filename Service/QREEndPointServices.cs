@@ -7,15 +7,17 @@ namespace EIR_9209_2.Service
     {
         private readonly IInMemoryGeoZonesRepository _zones;
         private readonly IInMemoryTagsRepository _tags;
-        private readonly IInMemoryEmployeesRepository _empSchedules;
+        private readonly IInMemoryEmployeesRepository _emp;
         private readonly IInMemorySiteInfoRepository _siteInfo;
+        private readonly IInMemoryEmployeesSchedule _schedules;
 
-        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryGeoZonesRepository zones, IInMemoryTagsRepository tags, IInMemoryEmployeesRepository empSchedules, IInMemorySiteInfoRepository siteInfo)
+        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryGeoZonesRepository zones, IInMemoryTagsRepository tags, IInMemoryEmployeesRepository emp, IInMemoryEmployeesSchedule schedule , IInMemorySiteInfoRepository siteInfo)
             : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
             _zones = zones;
             _tags = tags;
-            _empSchedules = empSchedules;
+            _emp = emp;
+            _schedules = schedule;
             _siteInfo = siteInfo;
         }
 
@@ -131,7 +133,7 @@ namespace EIR_9209_2.Service
                                 _tags.AddTagTimeline(hour, newValue);
 
                             }
-                            _ = Task.Run(() => _empSchedules.RunEmpScheduleReport());
+                            _ = Task.Run(() => _schedules.RunEmpScheduleReport());
                         }
                     }
                 }
@@ -157,7 +159,7 @@ namespace EIR_9209_2.Service
                 //run employee schedule report
                 if (_endpointConfig.MessageType == "TAG_TIMELINE")
                 {
-                    _ = Task.Run(() => _empSchedules.RunEmpScheduleReport());
+                    _ = Task.Run(() => _schedules.RunEmpScheduleReport());
                 }
             }
         }
