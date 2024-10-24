@@ -6,6 +6,7 @@ let ianaTimeZone = "";
 let MPEName = "";
 let TourNumber = "";
 let tourHours = [];
+let mpeTartgets = {};
 let MPEhourlyMaxdate = null;
 let MPEhourlyMindate = null;
 let colHourcount = 0;
@@ -64,6 +65,7 @@ async function mpeHourlyStart() {
 function initializeMpeHourly() {
     try {
         // Start the connection
+        $('label[id=mpeName]').text(MPEName);
         mpeHourlyConnection.invoke("GetApplicationInfo").then(function (data) {
             appData = JSON.parse(data);
             //if data is not null
@@ -76,15 +78,25 @@ function initializeMpeHourly() {
         }).catch(function (err) {
             console.error("Error loading application info: ", err);
         });
-        mpeHourlyConnection.invoke("GetGeoZoneMPEData", MPEName).then(function (mpeData) {
-            if (mpeData) {
-                $('label[id=mpeName]').text(mpeData.mpeId);
-                Promise.all([buildDataTable(mpeData)]);
+        mpeHourlyConnection.invoke("GetMPETargets", MPEName).then((mpeTargetsData) => {
+            if (mpeTargetsData) {
+                mpeTartgets = mpeTargetsData;
             }
-          
+
+        }).then(() => {
+            mpeHourlyConnection.invoke("GetGeoZoneMPEData", MPEName).then((mpeData) => {
+                if (mpeData) {
+
+                    Promise.all([buildDataTable(mpeData)]);
+                }
+
+            }).catch(function (err) {
+                console.error("Error Fetching data for MPE " + MPEName, err);
+            });
         }).catch(function (err) {
             console.error("Error Fetching data for MPE " + MPEName, err);
         });
+
 
         mpeHourlyConnection.invoke("JoinGroup", "MPE").then(function (data) {
             console.log("Connected to Group:", "MPEZones");

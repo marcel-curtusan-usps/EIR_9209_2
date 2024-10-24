@@ -17,6 +17,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     private readonly ConcurrentDictionary<DateTime, List<AreaDwell>> _QREAreaDwellResults = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPERunActivity = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPEStandard = new();
+    private readonly ConcurrentDictionary<string, TargetHourlyData> _MPETargets = new();
     private readonly List<string> _MPENameList = [];
     private readonly List<string> _DockDoorList = [];
     private readonly List<string> _BullpenList = [];
@@ -28,6 +29,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     protected readonly IHubContext<HubServices> _hubServices;
     private readonly string fileName = "Zone.json";
     private readonly string fileNameDockDoor = "ZonesDockDoor.json";
+    private readonly string fileNameMpeTarge = "MPETargets.json";
     public InMemoryGeoZonesRepository(ILogger<InMemoryGeoZonesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices,IInMemorySiteInfoRepository siteInfo)
     {
         _fileService = fileService;
@@ -39,8 +41,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         LoadDataFromFile().Wait();
         // Load data from the first file into the first collection
         LoadDockDoorDataFromFile().Wait();
-
+        // Load data from the first file into the first collection
+        LoadMPETargeteDataFromFile().Wait();
     }
+
+
+
     public async Task<GeoZone?> Add(GeoZone geoZone)
     {
         bool saveToFile = false;
@@ -584,6 +590,49 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     _geoZoneDockDoorList.TryAdd(item.Properties.DoorNumber, item);
                 }
                 
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            // Handle the FileNotFoundException here
+            _logger.LogError($"File not found: {ex.FileName}");
+            // You can choose to throw an exception or take any other appropriate action
+        }
+        catch (IOException ex)
+        {
+            // Handle errors when reading the file
+            _logger.LogError($"An error occurred when reading the file: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            // Handle errors when parsing the JSON
+            _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
+        }
+    }
+
+    private async Task LoadMPETargeteDataFromFile()
+    {
+
+        try
+        {
+            // Read data from file
+            var fileContent = await _fileService.ReadFile(fileNameMpeTarge);
+
+            // Parse the file content to get the data. This depends on the format of your file.
+            // Here's an example if your file was in JSON format and contained an array of T objects:
+            List<TargetHourlyData>? data = JsonConvert.DeserializeObject<List<TargetHourlyData>>(fileContent);
+
+            // Insert the data into the MongoDB collection
+            if (data?.Count > 0)
+            {
+                foreach (TargetHourlyData item in data.Select(r => r).ToList())
+                {
+                    string mpeIdandHour = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.Hour}";
+                    if (!_MPETargets.ContainsKey(mpeIdandHour))
+                    {
+                        _MPETargets.TryAdd(mpeIdandHour, item);
+                    }
+                }
             }
         }
         catch (FileNotFoundException ex)
@@ -1918,4 +1967,140 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             return null;
         }
     }
+    #region
+    public async Task<List<TargetHourlyData>> GetAllMPETragets()
+    {
+        try
+        {
+            return _MPETargets.Select(y => y.Value).ToList();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+    }
+
+    public async Task<List<TargetHourlyData>>? GetMPETargets(string mpeId)
+    {
+        try
+        {
+            return _MPETargets.Where(r => r.Value.MpeId == mpeId).Select(y => y.Value).ToList();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+
+        }
+    }
+
+    public async Task<bool> AddMPETargets(JToken mpeData)
+    {
+        bool saveToFile = false;
+        try
+        {
+            List<TargetHourlyData> targetHourlyDatas = mpeData.ToObject<List<TargetHourlyData>>();
+            if (targetHourlyDatas.Any())
+            {
+                foreach (var item in targetHourlyDatas)
+                {
+                    string mpeIdandHour = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.Hour}";
+                    if (!_MPETargets.ContainsKey(mpeIdandHour))
+                    {
+                        _MPETargets.TryAdd(mpeIdandHour, item);
+                        saveToFile = true;
+                    }
+                    else if(_MPETargets.TryGetValue(mpeIdandHour, out TargetHourlyData current) && _MPETargets.TryUpdate(mpeIdandHour, item, current))
+                    {
+                        saveToFile = true;
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return false;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteConfigurationFile(fileNameMpeTarge, JsonConvert.SerializeObject(_MPETargets.Select(x => x.Value).ToList(), Formatting.Indented));
+            }
+        }
+    }
+
+    public async Task<bool> UpdateMPETargets(JToken mpeData)
+    {
+        bool saveToFile = false;
+        try
+        {
+            List<TargetHourlyData> targetHourlyDatas = mpeData.ToObject<List<TargetHourlyData>>();
+            if (targetHourlyDatas.Any())
+            {
+                foreach (var item in targetHourlyDatas)
+                {
+                    string mpeIdandHour = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.Hour}";
+                    if (_MPETargets.ContainsKey(mpeIdandHour) && _MPETargets.TryGetValue(mpeIdandHour, out TargetHourlyData current) && _MPETargets.TryUpdate(mpeIdandHour, item, current))
+                    {
+                        saveToFile = true;
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return false;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteConfigurationFile(fileNameMpeTarge, JsonConvert.SerializeObject(_MPETargets.Select(x => x.Value).ToList(), Formatting.Indented));
+            }
+        }
+    }
+
+    public async Task<bool> RemoveMPETargets(string mpeData)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (_MPETargets.ContainsKey(mpeData) && _MPETargets.TryRemove(mpeData, out TargetHourlyData deleted))
+            {
+                saveToFile = true;
+                return true;
+            }
+
+            return false;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return false;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteConfigurationFile(fileNameMpeTarge, JsonConvert.SerializeObject(_MPETargets.Select(x => x.Value).ToList(), Formatting.Indented));
+            }
+        }
+    }
+    #endregion
 }

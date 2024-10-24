@@ -120,4 +120,13 @@ namespace EIR_9209_2.Models
         public int Sorted { get; set; } = 0;
         public int Rejected { get; set; } = 0;
     }
+    public class TargetHourlyData
+    {
+        public string MpeType { get; set; } = "";
+        public string MpeNumber { get; set; } = "";
+        public string MpeId { get; set; } = "";
+        public string Hour { get; set; } = "";
+        public int HourlyTargetVol { get; set; } = 0;
+        public double HourlyRejectRatePercent { get; set; } = 0;
+    }
 }

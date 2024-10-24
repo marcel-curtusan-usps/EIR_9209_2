@@ -256,6 +256,11 @@ public class HubServices : Hub
     {
         return await _geoZones.GetGeoZoneMPEPerformanceData(zoneName);
     }
+    public async Task<List<TargetHourlyData>> GetMPETargets( string mpe)
+    {
+        return await _geoZones.GetMPETargets(mpe);
+    }
+
     public async Task<IEnumerable<GeoZoneDockDoor>> GetDockDoorGeoZones()
     {
         return await _geoZones.GetDockDoor();

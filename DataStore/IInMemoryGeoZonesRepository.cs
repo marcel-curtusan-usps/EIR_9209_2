@@ -37,4 +37,11 @@ public interface IInMemoryGeoZonesRepository
     Task<bool> SetupGeoZoneData();
     Task<bool> ProcessQPEGeoZone(List<CoordinateSystem> coordinateSystems, CancellationToken stoppingToken);
     Task<MPERunPerformance> GetGeoZoneMPEPerformanceData(string zoneName);
+    #region
+    Task<List<TargetHourlyData>> GetAllMPETragets();
+    Task<List<TargetHourlyData>> GetMPETargets(string mpeId);
+    Task<bool> AddMPETargets(JToken mpeData);
+    Task<bool> UpdateMPETargets(JToken mpeData);
+    Task<bool> RemoveMPETargets(string mpeData);
+    #endregion
 }
