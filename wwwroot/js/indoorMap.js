@@ -52,6 +52,7 @@ sidebar.on('content', function (ev) {
             break;
     }
 }).addTo(OSLmap);
+
 // Add Layer Popover - Proposed
 let layersControl = L.control.layers(baseLayers, overlayMaps, {
     sortLayers: true,

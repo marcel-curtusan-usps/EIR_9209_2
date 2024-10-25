@@ -19,7 +19,7 @@ namespace EIR_9209_2.Controllers
 
         // GET: api/<MpeTragetsController>
         [HttpGet]
-        [Route("GetAllMPETarges")]
+        [Route("AllMPETarges")]
         public async Task<object> Get()
         {
             try
@@ -38,10 +38,15 @@ namespace EIR_9209_2.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <returns></returns>
         // GET api/<MpeTragetsController>/5
         [HttpGet]
-        [Route("GetByMPE")]
-        public async Task<object> GetByMPE(string mpeId)
+        [Route("MPETargets")]
+        public async Task<object> GetByMPE(string Name)
         {
             try
             {
@@ -50,7 +55,7 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                return await _geoZone.GetMPETargets(mpeId);
+                return await _geoZone.GetMPETargets(Name);
 
             }
             catch (Exception e)

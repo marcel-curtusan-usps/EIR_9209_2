@@ -1,4 +1,8 @@
-﻿const MPETable = "machinetable"
+﻿const MPETable = "machinetable";
+const TargetTable = "mpeTargetstable";
+const StandardTable = "mpestandardtable";
+let MpeTargetTable = [];
+let MpetargetEditor = [] ;
 //on close clear all inputs
 $('#Zone_Modal').on('hidden.bs.modal', function () {
     $(this)
@@ -179,7 +183,7 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
         enablezoneSubmit();
     });
 });
-let mpeStandardTable = "mpestandardtable";
+
 let isMPEZoneRemoved = false;
 let geoZoneMPE = new L.GeoJSON(null, {
     style: function (feature) {
@@ -196,11 +200,11 @@ let geoZoneMPE = new L.GeoJSON(null, {
 
         layer.zoneId = feature.properties.id;
         layer.on('click', function (e) {
-                OSLmap.setView(e.sourceTarget.getCenter(), 3);
+            OSLmap.setView(e.sourceTarget.getCenter(), 3);
             Promise.all([loadMachineData(feature.properties, MPETable)]);
 
-            });
-        
+        });
+
         layer.bindTooltip(feature.properties.name + "<br/>" + "Staffing: " + (feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0"), {
             permanent: true,
             interactive: true,
@@ -235,7 +239,9 @@ async function init_geoZoneMPE() {
     return new Promise((resolve, _reject) => {
         try {
             //int mpe standard table 
-            creatMpeStandardDataTable(mpeStandardTable);
+            creatMpeStandardDataTable(StandardTable);
+            // init mpe targets table
+            creteMpeTargetDataTable(TargetTable);
             //load MPE Zones
             connection.invoke("GetGeoZones", "MPE").then(function (data) {
                 for (let i = 0; i < data.length; i++) {
@@ -333,7 +339,7 @@ connection.on("updateMPEzoneRunPerformance", async (data) => {
                 fillColor: GetMacineBackground(data),
                 lastOpacity: 0.2
             });
-            if ($('div[id=machine_div]').is(':visible') && $('div[id=machine_div]').attr("data-id") === data.zoneId) {
+            if ($('div[id=machine_div]').attr("data-id") === data.zoneId) {
                 Promise.all([loadMachineData(geoZoneMPE._layers[leafletIds].feature.properties, MPETable)]);
             }
         });
@@ -826,16 +832,31 @@ async function Edit_Machine_Info(id) {
         $('select[id=machine_zone_select_name]').val(Data.name);
         $('select[id=mpe_group_select]').val(Data.mpeGroup);
 
-      
-
         const mpedata = await $.ajax({
             url: `${SiteURLconstructor(window.location)}/api/MPE/MPEStandard?Name=${MPEwNUMBER}`,
             contentType: 'application/json',
-            type: 'GET'
+            type: 'GET',
+            success: function (data) {
+                $('#' + StandardTable).DataTable().clear().draw();
+                if (data.length > 0) {
+                    updateMpeStandardDataTable(data, StandardTable);
+                }
+            }
         });
-        if (mpedata.length > 0) {
+        
 
-        }
+       await $.ajax({
+            url: `${SiteURLconstructor(window.location)}/api/MPETragets/MPETargets?Name=${MPEwNUMBER}`,
+            contentType: 'application/json',
+            type: 'GET',
+            success: function (data) {
+                $('#' + TargetTable).DataTable().clear().draw();
+                if (data.length > 0) {
+                    updateMpeTargetsDataTable(data, TargetTable);
+                }
+            }
+        });
+     
         if ($('select[name=machine_zone_select_name] option:selected').val() !== '**Machine Not Listed') {
             $('#machine_manual_row').hide();
             $('#machine_select_row').show();
@@ -1084,6 +1105,128 @@ async function Edit_Machine_Info(id) {
 //        throw new Error(e.toString());
 //    }
 //} 
+async function updateMpeTargetsDataTable(newdata, table) {
+    try {
+        return new Promise((resolve, reject) => {
+            let loadnew = true;
+            if ($.fn.dataTable.isDataTable("#" + table)) {
+                $('#' + table).DataTable().rows(function (idx, data, node) {
+                    for (const element of newdata) {
+                        if (data.hour === element.hour) {
+                            loadnew = false;
+                            $('#' + table).DataTable().row(node).data(element).draw().invalidate();
+                        }
+                    }
+                });
+                if (loadnew) {
+                    loadMpeStandardDatatable(newdata, table);
+                }
+            } resolve();
+            return false;
+        });
+    } catch (e) {
+        throw new Error(e.toString());
+    }
+}
+function creteMpeTargetDataTable(table) {
+    try {
+
+    
+
+        let arrayColums = [{
+            "hour": "",
+            "hourlyTargetVol": "",
+            "hourlyRejectRatePercent": ""
+        }];
+        let columns = [];
+        let tempc = {};
+        $.each(arrayColums[0], function (key, value) {
+            tempc = {};
+            if (/mpeId/i.test(key)) {
+                tempc = {
+                    "title": 'Name',
+                    "width": "20%",
+                    "mDataProp": key,
+                }
+            }
+            else if (/^hour$/ig.test(key)) {
+                tempc = {
+                    "title": "Hour",
+                    "width": "20%",
+                    "mDataProp": key
+                }
+            }
+            else if (/hourlyTargetVol/i.test(key)) {
+                tempc = {
+                    "title": "Volume",
+                    "width": "20%",
+                    "mDataProp": key
+                }
+            }
+            else if (/hourlyRejectRatePercent/i.test(key)) {
+                tempc = {
+                    "title": "Reject %",
+                    "width": "20%",
+                    "mDataProp": key
+                }
+            }
+            else {
+                tempc = {
+                    "title": capitalize_Words(key.replace(/\_/, ' ')),
+                    "mDataProp": key
+                }
+            }
+            columns.push(tempc);
+
+        });
+        // Initialize the DataTable
+        MpeTargetTable = $('#' + table).DataTable({
+            dom: 'Bfrtip',
+            select: 'single',
+            responsive: true,
+            altEditor: true,     // Enable altEditor
+            buttons: [{
+                text: 'Add',
+                name: 'add',        // do not change name
+                className:'btn btn-outline-success'
+            },
+
+            {
+                extend: 'selected', // Bind to Selected row
+                text: 'Edit',
+                name: 'edit',        // do not change name
+                className: 'btn btn-outline-secondary'
+            },
+
+            {
+                extend: 'selected', // Bind to Selected row
+                text: 'Delete',
+                name: 'delete',      // do not change name
+                className: 'btn btn-outline-danger'
+            }],
+            bFilter: false,
+            bdeferRender: true,
+            bpaging: false,
+            bPaginate: false,
+            autoWidth: false,
+            bInfo: false,
+            destroy: true,
+            language: {
+                zeroRecords: "No Data"
+            },
+            columnDefs: [],
+            sorting: [[0, "asc"]],
+            aoColumns: columns,
+
+        });
+
+    } catch (e) {
+        console.log("Error fetching machine info: ", e);
+    }
+}
+// Add event listener for opening and closing details
+//  this event gets the value of the 2nd td and assigns it to var row
+
 function creatMpeStandardDataTable(table) {
     let Actioncolumn = true;
     let arrayColums = [{
@@ -1182,7 +1325,6 @@ function creatMpeStandardDataTable(table) {
         }
     });
 }
-
 async function loadMpeStandardDatatable(data, table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {
         $('#' + table).DataTable().rows.add(data).draw();
