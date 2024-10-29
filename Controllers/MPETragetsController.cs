@@ -124,5 +124,26 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(e.Message);
             }
         }
+        // DELETE whole tour api/<MpeTragetsController>/5
+        [HttpPost]
+        [Route("DeleteTour")]
+        public async Task<object> DeleteTour([FromBody] JToken mpeData)
+        {
+            try
+            {
+                //handle bad requests
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                return await _geoZone.RemoveMPETargetsTour(mpeData);
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

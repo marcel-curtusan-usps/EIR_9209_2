@@ -43,5 +43,6 @@ public interface IInMemoryGeoZonesRepository
     Task<bool> AddMPETargets(JToken mpeData);
     Task<bool> UpdateMPETargets(JToken mpeData);
     Task<bool> RemoveMPETargets(string mpeData);
+    Task<bool> RemoveMPETargetsTour(JToken mpeData);
     #endregion
 }

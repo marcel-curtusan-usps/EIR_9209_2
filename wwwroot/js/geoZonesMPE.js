@@ -179,7 +179,9 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
         enablezoneSubmit();
     });
 });
+let MPETargetDataTableList = [];
 let mpeStandardTable = "mpestandardtable";
+let mpeTargetTable = "mpetargettable";
 let isMPEZoneRemoved = false;
 let geoZoneMPE = new L.GeoJSON(null, {
     style: function (feature) {
@@ -235,7 +237,7 @@ async function init_geoZoneMPE() {
     return new Promise((resolve, _reject) => {
         try {
             //int mpe standard table 
-            creatMpeStandardDataTable(mpeStandardTable);
+            //creatMpeStandardDataTable(mpeStandardTable);
             //load MPE Zones
             connection.invoke("GetGeoZones", "MPE").then(function (data) {
                 for (let i = 0; i < data.length; i++) {
@@ -757,7 +759,7 @@ async function getlistofMPE() {
                 console.log(fail);
             },
             complete: function (complete) {
-                console.log(complete);
+                //console.log(complete);
             }
         });
         resolve();
@@ -798,7 +800,7 @@ async function getlistofMPEGroups() {
             console.log(fail);
         },
         complete: function (complete) {
-            console.log(complete);
+            //console.log(complete);
         }
     });
 }
@@ -826,7 +828,9 @@ async function Edit_Machine_Info(id) {
         $('select[id=machine_zone_select_name]').val(Data.name);
         $('select[id=mpe_group_select]').val(Data.mpeGroup);
 
-      
+        $('input[id=targetmpetype]').val(Data.mpeName);
+        $('input[id=targetmpenumber]').val(Data.mpeNumber);
+        $('input[id=targetmpeid]').val(Data.name);
 
         const mpedata = await $.ajax({
             url: `${SiteURLconstructor(window.location)}/api/MPE/MPEStandard?Name=${MPEwNUMBER}`,
@@ -854,6 +858,127 @@ async function Edit_Machine_Info(id) {
     } catch (error) {
         console.error("Error fetching machine info: ", error);
     }
+    displayMPETarget(MPEwNUMBER);
+}
+async function displayMPETarget(mpeid) {
+    const mpedata = await $.ajax({
+        url: `${SiteURLconstructor(window.location)}/api/MPETragets/GetByMPE?MpeId=${mpeid}`,
+        contentType: 'application/json',
+        type: 'GET'
+    });
+    let datacount = {};
+    let datareject = {};
+    if (mpedata.length > 0) {
+        $.each(mpedata, function (key, value) {
+            datacount[value.hour] = value.hourlyTargetVol;
+            datareject[value.hour] = value.hourlyRejectRatePercent;
+        });
+    }
+        let tourlist = [1, 2, 3];
+        for (var touri in tourlist) {
+            let hrdatacnt = 0;
+            let tourhours = getTourHours(tourlist[touri]);
+            
+            let dataArray = [];
+            let dataTarget = {};
+            let dataTargetReject = {};
+            dataTarget = {
+                "order": 1,
+                "Name": "Target Count"
+            }
+            dataTargetReject = {
+                "order": 2,
+                "Name": "Reject Rate Percent"
+            }
+            for (let i = 0; i < tourhours.length; i++) {
+                if (datacount[tourhours[i]]) { hrdatacnt++; }
+                dataTarget["Hour" + i] = datacount[tourhours[i]] ? datacount[tourhours[i]] : '';
+                dataTargetReject["Hour" + i] = datareject[tourhours[i]] ? datareject[tourhours[i]] + '%' : '';
+            }
+            dataArray.push(dataTarget);
+            dataArray.push(dataTargetReject);
+
+            //if (MPETargetDataTableList[mpeTargetTable + tourlist[touri]]) { // Check if DataTable has been previously created and therefore needs to be flushed
+            //    MPETargetDataTableList[mpeTargetTable + tourlist[touri]].destroy(); // destroy the dataTableObject
+            //    // For new version use table.destroy();
+            //    $('#' + mpeTargetTable + tourlist[touri]).DataTable().clear().draw(); // Empty the DOM element which contained DataTable
+            //    // The line above is needed if number of columns change in the Data
+            //}
+            //if (hrdatacnt > 0) {
+                creatMpeTargetDataTable(mpeTargetTable, tourlist[touri], dataArray, tourhours);
+            //}
+        }
+    
+}
+function creatMpeTargetDataTable(table, tournum, data, tourhours) {
+    var columns = [];
+    columns.push({
+        data: 'Name',
+        title: 'Tour ' + tournum,
+        width: '200px'
+    });
+    for (var i in tourhours) {
+        columns.push({
+            data: "Hour" + i,
+            title: tourhours[i],
+            width: '50px'
+        });
+    }
+    MPETargetDataTableList[table + tournum] = $('#' + table + tournum).DataTable({
+        fnInitComplete: function () {
+            if ($(this).find('tbody tr').length <= 1) {
+                $('.odd').hide()
+            }
+        },
+        dom: 'Bfrtip',
+        bFilter: false,
+        bdeferRender: true,
+        paging: false,
+        bPaginate: false,
+        bAutoWidth: true,
+        bInfo: false,
+        destroy: true,
+        sorting: [[data.order, "asc"]],
+        data: data,
+        columns: columns,
+        headerCallback: function headerCallback(thead, data, start, end, display) {
+            $(thead)
+                .find('th')
+                .eq(0)
+                .css({
+                    'text-align': 'center',
+                    'width': '200px'
+                });
+            for (let i = 1; i < thead.childElementCount; i++) {
+                $(thead)
+                    .find('th')
+                    .eq(i)
+                    .css({
+                        'text-align': 'center',
+                        'width': '80px'
+                    });
+            }
+            //for (var i = 1; i <= 7; i++) {
+            //    $(thead)
+            //        .find('th')
+            //        .eq(i + 2)
+            //        .html(weekDates[i]);
+            //}
+        },
+        rowCallback: function (row, data, index) {
+            for (let i = 1; i < row.childElementCount; i++) {
+                $(row).find('td:eq(' + i + ')').css({
+                    'text-align': 'center',
+                    'width': '80px'
+                });
+            }
+            //if (!/Target|Reject/i.test(data.Name)) {
+            //    $(row).find('td').css({
+            //        'text-align': 'center'
+            //    });
+            //}
+        }
+    });
 }
 //async function Edit_Machine_Info(id) {
 //    $('#modalZoneHeader_ID').text('Edit Machine Info');
@@ -970,6 +1095,190 @@ async function Edit_Machine_Info(id) {
 //                        $('#mpestandard_div').html("");
 
 
+$('.targetTour').off().on('click', function () {
+    $("#Zone_Modal").modal('hide');
+    $("#HourlyTarget_Modal").modal('show');
+    $("#modalHourlyTargetHeader_ID").text($('input[id=targetmpeid]').val());
+    let targettour = $(this).data("addtarget");
+
+    //get tour hours
+    let tourhours = getTourHours(targettour);
+
+    $('#targethdlabel').text('Tour ' + targettour);
+    $('#targethdlabel').css('fontWeight', 'bold');
+
+    //get data
+    $.ajax({
+        url: SiteURLconstructor(window.location) + "/api/MPETragets/GetByMPE?MpeId=" + $('input[id=targetmpeid]').val(),
+        contentType: 'application/json',
+        type: 'GET',
+        success: function (mpeTargetData) {
+            const row = document.getElementById('mpetarget_div');
+            row.textContent = "";
+            const row1 = document.getElementById('mpetarget_div1');
+            row1.textContent = "";
+            const row2 = document.getElementById('mpetarget_div2');
+            row2.textContent = "";
+            const hrtemplate = document.querySelector('#mpetarget_hour_template');
+            const cnttemplate = document.querySelector('#mpetarget_count_template');
+            const rejtemplate = document.querySelector('#mpetarget_reject_template');
+            let rowdata = new Array();
+            let rowdata1 = new Array();
+            let rowdata2 = new Array();
+            for (let i = 0; i < tourhours.length; i++) {
+                let curdiv = document.createElement("div");
+                rowdata[i] = hrtemplate.content.cloneNode(true);
+                const clonedElement = rowdata[i].querySelector('.hourtext');
+                clonedElement.id = 'hourtext' + i;
+                clonedElement.textContent = tourhours[i];
+                curdiv.appendChild(rowdata[i]);
+                curdiv.classList.add('col-1');
+                row.appendChild(curdiv);
+
+                curdiv = document.createElement("div");
+                rowdata1[i] = cnttemplate.content.cloneNode(true);
+                const hourid = rowdata1[i].getElementById("targethourid");
+                hourid.id = 'hour' + i;
+                $.each(mpeTargetData, function (key, value) {
+                    if (value.hour==tourhours[i]) {
+                        hourid.value = value.hourlyTargetVol;
+                    }
+                });
+                curdiv.appendChild(rowdata1[i]);
+                curdiv.classList.add('col-1');
+                row1.appendChild(curdiv);
+
+                curdiv = document.createElement("div");
+                rowdata2[i] = rejtemplate.content.cloneNode(true);
+                const rejectrateid = rowdata2[i].getElementById("rejectratehourid");
+                rejectrateid.id = 'rejecthour' + i;
+                $.each(mpeTargetData, function (key, value) {
+                    if (value.hour==tourhours[i]) {
+                        rejectrateid.value = value.hourlyRejectRatePercent;
+                    }
+                });
+                curdiv.appendChild(rowdata2[i]);
+                curdiv.classList.add('col-1');
+                row2.appendChild(curdiv);
+            }
+        },
+        error: function (error) {
+
+            console.log(error);
+        },
+        faulure: function (fail) {
+            console.log(fail);
+        },
+        complete: function (complete) {
+            console.log(complete);
+        }
+    });
+    addMPETargets(tourhours.length);           
+    deleteMPETargets(tourhours.length);
+});
+
+function addMPETargets(hourcnt) {
+    $('button[id=mpetargetedit]').off().on('click', function () {
+        $('button[id=mpetargetedit]').prop('disabled', true);
+        let arrayObject = [];
+        for (let i = 0; i < hourcnt; i++) {
+            let jsonObject = {
+                mpeType: $('input[id=targetmpetype]').val(),
+                mpeNumber: $('input[id=targetmpenumber]').val(),
+                mpeId: $('input[id=targetmpeid]').val(),
+                hour: $('#hourtext' + i).text(),
+                hourlyTargetVol: $('input[id=hour' + i + ']').val() ? $('input[id=hour' + i + ']').val() : 0,
+                hourlyRejectRatePercent: $('input[id=rejecthour' + i + ']').val() ? $('input[id=rejecthour' + i + ']').val() : 0
+            };
+            arrayObject.push(jsonObject);
+        }
+
+        if (arrayObject.length > 0) {
+            $.ajax({
+                url: SiteURLconstructor(window.location) + '/api/MPETragets/Add',
+                data: JSON.stringify(arrayObject),
+                contentType: 'application/json',
+                type: 'POST',
+                success: function (data) {
+                    setTimeout(function () {
+                        $("#HourlyTarget_Modal").modal('hide');
+                        $('button[id=mpetargetedit]').prop('disabled', false);
+                        $('#mpetarget_div').text('');
+                        $("#Zone_Modal").modal('show');
+                        displayMPETarget($('input[id=targetmpeid]').val());
+                    }, 500);
+                },
+                error: function (error) {
+                    //console.log(error);
+                },
+                failure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    console.log(complete);
+                }
+            });
+        }
+    });
+}
+function deleteMPETargets(hourcnt) {
+    $('button[id=mpetargetdelete]').off().on('click', function () {
+        $('button[id=mpetargetdelete]').prop('disabled', true);
+        let arrayObject = [];
+        for (let i = 0; i < hourcnt; i++) {
+            arrayObject.push($('input[id=targetmpeid]').val() + $('#hourtext' + i).text());
+        }
+
+        if (arrayObject.length > 0) {
+            $.ajax({
+                url: SiteURLconstructor(window.location) + '/api/MPETragets/DeleteTour',
+                data: JSON.stringify(arrayObject),
+                contentType: 'application/json',
+                type: 'POST',
+                success: function (data) {
+                    setTimeout(function () {
+                        $("#HourlyTarget_Modal").modal('hide');
+                        $('button[id=mpetargetdelete]').prop('disabled', false);
+                        $('#mpetarget_div').text('');
+                        $("#Zone_Modal").modal('show');
+                        displayMPETarget($('input[id=targetmpeid]').val());
+                    }, 500);
+                },
+                error: function (error) {
+                    //console.log(error);
+                },
+                failure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    console.log(complete);
+                }
+            });
+        }
+    });
+}
+function getTourHours(tournumber) {
+    const DateTime = luxon.DateTime;
+    const Duration = luxon.Duration;
+    let startTime = siteTours['tour' + tournumber + 'Start'];
+    let endTime = siteTours['tour' + tournumber + 'End'];
+    const interval = "01:00"
+
+    let dtStart = DateTime.fromFormat(startTime, "HH:mm");
+    let dtEnd = DateTime.fromFormat(endTime, "HH:mm");
+    if (dtStart > dtEnd) {
+        dtStart = dtStart.minus({ hours: 24 });
+    }
+    const durationInterval = Duration.fromISOTime(interval);
+
+    let tourhours = [];
+    let i = dtStart;
+    while (i < dtEnd) {
+        tourhours.push(i.toFormat("HH:mm"));
+        i = i.plus(durationInterval);
+    }
+    return tourhours;
+}
 //                        $('input[id=mpestandard_btn]').off().on('click', function () {
 
 //                            //Edit MPE Testing

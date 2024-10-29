@@ -10,6 +10,7 @@
 }
 let DateTime = luxon.DateTime;
 let appData = {};
+let siteTours = [];
 let baselayerid = "";
 let siteInfo = {};
 let ianaTimeZone = "";
@@ -46,6 +47,7 @@ function initializeOSL() {
     // Load Application Info
     connection.invoke("GetApplicationInfo").then(function (data) {
         appData = JSON.parse(data);
+        siteTours = JSON.parse(appData.Tours);
         Promise.all([setUserProfile()]);
         ianaTimeZone = getIANATimeZone(getPostalTimeZone(data.TimeZoneAbbr));
         Promise.all([updateOSLattribution(appData)]);
