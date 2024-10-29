@@ -32,6 +32,7 @@ let OSLmap = L.map('map', {
 
 sidebar.on('content', function (ev) {
     sidebar.options.autopan = false;
+    $('div[id=machine_div]').attr("data-id", "");
     switch (ev.id) {
         case 'autopan':
             break;
@@ -52,6 +53,10 @@ sidebar.on('content', function (ev) {
             break;
     }
 }).addTo(OSLmap);
+sidebar.on('closing', function (e) {
+    // e.id contains the id of the opened panel
+    $('div[id=machine_div]').attr("data-id","");
+})
 
 // Add Layer Popover - Proposed
 let layersControl = L.control.layers(baseLayers, overlayMaps, {

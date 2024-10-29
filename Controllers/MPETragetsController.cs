@@ -77,7 +77,15 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                return await _geoZone.AddMPETargets(mpeData);
+                var response = await _geoZone.AddMPETargets(mpeData);
+                if (response != null)
+                {
+                    return response;
+                }
+                else
+                {
+                    return BadRequest();
+                }
 
             }
             catch (Exception e)
@@ -99,7 +107,16 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                return await _geoZone.UpdateMPETargets(mpeData);
+                 
+                var response = await _geoZone.UpdateMPETargets(mpeData);
+                if (response != null)
+                {
+                    return response;
+                }
+                else
+                {
+                    return BadRequest();
+                }
 
             }
             catch (Exception e)
@@ -111,7 +128,7 @@ namespace EIR_9209_2.Controllers
         // DELETE api/<MpeTragetsController>/5
         [HttpDelete]
         [Route("Delete")]
-        public async Task<object> Delete(string mpeData)
+        public async Task<object> Delete([FromBody] JToken mpeData)
         {
             try
             {
@@ -120,7 +137,15 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                return await _geoZone.RemoveMPETargets(mpeData);
+                var response = await _geoZone.RemoveMPETargets(mpeData);
+                if (response != null)
+                {
+                    return response;
+                }
+                else
+                {
+                    return BadRequest();
+                }
 
             }
             catch (Exception e)

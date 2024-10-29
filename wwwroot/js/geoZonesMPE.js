@@ -2,7 +2,33 @@
 const TargetTable = "mpeTargetstable";
 const StandardTable = "mpestandardtable";
 let MpeTargetTable = [];
-let MpetargetEditor = [] ;
+let MpetargetEditor = [];
+let hoursOptions = {
+    "00:00": "00:00",
+    "01:00": "01:00",
+    "02:00": "02:00",
+    "03:00": "03:00",
+    "04:00": "04:00",
+    "05:00": "05:00",
+    "06:00": "06:00",
+    "07:00": "07:00",
+    "08:00": "08:00",
+    "09:00": "09:00",
+    "10:00": "10:00",
+    "11:00": "11:00",
+    "12:00": "12:00",
+    "13:00": "13:00",
+    "14:00": "14:00",
+    "15:00": "15:00",
+    "16:00": "16:00",
+    "17:00": "17:00",
+    "18:00": "18:00",
+    "19:00": "19:00",
+    "20:00": "20:00",
+    "21:00": "21:00",
+    "22:00": "22:00",
+    "23:00": "23:00",
+};
 //on close clear all inputs
 $('#Zone_Modal').on('hidden.bs.modal', function () {
     $(this)
@@ -44,7 +70,19 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
         else {
             $('select[name=zone_Type]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_zone_Type]').text("");
-}
+        }
+        enablezoneSubmit();
+    });
+    //machine_zone_select_name
+    $('select[name=machine_zone_select_name]').on("change", () => {
+        if ($('select[name=machine_zone_select_name]').val() === "") {
+            $('select[name=machine_zone_select_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_machine_zone_name]').text("Pleas select a Zone");
+        }
+        else {
+            $('select[name=machine_zone_select_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_machine_zone_name]').text("");
+        }
         enablezoneSubmit();
     });
     if ($('select[name=zone_Type]').val() === "") {
@@ -744,7 +782,8 @@ async function getlistofMPE() {
                     $.each(mpedata, function () {
                         $('<option/>').val(this).html(this).appendTo('#machine_zone_select_name');
                     })
-
+                    resolve();
+                    return true;
                 }
                 else {
                     $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
@@ -753,21 +792,25 @@ async function getlistofMPE() {
                     $('#machine_manual_row').css('display', '');
                     $('#machine_select_row').css('display', 'none');
                     $('select[id=machine_zone_select_name]').css('display', 'none');
+                    resolve();
+                    return false;
                 }
+        
             },
             error: function (error) {
 
                 console.log(error);
+                return false;
             },
             faulure: function (fail) {
                 console.log(fail);
+                return false;
             },
             complete: function (complete) {
                 console.log(complete);
+                return false;
             }
         });
-        resolve();
-        return true;
     });
 }
 async function getlistofMPEGroups() {
@@ -814,8 +857,8 @@ async function Edit_Machine_Info(id) {
     $('button[id=machinesubmitBtn]').prop('disabled', true);
     $('#machine_manual_row').css('display', 'none');
     $('#machine_select_row').css('display', 'block');
-    await Promise.all([getlistofMPE(), getlistofMPEGroups()]);
-
+ 
+  
     if (!geoZoneMPE.hasOwnProperty("_layers")) return;
 
     let Data = {};
@@ -824,13 +867,16 @@ async function Edit_Machine_Info(id) {
     try {
         const leafletIds = await findMpeZoneLeafletIds(id);
         Data = geoZoneMPE._layers[leafletIds].feature.properties;
+        await Promise.all([getlistofMPE(), getlistofMPEGroups()]).then(() => {
+            $('select[id=machine_zone_select_name]').val(Data.name).trigger('change');
+            $('select[id=mpe_group_select]').val(Data.mpeGroup).trigger('change');
+        });
         if ($.isEmptyObject(Data)) return;
         MPEwNUMBER = Data.name;
         $('input[id=machine_id]').val(Data.id);
         $('input[id=machine_ip]').val(Data.mpeIpAddress);
         $('select[id=zone_Type]').val(Data.type);
-        $('select[id=machine_zone_select_name]').val(Data.name);
-        $('select[id=mpe_group_select]').val(Data.mpeGroup);
+    
 
         const mpedata = await $.ajax({
             url: `${SiteURLconstructor(window.location)}/api/MPE/MPEStandard?Name=${MPEwNUMBER}`,
@@ -852,6 +898,9 @@ async function Edit_Machine_Info(id) {
             success: function (data) {
                 $('#' + TargetTable).DataTable().clear().draw();
                 if (data.length > 0) {
+                    $.each(data, function () {
+                        delete hoursOptions[this.targetHour];
+                    })
                     updateMpeTargetsDataTable(data, TargetTable);
                 }
             }
@@ -1130,11 +1179,8 @@ async function updateMpeTargetsDataTable(newdata, table) {
 }
 function creteMpeTargetDataTable(table) {
     try {
-
-    
-
         let arrayColums = [{
-            "hour": "",
+            "targetHour": "",
             "hourlyTargetVol": "",
             "hourlyRejectRatePercent": ""
         }];
@@ -1142,25 +1188,24 @@ function creteMpeTargetDataTable(table) {
         let tempc = {};
         $.each(arrayColums[0], function (key, value) {
             tempc = {};
-            if (/mpeId/i.test(key)) {
+            if (/^targetHour$/ig.test(key)) {
                 tempc = {
-                    "title": 'Name',
-                    "width": "20%",
-                    "mDataProp": key,
-                }
-            }
-            else if (/^hour$/ig.test(key)) {
-                tempc = {
-                    "title": "Hour",
-                    "width": "20%",
-                    "mDataProp": key
+                    data: "targetHour",
+                    title: "Hour",            
+                    type: "select",
+                    options: hoursOptions,
+                    select2: { width: "100%" },
+                    width: "20%",
+                    render: function (data, type, row, meta) {
+                        return data;
+                    }
                 }
             }
             else if (/hourlyTargetVol/i.test(key)) {
                 tempc = {
                     "title": "Volume",
                     "width": "20%",
-                    "mDataProp": key
+                    "mDataProp": key             
                 }
             }
             else if (/hourlyRejectRatePercent/i.test(key)) {
@@ -1188,22 +1233,89 @@ function creteMpeTargetDataTable(table) {
             buttons: [{
                 text: 'Add',
                 name: 'add',        // do not change name
-                className:'btn btn-outline-success'
+                className: 'btn btn-outline-success'
             },
-
             {
                 extend: 'selected', // Bind to Selected row
                 text: 'Edit',
                 name: 'edit',        // do not change name
                 className: 'btn btn-outline-secondary'
             },
-
             {
                 extend: 'selected', // Bind to Selected row
                 text: 'Delete',
                 name: 'delete',      // do not change name
                 className: 'btn btn-outline-danger'
             }],
+            onAddRow: function (datatable, rowdata, success, error) {
+                if (!$('select[name=machine_zone_select_name] option:selected').val() === "" || $('select[name=machine_zone_select_name] option:selected').val() !== '**Machine Not Listed') {
+                    rowdata.mpeId = $('select[name=machine_zone_select_name] option:selected').val();
+                    let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
+                    rowdata.mpeType = machineName = selectedMachine[0];
+                    rowdata.mpeNumber = machineNumber = selectedMachine[1];
+                }
+                else {
+                    rowdata.mpeType = $('input[type=text][name=machine_name]').val();
+                    rowdata.mpeNumber = $('input[type=text][name=machine_number]').val();
+                    rowdata.mpeId = $('input[type=text][name=machine_name]').val() + "-" + $('input[type=text][name=machine_number]').val();
+                }
+                $.ajax({
+                    // a tipycal url would be / with type='PUT'
+                    url: `${SiteURLconstructor(window.location)}/api/MPETragets/Add`,
+                    contentType: 'application/json-patch+json',
+                    type: 'POST',
+                    data: JSON.stringify(rowdata),
+                    success: success,
+                    error: error
+                });
+            },
+            onDeleteRow: function (datatable, rowdata, success, error) {
+                if (!$('select[name=machine_zone_select_name] option:selected').val() === "" || $('select[name=machine_zone_select_name] option:selected').val() !== '**Machine Not Listed') {
+                    rowdata.mpeId = $('select[name=machine_zone_select_name] option:selected').val();
+                    let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
+                    rowdata.mpeType = machineName = selectedMachine[0];
+                    rowdata.mpeNumber = machineNumber = selectedMachine[1];
+                }
+                else {
+                    rowdata.mpeType = $('input[type=text][name=machine_name]').val();
+                    rowdata.mpeNumber = $('input[type=text][name=machine_number]').val();
+                    rowdata.mpeId = $('input[type=text][name=machine_name]').val() + "-" + $('input[type=text][name=machine_number]').val();
+                }
+                $.ajax({
+                    // a tipycal url would be /{id} with type='DELETE'
+                    url: `${SiteURLconstructor(window.location)}/api/MPETragets/Delete`,
+                    contentType: 'application/json-patch+json',
+                    type: 'DELETE',
+                    data: JSON.stringify(rowdata),
+                    success: success,
+                    error: error
+                });
+            },
+            onEditRow: function (datatable, rowdata, success, error) {
+                if (!$('select[name=machine_zone_select_name] option:selected').val() === "" || $('select[name=machine_zone_select_name] option:selected').val() !== '**Machine Not Listed') {
+                    rowdata.mpeId = $('select[name=machine_zone_select_name] option:selected').val();
+                    let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
+                    rowdata.mpeType = machineName = selectedMachine[0];
+                    rowdata.mpeNumber = machineNumber = selectedMachine[1];
+                }
+                else {
+                    rowdata.mpeType = $('input[type=text][name=machine_name]').val();
+                    rowdata.mpeNumber = $('input[type=text][name=machine_number]').val();
+                    rowdata.mpeId = $('input[type=text][name=machine_name]').val() + "-" + $('input[type=text][name=machine_number]').val();
+                }
+                $.ajax({
+                    // a tipycal url would be /{id} with type='POST'
+                    url: `${SiteURLconstructor(window.location)}/api/MPETragets/Update`,
+                    contentType: 'application/json-patch+json',
+                    type: 'PUT',
+                    data: JSON.stringify(rowdata),
+                    success: success,
+                    error: error,
+                    complete: function (complete) {
+
+                    }
+                });
+            },
             bFilter: false,
             bdeferRender: true,
             bpaging: false,
@@ -1330,6 +1442,29 @@ async function loadMpeStandardDatatable(data, table) {
         $('#' + table).DataTable().rows.add(data).draw();
     }
 }
+async function updateMpeTragetsDataTable(newdata, table) {
+    try {
+        return new Promise((resolve, reject) => {
+            let loadnew = true;
+            if ($.fn.dataTable.isDataTable("#" + table)) {
+                $('#' + table).DataTable().rows(function (idx, data, node) {
+
+                    if (data.id === newdata.id) {
+                        loadnew = false;
+                        $('#' + table).DataTable().row(node).data(newdata).draw().invalidate();
+                    }
+                });
+                if (loadnew) {
+                    loadMpeStandardDatatable([newdata], table);
+                }
+            } resolve();
+            return false;
+        });
+    } catch (e) {
+        throw new Error(e.toString());
+    }
+}
+
 async function updateMpeStandardDataTable(newdata, table) {
     try {
         return new Promise((resolve, reject) => {

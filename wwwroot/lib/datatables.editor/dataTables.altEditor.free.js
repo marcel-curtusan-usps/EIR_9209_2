@@ -189,12 +189,14 @@
                     '<div class="modal-dialog">' +
                     '<div class="modal-content">' +
                     '<div class="modal-header">' +
-                    '<h4 style="padding-top: 1rem;padding-left: 1rem;" class="modal-title"></h4>' +
-                    '<button style="margin: initial;" type="button" class="close close-button" data-dismiss="modal" data-close aria-label="' + this.language.modalClose + '">' +
-                    '<span aria-hidden="true">&times;</span></button>' +
+                        '<div class="col-11">'+
+                            '<h4 style="padding-top: 1rem;padding-left: 1rem;" class="modal-title"></h4>' +
+                        '</div>'+
+                        '<button style="margin: initial;" type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="' + this.language.modalClose + '">' +
+                        '</button>' +
                     '</div>' +
                     '<div class="modal-body">' +
-                    '<p></p>' +
+                        '<p></p>' +
                     '</div>' +
                     '<div class="modal-footer">' +
                     '</div>' +
@@ -494,8 +496,9 @@
                 var formName = 'altEditor-delete-form-' + this.random_id;
                 var selector = this.modal_selector;
                 var fill = function () {
-                    var btns = '<button type="button" data-content="remove" class="btn btn-default button secondary" data-close data-dismiss="modal">' + that.language.modalClose + '</button>' +
-                        '<button type="submit"  data-content="remove" class="btn btn-danger button" id="deleteRowBtn">' + that.language.delete.button + '</button>';
+                    var btns = '<button type="button" data-content="remove" class="btn btn-outline-secondary float-left" data-bs-dismiss="modal">' + that.language.modalClose + '</button>' +
+                    '<div class="col text-center"></div>'+
+                        '<button type="submit"  data-content="remove" class="btn btn-danger float-right" id="deleteRowBtn">' + that.language.delete.button + '</button>';
                     $(selector).find('.modal-title').html(that.language.delete.title);
                     $(selector).find('.modal-body').html(that.language.deleteMessage);
                     $(selector).find('.modal-footer').html(btns);
@@ -742,8 +745,9 @@
                 var selector = this.modal_selector;
                 var fill = function () 
                 {
-                    var btns = '<button type="button" data-content="remove" class="btn btn-default button secondary" data-dismiss="modal" data-close>' + closeCaption + '</button>' 
-                        + '<button type="submit" form="' + formName + '" data-content="remove" class="btn btn-primary button" id="' + buttonClass + '">' + buttonCaption + '</button>';
+                    var btns = '<button type="button" data-content="remove" class="btn btn-outline-secondary float-left" data-bs-dismiss="modal">' + closeCaption + '</button>' +
+                        '<div class="col text-center"></div>' +
+                        '<button type="submit" form="' + formName + '" data-content="remove" class="btn btn-primary float-right" id="' + buttonClass + '">' + buttonCaption + '</button>';
 
                     $(selector).find('.modal-title').html(modalTitle);
                     $(selector).find('.modal-body').html(data);
@@ -872,11 +876,14 @@
                         $(selector + ' .modal-body').append(message);
                     }
 
-                    this.s.dt.rows({
-                        selected : true
-                    }).remove();
-                    this.s.dt.draw('page');
-
+                    //this.s.dt.rows({
+                  
+                    this.s.dt.rows(
+                    function(idx, data, node) {
+                        if (data.id === response.id) {
+                            $('#' + node.parentNode.parentNode.id).DataTable().row(node).remove().draw();
+                        }
+                    });
                     // Disabling submit button
                     $("div"+selector).find("button#addRowBtn").prop('disabled', true);
                     $("div"+selector).find("button#editRowBtn").prop('disabled', true);
@@ -903,8 +910,9 @@
                             '</div>';
                         $(selector + ' .modal-body').append(message);
                     }
+                     this.s.dt.row.add(response).draw(false);
 
-                    this.s.dt.row.add(data).draw(false);
+                  /*  this.s.dt.row.add(data).draw(false);*/
 
                     // Disabling submit button
                     $("div" + selector).find("button#addRowBtn").prop('disabled', true);
@@ -932,9 +940,13 @@
                             '</div>';
                         $(selector + ' .modal-body').append(message);
                     }
-
-                    this.s.dt.row({selected: true}).data(data);
-                    this.s.dt.draw('page');
+               
+                    this.s.dt.rows(
+                        function (idx, data, node) {
+                            if (data.id === response.id) {
+                                $('#' + node.parentNode.parentNode.id).DataTable().row(node).data(response).draw().invalidate();
+                            }
+                        });
 
                     // Disabling submit button
                     $("div" + selector).find("button#addRowBtn").prop('disabled', true);

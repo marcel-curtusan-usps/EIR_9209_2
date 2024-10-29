@@ -1,6 +1,7 @@
 ﻿using EIR_9209_2.DataStore;
 using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
@@ -30,7 +31,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     private readonly string fileName = "Zone.json";
     private readonly string fileNameDockDoor = "ZonesDockDoor.json";
     private readonly string fileNameMpeTarge = "MPETargets.json";
-    public InMemoryGeoZonesRepository(ILogger<InMemoryGeoZonesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices,IInMemorySiteInfoRepository siteInfo)
+    public InMemoryGeoZonesRepository(ILogger<InMemoryGeoZonesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices, IInMemorySiteInfoRepository siteInfo)
     {
         _fileService = fileService;
         _logger = logger;
@@ -123,7 +124,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 {
                     string dockNumber = newgeoZone.Properties.Name.Replace("DockDoor", "");
                     //check if dock number is number 
-                    if (Int32.TryParse(dockNumber,out int doornumber))
+                    if (Int32.TryParse(dockNumber, out int doornumber))
                     {
                         newgeoZone.Properties.DoorNumber = doornumber.ToString();
                     }
@@ -188,7 +189,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
         }
     }
-  
+
     public Task<GeoZoneDockDoor> UpdateDockDoor(GeoZoneDockDoor geoZone)
     {
         throw new NotImplementedException();
@@ -198,7 +199,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         bool saveToFile = false;
         try
         {
-            if (_geoZoneList.ContainsKey(NewGeoZoneProperties.Id) &&  _geoZoneList.TryGetValue(NewGeoZoneProperties.Id, out GeoZone? currentGeoZone))
+            if (_geoZoneList.ContainsKey(NewGeoZoneProperties.Id) && _geoZoneList.TryGetValue(NewGeoZoneProperties.Id, out GeoZone? currentGeoZone))
             {
                 if (currentGeoZone.Properties.Name != NewGeoZoneProperties.Name)
                 {
@@ -339,7 +340,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             {
                 savetoFile = true;
             }
-         
+
         }
         catch (Exception e)
         {
@@ -359,7 +360,8 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         bool savetoFile = false;
         try
         {
-            if (_QREAreaDwellResults.TryAdd(hour, newValue)) {
+            if (_QREAreaDwellResults.TryAdd(hour, newValue))
+            {
                 savetoFile = true;
             }
         }
@@ -589,7 +591,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     }
                     _geoZoneDockDoorList.TryAdd(item.Properties.DoorNumber, item);
                 }
-                
+
             }
         }
         catch (FileNotFoundException ex)
@@ -627,7 +629,8 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             {
                 foreach (TargetHourlyData item in data.Select(r => r).ToList())
                 {
-                    string mpeIdandHour = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.Hour}";
+                    string mpeIdandHour = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.TargetHour}";
+                    item.Id = mpeIdandHour;
                     if (!_MPETargets.ContainsKey(mpeIdandHour))
                     {
                         _MPETargets.TryAdd(mpeIdandHour, item);
@@ -715,7 +718,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
         }
         catch (Exception e)
-        { 
+        {
             // Handle the exception
             Console.WriteLine($"An error occurred: {e.Message}");
             _logger.LogError(e.Message);
@@ -723,7 +726,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
 
 
-       
+
     }
 
     public async Task<bool> UpdateMPERunInfo(List<MPERunPerformance> mpeList, CancellationToken stoppingToken)
@@ -902,9 +905,10 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             _logger.LogError(e.Message);
             return await Task.FromResult(false);
         }
-        finally {
+        finally
+        {
             _ = Task.Run(() => RunMPESummaryReport()).ConfigureAwait(false);
-        } 
+        }
     }
 
     private void BinFullProcess(string mpeId, string status, string fullBins)
@@ -1068,7 +1072,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                         await _hubServices.Clients.Group(geoZone.Properties.Type).SendAsync($"update{geoZone.Properties.Type}zoneRunPerformance", geoZone.Properties.MPERunPerformance);
                     }
                 }
-           
+
             }
             else
             {
@@ -1415,7 +1419,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         catch (Exception e)
         {
             _logger.LogError($"Error loading MPE Plan data {e.Message}");
-    
+
         }
         finally
         {
@@ -1443,7 +1447,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     }
     public async Task<object> GetMPEGroupList(string type)
     {
-        return await Task.Run(() => _geoZoneList.Where(r => r.Value.Properties.Type.StartsWith(type) && !string.IsNullOrEmpty(r.Value.Properties.MpeGroup)).Select(y => y.Value.Properties.MpeGroup).ToList()).ConfigureAwait(false); 
+        return await Task.Run(() => _geoZoneList.Where(r => r.Value.Properties.Type.StartsWith(type) && !string.IsNullOrEmpty(r.Value.Properties.MpeGroup)).Select(y => y.Value.Properties.MpeGroup).ToList()).ConfigureAwait(false);
     }
 
     //public List<TagTimeline> GetTagTimelineList(string ein)
@@ -1499,14 +1503,15 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             // Ensure result is a JArray
             if (result is JArray resultArray)
-            { 
+            {
                 // Define the regex pattern to match the door number
                 var regex = new Regex(@"\d+");
                 // Convert to list and sort by doorNumber
                 var sortedItems = resultArray
                     .OfType<JObject>()
                     .Where(item => item.ContainsKey("doorNumber"))
-                    .OrderBy(item => {
+                    .OrderBy(item =>
+                    {
                         var doorNumber = item["doorNumber"].ToString();
                         return Regex.IsMatch(doorNumber, @"^\d+$") ? int.Parse(doorNumber) : int.MaxValue;
                     })
@@ -1521,10 +1526,11 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     }
                     bool updateDockDoorUI = false;
                     string doorNumber = item["doorNumber"].ToString();
-                    if (!_DockDoorList.Contains(doorNumber)) {
+                    if (!_DockDoorList.Contains(doorNumber))
+                    {
                         _DockDoorList.Add(doorNumber);
                     }
-                    var DockDoorZone = _geoZoneDockDoorList.Where(r => r.Value.Properties.Type == "DockDoor" && r.Value.Properties.DoorNumber == doorNumber.PadLeft(3,'0')).Select(y => y.Value).FirstOrDefault();
+                    var DockDoorZone = _geoZoneDockDoorList.Where(r => r.Value.Properties.Type == "DockDoor" && r.Value.Properties.DoorNumber == doorNumber.PadLeft(3, '0')).Select(y => y.Value).FirstOrDefault();
                     if (DockDoorZone != null)
                     {
                         if (item.ContainsKey("routeTripId"))
@@ -1559,7 +1565,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
         }
 
-   
+
     }
     private bool UpdateGeoZoneProperties(JObject item, GeoZoneDockDoor geoZone)
     {
@@ -1677,7 +1683,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             _logger.LogError(e.Message);
             return DateTime.MinValue;
         }
-     
+
     }
     private int GetTripMin(DateTime tripDtm)
     {
@@ -1696,7 +1702,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     {
         try
         {
-           return _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
+            return _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
         }
         catch (Exception e)
         {
@@ -1706,7 +1712,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 
     }
 
-    public async Task<IEnumerable<GeoZone>>  GetGeoZone(string zoneType)
+    public async Task<IEnumerable<GeoZone>> GetGeoZone(string zoneType)
     {
         try
         {
@@ -1786,7 +1792,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                             var TempGeometry = QuuppaZoneGeometry(zone.polygonData);
                             var geoZone = _geoZoneList.Where(r => r.Value.Properties.Id == zone.id).Select(y => y.Value).FirstOrDefault();
                             var geoZoneDockDoor = _geoZoneDockDoorList.Where(r => r.Value.Properties.Id == zone.id).Select(y => y.Value).FirstOrDefault();
-                            
+
                             if (geoZone != null)
                             {
                                 if (geoZone.Geometry.Coordinates.ToString() != TempGeometry.Coordinates.ToString())
@@ -1935,14 +1941,14 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 
             geometry["coordinates"] = temp;
 
-            return geometry.ToObject<Geometry>();          
+            return geometry.ToObject<Geometry>();
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
             return null;
         }
-       
+
     }
 
     // ...
@@ -1995,39 +2001,43 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async Task<bool> AddMPETargets(JToken mpeData)
+    public async Task<TargetHourlyData> AddMPETargets(JToken mpeData)
     {
         bool saveToFile = false;
         try
         {
-            List<TargetHourlyData> targetHourlyDatas = mpeData.ToObject<List<TargetHourlyData>>();
-            if (targetHourlyDatas.Any())
+            TargetHourlyData targetHourlyDatas = mpeData.ToObject<TargetHourlyData>();
+            if (targetHourlyDatas != null)
             {
-                foreach (var item in targetHourlyDatas)
+                string mpeIdandHour = $"{targetHourlyDatas.MpeType}-{targetHourlyDatas.MpeNumber.ToString().PadLeft(3, '0')}{targetHourlyDatas.TargetHour}";
+                targetHourlyDatas.Id = mpeIdandHour;
+                if (!_MPETargets.ContainsKey(mpeIdandHour))
                 {
-                    string mpeIdandHour = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.Hour}";
-                    if (!_MPETargets.ContainsKey(mpeIdandHour))
-                    {
-                        _MPETargets.TryAdd(mpeIdandHour, item);
-                        saveToFile = true;
-                    }
-                    else if(_MPETargets.TryGetValue(mpeIdandHour, out TargetHourlyData current) && _MPETargets.TryUpdate(mpeIdandHour, item, current))
+                    if (_MPETargets.TryAdd(mpeIdandHour, targetHourlyDatas))
                     {
                         saveToFile = true;
+                        return targetHourlyDatas;
                     }
+
                 }
-                return true;
+                else if (_MPETargets.TryGetValue(mpeIdandHour, out TargetHourlyData current) && _MPETargets.TryUpdate(mpeIdandHour, targetHourlyDatas, current))
+                {
+                    saveToFile = true;
+                    return current;
+                }
+
+                return null;
             }
             else
             {
-                return false;
+                return null;
             }
 
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            return false;
+            return null;
         }
         finally
         {
@@ -2038,34 +2048,32 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async Task<bool> UpdateMPETargets(JToken mpeData)
+    public async Task<TargetHourlyData> UpdateMPETargets(JToken mpeData)
     {
         bool saveToFile = false;
         try
         {
-            List<TargetHourlyData> targetHourlyDatas = mpeData.ToObject<List<TargetHourlyData>>();
-            if (targetHourlyDatas.Any())
+            TargetHourlyData targetHourlyDatas = mpeData.ToObject<TargetHourlyData>();
+            if (targetHourlyDatas != null)
             {
-                foreach (var item in targetHourlyDatas)
+                string mpeIdandHour = $"{targetHourlyDatas.MpeType}-{targetHourlyDatas.MpeNumber.ToString().PadLeft(3, '0')}{targetHourlyDatas.TargetHour}";
+                if (_MPETargets.ContainsKey(mpeIdandHour) && _MPETargets.TryGetValue(mpeIdandHour, out TargetHourlyData current) && _MPETargets.TryUpdate(mpeIdandHour, targetHourlyDatas, current))
                 {
-                    string mpeIdandHour = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.Hour}";
-                    if (_MPETargets.ContainsKey(mpeIdandHour) && _MPETargets.TryGetValue(mpeIdandHour, out TargetHourlyData current) && _MPETargets.TryUpdate(mpeIdandHour, item, current))
-                    {
-                        saveToFile = true;
-                    }
+                    saveToFile = true;
+                    return targetHourlyDatas;
                 }
-                return true;
+                return null;
             }
             else
             {
-                return false;
+                return null;
             }
 
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            return false;
+            return null;
         }
         finally
         {
@@ -2076,23 +2084,35 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async Task<bool> RemoveMPETargets(string mpeData)
+    public async Task<TargetHourlyData> RemoveMPETargets(JToken mpeData)
     {
         bool saveToFile = false;
         try
         {
-            if (_MPETargets.ContainsKey(mpeData) && _MPETargets.TryRemove(mpeData, out TargetHourlyData deleted))
+            List<TargetHourlyData> targetHourlyDatas = mpeData.ToObject<List<TargetHourlyData>>();
+            if (targetHourlyDatas.Any())
             {
-                saveToFile = true;
-                return true;
+                foreach (var item in targetHourlyDatas)
+                {
+                    string mpeIdandHour = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.TargetHour}";
+                    if (_MPETargets.ContainsKey(mpeIdandHour) && _MPETargets.TryRemove(mpeIdandHour, out TargetHourlyData deleted))
+                    {
+                        saveToFile = true;
+                        return deleted;
+                    }
+                }
+                return null;
             }
-
-            return false;
+            else
+            {
+                return null;
+            }
+         
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            return false;
+            return null;
         }
         finally
         {
