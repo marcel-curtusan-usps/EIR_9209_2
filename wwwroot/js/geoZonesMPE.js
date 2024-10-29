@@ -898,9 +898,9 @@ async function Edit_Machine_Info(id) {
             success: function (data) {
                 $('#' + TargetTable).DataTable().clear().draw();
                 if (data.length > 0) {
-                    $.each(data, function () {
-                        delete hoursOptions[this.targetHour];
-                    })
+                    //$.each(data, function () {
+                    //    delete hoursOptions[this.targetHour];
+                    //})
                     updateMpeTargetsDataTable(data, TargetTable);
                 }
             }
@@ -1193,6 +1193,7 @@ function creteMpeTargetDataTable(table) {
                     data: "targetHour",
                     title: "Hour",            
                     type: "select",
+                    disabled: true,
                     options: hoursOptions,
                     select2: { width: "100%" },
                     width: "20%",

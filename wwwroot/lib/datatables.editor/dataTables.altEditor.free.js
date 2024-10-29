@@ -186,13 +186,13 @@
                 this._initLanguage();
 
                 var modal = '<div class="modal fade altEditor-modal reveal" id="' + modal_id + '" tabindex="-1" role="dialog" data-reveal>' +
-                    '<div class="modal-dialog">' +
-                    '<div class="modal-content">' +
+                    '<div class="modal-dialog" style="padding-top: 40px;" >' +
+                    '<div class="modal-content bg-secondary bg-gradient bg-opacity-15 text-white">' +
                     '<div class="modal-header">' +
                         '<div class="col-11">'+
                             '<h4 style="padding-top: 1rem;padding-left: 1rem;" class="modal-title"></h4>' +
                         '</div>'+
-                        '<button style="margin: initial;" type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="' + this.language.modalClose + '">' +
+                        '<button style="margin: initial;" type="button" class="close btn-close " data-bs-dismiss="modal" aria-label="' + this.language.modalClose + '">' +
                         '</button>' +
                     '</div>' +
                     '<div class="modal-body">' +
@@ -496,7 +496,7 @@
                 var formName = 'altEditor-delete-form-' + this.random_id;
                 var selector = this.modal_selector;
                 var fill = function () {
-                    var btns = '<button type="button" data-content="remove" class="btn btn-outline-secondary float-left" data-bs-dismiss="modal">' + that.language.modalClose + '</button>' +
+                    var btns = '<button type="button" data-content="remove" class="btn btn-primary float-left" data-bs-dismiss="modal">' + that.language.modalClose + '</button>' +
                     '<div class="col text-center"></div>'+
                         '<button type="submit"  data-content="remove" class="btn btn-danger float-right" id="deleteRowBtn">' + that.language.delete.button + '</button>';
                     $(selector).find('.modal-title').html(that.language.delete.title);
@@ -745,7 +745,7 @@
                 var selector = this.modal_selector;
                 var fill = function () 
                 {
-                    var btns = '<button type="button" data-content="remove" class="btn btn-outline-secondary float-left" data-bs-dismiss="modal">' + closeCaption + '</button>' +
+                    var btns = '<button type="button" data-content="remove" class="btn btn-primary float-left" data-bs-dismiss="modal">' + closeCaption + '</button>' +
                         '<div class="col text-center"></div>' +
                         '<button type="submit" form="' + formName + '" data-content="remove" class="btn btn-primary float-right" id="' + buttonClass + '">' + buttonCaption + '</button>';
 
@@ -774,6 +774,9 @@
                         // Require select2 plugin
 						 columnDefs[j].select2.dropdownParent = $("#altEditor-modal-" + this.random_id); //fixes focus issue with select2 per #217
                         $(selector).find("select#" + columnDefs[j].name).select2(columnDefs[j].select2);
+                        if (columnDefs[j].disabled) {
+                            $(selector).find("select#" + columnDefs[j].name).prop('disabled', true);
+                        }
                     } 
                     else if (columnDefs[j].datepicker) {
                         // Require jquery-ui
