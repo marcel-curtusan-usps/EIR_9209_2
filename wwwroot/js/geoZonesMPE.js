@@ -15,6 +15,7 @@ $('#Zone_Modal').on('hidden.bs.modal', function () {
         .end()
         .find('input[type=checkbox]')
         .prop('checked', false).change();
+    $('div[id=machine_div]').attr("data-id", "");
 });
 //on open set rules
 $('#Zone_Modal').on('shown.bs.modal', function () {
@@ -349,8 +350,12 @@ connection.on("updateMPEzoneRunPerformance", async (data) => {
                 fillColor: GetMacineBackground(data),
                 lastOpacity: 0.2
             });
-            if ($('div[id=machine_div]').attr("data-id") === data.zoneId) {
-                Promise.all([loadMachineData(geoZoneMPE._layers[leafletIds].feature.properties, MPETable)]);
+
+            // Check if the sidebar with ID 'home' is open
+            if ($('#home').hasClass('active')) {
+                if ($('div[id=machine_div]').attr("data-id") === data.zoneId) {
+                    Promise.all([loadMachineData(geoZoneMPE._layers[leafletIds].feature.properties, MPETable)]);
+                }
             }
         });
 });
@@ -782,46 +787,54 @@ async function getlistofMPE() {
     });
 }
 async function getlistofMPEGroups() {
-    $.ajax({
-        url: SiteURLconstructor(window.location) + '/api/MPE/MPEGroups?Type=MPE',
-        contentType: 'application/json',
-        type: 'GET',
-        success: function (mpeGroupData) {
-            $('select[id=mpe_group_select]').empty();
-            if (mpeGroupData.length > 0) {
-                mpeGroupData.push('');
-                mpeGroupData.sort();
-                mpeGroupData.push('**Group Not Listed');
-                $('#mpegroupname_div').css('display', 'none');
-                $('select[id=mpe_group_select]').css('display', '');
-                $.each(mpeGroupData, function () {
-                    $('<option/>').val(this).html(this).appendTo('#mpe_group_select');
-                })
-               
-            }
-            else {
-                $('<option/>').val("**Group Not Listed").html("**Group Not Listed").appendTo('select[id=mpe_group_select]');
-                $('<option/>').val("").html("").appendTo('select[id=mpe_group_select]');
-                $('select[id=mpe_group_select]').val("");
-                $('#mpegroupname_div').css('display', 'none');
-                /*enableNewGroupName();*/
-            }
-        },
-        error: function (error) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: SiteURLconstructor(window.location) + '/api/MPE/MPEGroups?Type=MPE',
+            contentType: 'application/json',
+            type: 'GET',
+            success: function (mpeGroupData) {
+                $('select[id=mpe_group_select]').empty();
+                if (mpeGroupData.length > 0) {
+                    mpeGroupData.push('');
+                    mpeGroupData.sort();
+                    mpeGroupData.push('**Group Not Listed');
+                    $('#mpegroupname_div').css('display', 'none');
+                    $('select[id=mpe_group_select]').css('display', '');
+                    $.each(mpeGroupData, function () {
+                        $('<option/>').val(this).html(this).appendTo('#mpe_group_select');
+                    })
+                    resolve();
+                    return true;
 
-            console.log(error);
-        },
-        faulure: function (fail) {
-            console.log(fail);
-        },
-        complete: function (complete) {
-            //console.log(complete);
-        }
+                }
+                else {
+                    $('<option/>').val("**Group Not Listed").html("**Group Not Listed").appendTo('select[id=mpe_group_select]');
+                    $('<option/>').val("").html("").appendTo('select[id=mpe_group_select]');
+                    $('select[id=mpe_group_select]').val("");
+                    $('#mpegroupname_div').css('display', 'none');
+                    /*enableNewGroupName();*/
+                    resolve();
+                    return true;
+                }
+            },
+            error: function (error) {
+
+                console.log(error);
+                return false;
+            },
+            faulure: function (fail) {
+                console.log(fail);
+                return false;
+            },
+            complete: function (complete) {
+                //console.log(complete);
+                return false;
+            }
+        });
     });
 }
 async function Edit_Machine_Info(id) {
-    $('#modalZoneHeader_ID').text('Edit Machine Info');
-    sidebar.close('connections');
+   
     $('button[id=machinesubmitBtn]').prop('disabled', true);
     $('#machine_manual_row').css('display', 'none');
     $('#machine_select_row').css('display', 'block');
@@ -835,12 +848,14 @@ async function Edit_Machine_Info(id) {
     try {
         const leafletIds = await findMpeZoneLeafletIds(id);
         Data = geoZoneMPE._layers[leafletIds].feature.properties;
+        $('#modalZoneHeader_ID').text('Edit MPE Setting for: ' + Data.name);
         await Promise.all([getlistofMPE(), getlistofMPEGroups()]).then(() => {
             $('select[id=machine_zone_select_name]').val(Data.name).trigger('change');
             $('select[id=mpe_group_select]').val(Data.mpeGroup).trigger('change');
         });
         if ($.isEmptyObject(Data)) return;
         MPEwNUMBER = Data.name;
+        
         $('input[id=machine_id]').val(Data.id);
         $('input[id=machine_ip]').val(Data.mpeIpAddress);
         $('select[id=zone_Type]').val(Data.type);
@@ -867,9 +882,6 @@ async function Edit_Machine_Info(id) {
             success: function (data) {
                 $('#' + TargetTable).DataTable().clear().draw();
                 if (data.length > 0) {
-                    //$.each(data, function () {
-                    //    delete hoursOptions[this.targetHour];
-                    //})
                     Promise.all([displayMPETarget(data)]);
                 }
             }
@@ -895,44 +907,46 @@ async function Edit_Machine_Info(id) {
 
 }
 async function displayMPETarget(mpedata) {
- 
-    let datacount = {};
-    let datareject = {};
-    if (mpedata.length > 0) {
-        $.each(mpedata, function (key, value) {
-            datacount[value.hour] = value.hourlyTargetVol;
-            datareject[value.hour] = value.hourlyRejectRatePercent;
-        });
-    }
-    let tourlist = [1, 2, 3];
-    for (var touri in tourlist) {
-        let tourhours = getTourHours(tourlist[touri]);
-            
-        let dataArray = [];
-        let dataTarget = {};
-        let dataTargetReject = {};
-        dataTarget = {
-            "order": 1,
-            "Name": "Target Count"
+    return new Promise((resolve, reject) => {
+        let datacount = {};
+        let datareject = {};
+        if (mpedata.length > 0) {
+            $.each(mpedata, function (key, value) {
+                datacount[value.hour] = value.hourlyTargetVol;
+                datareject[value.hour] = value.hourlyRejectRatePercent;
+            });
         }
-        dataTargetReject = {
-            "order": 2,
-            "Name": "Reject Rate Percent"
-        }
-        for (let i = 0; i < tourhours.length; i++) {
-            dataTarget["Hour" + i] = datacount[tourhours[i]] ? datacount[tourhours[i]] : '';
-            dataTargetReject["Hour" + i] = datareject[tourhours[i]] ? datareject[tourhours[i]] + '%' : '';
-        }
-        dataArray.push(dataTarget);
-        dataArray.push(dataTargetReject);
+        let tourlist = [1, 2, 3];
+        for (var touri in tourlist) {
+            let tourhours = getTourHours(tourlist[touri]);
 
-        if (MPETargetDataTableList[mpeTargetTable + tourlist[touri]]) {
-            updateMpeTargetDataTable(dataArray, mpeTargetTable + tourlist[touri]);
-        } else {
-            creatMpeTargetDataTable(mpeTargetTable, tourlist[touri], dataArray, tourhours);
+            let dataArray = [];
+            let dataTarget = {};
+            let dataTargetReject = {};
+            dataTarget = {
+                "order": 1,
+                "Name": "Target Count"
+            }
+            dataTargetReject = {
+                "order": 2,
+                "Name": "Reject Rate Percent"
+            }
+            for (let i = 0; i < tourhours.length; i++) {
+                dataTarget["Hour" + i] = datacount[tourhours[i]] ? datacount[tourhours[i]] : '';
+                dataTargetReject["Hour" + i] = datareject[tourhours[i]] ? datareject[tourhours[i]] + '%' : '';
+            }
+            dataArray.push(dataTarget);
+            dataArray.push(dataTargetReject);
+
+            if (MPETargetDataTableList[mpeTargetTable + tourlist[touri]]) {
+                updateMpeTargetDataTable(dataArray, mpeTargetTable + tourlist[touri]);
+            } else {
+                creatMpeTargetDataTable(mpeTargetTable, tourlist[touri], dataArray, tourhours);
+            }
         }
-    }
-}
+    })
+};
+    
 function creatMpeTargetDataTable(table, tournum, data, tourhours) {
     var columns = [];
     columns.push({

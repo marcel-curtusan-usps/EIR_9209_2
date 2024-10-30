@@ -32,7 +32,6 @@ let OSLmap = L.map('map', {
 
 sidebar.on('content', function (ev) {
     sidebar.options.autopan = false;
-    $('div[id=machine_div]').attr("data-id", "");
     switch (ev.id) {
         case 'autopan':
             break;
