@@ -3,6 +3,7 @@ const TargetTable = "mpeTargetstable";
 const StandardTable = "mpestandardtable";
 let MpeTargetTable = [];
 let MpetargetEditor = [];
+let tourlist = [1, 2, 3];
 let hoursOptions = {
     "00:00": "00:00",
     "01:00": "01:00",
@@ -43,6 +44,7 @@ $('#Zone_Modal').on('hidden.bs.modal', function () {
         .end()
         .find('input[type=checkbox]')
         .prop('checked', false).change();
+    $('div[id=machine_div]').attr("data-id", "");
 });
 //on open set rules
 $('#Zone_Modal').on('shown.bs.modal', function () {
@@ -278,8 +280,15 @@ async function init_geoZoneMPE() {
         try {
             //int mpe standard table 
             creatMpeStandardDataTable(StandardTable);
-            // init mpe targets table
-            creteMpeTargetDataTable(TargetTable);
+
+            for (var touri in tourlist) {
+                let tourhours = getTourHours(tourlist[touri]);
+                creteMpeTargetDataTable(TargetTable + tourlist[touri])
+            }
+            //// init mpe targets table
+            //Promise.all([ ]).then(() => {
+            //    loadMPETargetTourTable();
+            //});
             //load MPE Zones
             connection.invoke("GetGeoZones", "MPE").then(function (data) {
                 for (let i = 0; i < data.length; i++) {
@@ -377,8 +386,11 @@ connection.on("updateMPEzoneRunPerformance", async (data) => {
                 fillColor: GetMacineBackground(data),
                 lastOpacity: 0.2
             });
-            if ($('div[id=machine_div]').attr("data-id") === data.zoneId) {
-                Promise.all([loadMachineData(geoZoneMPE._layers[leafletIds].feature.properties, MPETable)]);
+            // Check if the sidebar with ID 'home' is open
+            if ($('#home').hasClass('active')) {
+                if ($('div[id=machine_div]').attr("data-id") === data.zoneId) {
+                    Promise.all([loadMachineData(geoZoneMPE._layers[leafletIds].feature.properties, MPETable)]);
+                }
             }
         });
 });
@@ -867,6 +879,7 @@ async function Edit_Machine_Info(id) {
     try {
         const leafletIds = await findMpeZoneLeafletIds(id);
         Data = geoZoneMPE._layers[leafletIds].feature.properties;
+        $('#modalZoneHeader_ID').text('Edit MPE Setting for: ' + Data.name);
         await Promise.all([getlistofMPE(), getlistofMPEGroups()]).then(() => {
             $('select[id=machine_zone_select_name]').val(Data.name).trigger('change');
             $('select[id=mpe_group_select]').val(Data.mpeGroup).trigger('change');
@@ -898,9 +911,7 @@ async function Edit_Machine_Info(id) {
             success: function (data) {
                 $('#' + TargetTable).DataTable().clear().draw();
                 if (data.length > 0) {
-                    //$.each(data, function () {
-                    //    delete hoursOptions[this.targetHour];
-                    //})
+                 
                     updateMpeTargetsDataTable(data, TargetTable);
                 }
             }
@@ -1177,8 +1188,9 @@ async function updateMpeTargetsDataTable(newdata, table) {
         throw new Error(e.toString());
     }
 }
-function creteMpeTargetDataTable(table) {
+function creteMpeTargetDataTable(table ) {
     try {
+  
         let arrayColums = [{
             "targetHour": "",
             "hourlyTargetVol": "",
@@ -1225,8 +1237,21 @@ function creteMpeTargetDataTable(table) {
             columns.push(tempc);
 
         });
+
+        columns.push({
+            data: 'Name',
+            title: 'Tour ' + tournum,
+            width: '200px'
+        });
+        for (var i in tourhours) {
+            columns.push({
+                data: "Hour" + i,
+                title: tourhours[i],
+                width: '50px'
+            });
+        }
         // Initialize the DataTable
-        MpeTargetTable = $('#' + table).DataTable({
+      $('#' + table).DataTable({
             dom: 'Bfrtip',
             select: 'single',
             responsive: true,
@@ -1339,7 +1364,32 @@ function creteMpeTargetDataTable(table) {
 }
 // Add event listener for opening and closing details
 //  this event gets the value of the 2nd td and assigns it to var row
+function loadMPETargetTourTable() {
+    let datacount = {};
+    let datareject = {};
+    for (var touri in tourlist) {
+        let tourhours = getTourHours(tourlist[touri]);
 
+        let dataArray = [];
+        let dataTarget = {};
+        let dataTargetReject = {};
+        dataTarget = {
+            "order": 1,
+            "Name": "Target Count"
+        }
+        dataTargetReject = {
+            "order": 2,
+            "Name": "Reject Rate Percent"
+        }
+        for (let i = 0; i < tourhours.length; i++) {
+            dataTarget["Hour" + i] = datacount[tourhours[i]] ? datacount[tourhours[i]] : '';
+            dataTargetReject["Hour" + i] = datareject[tourhours[i]] ? datareject[tourhours[i]] + '%' : '';
+        }
+        dataArray.push(dataTarget);
+        dataArray.push(dataTargetReject);
+        updateMpeTragetsDataTable(dataArray, TargetTable + tourlist[touri]);
+    }
+};
 function creatMpeStandardDataTable(table) {
     let Actioncolumn = true;
     let arrayColums = [{

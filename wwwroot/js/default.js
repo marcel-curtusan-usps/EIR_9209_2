@@ -12,6 +12,7 @@ let DateTime = luxon.DateTime;
 let appData = {};
 let baselayerid = "";
 let siteInfo = {};
+let siteTours = {};
 let ianaTimeZone = "";
 let retryCount = 0;
 const maxRetries = 5;
@@ -46,6 +47,7 @@ function initializeOSL() {
     // Load Application Info
     connection.invoke("GetApplicationInfo").then(function (data) {
         appData = JSON.parse(data);
+        siteTours = JSON.parse(appData.Tours);
         Promise.all([setUserProfile()]);
         ianaTimeZone = getIANATimeZone(getPostalTimeZone(data.TimeZoneAbbr));
         Promise.all([updateOSLattribution(appData)]);
@@ -282,4 +284,26 @@ function isValidGeoJSONGeometry(geometry) {
     }
 
     return true;
+}
+function getTourHours(tournumber) {
+    const DateTime = luxon.DateTime;
+    const Duration = luxon.Duration;
+    let startTime = siteTours['tour' + tournumber + 'Start'];
+    let endTime = siteTours['tour' + tournumber + 'End'];
+    const interval = "01:00"
+
+    let dtStart = DateTime.fromFormat(startTime, "HH:mm");
+    let dtEnd = DateTime.fromFormat(endTime, "HH:mm");
+    if (dtStart > dtEnd) {
+        dtStart = dtStart.minus({ hours: 24 });
+    }
+    const durationInterval = Duration.fromISOTime(interval);
+
+    let tourhours = [];
+    let i = dtStart;
+    while (i < dtEnd) {
+        tourhours.push(i.toFormat("HH:mm"));
+        i = i.plus(durationInterval);
+    }
+    return tourhours;
 }

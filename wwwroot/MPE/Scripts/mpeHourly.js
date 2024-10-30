@@ -87,7 +87,7 @@ function initializeMpeHourly() {
             mpeHourlyConnection.invoke("GetGeoZoneMPEData", MPEName).then((mpeData) => {
                 if (mpeData) {
 
-                    Promise.all([buildDataTable(mpeData)]);
+                    Promise.all([buildDataTable(mpeData, targetdata)]);
                 }
 
             }).catch(function (err) {
