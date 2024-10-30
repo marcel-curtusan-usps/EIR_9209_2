@@ -904,41 +904,34 @@ async function displayMPETarget(mpedata) {
             datareject[value.hour] = value.hourlyRejectRatePercent;
         });
     }
-        let tourlist = [1, 2, 3];
-        for (var touri in tourlist) {
-            let hrdatacnt = 0;
-            let tourhours = getTourHours(tourlist[touri]);
+    let tourlist = [1, 2, 3];
+    for (var touri in tourlist) {
+        let tourhours = getTourHours(tourlist[touri]);
             
-            let dataArray = [];
-            let dataTarget = {};
-            let dataTargetReject = {};
-            dataTarget = {
-                "order": 1,
-                "Name": "Target Count"
-            }
-            dataTargetReject = {
-                "order": 2,
-                "Name": "Reject Rate Percent"
-            }
-            for (let i = 0; i < tourhours.length; i++) {
-                if (datacount[tourhours[i]]) { hrdatacnt++; }
-                dataTarget["Hour" + i] = datacount[tourhours[i]] ? datacount[tourhours[i]] : '';
-                dataTargetReject["Hour" + i] = datareject[tourhours[i]] ? datareject[tourhours[i]] + '%' : '';
-            }
-            dataArray.push(dataTarget);
-            dataArray.push(dataTargetReject);
-
-            //if (MPETargetDataTableList[mpeTargetTable + tourlist[touri]]) { // Check if DataTable has been previously created and therefore needs to be flushed
-            //    MPETargetDataTableList[mpeTargetTable + tourlist[touri]].destroy(); // destroy the dataTableObject
-            //    // For new version use table.destroy();
-            //    $('#' + mpeTargetTable + tourlist[touri]).DataTable().clear().draw(); // Empty the DOM element which contained DataTable
-            //    // The line above is needed if number of columns change in the Data
-            //}
-            //if (hrdatacnt > 0) {
-                creatMpeTargetDataTable(mpeTargetTable, tourlist[touri], dataArray, tourhours);
-            //}
+        let dataArray = [];
+        let dataTarget = {};
+        let dataTargetReject = {};
+        dataTarget = {
+            "order": 1,
+            "Name": "Target Count"
         }
-    
+        dataTargetReject = {
+            "order": 2,
+            "Name": "Reject Rate Percent"
+        }
+        for (let i = 0; i < tourhours.length; i++) {
+            dataTarget["Hour" + i] = datacount[tourhours[i]] ? datacount[tourhours[i]] : '';
+            dataTargetReject["Hour" + i] = datareject[tourhours[i]] ? datareject[tourhours[i]] + '%' : '';
+        }
+        dataArray.push(dataTarget);
+        dataArray.push(dataTargetReject);
+
+        if (MPETargetDataTableList[mpeTargetTable + tourlist[touri]]) {
+            updateMpeTargetDataTable(dataArray, mpeTargetTable + tourlist[touri]);
+        } else {
+            creatMpeTargetDataTable(mpeTargetTable, tourlist[touri], dataArray, tourhours);
+        }
+    }
 }
 function creatMpeTargetDataTable(table, tournum, data, tourhours) {
     var columns = [];
@@ -988,12 +981,6 @@ function creatMpeTargetDataTable(table, tournum, data, tourhours) {
                         'width': '80px'
                     });
             }
-            //for (var i = 1; i <= 7; i++) {
-            //    $(thead)
-            //        .find('th')
-            //        .eq(i + 2)
-            //        .html(weekDates[i]);
-            //}
         },
         rowCallback: function (row, data, index) {
             for (let i = 1; i < row.childElementCount; i++) {
@@ -1002,13 +989,33 @@ function creatMpeTargetDataTable(table, tournum, data, tourhours) {
                     'width': '80px'
                 });
             }
-            //if (!/Target|Reject/i.test(data.Name)) {
-            //    $(row).find('td').css({
-            //        'text-align': 'center'
-            //    });
-            //}
         }
     });
+}
+function loadMpeTargetDataTable(data, table) {
+    if ($.fn.dataTable.isDataTable("#" + table) && !$.isEmptyObject(data)) {
+        /*if (!$.isEmptyObject(data)) {*/
+        $('#' + table).DataTable().rows.add(data).draw();
+        //}
+    }
+}
+function updateMpeTargetDataTable(ldata, table) {
+    let load = true;
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        $('#' + table).DataTable().rows(function (idx, data, node) {
+            load = false;
+            if (ldata.length > 0) {
+                $.each(ldata, function () {
+                    if (data.Name === this.Name) {
+                        $('#' + table).DataTable().row(node).data(this).draw().invalidate();
+                    }
+                })
+            }
+        })
+        if (load) {
+            loadMpeDataTable(ldata, table);
+        }
+    }
 }
 //async function Edit_Machine_Info(id) {
 //    $('#modalZoneHeader_ID').text('Edit Machine Info');
@@ -1124,7 +1131,6 @@ function creatMpeTargetDataTable(table, tournum, data, tourhours) {
 //                        //empty values of the div.
 //                        $('#mpestandard_div').html("");
 
-
 $('.targetTour').off().on('click', function () {
     $("#Zone_Modal").modal('hide');
     $("#HourlyTarget_Modal").modal('show');
@@ -1162,7 +1168,7 @@ $('.targetTour').off().on('click', function () {
                 clonedElement.id = 'hourtext' + i;
                 clonedElement.textContent = tourhours[i];
                 curdiv.appendChild(rowdata[i]);
-                curdiv.classList.add('col-1');
+                curdiv.classList.add('col');
                 row.appendChild(curdiv);
 
                 curdiv = document.createElement("div");
@@ -1175,7 +1181,7 @@ $('.targetTour').off().on('click', function () {
                     }
                 });
                 curdiv.appendChild(rowdata1[i]);
-                curdiv.classList.add('col-1');
+                curdiv.classList.add('col');
                 row1.appendChild(curdiv);
 
                 curdiv = document.createElement("div");
@@ -1188,7 +1194,7 @@ $('.targetTour').off().on('click', function () {
                     }
                 });
                 curdiv.appendChild(rowdata2[i]);
-                curdiv.classList.add('col-1');
+                curdiv.classList.add('col');
                 row2.appendChild(curdiv);
             }
         },
