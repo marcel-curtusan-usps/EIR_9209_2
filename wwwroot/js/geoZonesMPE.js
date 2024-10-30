@@ -1,4 +1,6 @@
 ﻿const MPETable = "machinetable"
+const StandardTable = "mpestandardtable";
+const TargetTable = "mpeTargetstable";
 //on close clear all inputs
 $('#Zone_Modal').on('hidden.bs.modal', function () {
     $(this)
@@ -29,6 +31,18 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
             $('span[id=error_machine_name]').text("");
         }
 
+        enablezoneSubmit();
+    });
+    //machine_zone_select_name
+    $('select[name=machine_zone_select_name]').on("change", () => {
+        if ($('select[name=machine_zone_select_name]').val() === "") {
+            $('select[name=machine_zone_select_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_machine_zone_name]').text("Pleas select a Zone");
+        }
+        else {
+            $('select[name=machine_zone_select_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_machine_zone_name]').text("");
+        }
         enablezoneSubmit();
     });
     //check zone type
@@ -335,7 +349,7 @@ connection.on("updateMPEzoneRunPerformance", async (data) => {
                 fillColor: GetMacineBackground(data),
                 lastOpacity: 0.2
             });
-            if ($('div[id=machine_div]').is(':visible') && $('div[id=machine_div]').attr("data-id") === data.zoneId) {
+            if ($('div[id=machine_div]').attr("data-id") === data.zoneId) {
                 Promise.all([loadMachineData(geoZoneMPE._layers[leafletIds].feature.properties, MPETable)]);
             }
         });
@@ -740,7 +754,8 @@ async function getlistofMPE() {
                     $.each(mpedata, function () {
                         $('<option/>').val(this).html(this).appendTo('#machine_zone_select_name');
                     })
-
+                    resolve();
+                    return true;
                 }
                 else {
                     $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
@@ -749,21 +764,21 @@ async function getlistofMPE() {
                     $('#machine_manual_row').css('display', '');
                     $('#machine_select_row').css('display', 'none');
                     $('select[id=machine_zone_select_name]').css('display', 'none');
+                    resolve();
+                    return true;
                 }
             },
             error: function (error) {
 
                 console.log(error);
+                return false;
             },
             faulure: function (fail) {
                 console.log(fail);
-            },
-            complete: function (complete) {
-                //console.log(complete);
+                return false;
             }
         });
-        resolve();
-        return true;
+ 
     });
 }
 async function getlistofMPEGroups() {
@@ -810,7 +825,7 @@ async function Edit_Machine_Info(id) {
     $('button[id=machinesubmitBtn]').prop('disabled', true);
     $('#machine_manual_row').css('display', 'none');
     $('#machine_select_row').css('display', 'block');
-    await Promise.all([getlistofMPE(), getlistofMPEGroups()]);
+
 
     if (!geoZoneMPE.hasOwnProperty("_layers")) return;
 
@@ -820,13 +835,15 @@ async function Edit_Machine_Info(id) {
     try {
         const leafletIds = await findMpeZoneLeafletIds(id);
         Data = geoZoneMPE._layers[leafletIds].feature.properties;
+        await Promise.all([getlistofMPE(), getlistofMPEGroups()]).then(() => {
+            $('select[id=machine_zone_select_name]').val(Data.name).trigger('change');
+            $('select[id=mpe_group_select]').val(Data.mpeGroup).trigger('change');
+        });
         if ($.isEmptyObject(Data)) return;
         MPEwNUMBER = Data.name;
         $('input[id=machine_id]').val(Data.id);
         $('input[id=machine_ip]').val(Data.mpeIpAddress);
         $('select[id=zone_Type]').val(Data.type);
-        $('select[id=machine_zone_select_name]').val(Data.name);
-        $('select[id=mpe_group_select]').val(Data.mpeGroup);
 
         $('input[id=targetmpetype]').val(Data.mpeName);
         $('input[id=targetmpenumber]').val(Data.mpeNumber);
@@ -835,11 +852,28 @@ async function Edit_Machine_Info(id) {
         const mpedata = await $.ajax({
             url: `${SiteURLconstructor(window.location)}/api/MPE/MPEStandard?Name=${MPEwNUMBER}`,
             contentType: 'application/json',
-            type: 'GET'
+            type: 'GET',
+            success: function (data) {
+                $('#' + StandardTable).DataTable().clear().draw();
+                if (data.length > 0) {
+                    //updateMpeStandardDataTable(data, StandardTable);
+                }
+            }
         });
-        if (mpedata.length > 0) {
-
-        }
+        await $.ajax({
+            url: `${SiteURLconstructor(window.location)}/api/MPETragets/GetByMPE?mpeId=${MPEwNUMBER}`,
+            contentType: 'application/json',
+            type: 'GET',
+            success: function (data) {
+                $('#' + TargetTable).DataTable().clear().draw();
+                if (data.length > 0) {
+                    //$.each(data, function () {
+                    //    delete hoursOptions[this.targetHour];
+                    //})
+                    Promise.all([displayMPETarget(data)]);
+                }
+            }
+        });
         if ($('select[name=machine_zone_select_name] option:selected').val() !== '**Machine Not Listed') {
             $('#machine_manual_row').hide();
             $('#machine_select_row').show();
@@ -858,14 +892,10 @@ async function Edit_Machine_Info(id) {
     } catch (error) {
         console.error("Error fetching machine info: ", error);
     }
-    displayMPETarget(MPEwNUMBER);
+
 }
-async function displayMPETarget(mpeid) {
-    const mpedata = await $.ajax({
-        url: `${SiteURLconstructor(window.location)}/api/MPETragets/GetByMPE?MpeId=${mpeid}`,
-        contentType: 'application/json',
-        type: 'GET'
-    });
+async function displayMPETarget(mpedata) {
+ 
     let datacount = {};
     let datareject = {};
     if (mpedata.length > 0) {
