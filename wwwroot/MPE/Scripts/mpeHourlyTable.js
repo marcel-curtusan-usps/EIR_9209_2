@@ -3,10 +3,10 @@ const MPEHourlyTabel = "mpeHourlytable";
 const MPERejectTabel = "mpeRejecttable";
 mpeHourlyConnection.on("updateMPEzoneRunPerformance", async (data) => {
     if (data.mpeId === MPEName) {
-        Promise.all([buildDataTable(data)]);
+        Promise.all([buildDataTable(data, mpeTartgets)]);
     }
 });
-async function buildDataTable(data) {
+async function buildDataTable(data, targetdata) {
     let curtour = getTour();
     const interval = luxon.Interval.fromDateTimes(
         MPEhourlyMindate,
@@ -27,21 +27,34 @@ async function buildDataTable(data) {
     let tabledataTarget = {};
     tabledataTarget = {
         "order": 1,
-        "Name": "Target",
-        "TourTotal": 29000
+        "Name": "Target"
     }
     let tabledataTargetReject = {};
     tabledataTargetReject = {
         "order": 12,
-        "Name": "Target %",
-        "TourTotal": "4%"
+        "Name": "Target %"
     }
+    let tourtotaltarget = 0;
+    let tourtotalreject = 0;
     for (let i = 0; i < colHourcount; i++) {
-        tabledataTarget["Hour" + i] = 4500;
-        tabledataTargetReject["Hour" + i] = "4%";
+        let found = 0;
+        $.each(targetdata, function (key, value) {
+            if (tourHours[i] == value.targetHour) {
+                found++;
+                tabledataTarget["Hour" + i] = value.hourlyTargetVol;
+                tourtotaltarget += parseInt(value.hourlyTargetVol);
+                tabledataTargetReject["Hour" + i] = value.hourlyRejectRatePercent + '%';
+                tourtotalreject += parseFloat(value.hourlyRejectRatePercent);
+            }
+        });
+        if (found == 0) {
+            tabledataTarget["Hour" + i] = "";
+            tabledataTargetReject["Hour" + i] = "";
+        }
     }
+    tabledataTarget["TourTotal"] = tourtotaltarget;
+    tabledataTargetReject["TourTotal"] = (tourtotalreject / colHourcount).toFixed(2) + '%';
     dataArray.push(tabledataTarget);
-    //rejectArray.push(tabledataTargetReject);
 
     let tabledataObject = {};
     tabledataObject = {
@@ -103,34 +116,39 @@ async function buildDataTable(data) {
     let rejectrate = 0;
     for (let i = 0; i < colHourcount; i++) {
         if (tabledataObject["Hour" + i].toString() != "") {
-            deltadiff = parseInt(tabledataObject["Hour" + i]) - parseInt(tabledataTarget["Hour" + i]);
-            totaldelta += deltadiff;
-            if (parseInt(tabledataObject["Hour" + i]) > 0) {
-                rejectrate = parseInt(tabledataObjectReject["Hour" + i]) / parseInt(tabledataObject["Hour" + i]) * 100;
+            if (tabledataTarget["Hour" + i].toString() != "") {
+                deltadiff = parseInt(tabledataObject["Hour" + i]) - parseInt(tabledataTarget["Hour" + i]);
+                totaldelta += deltadiff;
+            } else {
+                deltadiff = "";
             }
+            if (parseInt(tabledataObject["Hour" + i]) > 0) {
+                rejectrate = (parseInt(tabledataObjectReject["Hour" + i]) / parseInt(tabledataObject["Hour" + i]) * 100).toFixed(2);
+            }
+            tabledataDelta["Hour" + i] = deltadiff;
+            tabledataRejectRate["Hour" + i] = rejectrate + '%';
         } else {
-            deltadiff = "";
+            tabledataDelta["Hour" + i] = "";
+            tabledataRejectRate["Hour" + i] = "";
         }
-        tabledataDelta["Hour" + i] = deltadiff;
-        tabledataRejectRate["Hour" + i] = rejectrate + '%';
     }
     tabledataDelta["TourTotal"] = totaldelta;
     let totalrejectrate = 0;
     if (parseInt(tabledataObject["TourTotal"]) > 0) {
-        totalrejectrate = parseInt(tabledataObjectReject["TourTotal"]) / parseInt(tabledataObject["TourTotal"]) * 100;
+        totalrejectrate = (parseInt(tabledataObjectReject["TourTotal"]) / parseInt(tabledataObject["TourTotal"]) * 100).toFixed(2);
     }
     tabledataRejectRate["TourTotal"] = totalrejectrate + '%';
     dataArray.push(tabledataDelta);
     rejectArray.push(tabledataRejectRate);
-    //if (TourNumber == curtour) {
-    //    updateMpeDataTable("mpeHourlytable", dataArray);
-    //    updateMpeDataTable("mpeRejecttable", rejectArray);
-    //} else {
-    TourNumber = curtour;
-    $('label[id=tourNumber]').text(TourNumber);
-    createMPEDataTable("mpeHourlytable", dataArray);
-    createRejectDataTable("mpeRejecttable", rejectArray);
-    //}
+    if (TourNumber == curtour) {
+        updateMpeDataTable("mpeHourlytable", dataArray);
+        updateMpeDataTable("mpeRejecttable", rejectArray);
+    } else {
+        TourNumber = curtour;
+        $('label[id=tourNumber]').text(TourNumber);
+        createMPEDataTable("mpeHourlytable", dataArray);
+        createRejectDataTable("mpeRejecttable", rejectArray);
+    }
 }
 function createMPEDataTable(table, data) {
     if (MPEDataTableList[table]) { // Check if DataTable has been previously created and therefore needs to be flushed
@@ -189,14 +207,14 @@ function createMPEDataTable(table, data) {
                 for (let i = 0; i < row.childElementCount - 2; i++) {
                     let colname = 'Hour' + i;
                     let colindex = i + 1;
-                    if (parseInt(data[colname]) > 0) {
+                    if (parseInt(data[colname]) >= 0) {
                         $(row).find('td:eq(' + colindex + ')').addClass('green');
                     } else {
                         $(row).find('td:eq(' + colindex + ')').addClass('red');
                     }
                 }
                 let coltindex = row.childElementCount - 1;
-                if (parseInt(data["TourTotal"]) > 0) {
+                if (parseInt(data["TourTotal"]) >= 0) {
                     $(row).find('td:eq(' + coltindex + ')').addClass('green');
                 } else {
                     $(row).find('td:eq(' + coltindex + ')').addClass('red');
@@ -259,13 +277,24 @@ function createRejectDataTable(table, data) {
                 'font-size': 'calc(0.1em + 1.9vw)',
                 'text-align': 'center'
             });
+            if (/Target/i.test(data.Name)) {
+                tgrtrow = data;
+            }
             if (/Actual/i.test(data.Name)) {
-                for (let i = 1; i < row.childElementCount; i++) {
-                    //if (parseInt(data[i]) > 0) {
-                    $(row).find('td:eq(' + i + ')').addClass('green');
-                    //} else {
-                    //    $(row).find('td:eq(' + i + ')').addClass('red');
-                    //}
+                for (let i = 0; i < row.childElementCount - 2; i++) {
+                    let colname = 'Hour' + i;
+                    let colindex = i + 1;
+                    if (tgrtrow[colname] != "" && parseFloat(tgrtrow[colname]) >= parseFloat(data[colname])) {
+                        $(row).find('td:eq(' + colindex + ')').addClass('green');
+                    } else {
+                        $(row).find('td:eq(' + colindex + ')').addClass('red');
+                    }
+                }
+                let coltindex = row.childElementCount - 1;
+                if (parseFloat(tgrtrow["TourTotal"]) >= parseFloat(data["TourTotal"])) {
+                    $(row).find('td:eq(' + coltindex + ')').addClass('green');
+                } else {
+                    $(row).find('td:eq(' + coltindex + ')').addClass('red');
                 }
             }
         }
