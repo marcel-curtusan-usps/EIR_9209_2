@@ -307,3 +307,28 @@ function getTourHours(tournumber) {
     }
     return tourhours;
 }
+function (data) {
+    var currentHighest = 0;
+    for (var row in data) {
+        var hourCount = Object.keys(json.data[row].Schedule).length;
+        if (hourCount > currentHighest) { currentHighest = hourCount; }
+    }
+    var column0 =
+    {  //first column is always the User
+        data: "User",
+        render: function (data, type, full, meta) {
+            return data.firstMidName + ' ' + data.lastName;
+        }
+    };
+    var columns = [];
+    columns[0] = column0;
+    //one column for every week_ending entry.
+    //as many columns as the highest number of week_endings across all the rows.
+    for (var i = 1; i <= currentHighest; i++) {
+        columns[i] =
+        {
+            data: "Schedule[" + i + "].hours"
+        };
+    };
+    return columns;
+}
