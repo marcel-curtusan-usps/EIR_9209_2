@@ -39,7 +39,7 @@ async function buildDataTable(data, targetdata) {
     for (let i = 0; i < colHourcount; i++) {
         let found = 0;
         $.each(targetdata, function (key, value) {
-            if (tourHours[i] == value.hour) {
+            if (tourHours[i] == value.targetHour) {
                 found++;
                 tabledataTarget["Hour" + i] = value.hourlyTargetVol;
                 tourtotaltarget += parseInt(value.hourlyTargetVol);
