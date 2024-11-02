@@ -431,7 +431,7 @@
     </div>
 
     <div class="modal fade" id="Targets_Modal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="Targets_Modal_Label">
-        <div class="modal-dialog modal-lg" style="padding-top: 40px;" >
+        <div class="modal-dialog modal-lg" style="padding-top: 40px;">
             <div class="modal-content bg-secondary bg-gradient bg-opacity-15 text-white">
                 <div class="modal-header">
                     <div class="col">
@@ -466,8 +466,8 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="webEOR_Modal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="OSL_Modal_Label">
-        <div class="modal-dialog modal-xl">
+    <div class="modal fade" id="webEOR_Modal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="webEOR_Modal_Label">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content bg-white">
                 <div class="modal-header">
                     <div class="col-11">
@@ -500,6 +500,48 @@
                     <div class="col text-center"><span class="text-info" id="error_WebEORUploadbtn"></span></div>
                     <button class="btn btn-outline-success float-right" type="button" id="WebEORUploadbtn">Upload</button>
                     <button class="btn btn-primary float-right" type="button" id="WebEORSubmitbtn" style="display: none">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="target_Modal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="target_Modal_Label">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h4 class="modal-title" id="targetmodalHeader_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row" id="targetUploadForm" style="display: none">
+                        <div class="col-6">
+                            <label class="control-label" for="filename">File</label>
+                            <div class="input-group">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="targetfupload" aria-describedby="targetfupload" />
+                                    <label class="custom-file-label" for="targetfupload">Choose file</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-2">
+                        <p class="fw-semibold">Target file Must be formatted with a following headers</p>
+                        <p class="fw-bold">MpeType,MpeNumber,Hour,TargetVolume,TargetReject</p>
+                    </div>
+                    <div class="form-row" style="padding-top: 10px; display: none;" id="targetprogresbarrow">
+                        <div class="col">
+                            <div class="progress">
+                                <div id="targetfile_upload_progressbar" class="progress-bar rogress-bar-striped bg-success" role="progressbar" style="width: 10%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal" aria-label="Close">Close</button>
+                    <div class="col text-center"><span class="text-info" id="error_targetUploadbtn"></span></div>
+                    <button class="btn btn-outline-success float-right" type="button" id="targetUploadbtn">Upload</button>
+                    <button class="btn btn-primary float-right" type="button" id="targetSubmitbtn" style="display: none">Save</button>
                 </div>
             </div>
         </div>
@@ -2728,6 +2770,12 @@
                     </div>
                     <div class="card w-100">
                         <div class="card-header pl-1 d-flex justify-content-between">
+                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Loaded Target Data </h6>
+                            <button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem" name="addTarget">Add</button>
+                        </div>
+                    </div>
+                    <div class="card w-100">
+                        <div class="card-header pl-1 d-flex justify-content-between">
                             <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Connection Type</h6>
                             <button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem" name="addConnectionType" title="Add New Connection Type">Add</button>
                         </div>
@@ -2974,6 +3022,7 @@
     <script src="../js/email.js"></script>
     <script src="../js/dacodetocraftTypes.js"></script>
     <script src="../js/webEORUploads.js"></script>
+    <script src="../js/TargetsUploads.js"></script>
     <script src="../js/osl.js"></script>
     <script src="../js/indoorMap.js"></script>
     <script src="../js/tagsCamera.js"></script>

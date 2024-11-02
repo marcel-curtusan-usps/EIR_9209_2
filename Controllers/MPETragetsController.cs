@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using EIR_9209_2.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Asn1.Pkcs;
+using System.Globalization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -107,7 +110,7 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                 
+
                 var response = await _geoZone.UpdateMPETargets(mpeData);
                 if (response != null)
                 {
@@ -153,6 +156,79 @@ namespace EIR_9209_2.Controllers
                 _logger.LogError(e.Message);
                 return BadRequest(e.Message);
             }
+        }
+        [HttpPost]
+        [Route("UploadTarget")]
+        public async Task<object> UploadTarget([FromForm] IFormFile file)
+        {
+            try
+            {
+                //handle bad requests
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                if (file == null || file.Length == 0)
+                {
+                    return BadRequest("No file uploaded.");
+                }
+                List<TargetHourlyData> targetHourlyDatas = new List<TargetHourlyData>();
+                using (var reader = new StreamReader(file.OpenReadStream()))
+                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                {
+                    csv.Context.RegisterClassMap<TargetHourlyDataMap>();
+                    List<TargetHourly> targetHourly = csv.GetRecords<TargetHourly>().ToList();
+                    foreach (var item in targetHourly)
+                    {
+                        TargetHourlyData targetHourlyData = new TargetHourlyData();
+                        targetHourlyData.MpeType = item.MpeType;
+                        targetHourlyData.MpeNumber = item.MpeNumber;
+                        targetHourlyData.MpeId = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}";
+                        targetHourlyData.Id = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.Hour}";
+                        targetHourlyData.TargetHour = item.Hour;
+                        targetHourlyData.HourlyTargetVol = item.TargetVolume;
+                        targetHourlyData.HourlyRejectRatePercent = item.TargetReject;
+                        targetHourlyDatas.Add(targetHourlyData);
+                    }
+                    var load = await _geoZone.LoadCSVMpeTargets(targetHourlyDatas);
+
+                    if (load == false)
+                    {
+                        return BadRequest(new JObject { ["message"] = "Target data Failed to load data." });
+                    }
+                    else
+                    {
+                        return Ok(new JObject { ["message"] = "Target data was uploaded successfully." });
+                    }
+                }
+               
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
+    }
+
+    internal class TargetHourly
+    {
+        public string MpeType { get; set; }
+        public string MpeNumber { get; set; }
+        public string Hour { get; set; }
+        public int TargetVolume { get; set; }
+        public double TargetReject { get; set; }
+    }
+
+    internal class TargetHourlyDataMap : ClassMap<TargetHourly>
+    {
+        public TargetHourlyDataMap()
+        {
+            Map(m => m.MpeType).Name("MpeType");
+            Map(m => m.MpeNumber).Name("MpeNumber");
+            Map(m => m.Hour).Name("Hour");
+            Map(m => m.TargetVolume).Name("TargetVolume");
+            Map(m => m.TargetReject).Name("TargetReject");
         }
     }
 }

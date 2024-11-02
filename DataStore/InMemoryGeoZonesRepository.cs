@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Asn1.Pkcs;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Linq;
@@ -2127,6 +2128,51 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             _logger.LogError(e.Message);
             return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteConfigurationFile(fileNameMpeTarge, JsonConvert.SerializeObject(_MPETargets.Select(x => x.Value).ToList(), Formatting.Indented));
+            }
+        }
+    }
+
+    public async Task<bool> LoadCSVMpeTargets(List<TargetHourlyData> targetHourly)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (targetHourly != null)
+            {
+                foreach (var targetHourlyDatas in targetHourly)
+                {
+                    if (_MPETargets.ContainsKey(targetHourlyDatas.Id) && _MPETargets.TryGetValue(targetHourlyDatas.Id, out TargetHourlyData current) && _MPETargets.TryUpdate(targetHourlyDatas.Id, targetHourlyDatas, current))
+                    {
+                        saveToFile = true;
+                    }
+                    else
+                    {
+                        if (_MPETargets.TryAdd(targetHourlyDatas.Id, targetHourlyDatas))
+                        {
+                            saveToFile = true;
+                        }
+                    }
+                }
+
+                return saveToFile;
+
+            }
+            else
+            {
+                return saveToFile;
+            }
+
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return false;
         }
         finally
         {
