@@ -80,7 +80,7 @@ namespace EIR_9209_2.Controllers
                 var response = await _geoZone.AddMPETargets(mpeData);
                 if (response != null)
                 {
-                    return response;
+                    return Ok(response);
                 }
                 else
                 {
@@ -111,7 +111,7 @@ namespace EIR_9209_2.Controllers
                 var response = await _geoZone.UpdateMPETargets(mpeData);
                 if (response != null)
                 {
-                    return response;
+                    return Ok(response);
                 }
                 else
                 {
@@ -140,7 +140,7 @@ namespace EIR_9209_2.Controllers
                 var response = await _geoZone.RemoveMPETargets(mpeData);
                 if (response != null)
                 {
-                    return response;
+                    return Ok(response);
                 }
                 else
                 {

@@ -2001,7 +2001,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async Task<TargetHourlyData> AddMPETargets(JToken mpeData)
+    public async Task<List<TargetHourlyData>> AddMPETargets(JToken mpeData)
     {
         bool saveToFile = false;
         try
@@ -2016,14 +2016,14 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     if (_MPETargets.TryAdd(mpeIdandHour, targetHourlyDatas))
                     {
                         saveToFile = true;
-                        return targetHourlyDatas;
+                        return await GetMPETargets(targetHourlyDatas.MpeId);
                     }
 
                 }
                 else if (_MPETargets.TryGetValue(mpeIdandHour, out TargetHourlyData current) && _MPETargets.TryUpdate(mpeIdandHour, targetHourlyDatas, current))
                 {
                     saveToFile = true;
-                    return current;
+                    return await GetMPETargets(targetHourlyDatas.MpeId);
                 }
 
                 return null;
@@ -2048,7 +2048,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async Task<TargetHourlyData> UpdateMPETargets(JToken mpeData)
+    public async Task<List<TargetHourlyData>> UpdateMPETargets(JToken mpeData)
     {
         bool saveToFile = false;
         try
@@ -2057,10 +2057,24 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             if (targetHourlyDatas != null)
             {
                 string mpeIdandHour = $"{targetHourlyDatas.MpeType}-{targetHourlyDatas.MpeNumber.ToString().PadLeft(3, '0')}{targetHourlyDatas.TargetHour}";
+                if (string.IsNullOrEmpty(targetHourlyDatas.Id))
+                {
+                    targetHourlyDatas.Id = mpeIdandHour;
+                }
                 if (_MPETargets.ContainsKey(mpeIdandHour) && _MPETargets.TryGetValue(mpeIdandHour, out TargetHourlyData current) && _MPETargets.TryUpdate(mpeIdandHour, targetHourlyDatas, current))
                 {
                     saveToFile = true;
-                    return targetHourlyDatas;
+                    await _hubServices.Clients.Group("MPETartgets").SendAsync($"updateMPEzoneTartgets", await GetMPETargets(targetHourlyDatas.MpeId));
+                    return await GetMPETargets(targetHourlyDatas.MpeId);
+                }
+                else
+                {
+                    if (_MPETargets.TryAdd(mpeIdandHour, targetHourlyDatas))
+                    {
+                        saveToFile = true;
+                        await _hubServices.Clients.Group("MPETartgets").SendAsync($"updateMPEzoneTartgets", await GetMPETargets(targetHourlyDatas.MpeId));
+                        return await GetMPETargets(targetHourlyDatas.MpeId);
+                    }
                 }
                 return null;
             }

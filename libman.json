@@ -172,11 +172,6 @@
       "provider": "cdnjs",
       "library": "datatables.net-responsive@3.0.3",
       "destination": "wwwroot/lib/datatables.net-responsive/"
-    },
-    {
-      "provider": "cdnjs",
-      "library": "select2@4.0.13",
-      "destination": "wwwroot/lib/datatables.net-select2/"
     }
   ]
 }

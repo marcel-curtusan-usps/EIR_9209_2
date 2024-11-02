@@ -55,7 +55,6 @@ $(function () {
 
 async function mpeViewSignalRstart() {
     try {
-        createMPEDataTable(MPETabel);
         await mpeViewConnection.start();
         console.log("SignalR Connected.");
         retryCount = 0; // Reset retry count on successful connection
@@ -143,11 +142,9 @@ function createMPEDataTable(table) {
 function initializeMpeView() {
     try {
         // Start the connection
-        createMPEDataTable("mpeStatustable");
+        createMPEDataTable(MPETabel);
         mpeViewConnection.invoke("GetApplicationInfo").then(function (data) {
             appData = JSON.parse(data);
-
-            //init_ApplicationConfiguration();
 
         }).catch(function (err) {
             console.error("Error loading application info: ", err);
@@ -159,7 +156,7 @@ function initializeMpeView() {
             $('label[id=mpe_status]').text(MPEStatus(mpeData));
             Promise.all([buildDataTable(mpeData)]);
         }).catch(function (err) {
-            console.error("Error Fetching data for MPE " + MPEName , err);
+            console.error("Error Fetching data for MPE " + MPEName, err);
         });
 
         mpeViewConnection.invoke("JoinGroup", "MPE").then(function (data) {

@@ -163,7 +163,6 @@
 	<ItemGroup>
 		<Folder Include="Properties\PublishProfiles\" />
 		<Folder Include="wwwroot\images\" />
-		<Folder Include="wwwroot\lib\datatables.editor\" />
 	</ItemGroup>
 
 	<ItemGroup>

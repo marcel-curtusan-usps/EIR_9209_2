@@ -286,49 +286,32 @@ function isValidGeoJSONGeometry(geometry) {
     return true;
 }
 function getTourHours(tournumber) {
-    const DateTime = luxon.DateTime;
-    const Duration = luxon.Duration;
-    let startTime = siteTours['tour' + tournumber + 'Start'];
-    let endTime = siteTours['tour' + tournumber + 'End'];
-    const interval = "01:00"
+    if (tournumber) {
+        const DateTime = luxon.DateTime;
+        const Duration = luxon.Duration;
+        let startTime = siteTours['tour' + tournumber + 'Start'];
+        let endTime = siteTours['tour' + tournumber + 'End'];
+        const interval = "01:00"
 
-    let dtStart = DateTime.fromFormat(startTime, "HH:mm");
-    let dtEnd = DateTime.fromFormat(endTime, "HH:mm");
-    if (dtStart > dtEnd) {
-        dtStart = dtStart.minus({ hours: 24 });
-    }
-    const durationInterval = Duration.fromISOTime(interval);
-
-    let tourhours = [];
-    let i = dtStart;
-    while (i < dtEnd) {
-        tourhours.push(i.toFormat("HH:mm"));
-        i = i.plus(durationInterval);
-    }
-    return tourhours;
-}
-function (data) {
-    var currentHighest = 0;
-    for (var row in data) {
-        var hourCount = Object.keys(json.data[row].Schedule).length;
-        if (hourCount > currentHighest) { currentHighest = hourCount; }
-    }
-    var column0 =
-    {  //first column is always the User
-        data: "User",
-        render: function (data, type, full, meta) {
-            return data.firstMidName + ' ' + data.lastName;
+        let dtStart = DateTime.fromFormat(startTime, "HH:mm");
+        let dtEnd = DateTime.fromFormat(endTime, "HH:mm");
+        if (dtStart > dtEnd) {
+            dtStart = dtStart.minus({ hours: 24 });
         }
-    };
-    var columns = [];
-    columns[0] = column0;
-    //one column for every week_ending entry.
-    //as many columns as the highest number of week_endings across all the rows.
-    for (var i = 1; i <= currentHighest; i++) {
-        columns[i] =
-        {
-            data: "Schedule[" + i + "].hours"
-        };
-    };
-    return columns;
+        const durationInterval = Duration.fromISOTime(interval);
+
+        let tourhours = [];
+        let i = dtStart;
+        while (i < dtEnd) {
+            tourhours.push(i.toFormat("HH:mm"));
+            i = i.plus(durationInterval);
+        }
+        return tourhours;
+    }
+}
+function formatNumberWithCommas(number) {
+    const isNegative = number < 0;
+    const absoluteNumber = Math.abs(number);
+    const formattedNumber = absoluteNumber.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return isNegative ? `-${formattedNumber}` : formattedNumber;
 }

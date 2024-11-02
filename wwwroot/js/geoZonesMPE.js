@@ -1,5 +1,5 @@
 ﻿const MPETable = "machinetable";
-const TargetTable = "mpeTargetstable";
+const TargetTable = "mpetargettable";
 const StandardTable = "mpestandardtable";
 let MpeTargetTable = [];
 let MpetargetEditor = [];
@@ -280,15 +280,9 @@ async function init_geoZoneMPE() {
         try {
             //int mpe standard table 
             creatMpeStandardDataTable(StandardTable);
-
             for (var touri in tourlist) {
-                let tourhours = getTourHours(tourlist[touri]);
-                creteMpeTargetDataTable(TargetTable + tourlist[touri])
+                createTargetDataTable(TargetTable + tourlist[touri], tourlist[touri])
             }
-            //// init mpe targets table
-            //Promise.all([ ]).then(() => {
-            //    loadMPETargetTourTable();
-            //});
             //load MPE Zones
             connection.invoke("GetGeoZones", "MPE").then(function (data) {
                 for (let i = 0; i < data.length; i++) {
@@ -315,6 +309,9 @@ async function init_geoZoneMPE() {
 
             });
             connection.invoke("JoinGroup", "MPE").catch(function (err) {
+                return console.error(err.toString());
+            });
+            connection.invoke("JoinGroup", "MPETartgets").catch(function (err) {
                 return console.error(err.toString());
             });
             if (/^(admin)/i.test(appData.Role)) {
@@ -373,6 +370,16 @@ connection.on("updateMPEzone", async (mpeZonedata) => {
         throw new Error(e.toString());
     }
 
+});
+connection.on("updateMPEzoneTartgets", async (data) => {
+    if ($('#Zone_Modal').hasClass('show')) {
+        if (data[0].mpeId === $('select[name=machine_zone_select_name] option:selected').val()) {
+            // Update the cell data in the DataTable
+            for (var tourNumber in tourlist) {
+                loadTargetsHourDataTable(tourlist[tourNumber], data);
+            }
+        }
+    }
 });
 connection.on("updateMPEzoneRunPerformance", async (data) => {
 
@@ -879,7 +886,7 @@ async function Edit_Machine_Info(id) {
     try {
         const leafletIds = await findMpeZoneLeafletIds(id);
         Data = geoZoneMPE._layers[leafletIds].feature.properties;
-        $('#modalZoneHeader_ID').text('Edit MPE Setting for: ' + Data.name);
+        $('#modalZoneHeader_ID').text('Edit MPE |' + Data.name);
         await Promise.all([getlistofMPE(), getlistofMPEGroups()]).then(() => {
             $('select[id=machine_zone_select_name]').val(Data.name).trigger('change');
             $('select[id=mpe_group_select]').val(Data.mpeGroup).trigger('change');
@@ -910,10 +917,9 @@ async function Edit_Machine_Info(id) {
             type: 'GET',
             success: function (data) {
                 $('#' + TargetTable).DataTable().clear().draw();
-                if (data.length > 0) {
-                 
-                    updateMpeTargetsDataTable(data, TargetTable);
-                }
+                    for (var tourNumber in tourlist) {
+                        loadTargetsHourDataTable(tourlist[tourNumber], data);
+                    }
             }
         });
      
@@ -935,6 +941,57 @@ async function Edit_Machine_Info(id) {
     } catch (error) {
         console.error("Error fetching machine info: ", error);
     }
+}
+function constructTargetsHourColumns(tourNumber) {
+
+    let columns = [];
+    let tourhours = getTourHours(tourNumber);
+    var column0 =
+    {
+        //first column is always the name
+        title: "Tour " + tourNumber,
+        data: "name",
+        width: '240px'
+    };
+    columns[0] = column0;
+    ////one column for every week_ending entry.
+    $.each(tourhours, function (key, value) {
+        columns[(key + 1)] =
+        {
+            title: value,
+            data: value,
+            width: '80px',
+            render: function (data, type, row) {
+                return data > 1000 ? formatNumberWithCommas(data) : data < -1000 ? formatNumberWithCommas(data) : data;
+            }
+        };
+    });
+
+    return columns;
+}
+function loadTargetsHourDataTable(tourNumber, targets) {
+
+    let tourhours = getTourHours(tourNumber);
+    let dataArray = [];
+    let dataTarget = {};
+    let dataTargetReject = {};
+    dataTarget = {
+        "order": 1,
+        "name": "Target Volume"
+    }
+    dataTargetReject = {
+        "order": 12,
+        "name": "Target Reject Rate %"
+    }
+    for (let i = 0; i < tourhours.length; i++) {
+        const hourTarget = targets.find(target => target.targetHour === tourhours[i]);
+        dataTarget[tourhours[i]] = hourTarget?.hourlyTargetVol || 0;
+        dataTargetReject[tourhours[i]] = hourTarget?.hourlyRejectRatePercent || 0;
+    }
+    dataArray.push(dataTarget);
+    dataArray.push(dataTargetReject);
+    $('#' + (TargetTable + tourNumber)).DataTable().clear().draw(); 
+    Promise.all([updateTargetsHourDataTable(dataArray, TargetTable + tourNumber)]);
 }
 //async function Edit_Machine_Info(id) {
 //    $('#modalZoneHeader_ID').text('Edit Machine Info');
@@ -1165,231 +1222,180 @@ async function Edit_Machine_Info(id) {
 //        throw new Error(e.toString());
 //    }
 //} 
-async function updateMpeTargetsDataTable(newdata, table) {
+function createTargetDataTable(table, tour) {
     try {
-        return new Promise((resolve, reject) => {
-            let loadnew = true;
-            if ($.fn.dataTable.isDataTable("#" + table)) {
-                $('#' + table).DataTable().rows(function (idx, data, node) {
-                    for (const element of newdata) {
-                        if (data.hour === element.hour) {
-                            loadnew = false;
-                            $('#' + table).DataTable().row(node).data(element).draw().invalidate();
-                        }
-                    }
-                });
-                if (loadnew) {
-                    loadMpeStandardDatatable(newdata, table);
-                }
-            } resolve();
-            return false;
-        });
-    } catch (e) {
-        throw new Error(e.toString());
-    }
-}
-function creteMpeTargetDataTable(table ) {
-    try {
-  
-        let arrayColums = [{
-            "targetHour": "",
-            "hourlyTargetVol": "",
-            "hourlyRejectRatePercent": ""
-        }];
-        let columns = [];
-        let tempc = {};
-        $.each(arrayColums[0], function (key, value) {
-            tempc = {};
-            if (/^targetHour$/ig.test(key)) {
-                tempc = {
-                    data: "targetHour",
-                    title: "Hour",            
-                    type: "select",
-                    disabled: true,
-                    options: hoursOptions,
-                    select2: { width: "100%" },
-                    width: "20%",
-                    render: function (data, type, row, meta) {
-                        return data;
-                    }
-                }
-            }
-            else if (/hourlyTargetVol/i.test(key)) {
-                tempc = {
-                    "title": "Volume",
-                    "width": "20%",
-                    "mDataProp": key             
-                }
-            }
-            else if (/hourlyRejectRatePercent/i.test(key)) {
-                tempc = {
-                    "title": "Reject %",
-                    "width": "20%",
-                    "mDataProp": key
-                }
-            }
-            else {
-                tempc = {
-                    "title": capitalize_Words(key.replace(/\_/, ' ')),
-                    "mDataProp": key
-                }
-            }
-            columns.push(tempc);
-
-        });
-
-        columns.push({
-            data: 'Name',
-            title: 'Tour ' + tournum,
-            width: '200px'
-        });
-        for (var i in tourhours) {
-            columns.push({
-                data: "Hour" + i,
-                title: tourhours[i],
-                width: '50px'
-            });
-        }
-        // Initialize the DataTable
-      $('#' + table).DataTable({
+        $('#' + table).DataTable({
             dom: 'Bfrtip',
             select: 'single',
             responsive: true,
-            altEditor: true,     // Enable altEditor
-            buttons: [{
-                text: 'Add',
-                name: 'add',        // do not change name
-                className: 'btn btn-outline-success'
-            },
-            {
-                extend: 'selected', // Bind to Selected row
-                text: 'Edit',
-                name: 'edit',        // do not change name
-                className: 'btn btn-outline-secondary'
-            },
-            {
-                extend: 'selected', // Bind to Selected row
-                text: 'Delete',
-                name: 'delete',      // do not change name
-                className: 'btn btn-outline-danger'
-            }],
-            onAddRow: function (datatable, rowdata, success, error) {
-                if (!$('select[name=machine_zone_select_name] option:selected').val() === "" || $('select[name=machine_zone_select_name] option:selected').val() !== '**Machine Not Listed') {
-                    rowdata.mpeId = $('select[name=machine_zone_select_name] option:selected').val();
-                    let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
-                    rowdata.mpeType = machineName = selectedMachine[0];
-                    rowdata.mpeNumber = machineNumber = selectedMachine[1];
-                }
-                else {
-                    rowdata.mpeType = $('input[type=text][name=machine_name]').val();
-                    rowdata.mpeNumber = $('input[type=text][name=machine_number]').val();
-                    rowdata.mpeId = $('input[type=text][name=machine_name]').val() + "-" + $('input[type=text][name=machine_number]').val();
-                }
-                $.ajax({
-                    // a tipycal url would be / with type='PUT'
-                    url: `${SiteURLconstructor(window.location)}/api/MPETragets/Add`,
-                    contentType: 'application/json-patch+json',
-                    type: 'POST',
-                    data: JSON.stringify(rowdata),
-                    success: success,
-                    error: error
-                });
-            },
-            onDeleteRow: function (datatable, rowdata, success, error) {
-                if (!$('select[name=machine_zone_select_name] option:selected').val() === "" || $('select[name=machine_zone_select_name] option:selected').val() !== '**Machine Not Listed') {
-                    rowdata.mpeId = $('select[name=machine_zone_select_name] option:selected').val();
-                    let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
-                    rowdata.mpeType = machineName = selectedMachine[0];
-                    rowdata.mpeNumber = machineNumber = selectedMachine[1];
-                }
-                else {
-                    rowdata.mpeType = $('input[type=text][name=machine_name]').val();
-                    rowdata.mpeNumber = $('input[type=text][name=machine_number]').val();
-                    rowdata.mpeId = $('input[type=text][name=machine_name]').val() + "-" + $('input[type=text][name=machine_number]').val();
-                }
-                $.ajax({
-                    // a tipycal url would be /{id} with type='DELETE'
-                    url: `${SiteURLconstructor(window.location)}/api/MPETragets/Delete`,
-                    contentType: 'application/json-patch+json',
-                    type: 'DELETE',
-                    data: JSON.stringify(rowdata),
-                    success: success,
-                    error: error
-                });
-            },
-            onEditRow: function (datatable, rowdata, success, error) {
-                if (!$('select[name=machine_zone_select_name] option:selected').val() === "" || $('select[name=machine_zone_select_name] option:selected').val() !== '**Machine Not Listed') {
-                    rowdata.mpeId = $('select[name=machine_zone_select_name] option:selected').val();
-                    let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
-                    rowdata.mpeType = machineName = selectedMachine[0];
-                    rowdata.mpeNumber = machineNumber = selectedMachine[1];
-                }
-                else {
-                    rowdata.mpeType = $('input[type=text][name=machine_name]').val();
-                    rowdata.mpeNumber = $('input[type=text][name=machine_number]').val();
-                    rowdata.mpeId = $('input[type=text][name=machine_name]').val() + "-" + $('input[type=text][name=machine_number]').val();
-                }
-                $.ajax({
-                    // a tipycal url would be /{id} with type='POST'
-                    url: `${SiteURLconstructor(window.location)}/api/MPETragets/Update`,
-                    contentType: 'application/json-patch+json',
-                    type: 'PUT',
-                    data: JSON.stringify(rowdata),
-                    success: success,
-                    error: error,
-                    complete: function (complete) {
-
-                    }
-                });
-            },
             bFilter: false,
             bdeferRender: true,
             bpaging: false,
             bPaginate: false,
             autoWidth: false,
             bInfo: false,
+            ordering: false, // Disable sorting for all columns
             destroy: true,
             language: {
                 zeroRecords: "No Data"
             },
-            columnDefs: [],
-            sorting: [[0, "asc"]],
-            aoColumns: columns,
+            order: [[]],
+            aoColumns: constructTargetsHourColumns(tour),
+            // Other DataTable options...
+            initComplete: function () {
+                var api = this.api();
+                // Add click event listener to header cells
+                $(api.table().header()).on('click', 'th', function () {
+                    $('#targetHourZone').val($('select[name=machine_zone_select_name] option:selected').val())
+                    // Get the column index of the clicked header
+                    var columnIndex = $(this).index();
+                    //get tour number from header in column 0 row 0
+                    var tourText = $(api.column(0).header()).text();
+                    var tourNumber = tourText.match(/\d+/)[0];
+                    // Get the header text of the clicked cell's column
+                    var headerText = $(api.column(columnIndex).header()).text();
+                    // Get all data for the clicked column
+                    var columnData = api.column(columnIndex).data().toArray();
 
+                    // Display the data (for example, in the console)
+                    console.log('Column data:', columnData);
+                    let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
+
+                    // Optionally, you can trigger a modal or any other action with the column data
+                    $('#Targets_Modal').modal('show');
+                    // Pass data to the modal
+                    $('#Targets_Modal').find('input[name="targetHour"]').val(headerText);
+                    // Pass data to the modal
+                    $('#Targets_Modal').find('input[name="hourlyTargetVol"]').val(columnData[0]);
+                    // Pass data to the modal
+                    $('#Targets_Modal').find('input[name="hourlyRejectRatePercent"]').val(columnData[1]);
+                    // Handle the save button click event
+                    $('#targetHoursubmitBtn').off('click').on('click', function () {
+                        let jsonObject = {
+                            "MpeType": selectedMachine[0],
+                            "MpeNumber": selectedMachine[1],
+                            "TargetHour": headerText,
+                            "MpeId": $('select[name=machine_zone_select_name] option:selected').val() ,
+                            "HourlyTargetVol": $('input[name="hourlyTargetVol"]').val(),
+                            "HourlyRejectRatePercent": $('input[name="hourlyRejectRatePercent"]').val()
+                        }
+                        //make a ajax call to get the Connection details
+                        $.ajax({
+                            url: SiteURLconstructor(window.location) + '/api/MPETragets/Update',
+                            contentType: 'application/json-patch+json',
+                            type: 'PUT',
+                            data: JSON.stringify(jsonObject),
+                            success: function (data) {
+                               
+                                // Update the cell data in the DataTable
+                                //loadTargetsHourDataTable(tourNumber,data);
+                                setTimeout(function () { $('#Targets_Modal').modal('hide'); }, 500);
+                            },
+                            error: function (error) {
+                                $('span[id=error_targetHoursubmitBtn]').text(error);
+                                //console.log(error);
+                            },
+                            faulure: function (fail) {
+                                console.log(fail);
+                            },
+                           
+                        });
+              
+                    });
+                });
+                api.on('draw', function () {
+                    api.cells().every(function () {
+                        var cell = this;
+                        $(cell.node()).off('click').on('click', function () {
+                            $('#targetHourZone').val($('select[name=machine_zone_select_name] option:selected').val());
+
+                            //get tour number from header in column 0 row 0
+                            var tourText = $(api.column(0).header()).text();
+                            var tourNumber = tourText.match(/\d+/)[0];
+                            // Retrieve data from the clicked cell
+                            var cellData = cell.data();
+                            // Get the column index of the clicked cell
+                            var columnIndex = cell.index().column;
+                            // Get the header text of the clicked cell's column
+                            var headerText = $(api.column(columnIndex).header()).text();
+                            // Get all data for the clicked column
+                            var columnData = api.column(columnIndex).data().toArray();
+                            // Trigger the modal popup
+                            $('#Targets_Modal').modal('show');
+                            let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
+                            // Pass data to the modal
+                            $('#Targets_Modal').find('input[name="targetHour"]').val(headerText);
+                            // Pass data to the modal
+                            $('#Targets_Modal').find('input[name="hourlyTargetVol"]').val(columnData[0]);
+                            // Pass data to the modal
+                            $('#Targets_Modal').find('input[name="hourlyRejectRatePercent"]').val(columnData[1]);
+                            // Handle the save button click event
+                            $('#targetHoursubmitBtn').off('click').on('click', function () {
+                                let jsonObject = {
+                                    "MpeType": selectedMachine[0],
+                                    "MpeNumber": selectedMachine[1],
+                                    "TargetHour": headerText,
+                                    "MpeId": $('select[name=machine_zone_select_name] option:selected').val(),
+                                    "HourlyTargetVol": $('input[name="hourlyTargetVol"]').val(),
+                                    "HourlyRejectRatePercent": $('input[name="hourlyRejectRatePercent"]').val()
+                                }
+                                //make a ajax call to get the Connection details
+                                $.ajax({
+                                    url: SiteURLconstructor(window.location) + '/api/MPETragets/Update',
+                                    contentType: 'application/json-patch+json',
+                                    type: 'PUT',
+                                    data: JSON.stringify(jsonObject),
+                                    success: function (data) {
+
+                                        // Update the cell data in the DataTable
+                                        //loadTargetsHourDataTable(tourNumber,data);
+                                        setTimeout(function () { $('#Targets_Modal').modal('hide'); }, 500);
+                                    },
+                                    error: function (error) {
+                                        $('span[id=error_targetHoursubmitBtn]').text(error);
+                                        //console.log(error);
+                                    },
+                                    faulure: function (fail) {
+                                        console.log(fail);
+                                    },
+
+                                });
+
+                            });
+                        });
+                    });
+                });
+            }
         });
+
+        $('#' + TargetTable + ' tbody td:first-child').css('pointer-events', 'none');
 
     } catch (e) {
         console.log("Error fetching machine info: ", e);
     }
 }
-// Add event listener for opening and closing details
-//  this event gets the value of the 2nd td and assigns it to var row
-function loadMPETargetTourTable() {
-    let datacount = {};
-    let datareject = {};
-    for (var touri in tourlist) {
-        let tourhours = getTourHours(tourlist[touri]);
-
-        let dataArray = [];
-        let dataTarget = {};
-        let dataTargetReject = {};
-        dataTarget = {
-            "order": 1,
-            "Name": "Target Count"
-        }
-        dataTargetReject = {
-            "order": 2,
-            "Name": "Reject Rate Percent"
-        }
-        for (let i = 0; i < tourhours.length; i++) {
-            dataTarget["Hour" + i] = datacount[tourhours[i]] ? datacount[tourhours[i]] : '';
-            dataTargetReject["Hour" + i] = datareject[tourhours[i]] ? datareject[tourhours[i]] + '%' : '';
-        }
-        dataArray.push(dataTarget);
-        dataArray.push(dataTargetReject);
-        updateMpeTragetsDataTable(dataArray, TargetTable + tourlist[touri]);
+async function updateTargetsHourDataTable(newdata, table) {
+    try {
+        return new Promise((resolve, reject) => {
+            if ($.fn.dataTable.isDataTable("#" + table)) {
+                if ($('#' + table).DataTable().rows().count() > 0) {
+                    $('#' + table).DataTable().rows(function (idx, data, node) {
+                        $('#' + table).DataTable().row(node).data(newdata).draw().invalidate();
+                        resolve();
+                        return true;
+                    });
+                }
+                else {
+                    $('#' + table).DataTable().rows.add(newdata).draw();
+                }
+            }
+            resolve();
+            return false;
+        });
+    } catch (e) {
+        throw new Error(e.toString());
     }
-};
+}
 function creatMpeStandardDataTable(table) {
     let Actioncolumn = true;
     let arrayColums = [{
@@ -1493,29 +1499,6 @@ async function loadMpeStandardDatatable(data, table) {
         $('#' + table).DataTable().rows.add(data).draw();
     }
 }
-async function updateMpeTragetsDataTable(newdata, table) {
-    try {
-        return new Promise((resolve, reject) => {
-            let loadnew = true;
-            if ($.fn.dataTable.isDataTable("#" + table)) {
-                $('#' + table).DataTable().rows(function (idx, data, node) {
-
-                    if (data.id === newdata.id) {
-                        loadnew = false;
-                        $('#' + table).DataTable().row(node).data(newdata).draw().invalidate();
-                    }
-                });
-                if (loadnew) {
-                    loadMpeStandardDatatable([newdata], table);
-                }
-            } resolve();
-            return false;
-        });
-    } catch (e) {
-        throw new Error(e.toString());
-    }
-}
-
 async function updateMpeStandardDataTable(newdata, table) {
     try {
         return new Promise((resolve, reject) => {
