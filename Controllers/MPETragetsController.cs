@@ -67,7 +67,11 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(e.Message);
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mpeData"></param>
+        /// <returns></returns>
         // POST api/<MpeTragetsController>
         [HttpPost]
         [Route("Add")]
@@ -157,9 +161,18 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(e.Message);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="file"></param>
+        /// <remarks>
+        /// </remarks>
+        /// <response code="201">Returns When WebEOR Data has been Loaded</response>
+        /// <response code="400">If the File name was provided </response>
+        [HttpPost]
         [HttpPost]
         [Route("UploadTarget")]
-        public async Task<object> UploadTarget([FromForm] IFormFile file)
+        public async Task<IActionResult> UploadTargetData(IFormFile file)
         {
             try
             {
@@ -172,36 +185,34 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest("No file uploaded.");
                 }
-                List<TargetHourlyData> targetHourlyDatas = new List<TargetHourlyData>();
-                using (var reader = new StreamReader(file.OpenReadStream()))
-                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                List<TargetHourlyData> targetHourlyDatas = [];
+                using var reader = new StreamReader(file.OpenReadStream());
+                using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+                csv.Context.RegisterClassMap<TargetHourlyDataMap>();
+                List<TargetHourly> targetHourly = csv.GetRecords<TargetHourly>().ToList();
+                foreach (var item in targetHourly)
                 {
-                    csv.Context.RegisterClassMap<TargetHourlyDataMap>();
-                    List<TargetHourly> targetHourly = csv.GetRecords<TargetHourly>().ToList();
-                    foreach (var item in targetHourly)
-                    {
-                        TargetHourlyData targetHourlyData = new TargetHourlyData();
-                        targetHourlyData.MpeType = item.MpeType;
-                        targetHourlyData.MpeNumber = item.MpeNumber;
-                        targetHourlyData.MpeId = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}";
-                        targetHourlyData.Id = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.Hour}";
-                        targetHourlyData.TargetHour = item.Hour;
-                        targetHourlyData.HourlyTargetVol = item.TargetVolume;
-                        targetHourlyData.HourlyRejectRatePercent = item.TargetReject;
-                        targetHourlyDatas.Add(targetHourlyData);
-                    }
-                    var load = await _geoZone.LoadCSVMpeTargets(targetHourlyDatas);
-
-                    if (load == false)
-                    {
-                        return BadRequest(new JObject { ["message"] = "Target data Failed to load data." });
-                    }
-                    else
-                    {
-                        return Ok(new JObject { ["message"] = "Target data was uploaded successfully." });
-                    }
+                    TargetHourlyData targetHourlyData = new TargetHourlyData();
+                    targetHourlyData.MpeType = item.MpeType;
+                    targetHourlyData.MpeNumber = item.MpeNumber;
+                    targetHourlyData.MpeId = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}";
+                    targetHourlyData.Id = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.Hour}";
+                    targetHourlyData.TargetHour = item.Hour;
+                    targetHourlyData.HourlyTargetVol = item.TargetVolume;
+                    targetHourlyData.HourlyRejectRatePercent = item.TargetReject;
+                    targetHourlyDatas.Add(targetHourlyData);
                 }
-               
+                var load = await _geoZone.LoadCSVMpeTargets(targetHourlyDatas);
+
+                if (load == false)
+                {
+                    return BadRequest(new JObject { ["message"] = "Target data Failed to load data." });
+                }
+                else
+                {
+                    return Ok(new JObject { ["message"] = "Target data was uploaded successfully." });
+                }
+
             }
             catch (Exception e)
             {
