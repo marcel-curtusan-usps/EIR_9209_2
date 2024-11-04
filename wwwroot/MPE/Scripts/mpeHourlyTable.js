@@ -127,7 +127,7 @@ function createLoadMPEHourData(tourNumber,targets,mpedata) {
          
         const hourMPE = mpedata.hourlyData.find(hourlyData => hourlyData.hour.endsWith(curtDayandHour));
         let targetHourlyVol = parseInt(hourTarget?.hourlyTargetVol) || 0;
-        let mpeCount = parseInt(hourMPE?.count) || 0;
+        let mpeCount = hourMPE == null ? '' : parseInt(hourMPE?.count);
         dataTarget[tourhours[i]] = targetHourlyVol
         targetTTL += targetHourlyVol;
        
@@ -181,7 +181,7 @@ function createLoadMPERejectHourData(tourNumber, targets, mpedata) {
   
         let mpeCount = parseInt(hourMPE?.count) || 0;
         mpeActualTTL += mpeCount;
-        let mpeReject = parseInt(hourMPE?.rejected) || 0;
+        let mpeReject = hourMPE == null ? '' : parseInt(hourMPE?.rejected);
         let targetReject = parseInt(hourTarget?.hourlyRejectRatePercent) || 0;
         dataQuantity[tourhours[i]] = mpeReject;
         quantityTTL += dataQuantity[tourhours[i]];
