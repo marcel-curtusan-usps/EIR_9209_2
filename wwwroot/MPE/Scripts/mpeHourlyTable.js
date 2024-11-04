@@ -33,7 +33,13 @@ function constructTourHoursMpeColumns(tourNumber) {
             data: value,
             width: '40px',
             render: function (data, type, row) {
-                return data > 1000 ? formatNumberWithCommas(data) : data < -1000 ? formatNumberWithCommas(data) : data ;
+                if (data === 0 ) {
+                    return "-";
+                }
+                else {
+                    return data > 1000 ? formatNumberWithCommas(data) : data < -1000 ? formatNumberWithCommas(data) : data ;
+                }
+               
             }
         };
     });
@@ -43,7 +49,12 @@ function constructTourHoursMpeColumns(tourNumber) {
         title: 'Tour TTL',
         width: '240px',
         render: function (data, type, row) {
-            return data > 1000 ? formatNumberWithCommas(data) : data < -1000 ? formatNumberWithCommas(data) : data;
+            if (data === 0) {
+                return "-";
+            }
+            else {
+                return data > 1000 ? formatNumberWithCommas(data) : data < -1000 ? formatNumberWithCommas(data) : data;
+            }
         }
     };
     columns[columns.length] = columnLast;
@@ -68,10 +79,15 @@ function constructTourHoursRejectsColumns(tourNumber) {
             data: value,
             width: '40px',
             render: function (data, type, row) {
-                if (row.name === 'Quantity') {
-                    return data > 1000 ? formatNumberWithCommas(data) : data < -1000 ? formatNumberWithCommas(data)  : data ;
-                } else {
-                    return data > 1000 ? formatNumberWithCommas(data) + ' %' : data < -1000 ? formatNumberWithCommas(data) + ' %' : data + ' %';
+                if (data === 0 || data === '0.0') {
+                    return "-";
+                }
+                else {
+                    if (row.name === 'Quantity') {
+                        return data > 1000 ? formatNumberWithCommas(data) : data < -1000 ? formatNumberWithCommas(data) : data;
+                    } else {
+                        return data > 1000 ? formatNumberWithCommas(data) + ' %' : data < -1000 ? formatNumberWithCommas(data) + ' %' : data + ' %';
+                    }
                 }
             }
         };
@@ -82,11 +98,17 @@ function constructTourHoursRejectsColumns(tourNumber) {
         title: 'Tour TTL',
         width: '240px',
         render: function (data, type, row) {
-            if (row.name === 'Quantity') {
-                return data > 1000 ? formatNumberWithCommas(data) : data < -1000 ? formatNumberWithCommas(data) : data;
-            } else {
-                return data > 1000 ? formatNumberWithCommas(data) + ' %' : data < -1000 ? formatNumberWithCommas(data) + ' %' : data + ' %';
+            if (data === 0 || data === '0.0') {
+                return "-";
             }
+            else {
+                if (row.name === 'Quantity') {
+                    return data > 1000 ? formatNumberWithCommas(data) : data < -1000 ? formatNumberWithCommas(data) : data;
+                } else {
+                    return data > 1000 ? formatNumberWithCommas(data) + ' %' : data < -1000 ? formatNumberWithCommas(data) + ' %' : data + ' %';
+                }
+            }
+          
         }
     };
     columns[columns.length] = columnLast;
@@ -274,7 +296,7 @@ function createRejectDataTable(tourNumber) {
                     }
                 });
                 let coltindex = row.childElementCount - 1;
-                if (parseFloat(data["tourTotal"]) >= parseFloat(tgrtrow["tourTotal"]) +1) {
+                if (parseFloat(data["tourTotal"]) >= parseFloat(tgrtrow["tourTotal"])) {
                     $(row).find('td:eq(' + coltindex + ')').addClass('red');
                 } else {
                     $(row).find('td:eq(' + coltindex + ')').addClass('green');

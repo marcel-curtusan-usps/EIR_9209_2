@@ -13,6 +13,8 @@ let MPEhourlyMindate = null;
 let colHourcount = 0;
 let retryCount = 0;
 let currentTime = null;
+let currentTour = null;
+
 
 const maxRetries = 5;
 const mpeHourlyConnection = new signalR.HubConnectionBuilder()
