@@ -3,172 +3,235 @@ const MPEHourlyTabel = "mpeHourlytable";
 const MPERejectTabel = "mpeRejecttable";
 mpeHourlyConnection.on("updateMPEzoneRunPerformance", async (data) => {
     if (data.mpeId === MPEName) {
-        Promise.all([buildDataTable(data)]);
+        mpeRunData = data;
+        createLoadMPEHourData(getTour(), mpeTartgets, mpeRunData);
+        createLoadMPERejectHourData(getTour(), mpeTartgets, mpeRunData);
     }
 });
-async function buildDataTable(data) {
-    let curtour = getTour();
-    const interval = luxon.Interval.fromDateTimes(
-        MPEhourlyMindate,
-        MPEhourlyMaxdate
-    );
-
-    const desiredArray = interval.splitBy({ minutes: 60 }).map((d) => d.start);
-    colHourcount = desiredArray.length;
-    tourHours = [];
-    for (let i = 0; i < colHourcount; i++) {
-        let displayHour = desiredArray[i].hour.toString().padStart(2, '0') + ':00';
-        tourHours.push(displayHour);
+mpeHourlyConnection.on("updateMPEzoneTartgets", async (data) => {
+    if (data[0].mpeId === MPEName) {
+        mpeTartgets = data;
+        createLoadMPEHourData(getTour(), mpeTartgets, mpeRunData);
+        createLoadMPERejectHourData(getTour(), mpeTartgets, mpeRunData);
     }
-
-    let dataArray = [];
-    let rejectArray = [];
-
-    let tabledataTarget = {};
-    tabledataTarget = {
-        "order": 1,
-        "Name": "Target",
-        "TourTotal": 29000
-    }
-    let tabledataTargetReject = {};
-    tabledataTargetReject = {
-        "order": 12,
-        "Name": "Target %",
-        "TourTotal": "4%"
-    }
-    for (let i = 0; i < colHourcount; i++) {
-        tabledataTarget["Hour" + i] = 4500;
-        tabledataTargetReject["Hour" + i] = "4%";
-    }
-    dataArray.push(tabledataTarget);
-    //rejectArray.push(tabledataTargetReject);
-
-    let tabledataObject = {};
-    tabledataObject = {
-        "order": 2,
-        "Name": "Actual",
-        "TourTotal": 0
-    }
-    let tabledataObjectReject = {};
-    tabledataObjectReject = {
-        "order": 10,
-        "Name": "Quantity",
-        "TourTotal": 0
-    }
-    for (let i = 0; i < colHourcount; i++) {
-        tabledataObject["Hour" + i] = "";
-        tabledataObjectReject["Hour" + i] = "";
-    }
-    $.each(data, function (key, value) {
-
-        if (/hourlyData/i.test(key)) {
-            let totalpcs = 0;
-            let totalreject = 0;
-            $.each(value, function (hrkey) {
-                console.log(data.hourlyData[hrkey].hour);
-                let tmpdate = luxon.DateTime.fromFormat(data.hourlyData[hrkey].hour, 'yyyy-MM-dd hh:mm', { zone: ianaTimeZone });
-                if (tmpdate >= MPEhourlyMindate && tmpdate < MPEhourlyMaxdate) {
-                    for (let i = 0; i < colHourcount; i++) {
-                        let hrtmp = data.hourlyData[hrkey].hour.split(" ")[1];
-                        if (hrtmp == tourHours[i]) {
-                            tabledataObject["Hour" + i] = data.hourlyData[hrkey].count;
-                            tabledataObjectReject["Hour" + i] = data.hourlyData[hrkey].rejected;
-                        }
-                    }
-                    totalpcs += parseInt(data.hourlyData[hrkey].count);
-                    totalreject += parseInt(data.hourlyData[hrkey].rejected);
-                }
-            });
-            tabledataObject["TourTotal"] = totalpcs;
-            tabledataObjectReject["TourTotal"] = totalreject;
-            dataArray.push(tabledataObject);
-            rejectArray.push(tabledataObjectReject);
-        }
-    });
-    rejectArray.push(tabledataTargetReject);
-    let tabledataDelta = {};
-    let tabledataRejectRate = {};
-    tabledataDelta = {
-        "order": 3,
-        "Name": "Delta",
-        "TourTotal": 0
-    }
-    tabledataRejectRate = {
-        "order": 13,
-        "Name": "Actual %",
-        "TourTotal": 0
-    }
-    let totaldelta = 0;
-    let deltadiff = 0;
-    let rejectrate = 0;
-    for (let i = 0; i < colHourcount; i++) {
-        if (tabledataObject["Hour" + i].toString() != "") {
-            deltadiff = parseInt(tabledataObject["Hour" + i]) - parseInt(tabledataTarget["Hour" + i]);
-            totaldelta += deltadiff;
-            if (parseInt(tabledataObject["Hour" + i]) > 0) {
-                rejectrate = parseInt(tabledataObjectReject["Hour" + i]) / parseInt(tabledataObject["Hour" + i]) * 100;
-            }
-        } else {
-            deltadiff = "";
-        }
-        tabledataDelta["Hour" + i] = deltadiff;
-        tabledataRejectRate["Hour" + i] = rejectrate + '%';
-    }
-    tabledataDelta["TourTotal"] = totaldelta;
-    let totalrejectrate = 0;
-    if (parseInt(tabledataObject["TourTotal"]) > 0) {
-        totalrejectrate = parseInt(tabledataObjectReject["TourTotal"]) / parseInt(tabledataObject["TourTotal"]) * 100;
-    }
-    tabledataRejectRate["TourTotal"] = totalrejectrate + '%';
-    dataArray.push(tabledataDelta);
-    rejectArray.push(tabledataRejectRate);
-    //if (TourNumber == curtour) {
-    //    updateMpeDataTable("mpeHourlytable", dataArray);
-    //    updateMpeDataTable("mpeRejecttable", rejectArray);
-    //} else {
-    TourNumber = curtour;
-    $('label[id=tourNumber]').text(TourNumber);
-    createMPEDataTable("mpeHourlytable", dataArray);
-    createRejectDataTable("mpeRejecttable", rejectArray);
-    //}
-}
-function createMPEDataTable(table, data) {
-    if (MPEDataTableList[table]) { // Check if DataTable has been previously created and therefore needs to be flushed
-        MPEDataTableList[table].destroy(); // destroy the dataTableObject
-        // For new version use table.destroy();
-        $('#' + table).DataTable().clear().draw(); // Empty the DOM element which contained DataTable
-        // The line above is needed if number of columns change in the Data
-    }
-    var columns = [];
-    columns.push({
-        data: 'Name',
+});
+function constructTourHoursMpeColumns(tourNumber) {
+    let columns = [];
+    let tourhours = getTourHours(tourNumber);
+    //first column is always the name
+    var columnfirst =
+    {
+        data: 'name',
         title: 'Operations',
-        width: '240px'
-    });
-
-    columnNames = tourHours;
-    for (var i in columnNames) {
-        columns.push({
-            data: "Hour" + i,
-            title: columnNames[i],
+        width: '80px'
+    };
+    columns[0] = columnfirst;
+    $.each(tourhours, function (key, value) {
+        columns[(key + 1)] =
+        {
+            title: value,
+            data: value,
+            width: '40px',
             render: function (data, type, row) {
-                return data > 1000 ? formatNumberWithCommas(data) : data;
+                if (data === 0 ) {
+                    return "-";
+                }
+                else {
+                    return data > 1000 ? formatNumberWithCommas(data) : data < -1000 ? formatNumberWithCommas(data) : data ;
+                }
+               
             }
-        });
-    }
-    columns.push({
-        data: 'TourTotal',
-        title: 'Tour TTL',
-        render: function (data, type, row) {
-            return data > 1000 ? formatNumberWithCommas(data) : data;
-        }
+        };
     });
-    MPEDataTableList[table] = $('#' + table).DataTable({
-        fnInitComplete: function () {
-            if ($(this).find('tbody tr').length <= 1) {
-                $('.odd').hide()
+    var columnLast =
+    {
+        data: 'tourTotal',
+        title: 'Tour TTL',
+        width: '240px',
+        render: function (data, type, row) {
+            if (data === 0) {
+                return "-";
             }
-        },
+            else {
+                return data > 1000 ? formatNumberWithCommas(data) : data < -1000 ? formatNumberWithCommas(data) : data;
+            }
+        }
+    };
+    columns[columns.length] = columnLast;
+
+    return columns;
+}
+function constructTourHoursRejectsColumns(tourNumber) {
+    let columns = [];
+    let tourhours = getTourHours(tourNumber);
+    //first column is always the name
+    var columnfirst =
+    {
+        data: 'name',
+        title: 'Rejects',
+        width: '240px'
+    };
+    columns[0] = columnfirst;
+    $.each(tourhours, function (key, value) {
+        columns[(key + 1)] =
+        {
+            title: value,
+            data: value,
+            width: '40px',
+            render: function (data, type, row) {
+                if (row.name === 'Quantity') {
+                    return data > 1000 ? formatNumberWithCommas(data) : data < -1000 ? formatNumberWithCommas(data)  : data ;
+                } else {
+                    return data != "-" ? data > 1000 ? formatNumberWithCommas(data) + ' %' : data < -1000 ? formatNumberWithCommas(data) + ' %' : data + ' %' : data;
+                }
+            }
+        };
+    });
+    var columnLast =
+    {
+        data: 'tourTotal',
+        title: 'Tour TTL',
+        width: '240px',
+        render: function (data, type, row) {
+            if (data === 0 || data === '0.0') {
+                return "-";
+            }
+            else {
+                if (row.name === 'Quantity') {
+                    return data > 1000 ? formatNumberWithCommas(data) : data < -1000 ? formatNumberWithCommas(data) : data;
+                } else {
+                    return data > 1000 ? formatNumberWithCommas(data) + ' %' : data < -1000 ? formatNumberWithCommas(data) + ' %' : data + ' %';
+                }
+            }
+          
+        }
+    };
+    columns[columns.length] = columnLast;
+    return columns;
+}
+
+function createLoadMPEHourData(tourNumber,targets,mpedata) {
+
+    let tourhours = getTourHours(tourNumber);
+    let dataArray = [];
+    let dataTarget = {};
+    let dataTargetActual = {};
+    let dataTargetDelta = {};
+    let targetTTL = 0;
+    let mpeActualTTL = 0;
+    let deltaTTL = 0;
+    dataTarget = {
+        "order": 1,
+        "name": "Target"
+    }
+    dataTargetActual = {
+        "order": 5,
+        "name": "Actual"
+    }
+    dataTargetDelta = {
+        "order": 10,
+        "name": "Delta"
+    }
+    for (let i = 0; i < tourhours.length; i++) {
+        const hourTarget = targets.find(target => target.targetHour === tourhours[i]);
+        let curtDayandHour = ""
+        if (tourNumber === 1 && new RegExp('^(00|01|02|03|04|05|06|07|08)').test(tourhours[i])) {
+            curtDayandHour = currentTime.plus({ day: 1 }).day.toString().padStart(2, '0') + " " + tourhours[i];
+        }
+        else {
+          curtDayandHour = currentTime.day.toString().padStart(2, '0') + " " + tourhours[i];
+        }
+         
+        const hourMPE = mpedata.hourlyData.find(hourlyData => hourlyData.hour.endsWith(curtDayandHour));
+
+        let targetHourlyVol = hourTarget == null ? "-" : parseInt(hourTarget?.hourlyTargetVol);
+        let mpeCount = hourMPE == null ? "-" : parseInt(hourMPE?.count);
+        dataTarget[tourhours[i]] = targetHourlyVol
+        if (targetHourlyVol != "-") {
+            targetTTL += targetHourlyVol;
+        }
+       
+        dataTargetActual[tourhours[i]] = mpeCount;
+        if (mpeCount != "-") {
+            mpeActualTTL += mpeCount;
+        }
+        if (targetHourlyVol != "-" && mpeCount != "-") {
+            dataTargetDelta[tourhours[i]] = mpeCount - targetHourlyVol;
+            deltaTTL += (mpeCount - targetHourlyVol);
+        } else {
+            dataTargetDelta[tourhours[i]] = "-";
+        }
+    }
+    dataTarget["tourTotal"] = targetTTL;
+    dataTargetActual["tourTotal"] = mpeActualTTL;
+    dataTargetDelta["tourTotal"] = deltaTTL;
+    dataArray.push(dataTarget);
+    dataArray.push(dataTargetActual);
+    dataArray.push(dataTargetDelta);
+    $('#' + MPEHourlyTabel).DataTable().clear().draw();
+    Promise.all([updateMpeDataTable(dataArray, MPEHourlyTabel)]);
+}
+function createLoadMPERejectHourData(tourNumber, targets, mpedata) {
+
+    let tourhours = getTourHours(tourNumber);
+    let dataArray = [];
+    let dataQuantity = {};
+    let dataTargetPercent = {};
+    let dataActualPercent = {};
+    let quantityTTL = 0;
+    let targetPercentTTL = 0;
+    let actualPercentTTL = 0;
+    let mpeActualTTL = 0;
+    dataQuantity = {
+        "order": 1,
+        "name": "Quantity"
+    }
+    dataTargetPercent = {
+        "order": 5,
+        "name": "Target %"
+    }
+    dataActualPercent = {
+        "order": 10,
+        "name": "Actual %"
+    }
+    for (let i = 0; i < tourhours.length; i++) {
+        const hourTarget = targets.find(target => target.targetHour === tourhours[i]);
+        let curtDayandHour = ""
+        if (tourNumber === 1 && new RegExp('^(00|01|02|03|04|05|06|07|08)').test(tourhours[i])) {
+            curtDayandHour = currentTime.plus({ day: 1 }).day.toString().padStart(2, '0') + " " + tourhours[i];
+        }
+        else {
+            curtDayandHour = currentTime.day.toString().padStart(2, '0') + " " + tourhours[i];
+        }
+        const hourMPE = mpedata.hourlyData.find(hourlyData => hourlyData.hour.endsWith(curtDayandHour));
+  
+        let mpeCount = parseInt(hourMPE?.count) || 0;
+        mpeActualTTL += mpeCount;
+        let mpeReject = hourMPE == null ? "-" : parseInt(hourMPE?.rejected);
+        let targetReject = hourTarget == null ? "-" : parseInt(hourTarget?.hourlyRejectRatePercent);
+        dataQuantity[tourhours[i]] = mpeReject;
+        if (mpeReject != "-") {
+            quantityTTL += dataQuantity[tourhours[i]];
+        }
+    
+        dataTargetPercent[tourhours[i]] = targetReject;
+        if (targetReject != "-") {
+            targetPercentTTL += targetReject;
+        }
+        dataActualPercent[tourhours[i]] = hourMPE == null ? "-" : mpeCount > 0 ? ((mpeReject / mpeCount * 100).toFixed(1)) : (0.0).toFixed(1);
+        actualPercentTTL = quantityTTL > 0 ? ((quantityTTL / mpeActualTTL * 100).toFixed(1)) : 0;
+    }
+    dataQuantity["tourTotal"] = quantityTTL;
+    dataTargetPercent["tourTotal"] = targetPercentTTL; 
+    dataActualPercent["tourTotal"] = actualPercentTTL;
+    dataArray.push(dataQuantity);
+    dataArray.push(dataTargetPercent);
+    dataArray.push(dataActualPercent);
+    $('#' + MPERejectTabel).DataTable().clear().draw();
+    Promise.all([updateMpeDataTable(dataArray, MPERejectTabel)]);
+}
+function createMPEDataTable(tourNumber) {
+    $('#' + MPEHourlyTabel).DataTable({
         dom: 'Bfrtip',
         bFilter: false,
         bdeferRender: true,
@@ -177,26 +240,27 @@ function createMPEDataTable(table, data) {
         bAutoWidth: true,
         bInfo: false,
         destroy: true,
-        sorting: [[data.order, "asc"]],
-        data: data,
-        columns: columns,
+        columns: constructTourHoursMpeColumns(tourNumber),
+        order: [[]],
         rowCallback: function (row, data, index) {
             $(row).find('td').css({
                 'font-size': 'calc(0.1em + 1.9vw)',
                 'text-align': 'center'
             });
-            if (/Delta/i.test(data.Name)) {
-                for (let i = 0; i < row.childElementCount - 2; i++) {
-                    let colname = 'Hour' + i;
-                    let colindex = i + 1;
-                    if (parseInt(data[colname]) > 0) {
-                        $(row).find('td:eq(' + colindex + ')').addClass('green');
-                    } else {
-                        $(row).find('td:eq(' + colindex + ')').addClass('red');
+            if (/Delta/i.test(data.name)) {
+                Object.keys(data).forEach((key, index) => {
+                    if (key !== 'name' && key !== 'tourTotal' && key !== 'order') {
+                        let colindex = index -1  ;
+                        let tkey = data[key];
+                        if (parseInt(data[key]) >= 1) {
+                            $(row).find('td:eq(' + colindex + ')').addClass('green');
+                        } else {
+                            $(row).find('td:eq(' + colindex + ')').addClass('red');
+                        }
                     }
-                }
+                });
                 let coltindex = row.childElementCount - 1;
-                if (parseInt(data["TourTotal"]) > 0) {
+                if (parseInt(data["tourTotal"]) >= 1) {
                     $(row).find('td:eq(' + coltindex + ')').addClass('green');
                 } else {
                     $(row).find('td:eq(' + coltindex + ')').addClass('red');
@@ -205,44 +269,8 @@ function createMPEDataTable(table, data) {
         }
     });
 }
-function createRejectDataTable(table, data) {
-    if (MPEDataTableList[table]) { // Check if DataTable has been previously created and therefore needs to be flushed
-        MPEDataTableList[table].destroy(); // destroy the dataTableObject
-        // For new version use table.destroy();
-        $('#' + table).DataTable().clear().draw(); // Empty the DOM element which contained DataTable
-        // The line above is needed if number of columns change in the Data
-    }
-
-    var columns = [];
-    columns.push({
-        data: 'Name',
-        title: 'Rejects',
-        width: '240px'
-    });
-
-    columnNames = tourHours;
-    for (var i in columnNames) {
-        columns.push({
-            data: "Hour" + i,
-            title: columnNames[i],
-            render: function (data, type, row) {
-                return data > 1000 ? formatNumberWithCommas(data) : data;
-            }
-        });
-    }
-    columns.push({
-        data: 'TourTotal',
-        title: 'Tour TTL',
-        render: function (data, type, row) {
-            return data > 1000 ? formatNumberWithCommas(data) : data;
-        }
-    });
-    MPEDataTableList[table] = $('#' + table).DataTable({
-        fnInitComplete: function () {
-            if ($(this).find('tbody tr').length <= 1) {
-                $('.odd').hide()
-            }
-        },
+function createRejectDataTable(tourNumber) {
+    $('#' + MPERejectTabel).DataTable({
         dom: 'Bfrtip',
         bFilter: false,
         bdeferRender: true,
@@ -251,21 +279,35 @@ function createRejectDataTable(table, data) {
         bAutoWidth: true,
         bInfo: false,
         destroy: true,
-        sorting: [[data.order, "asc"]],
-        data: data,
-        columns: columns,
+        columns: constructTourHoursRejectsColumns(tourNumber),
+        order: [[]],
         rowCallback: function (row, data, index) {
             $(row).find('td').css({
                 'font-size': 'calc(0.1em + 1.9vw)',
                 'text-align': 'center'
             });
-            if (/Actual/i.test(data.Name)) {
-                for (let i = 1; i < row.childElementCount; i++) {
-                    //if (parseInt(data[i]) > 0) {
-                    $(row).find('td:eq(' + i + ')').addClass('green');
-                    //} else {
-                    //    $(row).find('td:eq(' + i + ')').addClass('red');
-                    //}
+            if (/Target/i.test(data.name)) {
+                tgrtrow = data;
+            }
+            if (/Actual/i.test(data.name)) {
+
+                Object.keys(data).forEach((key, index) => {
+                    if (key !== 'name' && key !== 'tourTotal' && key !== 'order') {
+                        let colindex = index - 1;
+                        let tkey = data[key];
+                        if (parseInt(data[key]) >= parseFloat(tgrtrow[key])) {
+                            $(row).find('td:eq(' + colindex + ')').addClass('red');
+                        } else {
+                            $(row).find('td:eq(' + colindex + ')').addClass('green');
+                        }
+                    }
+                });
+                let coltindex = row.childElementCount - 1;
+                if (parseFloat(data["tourTotal"]) >= parseFloat(tgrtrow["tourTotal"])) {
+                    $(row).find('td:eq(' + coltindex + ')').addClass('red');
+                } else {
+                    $(row).find('td:eq(' + coltindex + ')').addClass('green');
+                 
                 }
             }
         }
@@ -278,22 +320,26 @@ function loadMpeDataTable(data, table) {
         //}
     }
 }
-function updateMpeDataTable(table, ldata) {
-    let load = true;
-    if ($.fn.dataTable.isDataTable("#" + table)) {
-        $('#' + table).DataTable().rows(function (idx, data, node) {
-            load = false;
-            if (ldata.length > 0) {
-                $.each(ldata, function () {
-                    if (data.Name === this.Name) {
-                        $('#' + table).DataTable().row(node).data(this).draw().invalidate();
-                    }
-                })
+async function updateMpeDataTable(newdata, table) {
+    try {
+        return new Promise((resolve, reject) => {
+            if ($.fn.dataTable.isDataTable("#" + table)) {
+                if ($('#' + table).DataTable().rows().count() > 0) {
+                    $('#' + table).DataTable().rows(function (idx, data, node) {
+                        $('#' + table).DataTable().row(node).data(newdata).draw().invalidate();
+                        resolve();
+                        return true;
+                    });
+                }
+                else {
+                    loadMpeDataTable(newdata, table);
+                }
             }
-        })
-        if (load) {
-            loadMpeDataTable(ldata, table);
-        }
+            resolve();
+            return false;
+        });
+    } catch (e) {
+        throw new Error(e.toString());
     }
 }
 function formatNumberWithCommas(number) {

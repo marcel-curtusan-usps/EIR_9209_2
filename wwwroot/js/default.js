@@ -13,6 +13,7 @@ let appData = {};
 let siteTours = [];
 let baselayerid = "";
 let siteInfo = {};
+let siteTours = {};
 let ianaTimeZone = "";
 let retryCount = 0;
 const maxRetries = 5;
@@ -284,4 +285,34 @@ function isValidGeoJSONGeometry(geometry) {
     }
 
     return true;
+}
+function getTourHours(tournumber) {
+    if (tournumber) {
+        const DateTime = luxon.DateTime;
+        const Duration = luxon.Duration;
+        let startTime = siteTours['tour' + tournumber + 'Start'];
+        let endTime = siteTours['tour' + tournumber + 'End'];
+        const interval = "01:00"
+
+        let dtStart = DateTime.fromFormat(startTime, "HH:mm");
+        let dtEnd = DateTime.fromFormat(endTime, "HH:mm");
+        if (dtStart > dtEnd) {
+            dtStart = dtStart.minus({ hours: 24 });
+        }
+        const durationInterval = Duration.fromISOTime(interval);
+
+        let tourhours = [];
+        let i = dtStart;
+        while (i < dtEnd) {
+            tourhours.push(i.toFormat("HH:mm"));
+            i = i.plus(durationInterval);
+        }
+        return tourhours;
+    }
+}
+function formatNumberWithCommas(number) {
+    const isNegative = number < 0;
+    const absoluteNumber = Math.abs(number);
+    const formattedNumber = absoluteNumber.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return isNegative ? `-${formattedNumber}` : formattedNumber;
 }

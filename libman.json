@@ -74,7 +74,6 @@
         "css/bootstrap-datepicker.min.css"
       ]
     },
-
     {
       "library": "@microsoft/signalr@8.0.7",
       "destination": "wwwroot/lib/microsoft/signalr/",
@@ -95,7 +94,6 @@
         "dist/browser/signalr-protocol-msgpack.min.js.map"
       ]
     },
-
     {
       "provider": "cdnjs",
       "library": "leaflet@1.9.4",
@@ -115,7 +113,6 @@
       ]
     },
     {
-      "provider": "unpkg",
       "library": "bootstrap@5.3.3",
       "destination": "wwwroot/lib/bootstrap/",
       "files": [
@@ -160,6 +157,21 @@
         "dist/js/bootstrap.min.js",
         "dist/js/bootstrap.min.js.map"
       ]
+    },
+    {
+      "provider": "cdnjs",
+      "library": "datatables.net-buttons@3.1.2",
+      "destination": "wwwroot/lib/datatables.net-buttons/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "datatables.net-select@2.1.0",
+      "destination": "wwwroot/lib/datatables.net-select/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "datatables.net-responsive@3.0.3",
+      "destination": "wwwroot/lib/datatables.net-responsive/"
     }
   ]
 }

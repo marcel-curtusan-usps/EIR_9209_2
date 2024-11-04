@@ -54,7 +54,7 @@ function processMPEdata(data, mindate, maxdate) {
                         acc[key] = {};
                         curr[`_${key}`] = key;
                     }
-                    const dateObj = luxon.DateTime.fromISO(curr.hour);
+                    const dateObj = luxon.DateTime.fromISO(curr.hour, { zone: ianaTimeZone });
 
                     if (isDateInRange(dateObj, mindate, maxdate)) {
                         acc[key][curr.hour] = curr[key];
