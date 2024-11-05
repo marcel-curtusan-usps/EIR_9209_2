@@ -79,10 +79,15 @@ function constructTourHoursRejectsColumns(tourNumber) {
             data: value,
             width: '40px',
             render: function (data, type, row) {
-                if (row.name === 'Quantity') {
-                    return data > 1000 ? formatNumberWithCommas(data) : data < -1000 ? formatNumberWithCommas(data)  : data ;
-                } else {
-                    return data != "-" ? data > 1000 ? formatNumberWithCommas(data) + ' %' : data < -1000 ? formatNumberWithCommas(data) + ' %' : data + ' %' : data;
+                if (data === 0 || data === '0.0') {
+                    return "-";
+                }
+                else {
+                    if (row.name === 'Quantity') {
+                        return data > 1000 ? formatNumberWithCommas(data) : data < -1000 ? formatNumberWithCommas(data) : data;
+                    } else {
+                        return data != "-" && data !== "" ? data > 1000 ? formatNumberWithCommas(data) + ' %' : data < -1000 ? formatNumberWithCommas(data) + ' %' : data + ' %' : data;
+                    }
                 }
             }
         };
@@ -145,21 +150,21 @@ function createLoadMPEHourData(tourNumber,targets,mpedata) {
         const hourMPE = mpedata.hourlyData.find(hourlyData => hourlyData.hour.endsWith(curtDayandHour));
 
         let targetHourlyVol = hourTarget == null ? "-" : parseInt(hourTarget?.hourlyTargetVol);
-        let mpeCount = hourMPE == null ? "-" : parseInt(hourMPE?.count);
+        let mpeCount = hourMPE == null ? "" : parseInt(hourMPE?.count);
         dataTarget[tourhours[i]] = targetHourlyVol
         if (targetHourlyVol != "-") {
             targetTTL += targetHourlyVol;
         }
        
         dataTargetActual[tourhours[i]] = mpeCount;
-        if (mpeCount != "-") {
+        if (mpeCount !== "") {
             mpeActualTTL += mpeCount;
         }
-        if (targetHourlyVol != "-" && mpeCount != "-") {
+        if (targetHourlyVol != "-" && mpeCount !== "") {
             dataTargetDelta[tourhours[i]] = mpeCount - targetHourlyVol;
             deltaTTL += (mpeCount - targetHourlyVol);
         } else {
-            dataTargetDelta[tourhours[i]] = "-";
+            dataTargetDelta[tourhours[i]] = "";
         }
     }
     dataTarget["tourTotal"] = targetTTL;
@@ -207,10 +212,10 @@ function createLoadMPERejectHourData(tourNumber, targets, mpedata) {
   
         let mpeCount = parseInt(hourMPE?.count) || 0;
         mpeActualTTL += mpeCount;
-        let mpeReject = hourMPE == null ? "-" : parseInt(hourMPE?.rejected);
+        let mpeReject = hourMPE == null ? "" : parseInt(hourMPE?.rejected);
         let targetReject = hourTarget == null ? "-" : parseInt(hourTarget?.hourlyRejectRatePercent);
         dataQuantity[tourhours[i]] = mpeReject;
-        if (mpeReject != "-") {
+        if (mpeReject != "") {
             quantityTTL += dataQuantity[tourhours[i]];
         }
     
@@ -218,7 +223,7 @@ function createLoadMPERejectHourData(tourNumber, targets, mpedata) {
         if (targetReject != "-") {
             targetPercentTTL += targetReject;
         }
-        dataActualPercent[tourhours[i]] = hourMPE == null ? "-" : mpeCount > 0 ? ((mpeReject / mpeCount * 100).toFixed(1)) : (0.0).toFixed(1);
+        dataActualPercent[tourhours[i]] = hourMPE == null ? "" : mpeCount > 0 ? ((mpeReject / mpeCount * 100).toFixed(1)) : (0.0).toFixed(1);
         actualPercentTTL = quantityTTL > 0 ? ((quantityTTL / mpeActualTTL * 100).toFixed(1)) : 0;
     }
     dataQuantity["tourTotal"] = quantityTTL;
