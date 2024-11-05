@@ -10,7 +10,6 @@
 }
 let DateTime = luxon.DateTime;
 let appData = {};
-let siteTours = [];
 let baselayerid = "";
 let siteInfo = {};
 let siteTours = {};

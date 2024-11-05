@@ -39,26 +39,56 @@ namespace EIR_9209_2.Service
                                 _endpointConfig.Name,
                                 FormatUrl), stoppingToken);
                         }
+                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        var updateCon = _connection.Update(_endpointConfig).Result;
+                        if (updateCon != null)
+                        {
+                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                        }
                         // Process MPE data in a separate thread
                         await ProcessDoorsData(result, stoppingToken);
                     }
                     if (_endpointConfig.MessageType.Equals("getdoor_associated_trips", StringComparison.CurrentCultureIgnoreCase))
                     {
+                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        var updateCon = _connection.Update(_endpointConfig).Result;
+                        if (updateCon != null)
+                        {
+                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                        }
                         // Process MPE data in a separate thread
                         await ProcessGetdoorAssociatedTripsData(result);
                     }
                     if (_endpointConfig.MessageType.Equals("trip_itinerary", StringComparison.CurrentCultureIgnoreCase))
                     {
+                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        var updateCon = _connection.Update(_endpointConfig).Result;
+                        if (updateCon != null)
+                        {
+                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                        }
                         // Process MPE data in a separate thread
                         await ProcessTripItineraryData(result);
                     }
                     if (_endpointConfig.MessageType.Equals("trips", StringComparison.CurrentCultureIgnoreCase))
                     {
+                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        var updateCon = _connection.Update(_endpointConfig).Result;
+                        if (updateCon != null)
+                        {
+                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                        }
                         // Process MPE data in a separate thread
                         await ProcessTripsData(result);
                     }
                     if (_endpointConfig.MessageType.Equals("container", StringComparison.CurrentCultureIgnoreCase))
                     {
+                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        var updateCon = _connection.Update(_endpointConfig).Result;
+                        if (updateCon != null)
+                        {
+                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                        }
                         // Process MPE data in a separate thread
                         await ProcessContainerData(result);
                     }

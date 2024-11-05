@@ -232,7 +232,7 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                return await _geoZone.RemoveMPETargetsTour(mpeData);
+                return await _geoZone.RemoveMPETargets(mpeData);
 
             }
             catch (Exception e)
