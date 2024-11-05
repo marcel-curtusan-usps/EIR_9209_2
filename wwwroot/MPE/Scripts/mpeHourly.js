@@ -7,10 +7,14 @@ let MPEName = "";
 let TourNumber = "";
 let tourHours = [];
 let mpeTartgets = {};
+let mpeRunData = {};
 let MPEhourlyMaxdate = null;
 let MPEhourlyMindate = null;
 let colHourcount = 0;
 let retryCount = 0;
+let currentTime = null;
+let currentTour = null;
+
 
 const maxRetries = 5;
 const mpeHourlyConnection = new signalR.HubConnectionBuilder()
@@ -65,7 +69,7 @@ async function mpeHourlyStart() {
 function initializeMpeHourly() {
     try {
         // Start the connection
-        $('label[id=mpeName]').text(MPEName);
+        $('button[id=mpeName]').text(MPEName);
         mpeHourlyConnection.invoke("GetApplicationInfo").then(function (data) {
             appData = JSON.parse(data);
             //if data is not null
@@ -74,6 +78,10 @@ function initializeMpeHourly() {
                 siteTours = JSON.parse(appData.Tours);
                 // Use the mapping function to get the correct IANA time zone
                 ianaTimeZone = getIANATimeZone(getPostalTimeZone(appData.TimeZoneAbbr));
+                $('button[id=tourNumber]').text(getTour());
+                currentTime = luxon.DateTime.local().setZone(ianaTimeZone)
+                createMPEDataTable(getTour());
+                createRejectDataTable(getTour());
             }
         }).catch(function (err) {
             console.error("Error loading application info: ", err);
@@ -86,8 +94,9 @@ function initializeMpeHourly() {
         }).then(() => {
             mpeHourlyConnection.invoke("GetGeoZoneMPEData", MPEName).then((mpeData) => {
                 if (mpeData) {
-
-                    Promise.all([buildDataTable(mpeData, mpeTartgets)]);
+                    mpeRunData = mpeData;
+                    createLoadMPEHourData(getTour(), mpeTartgets, mpeRunData);
+                    createLoadMPERejectHourData(getTour(), mpeTartgets, mpeRunData);
                 }
 
             }).catch(function (err) {
@@ -100,6 +109,11 @@ function initializeMpeHourly() {
 
         mpeHourlyConnection.invoke("JoinGroup", "MPE").then(function (data) {
             console.log("Connected to Group:", "MPEZones");
+        }).catch(function (err) {
+            return console.error(err.toString());
+        });
+        mpeHourlyConnection.invoke("JoinGroup", "MPETartgets").then(function (data) {
+            console.log("Connected to Group:", "MPETartgets");
         }).catch(function (err) {
             return console.error(err.toString());
         });
@@ -140,6 +154,30 @@ mpeHourlyStart();
  * Determines the current tour based on the current time and the tour start times defined in siteTours.
  * @returns {number} The current tour number.
  */
+function getTourHours(tournumber) {
+    if (tournumber) {
+        const DateTime = luxon.DateTime;
+        const Duration = luxon.Duration;
+        let startTime = siteTours['tour' + tournumber + 'Start'];
+        let endTime = siteTours['tour' + tournumber + 'End'];
+        const interval = "01:00"
+
+        let dtStart = DateTime.fromFormat(startTime, "HH:mm");
+        let dtEnd = DateTime.fromFormat(endTime, "HH:mm");
+        if (dtStart > dtEnd) {
+            dtStart = dtStart.minus({ hours: 24 });
+        }
+        const durationInterval = Duration.fromISOTime(interval);
+
+        let tourhours = [];
+        let i = dtStart;
+        while (i < dtEnd) {
+            tourhours.push(i.toFormat("HH:mm"));
+            i = i.plus(durationInterval);
+        }
+        return tourhours;
+    }
+}
 function getTour() {
     let curtour = "";
     let tourstlist = [];

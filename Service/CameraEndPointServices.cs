@@ -37,6 +37,12 @@ namespace EIR_9209_2.Service
                         queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
 
                         var cresult = await queryService.GetCameraData(stoppingToken);
+                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        var updateCon = _connection.Update(_endpointConfig).Result;
+                        if (updateCon != null)
+                        {
+                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                        }
                         // Process the data as needed
                         await ProcessCameraData(cresult);
                     }

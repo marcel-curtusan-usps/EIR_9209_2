@@ -38,6 +38,13 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.MessageType.Equals("getByFacilityID", StringComparison.CurrentCultureIgnoreCase))
                     {
                         var result = await queryService.GetHCESData(stoppingToken, "facilityID", siteinfo.FacilityId, _endpointConfig.OAuthClientId);
+
+                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        var updateCon = _connection.Update(_endpointConfig).Result;
+                        if (updateCon != null)
+                        {
+                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                        }
                         await ProcessEmployeeInfoData(result, stoppingToken);
                     }
                     

@@ -39,6 +39,12 @@ namespace EIR_9209_2.Service
                             _endpointConfig.Name,
                             FormatUrl), stoppingToken);
                     }
+                    _endpointConfig.Status = EWorkerServiceState.Idel;
+                    var updateCon = _connection.Update(_endpointConfig).Result;
+                    if (updateCon != null)
+                    {
+                        await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                    }
                     // Process MPE data in a separate thread
                     await ProcessMPEWatchRunPerfData(result, stoppingToken);
                 }
@@ -52,6 +58,12 @@ namespace EIR_9209_2.Service
                             _endpointConfig.Name,
                             FormatUrl), stoppingToken);
                     }
+                    _endpointConfig.Status = EWorkerServiceState.Idel;
+                    var updateCon = _connection.Update(_endpointConfig).Result;
+                    if (updateCon != null)
+                    {
+                        await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                    }
                     // Process MPE data in a separate thread
                     await ProcessMPEWatchRpgPlanData(result, stoppingToken);
                 }
@@ -64,6 +76,12 @@ namespace EIR_9209_2.Service
                             _endpointConfig.MessageType,
                             _endpointConfig.Name,
                             FormatUrl), stoppingToken);
+                    }
+                    _endpointConfig.Status = EWorkerServiceState.Idel;
+                    var updateCon = _connection.Update(_endpointConfig).Result;
+                    if (updateCon != null)
+                    {
+                        await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
                     }
                     // Process MPE data in a separate thread
                     await ProcessMPEWatchDPSRunData(result, stoppingToken);

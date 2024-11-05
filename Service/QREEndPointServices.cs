@@ -61,10 +61,18 @@ namespace EIR_9209_2.Service
                                 if (currentHour == hour || pastHour == hour)
                                 {
                                     var currentvalue = _zones.GetAreaDwell(hour);
+                              
                                     var newValue = await queryService.GetTotalDwellTime(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
                                         TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
                                          TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
                                         allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
+                                    if (_endpointConfig.LogData)
+                                    {
+                                        Task.Run(() => _loggerService.LogData(newValue.ToString(),
+                                        _endpointConfig.MessageType,
+                                        _endpointConfig.Name,
+                                        FormatUrl), stoppingToken);
+                                    }
                                     //add to the list
                                     _zones.UpdateAreaDwell(hour, newValue, currentvalue);
 
@@ -76,11 +84,25 @@ namespace EIR_9209_2.Service
                                         TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
                                          TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
                                          allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
+
+                                if (_endpointConfig.LogData)
+                                {
+                                    Task.Run(() => _loggerService.LogData(newValue.ToString(),
+                                    _endpointConfig.MessageType,
+                                    _endpointConfig.Name,
+                                    FormatUrl), stoppingToken);
+                                }
                                 //add to the list
                                 _zones.AddAreaDwell(hour, newValue);
 
                             }
                     
+                        }
+                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        var updateCon = _connection.Update(_endpointConfig).Result;
+                        if (updateCon != null)
+                        {
+                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
                         }
 
                     }
@@ -116,7 +138,13 @@ namespace EIR_9209_2.Service
                                         TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
                                         TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
                                         allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
-
+                                    if (_endpointConfig.LogData)
+                                    {
+                                        Task.Run(() => _loggerService.LogData(newValue.ToString(),
+                                        _endpointConfig.MessageType,
+                                        _endpointConfig.Name,
+                                        FormatUrl), stoppingToken);
+                                    }
                                     //add to the list
                                     _tags.UpdateTagTimeline(hour, newValue, currentvalue);
 
@@ -129,11 +157,25 @@ namespace EIR_9209_2.Service
                                 TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
                                 TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
                                 allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
+
+                                if (_endpointConfig.LogData)
+                                {
+                                    Task.Run(() => _loggerService.LogData(newValue.ToString(),
+                                    _endpointConfig.MessageType,
+                                    _endpointConfig.Name,
+                                    FormatUrl), stoppingToken);
+                                }
                                 //add to the list
                                 _tags.AddTagTimeline(hour, newValue);
 
                             }
                             _ = Task.Run(() => _schedules.RunEmpScheduleReport());
+                        }
+                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        var updateCon = _connection.Update(_endpointConfig).Result;
+                        if (updateCon != null)
+                        {
+                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
                         }
                     }
                 }

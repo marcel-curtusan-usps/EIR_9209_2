@@ -6,10 +6,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
-		<AssemblyVersion>2.0.6.59</AssemblyVersion>
+		<AssemblyVersion>2.0.7.61</AssemblyVersion>
 		<OutputType>Exe</OutputType>
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-		<FileVersion>2.0.6.59</FileVersion>
+		<FileVersion>2.0.7.61</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -125,6 +125,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="CsvHelper" Version="33.0.1" />
 		<PackageReference Include="MailKit" Version="4.8.0" />
 		<PackageReference Include="Mediator.Abstractions" Version="2.1.7" />
 		<PackageReference Include="Mediator.SourceGenerator" Version="2.1.7">

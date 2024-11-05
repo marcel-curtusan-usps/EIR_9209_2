@@ -122,10 +122,11 @@ namespace EIR_9209_2.Models
     }
     public class TargetHourlyData
     {
+        public string Id { get; set; } = "";
         public string MpeType { get; set; } = "";
         public string MpeNumber { get; set; } = "";
         public string MpeId { get; set; } = "";
-        public string Hour { get; set; } = "";
+        public string TargetHour { get; set; } = "";
         public int HourlyTargetVol { get; set; } = 0;
         public double HourlyRejectRatePercent { get; set; } = 0;
     }

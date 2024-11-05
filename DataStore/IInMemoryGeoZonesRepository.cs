@@ -40,9 +40,9 @@ public interface IInMemoryGeoZonesRepository
     #region
     Task<List<TargetHourlyData>> GetAllMPETragets();
     Task<List<TargetHourlyData>> GetMPETargets(string mpeId);
-    Task<bool> AddMPETargets(JToken mpeData);
-    Task<bool> UpdateMPETargets(JToken mpeData);
-    Task<bool> RemoveMPETargets(string mpeData);
-    Task<bool> RemoveMPETargetsTour(JToken mpeData);
+    Task<List<TargetHourlyData>> AddMPETargets(JToken mpeData);
+    Task<List<TargetHourlyData>> UpdateMPETargets(JToken mpeData);
+    Task<TargetHourlyData> RemoveMPETargets(JToken mpeData);
+    Task<bool> LoadCSVMpeTargets(List<TargetHourlyData> targetHourlyDatas);
     #endregion
 }

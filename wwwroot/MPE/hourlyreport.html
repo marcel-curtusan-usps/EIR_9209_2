@@ -10,14 +10,18 @@
         <div class="card-header">
             <div class="container-fluid">
                 <div class="row justify-content-md-center">
-                    <div class="col-2" style="padding: 0rem;">
-                        <label class="control-label float-end" style="font-size: 3rem; font-weight: bolder;" id="mpeName"></label>
+                    <div class="col-3" style="padding: 0rem;">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-dark btn-sm disabled " id="mpeName" style="font-size: 2.5rem; font-weight: bolder;" type="button"></button>
+                        </div>
                     </div>
                     <div class="col-8" style="padding: 0rem;">
                         <label class="control-label float-end" style="font-size: 3rem; font-weight: bolder;" id="tournumText">Tour: </label>
                     </div>
-                    <div class="col-2" style="padding: 0rem;">
-                        <label class="control-label float-start" style="font-size: 3rem;" id="tourNumber"></label>
+                    <div class="col-1" style="padding: 0rem;">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-dark btn-sm disabled" id="tourNumber" style="font-size: 2.5rem; font-weight: bolder;" type="button"></button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -49,7 +53,6 @@
     <script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
     <script src="../lib/luxon/luxon.min.js"></script>
     <script src="../lib/datatables.net/datatables.js"></script>
-    <script src="../lib/bootstrap/dist/js/bootstrap.js"></script>
     <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
     <script src="Scripts/mpeHourly.js"></script>
     <script src="Scripts/mpeHourlyTable.js"></script>
