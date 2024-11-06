@@ -132,7 +132,11 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(e.Message);
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // DELETE api/<Connection>/5
         [HttpDelete]
         [Route("Delete")]
@@ -145,16 +149,16 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var removedCon = _connectionRepository.Remove(id).Result;
-                if (removedCon != null)
+                var connection = _connectionRepository.Get(id);
+                connection.ActiveConnection = false;
+                if (_worker.UpdateEndpoint(connection))
                 {
-
-                    if (_worker.RemoveEndpoint(removedCon))
+                    var conn = await _connectionRepository.Remove(id);
+                    if (conn != null && _worker.RemoveEndpoint(connection))
                     {
                         await _hubContext.Clients.Group("Connections").SendAsync("DeleteConnection", id);
                     }
-
-                    return Ok(removedCon);
+                    return Ok(connection);
                 }
                 else
                 {

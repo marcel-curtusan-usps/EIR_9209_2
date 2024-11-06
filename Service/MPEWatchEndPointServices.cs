@@ -18,11 +18,33 @@ namespace EIR_9209_2.Service
             try
             {
                 IQueryService queryService;
-                string MpeWatch_id = "1";
+                
+                var MpeWatchSetting = _configuration.GetSection("MpeWatch");
+                var MpeWatchSettingRequestId = MpeWatchSetting.GetSection("RequestId");
+                _ = int.TryParse(MpeWatchSettingRequestId.Value, out int MpeWatchId);
+
+                string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname: _endpointConfig.IpAddress;
                 string start_time = string.Concat(DateTime.Now.AddHours(-_endpointConfig.HoursBack).ToString("MM/dd/yyyy_"), "00:00:00");
                 string end_time = string.Concat(DateTime.Now.AddHours(_endpointConfig.HoursForward).ToString("MM/dd/yyyy_"), "23:59:59");
-                string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname: _endpointConfig.IpAddress;
-                string FormatUrl = string.Format(_endpointConfig.Url, server, MpeWatch_id, _endpointConfig.MessageType, start_time, end_time);
+                if (MpeWatchId == 0)
+                {
+                    string url = string.Format(_endpointConfig.OAuthUrl, server, "", "", start_time, end_time);
+                    queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(
+                        new Uri(url),
+                        new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)
+                    ));
+                    var reqiestId = await queryService.GetMPEWatchRequestId(stoppingToken);
+                    if (reqiestId != null)
+                    {
+                        int RequestId = 0;
+                        int.TryParse(reqiestId.id , out RequestId);
+                        MpeWatchId = RequestId;
+                        MpeWatchSettingRequestId.Value = reqiestId.id;
+                    }
+                }
+
+                string FormatUrl = string.Format(_endpointConfig.Url, server, MpeWatchId, _endpointConfig.MessageType, start_time, end_time);
+
                 queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(
                         new Uri(FormatUrl),
                         new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)
@@ -34,7 +56,7 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.LogData)
                     {
                         // Start a new thread to handle the logging
-                        Task.Run(() => _loggerService.LogData(result,
+                       _ = Task.Run(() => _loggerService.LogData(result,
                             _endpointConfig.MessageType,
                             _endpointConfig.Name,
                             FormatUrl), stoppingToken);
@@ -47,7 +69,7 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.LogData)
                     {
                         // Start a new thread to handle the logging
-                        Task.Run(() => _loggerService.LogData(result,
+                        _ = Task.Run(() => _loggerService.LogData(result,
                             _endpointConfig.MessageType,
                             _endpointConfig.Name,
                             FormatUrl), stoppingToken);
@@ -60,7 +82,7 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.LogData)
                     {
                         // Start a new thread to handle the logging
-                        Task.Run(() => _loggerService.LogData(result,
+                        _ = Task.Run(() => _loggerService.LogData(result,
                             _endpointConfig.MessageType,
                             _endpointConfig.Name,
                             FormatUrl), stoppingToken);

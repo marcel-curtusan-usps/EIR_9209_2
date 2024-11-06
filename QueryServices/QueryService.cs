@@ -84,6 +84,10 @@ internal class QueryService : IQueryService
     {
         return await GetQueryResults<byte[]>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
     }
+    public async Task<MpeWatchRequestId> GetMPEWatchRequestId(CancellationToken ct)
+    {
+        return await GetQueryResults<MpeWatchRequestId>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
+    }
     public Task<Hces> GetHCESData(CancellationToken stoppingToken, string fieldname,string fieldvalue, string appid)
     {
        var query = new ReportQueryHCESBuilder()

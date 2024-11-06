@@ -137,7 +137,6 @@ namespace EIR_9209_2.Service
                 return false;
             }
         }
-
         public bool UpdateEndpoint(Connection updateConfig)
         {
             if (_endPointServices.TryGetValue(updateConfig.Id, out var endpointService))

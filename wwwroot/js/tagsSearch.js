@@ -114,21 +114,21 @@ async function createTagSearchDataTable(table) {
         if (/id/i.test(key)) {
             tempc = {
                 "title": 'Id',
-                "width": "30%",
+                "width": "15%",
                 "mDataProp": key
             }
         }
         if (/ein/i.test(key)) {
             tempc = {
                 "title": "EIN",
-                "width": "30%",
+                "width": "15%",
                 "mDataProp": key
             }
         }
         if (/craftName/i.test(key)) {
             tempc = {
                 "title": "Type",
-                "width": "30%",
+                "width": "50%",
                 "mDataProp": key
             }
         }
@@ -147,25 +147,22 @@ async function createTagSearchDataTable(table) {
     });
     $('#' + table).DataTable({
         dom: 'Bfrtip',
-        filter: false,
-        deferRender: true,
-        paging: false,
-        paginate: false,
+        bFilter: false,
+        bdeferRender: true,
+        bpaging: false,
+        bPaginate: false,
         autoWidth: false,
-        info: false,
+        bInfo: false,
         destroy: true,
-        fixedHeader: true,
         language: {
             emptyTable: "Please Enter Tag / EIN / Name / EncodedID"
         },
         columns: columns,
-        scrollY: "250px",
-        columnDefs: [
-        ],
+        columnDefs: [{
+            orderable: false, // Disable sorting on all columns
+            targets: '_all'
+        }],
         sorting: false, // Disable sorting
-        buttons: [
-            'copy', 'csv', 'excel', 'pdf', 'print'
-        ]
     });
     // Edit/remove record
     $('#' + table + ' tbody').on('click', 'button', function () {

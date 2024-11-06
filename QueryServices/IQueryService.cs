@@ -20,4 +20,5 @@ public interface IQueryService
     Task<byte[]> GetPictureData(CancellationToken stoppingToken);
     Task<QPEProjectInfo> GetQPEProjectInfo(CancellationToken stoppingToken);
     Task<Hces> GetHCESData(CancellationToken stoppingToken, string facilityId, string oAuthClientId, string oAuthClientId1);
+    Task<MpeWatchRequestId> GetMPEWatchRequestId(CancellationToken stoppingToken);
 }

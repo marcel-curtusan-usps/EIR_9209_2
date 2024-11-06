@@ -130,4 +130,8 @@ namespace EIR_9209_2.Models
         public int HourlyTargetVol { get; set; } = 0;
         public double HourlyRejectRatePercent { get; set; } = 0;
     }
+    public class MpeWatchRequestId
+    {
+        public string id { get; set; } = "";
+    }
 }

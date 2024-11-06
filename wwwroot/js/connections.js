@@ -264,6 +264,16 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
     });
 
     //oAuth 
+    $('input[type=text][name=idrequesturl]').on("keyup", () => {
+        if (!checkValue($('input[type=text][name=idrequesturl]').val())) {
+            $('input[type=text][name=idrequesturl]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_idrequesturl]').text("Please Enter Id Request URL");
+        }
+        else {
+            $('input[type=text][name=idrequesturl]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_idrequesturl]').text("");
+        }
+    });
     $('input[type=text][name=tokenurl]').on("keyup", () => {
         if (!checkValue($('input[type=text][name=tokenurl]').val())) {
             $('input[type=text][name=tokenurl]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
@@ -376,10 +386,10 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             onAPIConnection();
         }
     }));
-    if ($("input[type=checkbox][name='oAuth2']").on("change", () => {
+    if ($("input[type=checkbox][id='oAuth2']").on("change", () => {
         connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
         if (/^(api)/i.test(connTypeRadio)) {
-            if ($('input[type=checkbox][name=oAuth2]').is(':checked')) {
+            if ($('input[type=checkbox][id=oAuth2]').is(':checked')) {
                 onOAuthConnection();
             }
             else {
@@ -387,10 +397,10 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             }
         }
     }));
-    if ($("input[type=checkbox][name='basicAuth']").on("change", () => {
+    if ($("input[type=checkbox][id='basicAuth']").on("change", () => {
         connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
         if (/^(api)/i.test(connTypeRadio)) {
-            if ($('input[type=checkbox][name=basicAuth]').is(':checked')) {
+            if ($('input[type=checkbox][id=basicAuth]').is(':checked')) {
                 onBasicAuthConnection();
             }
             else {
@@ -398,10 +408,10 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             }
         }
     }));
-    if ($("input[type=checkbox][name='bearerToken']").on("change", () => {
+    if ($("input[type=checkbox][id='bearerToken']").on("change", () => {
         connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
         if (/^(api)/i.test(connTypeRadio)) {
-            if ($('input[type=checkbox][name=bearerToken]').is(':checked')) {
+            if ($('input[type=checkbox][id=bearerToken]').is(':checked')) {
                 onBearerConnection();
             }
             else {
@@ -409,7 +419,66 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             }
         }
     }));
+    if ($("input[type=checkbox][id='idRequest']").on("change", () => {
+        connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
+        if (/^(api)/i.test(connTypeRadio)) {
+            if ($('input[type=checkbox][id=idRequest]').is(':checked')) {
+                onidRequestConnection();
+            }
+            else {
+                offidRequestConnection();
+            }
+        }
+    }));
+
     checkAndDisableInputs();
+    $("input[type='checkbox'][name='authType']").on("change", function () {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="authType"]');
+        checkboxes.forEach(cb => {
+            if (cb !== this) {
+                cb.checked = false;
+                if (cb.id === "bearerToken") {
+                    offBearerConnection();
+                }
+                if (cb.id === "basicAuth") {
+                    offBasicAuthConnection();
+                }
+                if (cb.id === "oAuth2") {
+                    offOAuthConnection();
+                }
+                if (cb.id === "idRequest") {
+                    offidRequestConnection();
+                }
+            }
+        });
+        if (this.checked) {
+            if (this.id === "bearerToken") {
+                onBearerConnection();
+            }
+            if (this.id === "basicAuth") {
+                onBasicAuthConnection();
+            }
+            if (this.id === "oAuth2") {
+                onOAuthConnection();
+            }
+            if (this.id === "idRequest") {
+                onidRequestConnection();
+            }
+        } else {
+            if (this.id === "idRequest") {
+                offidRequestConnection();
+            }
+            if (this.id === "bearerToken") {
+                offBearerConnection();
+            }
+            if (this.id === "basicAuth") {
+                offBasicAuthConnection();
+            }
+            if (this.id === "oAuth2") {
+                offOAuthConnection();
+            }
+        }
+    });
     //$('input[type=checkbox][name=ws_connection]').change(() => {
     //    onUpdateWS();
     //});
@@ -500,14 +569,19 @@ async function Add_Connection() {
                     // NassCode: User.Facility_NASS_Code
                 };
                 //check if the Basic Auth is checked
-                if ($('input[type=checkbox][name=basicAuth]').is(':checked')) {
+                if ($('input[type=checkbox][id=idRequest]').is(':checked')) {
+                    jsonObject.AuthType = "idRequest";
+                    jsonObject.OAuthUrl = $('input[type=text][name=tokenurl]').val();
+                }
+                //check if the Basic Auth is checked
+                if ($('input[type=checkbox][id=basicAuth]').is(':checked')) {
                     jsonObject.AuthType = "basicAuth";
                     jsonObject.OAuthUserName = $('input[type=text][name=tokenusername]').val();
                     jsonObject.OAuthPassword = $('input[type=text][name=tokenpassword]').val();
                     jsonObject.OAuthClientId = $('input[type=text][name=tokenclientId]').val();
                 }
                 //check if the Bearer Token is checked
-                if ($('input[type=checkbox][name=bearerToken]').is(':checked')) {
+                if ($('input[type=checkbox][id=bearerToken]').is(':checked')) {
                     jsonObject.AuthType = "bearerToken";
                     jsonObject.OutgoingApikey = $('input[type=text][name=bearerToken]').val();
                     jsonObject.MapId = $('input[type=text][name=ciscoSpaceMapId]').val();
@@ -518,7 +592,7 @@ async function Add_Connection() {
                     jsonObject.OAuthClientId = $('input[type=text][name=tokenclientId]').val();
                 }
                 //check if the OAuth is checked
-                if ($('input[type=checkbox][name=oAuth2]').is(':checked')) {
+                if ($('input[type=checkbox][id=oAuth2]').is(':checked')) {
                     jsonObject.AuthType = "oAuth2";
                     jsonObject.OAuthUrl = $('input[type=text][name=tokenurl]').val();
                     jsonObject.OAuthUserName = $('input[type=text][name=tokenusername]').val();
@@ -594,6 +668,13 @@ async function Edit_Connection(data) {
         //    $('input[type=text][name=ciscoSpacetenantId]').val("");
         //    offBearerConnection();
         //}
+
+        if (/^(idRequest)/i.test(data.authType)) {
+            $('input[type=checkbox][id=idRequest]').prop('checked', true);
+            $('input[type=text][name=tokenurl]').prop("disabled", false).val(data.oAuthUrl);
+            onidRequestConnection();
+
+        }
         if (/^(oAuth2)/i.test(data.authType)) {
             $('input[type=checkbox][id=oAuth2]').prop('checked', true);
             $('input[type=text][name=tokenurl]').prop("disabled", false).val(data.oAuthUrl);
@@ -681,6 +762,11 @@ async function Edit_Connection(data) {
                     //lastupdateByUsername: User.UserId,
                     id: data.id
                 };
+                //check if the Id Request is checked
+                if ($('input[type=checkbox][id=idRequest]').is(':checked')) {
+                    jsonObject.AuthType = "idRequest";
+                    jsonObject.OAuthUrl = $('input[type=text][name=idrequesturl]').val();
+                }
                 //check if the Basic Auth is checked
                 if ($('input[type=checkbox][name=basicAuth]').is(':checked')) {
                     jsonObject.AuthType = "basicAuth";
@@ -1115,6 +1201,7 @@ function onAPIConnection() {
     $('input[type=text][name=url]').prop("disabled", false);
     $('select[name=data_retrieve]').prop("disabled", false);
     $('input[type=text][name=url]').trigger('keyup');
+    $('input[type=text][name=ip_address]').trigger('keyup');
     $('select[name=data_retrieve]').trigger('change');
     $('select[name=message_type]').trigger('change');
     enableaipSubmit();
@@ -1156,8 +1243,32 @@ function onudptcpipConnection() {
     }
     enabletcpipudpSubmit();
 }
+function onidRequestConnection() {
+
+    if (/^(api)/i.test(connTypeRadio)) {
+        onAPIConnection();
+    }
+    $('div[id="IdRequest"]').css("display", "");
+    $('input[type=text][name=tokenurl]').prop("disabled", false).css('display', "block").val("");
+    if (!checkValue($('input[type=text][name=tokenurl]').val())) {
+        $('input[type=text][name=idrequesturl]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_idrequesturl]').text("Please Enter Token URL");
+    }
+    else {
+        $('input[type=text][name=idrequesturl]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_idrequesturl]').text("");
+    }
+    enableaipSubmit();
+}
+function offidRequestConnection() {
+    $('div[id="IdRequest"]').css("display", "none");
+    $('input[type=text][name=idrequesturl]').prop("disabled", false).val("");
+};
+
 function onOAuthConnection() {
     $('div[id="OAuthmenu"]').css("display", "");
+    $('div[id="divtokenurl"]').css("display", "");
+    $('input[type=text][name=tokenurl]').prop("disabled", false).css('display', "block").val("");
     if (!checkValue($('input[type=text][name=tokenurl]').val())) {
         $('input[type=text][name=tokenurl]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
         $('span[id=error_tokenurl]').text("Please Enter Token URL");
@@ -1202,10 +1313,8 @@ function offOAuthConnection() {
 };
 function onBasicAuthConnection() {
     $('div[id="OAuthmenu"]').css("display", "");
+    $('div[id="divtokenurl"]').css("display", "none");
     $('input[type=text][name=tokenurl]').prop("disabled", true).css('display', "none").val("");
-    //$('input[type=text][name=tokenusername]').prop("disabled", false).css('display', "").val("");
-    //$('input[type=text][name=tokenpassword]').prop("disabled", false).css('display', "").val("");
-    //$('input[type=text][name=tokenclientId]').prop("disabled", false).css('display', "").val("");
     if (!checkValue($('input[type=text][name=tokenusername]').val())) {
         $('input[type=text][name=tokenusername]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
         $('span[id=error_tokenusername]').text("Please Enter UserName");
