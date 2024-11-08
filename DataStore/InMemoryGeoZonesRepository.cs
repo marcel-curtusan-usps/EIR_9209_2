@@ -785,6 +785,8 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                         geoZone.Properties.MPERunPerformance = mpe;
                         geoZone.Properties.MPERunPerformance.MpeId = mpe.MpeId;
                         geoZone.Properties.MPERunPerformance.RpgEstimatedCompletion = RpgEstimatedCompletion;
+                        geoZone.Properties.MPERunPerformance.NextOperationId = NextOperationId.ToString();
+                        geoZone.Properties.MPERunPerformance.NextRPGStartDtm = NextRPGStartDtm;
                         geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
                         pushUIUpdate = true;
                     }

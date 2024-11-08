@@ -267,9 +267,9 @@ async function buildDataTable(data) {
 function startCountdown(targetTime, nextOP, nextStartTime) {
     let targetDate = luxon.DateTime.fromISO(targetTime, { zone: ianaTimeZone });
     let nextDate = luxon.DateTime.fromISO(nextStartTime, { zone: ianaTimeZone });
-    if (nextOP) {
+    if (nextOP && nextOP != "0") {
         $('label[id=nextopn]').html('<strong>Next OP:</strong> ' + nextOP);
-        $('label[id=nextstart]').html('<strong>Next OP Start Time:</strong> ' + nextDate.toFormat("yyyy-MM-dd HH:mm:ss"));
+        $('label[id=nextstart]').html('<strong>Next OP Start Time:</strong> ' + nextDate.toFormat("HH:mm MM/dd"));
     } else {
         $('label[id=nextopn]').html("");
         $('label[id=nextstart]').html("");
@@ -293,10 +293,14 @@ function startCountdown(targetTime, nextOP, nextStartTime) {
         // Display the countdown in an element
         $('label[id=countdownText]').css('display', 'block') 
         $('label[id=countdown]').html(hours + "h " + minutes + "m " + seconds + "s ");
-        if (nextDate > targetDate) {
+        if (!nextOP || nextOP == "0") {
             $('label[id=countdown]').css('color', 'green');
         } else {
-            $('label[id=countdown]').css('color', 'red');
+            if (nextDate > targetDate) {
+                $('label[id=countdown]').css('color', 'green');
+            } else {
+                $('label[id=countdown]').css('color', 'red');
+            }
         }
 
         // Clear the interval when the countdown reaches 0
