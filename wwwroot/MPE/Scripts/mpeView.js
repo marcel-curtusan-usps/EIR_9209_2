@@ -262,10 +262,18 @@ async function buildDataTable(data) {
     });
     updateMpeDataTable(dataArray, "mpeStatustable");
     clearInterval(timer);
-    startCountdown(data.rpgEstimatedCompletion);
+    startCountdown(data.rpgEstimatedCompletion, data.nextOperationId, data.nextRPGStartDtm);
 }
-function startCountdown(targetTime) {
+function startCountdown(targetTime, nextOP, nextStartTime) {
     let targetDate = luxon.DateTime.fromISO(targetTime, { zone: ianaTimeZone });
+    let nextDate = luxon.DateTime.fromISO(nextStartTime, { zone: ianaTimeZone });
+    if (nextOP) {
+        $('label[id=nextopn]').html('<strong>Next OP:</strong> ' + nextOP);
+        $('label[id=nextstart]').html('<strong>Next OP Start Time:</strong> ' + nextDate.toFormat("yyyy-MM-dd HH:mm:ss"));
+    } else {
+        $('label[id=nextopn]').html("");
+        $('label[id=nextstart]').html("");
+    }
 
     // Update the countdown every second
     timer = setInterval(() => {
@@ -285,6 +293,11 @@ function startCountdown(targetTime) {
         // Display the countdown in an element
         $('label[id=countdownText]').css('display', 'block') 
         $('label[id=countdown]').html(hours + "h " + minutes + "m " + seconds + "s ");
+        if (nextDate > targetDate) {
+            $('label[id=countdown]').css('color', 'green');
+        } else {
+            $('label[id=countdown]').css('color', 'red');
+        }
 
         // Clear the interval when the countdown reaches 0
         if (distance < 0) {
