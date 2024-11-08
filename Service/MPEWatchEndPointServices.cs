@@ -1,6 +1,8 @@
 ﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using static EIR_9209_2.Service.MPEWatchEndPointServices;
 
 namespace EIR_9209_2.Service
 {
@@ -153,10 +155,13 @@ namespace EIR_9209_2.Service
                     var data = result.SelectToken("data");
                     if (data != null)
                     {
-                        List<MPERunPerformance>? mpeList = data.ToObject<List<MPERunPerformance>>();
-                        if (mpeList != null && mpeList.Any())
+                        var jsonSettings = new JsonSerializerSettings();
+                        jsonSettings.Converters.Add(new MPEWatchRunPerformanceConverter());
+                        List<MPERunPerformance>? mPERunPerformances = JsonConvert.DeserializeObject<List<MPERunPerformance>>(data.ToString(), jsonSettings);
+
+                        if (mPERunPerformances != null && mPERunPerformances.Any())
                         {
-                            await _geoZones.UpdateMPERunInfo(mpeList, stoppingToken);
+                            await _geoZones.UpdateMPERunInfo(mPERunPerformances, stoppingToken);
                         }
                     }
                 }
@@ -165,6 +170,193 @@ namespace EIR_9209_2.Service
             {
                 _logger.LogError(e.Message);
             }
+        }
+        public class MPEWatchRunPerformance
+        {
+            [JsonProperty("id")]
+            public string ZoneId { get; set; } = "";
+
+            [JsonProperty("mpe_type")]
+            public string MpeType { get; set; } = "";
+
+            [JsonProperty("mpe_number")]
+            public string MpeNumber { get; set; } = "";
+
+            [JsonProperty("bins")]
+            public string Bins { get; set; } = "";
+
+            [JsonProperty("cur_sortplan")]
+            public string CurSortplan { get; set; } = "";
+
+            [JsonProperty("cur_thruput_ophr")]
+            public string CurThruputOphr { get; set; } = "";
+
+            [JsonProperty("tot_sortplan_vol")]
+            public string TotSortplanVol { get; set; } = "";
+
+            [JsonProperty("rpg_est_vol")]
+            public string RpgEstVol { get; set; } = "";
+
+            [JsonProperty("act_vol_plan_vol_nbr")]
+            public string ActVolPlanVolNbr { get; set; } = "";
+
+            [JsonProperty("current_run_start")]
+            public string CurrentRunStart { get; set; } = "";
+
+            [JsonProperty("current_run_end")]
+            public string CurrentRunEnd { get; set; } = "";
+
+            [JsonProperty("cur_operation_id")]
+            public string CurOperationId { get; set; } = "";
+
+            [JsonProperty("bin_full_status")]
+            public string BinFullStatus { get; set; } = "";
+
+            [JsonProperty("bin_full_bins")]
+            public string BinFullBins { get; set; } = "";
+
+            [JsonProperty("throughput_status")]
+            public string ThroughputStatus { get; set; } = "";
+
+            [JsonProperty("unplan_maint_sp_status")]
+            public string UnplanMaintSpStatus { get; set; } = "";
+
+            [JsonProperty("op_started_late_status")]
+            public string OpStartedLateStatus { get; set; } = "";
+
+            [JsonProperty("op_running_late_status")]
+            public string OpRunningLateStatus { get; set; } = "";
+
+            [JsonProperty("sortplan_wrong_status")]
+            public string SortplanWrongStatus { get; set; } = "";
+
+            [JsonProperty("unplan_maint_sp_timer")]
+            public string UnplanMaintSpTimer { get; set; } = "";
+
+            [JsonProperty("op_started_late_timer")]
+            public string OpStartedLateTimer { get; set; } = "";
+
+            [JsonProperty("op_running_late_timer")]
+            public string OpRunningLateTimer { get; set; } = "";
+
+            [JsonProperty("rpg_start_dtm")]
+            public string RPGStartDtm { get; set; } = "";
+
+            [JsonProperty("rpg_end_dtm")]
+            public string RPGEndDtm { get; set; } = "";
+
+            [JsonProperty("expected_throughput")]
+            public string ExpectedThroughput { get; set; } = "";
+
+            [JsonProperty("sortplan_wrong_timer")]
+            public string SortplanWrongTimer { get; set; } = "";
+
+            [JsonProperty("rpg_est_comp_time")]
+            public string RpgEstCompTime { get; set; } = "";
+            public DateTime RpgEstimatedCompletion { get; set; } = DateTime.MinValue;
+
+            [JsonProperty("hourly_data")]
+            public List<HourlyData> HourlyData { get; set; } = new List<HourlyData>();
+
+            [JsonProperty("rpg_expected_thruput")]
+            public string RpgExpectedThruput { get; set; } = "";
+
+            [JsonProperty("ars_recrej3")]
+            public string ArsRecrej3 { get; set; } = "";
+
+            [JsonProperty("sweep_recrej3")]
+            public string SweepRecrej3 { get; set; } = "";
+        }
+        public class mpeWatchHourlyData
+        {
+            [JsonProperty("hour")]
+            public string Hour { get; set; } = "";
+
+            [JsonProperty("count")]
+            public int Count { get; set; } = 0;
+            public int Sorted { get; set; } = 0;
+            public int Rejected { get; set; } = 0;
+        }
+    }
+
+    internal class MPEWatchRunPerformanceConverter :  JsonConverter<MPERunPerformance>
+    {
+        public override MPERunPerformance ReadJson(JsonReader reader, Type objectType, MPERunPerformance existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            JObject obj = JObject.Load(reader);
+            return new MPERunPerformance
+            {
+                ZoneId = (string)obj["id"],
+                MpeType = (string)obj["mpe_type"],
+                MpeNumber = (string)obj["mpe_number"],
+                Bins = (string)obj["bins"],
+                CurSortplan = (string)obj["cur_sortplan"],
+                CurThruputOphr = (string)obj["cur_thruput_ophr"],
+                TotSortplanVol = (string)obj["tot_sortplan_vol"],
+                RpgEstVol = (string)obj["rpg_est_vol"],
+                ActVolPlanVolNbr = (string)obj["act_vol_plan_vol_nbr"],
+                CurrentRunStart = (string)obj["current_run_start"],
+                CurrentRunEnd = (string)obj["current_run_end"],
+                CurOperationId = (string)obj["cur_operation_id"],
+                BinFullStatus = (string)obj["bin_full_status"],
+                BinFullBins = (string)obj["bin_full_bins"],
+                ThroughputStatus = (string)obj["throughput_status"],
+                UnplanMaintSpStatus = (string)obj["unplan_maint_sp_status"],
+                OpStartedLateStatus = (string)obj["op_started_late_status"],
+                OpRunningLateStatus = (string)obj["op_running_late_status"],
+                SortplanWrongStatus = (string)obj["sortplan_wrong_status"],
+                UnplanMaintSpTimer = (string)obj["unplan_maint_sp_timer"],
+                OpStartedLateTimer = (string)obj["op_started_late_timer"],
+                OpRunningLateTimer = (string)obj["op_running_late_timer"],
+                RPGStartDtm = (string)obj["rpg_start_dtm"],
+                RPGEndDtm = (string)obj["rpg_end_dtm"],
+                HourlyData = obj["hourly_data"].ToObject<List<HourlyData>>(),
+                ExpectedThroughput = (string)obj["expected_throughput"],
+                SortplanWrongTimer = (string)obj["sortplan_wrong_timer"],
+                RpgEstCompTime = (string)obj["rpg_est_comp_time"],
+                RpgExpectedThruput = (string)obj["rpg_expected_thruput"],
+                ArsRecrej3 = (string)obj["ars_recrej3"],
+                SweepRecrej3 = (string)obj["sweep_recrej3"]
+            };
+        }
+
+        public override void WriteJson(JsonWriter writer, MPERunPerformance value, JsonSerializer serializer)
+        {
+            JObject obj = new JObject
+        {
+            { "id", value.ZoneId },
+            { "mpe_type", value.MpeType },
+            { "mpe_number", value.MpeNumber },
+            { "bins", value.Bins },
+            { "cur_sortplan", value.CurSortplan },
+            { "cur_thruput_ophr", value.CurThruputOphr },
+            { "tot_sortplan_vol", value.TotSortplanVol },
+            { "rpg_est_vol", value.RpgEstVol },
+            { "act_vol_plan_vol_nbr", value.ActVolPlanVolNbr },
+            { "current_run_start", value.CurrentRunStart },
+            { "current_run_end", value.CurrentRunEnd },
+            { "cur_operation_id", value.CurOperationId },
+            { "bin_full_status", value.BinFullStatus },
+            { "bin_full_bins", value.BinFullBins },
+            { "throughput_status", value.ThroughputStatus },
+            { "unplan_maint_sp_status", value.UnplanMaintSpStatus },
+            { "op_started_late_status", value.OpStartedLateStatus },
+            { "op_running_late_status", value.OpRunningLateStatus },
+            { "sortplan_wrong_status", value.SortplanWrongStatus },
+            { "unplan_maint_sp_timer", value.UnplanMaintSpTimer },
+            { "op_started_late_timer", value.OpStartedLateTimer },
+            { "op_running_late_timer", value.OpRunningLateTimer },
+            { "rpg_start_dtm", value.RPGStartDtm },
+            { "rpg_end_dtm", value.RPGEndDtm },
+            { "expected_throughput", value.ExpectedThroughput },
+            { "sortplan_wrong_timer", value.SortplanWrongTimer },
+            { "rpg_est_comp_time", value.RpgEstCompTime },
+            { "rpg_estimated_completion", value.RpgEstimatedCompletion },
+            { "rpg_expected_thruput", value.RpgExpectedThruput },
+            { "ars_recrej3", value.ArsRecrej3 },
+            { "sweep_recrej3", value.SweepRecrej3 }
+        };
+            obj.WriteTo(writer);
         }
     }
 }

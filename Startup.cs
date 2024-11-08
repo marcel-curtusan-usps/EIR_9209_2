@@ -68,7 +68,8 @@ public class Startup
             {
                 options.MaximumReceiveMessageSize = 100_000;
                 options.MaximumParallelInvocationsPerClient = 5;
-            }).AddJsonProtocol(options =>
+            })
+            .AddJsonProtocol(options =>
             {
                 options.PayloadSerializerOptions.PropertyNameCaseInsensitive = true;
             }).AddMessagePackProtocol();

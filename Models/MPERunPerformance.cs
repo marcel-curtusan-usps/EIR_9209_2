@@ -7,106 +7,101 @@ namespace EIR_9209_2.Models
         [JsonProperty("id")]
         public string ZoneId { get; set; } = "";
 
-        [JsonProperty("mpe_type")]
+        [JsonProperty("mpeType")]
         public string MpeType { get; set; } = "";
 
-        [JsonProperty("mpe_number")]
+        [JsonProperty("mpeNumber")]
         public string MpeNumber { get; set; } = "";
 
         [JsonProperty("bins")]
         public string Bins { get; set; } = "";
 
-        [JsonProperty("cur_sortplan")]
+        [JsonProperty("curSortplan")]
         public string CurSortplan { get; set; } = "";
 
-        [JsonProperty("cur_thruput_ophr")]
+        [JsonProperty("curThruputOphr")]
         public string CurThruputOphr { get; set; } = "";
 
-        [JsonProperty("tot_sortplan_vol")]
+        [JsonProperty("totSortplanVol")]
         public string TotSortplanVol { get; set; } = "";
 
-        [JsonProperty("rpg_est_vol")]
+        [JsonProperty("rpgEstVol")]
         public string RpgEstVol { get; set; } = "";
 
-        [JsonProperty("act_vol_plan_vol_nbr")]
+        [JsonProperty("actVolPlanVolNbr")]
         public string ActVolPlanVolNbr { get; set; } = "";
 
-        [JsonProperty("current_run_start")]
+        [JsonProperty("currentRunStart")]
         public string CurrentRunStart { get; set; } = "";
 
-        [JsonProperty("current_run_end")]
+        [JsonProperty("currentRunEnd")]
         public string CurrentRunEnd { get; set; } = "";
 
-        [JsonProperty("cur_operation_id")]
+        [JsonProperty("curOperationId")]
         public string CurOperationId { get; set; } = "";
 
-        [JsonProperty("bin_full_status")]
+        [JsonProperty("binFullStatus")]
         public string BinFullStatus { get; set; } = "";
 
-        [JsonProperty("bin_full_bins")]
+        [JsonProperty("binFullBins")]
         public string BinFullBins { get; set; } = "";
 
-        [JsonProperty("throughput_status")]
+        [JsonProperty("throughputStatus")]
         public string ThroughputStatus { get; set; } = "";
 
-        [JsonProperty("unplan_maint_sp_status")]
+        [JsonProperty("unplanMaintSpStatus")]
         public string UnplanMaintSpStatus { get; set; } = "";
 
-        [JsonProperty("op_started_late_status")]
+        [JsonProperty("opStartedLateStatus")]
         public string OpStartedLateStatus { get; set; } = "";
 
-        [JsonProperty("op_running_late_status")]
+        [JsonProperty("opRunningLateStatus")]
         public string OpRunningLateStatus { get; set; } = "";
 
-        [JsonProperty("sortplan_wrong_status")]
+        [JsonProperty("sortplanWrongStatus")]
         public string SortplanWrongStatus { get; set; } = "";
 
-        [JsonProperty("unplan_maint_sp_timer")]
+        [JsonProperty("unplanMaintSpTimer")]
         public string UnplanMaintSpTimer { get; set; } = "";
 
-        [JsonProperty("op_started_late_timer")]
+        [JsonProperty("opStartedLateTimer")]
         public string OpStartedLateTimer { get; set; } = "";
 
-        [JsonProperty("op_running_late_timer")]
+        [JsonProperty("opRunningLateTimer")]
         public string OpRunningLateTimer { get; set; } = "";
 
-        [JsonProperty("rpg_start_dtm")]
+        [JsonProperty("rPGStartDtm")]
         public string RPGStartDtm { get; set; } = "";
 
-        [JsonProperty("rpg_end_dtm")]
+        [JsonProperty("rPGEndDtm")]
         public string RPGEndDtm { get; set; } = "";
 
-        [JsonProperty("expected_throughput")]
+        [JsonProperty("expectedThroughput")]
         public string ExpectedThroughput { get; set; } = "";
 
-        [JsonProperty("sortplan_wrong_timer")]
+        [JsonProperty("sortplanWrongTimer")]
         public string SortplanWrongTimer { get; set; } = "";
 
-        [JsonProperty("rpg_est_comp_time")]
+        [JsonProperty("rpgEstCompTime")]
         public string RpgEstCompTime { get; set; } = "";
+        [JsonProperty("rpgEstimatedCompletion")]
         public DateTime RpgEstimatedCompletion { get; set; } = DateTime.MinValue;
-
-        [JsonProperty("hourly_data")]
+        [JsonProperty("hourlyData")]
         public List<HourlyData> HourlyData { get; set; } = new List<HourlyData>();
-
-        [JsonProperty("rpg_expected_thruput")]
+        [JsonProperty("rpgExpectedThruput")]
         public string RpgExpectedThruput { get; set; } = "";
-
-        [JsonProperty("ars_recrej3")]
+        [JsonProperty("arsRecrej3")]
         public string ArsRecrej3 { get; set; } = "";
-
-        [JsonProperty("sweep_recrej3")]
+        [JsonProperty("sweepRecrej3")]
         public string SweepRecrej3 { get; set; } = "";
-
+        [JsonProperty("mpeId")]
         public string MpeId { get; set; } = "";
-
-        [JsonProperty("scheduled_staff")]
+        [JsonProperty("scheduledStaffing")]
         public Staff ScheduledStaffing { get; set; } = new();
-
-        [JsonProperty("actual_staff")]
+        [JsonProperty("actualStaffing")]
         public Staff ActualStaffing { get; set; } = new();
+        [JsonProperty("mPEGroup")]
         public string MPEGroup { get; set; } = "";
-
         [JsonProperty("dataSource")]
         public string DataSource { get; set; } = "";
     }
@@ -114,20 +109,28 @@ namespace EIR_9209_2.Models
     {
         [JsonProperty("hour")]
         public string Hour { get; set; } = "";
-
         [JsonProperty("count")]
         public int Count { get; set; } = 0;
+        [JsonProperty("sorted")]
         public int Sorted { get; set; } = 0;
+        [JsonProperty("rejected")]
         public int Rejected { get; set; } = 0;
     }
     public class TargetHourlyData
     {
+        [JsonProperty("id")]
         public string Id { get; set; } = "";
+        [JsonProperty("mpeType")]
         public string MpeType { get; set; } = "";
+        [JsonProperty("mpeNumber")]
         public string MpeNumber { get; set; } = "";
+        [JsonProperty("mpeId")]
         public string MpeId { get; set; } = "";
+        [JsonProperty("targetHour")]
         public string TargetHour { get; set; } = "";
+        [JsonProperty("hourlyTargetVol")]
         public int HourlyTargetVol { get; set; } = 0;
+        [JsonProperty("hourlyRejectRatePercent")]
         public double HourlyRejectRatePercent { get; set; } = 0;
     }
     public class MpeWatchRequestId

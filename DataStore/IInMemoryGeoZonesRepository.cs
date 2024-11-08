@@ -1,5 +1,6 @@
 ﻿using EIR_9209_2.Models;
 using Newtonsoft.Json.Linq;
+using static EIR_9209_2.Service.MPEWatchEndPointServices;
 
 public interface IInMemoryGeoZonesRepository
 {
@@ -31,18 +32,28 @@ public interface IInMemoryGeoZonesRepository
     Task<List<MPESummary>> getMPESummaryDateRange(string mpe, DateTime startDT, DateTime endDT);
     Task<List<GeoZoneDockDoor>> GetDockDoor();
     Task<bool> ProcessSVDoorsData(JToken result, CancellationToken stoppingToken);
-    Task<IEnumerable<GeoZone>> GetGeoZone(string zoneType);
+    Task<object> GetGeoZone(string zoneType);
     Task ProcessSVContainerData(JToken result);
     Task<bool> ResetGeoZoneList();
     Task<bool> SetupGeoZoneData();
     Task<bool> ProcessQPEGeoZone(List<CoordinateSystem> coordinateSystems, CancellationToken stoppingToken);
     Task<MPERunPerformance> GetGeoZoneMPEPerformanceData(string zoneName);
-    #region
+
+    #region //MPE Targets
     Task<List<TargetHourlyData>> GetAllMPETragets();
     Task<List<TargetHourlyData>> GetMPETargets(string mpeId);
     Task<List<TargetHourlyData>> AddMPETargets(JToken mpeData);
     Task<List<TargetHourlyData>> UpdateMPETargets(JToken mpeData);
     Task<TargetHourlyData> RemoveMPETargets(JToken mpeData);
     Task<bool> LoadCSVMpeTargets(List<TargetHourlyData> targetHourlyDatas);
+
+    #endregion
+    #region //CRS Kiosk
+    Task<object> GetAllKiosk();
+    Task<GeoZoneKiosk> AddKiosk(GeoZoneKiosk newZone);
+    Task<GeoZoneKiosk> RemoveKiosk(string id);
+    Task<GeoZoneKiosk> UpdateKiosk(KioskProperties? updatedKioskZone);
+
+
     #endregion
 }

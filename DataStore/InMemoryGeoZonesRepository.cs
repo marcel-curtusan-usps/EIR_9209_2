@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NuGet.Protocol;
 using Org.BouncyCastle.Asn1.Pkcs;
 using System.Collections.Concurrent;
 using System.Globalization;
@@ -15,6 +16,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 {
     private readonly ConcurrentDictionary<string, GeoZone> _geoZoneList = new();
     private readonly ConcurrentDictionary<string, GeoZoneDockDoor> _geoZoneDockDoorList = new();
+    private readonly ConcurrentDictionary<string, GeoZoneKiosk> _geoZonekioskList = new();
     private readonly ConcurrentDictionary<string, Dictionary<DateTime, MPESummary>> _mpeSummary = new();
     private readonly ConcurrentDictionary<DateTime, List<AreaDwell>> _QREAreaDwellResults = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPERunActivity = new();
@@ -31,7 +33,8 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     protected readonly IHubContext<HubServices> _hubServices;
     private readonly string fileName = "Zone.json";
     private readonly string fileNameDockDoor = "ZonesDockDoor.json";
-    private readonly string fileNameMpeTarge = "MPETargets.json";
+    private readonly string fileNameMpeTarget = "MPETargets.json";
+    private readonly string fileNameKiosk = "KioskConfig.json";
     public InMemoryGeoZonesRepository(ILogger<InMemoryGeoZonesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices, IInMemorySiteInfoRepository siteInfo)
     {
         _fileService = fileService;
@@ -43,8 +46,10 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         LoadDataFromFile().Wait();
         // Load data from the first file into the first collection
         LoadDockDoorDataFromFile().Wait();
-        // Load data from the first file into the first collection
-        LoadMPETargeteDataFromFile().Wait();
+        // Load MPE Targets data from the first file into the first collection
+        LoadMPETargetDataFromFile().Wait();
+        // Load Kiosk Data from the first file into the first collection
+        LoadKioskDataFromFile().Wait();
     }
 
 
@@ -613,13 +618,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    private async Task LoadMPETargeteDataFromFile()
+    private async Task LoadMPETargetDataFromFile()
     {
 
         try
         {
             // Read data from file
-            var fileContent = await _fileService.ReadFile(fileNameMpeTarge);
+            var fileContent = await _fileService.ReadFile(fileNameMpeTarget);
 
             // Parse the file content to get the data. This depends on the format of your file.
             // Here's an example if your file was in JSON format and contained an array of T objects:
@@ -1531,7 +1536,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     {
                         _DockDoorList.Add(doorNumber);
                     }
-                    var DockDoorZone = _geoZoneDockDoorList.Where(r => r.Value.Properties.Type == "DockDoor" && r.Value.Properties.DoorNumber == doorNumber.PadLeft(3, '0')).Select(y => y.Value).FirstOrDefault();
+                    var DockDoorZone = _geoZoneDockDoorList.Where(r => r.Value.Properties.Type == "DockDoor" && r.Value.Properties.DoorNumber.PadLeft(3, '0') == doorNumber.PadLeft(3, '0')).Select(y => y.Value).FirstOrDefault();
                     if (DockDoorZone != null)
                     {
                         if (item.ContainsKey("routeTripId"))
@@ -1713,19 +1718,35 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 
     }
 
-    public async Task<IEnumerable<GeoZone>> GetGeoZone(string zoneType)
+    public async Task<object> GetGeoZone(string zoneType)
     {
         try
         {
-            var geoZones = await Task.Run(() =>
-                _geoZoneList.Values.Where(gz => gz.Properties.Type == zoneType).ToList()
-            );
+            // Convert GeoZone list to JArray
+            JArray geoZones = JArray.FromObject(_geoZoneList.Values.Where(gz => gz.Properties.Type == zoneType).ToList());
+            // Convert GeoZoneKiosk list to JArray
+            JArray geoZoneKiosk = JArray.FromObject(_geoZonekioskList.Values.Where(gz => gz.Properties.Type == zoneType).ToList());
+            // Convert GeoZoneKiosk list to JArray
+            JArray geoZoneDockdoor = JArray.FromObject(_geoZoneDockDoorList.Values.Where(gz => gz.Properties.Type == zoneType).ToList());
+
+            // Merge the two geoZoneKiosk into a single JArray
+            geoZones.Merge(geoZoneKiosk, new JsonMergeSettings
+                       {
+                           MergeArrayHandling = MergeArrayHandling.Concat,
+
+                       });
+            // Merge the two geoZoneDockdoor into a single JArray
+            geoZones.Merge(geoZoneDockdoor, new JsonMergeSettings
+            {
+                MergeArrayHandling = MergeArrayHandling.Concat,
+
+            });
             return geoZones;
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            return Enumerable.Empty<GeoZone>();
+            return null;
         }
     }
 
@@ -1974,7 +1995,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             return null;
         }
     }
-    #region
+    #region //Mpe Targets
     public async Task<List<TargetHourlyData>> GetAllMPETragets()
     {
         try
@@ -2044,7 +2065,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteConfigurationFile(fileNameMpeTarge, JsonConvert.SerializeObject(_MPETargets.Select(x => x.Value).ToList(), Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileNameMpeTarget, JsonConvert.SerializeObject(_MPETargets.Select(x => x.Value).ToList(), Formatting.Indented));
             }
         }
     }
@@ -2094,7 +2115,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteConfigurationFile(fileNameMpeTarge, JsonConvert.SerializeObject(_MPETargets.Select(x => x.Value).ToList(), Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileNameMpeTarget, JsonConvert.SerializeObject(_MPETargets.Select(x => x.Value).ToList(), Formatting.Indented));
             }
         }
     }
@@ -2133,7 +2154,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteConfigurationFile(fileNameMpeTarge, JsonConvert.SerializeObject(_MPETargets.Select(x => x.Value).ToList(), Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileNameMpeTarget, JsonConvert.SerializeObject(_MPETargets.Select(x => x.Value).ToList(), Formatting.Indented));
             }
         }
     }
@@ -2178,8 +2199,160 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteConfigurationFile(fileNameMpeTarge, JsonConvert.SerializeObject(_MPETargets.Select(x => x.Value).ToList(), Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileNameMpeTarget, JsonConvert.SerializeObject(_MPETargets.Select(x => x.Value).ToList(), Formatting.Indented));
             }
+        }
+    }
+    #endregion
+
+    #region //Kiosk
+    public async Task<object> GetAllKiosk()
+    {
+        try
+        {
+            return _geoZonekioskList.Select(y => y.Value).ToList().Select(r => r.Properties);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return false;
+        }
+    }
+    public async Task<GeoZoneKiosk?> AddKiosk(GeoZoneKiosk newgeoZone)
+    {
+        bool saveToFile = false;
+        try
+        {
+
+            if (_geoZonekioskList.TryAdd(newgeoZone.Properties.Id, newgeoZone))
+            {
+                saveToFile = true;
+                return await Task.FromResult(newgeoZone);
+            }
+            else
+            {
+                _logger.LogError($"Kiosk Zone File {fileNameKiosk} list was not saved...");
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteConfigurationFile(fileNameKiosk, JsonConvert.SerializeObject(_geoZonekioskList.Values, Formatting.Indented));
+            }
+        }
+    }
+    public async Task<GeoZoneKiosk?> UpdateKiosk(KioskProperties updategeoZone)
+    {
+        bool saveToFile = false;
+        try
+        {
+
+            if (_geoZonekioskList.ContainsKey(updategeoZone.Id) && _geoZonekioskList.TryGetValue(updategeoZone.Id, out GeoZoneKiosk  currrentgeoZone))
+            {
+                if (currrentgeoZone.Properties.Name != updategeoZone.Name)
+                {
+                    currrentgeoZone.Properties.Name = updategeoZone.Name;
+                }
+                if (currrentgeoZone.Properties.Number != updategeoZone.Number)
+                {
+                    currrentgeoZone.Properties.Number = updategeoZone.Number;
+                }
+
+                saveToFile = true;
+                return await Task.FromResult(currrentgeoZone);
+            }
+            else
+            {
+                _logger.LogError($"Kiosk Zone File {fileNameKiosk} list was not saved...");
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteConfigurationFile(fileNameKiosk, JsonConvert.SerializeObject(_geoZonekioskList.Values, Formatting.Indented));
+            }
+        }
+    }
+
+    public async Task<GeoZoneKiosk?> RemoveKiosk(string geoZoneId)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (_geoZonekioskList.TryRemove(geoZoneId, out GeoZoneKiosk geoZone))
+            {
+                saveToFile = true;
+                return await Task.FromResult(geoZone);
+            }
+            else
+            {
+                _logger.LogError($"Dock door Zone File {fileNameDockDoor} list was not saved...");
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteConfigurationFile(fileNameKiosk, JsonConvert.SerializeObject(_geoZonekioskList.Values, Formatting.Indented));
+            }
+        }
+    }
+    private async Task LoadKioskDataFromFile()
+    {
+        try
+        {
+            // Read data from file
+            var fileContent = await _fileService.ReadFile(fileNameKiosk);
+
+            // Parse the file content to get the data. This depends on the format of your file.
+            // Here's an example if your file was in JSON format and contained an array of T objects:
+            List<GeoZoneKiosk>? data = JsonConvert.DeserializeObject<List<GeoZoneKiosk>>(fileContent);
+
+            // Insert the data into the MongoDB collection
+            if (data?.Count > 0)
+            {
+                foreach (GeoZoneKiosk item in data.Select(r => r).ToList())
+                {
+                    _geoZonekioskList.TryAdd(item.Properties.Id, item);
+                }
+
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            // Handle the FileNotFoundException here
+            _logger.LogError($"File not found: {ex.FileName}");
+            // You can choose to throw an exception or take any other appropriate action
+        }
+        catch (IOException ex)
+        {
+            // Handle errors when reading the file
+            _logger.LogError($"An error occurred when reading the file: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            // Handle errors when parsing the JSON
+            _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
         }
     }
     #endregion

@@ -276,7 +276,6 @@ async function findMpeZoneLeafletIds(zoneId) {
     });
 }
 async function init_geoZoneMPE() {
-    return new Promise((resolve, _reject) => {
         try {
             //int mpe standard table 
             creatMpeStandardDataTable(StandardTable);
@@ -284,14 +283,16 @@ async function init_geoZoneMPE() {
                 createTargetDataTable(TargetTable + tourlist[touri], tourlist[touri])
             }
             //load MPE Zones
-            connection.invoke("GetGeoZones", "MPE").then(function (data) {
-                for (let i = 0; i < data.length; i++) {
-                    Promise.all([addMPEFeature(data[i])]);
+            const mpeZonedata = await $.ajax({
+                url: `${SiteURLconstructor(window.location)}/api/Zone/ZoneType?type=MPE`,
+                contentType: 'application/json',
+                type: 'GET',
+                success: function (data) {
+                    for (let i = 0; i < data.length; i++) {
+                        Promise.all([addMPEFeature(data[i])]);
+                    }
                 }
-            }).catch(function (err) {
-                // handle error
-                console.error(err);
-            });
+            });           
             $(document).on('change', '.leaflet-control-layers-selector', function (_e) {
                 let sp = this.nextElementSibling;
                 if (/^(MPE Zones)$/ig.test(sp.innerHTML.trim())) {
@@ -324,13 +325,10 @@ async function init_geoZoneMPE() {
                     }
                 });
             }
-            resolve();
-            return false;
         }
         catch (e) {
             throw new Error(e.toString());
         }
-    });
 }
 connection.on("addMPEzone", async (zoneDate) => {
     addMPEFeature(zoneDate);

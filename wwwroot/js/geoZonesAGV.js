@@ -69,43 +69,40 @@ async function findAGVZoneLeafletIds(zoneId) {
     });
 }
 async function init_geoZoneAGV() {
-    return new Promise((resolve, reject) => {
-        try {
-            connection.invoke("GetDockDoorGeoZones").then(function (data) {
-                //load dockdoor data
+    try {
+        const agvZonedata = await $.ajax({
+            url: `${SiteURLconstructor(window.location)}/api/Zone/ZoneType?type=AGVLocation`,
+            contentType: 'application/json',
+            type: 'GET',
+            success: function (data) {
                 for (let i = 0; i < data.length; i++) {
                     Promise.all([addAGVLocationFeature(data[i])]);
                 }
-            }).catch(function (err) {
-                // handle error
-                console.error(err);
-            });
-            $(document).on('change', '.leaflet-control-layers-selector', function (e) {
-                let sp = this.nextElementSibling;
-                if (/^(AGV Location)/ig.test(sp.innerHTML.trim())) {
-                    if (this.checked) {
-                        connection.invoke("JoinGroup", "AGVLocation").catch(function (err) {
-                            return console.error(err.toString());
-                        });
-                    }
-                    else {
-                        connection.invoke("LeaveGroup", "AGVLocation").catch(function (err) {
-                            return console.error(err.toString());
-                        });
-                    }
+            }
+        });
+        $(document).on('change', '.leaflet-control-layers-selector', function (e) {
+            let sp = this.nextElementSibling;
+            if (/^(AGV Location)/ig.test(sp.innerHTML.trim())) {
+                if (this.checked) {
+                    connection.invoke("JoinGroup", "AGVLocation").catch(function (err) {
+                        return console.error(err.toString());
+                    });
                 }
-            });
-            connection.invoke("JoinGroup", "AGVLocation").catch(function (err) {
-                return console.error(err.toString());
-            });
-            resolve();
-            return false;
-        }
-        catch (e) {
-            throw new Error(e.toString());
-            reject();
-        }
-    });
+                else {
+                    connection.invoke("LeaveGroup", "AGVLocation").catch(function (err) {
+                        return console.error(err.toString());
+                    });
+                }
+            }
+        });
+        connection.invoke("JoinGroup", "AGVLocation").catch(function (err) {
+            return console.error(err.toString());
+        });
+
+    }
+    catch (e) {
+        throw new Error(e.toString());
+    }
 }
 connection.on("addAGVLocationzone", async (zoneDate) => {
     Promise.all([addAGVLocationFeature(zoneDate)]);

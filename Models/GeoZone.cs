@@ -15,22 +15,38 @@ namespace EIR_9209_2.Models
 
     public class Properties
     {
+        [JsonProperty("id")]
         public string Id { get; set; } = "";
+        [JsonProperty("floorId")]
         public string FloorId { get; set; } = "";
+        [JsonProperty("visible")]
         public bool Visible { get; set; } = false;
+        [JsonProperty("color")]
         public string Color { get; set; } = "";
+        [JsonProperty("name")]
         public string Name { get; set; } = "";
+        [JsonProperty("type")]
         public string Type { get; set; } = "";
-        public string MpeName { get; set; } = "";
+        [JsonProperty("mpeName")]
+        public string MpeName { get; set; } = ""; 
+        [JsonProperty("mpeNumber")]
         public string MpeNumber { get; set; } = "";
+        [JsonProperty("mpeGroup")]
         public string MpeGroup { get; set; } = "";
+        [JsonProperty("ldc")]
         public string LDC { get; set; } = "";
+        [JsonProperty("payLocation")]
         public string PayLocation { get; set; } = "";
+        [JsonProperty("payLocationColor")]
         public string PayLocationColor { get; set; } = "";
+        [JsonProperty("mpeIpAddress")]
         public string MpeIpAddress { get; set; } = "";
+        [JsonProperty("mpeRunPerformance")]
         public MPERunPerformance? MPERunPerformance { get; set; } 
         public string? DataSource { get; set; } = "";
+        [JsonProperty("email")]
         public string? Emails { get; set; } = "";
+        [JsonProperty("bins")]
         public string Bins { get; set; } = "";
     }
 

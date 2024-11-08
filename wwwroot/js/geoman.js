@@ -69,6 +69,7 @@ async function init_geoman_editing() {
             if (/(Rectangle)/i.test(e.shape)) {
                 $('<option/>').val("Bin").html("Bin Zone").appendTo('select[id=zone_type]');
                 $('<option/>').val("DockDoor").html("Dock Door Zone").appendTo('select[id=zone_type]');
+                $('<option/>').val("Kiosk").html("CRS Kiosk Zone").appendTo('select[id=zone_type]');
             }
             CreateZone(e);
             sidebar.open('home');
@@ -336,6 +337,10 @@ function CreateZone(newlayer) {
             else if (/(DockDoor)/i.test($('select[name=zone_select_name] option:selected').val())) {
                 togeo.properties.name = "DoorNumber"+$('input[id=manual_name]').val();
             }
+            else if (/(Kiosk)/i.test($('select[name=zone_select_name] option:selected').val())) {
+                togeo.properties.name = $('input[id=manual_name]').val();
+                togeo.properties.number = $('input[id=manual_number]').val().padStart(3, '0');
+            }
             else if (/(Area)/i.test($('select[name=zone_select_name] option:selected').val())) {
                 togeo.properties.name = $('input[id=manual_name]').val();
             }
@@ -356,7 +361,7 @@ function CreateZone(newlayer) {
                     contentType: 'application/json',
                     type: 'POST',
                     success: function (data) {
-                        Promise.all([init_geoZone(data)]);
+                        //Promise.all([init_geoZone(data)]);
                         setTimeout(function () { sidebar.close(); }, 500);
                     },
                     error: function (error) {
@@ -574,6 +579,11 @@ function VaildateForm(FormType) {
                 //console.log(complete);
             }
         });
+    }
+    else if (/(Kiosk)/i.test(FormType)) {
+
+        $('<option/>').val("**Kiosk Not Listed").html("**Kiosk Not Listed").appendTo('select[id=zone_select_name]');
+
     }
     else if (/(Bin)/i.test(FormType)) {
 

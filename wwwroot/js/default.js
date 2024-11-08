@@ -70,6 +70,7 @@ function initializeOSL() {
         init_TagSearch();
         init_geoZoneArea();  
         init_geoZoneMPE();
+        init_geoZoneKiosk(); 
         init_geoZoneDockDoor();
         init_accessPoints();
         init_tagsAGV();
@@ -146,8 +147,9 @@ function SiteURLconstructor(winLoc) {
     }
 }
 function hideSidebarLayerDivs() {
-
+    
     $('div[id=agvlocation_div]').css('display', 'none');
+    $('div[id=crsKiosk_div]').css('display', 'none');
     $('div[id=area_div]').css('display', 'none');
     $('div[id=bullpen_div]').css('display', 'none');
     $('div[id=dockdoor_div]').css('display', 'none');

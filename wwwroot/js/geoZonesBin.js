@@ -237,44 +237,50 @@ async function findBinZoneLeafletIds(zoneId) {
     });
 }
 async function init_geoZoneBin() {
-    return new Promise((resolve, reject) => {
-        try {
-            //load cameras
-            connection.invoke("GetGeoZones","Bin").then(function (data) {
+    try {
+        //load cameras
+        //connection.invoke("GetGeoZones","Bin").then(function (data) {
+        //    for (let i = 0; i < data.length; i++) {
+        //        Promise.all([addBinFeature(data[i])]);
+        //    }
+        //}).catch(function (err) {
+        //    // handle error
+        //    console.error(err);
+        //});
+        const binZonedata = await $.ajax({
+            url: `${SiteURLconstructor(window.location)}/api/Zone/ZoneType?type=Bin`,
+            contentType: 'application/json',
+            type: 'GET',
+            success: function (data) {
                 for (let i = 0; i < data.length; i++) {
-                    Promise.all([addBinFeature(data[i])]);
+                    Promise.all([addDockDoorFeature(data[i])]);
                 }
-            }).catch(function (err) {
-                // handle error
-                console.error(err);
-            });
-            $(document).on('change', '.leaflet-control-layers-selector', function (e) {
-                let sp = this.nextElementSibling;
-                if (/^(Bin Zones)/ig.test(sp.innerHTML.trim())) {
-                    if (this.checked) {
-                        connection.invoke("JoinGroup", "Bin").catch(function (err) {
-                            return console.error(err.toString());
-                        });
-                    }
-                    else {
-                        connection.invoke("LeaveGroup", "Bin").catch(function (err) {
-                            return console.error(err.toString());
-                        });
-                    }
+            }
+        });
+        $(document).on('change', '.leaflet-control-layers-selector', function (e) {
+            let sp = this.nextElementSibling;
+            if (/^(Bin Zones)/ig.test(sp.innerHTML.trim())) {
+                if (this.checked) {
+                    connection.invoke("JoinGroup", "Bin").catch(function (err) {
+                        return console.error(err.toString());
+                    });
                 }
+                else {
+                    connection.invoke("LeaveGroup", "Bin").catch(function (err) {
+                        return console.error(err.toString());
+                    });
+                }
+            }
 
-            });
-            connection.invoke("JoinGroup", "Bin").catch(function (err) {
-                return console.error(err.toString());
-            });
-            resolve();
-            return false;
-        }
-        catch (e) {
-            throw new Error(e.toString());
-            reject();
-        }
-    });
+        });
+        connection.invoke("JoinGroup", "Bin").catch(function (err) {
+            return console.error(err.toString());
+        });
+
+    }
+    catch (e) {
+        throw new Error(e.toString());
+    }
 }
 async function addBinFeature(data) {
     try {

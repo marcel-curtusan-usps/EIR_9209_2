@@ -248,9 +248,9 @@ public class HubServices : Hub
     {
         return await Task.Run(() => _tags.GetTagsType("AP")).ConfigureAwait(false);
     }
-    public async Task<IEnumerable<GeoZone>> GetGeoZones(string zoneType)
+    public async Task<object> GetGeoZones(string zoneType)
     {
-        return await Task.Run(() => _geoZones.GetGeoZone(zoneType)).ConfigureAwait(false);
+        return await _geoZones.GetGeoZone(zoneType);
     }
     public async Task<MPERunPerformance> GetGeoZoneMPEData(string zoneName)
     {
@@ -259,11 +259,6 @@ public class HubServices : Hub
     public async Task<List<TargetHourlyData>> GetMPETargets( string mpe)
     {
         return await _geoZones.GetMPETargets(mpe);
-    }
-
-    public async Task<IEnumerable<GeoZoneDockDoor>> GetDockDoorGeoZones()
-    {
-        return await _geoZones.GetDockDoor();
     }
     public async Task<IEnumerable<EmployeeInfo>> GetEmpSchedules()
     {

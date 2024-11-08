@@ -50,6 +50,16 @@ namespace EIR_9209_2.Controllers
             }
             return await _zonesRepository.GetZoneNameList(type);
         }
+        [HttpGet]
+        [Route("ZoneType")]
+        public async Task<object> GetByZoneTypeList(string type)
+        {
+            if (!ModelState.IsValid)
+            {
+                return await Task.FromResult(BadRequest(ModelState));
+            }
+            return await _zonesRepository.GetGeoZone(type);
+        }
         // POST api/<ZoneController>
         [HttpPost]
         [Route("Add")]
@@ -77,6 +87,22 @@ namespace EIR_9209_2.Controllers
                         return BadRequest(new JObject { ["message"] = "Dock door zone was not added" });
                     }
                 }
+                else if (zone["properties"]?["type"]?.ToString() == "Kiosk")
+                {
+                    GeoZoneKiosk newZone = zone.ToObject<GeoZoneKiosk>();
+                    newZone.Properties.Id = Guid.NewGuid().ToString();
+
+                    var geoZone = await _zonesRepository.AddKiosk(newZone);
+                    if (geoZone != null)
+                    {
+                        await _hubContext.Clients.Group(geoZone.Properties.Type).SendAsync($"add{geoZone.Properties.Type}zone", geoZone);
+                        return Ok(geoZone);
+                    }
+                    else
+                    {
+                        return BadRequest(new JObject { ["message"] = "Zone was not added" });
+                    }
+                }
                 else
                 {
                     GeoZone newZone = zone.ToObject<GeoZone>();
@@ -93,6 +119,7 @@ namespace EIR_9209_2.Controllers
                         return BadRequest(new JObject { ["message"] = "Zone was not added" });
                     }
                 }
+               
 
             }
             catch (Exception e)
@@ -112,7 +139,7 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest();
                 }
-                if (zone["properties"]?["type"]?.ToString() == "DockDoor")
+                if (zone.ContainsKey("type") && zone["type"]?.ToString() == "DockDoor")
                 {
                     GeoZoneDockDoor? updatedDockDoorZone = zone?.ToObject<GeoZoneDockDoor>();
 
@@ -121,6 +148,22 @@ namespace EIR_9209_2.Controllers
                     {
                         await _hubContext.Clients.Group(dockDoorZone.Properties.Type).SendAsync($"update{dockDoorZone.Properties.Type}zone", dockDoorZone);
                         return Ok(dockDoorZone);
+                    }
+                    else
+                    {
+                        return BadRequest(new JObject { ["message"] = "Dock door zone was not updated" });
+                    }
+                }
+
+                else if (zone.ContainsKey("type") && zone["type"]?.ToString() == "Kiosk")
+                {
+                    KioskProperties? updatedKioskZone = zone?.ToObject<KioskProperties>();
+
+                    var KioskZone = await _zonesRepository.UpdateKiosk(updatedKioskZone);
+                    if (KioskZone != null)
+                    {
+                        await _hubContext.Clients.Group(KioskZone.Properties.Type).SendAsync($"update{KioskZone.Properties.Type}zone", KioskZone);
+                        return Ok(KioskZone);
                     }
                     else
                     {
@@ -167,7 +210,7 @@ namespace EIR_9209_2.Controllers
 
                     var geoZone = await _zonesRepository.Remove(id);
                     var dockDoorZone = await _zonesRepository.RemoveDockDoor(id);
-
+                    var kioskZone = await _zonesRepository.RemoveKiosk(id);
                     if (dockDoorZone != null)
                     {
                         await _hubContext.Clients.Group(dockDoorZone.Properties.Type).SendAsync($"delete{dockDoorZone.Properties.Type}zone", dockDoorZone);
@@ -175,10 +218,13 @@ namespace EIR_9209_2.Controllers
                     }
                     else if (geoZone != null)
                     {
-
                         await _hubContext.Clients.Group(geoZone.Properties.Type).SendAsync($"delete{geoZone.Properties.Type}zone", geoZone);
                         return Ok(geoZone);
-
+                    }
+                    else if (kioskZone != null)
+                    {
+                        await _hubContext.Clients.Group(kioskZone.Properties.Type).SendAsync($"delete{kioskZone.Properties.Type}zone", geoZone);
+                        return Ok(kioskZone);
                     }
                     else
                     {

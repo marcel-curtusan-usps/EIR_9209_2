@@ -3,11 +3,10 @@ let appData = {};
 let siteTours = {};
 let siteInfo = {};
 let ianaTimeZone = "";
-let crsId = "";
 let tourNumber = "";
 let tourHours = [];
 let retryCount = 0;
-
+let kioskId = "";
 const maxRetries = 5;
 const crsConnection = new signalR.HubConnectionBuilder()
     .withUrl(SiteURLconstructor(window.location) + "/hubServics")
@@ -22,42 +21,79 @@ const crsConnection = new signalR.HubConnectionBuilder()
 */
 $.urlParam = function (name) {
     let results = new RegExp('[\?&]' + name + '=([^&#]*)', 'i').exec(window.location.search);
-    crsId = (results !== null) ? results[1] || 0 : "";
-    return crsId;
+    kioskId = (results !== null) ? results[1] || 0 : "";
+    return kioskId;
 }
 
 $(function () {
-
-    $('input[type=text][name=encodedId]').on("keyup", () => {
-        if (($('input[type=text][name=encodedId]').val() === '')) {
-            $('input[type=text][name=encodedId]').css("border-color", "#2eb82e").removeClass('is-valid').removeClass('is-valid');
-            $('span[id=error_encodedId]').text("");
-            $('button[id=submitBtn]').prop('disabled', false);
-        }
-        else {
-            $('input[type=text][name=encodedId]').css("border-color", "#D3D3D3").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_encodedId]').text("");
-            $('button[id=submitBtn]').prop('disabled', true);
-        }
-    });
-    document.title = $.urlParam("crsId");
-    setHeight();
-    $('span[id=kisokIdSpan]').text(crsId);
-    $('button[id=submitBtn]').off().on('click', () => {
-        Promise.all([loadEIN()]);
-    });
-    $('button[id=cancelBtn]').off().on('click', () => {
+    document.title = $.urlParam("kioskId");
+    if (!kioskId) {
+        Promise.all([kioskConfig()]);
+    }
+    else {
         Promise.all([restEIN()]);
-    });
+        $('input[type=text][name=encodedId]').on("keyup", () => {
+            if (($('input[type=text][name=encodedId]').val() === '')) {
+                $('input[type=text][name=encodedId]').css("border-color", "#2eb82e").removeClass('is-valid').removeClass('is-valid');
+                $('span[id=error_encodedId]').text("");
+                $('button[id=submitBtn]').prop('disabled', false);
+            }
+            else {
+                $('input[type=text][name=encodedId]').css("border-color", "#D3D3D3").removeClass('is-invalid').addClass('is-valid');
+                $('span[id=error_encodedId]').text("");
+                $('button[id=submitBtn]').prop('disabled', true);
+            }
+        });
+      
+        setHeight();
+        $('span[id=kisokIdSpan]').text(kioskId);
+        $('button[id=encodedIdBtn]').off().on('click', () => {
+            Promise.all([loadEIN($('input[type=text][id=encodedId]').val())]);
+        });
+        $('button[id=cancelBtn]').off().on('click', () => {
+            Promise.all([restEIN()]);
+        });
+    }
 });
+async function kioskConfig() {
+    $('div[id=landing]').css('display', 'none');
+    $('div[id=root]').css('display', 'none');
+    $('div[id=kioskSelection]').css('display', 'block');
+    $('select[id=kioskSelect]').empty();
+    $.ajax({
+        url: SiteURLconstructor(window.location) + "/api/Kiosk/KioskList",
+        type: 'GET',
+        success: function (kioskdata) {
+            kioskdata.push('Select Kiosk');
+            if (kioskdata.length > 0) {
+                //sort 
+                kioskdata.sort();
+                $.each(kioskdata, function () {
+                    $('<option/>').val(this).html(this).appendTo('select[id=kioskSelect]');
+                })
+            }
+        },
+        error: function (error) {
+            console.log(error);
+        },
+        faulure: function (fail) {
+            console.log(fail);
+        },
+        complete: function (complete) {
+        }
+    });
+}
 async function loadEIN(data) {
     $('div[id=landing]').css('display', 'none');
+    $('div[id=kioskSelection]').css('display', 'none');
     $('div[id=root]').css('display', 'block');
 };
 async function restEIN() {
-    $('div[id=landing]').css('display', 'block');
     $('div[id=root]').css('display', 'none');
+    $('div[id=kioskSelection]').css('display', 'none');
+    $('div[id=landing]').css('display', 'block');
     $('input[id=encodedId]').val('').trigger('keyup');
+}
 /**
  * Starts the SignalR connection with retry logic using exponential backoff and jitter.
  */

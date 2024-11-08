@@ -10,20 +10,34 @@
         <div class="card-header header">
             <h2 id="headerLabel">Kiosk ID:<span id="kisokIdSpan"></span></h2>
         </div>
-        <div class="card-body text-center" id="landing" style="display:block">
+        <div class="card-body text-center" id="kioskSelection" style="display:block">
+            <div class="container-fluid p-0 d-flex justify-content-center align-items-center">
+                <div class="welcomeCenter text-center">
+                    <p class="welcomeMessage"> Welcome! </p>
+                    <p class="please"> Select a Kiosk Id Configured </p>
+                    <div class="input-group mb-3">
+                        <select class="form-select" id="kioskSelect" aria-label="Example select with button addon">
+                            <option selected>Choose...</option>
+                        </select>
+                        <button class="btn btn-outline-secondary" type="button">Button</button>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        <div class="card-body text-center" id="landing" style="display:none">
             <div class="container-fluid p-0 d-flex justify-content-center align-items-center">
                 <div class="welcomeCenter text-center">
                     <p class="welcomeMessage"> Welcome! </p>
                     <p class="please"> Please scan your badge </p>
+                    <label for="encodedId" class="visually-hidden">Encoded ID:</label>
                     <div class="input-group mb-3">
-                        <label for="encodedId" class="visually-hidden">Encoded ID:</label>
-                        <input type="text" class="form-control encodedId" name="encodedId" id="encodedId" aria-label="Encoded Id">
-                        <button id="submitBtn" type="button" class="btn btn-primary">Search</button>
+                        <input type="text" class="form-control" placeholder="Encoded ID:" id="encodedId" aria-label="Encoded Id">
+                        <button id="encodedIdBtn" type="button" class="btn btn-outline-secondary">Search</button>
                     </div>
                 </div>
             </div>
         </div>
-            </div>
         <div class="card-body" id="root" style="display:none">
             <div class="kiosk-container">
                 <div class="mainGrid">
@@ -119,7 +133,6 @@
     <script src="../lib/jquery-validation/additional-methods.js"></script>
     <script src="../lib/datatables.net/datatables.js"></script>
     <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
-    <script src="../lib/bootstrap/dist/js/bootstrap.js"></script>
     <script src="../lib/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="../lib/microsoft/signalr/dist/browser/signalr.js"></script>
     <script src="../lib/microsoft/signalr-protocol-msgpack/dist/browser/signalr-protocol-msgpack.js"></script>
