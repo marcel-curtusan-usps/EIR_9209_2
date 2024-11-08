@@ -104,6 +104,10 @@ namespace EIR_9209_2.Models
         public string MPEGroup { get; set; } = "";
         [JsonProperty("dataSource")]
         public string DataSource { get; set; } = "";
+        [JsonProperty("nextOperationId")]
+        public string NextOperationId { get; set; }
+        [JsonProperty("nextRPGStartDtm")]
+        public DateTime NextRPGStartDtm { get; internal set; }
     }
     public class HourlyData
     {
