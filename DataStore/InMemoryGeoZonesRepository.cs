@@ -1,6 +1,7 @@
 ﻿using EIR_9209_2.DataStore;
 using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.CodeAnalysis.Differencing;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -770,7 +771,15 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                         RpgEstimatedCompletion = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now).AddHours(RpgEstimatedHrs);
                     }
                 }
-
+                int NextOperationId = 0;
+                DateTime NextRPGStartDtm = DateTime.MinValue;
+                var nextPlan = _MPERunActivity.Where(r => Regex.IsMatch(r.Key, "(" + mpe.MpeId + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
+                     .Where(u => u.Value.Type== "Plan" && u.Value.CurOperationId.ToString() != mpe.CurOperationId && u.Value.CurrentRunStart >= CurrentRunEnd).OrderBy(r => r.Value.CurrentRunStart).Select(y => y.Value).FirstOrDefault();
+                if (nextPlan != null)
+                {
+                    NextOperationId = nextPlan.CurOperationId;
+                    NextRPGStartDtm = nextPlan.CurrentRunStart;
+                }
                 var geoZone = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == mpe.MpeId).Select(y => y.Value).FirstOrDefault();
                 if (geoZone != null)
                 {
@@ -781,6 +790,8 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                         geoZone.Properties.MPERunPerformance = mpe;
                         geoZone.Properties.MPERunPerformance.MpeId = mpe.MpeId;
                         geoZone.Properties.MPERunPerformance.RpgEstimatedCompletion = RpgEstimatedCompletion;
+                        geoZone.Properties.MPERunPerformance.NextOperationId = NextOperationId.ToString();
+                        geoZone.Properties.MPERunPerformance.NextRPGStartDtm = NextRPGStartDtm;
                         geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
                         pushUIUpdate = true;
                     }
@@ -894,6 +905,18 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                         if (geoZone.Properties.MPERunPerformance.RpgEstimatedCompletion != RpgEstimatedCompletion)
                         {
                             geoZone.Properties.MPERunPerformance.RpgEstimatedCompletion = RpgEstimatedCompletion;
+
+                            pushUIUpdate = true;
+                        }
+                        if (nextPlan != null && geoZone.Properties.MPERunPerformance.NextOperationId != NextOperationId.ToString())
+                        {
+                            geoZone.Properties.MPERunPerformance.NextOperationId = NextOperationId.ToString();
+
+                            pushUIUpdate = true;
+                        }
+                        if (nextPlan != null && geoZone.Properties.MPERunPerformance.NextRPGStartDtm != NextRPGStartDtm)
+                        {
+                            geoZone.Properties.MPERunPerformance.NextRPGStartDtm = NextRPGStartDtm;
 
                             pushUIUpdate = true;
                         }

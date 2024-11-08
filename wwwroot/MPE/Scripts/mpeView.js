@@ -151,7 +151,7 @@ function initializeMpeView() {
         });
         mpeViewConnection.invoke("GetGeoZoneMPEData", MPEName).then(function (mpeData) {
             $('label[id=mpeName]').text(mpeData.mpeId);
-            $('label[id=opn]').text(mpeData.curOperationId);
+            $('label[id=opn]').html('&nbsp;' + mpeData.curOperationId);
             $('label[id=sortplan_name_text]').text(mpeData.curSortplan);
             $('label[id=mpe_status]').text(MPEStatus(mpeData));
             Promise.all([buildDataTable(mpeData)]);
@@ -262,10 +262,22 @@ async function buildDataTable(data) {
     });
     updateMpeDataTable(dataArray, "mpeStatustable");
     clearInterval(timer);
-    startCountdown(data.rpgEstimatedCompletion);
+    startCountdown(data.rpgEstimatedCompletion, data.nextOperationId, data.nextRPGStartDtm);
 }
-function startCountdown(targetTime) {
+function startCountdown(targetTime, nextOP, nextStartTime) {
     let targetDate = luxon.DateTime.fromISO(targetTime, { zone: ianaTimeZone });
+    let nextDate = luxon.DateTime.fromISO(nextStartTime, { zone: ianaTimeZone });
+    if (nextOP && nextOP != "0") {
+        $('label[id=nextopnText]').css('display', 'block')
+        $('label[id=nextstartText]').css('display', 'block')
+        $('label[id=nextopn]').html('&nbsp;' + nextOP);
+        $('label[id=nextstart]').html('&nbsp;' + nextDate.toFormat("HH:mm MM/dd"));
+    } else {
+        $('label[id=nextopnText]').css('display', 'none')
+        $('label[id=nextstartText]').css('display', 'none')
+        $('label[id=nextopn]').html("");
+        $('label[id=nextstart]').html("");
+    }
 
     // Update the countdown every second
     timer = setInterval(() => {
@@ -284,7 +296,16 @@ function startCountdown(targetTime) {
 
         // Display the countdown in an element
         $('label[id=countdownText]').css('display', 'block') 
-        $('label[id=countdown]').html(hours + "h " + minutes + "m " + seconds + "s ");
+        $('label[id=countdown]').html('&nbsp;' + hours + "h " + minutes + "m " + seconds + "s ");
+        if (!nextOP || nextOP == "0") {
+            $('label[id=countdown]').css('color', 'green');
+        } else {
+            if (nextDate > targetDate) {
+                $('label[id=countdown]').css('color', 'green');
+            } else {
+                $('label[id=countdown]').css('color', 'red');
+            }
+        }
 
         // Clear the interval when the countdown reaches 0
         if (distance < 0) {
@@ -375,7 +396,8 @@ function VaildateEstComplete(estComplet, type) {
         let est = luxon.DateTime.fromISO(estComplet, { zone: ianaTimeZone });
         //if (est._isValid && est.year === luxon.DateTime.local().year) {
         if (est.year && est.year === luxon.DateTime.local().year) {
-            return est.toFormat("yyyy-MM-dd HH:mm:ss");
+            //return est.toFormat("yyyy-MM-dd HH:mm:ss");
+            return est.toFormat("HH:mm MM/dd");
         }
         else {
             if (/Plan/ig.test(type)) {
