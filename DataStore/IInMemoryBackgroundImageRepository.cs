@@ -1,4 +1,5 @@
 ﻿using EIR_9209_2.Models;
+using Newtonsoft.Json.Linq;
 
 public interface IInMemoryBackgroundImageRepository
 {
@@ -10,4 +11,5 @@ public interface IInMemoryBackgroundImageRepository
     Task<bool> ResetBackgroundImageList();
     Task<bool> SetupBackgroundImageList();
     Task<bool> ProcessBackgroundImage(List<CoordinateSystem> coordinateSystems, CancellationToken stoppingToken);
+    Task<bool> ProcessCiscoSpacesBackgroundImage(JToken? jToken, CancellationToken stoppingToken);
 }

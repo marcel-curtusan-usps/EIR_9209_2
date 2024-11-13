@@ -20,13 +20,18 @@ namespace EIR_9209_2.Controllers
             {
                 return await Task.FromResult(BadRequest(ModelState));
             }
-            return _zones.GetAllKiosk().Result;
+            return await _zones.GetAllKiosk();
         }
         // GET: api/<KioskController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        [Route("GetKiosk")]
+        public async Task<object> Get(string id)
         {
-            return new string[] { "value1", "value2" };
+            if (!ModelState.IsValid)
+            {
+                return await Task.FromResult(BadRequest(ModelState));
+            }
+            return await _zones.GetKiosk(id);
         }
     }
 }

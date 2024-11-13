@@ -91,7 +91,7 @@ namespace EIR_9209_2.Controllers
                 {
                     GeoZoneKiosk newZone = zone.ToObject<GeoZoneKiosk>();
                     newZone.Properties.Id = Guid.NewGuid().ToString();
-
+                    newZone.Properties.KioskId = string.Concat(newZone.Properties.Name,"-", newZone.Properties.Number.PadLeft(3,'0'));
                     var geoZone = await _zonesRepository.AddKiosk(newZone);
                     if (geoZone != null)
                     {
@@ -204,37 +204,31 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest();
                 }
-                var zone = await _zonesRepository.Get(id);
-                if (zone != null)
-                {
 
-                    var geoZone = await _zonesRepository.Remove(id);
-                    var dockDoorZone = await _zonesRepository.RemoveDockDoor(id);
-                    var kioskZone = await _zonesRepository.RemoveKiosk(id);
-                    if (dockDoorZone != null)
-                    {
-                        await _hubContext.Clients.Group(dockDoorZone.Properties.Type).SendAsync($"delete{dockDoorZone.Properties.Type}zone", dockDoorZone);
-                        return Ok(dockDoorZone);
-                    }
-                    else if (geoZone != null)
-                    {
-                        await _hubContext.Clients.Group(geoZone.Properties.Type).SendAsync($"delete{geoZone.Properties.Type}zone", geoZone);
-                        return Ok(geoZone);
-                    }
-                    else if (kioskZone != null)
-                    {
-                        await _hubContext.Clients.Group(kioskZone.Properties.Type).SendAsync($"delete{kioskZone.Properties.Type}zone", geoZone);
-                        return Ok(kioskZone);
-                    }
-                    else
-                    {
-                        return BadRequest(new JObject { ["message"] = "Zone was not removed" });
-                    }
+
+                var geoZone = await _zonesRepository.Remove(id);
+                var dockDoorZone = await _zonesRepository.RemoveDockDoor(id);
+                var kioskZone = await _zonesRepository.RemoveKiosk(id);
+                if (dockDoorZone != null)
+                {
+                    await _hubContext.Clients.Group(dockDoorZone.Properties.Type).SendAsync($"delete{dockDoorZone.Properties.Type}zone", dockDoorZone);
+                    return Ok(dockDoorZone);
+                }
+                else if (geoZone != null)
+                {
+                    await _hubContext.Clients.Group(geoZone.Properties.Type).SendAsync($"delete{geoZone.Properties.Type}zone", geoZone);
+                    return Ok(geoZone);
+                }
+                else if (kioskZone != null)
+                {
+                    await _hubContext.Clients.Group(kioskZone.Properties.Type).SendAsync($"delete{kioskZone.Properties.Type}zone", geoZone);
+                    return Ok(kioskZone);
                 }
                 else
                 {
-                    return BadRequest(new JObject { ["message"] = "Zone was not found" });
+                    return BadRequest(new JObject { ["message"] = "Zone was not removed" });
                 }
+
 
             }
             catch (Exception e)

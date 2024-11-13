@@ -238,8 +238,8 @@
       {
         "Id": "8df1c188-9d35-4c1d-9a7c-6e642fe7d04f",
         "Name": "FLOOR",
-        "Description": "Provide Map image and AP list",
-        "BaseURL": "https://{0}/api/location/v2/map/{1}/{2}"
+        "Description": "Floor Map",
+        "BaseURL": "https://{0}/api/location/v2/map/floor/{1}"
       }
     ]
   },

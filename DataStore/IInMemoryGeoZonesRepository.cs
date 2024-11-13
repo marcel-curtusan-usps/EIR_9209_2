@@ -53,6 +53,7 @@ public interface IInMemoryGeoZonesRepository
     Task<GeoZoneKiosk> AddKiosk(GeoZoneKiosk newZone);
     Task<GeoZoneKiosk> RemoveKiosk(string id);
     Task<GeoZoneKiosk> UpdateKiosk(KioskProperties? updatedKioskZone);
+    Task<GeoZoneKiosk> GetKiosk(string id);
 
 
     #endregion

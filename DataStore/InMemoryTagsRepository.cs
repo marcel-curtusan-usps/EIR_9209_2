@@ -900,7 +900,7 @@ namespace EIR_9209_2.DataStore
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        public async Task UpdateTagCiscoSpacesClientInfo(JToken result)
+        public async Task<bool> UpdateTagCiscoSpacesClientInfo(JToken result, CancellationToken stoppingToken)
         {
             bool savetoFile = false;
             try
@@ -910,6 +910,57 @@ namespace EIR_9209_2.DataStore
                 {
                     foreach (var item in result.SelectToken("features"))
                     {
+                        //check if cancellationToken has been called
+                        if (stoppingToken.IsCancellationRequested)
+                        {
+                            savetoFile = false;
+                            return false;
+                        }
+                            string tagId = item.SelectToken("properties.macAddress")?.ToString();
+                        if (!string.IsNullOrEmpty(tagId))
+                        {
+                            GeoMarker? TagData = null;
+                            _tagList.TryGetValue(tagId, out TagData);
+                            if (TagData != null)
+                            {
+                                await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", "");
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return false;
+            }
+            finally
+            {
+                if (savetoFile)
+                {
+                    //save date to local file
+                    await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                }
+
+            }
+        }
+        public async Task<bool> UpdateTagCiscoSpacesBLEInfo(JToken result, CancellationToken stoppingToken)
+        {
+            bool savetoFile = false;
+            try
+            {
+                //loop through the result and update the tag position
+                if (result is not null && ((JObject)result).ContainsKey("features"))
+                {
+                    foreach (var item in result.SelectToken("features"))
+                    {
+                        //check if cancellationToken has been called
+                        if (stoppingToken.IsCancellationRequested)
+                        {
+                            savetoFile = false;
+                            return false;
+                        }
                         string tagId = item.SelectToken("properties.macAddress")?.ToString();
                         if (!string.IsNullOrEmpty(tagId))
                         {
@@ -922,47 +973,12 @@ namespace EIR_9209_2.DataStore
                         }
                     }
                 }
+                return true;
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-            }
-            finally
-            {
-                if (savetoFile)
-                {
-                    //save date to local file
-                    await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
-                }
-
-            }
-        }
-        public async Task UpdateTagCiscoSpacesBLEInfo(JToken result)
-        {
-            bool savetoFile = false;
-            try
-            {
-                //loop through the result and update the tag position
-                if (result is not null && ((JObject)result).ContainsKey("features"))
-                {
-                    foreach (var item in result.SelectToken("features"))
-                    {
-                        string tagId = item.SelectToken("properties.macAddress")?.ToString();
-                        if (!string.IsNullOrEmpty(tagId))
-                        {
-                            GeoMarker? TagData = null;
-                            _tagList.TryGetValue(tagId, out TagData);
-                            if (TagData != null)
-                            {
-                                await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", "");
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
+                return false;
             }
             finally
             {
@@ -975,7 +991,7 @@ namespace EIR_9209_2.DataStore
             }
         }
 
-        public async Task UpdateTagCiscoSpacesAPInfo(JToken result)
+        public async Task<bool> UpdateTagCiscoSpacesAPInfo(JToken result, CancellationToken stoppingToken)
         {
             bool savetoFile = false;
             try
@@ -986,6 +1002,12 @@ namespace EIR_9209_2.DataStore
                 {
                     foreach (var item in result)
                     {
+                        //check if cancellationToken has been called
+                        if (stoppingToken.IsCancellationRequested)
+                        {
+                            savetoFile = false;
+                            return false;
+                        }
                         GeoMarker? TagData = null;
                         JObject PositionGeoJson = new JObject
                         {
@@ -1012,36 +1034,41 @@ namespace EIR_9209_2.DataStore
                         _tagList.TryGetValue(item["macAddress"].ToString(), out TagData);
                         if (TagData != null)
                         {
+                            if (TagData.Properties.Visible)
+                            {
+                                TagData.Properties.Visible = true;
+                            }
                             if (TagData.Properties.Name != item["displayName"].ToString())
                             {
                                 TagData.Properties.Name = item["displayName"].ToString();
-                                savetoFile = false;
+                                savetoFile = true;
                             }
                             if (TagData.Properties.CraftName != item["make"].ToString())
                             {
                                 TagData.Properties.CraftName = item["make"].ToString();
-                                savetoFile = false;
+                                savetoFile = true;
                             }
                             if (TagData.Properties.TagType != item["level"].ToString())
                             {
                                 TagData.Properties.TagType = item["level"].ToString();
-                                savetoFile = false;
+                                savetoFile = true;
                             }
                             if (TagData.Properties.EmpFirstName != item["model"].ToString())
                             {
                                 TagData.Properties.EmpFirstName = item["model"].ToString();
-                                savetoFile = false;
+                                savetoFile = true;
                             }
                             if (TagData.Properties.EmpLastName != item["ipAddress"].ToString())
                             {
                                 TagData.Properties.EmpLastName = item["ipAddress"].ToString();
-                                savetoFile = false;
+                                savetoFile = true;
                             }
 
                             if (TagData.Geometry.Coordinates != new List<double> { (double)item["x"], (double)item["y"] })
                             {
                                 TagData.Geometry.Coordinates = new List<double> { (double)item["x"], (double)item["y"] };
                                 await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}Position", PositionGeoJson);
+                                savetoFile = true;
                             }
 
                         }
@@ -1067,15 +1094,16 @@ namespace EIR_9209_2.DataStore
                             if (_tagList.TryAdd(item["macAddress"].ToString(), TagData))
                             {
                                 await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}Position", PositionGeoJson);
+                                savetoFile = true;
                             }
                         }
                     }
                 }
-
+                return true;
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e.Message); return false;
             }
             finally
             {

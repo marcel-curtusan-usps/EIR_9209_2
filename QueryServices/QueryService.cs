@@ -76,6 +76,16 @@ internal class QueryService : IQueryService
     {
         return await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
     }
+    public async Task<JToken> GetMapElementsAsync(string elemnetsUrl, CancellationToken ct)
+    {
+        return await GetQueryResults<JToken>(elemnetsUrl, ct).ConfigureAwait(false);
+    }
+
+    public async Task<string> GetMapImageAsync(string imageUrl, CancellationToken ct)
+    {
+        return await GetImageResults<string>(imageUrl, ct).ConfigureAwait(false);
+    }
+
     public async Task<JToken> GetCameraData(CancellationToken ct)
     {
         return await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
@@ -287,7 +297,63 @@ internal class QueryService : IQueryService
             throw new Exception("An error occurred while connection.", e);
         }
     }
+    private async Task<string> GetImageResults<T>(string queryUrl, CancellationToken ct)
+    {
+        try
+        {
+            var client = _httpClient.CreateClient();
+            client.Timeout = _timeout; // Set the timeout
+            using var request = new HttpRequestMessage(HttpMethod.Get, queryUrl);
+            request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true, NoStore = true };
+            if (_authService != null)
+            {
+                await _authService.AddAuthHeader(request, ct);
+            }
+            using var response = await client.SendAsync(request, ct);
 
+            response.EnsureSuccessStatusCode();
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                byte[] responseBody = await response.Content.ReadAsByteArrayAsync();
+               string imageBase64 =  "data:image/jpeg;base64," + Convert.ToBase64String(responseBody);
+                return imageBase64;
+            }
+            else
+            {
+                throw new Exception($"The response code is {response.StatusCode}.");
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogInformation(queryUrl);
+            _logger.LogError(ex.Message);
+            throw new Exception("An error occurred while sending the HTTP request.", ex);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogInformation(queryUrl);
+            _logger.LogError(ex.Message);
+            throw new Exception("An error occurred while deserializing the response body.", ex);
+        }
+        catch (TaskCanceledException ex) when (ex.CancellationToken == ct)
+        {
+            _logger.LogInformation(queryUrl);
+            _logger.LogError("The request was canceled due to a timeout.");
+            throw new Exception("The request was canceled due to a timeout.", ex);
+        }
+        catch (OperationCanceledException ex)
+        {
+            _logger.LogError(ex.Message);
+            throw new Exception("An error occurred while connection.", ex);
+        }
+        catch (Exception e)
+        {
+            _logger.LogInformation(queryUrl);
+            _logger.LogError(e.Message);
+            throw new Exception("An error occurred while connection.", e);
+        }
+    }
 
     private List<AreaDwell> TransformQueryResults(List<TagDwellTimeInAreaQueryResult> results)
     {

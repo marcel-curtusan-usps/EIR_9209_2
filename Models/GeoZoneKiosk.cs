@@ -27,6 +27,10 @@ namespace EIR_9209_2.Models
         public string Type { get; set; } = "";
         [JsonProperty("url")]
         public string URL { get; set; } = "";
+        [JsonProperty("kioskId")]
+        public string KioskId { get;  set; } = "";
+        [JsonProperty("deviceId")]
+        public string DeviceId { get; set; } = "";
     }
 }
 

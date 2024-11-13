@@ -21,4 +21,6 @@ public interface IQueryService
     Task<QPEProjectInfo> GetQPEProjectInfo(CancellationToken stoppingToken);
     Task<Hces> GetHCESData(CancellationToken stoppingToken, string facilityId, string oAuthClientId, string oAuthClientId1);
     Task<MpeWatchRequestId> GetMPEWatchRequestId(CancellationToken stoppingToken);
+    Task<JToken> GetMapElementsAsync(string elemnetsUrl, CancellationToken stoppingToken);
+    Task<string> GetMapImageAsync(string imageUrl, CancellationToken stoppingToken);
 }

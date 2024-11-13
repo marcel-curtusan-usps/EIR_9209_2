@@ -1,5 +1,6 @@
 ﻿using EIR_9209_2.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -266,7 +267,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         {
             if (saveToFile)
             {
-                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Select(x => x.Value).ToList()));
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Select(x => x.Value).ToList(), Formatting.Indented));
             }
         }
     }
@@ -336,5 +337,88 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         }
     }
 
+    public async Task<bool> ProcessCiscoSpacesBackgroundImage(JToken? map, CancellationToken stoppingToken)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (map.HasValues)
+            {
+                OSLImage bkg = new OSLImage
+                {
+                    widthMeter = ((JObject)map).ContainsKey("width") ? Convert.ToDouble(map["width"].ToString()) : 0.0,
+                    heightMeter = ((JObject)map).ContainsKey("length") ? Convert.ToDouble(map["length"].ToString()) : 0.0,
+                    origoX = ((JObject)map).ContainsKey("imageWidth") ? Convert.ToDouble(map["imageWidth"].ToString()) : 0.0,
+                    origoY = ((JObject)map).ContainsKey("imageHeight") ? Convert.ToDouble(map["imageHeight"].ToString()) : 0.0,
+                    base64 = ((JObject)map).ContainsKey("imagePath") ? map["imagePath"].ToString() : "",
+                    name = ((JObject)map).ContainsKey("mongoId") ? map["mongoId"].ToString() : "",
+                    coordinateSystemId = ((JObject)map).ContainsKey("name") ? map["name"].ToString() : "",
+                    id  = ((JObject)map).ContainsKey("id") ? map["id"].ToString() : "",
+                };
+                if (_backgroundImages.ContainsKey(bkg.id))
+                {
+                    if (_backgroundImages.TryGetValue(bkg.id, out OSLImage currentOSL))
+                    {
+                        //check if width value are the same
+                        if (currentOSL.widthMeter != bkg.widthMeter)
+                        {
+                            currentOSL.widthMeter = bkg.widthMeter;
+                            saveToFile = true;
+                        }
+                        //check if high
+                        if (currentOSL.heightMeter != bkg.heightMeter)
+                        {
+                            currentOSL.heightMeter = bkg.heightMeter;
+                            saveToFile = true;
+                        }
+                        //check if origoY
+                        if (currentOSL.origoY != bkg.origoY)
+                        {
+                            currentOSL.origoY = bkg.origoY;
+                            saveToFile = true;
+                        }
+                        //check if origoX
+                        if (currentOSL.origoX != bkg.origoX)
+                        {
+                            currentOSL.origoX = bkg.origoX;
+                            saveToFile = true;
+                        }
+                        //check if base64
+                        if (currentOSL.base64 != bkg.base64)
+                        {
+                            currentOSL.base64 = bkg.base64;
+                            saveToFile = true;
+                        }
+                        //check if name
+                        if (currentOSL.name != bkg.name)
+                        {
+                            currentOSL.name = bkg.name;
+                            saveToFile = true;
+                        }
+                    }
+                }
+                else
+                {
+                    if (_backgroundImages.TryAdd(bkg.id, bkg))
+                    {
+                        saveToFile = true;
+                    }
+                }
+            }
 
+            return true;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return false;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Select(x => x.Value).ToList(), Formatting.Indented));
+            }
+        }
+    }
 }

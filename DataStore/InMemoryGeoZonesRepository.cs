@@ -2378,5 +2378,18 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
         }
     }
+
+    public async Task<GeoZoneKiosk> GetKiosk(string id)
+    {
+        try
+        {
+            return _geoZonekioskList.Where(r => r.Value.Properties.KioskId == id).Select(y => y.Value).FirstOrDefault();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+    }
     #endregion
 }

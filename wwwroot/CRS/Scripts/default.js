@@ -53,6 +53,9 @@ $(function () {
         $('button[id=cancelBtn]').off().on('click', () => {
             Promise.all([restEIN()]);
         });
+
+        // Check and set focus every 3 seconds
+        setInterval(checkAndSetFocus, 3000);
     }
 });
 async function kioskConfig() {
@@ -92,7 +95,8 @@ async function restEIN() {
     $('div[id=root]').css('display', 'none');
     $('div[id=kioskSelection]').css('display', 'none');
     $('div[id=landing]').css('display', 'block');
-    $('input[id=encodedId]').val('').trigger('keyup');
+    $('input[id=encodedId]').val('').trigger('keyup').focus();
+    
 }
 /**
  * Starts the SignalR connection with retry logic using exponential backoff and jitter.
@@ -102,7 +106,7 @@ async function crsStart() {
         await crsConnection.start();
         console.log("SignalR Connected.");
         retryCount = 0; // Reset retry count on successful connection
-        initializeCrs();
+        initializeCRSKiosk();
 
     } catch (err) {
         console.log("Connection failed: ", err);
@@ -120,9 +124,20 @@ async function crsStart() {
 /**
  * Initializes the MPE hourly data by invoking various methods on the SignalR connection.
  */
-function initializeCrs() {
+async function initializeCRSKiosk() {
     try {
         // Start the connection
+        //load Kiosk Zones
+        await $.ajax({
+            url: `${SiteURLconstructor(window.location)}/api/Kiosk/GetKiosk?id=${kioskId}`,
+            contentType: 'application/json',
+            type: 'GET',
+            success: function (data) {
+                for (let i = 0; i < data.length; i++) {
+                    restEIN();
+                }
+            }
+        })
         crsConnection.invoke("GetApplicationInfo").then(function (data) {
             appData = JSON.parse(data);
             //if data is not null
@@ -135,14 +150,6 @@ function initializeCrs() {
         }).catch(function (err) {
             console.error("Error loading application info: ", err);
         });
-        //crsConnection.invoke("GetCRSConfiguration", crsId).then(function (crsConfigData) {
-        //    if (mpeData) {
-        //        $('sapn[id=kisokId]').text(crsConfigData.mpeId);
-        //    }
-
-        //}).catch(function (err) {
-        //    console.error("Error Fetching data for MPE " + crsId, err);
-        //});
 
         crsConnection.invoke("JoinGroup", "CRS").then(function (data) {
             console.log("Connected to Group:", "CRS Zones");
@@ -180,7 +187,11 @@ function showConnectionStatus(message) {
         statusElement.style.display = 'block';
     }
 }
-
+function checkAndSetFocus() {
+    if (!$('input[id=encodedId]').is(':focus')) {
+        $('input[id=encodedId]').focus();
+    }
+}
 crsStart();
 
 /**

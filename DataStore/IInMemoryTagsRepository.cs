@@ -18,9 +18,9 @@ public interface IInMemoryTagsRepository
     void UpdateTagDesignationActivity(DesignationActivityToCraftType updatedDacode);
     Task<IEnumerable<JObject>> SearchTag(string searchValue);
     List<string> GetTagByType(string tagType);
-    Task UpdateTagCiscoSpacesClientInfo(JToken result);
-    Task UpdateTagCiscoSpacesBLEInfo(JToken result);
-    Task UpdateTagCiscoSpacesAPInfo(JToken result);
+    Task<bool> UpdateTagCiscoSpacesClientInfo(JToken result, CancellationToken stoppingToken);
+    Task<bool> UpdateTagCiscoSpacesBLEInfo(JToken result, CancellationToken stoppingToken);
+    Task<bool> UpdateTagCiscoSpacesAPInfo(JToken result, CancellationToken stoppingToken);
     bool ExistingTagTimeline(DateTime hour);
     Task<List<TagTimeline>> GetTagTimeline(string emp, DateTime hour);    
     void UpdateTagTimeline(DateTime hour, List<TagTimeline> newValue, List<TagTimeline> currentvalue);

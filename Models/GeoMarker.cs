@@ -93,7 +93,7 @@ namespace EIR_9209_2.Models
             public string EncodedId { get; set; } = "";
             [JsonProperty("bdate")]
             public DateTime Bdate { get; set; } = DateTime.MinValue;
-            [JsonProperty("elunch")]
+            [JsonProperty("blunch")]
             public string Blunch { get; set; } = "";
             [JsonProperty("elunch")]
             public string Elunch { get; set; } = "";

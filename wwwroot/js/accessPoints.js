@@ -79,8 +79,6 @@ let accessPoints = new L.GeoJSON(null, {
             opacity: 1,
             className: classname,
         }).openTooltip();
-    }, filter: function (feature, layer) {
-        return feature.properties.visible;
     }
 });
 // add to the map and layers control
