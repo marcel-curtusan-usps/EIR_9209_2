@@ -126,7 +126,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         return backgroundImage;
     }
     public IEnumerable<OSLImage> GetAll() => _backgroundImages.Values;
-    public async Task<bool> ProcessBackgroundImage(List<CoordinateSystem> coordinateSystems, CancellationToken stoppingToken)
+    public async Task<bool> ProcessQPEBackgroundImage(List<CoordinateSystem> coordinateSystems, CancellationToken stoppingToken)
     {
         bool saveToFile = false;
         try
@@ -229,6 +229,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
                             else
                             {
                                 _backgroundImages.TryAdd(backgroundImage.id, new OSLImage {
+                                    source = "QPE",
                                     coordinateSystemId = coordinateSystem.id,
                                     id = backgroundImage.id,
                                     name = backgroundImage.name,
@@ -346,10 +347,12 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
             {
                 OSLImage bkg = new OSLImage
                 {
-                    widthMeter = ((JObject)map).ContainsKey("width") ? Convert.ToDouble(map["width"].ToString()) : 0.0,
+                    source = "Cisco",
+                    visible = true,
                     heightMeter = ((JObject)map).ContainsKey("length") ? Convert.ToDouble(map["length"].ToString()) : 0.0,
-                    origoX = ((JObject)map).ContainsKey("imageWidth") ? Convert.ToDouble(map["imageWidth"].ToString()) : 0.0,
-                    origoY = ((JObject)map).ContainsKey("imageHeight") ? Convert.ToDouble(map["imageHeight"].ToString()) : 0.0,
+                    widthMeter = ((JObject)map).ContainsKey("width") ? Convert.ToDouble(map["width"].ToString()) : 0.0,
+                    origoX = ((JObject)map).ContainsKey("width") ? Convert.ToDouble(map["width"].ToString()) : 0.0,
+                    origoY = ((JObject)map).ContainsKey("length") ? Convert.ToDouble(map["length"].ToString()) : 0.0,
                     base64 = ((JObject)map).ContainsKey("imagePath") ? map["imagePath"].ToString() : "",
                     name = ((JObject)map).ContainsKey("mongoId") ? map["mongoId"].ToString() : "",
                     coordinateSystemId = ((JObject)map).ContainsKey("name") ? map["name"].ToString() : "",
@@ -359,6 +362,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
                 {
                     if (_backgroundImages.TryGetValue(bkg.id, out OSLImage currentOSL))
                     {
+                  
                         //check if width value are the same
                         if (currentOSL.widthMeter != bkg.widthMeter)
                         {

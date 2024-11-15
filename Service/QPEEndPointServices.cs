@@ -72,7 +72,7 @@ namespace EIR_9209_2.Service
             try
             {
                 await _zones.ProcessQPEGeoZone(result.coordinateSystems, stoppingToken);
-                await _backgroundImage.ProcessBackgroundImage(result.coordinateSystems, stoppingToken);
+                await _backgroundImage.ProcessQPEBackgroundImage(result.coordinateSystems, stoppingToken);
             }
             catch (Exception e)
             {

@@ -1,5 +1,6 @@
 ﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NuGet.Common;
 
@@ -118,7 +119,8 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                await _tags.UpdateTagCiscoSpacesClientInfo(result, stoppingToken);
+                List<BLE_TAG> tags = result.SelectToken("features").ToObject<List<BLE_TAG>>();
+                await _tags.UpdateTagCiscoSpacesClientInfo(tags, stoppingToken);
             }
             catch (Exception e)
             {
@@ -130,7 +132,8 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                await _tags.UpdateTagCiscoSpacesBLEInfo(result, stoppingToken);
+                List<BLE_TAG> tags = result.SelectToken("features").ToObject<List<BLE_TAG>>();
+                await _tags.UpdateTagCiscoSpacesBLEInfo(tags, stoppingToken);
             }
             catch (Exception e)
             {
@@ -160,6 +163,104 @@ namespace EIR_9209_2.Service
             {
                 _logger.LogError(e, "Error processing QPE tag data");
             }
+        }
+
+
+        public class Geometry
+        {
+            [JsonProperty("type")]
+            public string Type { get; set; }
+
+            [JsonProperty("coordinates")]
+            public List<double> Coordinates { get; set; }
+        }
+        public class Properties
+        {
+            [JsonProperty("tenantId")]
+            public string TenantId { get; set; }
+
+            [JsonProperty("macAddress")]
+            public string MacAddress { get; set; }
+
+            [JsonProperty("deviceType")]
+            public string DeviceType { get; set; }
+
+            [JsonProperty("campusId")]
+            public string CampusId { get; set; }
+
+            [JsonProperty("buildingId")]
+            public string BuildingId { get; set; }
+
+            [JsonProperty("floorId")]
+            public string FloorId { get; set; }
+
+            [JsonProperty("lhFloorId")]
+            public string LhFloorId { get; set; }
+
+            [JsonProperty("hierarchy")]
+            public string Hierarchy { get; set; }
+
+            [JsonProperty("locationHierarchy")]
+            public string LocationHierarchy { get; set; }
+
+            [JsonProperty("hierarchyIds")]
+            public List<string> HierarchyIds { get; set; }
+
+            [JsonProperty("computeType")]
+            public string ComputeType { get; set; }
+
+            [JsonProperty("firstLocatedAt")]
+            public DateTime FirstLocatedAt { get; set; }
+
+            [JsonProperty("associated")]
+            public bool Associated { get; set; }
+
+            [JsonProperty("manufacturer")]
+            public string Manufacturer { get; set; }
+
+            [JsonProperty("source")]
+            public string Source { get; set; }
+
+            [JsonProperty("policy")]
+            public string Policy { get; set; }
+
+            [JsonProperty("isMacHashed")]
+            public bool IsMacHashed { get; set; }
+
+            [JsonProperty("deviceId")]
+            public string DeviceId { get; set; }
+
+            [JsonProperty("coordinates")]
+            public List<double> Coordinates { get; set; }
+
+            [JsonProperty("geoCoordinates")]
+            public object GeoCoordinates { get; set; }
+
+            [JsonProperty("confidenceFactor")]
+            public int ConfidenceFactor { get; set; }
+
+            [JsonProperty("lastLocatedAt")]
+            public DateTime LastLocatedAt { get; set; }
+
+            [JsonProperty("changedOn")]
+            public long ChangedOn { get; set; }
+
+            [JsonProperty("numDetectingAps")]
+            public int NumDetectingAps { get; set; }
+            [JsonProperty("ttl")]
+            public long Ttl { get; set; }
+        }
+
+        public class BLE_TAG
+        {
+            [JsonProperty("type")]
+            public string Type { get; set; }
+
+            [JsonProperty("properties")]
+            public Properties Properties { get; set; }
+
+            [JsonProperty("geometry")]
+            public Geometry Geometry { get; set; }
         }
     }
 }

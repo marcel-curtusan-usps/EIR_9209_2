@@ -137,7 +137,7 @@ async function createTagSearchDataTable(table) {
                 "title": "Action",
                 "width": "10%",
                 "mRender": function (data, type, full) {
-                    return '<button type="button" class="btn btn-light btn-sm mx-1 bi bi-bullseye ' + (full.presence ? 'green-presence' : 'red-presence') + '" data-toggle="modal" name="tagnav" "title="Edit Tag Info"></button>' +
+                    return '<button type="button" class="btn btn-light btn-sm mx-1 bi bi-bullseye ' + (full.presence ? 'green-presence text-warning' : 'red-presence text-light') + '" data-toggle="modal" name="tagnav" "title="Edit Tag Info"></button>' +
                         '<button type="button" class="btn btn-light btn-sm mx-1 pi-iconEdit" data-toggle="modal" name="tagedit" "title="Edit Tag Info"></button>';
                 }
             }

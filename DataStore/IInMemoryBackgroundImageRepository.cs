@@ -10,6 +10,6 @@ public interface IInMemoryBackgroundImageRepository
     IEnumerable<OSLImage> GetAll();
     Task<bool> ResetBackgroundImageList();
     Task<bool> SetupBackgroundImageList();
-    Task<bool> ProcessBackgroundImage(List<CoordinateSystem> coordinateSystems, CancellationToken stoppingToken);
+    Task<bool> ProcessQPEBackgroundImage(List<CoordinateSystem> coordinateSystems, CancellationToken stoppingToken);
     Task<bool> ProcessCiscoSpacesBackgroundImage(JToken? jToken, CancellationToken stoppingToken);
 }

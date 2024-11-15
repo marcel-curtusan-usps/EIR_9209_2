@@ -80,19 +80,20 @@ connection.on("deleteBadgeTagInfo", async (tagdata) => {
 });
 let tagsEmployees = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
-        return new L.circleMarker(latlng, {
-            class: "persontag",
-            radius: 0,
-            opacity: 0,
-            fillOpacity: 0
+        let icon = L.divIcon({
+            className: getBadgeMarkerType(feature.properties.craftName),
+            iconSize: [10, 10],
+            iconAnchor: [15, 0]
         });
-
+        return L.marker(latlng, {
+            icon: icon,
+            riseOnHover: true,
+            bubblingMouseEvents: true,
+            popupOpen: true
+        });
     },
     onEachFeature: function (feature, layer) {
         layer.markerId = feature.properties.id;
-        let VisiblefillOpacity = feature.properties.visible ? "" : "tooltip-hidden";
-
-        let classname = getmarkerType(feature.properties.craftName) + VisiblefillOpacity;
         layer.on('click', function (e) {
             //makea ajax call to get the employee details
             $.ajax({
@@ -127,8 +128,7 @@ let tagsEmployees = new L.GeoJSON(null, {
             permanent: true,
             interactive: true,
             direction: 'center',
-            opacity: 1,
-            className: classname,
+            opacity: 0
         }).openTooltip();
     }, filter: function (feature, layer) {
         return feature.properties.visible;
@@ -232,17 +232,9 @@ async function updateFeature(data) {
         let tag = data;
         await findLeafletIds(tag.properties.id)
             .then(leafletIds => {
-                let VisiblefillOpacity = tag.properties.visible ? "" : "tooltip-hidden";
-                let classname = getmarkerType(tag.properties.craftName) + VisiblefillOpacity;
 
                 tagsEmployees._layers[leafletIds].feature.properties = tag.properties;
-                tagsEmployees._layers[leafletIds].bindTooltip("", {
-                    permanent: true,
-                    interactive: true,
-                    direction: 'center',
-                    opacity: 1,
-                    className: classname,
-                }).openTooltip();
+            
             })
             .catch(error => {
                 //
@@ -267,35 +259,38 @@ async function positionUpdate(leafletId, lat, lag) {
         }
     });
 }
-function getmarkerType(type) {
+function getBadgeMarkerType(type) {
     try {
         if (/^supervisor/ig.test(type)) {
-            return 'persontag_supervisor ';
+            return 'bi-star-fill text-warning h6 ';
         }
         else if (/^maintenance/ig.test(type)) {
-            return 'persontag_maintenance ';
+            return 'bi-suit-diamond-fill text-success h6 ';
         }
         else if (/^(LABORER CUSTODIAL|CUSTODIAN|CUTODIAN|Custodian|Custodian)/ig.test(type)) {
-            return 'persontag_custodial ';
+            return 'bi-cart-fill h6';
         }
-        //else if (/pse/ig.test(type)) {
-        //    return 'persontag_pse ';
-        //}
         else if (/inplantsupport/ig.test(type)) {
-            return 'persontag_inplantsupport ';
+            return 'bi-person-fill-gear text-success h6 ';
         }
         else if (/^(clerk|mailhandler|mha|mail|pse)/ig.test(type)) {
-            return 'persontag ';
+            return 'bi-circle-fill text-primary h6 ';
+        }
+        else if (/^(BLE)$/ig.test(type)) {
+            return 'bi-hexagon-fill h6 ';
+        }
+        else if (/^(WifiDevice)$/ig.test(type)) {
+            return 'bi-compass-fill text-info h6 ';
         }
         else if (type.length === 0) {
-            return 'persontag_unknown ';
+            return 'bi-pentagon-fill text-secondary h6  ';
         }
         else {
-            return 'persontag_unknown ';
+            return 'bi-exclamation-circle-fill text-secondary h6';
         }
 
     } catch (e) {
-        return 'persontag ';
+        return ' bi-exclamation-circle-fill text-danger h6';
     }
 
 }
@@ -424,7 +419,7 @@ function createStaffingDataTable(table) {
                 "width": "5%",
                 "mDataProp": key,
                 "mRender": function (data, type, full) {
-                    return '<i class="leaflet-tooltip ' + getmarkerType(full.type) + '"></i>';
+                    return '<i class="leaflet-tooltip ' + getBadgeMarkerType(full.type) + '"></i>';
 
                 }
             };

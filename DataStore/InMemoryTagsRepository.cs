@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using static EIR_9209_2.DataStore.InMemoryCamerasRepository;
 using static EIR_9209_2.Models.GeoMarker;
 using static EIR_9209_2.Models.VehicleGeoMarker;
+using static EIR_9209_2.Service.CiscoSpacesEndPointServices;
 
 namespace EIR_9209_2.DataStore
 {
@@ -900,15 +901,15 @@ namespace EIR_9209_2.DataStore
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        public async Task<bool> UpdateTagCiscoSpacesClientInfo(JToken result, CancellationToken stoppingToken)
+        public async Task<bool> UpdateTagCiscoSpacesClientInfo(List<BLE_TAG> result, CancellationToken stoppingToken)
         {
             bool savetoFile = false;
             try
             {
                 //loop through the result and update the tag position
-                if (result is not null && ((JObject)result).ContainsKey("features"))
+                if (result.Any())
                 {
-                    foreach (var item in result.SelectToken("features"))
+                    foreach (var item in result)
                     {
                         //check if cancellationToken has been called
                         if (stoppingToken.IsCancellationRequested)
@@ -916,16 +917,55 @@ namespace EIR_9209_2.DataStore
                             savetoFile = false;
                             return false;
                         }
-                            string tagId = item.SelectToken("properties.macAddress")?.ToString();
-                        if (!string.IsNullOrEmpty(tagId))
+                        bool updateGroup = false;
+                        GeoMarker? TagData = null;
+                        _tagList.TryGetValue(item.Properties.MacAddress, out TagData);
+                        if (TagData != null)
                         {
-                            GeoMarker? TagData = null;
-                            _tagList.TryGetValue(tagId, out TagData);
-                            if (TagData != null)
+                            TagData.Properties.CraftName = "WifiDevice";
+                            if (!TagData.Properties.Visible)
                             {
-                                await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", "");
+                                TagData.Properties.Visible = true;
+                                updateGroup = true;
+                            }
+
+                            if (TagData.Geometry.Coordinates[0] != item.Properties.Coordinates[0] || TagData.Geometry.Coordinates[1] != item.Properties.Coordinates[1])
+                            {
+                                TagData.Geometry.Coordinates = [item.Properties.Coordinates[0], item.Properties.Coordinates[1]];
+                                updateGroup = true;
+                            }
+                            if (updateGroup)
+                            {
+                                await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", positionLocationMarkersUpdate(TagData));
                             }
                         }
+                        else
+                        {
+                            GeoMarker newBLE = new GeoMarker
+                            {
+                                Geometry = new MarkerGeometry
+                                {
+                                    Coordinates = [item.Properties.Coordinates[0], item.Properties.Coordinates[1]]
+                                },
+                                Properties = new Marker
+                                {
+                                    Id = item.Properties.MacAddress,
+                                    TagType = "Badge",
+                                    Visible = true,
+                                    isPosition = true,
+                                    CraftName = "WifiDevice"
+                                }
+                            };
+
+                            if (_tagList.TryAdd(item.Properties.MacAddress, newBLE))
+                            {
+                                savetoFile = true;
+                                await _hubServices.Clients.Group(newBLE?.Properties.TagType).SendAsync($"update{newBLE?.Properties.TagType}TagPosition", positionLocationMarkersUpdate(newBLE));
+                            }
+
+                        }
+
+
                     }
                 }
                 return true;
@@ -940,20 +980,21 @@ namespace EIR_9209_2.DataStore
                 if (savetoFile)
                 {
                     //save date to local file
-                    await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(fileName, GeoMarkerOutPutdata(_tagList.Select(y => y.Value).ToList()));
                 }
 
             }
         }
-        public async Task<bool> UpdateTagCiscoSpacesBLEInfo(JToken result, CancellationToken stoppingToken)
+        public async Task<bool> UpdateTagCiscoSpacesBLEInfo(List<BLE_TAG> result, CancellationToken stoppingToken)
         {
+
             bool savetoFile = false;
             try
             {
                 //loop through the result and update the tag position
-                if (result is not null && ((JObject)result).ContainsKey("features"))
+                if (result.Any())
                 {
-                    foreach (var item in result.SelectToken("features"))
+                    foreach (var item in result)
                     {
                         //check if cancellationToken has been called
                         if (stoppingToken.IsCancellationRequested)
@@ -961,16 +1002,56 @@ namespace EIR_9209_2.DataStore
                             savetoFile = false;
                             return false;
                         }
-                        string tagId = item.SelectToken("properties.macAddress")?.ToString();
-                        if (!string.IsNullOrEmpty(tagId))
+                        bool updateGroup = false;
+                        GeoMarker? TagData = null;
+                        _tagList.TryGetValue(item.Properties.MacAddress, out TagData);
+                        if (TagData != null)
                         {
-                            GeoMarker? TagData = null;
-                            _tagList.TryGetValue(tagId, out TagData);
-                            if (TagData != null)
+                            TagData.Properties.CraftName = "BLE";
+                            if (!TagData.Properties.Visible)
                             {
-                                await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", "");
+                                TagData.Properties.Visible = true;
+                                updateGroup = true;
+                            }
+                          
+                            if (TagData.Geometry.Coordinates[0] != item.Properties.Coordinates[0] || TagData.Geometry.Coordinates[1] != item.Properties.Coordinates[1])
+                            {
+                                TagData.Geometry.Coordinates = [item.Properties.Coordinates[0], item.Properties.Coordinates[1]];
+                                updateGroup = true;
+                            }
+                            if (updateGroup)
+                            {
+                                await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", positionLocationMarkersUpdate(TagData));
                             }
                         }
+                        else
+                        {
+                            GeoMarker newBLE = new GeoMarker
+                            {
+                                Geometry = new MarkerGeometry
+                                {
+                                    Coordinates = [item.Properties.Coordinates[0], item.Properties.Coordinates[1]] 
+                                },
+                                Properties = new Marker
+                                {
+                                    Id = item.Properties.MacAddress,
+                                    TagType = "Badge",
+                                    Visible = true,
+                                    isPosition = true,
+                                    CraftName = "BLE"
+                                    
+                                }
+                            };
+
+                            if (_tagList.TryAdd(item.Properties.MacAddress, newBLE))
+                            {
+                                savetoFile = true;
+                                await _hubServices.Clients.Group(newBLE?.Properties.TagType).SendAsync($"update{newBLE?.Properties.TagType}TagPosition", positionLocationMarkersUpdate(newBLE));
+                            }
+
+                        }
+
+
                     }
                 }
                 return true;
@@ -985,7 +1066,7 @@ namespace EIR_9209_2.DataStore
                 if (savetoFile)
                 {
                     //save date to local file
-                    await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(fileName, GeoMarkerOutPutdata(_tagList.Select(y => y.Value).ToList()));
                 }
 
             }
@@ -1009,6 +1090,7 @@ namespace EIR_9209_2.DataStore
                             return false;
                         }
                         GeoMarker? TagData = null;
+                 
                         JObject PositionGeoJson = new JObject
                         {
                             ["type"] = "Feature",
@@ -1034,7 +1116,7 @@ namespace EIR_9209_2.DataStore
                         _tagList.TryGetValue(item["macAddress"].ToString(), out TagData);
                         if (TagData != null)
                         {
-                            if (TagData.Properties.Visible)
+                            if (!TagData.Properties.Visible)
                             {
                                 TagData.Properties.Visible = true;
                             }
@@ -1063,12 +1145,10 @@ namespace EIR_9209_2.DataStore
                                 TagData.Properties.EmpLastName = item["ipAddress"].ToString();
                                 savetoFile = true;
                             }
-
-                            if (TagData.Geometry.Coordinates != new List<double> { (double)item["x"], (double)item["y"] })
+                            if (TagData.Geometry.Coordinates[0] != (double)item["x"] || TagData.Geometry.Coordinates[1] != (double)item["y"])
                             {
                                 TagData.Geometry.Coordinates = new List<double> { (double)item["x"], (double)item["y"] };
                                 await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}Position", PositionGeoJson);
-                                savetoFile = true;
                             }
 
                         }
@@ -1166,6 +1246,23 @@ namespace EIR_9209_2.DataStore
             {
                 _logger.LogError(e.Message);
                 return Task.FromResult(true);
+            }
+        }
+
+        private string GeoMarkerOutPutdata(List<GeoMarker> marker)
+        {
+            try
+            {
+                var jsonResolver = new PropertyRenameAndIgnoreSerializerContractResolver();
+                jsonResolver.IgnoreProperty(typeof(MarkerGeometry), "coordinates");
+                var serializerSettings = new JsonSerializerSettings();
+                serializerSettings.ContractResolver = jsonResolver;
+                return JsonConvert.SerializeObject(marker, Formatting.Indented, serializerSettings);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return "";
             }
         }
     }

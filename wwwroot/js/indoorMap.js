@@ -15,6 +15,9 @@ let baseLayers = {
 
 let overlayMaps = {};
 let layersSelected = [mainfloor];
+//var CRSPixel = L.Util.extend(L.CRS.Simple, {
+//	transformation: new L.Transformation(1,0,1,0)
+//});
 //setup map
 let OSLmap = L.map('map', {
     crs: L.CRS.Simple,
@@ -110,6 +113,12 @@ async function init_backgroundImages() {
             success: function (MapData) {
                 if (MapData.length > 0) {
                     $.each(MapData, function (index, backgroundImages) {
+                        if (backgroundImages.source === "Cisco") {
+                            L.Util.extend(L.CRS.Simple, {
+                            	transformation: new L.Transformation(1,0,1,0)
+                            });
+                        }
+
                         loadOslDatatable([backgroundImages],"osltable")
                         if (!!backgroundImages) {
                             //Promise.all([loadOslDatatable([this], "osltable")]);

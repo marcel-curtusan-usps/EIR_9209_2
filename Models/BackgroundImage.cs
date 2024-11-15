@@ -20,5 +20,6 @@
         public double metersPerPixelX { get; set; } = 0.0;
         public bool updateStatus { get; set; } = false;
         public string coordinateSystemId { get; set; } = "";
+        public string source { get; set; } = "";
     }
 }

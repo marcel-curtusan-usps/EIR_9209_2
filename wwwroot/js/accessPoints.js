@@ -27,21 +27,23 @@ connection.on("deleteAPInfo", async (apdata) => {
     }
 
 });
-let accessPoints = new L.GeoJSON(null, {
+let accessPoints = new L.geoJson(null, {
     pointToLayer: function (feature, latlng) {
-        return new L.circleMarker(latlng, {
-            class: "persontag",
-            radius: 0,
-            opacity: 0,
-            fillOpacity: 0
+        let icon = L.divIcon({
+            className: 'bi-wifi text-primary h3',
+            iconSize: [20, 42],
+            iconAnchor: [15, 0]
+        });
+        return L.marker(latlng, {
+            icon: icon,
+            riseOnHover: true,
+            bubblingMouseEvents: true,
+            popupOpen: true
         });
 
     },
     onEachFeature: function (feature, layer) {
         layer.markerId = feature.properties.id;
-        let VisiblefillOpacity = feature.properties.visible ? "" : "tooltip-hidden";
-
-        let classname = getmarkerType(feature.properties.craftName) + VisiblefillOpacity;
         layer.on('click', function (e) {
             //makea ajax call to get the employee details
             $.ajax({
@@ -76,8 +78,7 @@ let accessPoints = new L.GeoJSON(null, {
             permanent: true,
             interactive: true,
             direction: 'center',
-            opacity: 1,
-            className: classname,
+            opacity: 0
         }).openTooltip();
     }
 });
@@ -175,16 +176,11 @@ async function updateAPFeature(data) {
         let tag = data;
         await findAPLeafletIds(tag.properties.id)
             .then(leafletIds => {
-                let VisiblefillOpacity = tag.properties.visible ? "" : "tooltip-hidden";
-                let classname = getmarkerType(tag.properties.craftName) + VisiblefillOpacity;
-
                 accessPoints._layers[leafletIds].feature.properties = tag.properties;
                 accessPoints._layers[leafletIds].bindTooltip("", {
                     permanent: true,
                     interactive: true,
-                    direction: 'center',
-                    opacity: 1,
-                    className: classname,
+                    direction: 'center'
                 }).openTooltip();
             })
             .catch(error => {
