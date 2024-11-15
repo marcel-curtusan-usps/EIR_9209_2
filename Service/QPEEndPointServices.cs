@@ -40,6 +40,12 @@ namespace EIR_9209_2.Service
                             _endpointConfig.Name,
                             formatUrl), stoppingToken);
                     }
+                    _endpointConfig.Status = EWorkerServiceState.Idel;
+                    var updateCon = _connection.Update(_endpointConfig).Result;
+                    if (updateCon != null)
+                    {
+                        await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                    }
                     await ProcessQPETagData(result, stoppingToken);
                 }
                 if (_endpointConfig.MessageType.Equals("getProjectInfo", StringComparison.CurrentCultureIgnoreCase))
@@ -47,10 +53,19 @@ namespace EIR_9209_2.Service
                     // Process tag data in a separate thread
                     var result = await queryService.GetQPEProjectInfo(stoppingToken);
                     // Start a new thread to handle the logging
-                    Task.Run(() => _loggerService.LogData(result.ToJson(),
+                    if (_endpointConfig.LogData)
+                    {
+                        Task.Run(() => _loggerService.LogData(result.ToJson(),
                         _endpointConfig.MessageType,
                         _endpointConfig.Name,
                         formatUrl), stoppingToken);
+                    }
+                    _endpointConfig.Status = EWorkerServiceState.Idel;
+                    var updateCon = _connection.Update(_endpointConfig).Result;
+                    if (updateCon != null)
+                    {
+                        await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                    }
                     await ProcessQPEProjectInfo(result, stoppingToken);
                 }
             }

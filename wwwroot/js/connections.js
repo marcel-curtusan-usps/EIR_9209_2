@@ -943,7 +943,7 @@ function createConnectionDataTable(table) {
                 "title": "Status",
                 "width": "20%",
                 "mDataProp": key,
-                "mRender": function (data, full) {
+                "mRender": function (data, full, row) {
                     switch (data) {
                         case 0:
                             return "Stopped"
@@ -979,8 +979,7 @@ function createConnectionDataTable(table) {
                         return '<button class="btn btn-light btn-sm mx-1 pi-iconEdit connectionedit" name="connectionedit"></button>' +
                             '<button class="btn btn-light btn-sm mx-1 pi-trashFill connectiondelete" name="connectiondelete"></button>'
                     }
-                    else
-                    {
+                    else {
                         return "";
                     }
                 }
@@ -1023,7 +1022,12 @@ function createConnectionDataTable(table) {
             $(row).find('td:eq(3)').css('text-align', 'center');
             if (data.activeConnection) {
                 if (data.apiConnected) {
-                    $(row).find('td:eq(3)').css('background-color', '#17C671');
+                    if (/(0|4|5|6)/i.test(data.status)) {
+                        $(row).find('td:eq(3)').css('background-color', '#FF604E');
+                    }
+                    else {
+                        $(row).find('td:eq(3)').css('background-color', '#17C671');
+                    }
                 }
                 else if (data.tcpIpConnection) {
                     $(row).find('td:eq(3)').css('background-color', '#17C671');
@@ -1038,9 +1042,6 @@ function createConnectionDataTable(table) {
             else {
                 $(row).find('td:eq(3)').css('background-color', '#FFB400');
             }
-            Promise.all([addSideButton(data.name)]);
-
-
         }
     })
     // Edit/remove record

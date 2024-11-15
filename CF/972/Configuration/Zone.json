@@ -1,0 +1,10037 @@
+﻿[
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            38.57,
+            208.18
+          ],
+          [
+            38.57,
+            53.76
+          ],
+          [
+            134.61,
+            53.76
+          ],
+          [
+            134.61,
+            208.18
+          ],
+          [
+            38.57,
+            208.18
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "bb0a043b-e84d-40e0-8278-f4dddca7f56f",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": false,
+      "Color": "",
+      "Name": "VP_EPPS_E",
+      "Type": "ViewPorts",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            171.9,
+            174.2
+          ],
+          [
+            171.9,
+            171.2
+          ],
+          [
+            174.9,
+            171.2
+          ],
+          [
+            174.9,
+            174.2
+          ],
+          [
+            171.9,
+            174.2
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "385f4037-3aa3-43f9-b42a-bfcb5eb74290",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EBR-006",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            51.6,
+            172.2
+          ],
+          [
+            51.6,
+            169.2
+          ],
+          [
+            54.6,
+            169.2
+          ],
+          [
+            54.6,
+            172.2
+          ],
+          [
+            51.6,
+            172.2
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "63640b0c-77d0-4a6d-beef-b7d9397467c1",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EBR-001",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            148.0,
+            153.0
+          ],
+          [
+            148.0,
+            146.5
+          ],
+          [
+            168.0,
+            146.5
+          ],
+          [
+            168.0,
+            153.0
+          ],
+          [
+            148.0,
+            153.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "46f65fd1-7058-4da9-aa2d-137f5cddfd5f",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "ATU-004",
+      "Type": "MPE",
+      "MpeName": "ATU",
+      "MpeNumber": "004",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            239.5,
+            46.5
+          ],
+          [
+            239.5,
+            41.0
+          ],
+          [
+            271.0,
+            41.0
+          ],
+          [
+            271.0,
+            46.5
+          ],
+          [
+            239.5,
+            46.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "cfa06217-616f-4dac-976c-57f9a0f274ec",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-142",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "142",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            95.0,
+            129.0
+          ],
+          [
+            98.5,
+            129.0
+          ],
+          [
+            99.84,
+            130.58
+          ],
+          [
+            99.84,
+            183.63
+          ],
+          [
+            98.34,
+            184.65
+          ],
+          [
+            94.97,
+            184.65
+          ],
+          [
+            95.0,
+            129.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "6d0f33c1-f106-4de4-851d-3e6a1b1f0904",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "States_Manual_Parcels",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            274.5,
+            98.5
+          ],
+          [
+            275.5,
+            97.0
+          ],
+          [
+            301.5,
+            97.0
+          ],
+          [
+            302.93,
+            98.43
+          ],
+          [
+            303.0,
+            98.5
+          ],
+          [
+            303.0,
+            111.5
+          ],
+          [
+            297.14,
+            111.5
+          ],
+          [
+            297.14,
+            114.5
+          ],
+          [
+            286.18,
+            114.5
+          ],
+          [
+            286.18,
+            116.0
+          ],
+          [
+            274.5,
+            116.0
+          ],
+          [
+            274.5,
+            98.5
+          ],
+          [
+            274.5,
+            98.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "43c1c31a-f8e4-4bb0-8b34-0623997bd61b",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Manual_Office_Mail_Processing",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            148.0,
+            111.5
+          ],
+          [
+            148.0,
+            107.0
+          ],
+          [
+            168.0,
+            107.0
+          ],
+          [
+            168.0,
+            111.5
+          ],
+          [
+            148.0,
+            111.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "a4d6ffa3-65c7-413d-854e-17b6acf26c26",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "ATS_3",
+      "Type": "MPE",
+      "MpeName": "ATS_3",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            65.98,
+            33.24
+          ],
+          [
+            65.98,
+            35.64
+          ],
+          [
+            62.57,
+            35.64
+          ],
+          [
+            61.9,
+            35.64
+          ],
+          [
+            61.9,
+            33.24
+          ],
+          [
+            65.98,
+            33.24
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "d5735626-50f6-47d3-9855-be8b6c2f83fa",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00E011010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            225.5,
+            104.0
+          ],
+          [
+            225.5,
+            97.5
+          ],
+          [
+            232.0,
+            97.5
+          ],
+          [
+            232.0,
+            104.0
+          ],
+          [
+            225.5,
+            104.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "097cbc87-abd3-4e70-bdbd-99520d2e993d",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EBR-010",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            227.0,
+            98.5
+          ],
+          [
+            228.0,
+            97.5
+          ],
+          [
+            232.0,
+            97.5
+          ],
+          [
+            233.0,
+            98.5
+          ],
+          [
+            233.0,
+            183.0
+          ],
+          [
+            232.0,
+            184.0
+          ],
+          [
+            228.0,
+            184.0
+          ],
+          [
+            227.0,
+            183.0
+          ],
+          [
+            227.0,
+            98.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "1428509b-a7bc-4b06-b20f-efd4552380c6",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Staging001",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            286.36,
+            136.52
+          ],
+          [
+            286.36,
+            131.07
+          ],
+          [
+            301.84,
+            131.07
+          ],
+          [
+            301.84,
+            136.52
+          ],
+          [
+            286.36,
+            136.52
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "08e8fdf1-6d19-486d-8be7-68d47d6fe336",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "AFCS200-104",
+      "Type": "MPE",
+      "MpeName": "AFCS200",
+      "MpeNumber": "104",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            8.31,
+            207.99
+          ],
+          [
+            8.31,
+            119.66
+          ],
+          [
+            155.64,
+            119.66
+          ],
+          [
+            155.64,
+            207.99
+          ],
+          [
+            8.31,
+            207.99
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "fc5ed915-ec84-44b8-980c-179b29fc0dc5",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": false,
+      "Color": "",
+      "Name": "VP_N_Dock",
+      "Type": "ViewPorts",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            223.9,
+            200.0
+          ],
+          [
+            223.9,
+            192.45
+          ],
+          [
+            259.44,
+            192.45
+          ],
+          [
+            259.44,
+            188.44
+          ],
+          [
+            260.99,
+            188.55
+          ],
+          [
+            262.05,
+            190.06
+          ],
+          [
+            262.05,
+            199.0
+          ],
+          [
+            260.76,
+            200.0
+          ],
+          [
+            223.9,
+            200.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "14fb2cb6-28e8-42e1-a54a-0e5275479f4d",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "010_R2",
+      "Type": "MPE",
+      "MpeName": "010_R2",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            340.0,
+            115.5
+          ],
+          [
+            340.0,
+            104.5
+          ],
+          [
+            344.0,
+            104.5
+          ],
+          [
+            344.0,
+            108.0
+          ],
+          [
+            346.5,
+            108.0
+          ],
+          [
+            346.5,
+            120.0
+          ],
+          [
+            344.0,
+            120.0
+          ],
+          [
+            344.0,
+            124.0
+          ],
+          [
+            340.0,
+            124.0
+          ],
+          [
+            340.0,
+            115.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "352492ef-f4a2-43ba-ad0f-dcdc18cd35f2",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Exit_Turnstile",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            271.0,
+            32.5
+          ],
+          [
+            271.0,
+            36.0
+          ],
+          [
+            239.5,
+            36.0
+          ],
+          [
+            239.5,
+            32.5
+          ],
+          [
+            241.0,
+            31.0
+          ],
+          [
+            269.5,
+            31.0
+          ],
+          [
+            271.0,
+            32.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "dfbbd9ed-3410-4d49-8f77-76ecf04ba219",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Staging002",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            66.38,
+            104.62
+          ],
+          [
+            66.38,
+            0.16
+          ],
+          [
+            143.94,
+            0.16
+          ],
+          [
+            143.94,
+            104.62
+          ],
+          [
+            66.38,
+            104.62
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "9d1697af-918a-4747-a367-6ae645503ecd",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": false,
+      "Color": "",
+      "Name": "VP_APBS",
+      "Type": "ViewPorts",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            272.68,
+            30.01
+          ],
+          [
+            272.68,
+            27.24
+          ],
+          [
+            277.21,
+            27.24
+          ],
+          [
+            277.21,
+            30.01
+          ],
+          [
+            272.68,
+            30.01
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "a54b9d45-6ddf-4996-b0d4-dd3c332eb0ae",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EBR-014",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            89.31,
+            79.25
+          ],
+          [
+            89.31,
+            81.59
+          ],
+          [
+            85.17,
+            81.59
+          ],
+          [
+            85.17,
+            79.25
+          ],
+          [
+            89.31,
+            79.25
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "85bc1ca9-7f49-402c-ba9f-59f969623bf0",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00F010010030",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            65.88,
+            59.6
+          ],
+          [
+            65.88,
+            62.0
+          ],
+          [
+            61.8,
+            62.0
+          ],
+          [
+            61.8,
+            59.6
+          ],
+          [
+            65.88,
+            59.6
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "aa055eba-00e4-4c05-bc35-bc2b9f38d508",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00E009010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            274.5,
+            139.0
+          ],
+          [
+            274.5,
+            116.0
+          ],
+          [
+            286.23,
+            116.11
+          ],
+          [
+            286.23,
+            139.28
+          ],
+          [
+            274.5,
+            139.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "6dc53466-fd19-4006-9f2a-1576d16f74db",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Manual_Letters",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            17.5,
+            68.0
+          ],
+          [
+            17.5,
+            65.0
+          ],
+          [
+            20.5,
+            65.0
+          ],
+          [
+            20.5,
+            68.0
+          ],
+          [
+            17.5,
+            68.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "bc4fc1e2-65c8-4fae-954f-95626e54fdbd",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EBR-002",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            90.83,
+            81.69
+          ],
+          [
+            90.83,
+            84.13
+          ],
+          [
+            86.69,
+            84.13
+          ],
+          [
+            86.69,
+            81.69
+          ],
+          [
+            90.83,
+            81.69
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "545ba200-d9e6-4946-9510-4e33fcbdff20",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00F010010020",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            194.5,
+            143.0
+          ],
+          [
+            194.5,
+            137.0
+          ],
+          [
+            224.0,
+            137.0
+          ],
+          [
+            224.0,
+            143.0
+          ],
+          [
+            194.5,
+            143.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "d723681c-d4dd-4539-98f1-66bdc5671b2e",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS_149",
+      "Type": "MPE",
+      "MpeName": "DBCS_149",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            82.72,
+            70.82
+          ],
+          [
+            99.86,
+            93.07
+          ],
+          [
+            99.86,
+            124.08
+          ],
+          [
+            98.45,
+            125.79
+          ],
+          [
+            82.7,
+            125.79
+          ],
+          [
+            82.72,
+            70.82
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "480f522b-78a5-4484-b564-222a7a4734b3",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "SWYB",
+      "Type": "MPE",
+      "MpeName": "SWYB",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            98.91,
+            3.99
+          ],
+          [
+            114.0,
+            3.99
+          ],
+          [
+            115.35,
+            5.28
+          ],
+          [
+            115.35,
+            85.23
+          ],
+          [
+            113.82,
+            87.12
+          ],
+          [
+            99.9,
+            87.12
+          ],
+          [
+            86.84,
+            69.15
+          ],
+          [
+            86.84,
+            51.06
+          ],
+          [
+            98.91,
+            51.06
+          ],
+          [
+            98.91,
+            3.99
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "1b6885f2-1a7b-4113-bcce-07b64882c076",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "SPBSTS-002",
+      "Type": "MPE",
+      "MpeName": "SPBSTS",
+      "MpeNumber": "002",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            286.36,
+            125.61
+          ],
+          [
+            286.36,
+            120.12
+          ],
+          [
+            297.12,
+            120.12
+          ],
+          [
+            297.12,
+            111.61
+          ],
+          [
+            301.84,
+            111.61
+          ],
+          [
+            301.84,
+            120.17
+          ],
+          [
+            301.84,
+            125.61
+          ],
+          [
+            286.36,
+            125.61
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "292fd13a-56ad-414c-94bf-23c1263bf4b4",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "AFCS200-106",
+      "Type": "MPE",
+      "MpeName": "AFCS200",
+      "MpeNumber": "106",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            167.5,
+            51.5
+          ],
+          [
+            160.0,
+            51.5
+          ],
+          [
+            160.0,
+            70.0
+          ],
+          [
+            120.5,
+            70.5
+          ],
+          [
+            118.5,
+            68.5
+          ],
+          [
+            118.56,
+            41.0
+          ],
+          [
+            167.69,
+            41.0
+          ],
+          [
+            167.5,
+            51.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "59a16f33-66bc-4443-b63e-8d16064a9d13",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "MMP_HASH",
+      "Type": "MPE",
+      "MpeName": "MMP_HASH",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            162.76,
+            94.03
+          ],
+          [
+            162.76,
+            96.32
+          ],
+          [
+            150.09,
+            96.32
+          ],
+          [
+            150.09,
+            94.03
+          ],
+          [
+            162.76,
+            94.03
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "25884cc3-0017-4128-a48b-0dcfe90004c7",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00K007010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            57.45,
+            142.34
+          ],
+          [
+            57.45,
+            144.68
+          ],
+          [
+            53.31,
+            144.68
+          ],
+          [
+            53.31,
+            142.34
+          ],
+          [
+            57.45,
+            142.34
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "8a53887c-cf7a-4194-8d4b-28c7f30526c7",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00D004010030",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            174.5,
+            138.5
+          ],
+          [
+            172.0,
+            138.5
+          ],
+          [
+            172.0,
+            138.0
+          ],
+          [
+            174.5,
+            138.0
+          ],
+          [
+            174.5,
+            135.0
+          ],
+          [
+            172.0,
+            135.0
+          ],
+          [
+            172.0,
+            123.5
+          ],
+          [
+            177.62,
+            123.5
+          ],
+          [
+            190.0,
+            123.5
+          ],
+          [
+            190.0,
+            138.5
+          ],
+          [
+            174.5,
+            138.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "e1479cc4-fd32-4a99-a41e-11ba1ce9c3ee",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Exit_H",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            194.5,
+            126.0
+          ],
+          [
+            194.5,
+            118.5
+          ],
+          [
+            224.0,
+            118.5
+          ],
+          [
+            224.0,
+            126.0
+          ],
+          [
+            194.5,
+            126.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "d41aa512-3823-4f97-bd48-d7dd5f18db4f",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-144",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "144",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            198.12,
+            99.95
+          ],
+          [
+            198.12,
+            108.71
+          ],
+          [
+            194.5,
+            108.5
+          ],
+          [
+            194.5,
+            100.5
+          ],
+          [
+            195.25,
+            99.95
+          ],
+          [
+            198.12,
+            99.95
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "65933aae-6c26-405a-89ad-1473aa9c8389",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00M007010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            168.0,
+            128.0
+          ],
+          [
+            148.0,
+            128.0
+          ],
+          [
+            148.0,
+            120.5
+          ],
+          [
+            168.0,
+            120.5
+          ],
+          [
+            168.0,
+            128.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "4618583f-ec50-489f-93c7-6367e51f3eea",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Staging004",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            148.0,
+            141.5
+          ],
+          [
+            148.0,
+            137.5
+          ],
+          [
+            168.0,
+            137.5
+          ],
+          [
+            168.0,
+            141.5
+          ],
+          [
+            148.0,
+            141.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "6b686618-9178-4f63-9413-a7d36a0950e3",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EAA_002",
+      "Type": "MPE",
+      "MpeName": "EAA_002",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            226.12,
+            208.1
+          ],
+          [
+            226.12,
+            93.88
+          ],
+          [
+            307.85,
+            93.88
+          ],
+          [
+            307.85,
+            208.1
+          ],
+          [
+            226.12,
+            208.1
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "019318c2-aae1-4dad-8a49-afea203f24ce",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": false,
+      "Color": "",
+      "Name": "VP_AFCS",
+      "Type": "ViewPorts",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            223.88,
+            188.63
+          ],
+          [
+            223.88,
+            187.31
+          ],
+          [
+            259.5,
+            187.31
+          ],
+          [
+            259.5,
+            188.63
+          ],
+          [
+            223.88,
+            188.63
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "832ea088-b34f-4d0b-a61f-e5d717df21f7",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Exit_F",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            274.5,
+            152.5
+          ],
+          [
+            274.5,
+            139.0
+          ],
+          [
+            282.76,
+            139.28
+          ],
+          [
+            282.76,
+            152.34
+          ],
+          [
+            274.5,
+            152.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "968e6a7c-f237-413b-bbd7-95bdf2f7c6c2",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "NIXIE",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            236.5,
+            112.5
+          ],
+          [
+            236.5,
+            106.5
+          ],
+          [
+            271.0,
+            106.5
+          ],
+          [
+            271.0,
+            112.5
+          ],
+          [
+            236.5,
+            112.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "a8c6c2a1-69a5-4a26-8f5f-aa43198cd11e",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-102",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "102",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            193.89,
+            187.76
+          ],
+          [
+            193.89,
+            73.54
+          ],
+          [
+            275.62,
+            73.54
+          ],
+          [
+            275.62,
+            187.76
+          ],
+          [
+            193.89,
+            187.76
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "6bef4c21-c29d-4197-8051-31ef0d6f0d12",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": false,
+      "Color": "",
+      "Name": "VP_Auto_A",
+      "Type": "ViewPorts",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            236.5,
+            106.5
+          ],
+          [
+            236.5,
+            101.0
+          ],
+          [
+            271.0,
+            101.0
+          ],
+          [
+            271.0,
+            106.5
+          ],
+          [
+            236.5,
+            106.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "4e70b327-81eb-4793-8801-b5e96e9a1ea0",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-101",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "101",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            167.0,
+            184.0
+          ],
+          [
+            148.5,
+            184.0
+          ],
+          [
+            148.0,
+            183.0
+          ],
+          [
+            148.0,
+            173.0
+          ],
+          [
+            168.0,
+            173.0
+          ],
+          [
+            168.0,
+            182.5
+          ],
+          [
+            167.0,
+            184.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "2fe5c034-104a-440b-a466-4188ca79c81d",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Staging005",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            62.81,
+            188.64
+          ],
+          [
+            64.61,
+            188.64
+          ],
+          [
+            64.61,
+            199.95
+          ],
+          [
+            63.02,
+            199.95
+          ],
+          [
+            61.56,
+            198.72
+          ],
+          [
+            61.56,
+            189.9
+          ],
+          [
+            62.81,
+            188.64
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "006d540c-a945-4101-8ffb-c9b1dce4f9a3",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00E002010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            236.5,
+            158.0
+          ],
+          [
+            236.5,
+            154.0
+          ],
+          [
+            271.0,
+            154.0
+          ],
+          [
+            271.0,
+            158.0
+          ],
+          [
+            236.5,
+            158.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "ed8e6772-1c79-4a0a-8304-68175701ee73",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-110",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "110",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            274.0,
+            59.0
+          ],
+          [
+            274.0,
+            52.5
+          ],
+          [
+            277.0,
+            52.5
+          ],
+          [
+            277.0,
+            52.0
+          ],
+          [
+            303.0,
+            52.0
+          ],
+          [
+            303.0,
+            59.0
+          ],
+          [
+            274.0,
+            59.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "df26b400-2cda-46ef-b38a-4686861b74f6",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "CIOSS-151",
+      "Type": "MPE",
+      "MpeName": "CIOSS",
+      "MpeNumber": "151",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            107.28,
+            193.12
+          ],
+          [
+            107.28,
+            199.65
+          ],
+          [
+            105.6,
+            199.86
+          ],
+          [
+            104.32,
+            198.59
+          ],
+          [
+            104.32,
+            193.03
+          ],
+          [
+            107.28,
+            193.12
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "b4d327da-069c-44d0-a773-b092e34065fa",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00G002010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            274.5,
+            183.0
+          ],
+          [
+            274.5,
+            156.0
+          ],
+          [
+            282.76,
+            156.13
+          ],
+          [
+            282.76,
+            161.03
+          ],
+          [
+            303.0,
+            161.0
+          ],
+          [
+            303.0,
+            183.0
+          ],
+          [
+            301.5,
+            184.0
+          ],
+          [
+            275.5,
+            184.0
+          ],
+          [
+            274.5,
+            183.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "6cf0ec84-b0b2-4c22-82ab-7dc13e04863a",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "010_T3",
+      "Type": "MPE",
+      "MpeName": "010_T3",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            0.0,
+            107.4
+          ],
+          [
+            0.0,
+            106.3
+          ],
+          [
+            5.5,
+            106.3
+          ],
+          [
+            5.5,
+            107.4
+          ],
+          [
+            0.0,
+            107.4
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "5ec785ae-25f5-41b3-acd1-cda46d20663f",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Exit_BMEU",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            236.5,
+            141.5
+          ],
+          [
+            236.5,
+            136.0
+          ],
+          [
+            271.0,
+            136.0
+          ],
+          [
+            271.0,
+            141.5
+          ],
+          [
+            236.5,
+            141.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "43a0e667-b226-459f-b4fe-b691225f3cdd",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DIOSS-107",
+      "Type": "MPE",
+      "MpeName": "DIOSS",
+      "MpeNumber": "107",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            193.0,
+            27.5
+          ],
+          [
+            193.0,
+            10.5
+          ],
+          [
+            202.5,
+            10.5
+          ],
+          [
+            202.5,
+            15.5
+          ],
+          [
+            202.5,
+            27.5
+          ],
+          [
+            193.0,
+            27.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "a8e170d2-3685-4213-9b46-215c5dc72044",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "BatteryCharging",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            194.0,
+            46.5
+          ],
+          [
+            194.0,
+            41.5
+          ],
+          [
+            226.0,
+            41.5
+          ],
+          [
+            226.0,
+            47.0
+          ],
+          [
+            194.0,
+            47.0
+          ],
+          [
+            194.0,
+            46.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "f905fda8-6910-4cfa-a667-1b8807b598f1",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-135",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "135",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            148.0,
+            173.0
+          ],
+          [
+            148.0,
+            166.5
+          ],
+          [
+            168.0,
+            166.5
+          ],
+          [
+            168.0,
+            173.0
+          ],
+          [
+            148.0,
+            173.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "5c4899ac-7545-4308-abf9-7f507bd8ced7",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "ATU-001",
+      "Type": "MPE",
+      "MpeName": "ATU",
+      "MpeNumber": "001",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            155.91,
+            207.95
+          ],
+          [
+            155.91,
+            119.48
+          ],
+          [
+            280.87,
+            119.48
+          ],
+          [
+            280.87,
+            207.95
+          ],
+          [
+            155.91,
+            207.95
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "c5316227-114d-48a5-8f32-6ba2a884e961",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": false,
+      "Color": "",
+      "Name": "VP_N_Dock_E",
+      "Type": "ViewPorts",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            236.5,
+            164.0
+          ],
+          [
+            236.5,
+            158.0
+          ],
+          [
+            271.0,
+            158.0
+          ],
+          [
+            271.0,
+            164.0
+          ],
+          [
+            236.5,
+            164.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "38a50e1e-be50-4209-8768-30c0b3616ade",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-111",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "111",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            57.26,
+            110.36
+          ],
+          [
+            57.26,
+            112.76
+          ],
+          [
+            53.12,
+            112.76
+          ],
+          [
+            53.12,
+            110.36
+          ],
+          [
+            57.26,
+            110.36
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "2aac6520-5c81-4ed8-b674-3f7e56324664",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00D006010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            282.76,
+            139.28
+          ],
+          [
+            286.23,
+            139.28
+          ],
+          [
+            286.23,
+            147.8
+          ],
+          [
+            301.81,
+            147.8
+          ],
+          [
+            301.81,
+            156.35
+          ],
+          [
+            303.0,
+            156.5
+          ],
+          [
+            303.0,
+            161.0
+          ],
+          [
+            282.76,
+            161.03
+          ],
+          [
+            282.76,
+            139.28
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "8dc6a327-0dc6-49e3-89cd-59622abcb38c",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "010_T4",
+      "Type": "MPE",
+      "MpeName": "010_T4",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            203.16,
+            207.72
+          ],
+          [
+            10.34,
+            207.72
+          ],
+          [
+            10.5,
+            202.5
+          ],
+          [
+            9.0,
+            202.5
+          ],
+          [
+            9.0,
+            184.5
+          ],
+          [
+            0.0,
+            184.5
+          ],
+          [
+            -0.11,
+            106.26
+          ],
+          [
+            19.04,
+            106.26
+          ],
+          [
+            19.04,
+            176.21
+          ],
+          [
+            15.09,
+            176.21
+          ],
+          [
+            15.09,
+            192.53
+          ],
+          [
+            55.4,
+            192.53
+          ],
+          [
+            55.4,
+            188.34
+          ],
+          [
+            90.74,
+            188.34
+          ],
+          [
+            90.74,
+            193.03
+          ],
+          [
+            99.79,
+            193.03
+          ],
+          [
+            104.32,
+            193.03
+          ],
+          [
+            113.34,
+            193.03
+          ],
+          [
+            113.34,
+            199.79
+          ],
+          [
+            131.61,
+            199.79
+          ],
+          [
+            131.61,
+            188.62
+          ],
+          [
+            148.55,
+            188.62
+          ],
+          [
+            168.71,
+            188.44
+          ],
+          [
+            223.9,
+            188.44
+          ],
+          [
+            223.7,
+            199.97
+          ],
+          [
+            261.06,
+            199.93
+          ],
+          [
+            262.03,
+            199.21
+          ],
+          [
+            266.0,
+            199.0
+          ],
+          [
+            265.0,
+            198.0
+          ],
+          [
+            265.0,
+            188.0
+          ],
+          [
+            280.0,
+            188.0
+          ],
+          [
+            280.06,
+            207.72
+          ],
+          [
+            203.16,
+            207.72
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "da09be6b-ac97-49d5-924d-1c6eae24e430",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Dock",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            301.5,
+            70.0
+          ],
+          [
+            275.5,
+            70.0
+          ],
+          [
+            274.0,
+            69.0
+          ],
+          [
+            274.0,
+            65.5
+          ],
+          [
+            302.5,
+            65.5
+          ],
+          [
+            303.0,
+            65.5
+          ],
+          [
+            303.0,
+            69.0
+          ],
+          [
+            301.5,
+            70.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "0fddbaac-9e84-4d54-88e6-f29694c9da89",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "New_Charing_AREA10",
+      "Type": "MPE",
+      "MpeName": "New_Charing_AREA10",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            19.28,
+            188.37
+          ],
+          [
+            19.28,
+            176.37
+          ],
+          [
+            20.2,
+            176.37
+          ],
+          [
+            20.2,
+            187.1
+          ],
+          [
+            54.9,
+            187.1
+          ],
+          [
+            54.9,
+            188.37
+          ],
+          [
+            19.28,
+            188.37
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "5a04c35a-922d-4754-b7f5-52e6a01b49bf",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Exit_I",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -0.22,
+            105.01
+          ],
+          [
+            -0.22,
+            0.55
+          ],
+          [
+            77.34,
+            0.55
+          ],
+          [
+            77.34,
+            105.01
+          ],
+          [
+            -0.22,
+            105.01
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "29298120-4733-4af7-bfa4-6d261cf89619",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": false,
+      "Color": "",
+      "Name": "VP_EPPS_W",
+      "Type": "ViewPorts",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            148.0,
+            120.5
+          ],
+          [
+            148.0,
+            116.0
+          ],
+          [
+            168.0,
+            116.0
+          ],
+          [
+            168.0,
+            120.5
+          ],
+          [
+            148.0,
+            120.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "3f4fb1b3-5215-4f2d-a088-5f9eba1f4ee0",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "ATS_1",
+      "Type": "MPE",
+      "MpeName": "ATS_1",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            277.0,
+            52.0
+          ],
+          [
+            277.0,
+            49.5
+          ],
+          [
+            274.0,
+            49.5
+          ],
+          [
+            274.0,
+            34.5
+          ],
+          [
+            303.0,
+            34.5
+          ],
+          [
+            303.0,
+            52.0
+          ],
+          [
+            277.0,
+            52.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "8b9cb4ce-a315-4391-b808-b562cd3d8796",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "MTE",
+      "Type": "MPE",
+      "MpeName": "MTE",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            194.0,
+            41.5
+          ],
+          [
+            194.0,
+            36.0
+          ],
+          [
+            225.96,
+            35.82
+          ],
+          [
+            226.0,
+            41.5
+          ],
+          [
+            194.0,
+            41.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "9b2e2ac8-688a-4dff-abf2-69e2581112d4",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-136",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "136",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            65.88,
+            57.14
+          ],
+          [
+            65.88,
+            59.6
+          ],
+          [
+            61.8,
+            59.6
+          ],
+          [
+            61.8,
+            57.14
+          ],
+          [
+            65.88,
+            57.14
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "8bd3dfd4-9dbb-4811-b663-5e486081df49",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00E009010020",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            148.0,
+            133.5
+          ],
+          [
+            148.0,
+            128.0
+          ],
+          [
+            168.0,
+            128.0
+          ],
+          [
+            168.0,
+            133.5
+          ],
+          [
+            148.0,
+            133.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "d49a0809-4310-4f40-890a-9af76b359775",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EAA_004",
+      "Type": "MPE",
+      "MpeName": "EAA_004",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            160.5,
+            47.0
+          ],
+          [
+            160.5,
+            42.5
+          ],
+          [
+            166.5,
+            42.5
+          ],
+          [
+            166.5,
+            47.0
+          ],
+          [
+            160.5,
+            47.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "4c683c4f-dd07-4c97-8c5b-d11d1e951cb6",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "COMBO_MAINTENANCE_WORK_CELL",
+      "Type": "MPE",
+      "MpeName": "COMBO_MAINTENANCE_WORK_CELL",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            57.26,
+            30.8
+          ],
+          [
+            57.26,
+            33.26
+          ],
+          [
+            53.18,
+            33.26
+          ],
+          [
+            53.18,
+            30.8
+          ],
+          [
+            57.26,
+            30.8
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "d6ce2207-68ea-41d4-b2f4-1cff1e4f1640",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00D011010020",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            145.0,
+            104.0
+          ],
+          [
+            145.0,
+            99.0
+          ],
+          [
+            166.0,
+            99.0
+          ],
+          [
+            166.0,
+            104.0
+          ],
+          [
+            145.0,
+            104.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "e3ec21e9-5bfd-4fad-b506-372ed66ce308",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "AFTL_1",
+      "Type": "MPE",
+      "MpeName": "AFTL_1",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            188.7,
+            35.2
+          ],
+          [
+            188.7,
+            32.2
+          ],
+          [
+            191.7,
+            32.2
+          ],
+          [
+            191.7,
+            35.2
+          ],
+          [
+            188.7,
+            35.2
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "eec97547-bf77-4d32-9fa5-4973d3be7490",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EBR-009",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            166.48,
+            70.21
+          ],
+          [
+            160.0,
+            70.0
+          ],
+          [
+            160.0,
+            60.5
+          ],
+          [
+            160.0,
+            51.5
+          ],
+          [
+            167.5,
+            51.5
+          ],
+          [
+            167.69,
+            68.72
+          ],
+          [
+            166.48,
+            70.21
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "171e2ce5-355d-47f4-beee-bd57190bb090",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "SIPS_Staging",
+      "Type": "MPE",
+      "MpeName": "SIPS_Staging",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            280.0,
+            207.5
+          ],
+          [
+            280.0,
+            199.0
+          ],
+          [
+            291.47,
+            199.0
+          ],
+          [
+            291.47,
+            188.72
+          ],
+          [
+            306.5,
+            188.5
+          ],
+          [
+            306.5,
+            207.5
+          ],
+          [
+            280.0,
+            207.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "6b09047e-d5df-4030-874c-69c9406254a0",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Express",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            236.5,
+            124.0
+          ],
+          [
+            236.5,
+            118.5
+          ],
+          [
+            271.0,
+            118.5
+          ],
+          [
+            271.0,
+            124.0
+          ],
+          [
+            236.5,
+            124.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "57426d92-c91c-4709-a035-6c51124014b4",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-104",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "104",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            306.19,
+            63.88
+          ],
+          [
+            306.19,
+            27.0
+          ],
+          [
+            307.7,
+            27.0
+          ],
+          [
+            307.7,
+            63.88
+          ],
+          [
+            306.19,
+            63.88
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "9ae4b2e0-4896-401c-bc49-ce2b8fbd70d9",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Exit_B",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            92.96,
+            84.16
+          ],
+          [
+            92.96,
+            86.56
+          ],
+          [
+            88.82,
+            86.56
+          ],
+          [
+            88.82,
+            84.16
+          ],
+          [
+            92.96,
+            84.16
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "a604921b-d9c7-46a5-abec-079365fd2d7b",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00F010010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            111.82,
+            132.0
+          ],
+          [
+            111.82,
+            0.99
+          ],
+          [
+            193.55,
+            0.99
+          ],
+          [
+            193.55,
+            132.0
+          ],
+          [
+            111.82,
+            132.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "f6385a83-2f70-481b-9928-52aedd4c35f9",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": false,
+      "Color": "",
+      "Name": "VP_AFSM",
+      "Type": "ViewPorts",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            57.26,
+            107.92
+          ],
+          [
+            57.26,
+            110.36
+          ],
+          [
+            53.12,
+            110.36
+          ],
+          [
+            53.12,
+            107.92
+          ],
+          [
+            57.26,
+            107.92
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "75aaf184-d259-4c6d-85b8-2abc6700291f",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00D006010020",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            168.0,
+            107.0
+          ],
+          [
+            148.0,
+            107.0
+          ],
+          [
+            148.0,
+            110.0
+          ],
+          [
+            145.0,
+            105.0
+          ],
+          [
+            145.0,
+            104.0
+          ],
+          [
+            166.0,
+            104.0
+          ],
+          [
+            166.0,
+            93.5
+          ],
+          [
+            166.5,
+            93.5
+          ],
+          [
+            168.0,
+            95.0
+          ],
+          [
+            168.0,
+            107.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "865ecd26-c3d3-49e9-8630-cb8ba5a26cff",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Staging006",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            194.0,
+            68.5
+          ],
+          [
+            194.0,
+            63.5
+          ],
+          [
+            226.0,
+            63.5
+          ],
+          [
+            226.0,
+            70.0
+          ],
+          [
+            195.5,
+            70.0
+          ],
+          [
+            194.0,
+            68.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "fee7d990-817b-4fc1-b7b5-b92b5bf9d93a",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-131",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "131",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            87.43,
+            76.95
+          ],
+          [
+            87.43,
+            79.24
+          ],
+          [
+            83.29,
+            79.24
+          ],
+          [
+            83.29,
+            76.95
+          ],
+          [
+            87.43,
+            76.95
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "b0479f31-078c-44eb-9017-11746409bb70",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00F010010040",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            225.96,
+            32.5
+          ],
+          [
+            225.96,
+            35.82
+          ],
+          [
+            194.0,
+            36.0
+          ],
+          [
+            194.0,
+            32.5
+          ],
+          [
+            195.5,
+            31.0
+          ],
+          [
+            224.5,
+            31.0
+          ],
+          [
+            225.96,
+            32.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "5cdcc3f1-0537-49b8-a317-8a0b8577a90b",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Maintenance_Parts",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            236.5,
+            169.5
+          ],
+          [
+            236.5,
+            164.0
+          ],
+          [
+            271.0,
+            164.0
+          ],
+          [
+            271.0,
+            169.5
+          ],
+          [
+            236.5,
+            169.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "75f558e5-a63c-4f39-ba0a-e932c2d0be2d",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-112",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "112",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            65.55,
+            139.86
+          ],
+          [
+            65.55,
+            142.15
+          ],
+          [
+            61.41,
+            142.15
+          ],
+          [
+            61.41,
+            139.86
+          ],
+          [
+            65.55,
+            139.86
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "390557a3-2e3f-43ff-8327-f4007f8e2d27",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00E004010040",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            198.11,
+            55.58
+          ],
+          [
+            198.11,
+            64.01
+          ],
+          [
+            195.07,
+            64.01
+          ],
+          [
+            195.07,
+            55.58
+          ],
+          [
+            198.11,
+            55.58
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "c5c47055-4223-4c49-9dcb-0396d5184f76",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00M009010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            236.5,
+            175.5
+          ],
+          [
+            236.5,
+            169.5
+          ],
+          [
+            271.0,
+            169.5
+          ],
+          [
+            271.0,
+            175.5
+          ],
+          [
+            236.5,
+            175.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "411b44b1-25fa-45d6-bf5c-c15a72b1f061",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-113",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "113",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            298.5,
+            28.5
+          ],
+          [
+            298.5,
+            27.0
+          ],
+          [
+            304.12,
+            27.0
+          ],
+          [
+            304.12,
+            28.5
+          ],
+          [
+            298.5,
+            28.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "3bfd0f2e-471d-43ef-9c4c-bcce849fb4b6",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Exit_C",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            286.36,
+            141.94
+          ],
+          [
+            286.36,
+            136.52
+          ],
+          [
+            301.84,
+            136.52
+          ],
+          [
+            301.84,
+            141.94
+          ],
+          [
+            286.36,
+            141.94
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "fe423fae-57b8-473b-a37a-dba92dc991a2",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "AFCS200-103",
+      "Type": "MPE",
+      "MpeName": "AFCS200",
+      "MpeNumber": "103",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            286.23,
+            147.8
+          ],
+          [
+            286.28,
+            141.94
+          ],
+          [
+            301.81,
+            141.94
+          ],
+          [
+            301.81,
+            147.8
+          ],
+          [
+            286.23,
+            147.8
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "6bde8f80-7cc5-44ce-bda0-bb654174c38d",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "AFCS200-102",
+      "Type": "MPE",
+      "MpeName": "AFCS200",
+      "MpeNumber": "102",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            148.0,
+            146.5
+          ],
+          [
+            148.0,
+            141.5
+          ],
+          [
+            168.0,
+            141.5
+          ],
+          [
+            168.0,
+            146.5
+          ],
+          [
+            148.0,
+            146.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "b55b7fcc-157e-4c73-8049-75dc436fe155",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EAA_001",
+      "Type": "MPE",
+      "MpeName": "EAA_001",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            102.4,
+            71.0
+          ],
+          [
+            102.4,
+            68.0
+          ],
+          [
+            105.4,
+            68.0
+          ],
+          [
+            105.4,
+            71.0
+          ],
+          [
+            102.4,
+            71.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "33f28202-6333-4b87-bf37-1dbbacf90a4c",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EBR-004",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            239.5,
+            58.0
+          ],
+          [
+            239.5,
+            52.5
+          ],
+          [
+            271.0,
+            52.5
+          ],
+          [
+            271.0,
+            58.0
+          ],
+          [
+            239.5,
+            58.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "fffaa421-01b5-4764-9b5b-056fcffa835b",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-140",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "140",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            172.0,
+            111.0
+          ],
+          [
+            172.0,
+            99.0
+          ],
+          [
+            190.0,
+            99.0
+          ],
+          [
+            190.0,
+            101.61
+          ],
+          [
+            190.0,
+            111.0
+          ],
+          [
+            172.0,
+            111.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "305d4996-5c7c-4a51-99cd-9e1f18ea8e2f",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Exit_G",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            66.02,
+            160.47
+          ],
+          [
+            66.02,
+            162.92
+          ],
+          [
+            62.79,
+            162.92
+          ],
+          [
+            61.64,
+            162.92
+          ],
+          [
+            61.64,
+            160.47
+          ],
+          [
+            66.02,
+            160.47
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "8effac67-69bc-459d-a986-85f4c0b39b5e",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00E003010020",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            57.45,
+            140.05
+          ],
+          [
+            57.45,
+            142.34
+          ],
+          [
+            53.31,
+            142.34
+          ],
+          [
+            53.31,
+            140.05
+          ],
+          [
+            57.45,
+            140.05
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "53de6ea2-c070-4042-acd2-1f7c9a0f753d",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00D004010040",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            82.31,
+            15.39
+          ],
+          [
+            82.31,
+            17.68
+          ],
+          [
+            78.17,
+            17.68
+          ],
+          [
+            78.17,
+            15.39
+          ],
+          [
+            82.31,
+            15.39
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "33ecbaaf-5ac0-422a-86b9-81785565c0f1",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00F011010040",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            194.5,
+            107.5
+          ],
+          [
+            194.5,
+            102.5
+          ],
+          [
+            224.0,
+            102.5
+          ],
+          [
+            224.0,
+            107.5
+          ],
+          [
+            194.5,
+            107.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "44620cfc-fb58-4a59-8152-4aeda7b381bc",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-148",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "148",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            196.42,
+            188.62
+          ],
+          [
+            198.11,
+            188.62
+          ],
+          [
+            198.11,
+            199.93
+          ],
+          [
+            196.39,
+            199.93
+          ],
+          [
+            195.01,
+            198.76
+          ],
+          [
+            195.01,
+            189.92
+          ],
+          [
+            196.42,
+            188.62
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "fec41e92-96d2-45a3-9010-6b4084eddbff",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00M002010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            239.5,
+            63.0
+          ],
+          [
+            239.5,
+            58.0
+          ],
+          [
+            271.0,
+            58.0
+          ],
+          [
+            271.0,
+            63.0
+          ],
+          [
+            239.5,
+            63.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "53166675-0c51-403d-951f-301da6205ce6",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-139",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "139",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            138.59,
+            94.63
+          ],
+          [
+            138.59,
+            98.86
+          ],
+          [
+            136.39,
+            98.86
+          ],
+          [
+            136.39,
+            94.63
+          ],
+          [
+            138.59,
+            94.63
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "33e2c161-c9e4-4cb4-a81d-adf7fe398e6f",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00J007010020",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            65.55,
+            146.93
+          ],
+          [
+            65.55,
+            149.33
+          ],
+          [
+            62.19,
+            149.33
+          ],
+          [
+            61.41,
+            149.33
+          ],
+          [
+            61.41,
+            146.93
+          ],
+          [
+            65.55,
+            146.93
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "2d1b9510-d9f6-4d3a-b482-3ed47320a976",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00E004010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            223.76,
+            188.49
+          ],
+          [
+            223.76,
+            199.8
+          ],
+          [
+            220.53,
+            199.8
+          ],
+          [
+            220.53,
+            188.49
+          ],
+          [
+            223.76,
+            188.49
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "c3ff7a00-c0da-49ff-b969-c3839d8acfd4",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00P002010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            82.31,
+            20.02
+          ],
+          [
+            82.31,
+            22.46
+          ],
+          [
+            78.17,
+            22.46
+          ],
+          [
+            78.17,
+            20.02
+          ],
+          [
+            82.31,
+            20.02
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "d627a5af-35c4-4650-ae95-842d43fd4650",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00F011010020",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            171.5,
+            138.0
+          ],
+          [
+            171.5,
+            135.0
+          ],
+          [
+            174.5,
+            135.0
+          ],
+          [
+            174.5,
+            138.0
+          ],
+          [
+            171.5,
+            138.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "a4d83c15-2091-4d02-8b45-e38d8f8d5395",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EBR-007",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            196.82,
+            192.86
+          ],
+          [
+            188.82,
+            192.86
+          ],
+          [
+            188.82,
+            184.86
+          ],
+          [
+            196.82,
+            184.86
+          ],
+          [
+            196.82,
+            192.86
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "ccb696e9-8430-450f-af2f-95a2f7f40280",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "CA_56.143.155.115",
+      "Type": "MPE",
+      "MpeName": "CA_56.143.155.115",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            228.5,
+            32.5
+          ],
+          [
+            229.5,
+            31.0
+          ],
+          [
+            236.0,
+            31.0
+          ],
+          [
+            237.0,
+            32.5
+          ],
+          [
+            237.0,
+            69.0
+          ],
+          [
+            236.0,
+            70.0
+          ],
+          [
+            229.5,
+            70.0
+          ],
+          [
+            228.5,
+            69.0
+          ],
+          [
+            228.5,
+            32.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "4572b4f1-4c54-42db-83c4-3fd9da0f1520",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Manual_DPS_Staging",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            65.98,
+            30.78
+          ],
+          [
+            65.98,
+            33.24
+          ],
+          [
+            61.9,
+            33.24
+          ],
+          [
+            61.9,
+            30.78
+          ],
+          [
+            65.98,
+            30.78
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "e972f23c-a128-48b5-8528-b8f9bc59cf72",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00E011010020",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            65.89,
+            110.35
+          ],
+          [
+            65.89,
+            112.75
+          ],
+          [
+            61.75,
+            112.75
+          ],
+          [
+            61.75,
+            110.35
+          ],
+          [
+            65.89,
+            110.35
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "dea8c616-eb0a-4efe-be03-0dd170b02185",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00E006010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            57.29,
+            57.19
+          ],
+          [
+            57.29,
+            59.63
+          ],
+          [
+            53.15,
+            59.63
+          ],
+          [
+            53.15,
+            57.19
+          ],
+          [
+            57.29,
+            57.19
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "4a6495f1-c697-442a-9cea-d5fedcbe44c6",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00D009010020",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            274.22,
+            120.6
+          ],
+          [
+            274.22,
+            117.6
+          ],
+          [
+            277.22,
+            117.6
+          ],
+          [
+            277.22,
+            120.6
+          ],
+          [
+            274.22,
+            120.6
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "8f4bb63e-b09b-4225-ac94-9787a2a4693b",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EBR-012",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            136.39,
+            94.63
+          ],
+          [
+            136.39,
+            98.86
+          ],
+          [
+            134.19,
+            98.86
+          ],
+          [
+            134.19,
+            94.63
+          ],
+          [
+            136.39,
+            94.63
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "1a50252d-f590-41ba-8a07-602b994eb9c5",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00J007010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            118.11,
+            26.98
+          ],
+          [
+            118.11,
+            15.29
+          ],
+          [
+            167.69,
+            15.29
+          ],
+          [
+            167.69,
+            26.98
+          ],
+          [
+            118.11,
+            26.98
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "ea397537-bcf2-4b27-acf2-2758e8579ab6",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "AFSM-104",
+      "Type": "MPE",
+      "MpeName": "AFSM",
+      "MpeNumber": "104",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            271.0,
+            175.5
+          ],
+          [
+            271.0,
+            183.5
+          ],
+          [
+            270.0,
+            184.5
+          ],
+          [
+            238.0,
+            184.5
+          ],
+          [
+            236.5,
+            183.5
+          ],
+          [
+            236.5,
+            175.5
+          ],
+          [
+            271.0,
+            175.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "8d23bef3-3981-4f22-8942-ca5d48897b69",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Manual_PRS_Processing",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            57.45,
+            147.12
+          ],
+          [
+            57.45,
+            149.52
+          ],
+          [
+            54.09,
+            149.52
+          ],
+          [
+            53.31,
+            149.52
+          ],
+          [
+            53.31,
+            147.12
+          ],
+          [
+            57.45,
+            147.12
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "acf34a12-ed84-4639-8ffc-c06539b27531",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00D004010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            103.0,
+            37.0
+          ],
+          [
+            103.0,
+            34.0
+          ],
+          [
+            106.0,
+            34.0
+          ],
+          [
+            106.0,
+            37.0
+          ],
+          [
+            103.0,
+            37.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "632a263f-fed9-4edb-960f-25c46ed3ac20",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EBR-005",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            57.29,
+            59.63
+          ],
+          [
+            57.29,
+            62.03
+          ],
+          [
+            53.15,
+            62.03
+          ],
+          [
+            53.15,
+            59.63
+          ],
+          [
+            57.29,
+            59.63
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "053a2b48-a8c9-4a1d-b276-488d376a2a4f",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00D009010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            230.52,
+            66.89
+          ],
+          [
+            230.52,
+            63.89
+          ],
+          [
+            233.52,
+            63.89
+          ],
+          [
+            233.52,
+            66.89
+          ],
+          [
+            230.52,
+            66.89
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "838e159b-cc27-429a-84cc-685ae558a8e8",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EBR-015",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            194.5,
+            113.5
+          ],
+          [
+            194.5,
+            107.5
+          ],
+          [
+            224.0,
+            107.5
+          ],
+          [
+            224.0,
+            113.5
+          ],
+          [
+            194.5,
+            113.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "165a8eb2-c463-4a73-976c-724b2f6172f6",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-128",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "128",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            262.53,
+            28.65
+          ],
+          [
+            262.53,
+            27.15
+          ],
+          [
+            268.15,
+            27.15
+          ],
+          [
+            268.15,
+            28.65
+          ],
+          [
+            262.53,
+            28.65
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "0bd5b659-f661-4006-8e38-d54622bd9784",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Exit_D",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            194.5,
+            92.5
+          ],
+          [
+            194.5,
+            75.0
+          ],
+          [
+            196.1,
+            73.46
+          ],
+          [
+            220.71,
+            73.46
+          ],
+          [
+            275.0,
+            73.5
+          ],
+          [
+            276.5,
+            75.0
+          ],
+          [
+            276.5,
+            92.5
+          ],
+          [
+            275.0,
+            94.0
+          ],
+          [
+            195.5,
+            94.0
+          ],
+          [
+            194.5,
+            92.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "82defe2d-b81a-49c9-b4ed-7975d484e6bd",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "HSTS-001",
+      "Type": "MPE",
+      "MpeName": "HSTS",
+      "MpeNumber": "001",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            7.76,
+            133.65
+          ],
+          [
+            7.79,
+            131.47
+          ],
+          [
+            8.99,
+            130.17
+          ],
+          [
+            18.04,
+            130.17
+          ],
+          [
+            19.23,
+            131.4
+          ],
+          [
+            19.18,
+            133.65
+          ],
+          [
+            7.76,
+            133.65
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "9cd8100f-8169-4d21-9bc4-fdebe89df690",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00B005010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            57.26,
+            25.93
+          ],
+          [
+            57.26,
+            28.37
+          ],
+          [
+            53.18,
+            28.37
+          ],
+          [
+            53.18,
+            25.93
+          ],
+          [
+            57.26,
+            25.93
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "8c99fb3c-b709-4e40-9671-2715f81b5c42",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00D011010040",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            106.42,
+            200.56
+          ],
+          [
+            106.42,
+            68.77
+          ],
+          [
+            168.45,
+            68.77
+          ],
+          [
+            168.45,
+            200.56
+          ],
+          [
+            106.42,
+            200.56
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "a98b04c7-af3c-43d0-b9f7-9740637e3c64",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": false,
+      "Color": "",
+      "Name": "VP_USS",
+      "Type": "ViewPorts",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            198.5,
+            161.0
+          ],
+          [
+            198.5,
+            169.0
+          ],
+          [
+            194.5,
+            169.0
+          ],
+          [
+            194.5,
+            161.0
+          ],
+          [
+            198.5,
+            161.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "76172e56-7635-4789-b038-712f21ebe3b8",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00M004010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            224.0,
+            102.5
+          ],
+          [
+            194.5,
+            102.5
+          ],
+          [
+            194.5,
+            99.0
+          ],
+          [
+            195.5,
+            97.5
+          ],
+          [
+            222.5,
+            97.5
+          ],
+          [
+            224.0,
+            98.5
+          ],
+          [
+            224.0,
+            102.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "c9f9d3f9-091f-4eda-9e0d-d1abddaf7dc8",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Empty_GD_002",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            236.5,
+            130.0
+          ],
+          [
+            236.5,
+            124.0
+          ],
+          [
+            271.0,
+            124.0
+          ],
+          [
+            271.0,
+            130.0
+          ],
+          [
+            236.5,
+            130.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "821e3560-e2b6-4e2d-89b2-66c41048bd85",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-105",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "105",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            239.5,
+            52.5
+          ],
+          [
+            239.5,
+            46.5
+          ],
+          [
+            271.0,
+            46.5
+          ],
+          [
+            271.0,
+            52.5
+          ],
+          [
+            239.5,
+            52.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "53431716-aa6f-4496-8a3a-c30414f43b29",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-141",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "141",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            118.04,
+            40.75
+          ],
+          [
+            118.04,
+            26.98
+          ],
+          [
+            167.64,
+            26.98
+          ],
+          [
+            167.64,
+            40.75
+          ],
+          [
+            118.04,
+            40.75
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "d1c99210-80d6-43da-b89a-7b8fc5bf4d43",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "AFSM-103",
+      "Type": "MPE",
+      "MpeName": "AFSM",
+      "MpeNumber": "103",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            57.45,
+            144.68
+          ],
+          [
+            57.45,
+            147.12
+          ],
+          [
+            53.31,
+            147.12
+          ],
+          [
+            53.31,
+            144.68
+          ],
+          [
+            57.45,
+            144.68
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "3baac330-15f5-404f-bb5b-5e4aab971679",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00D004010020",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            194.5,
+            137.0
+          ],
+          [
+            194.5,
+            131.5
+          ],
+          [
+            224.0,
+            131.5
+          ],
+          [
+            224.0,
+            137.0
+          ],
+          [
+            194.5,
+            137.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "2763cb4e-9f6b-41c9-865b-e994f8909ed8",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS_146",
+      "Type": "MPE",
+      "MpeName": "DBCS_146",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            192.79,
+            99.2
+          ],
+          [
+            192.79,
+            10.33
+          ],
+          [
+            307.77,
+            10.33
+          ],
+          [
+            307.77,
+            99.2
+          ],
+          [
+            192.79,
+            99.2
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "1bb3ca05-0fd9-48b5-8957-2919a1bede17",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": false,
+      "Color": "",
+      "Name": "VP_Auto_B",
+      "Type": "ViewPorts",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            65.88,
+            83.83
+          ],
+          [
+            65.88,
+            86.27
+          ],
+          [
+            61.74,
+            86.27
+          ],
+          [
+            61.74,
+            83.83
+          ],
+          [
+            65.88,
+            83.83
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "c6db2331-804f-4147-b3d5-1b2f6c91785b",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00E008010020",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            224.0,
+            143.0
+          ],
+          [
+            224.0,
+            159.0
+          ],
+          [
+            194.5,
+            159.0
+          ],
+          [
+            194.5,
+            143.0
+          ],
+          [
+            224.0,
+            143.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "883652b6-dad4-4e0b-9c2b-d22283f27af7",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EMPTY_EQUIPMENT_WORKCELL",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            236.5,
+            118.5
+          ],
+          [
+            236.5,
+            112.5
+          ],
+          [
+            271.0,
+            112.5
+          ],
+          [
+            271.0,
+            118.5
+          ],
+          [
+            236.5,
+            118.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "5a9434b4-df80-479f-83d1-f883fec5493d",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-103",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "103",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            65.55,
+            142.15
+          ],
+          [
+            65.55,
+            144.49
+          ],
+          [
+            61.41,
+            144.49
+          ],
+          [
+            61.41,
+            142.15
+          ],
+          [
+            65.55,
+            142.15
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "c4fae916-cbc1-4cc6-be48-08caa3dff606",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00E004010030",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            172.0,
+            141.0
+          ],
+          [
+            172.0,
+            138.5
+          ],
+          [
+            190.0,
+            138.5
+          ],
+          [
+            190.0,
+            141.0
+          ],
+          [
+            172.0,
+            141.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "149440a9-ae3d-4180-86ce-148e44b4d138",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00L005010020",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            23.0,
+            5.5
+          ],
+          [
+            24.5,
+            4.0
+          ],
+          [
+            55.19,
+            4.22
+          ],
+          [
+            80.99,
+            4.22
+          ],
+          [
+            85.0,
+            4.0
+          ],
+          [
+            99.0,
+            4.0
+          ],
+          [
+            99.0,
+            51.0
+          ],
+          [
+            82.5,
+            51.23
+          ],
+          [
+            82.5,
+            70.0
+          ],
+          [
+            82.5,
+            125.5
+          ],
+          [
+            82.5,
+            129.0
+          ],
+          [
+            95.0,
+            129.0
+          ],
+          [
+            95.0,
+            147.0
+          ],
+          [
+            95.0,
+            184.5
+          ],
+          [
+            93.0,
+            184.5
+          ],
+          [
+            93.0,
+            188.5
+          ],
+          [
+            104.5,
+            188.5
+          ],
+          [
+            132.0,
+            188.5
+          ],
+          [
+            132.0,
+            200.0
+          ],
+          [
+            113.5,
+            200.0
+          ],
+          [
+            113.5,
+            193.0
+          ],
+          [
+            99.5,
+            193.0
+          ],
+          [
+            91.0,
+            193.0
+          ],
+          [
+            91.0,
+            188.5
+          ],
+          [
+            91.0,
+            184.5
+          ],
+          [
+            65.0,
+            184.5
+          ],
+          [
+            25.0,
+            184.5
+          ],
+          [
+            23.5,
+            183.5
+          ],
+          [
+            23.5,
+            125.5
+          ],
+          [
+            23.0,
+            34.5
+          ],
+          [
+            23.0,
+            5.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "25c59062-8579-4968-88ad-98fc3747b6eb",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EPPS-001",
+      "Type": "MPE",
+      "MpeName": "EPPS",
+      "MpeNumber": "001",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            173.0,
+            4.0
+          ],
+          [
+            189.0,
+            4.0
+          ],
+          [
+            190.0,
+            5.5
+          ],
+          [
+            190.0,
+            18.86
+          ],
+          [
+            190.0,
+            40.5
+          ],
+          [
+            190.0,
+            71.5
+          ],
+          [
+            190.0,
+            93.0
+          ],
+          [
+            188.5,
+            94.0
+          ],
+          [
+            173.0,
+            94.0
+          ],
+          [
+            172.0,
+            92.5
+          ],
+          [
+            172.0,
+            5.5
+          ],
+          [
+            173.0,
+            4.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "08008a07-7afb-4204-9517-37ba15fb2bbd",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "SDUS-97215-005",
+      "Type": "MPE",
+      "MpeName": "SDUS",
+      "MpeNumber": "97215",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            303.0,
+            156.5
+          ],
+          [
+            301.81,
+            156.35
+          ],
+          [
+            301.81,
+            147.6
+          ],
+          [
+            301.81,
+            111.61
+          ],
+          [
+            303.0,
+            111.5
+          ],
+          [
+            303.0,
+            156.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "8f4a3b19-765b-485b-8f4d-a806508b88a9",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Staging007",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            171.2,
+            52.5
+          ],
+          [
+            171.2,
+            49.5
+          ],
+          [
+            174.2,
+            49.5
+          ],
+          [
+            174.2,
+            52.5
+          ],
+          [
+            171.2,
+            52.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "9b1ca432-d3f6-4963-baf3-4d205f76b7c9",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EBR-008",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            340.0,
+            129.0
+          ],
+          [
+            340.0,
+            124.0
+          ],
+          [
+            344.0,
+            124.0
+          ],
+          [
+            344.0,
+            129.0
+          ],
+          [
+            340.0,
+            129.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "39917918-ec08-4257-ad88-998c25b06fcd",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EBR-017",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -0.3,
+            207.8
+          ],
+          [
+            -0.3,
+            105.16
+          ],
+          [
+            77.23,
+            105.16
+          ],
+          [
+            77.23,
+            207.8
+          ],
+          [
+            -0.3,
+            207.8
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "a542f944-46ce-4a2c-ba4d-421a598f200d",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": false,
+      "Color": "",
+      "Name": "VP_W_Dock",
+      "Type": "ViewPorts",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            285.67,
+            7.32
+          ],
+          [
+            285.67,
+            17.68
+          ],
+          [
+            267.81,
+            17.68
+          ],
+          [
+            267.81,
+            7.32
+          ],
+          [
+            269.37,
+            5.95
+          ],
+          [
+            284.3,
+            5.95
+          ],
+          [
+            285.67,
+            7.32
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "268b31d6-4fe2-496e-af01-7419838fde88",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": false,
+      "Color": "",
+      "Name": "Manual_Flats_Staging",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            148.0,
+            160.0
+          ],
+          [
+            148.0,
+            153.0
+          ],
+          [
+            168.0,
+            153.0
+          ],
+          [
+            168.0,
+            160.0
+          ],
+          [
+            148.0,
+            160.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "2f7fd6fa-5fe8-4419-88a8-9d06f8780b18",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "ATU-003",
+      "Type": "MPE",
+      "MpeName": "ATU",
+      "MpeNumber": "003",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            194.0,
+            58.0
+          ],
+          [
+            194.0,
+            52.0
+          ],
+          [
+            226.0,
+            52.0
+          ],
+          [
+            226.0,
+            58.0
+          ],
+          [
+            194.0,
+            58.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "7728ee2a-7c02-4d07-b6ee-82590d57e58e",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-133",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "133",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            303.0,
+            34.5
+          ],
+          [
+            274.0,
+            34.5
+          ],
+          [
+            274.0,
+            32.5
+          ],
+          [
+            275.5,
+            31.0
+          ],
+          [
+            301.5,
+            31.0
+          ],
+          [
+            303.0,
+            32.5
+          ],
+          [
+            303.0,
+            34.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "681eea62-a022-4894-95bc-ce88fbd5e0a9",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Bike_Parking",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            194.5,
+            118.5
+          ],
+          [
+            194.5,
+            113.5
+          ],
+          [
+            224.0,
+            113.5
+          ],
+          [
+            224.0,
+            118.5
+          ],
+          [
+            194.5,
+            118.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "4759f323-cf1e-4bdd-bdb9-d284ba2f9b63",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-117",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "117",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            239.5,
+            63.0
+          ],
+          [
+            271.0,
+            63.0
+          ],
+          [
+            271.0,
+            69.0
+          ],
+          [
+            269.5,
+            70.0
+          ],
+          [
+            239.5,
+            70.0
+          ],
+          [
+            239.5,
+            63.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "34a726e3-6643-4a4d-b478-51cb0137331f",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-129",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "129",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            148.0,
+            137.5
+          ],
+          [
+            148.0,
+            133.5
+          ],
+          [
+            168.0,
+            133.5
+          ],
+          [
+            168.0,
+            137.5
+          ],
+          [
+            148.0,
+            137.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "a1c00113-f37c-40d3-bae9-4e184ef62058",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EAA_003",
+      "Type": "MPE",
+      "MpeName": "EAA_003",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            194.0,
+            63.5
+          ],
+          [
+            194.0,
+            58.0
+          ],
+          [
+            226.0,
+            58.0
+          ],
+          [
+            226.0,
+            63.5
+          ],
+          [
+            194.0,
+            63.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "a83bfe0c-043f-4b56-9203-c451a4f0bbaf",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-132",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "132",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            118.38,
+            85.46
+          ],
+          [
+            118.38,
+            75.54
+          ],
+          [
+            120.14,
+            74.21
+          ],
+          [
+            167.43,
+            74.21
+          ],
+          [
+            168.58,
+            75.42
+          ],
+          [
+            168.58,
+            88.91
+          ],
+          [
+            167.46,
+            90.24
+          ],
+          [
+            129.08,
+            90.24
+          ],
+          [
+            122.42,
+            87.01
+          ],
+          [
+            119.84,
+            87.01
+          ],
+          [
+            118.38,
+            85.46
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "58b380cd-06fc-4de2-a4da-fd35efc8c65a",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "SIPS_Staging",
+      "Type": "MPE",
+      "MpeName": "SIPS_Staging",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            132.76,
+            103.28
+          ],
+          [
+            141.21,
+            103.28
+          ],
+          [
+            141.21,
+            105.66
+          ],
+          [
+            144.1,
+            111.16
+          ],
+          [
+            144.1,
+            120.36
+          ],
+          [
+            144.1,
+            144.22
+          ],
+          [
+            132.76,
+            144.22
+          ],
+          [
+            132.76,
+            103.28
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "0154f6a6-11ff-49f6-b610-4a94271b0388",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Dest_Manual_Parcels",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            172.0,
+            143.0
+          ],
+          [
+            172.0,
+            141.0
+          ],
+          [
+            190.0,
+            141.0
+          ],
+          [
+            190.0,
+            143.0
+          ],
+          [
+            172.0,
+            143.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "a56af5e8-639c-49a0-8761-5cdc38152799",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00L005010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            236.5,
+            147.5
+          ],
+          [
+            236.5,
+            141.5
+          ],
+          [
+            271.0,
+            141.5
+          ],
+          [
+            271.0,
+            147.5
+          ],
+          [
+            236.5,
+            147.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "e97caa84-7068-4a2e-9219-2360497641b5",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DIOSS-109",
+      "Type": "MPE",
+      "MpeName": "DIOSS",
+      "MpeNumber": "109",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            0.5,
+            68.0
+          ],
+          [
+            0.43,
+            13.88
+          ],
+          [
+            18.98,
+            13.88
+          ],
+          [
+            18.98,
+            56.29
+          ],
+          [
+            19.0,
+            65.0
+          ],
+          [
+            17.5,
+            65.0
+          ],
+          [
+            17.5,
+            68.0
+          ],
+          [
+            0.5,
+            68.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "e3a2bf7c-3a35-425e-bd96-ca0a552b05d9",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "ContainerStorage",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            172.0,
+            182.5
+          ],
+          [
+            172.0,
+            143.0
+          ],
+          [
+            190.0,
+            143.0
+          ],
+          [
+            190.0,
+            183.0
+          ],
+          [
+            189.5,
+            184.5
+          ],
+          [
+            173.0,
+            184.5
+          ],
+          [
+            172.0,
+            182.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "0935b04c-a7a2-4e3b-b5b8-9389ad562b78",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "LCTS_001",
+      "Type": "MPE",
+      "MpeName": "LCTS_001",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            0.43,
+            13.88
+          ],
+          [
+            0.5,
+            7.0
+          ],
+          [
+            19.0,
+            7.0
+          ],
+          [
+            19.03,
+            13.88
+          ],
+          [
+            0.43,
+            13.88
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "73d4d6e8-e447-4f4c-84e3-f24bbe915a6f",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Hazmat",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            282.76,
+            156.13
+          ],
+          [
+            274.5,
+            156.0
+          ],
+          [
+            274.5,
+            152.5
+          ],
+          [
+            282.76,
+            152.34
+          ],
+          [
+            282.76,
+            156.13
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "71638659-b449-4aaf-919f-e8a22cb27113",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Staging009",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            108.37,
+            95.06
+          ],
+          [
+            108.37,
+            97.46
+          ],
+          [
+            104.22,
+            97.46
+          ],
+          [
+            104.22,
+            95.06
+          ],
+          [
+            108.37,
+            95.06
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "a34ff4ac-543e-4d46-9dfd-5a55268a9f7e",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00G007010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            285.5,
+            31.0
+          ],
+          [
+            285.5,
+            35.0
+          ],
+          [
+            278.5,
+            35.0
+          ],
+          [
+            278.5,
+            31.0
+          ],
+          [
+            285.5,
+            31.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "84959b45-eb6d-4561-8f79-303cfcf8a018",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Blue_charging_Area",
+      "Type": "MPE",
+      "MpeName": "Blue_charging_Area",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            57.26,
+            33.26
+          ],
+          [
+            57.26,
+            35.66
+          ],
+          [
+            53.18,
+            35.66
+          ],
+          [
+            53.18,
+            33.26
+          ],
+          [
+            57.26,
+            33.26
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "0e09c504-78d8-4010-8371-68a0eb9d5cf0",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00D011010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            164.59,
+            57.46
+          ],
+          [
+            167.64,
+            57.46
+          ],
+          [
+            167.64,
+            68.58
+          ],
+          [
+            166.42,
+            69.95
+          ],
+          [
+            164.59,
+            69.95
+          ],
+          [
+            164.59,
+            57.46
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "b3d0be17-ebbb-4163-98b4-ef481d4fb9c1",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00K009010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            340.0,
+            104.5
+          ],
+          [
+            340.0,
+            103.0
+          ],
+          [
+            344.0,
+            103.0
+          ],
+          [
+            344.0,
+            104.5
+          ],
+          [
+            340.0,
+            104.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "45947e03-a102-4415-a1cb-3ca39d1e2e72",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Exit_Admin",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            65.55,
+            144.49
+          ],
+          [
+            65.55,
+            146.93
+          ],
+          [
+            61.41,
+            146.93
+          ],
+          [
+            61.41,
+            144.49
+          ],
+          [
+            65.55,
+            144.49
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "6cbe089b-9af5-4b50-a126-e46a29ac7d5b",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00E004010020",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            11.62,
+            203.58
+          ],
+          [
+            11.62,
+            185.79
+          ],
+          [
+            4.34,
+            178.66
+          ],
+          [
+            4.34,
+            106.24
+          ],
+          [
+            19.04,
+            106.26
+          ],
+          [
+            19.04,
+            0.16
+          ],
+          [
+            193.0,
+            0.5
+          ],
+          [
+            193.0,
+            27.5
+          ],
+          [
+            203.17,
+            27.34
+          ],
+          [
+            306.5,
+            27.5
+          ],
+          [
+            306.5,
+            188.5
+          ],
+          [
+            267.07,
+            188.7
+          ],
+          [
+            265.93,
+            189.45
+          ],
+          [
+            265.99,
+            198.69
+          ],
+          [
+            267.2,
+            199.77
+          ],
+          [
+            280.23,
+            199.77
+          ],
+          [
+            280.23,
+            203.58
+          ],
+          [
+            11.62,
+            203.58
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "6fffa10e-965f-42ac-a2fe-6b4d962b436c",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Walkway",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            57.41,
+            86.28
+          ],
+          [
+            57.41,
+            88.68
+          ],
+          [
+            53.27,
+            88.68
+          ],
+          [
+            53.27,
+            86.28
+          ],
+          [
+            57.41,
+            86.28
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "eb2d58c0-8734-4064-b8df-a697af0c5eb7",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00D008010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            32.29,
+            194.02
+          ],
+          [
+            32.29,
+            200.02
+          ],
+          [
+            26.29,
+            200.02
+          ],
+          [
+            26.29,
+            194.02
+          ],
+          [
+            32.29,
+            194.02
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "e059b0cf-d65a-45b5-a1e4-8956c6d68360",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "CA_56.143.155.20",
+      "Type": "MPE",
+      "MpeName": "CA_56.143.155.20",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            88.04,
+            3.99
+          ],
+          [
+            89.92,
+            3.96
+          ],
+          [
+            89.92,
+            13.75
+          ],
+          [
+            86.87,
+            13.75
+          ],
+          [
+            86.87,
+            5.21
+          ],
+          [
+            88.04,
+            3.99
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "8372d87c-55a6-46d1-a0c6-a53728ba74d1",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00F012010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            65.88,
+            86.27
+          ],
+          [
+            65.88,
+            88.67
+          ],
+          [
+            61.74,
+            88.67
+          ],
+          [
+            61.74,
+            86.27
+          ],
+          [
+            65.88,
+            86.27
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "54cfdd08-a8c0-494e-b7f0-fa7750150c72",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00E008010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            236.5,
+            136.0
+          ],
+          [
+            236.5,
+            130.0
+          ],
+          [
+            271.0,
+            130.0
+          ],
+          [
+            271.0,
+            136.0
+          ],
+          [
+            236.5,
+            136.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "8b1dee0c-1a6c-4781-9e3d-1fd9e5ec5ec3",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DIOSS-106",
+      "Type": "MPE",
+      "MpeName": "DIOSS",
+      "MpeNumber": "106",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            194.0,
+            52.0
+          ],
+          [
+            194.0,
+            47.0
+          ],
+          [
+            226.0,
+            47.0
+          ],
+          [
+            226.0,
+            52.0
+          ],
+          [
+            194.0,
+            52.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "2f1294f8-fc6d-426a-951c-7a06808049e9",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-134",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "134",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            149.05,
+            188.67
+          ],
+          [
+            150.87,
+            188.67
+          ],
+          [
+            150.87,
+            199.95
+          ],
+          [
+            149.35,
+            199.95
+          ],
+          [
+            147.83,
+            198.73
+          ],
+          [
+            147.83,
+            189.89
+          ],
+          [
+            149.05,
+            188.67
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "23e0490b-3d95-48b9-9e85-9e9dfae31f47",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00K002010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            50.8,
+            70.2
+          ],
+          [
+            50.8,
+            67.2
+          ],
+          [
+            53.8,
+            67.2
+          ],
+          [
+            53.8,
+            70.2
+          ],
+          [
+            50.8,
+            70.2
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "e096b54e-a5ad-4b60-9817-184cad31400f",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EBR-003",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            65.89,
+            107.9
+          ],
+          [
+            65.89,
+            110.35
+          ],
+          [
+            61.75,
+            110.35
+          ],
+          [
+            61.75,
+            107.9
+          ],
+          [
+            65.89,
+            107.9
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "49419da8-6c44-431b-8d85-2767a3ddce6a",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00E006010020",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            236.5,
+            154.0
+          ],
+          [
+            236.5,
+            147.5
+          ],
+          [
+            271.0,
+            147.5
+          ],
+          [
+            271.0,
+            154.0
+          ],
+          [
+            236.5,
+            154.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "d35c6bf1-7be5-4952-8cef-355d7cd82fdf",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-114",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "114",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            56.31,
+            188.34
+          ],
+          [
+            57.72,
+            189.28
+          ],
+          [
+            57.72,
+            198.59
+          ],
+          [
+            56.49,
+            199.81
+          ],
+          [
+            55.3,
+            199.73
+          ],
+          [
+            55.4,
+            188.34
+          ],
+          [
+            56.31,
+            188.34
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "08c86f3c-d072-48f2-97dd-3a10358df967",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00D002010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            198.42,
+            137.46
+          ],
+          [
+            198.42,
+            145.89
+          ],
+          [
+            194.5,
+            146.0
+          ],
+          [
+            194.5,
+            137.5
+          ],
+          [
+            198.42,
+            137.46
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "c5edb364-3b25-4d15-bdf0-6e40ea96cc7d",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00M007010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            273.07,
+            173.0
+          ],
+          [
+            273.07,
+            170.0
+          ],
+          [
+            276.07,
+            170.0
+          ],
+          [
+            276.07,
+            173.0
+          ],
+          [
+            273.07,
+            173.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "2f570d66-bb95-453a-8b9e-20e7a1365998",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EBR-011",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            274.0,
+            52.6
+          ],
+          [
+            274.0,
+            49.5
+          ],
+          [
+            277.0,
+            49.5
+          ],
+          [
+            277.0,
+            52.6
+          ],
+          [
+            274.0,
+            52.6
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "33d16f87-7d15-40bf-b7f2-00fe5a33a4d1",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "EBR-013",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            118.11,
+            15.29
+          ],
+          [
+            118.11,
+            5.69
+          ],
+          [
+            120.28,
+            4.05
+          ],
+          [
+            166.52,
+            4.05
+          ],
+          [
+            167.69,
+            5.58
+          ],
+          [
+            167.69,
+            15.29
+          ],
+          [
+            118.11,
+            15.29
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "aab5c7c1-77f6-47cf-a3fd-1fe12acafb8d",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "AFSM-105",
+      "Type": "MPE",
+      "MpeName": "AFSM",
+      "MpeNumber": "105",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            197.97,
+            36.85
+          ],
+          [
+            197.97,
+            45.28
+          ],
+          [
+            194.93,
+            45.28
+          ],
+          [
+            194.93,
+            36.85
+          ],
+          [
+            197.97,
+            36.85
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "8e999ded-5305-499f-83d1-a766ec914792",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00M010010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            274.0,
+            65.5
+          ],
+          [
+            274.0,
+            59.0
+          ],
+          [
+            303.0,
+            59.0
+          ],
+          [
+            303.0,
+            65.5
+          ],
+          [
+            274.0,
+            65.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "ff6734dd-1d88-4969-ac25-f558e004219d",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "CIOSS-150",
+      "Type": "MPE",
+      "MpeName": "CIOSS",
+      "MpeNumber": "150",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            145.0,
+            99.0
+          ],
+          [
+            145.0,
+            94.5
+          ],
+          [
+            146.0,
+            93.5
+          ],
+          [
+            166.0,
+            93.5
+          ],
+          [
+            166.0,
+            99.0
+          ],
+          [
+            145.0,
+            99.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "50807c76-5acf-4acb-9de8-1037cc72c08a",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "AFTL_2",
+      "Type": "MPE",
+      "MpeName": "AFTL_2",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            19.0,
+            106.5
+          ],
+          [
+            19.0,
+            61.5
+          ],
+          [
+            20.51,
+            61.5
+          ],
+          [
+            20.51,
+            106.5
+          ],
+          [
+            19.0,
+            106.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "b4e0d6e1-fdd9-40ff-9c9e-7a4d7fc7619d",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Exit_NW",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            148.0,
+            116.0
+          ],
+          [
+            148.0,
+            111.5
+          ],
+          [
+            168.0,
+            111.5
+          ],
+          [
+            168.0,
+            116.0
+          ],
+          [
+            148.0,
+            116.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "a852a966-7894-4885-8ce5-f0b1fef96b14",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "ATS_2",
+      "Type": "MPE",
+      "MpeName": "ATS_2",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            148.0,
+            166.5
+          ],
+          [
+            148.0,
+            160.0
+          ],
+          [
+            168.0,
+            160.0
+          ],
+          [
+            168.0,
+            166.5
+          ],
+          [
+            148.0,
+            166.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "c0193ed7-a055-485a-af1e-5653c09affc2",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "ATU-002",
+      "Type": "MPE",
+      "MpeName": "ATU",
+      "MpeNumber": "002",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            8.0,
+            135.0
+          ],
+          [
+            8.0,
+            129.0
+          ],
+          [
+            14.0,
+            129.0
+          ],
+          [
+            14.0,
+            135.0
+          ],
+          [
+            8.0,
+            135.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "b95be01f-262f-42be-bf9f-72d1b63cf33e",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "CA_56.143.126.197",
+      "Type": "MPE",
+      "MpeName": "CA_56.143.126.197",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            306.5,
+            115.5
+          ],
+          [
+            306.5,
+            111.5
+          ],
+          [
+            340.0,
+            112.0
+          ],
+          [
+            340.0,
+            115.5
+          ],
+          [
+            306.5,
+            115.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "2b4a5742-f9f3-41b5-bd71-6a19abcd8c21",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Exit_Hallway",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            239.5,
+            41.0
+          ],
+          [
+            239.5,
+            36.0
+          ],
+          [
+            271.0,
+            36.0
+          ],
+          [
+            271.0,
+            41.0
+          ],
+          [
+            239.5,
+            41.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "9bb33e14-b4d2-4df4-8ec5-8b307e798b75",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS-143",
+      "Type": "MPE",
+      "MpeName": "DBCS",
+      "MpeNumber": "143",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            82.31,
+            17.68
+          ],
+          [
+            82.31,
+            20.02
+          ],
+          [
+            78.17,
+            20.02
+          ],
+          [
+            78.17,
+            17.68
+          ],
+          [
+            82.31,
+            17.68
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "db60cacd-18a7-41cb-95fd-9f524510db23",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00F011010030",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            108.37,
+            92.63
+          ],
+          [
+            108.37,
+            95.06
+          ],
+          [
+            104.22,
+            95.06
+          ],
+          [
+            104.19,
+            92.63
+          ],
+          [
+            108.37,
+            92.63
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "3e17be68-79ec-423f-b98d-615246c77764",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00G007010020",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            104.19,
+            183.72
+          ],
+          [
+            104.19,
+            92.63
+          ],
+          [
+            105.3,
+            91.25
+          ],
+          [
+            121.64,
+            91.25
+          ],
+          [
+            128.02,
+            94.55
+          ],
+          [
+            139.89,
+            94.55
+          ],
+          [
+            141.25,
+            95.69
+          ],
+          [
+            141.25,
+            103.32
+          ],
+          [
+            132.73,
+            103.32
+          ],
+          [
+            132.73,
+            144.26
+          ],
+          [
+            144.17,
+            144.26
+          ],
+          [
+            144.17,
+            183.59
+          ],
+          [
+            143.0,
+            184.73
+          ],
+          [
+            105.49,
+            184.73
+          ],
+          [
+            104.19,
+            183.72
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "558a7bfe-3b7f-491d-874e-7b58e873d531",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "USS-101",
+      "Type": "MPE",
+      "MpeName": "USS",
+      "MpeNumber": "101",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            66.02,
+            162.92
+          ],
+          [
+            66.02,
+            165.51
+          ],
+          [
+            62.79,
+            165.51
+          ],
+          [
+            61.64,
+            165.51
+          ],
+          [
+            61.64,
+            162.92
+          ],
+          [
+            66.02,
+            162.92
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "17452cc7-c14e-496e-9720-0cd6e4687d14",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00E003010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            286.36,
+            131.07
+          ],
+          [
+            286.36,
+            125.61
+          ],
+          [
+            301.84,
+            125.61
+          ],
+          [
+            301.84,
+            131.07
+          ],
+          [
+            286.36,
+            131.07
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "c66c0c0f-e0a4-458c-80b4-cb7d6b3ffa96",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "AFCS200-105",
+      "Type": "MPE",
+      "MpeName": "AFCS200",
+      "MpeNumber": "105",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            271.0,
+            101.0
+          ],
+          [
+            236.5,
+            101.0
+          ],
+          [
+            236.5,
+            98.5
+          ],
+          [
+            238.0,
+            97.5
+          ],
+          [
+            270.0,
+            97.5
+          ],
+          [
+            271.0,
+            98.5
+          ],
+          [
+            271.0,
+            101.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "f76c5dfd-bba3-47eb-8522-ee7ad6f2a697",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Empty_GD_001",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            286.36,
+            120.12
+          ],
+          [
+            286.16,
+            114.61
+          ],
+          [
+            297.12,
+            114.61
+          ],
+          [
+            297.12,
+            120.12
+          ],
+          [
+            286.36,
+            120.12
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "c02090bb-9563-47d8-9446-76a5f95c8fd3",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "LCREM-001",
+      "Type": "MPE",
+      "MpeName": "LCREM",
+      "MpeNumber": "001",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            306.29,
+            129.88
+          ],
+          [
+            306.29,
+            93.0
+          ],
+          [
+            307.8,
+            93.0
+          ],
+          [
+            307.8,
+            129.88
+          ],
+          [
+            306.29,
+            129.88
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "6f78c383-a835-4bf3-aa2e-291dc90f36b7",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Exit_A",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            82.31,
+            22.46
+          ],
+          [
+            82.31,
+            24.86
+          ],
+          [
+            78.17,
+            24.86
+          ],
+          [
+            78.17,
+            22.46
+          ],
+          [
+            82.31,
+            22.46
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "c49ed372-02d4-4c99-aa5a-78f2bf13eb83",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00F011010010",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            301.5,
+            94.0
+          ],
+          [
+            281.0,
+            94.0
+          ],
+          [
+            280.0,
+            92.5
+          ],
+          [
+            280.0,
+            75.0
+          ],
+          [
+            281.0,
+            73.5
+          ],
+          [
+            301.5,
+            73.5
+          ],
+          [
+            303.0,
+            75.0
+          ],
+          [
+            303.0,
+            92.0
+          ],
+          [
+            301.5,
+            94.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "ac393908-7c3b-444f-a3e5-23ecf7382244",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "HSTS_Staging",
+      "Type": "MPE",
+      "MpeName": "HSTS_Staging",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            280.04,
+            198.61
+          ],
+          [
+            280.04,
+            188.7
+          ],
+          [
+            291.4,
+            188.7
+          ],
+          [
+            291.06,
+            198.61
+          ],
+          [
+            280.04,
+            198.61
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "b85083b7-36c6-4fec-8379-42cd3a7d7ff0",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Registry",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            224.0,
+            158.5
+          ],
+          [
+            224.0,
+            182.5
+          ],
+          [
+            223.0,
+            184.0
+          ],
+          [
+            195.5,
+            184.0
+          ],
+          [
+            194.5,
+            183.0
+          ],
+          [
+            194.5,
+            159.0
+          ],
+          [
+            224.0,
+            158.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "edbd7033-76d8-4313-87bb-81dbde2e4b37",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Dispatch_Staging",
+      "Type": "MPE",
+      "MpeName": "Dispatch_Staging",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            190.0,
+            111.0
+          ],
+          [
+            190.0,
+            123.5
+          ],
+          [
+            180.0,
+            123.5
+          ],
+          [
+            172.0,
+            123.5
+          ],
+          [
+            172.0,
+            111.0
+          ],
+          [
+            190.0,
+            111.0
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "3e995320-8d91-4ffa-92e7-3129830c2ba1",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "Satellite_Maintenance",
+      "Type": "Area",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            57.26,
+            28.37
+          ],
+          [
+            57.26,
+            30.8
+          ],
+          [
+            53.18,
+            30.8
+          ],
+          [
+            53.18,
+            28.37
+          ],
+          [
+            57.26,
+            28.37
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "06dd13a7-6d14-430b-95b8-82a6395694f9",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00D011010030",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            57.41,
+            83.84
+          ],
+          [
+            57.41,
+            86.28
+          ],
+          [
+            53.27,
+            86.28
+          ],
+          [
+            53.27,
+            83.84
+          ],
+          [
+            57.41,
+            83.84
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "8f506885-7bcb-441b-bc89-5ad7fb8d66c3",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "00D008010020",
+      "Type": "AGVLocation",
+      "MpeName": "",
+      "MpeNumber": "",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            194.5,
+            131.5
+          ],
+          [
+            194.5,
+            126.0
+          ],
+          [
+            224.0,
+            126.0
+          ],
+          [
+            224.0,
+            131.5
+          ],
+          [
+            194.5,
+            131.5
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "Id": "f554ff91-11e6-4ee7-ad5b-dd99751e4ee8",
+      "FloorId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
+      "Visible": true,
+      "Color": "",
+      "Name": "DBCS_147",
+      "Type": "MPE",
+      "MpeName": "DBCS_147",
+      "MpeNumber": "0",
+      "MpeGroup": "",
+      "LDC": "",
+      "PayLocation": "",
+      "PayLocationColor": "",
+      "MpeIpAddress": ""
+    }
+  }
+]

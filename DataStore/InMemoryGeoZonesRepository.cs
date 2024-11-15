@@ -2142,6 +2142,42 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
         }
     }
+    public async Task<bool> RemoveMPETargetsTour(JToken mpeData)
+    {
+        bool saveToFile = false;
+        try
+        {
+            List<string> deleteHourlyDatas = mpeData.ToObject<List<string>>();
+            if (deleteHourlyDatas.Any())
+            {
+                foreach (var deleteitem in deleteHourlyDatas)
+                {
+                    if (_MPETargets.ContainsKey(deleteitem) && _MPETargets.TryRemove(deleteitem, out TargetHourlyData deleted))
+                    {
+                        saveToFile = true;
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return false;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteConfigurationFile(fileNameMpeTarge, JsonConvert.SerializeObject(_MPETargets.Select(x => x.Value).ToList(), Formatting.Indented));
+            }
+        }
+    }
 
     public async Task<TargetHourlyData> RemoveMPETargets(JToken mpeData)
     {

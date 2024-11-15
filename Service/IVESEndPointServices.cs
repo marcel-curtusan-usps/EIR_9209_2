@@ -39,10 +39,22 @@ namespace EIR_9209_2.Service
 
                     if (_endpointConfig.MessageType.Equals("getEmpInfo", StringComparison.CurrentCultureIgnoreCase))
                     {
-                       await ProcessEmployeeInfoData(result, stoppingToken);
+                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        var updateCon = _connection.Update(_endpointConfig).Result;
+                        if (updateCon != null)
+                        {
+                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                        }
+                        await ProcessEmployeeInfoData(result, stoppingToken);
                     }
                     if (_endpointConfig.MessageType.Equals("getEmpSchedule", StringComparison.CurrentCultureIgnoreCase))
                     {
+                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        var updateCon = _connection.Update(_endpointConfig).Result;
+                        if (updateCon != null)
+                        {
+                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                        }
                         await ProcessEmpScheduleData(result, stoppingToken);
                     }
                 }

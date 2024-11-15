@@ -40,6 +40,13 @@ namespace EIR_9209_2.Service
                     {
                         queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                         var result = await queryService.GetSMSWrapperData(stoppingToken);
+                        
+                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        var updateCon = _connection.Update(_endpointConfig).Result;
+                        if (updateCon != null)
+                        {
+                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                        }
                         // Process tag data in a separate thread
                         await ProcessEmployeeListData(result, stoppingToken);
                     }

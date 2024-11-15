@@ -63,6 +63,18 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
 
         enablezoneSubmit();
     });
+    //machine_zone_select_name
+    $('select[name=machine_zone_select_name]').on("change", () => {
+        if ($('select[name=machine_zone_select_name]').val() === "") {
+            $('select[name=machine_zone_select_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_machine_zone_name]').text("Pleas select a Zone");
+        }
+        else {
+            $('select[name=machine_zone_select_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_machine_zone_name]').text("");
+        }
+        enablezoneSubmit();
+    });
     //check zone type
     $('select[name=zone_Type]').on("change", () => {
         if ($('select[name=zone_Type]').val() === "") {
@@ -831,46 +843,54 @@ async function getlistofMPE() {
     });
 }
 async function getlistofMPEGroups() {
-    $.ajax({
-        url: SiteURLconstructor(window.location) + '/api/MPE/MPEGroups?Type=MPE',
-        contentType: 'application/json',
-        type: 'GET',
-        success: function (mpeGroupData) {
-            $('select[id=mpe_group_select]').empty();
-            if (mpeGroupData.length > 0) {
-                mpeGroupData.push('');
-                mpeGroupData.sort();
-                mpeGroupData.push('**Group Not Listed');
-                $('#mpegroupname_div').css('display', 'none');
-                $('select[id=mpe_group_select]').css('display', '');
-                $.each(mpeGroupData, function () {
-                    $('<option/>').val(this).html(this).appendTo('#mpe_group_select');
-                })
-               
-            }
-            else {
-                $('<option/>').val("**Group Not Listed").html("**Group Not Listed").appendTo('select[id=mpe_group_select]');
-                $('<option/>').val("").html("").appendTo('select[id=mpe_group_select]');
-                $('select[id=mpe_group_select]').val("");
-                $('#mpegroupname_div').css('display', 'none');
-                /*enableNewGroupName();*/
-            }
-        },
-        error: function (error) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: SiteURLconstructor(window.location) + '/api/MPE/MPEGroups?Type=MPE',
+            contentType: 'application/json',
+            type: 'GET',
+            success: function (mpeGroupData) {
+                $('select[id=mpe_group_select]').empty();
+                if (mpeGroupData.length > 0) {
+                    mpeGroupData.push('');
+                    mpeGroupData.sort();
+                    mpeGroupData.push('**Group Not Listed');
+                    $('#mpegroupname_div').css('display', 'none');
+                    $('select[id=mpe_group_select]').css('display', '');
+                    $.each(mpeGroupData, function () {
+                        $('<option/>').val(this).html(this).appendTo('#mpe_group_select');
+                    })
+                    resolve();
+                    return true;
 
-            console.log(error);
-        },
-        faulure: function (fail) {
-            console.log(fail);
-        },
-        complete: function (complete) {
-            console.log(complete);
-        }
+                }
+                else {
+                    $('<option/>').val("**Group Not Listed").html("**Group Not Listed").appendTo('select[id=mpe_group_select]');
+                    $('<option/>').val("").html("").appendTo('select[id=mpe_group_select]');
+                    $('select[id=mpe_group_select]').val("");
+                    $('#mpegroupname_div').css('display', 'none');
+                    /*enableNewGroupName();*/
+                    resolve();
+                    return true;
+                }
+            },
+            error: function (error) {
+
+                console.log(error);
+                return false;
+            },
+            faulure: function (fail) {
+                console.log(fail);
+                return false;
+            },
+            complete: function (complete) {
+                //console.log(complete);
+                return false;
+            }
+        });
     });
 }
 async function Edit_Machine_Info(id) {
-    $('#modalZoneHeader_ID').text('Edit Machine Info');
-    sidebar.close('connections');
+   
     $('button[id=machinesubmitBtn]').prop('disabled', true);
     $('#machine_manual_row').css('display', 'none');
     $('#machine_select_row').css('display', 'block');
@@ -891,6 +911,7 @@ async function Edit_Machine_Info(id) {
         });
         if ($.isEmptyObject(Data)) return;
         MPEwNUMBER = Data.name;
+        
         $('input[id=machine_id]').val(Data.id);
         $('input[id=machine_ip]').val(Data.mpeIpAddress);
         $('select[id=zone_Type]').val(Data.type);
@@ -1105,7 +1126,190 @@ function loadTargetsHourDataTable(tourNumber, targets) {
 //                        //empty values of the div.
 //                        $('#mpestandard_div').html("");
 
+$('.targetTour').off().on('click', function () {
+    $("#Zone_Modal").modal('hide');
+    $("#HourlyTarget_Modal").modal('show');
+    $("#modalHourlyTargetHeader_ID").text($('input[id=targetmpeid]').val());
+    let targettour = $(this).data("addtarget");
 
+    //get tour hours
+    let tourhours = getTourHours(targettour);
+
+    $('#targethdlabel').text('Tour ' + targettour);
+    $('#targethdlabel').css('fontWeight', 'bold');
+
+    //get data
+    $.ajax({
+        url: SiteURLconstructor(window.location) + "/api/MPETragets/GetByMPE?MpeId=" + $('input[id=targetmpeid]').val(),
+        contentType: 'application/json',
+        type: 'GET',
+        success: function (mpeTargetData) {
+            const row = document.getElementById('mpetarget_div');
+            row.textContent = "";
+            const row1 = document.getElementById('mpetarget_div1');
+            row1.textContent = "";
+            const row2 = document.getElementById('mpetarget_div2');
+            row2.textContent = "";
+            const hrtemplate = document.querySelector('#mpetarget_hour_template');
+            const cnttemplate = document.querySelector('#mpetarget_count_template');
+            const rejtemplate = document.querySelector('#mpetarget_reject_template');
+            let rowdata = new Array();
+            let rowdata1 = new Array();
+            let rowdata2 = new Array();
+            for (let i = 0; i < tourhours.length; i++) {
+                let curdiv = document.createElement("div");
+                rowdata[i] = hrtemplate.content.cloneNode(true);
+                const clonedElement = rowdata[i].querySelector('.hourtext');
+                clonedElement.id = 'hourtext' + i;
+                clonedElement.textContent = tourhours[i];
+                curdiv.appendChild(rowdata[i]);
+                curdiv.classList.add('col');
+                row.appendChild(curdiv);
+
+                curdiv = document.createElement("div");
+                rowdata1[i] = cnttemplate.content.cloneNode(true);
+                const hourid = rowdata1[i].getElementById("targethourid");
+                hourid.id = 'hour' + i;
+                $.each(mpeTargetData, function (key, value) {
+                    if (value.hour==tourhours[i]) {
+                        hourid.value = value.hourlyTargetVol;
+                    }
+                });
+                curdiv.appendChild(rowdata1[i]);
+                curdiv.classList.add('col');
+                row1.appendChild(curdiv);
+
+                curdiv = document.createElement("div");
+                rowdata2[i] = rejtemplate.content.cloneNode(true);
+                const rejectrateid = rowdata2[i].getElementById("rejectratehourid");
+                rejectrateid.id = 'rejecthour' + i;
+                $.each(mpeTargetData, function (key, value) {
+                    if (value.hour==tourhours[i]) {
+                        rejectrateid.value = value.hourlyRejectRatePercent;
+                    }
+                });
+                curdiv.appendChild(rowdata2[i]);
+                curdiv.classList.add('col');
+                row2.appendChild(curdiv);
+            }
+        },
+        error: function (error) {
+
+            console.log(error);
+        },
+        faulure: function (fail) {
+            console.log(fail);
+        },
+        complete: function (complete) {
+            console.log(complete);
+        }
+    });
+    addMPETargets(tourhours.length);           
+    deleteMPETargets(tourhours.length);
+});
+
+function addMPETargets(hourcnt) {
+    $('button[id=mpetargetedit]').off().on('click', function () {
+        $('button[id=mpetargetedit]').prop('disabled', true);
+        let arrayObject = [];
+        for (let i = 0; i < hourcnt; i++) {
+            let jsonObject = {
+                mpeType: $('input[id=targetmpetype]').val(),
+                mpeNumber: $('input[id=targetmpenumber]').val(),
+                mpeId: $('input[id=targetmpeid]').val(),
+                hour: $('#hourtext' + i).text(),
+                hourlyTargetVol: $('input[id=hour' + i + ']').val() ? $('input[id=hour' + i + ']').val() : 0,
+                hourlyRejectRatePercent: $('input[id=rejecthour' + i + ']').val() ? $('input[id=rejecthour' + i + ']').val() : 0
+            };
+            arrayObject.push(jsonObject);
+        }
+
+        if (arrayObject.length > 0) {
+            $.ajax({
+                url: SiteURLconstructor(window.location) + '/api/MPETragets/Add',
+                data: JSON.stringify(arrayObject),
+                contentType: 'application/json',
+                type: 'POST',
+                success: function (data) {
+                    setTimeout(function () {
+                        $("#HourlyTarget_Modal").modal('hide');
+                        $('button[id=mpetargetedit]').prop('disabled', false);
+                        $('#mpetarget_div').text('');
+                        $("#Zone_Modal").modal('show');
+                        displayMPETarget($('input[id=targetmpeid]').val());
+                    }, 500);
+                },
+                error: function (error) {
+                    //console.log(error);
+                },
+                failure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    console.log(complete);
+                }
+            });
+        }
+    });
+}
+function deleteMPETargets(hourcnt) {
+    $('button[id=mpetargetdelete]').off().on('click', function () {
+        $('button[id=mpetargetdelete]').prop('disabled', true);
+        let arrayObject = [];
+        for (let i = 0; i < hourcnt; i++) {
+            arrayObject.push($('input[id=targetmpeid]').val() + $('#hourtext' + i).text());
+        }
+
+        if (arrayObject.length > 0) {
+            $.ajax({
+                url: SiteURLconstructor(window.location) + '/api/MPETragets/DeleteTour',
+                data: JSON.stringify(arrayObject),
+                contentType: 'application/json',
+                type: 'POST',
+                success: function (data) {
+                    setTimeout(function () {
+                        $("#HourlyTarget_Modal").modal('hide');
+                        $('button[id=mpetargetdelete]').prop('disabled', false);
+                        $('#mpetarget_div').text('');
+                        $("#Zone_Modal").modal('show');
+                        displayMPETarget($('input[id=targetmpeid]').val());
+                    }, 500);
+                },
+                error: function (error) {
+                    //console.log(error);
+                },
+                failure: function (fail) {
+                    console.log(fail);
+                },
+                complete: function (complete) {
+                    console.log(complete);
+                }
+            });
+        }
+    });
+}
+function getTourHours(tournumber) {
+    const DateTime = luxon.DateTime;
+    const Duration = luxon.Duration;
+    let startTime = siteTours['tour' + tournumber + 'Start'];
+    let endTime = siteTours['tour' + tournumber + 'End'];
+    const interval = "01:00"
+
+    let dtStart = DateTime.fromFormat(startTime, "HH:mm");
+    let dtEnd = DateTime.fromFormat(endTime, "HH:mm");
+    if (dtStart > dtEnd) {
+        dtStart = dtStart.minus({ hours: 24 });
+    }
+    const durationInterval = Duration.fromISOTime(interval);
+
+    let tourhours = [];
+    let i = dtStart;
+    while (i < dtEnd) {
+        tourhours.push(i.toFormat("HH:mm"));
+        i = i.plus(durationInterval);
+    }
+    return tourhours;
+}
 //                        $('input[id=mpestandard_btn]').off().on('click', function () {
 
 //                            //Edit MPE Testing
