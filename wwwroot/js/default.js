@@ -49,7 +49,7 @@ function initializeOSL() {
         appData = JSON.parse(data);
         siteTours = JSON.parse(appData.Tours);
         Promise.all([setUserProfile()]);
-        ianaTimeZone = getIANATimeZone(getPostalTimeZone(data.TimeZoneAbbr));
+        ianaTimeZone = getIANATimeZone(getPostalTimeZone(appData.TimeZoneAbbr));
         Promise.all([updateOSLattribution(appData)]);
         if (/^(Admin|OIE)/i.test(appData.Role)) {
             init_geoman_editing();
