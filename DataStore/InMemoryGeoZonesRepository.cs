@@ -2174,7 +2174,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             if (saveToFile)
             {
-                await _fileService.WriteConfigurationFile(fileNameMpeTarge, JsonConvert.SerializeObject(_MPETargets.Select(x => x.Value).ToList(), Formatting.Indented));
+                await _fileService.WriteConfigurationFile(fileNameMpeTarget, JsonConvert.SerializeObject(_MPETargets.Select(x => x.Value).ToList(), Formatting.Indented));
             }
         }
     }
