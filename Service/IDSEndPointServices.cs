@@ -2,6 +2,7 @@
 using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
+using NuGet.Protocol;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EIR_9209_2.Service
@@ -28,9 +29,17 @@ namespace EIR_9209_2.Service
                 };
 
                 JToken result = await _ids.GetOracleIDSData(data);
+                if (_endpointConfig.LogData)
+                {
+                    // Start a new thread to handle the logging
+                    _ = Task.Run(() => _loggerService.LogData(result.ToJson(),
+                        _endpointConfig.MessageType,
+                        _endpointConfig.Name,
+                        data.ToString()), stoppingToken);
+                }
                 if (result.HasValues)
                 {
-                    if (((JObject)result).ContainsKey("Error"))
+                    if (result is JObject resultObject && resultObject.ContainsKey("Error"))
                     {
                         _logger.LogError($"Error fetching data from IDS{result}");
 
@@ -76,7 +85,7 @@ namespace EIR_9209_2.Service
 
         private async Task ProcessIDSdata(JToken result, CancellationToken stoppingToken)
         {
-            await Task.Run(() => _geoZones.ProcessIDSData(result), stoppingToken).ConfigureAwait(false);
+           await _geoZones.ProcessIDSData(result, stoppingToken);
         }
     }
 }

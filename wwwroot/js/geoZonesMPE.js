@@ -644,7 +644,7 @@ function formatmachinetoprow(properties) {
         estComp: VaildateEstComplete(properties.mpeRunPerformance.rpgEstimatedCompletion),
         rpgStart: luxon.DateTime.fromISO(properties.mpeRunPerformance.rpgStartDtm).toFormat("yyyy-LL-dd HH:mm:ss"),
         rpgEnd: luxon.DateTime.fromISO(properties.mpeRunPerformance.rpgEndDtm).toFormat("yyyy-LL-dd HH:mm:ss"),
-        expThroughput: properties.mpeRunPerformance.expectedThroughput,
+        expThroughput: properties.mpeRunPerformance.rpgExpectedThruput,
         fullBins: properties.mpeRunPerformance.binFullBins,
         arsRecirc: properties.mpeRunPerformance.arsRecrej3,
         sweepRecirc: properties.mpeRunPerformance.sweepRecrej3

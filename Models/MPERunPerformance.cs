@@ -76,9 +76,6 @@ namespace EIR_9209_2.Models
         [JsonProperty("rPGEndDtm")]
         public string RPGEndDtm { get; set; } = "";
 
-        [JsonProperty("expectedThroughput")]
-        public string ExpectedThroughput { get; set; } = "";
-
         [JsonProperty("sortplanWrongTimer")]
         public string SortplanWrongTimer { get; set; } = "";
 
