@@ -296,6 +296,9 @@
 	  <Content Update="wwwroot\js\tagsSearch.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	  <Content Update="wwwroot\js\targetsUploads.js">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="wwwroot\js\webEORUploads.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
