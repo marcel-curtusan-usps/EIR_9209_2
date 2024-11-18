@@ -1,35 +1,6 @@
 ﻿@import url("../../lib/bootstrap/dist/css/bootstrap.css");
-@import url("../../lib/bootstrap/dist/css/bootstrap.rtl.css");
-@import url("../../lib/bootstrap/dist/css/bootstrap-grid.css");
-@import url("../../lib/bootstrap/dist/css/bootstrap-reboot.css");
-@import url("../../lib/bootstrap/dist/css/bootstrap-utilities.css");
 @import url("../../lib/bootstrap-datepicker/css/bootstrap-datepicker.css");
 @import url("../../css/bootstrap-icons.css");
-:root {
-  --fontFamily: "Inter", sans-serif;
-  --fontWeightRegular: 400;
-  --fontWeightMedium: 500;
-  --primaryColor: #333366;
-  --darkPrimaryColor: #000028;
-  --lightPrimaryColor: #333366;
-  --buttonHoverColor: #E2EFFC;
-  --secondaryColor: #333366;
-  --background: white;
-  --redColor: #EF0137;
-  --myFont: "Inter";
-  --inputBorder: 4px;
-  --buttonBorder: 25px;
-  --titleFontSize: 24px;
-  --textFontSize: 14px;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 a {
   font-weight: 500;
   color: #646cff;
@@ -43,17 +14,6 @@ a:hover {
 html, body {
   height: 100%;
   width: 100%;
-}
-
-body {
-  overflow: hidden;
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-  height: 100%;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 .main-content {
@@ -134,13 +94,6 @@ code {
   background-color: var(--primaryColor) !important;
 }
 
-.footer {
-  height: 50px;
-  position: relative;
-  bottom: 0;
-  width: 100%;
-}
-
 /*Input Display*/
 .display {
   display: flex;
@@ -201,10 +154,6 @@ code {
 }
 
 /*----Button----*/
-:root {
-  --button-container-height: 46.75vh;
-}
-
 #button-container {
   display: grid;
   grid-template-columns: repeat(4, auto);
@@ -427,3 +376,35 @@ p {
 #headerLabel {
   color: white;
 }
+
+/*----Welcome----*/
+.welcomeCenter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin-top: -5vw;
+}
+
+.welcomeMessage {
+  color: navy;
+  font-size: 5vw;
+}
+
+.scanSubmit {
+  background-color: lightgray;
+}
+
+.welcomeCenter button:hover {
+  background-color: #e2e2e2; /* Darker grey on hover */
+}
+
+.please {
+  font-size: 25px;
+}
+
+/*.hideFromUser {
+    position: absolute;
+    left: -9999px;
+}*/
