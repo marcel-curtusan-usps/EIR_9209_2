@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Assets</title>
+    <link href="Content/inventory.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container-fluid">
+
+        <!-- Card Section -->
+        <div class="col" >
+            <card-navigation navtype="tabbed" class="mb-4">
+                <div class="card mb-1">
+                    <div class="card-header">
+                        <h6 class="modtext ms-auto float-start">Site Name: <span id="sitename"></span></h6>
+                        <h6 class="modtext ms-auto float-end">Date Range : <span id="moddatedisplay"></span></h6>
+                    </div>
+                    <div class="card-body p-0 ">
+                        <div class="row g-4 justify-content-center">
+                            <div class="col-sm-4">
+                                <div class="card border-primary">
+                                    <div class="card-body">
+                                        <button type="button" class="btn btn-success float-end">Check In</button>
+                                        <h5 class="card-title">In</h5>
+                                        <p class="card-text fs-3" id="inCount">2</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="card border-success">
+                                    <div class="card-body">
+                                        <button type="button" class="btn btn-warning float-end">Check Out</button>
+                                        <h5 class="card-title">Out</h5>
+                                        <p class="card-text fs-3" id="outCount">10</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4" id="cardInventory" style="display:none;">
+                                <div class="card border-warning">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Inventory</h5>
+                                        <p class="card-text fs-3"id="totalInvetory">210</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </card-navigation>
+        </div>
+        <!-- DataTable Section -->
+        <div class="col">
+            <card-navigation navtype="tabbed" class="mb-4">
+                <div class="card mb-1">
+                    <div class="card-header d-flex">
+                        <h6 class="modtext ms-auto">Inventory Table</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="tab-content p-0">
+                            <div class="table-container">
+                                <table id="assetsTable" class="table table-striped table-bordered" style="width:100%">
+                                    <thead class="table-dark">
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </card-navigation>
+        </div>
+    </div>
+                    <script src="../lib/jquery/jquery.min.js"></script>
+                    <script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+                    <script src="../lib/luxon/luxon.min.js"></script>
+                    <script src="../lib/datatables.net/datatables.js"></script>
+                    <script src="../lib/datatables.net-responsive/datatables.responsive.js"></script>
+                    <script src="../lib/datatables.net-buttons/js/datatables.buttons.js"></script>
+                    <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+                    <script src="Scripts/inventory.js"></script>
+</body>
+</html>

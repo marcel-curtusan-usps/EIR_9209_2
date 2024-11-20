@@ -1008,97 +1008,98 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 
                     bool pushDBUpdate = false;
                     var geoZone = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == mpeName).Select(y => y.Value).FirstOrDefault();
-
-                    if (geoZone != null && geoZone.Properties.MPERunPerformance != null)
+                    lock (_geoZoneList)
                     {
-                        if (geoZone.Properties.MPERunPerformance.MpeId != mpeName)
+                        if (geoZone != null && geoZone.Properties.MPERunPerformance != null)
                         {
-                            geoZone.Properties.MPERunPerformance.MpeId = mpeName;
-                        }
-                        if (geoZone.Properties.MPERunPerformance.ZoneId != geoZone.Properties.Id)
-                        {
-                            geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
-                        }
-
-                        if (geoZone.Properties.MPERunPerformance.CurSortplan == "")
-                        {
-                            geoZone.Properties.MPERunPerformance.CurSortplan = "0";
-                            geoZone.Properties.MPERunPerformance.CurrentRunStart = DateTime.MinValue.ToString();
-                            geoZone.Properties.MPERunPerformance.CurrentRunEnd = DateTime.MinValue.ToString();
-                            geoZone.Properties.MPERunPerformance.CurOperationId = "";
-                        }
-                        if (geoZone.Properties.DataSource != "IDS")
-                        {
-                            geoZone.Properties.DataSource = "IDS";
-                            pushDBUpdate = true;
-                        }
-                        List<string> hourslist = GetListOfHours(336);
-                        foreach (string hr in hourslist)
-                        {
-                            var mpeData = result.Where(item => item["MPE_NAME"]?.ToString() == mpeName && item["HOUR"]?.ToString() == hr).FirstOrDefault();
-                            if (mpeData != null)
+                            if (geoZone.Properties.MPERunPerformance.MpeId != mpeName)
                             {
-                                if (geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).Any())
+                                geoZone.Properties.MPERunPerformance.MpeId = mpeName;
+                            }
+                            if (geoZone.Properties.MPERunPerformance.ZoneId != geoZone.Properties.Id)
+                            {
+                                geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
+                            }
+
+                            if (geoZone.Properties.MPERunPerformance.CurSortplan == "")
+                            {
+                                geoZone.Properties.MPERunPerformance.CurSortplan = "0";
+                                geoZone.Properties.MPERunPerformance.CurrentRunStart = DateTime.MinValue.ToString();
+                                geoZone.Properties.MPERunPerformance.CurrentRunEnd = DateTime.MinValue.ToString();
+                                geoZone.Properties.MPERunPerformance.CurOperationId = "";
+                            }
+                            if (geoZone.Properties.DataSource != "IDS")
+                            {
+                                geoZone.Properties.DataSource = "IDS";
+                                pushDBUpdate = true;
+                            }
+                            List<string> hourslist = GetListOfHours(336);
+                            foreach (string hr in hourslist)
+                            {
+                                var mpeData = result.Where(item => item["MPE_NAME"]?.ToString() == mpeName && item["HOUR"]?.ToString() == hr).FirstOrDefault();
+                                if (mpeData != null)
                                 {
-                                    geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).ToList().ForEach(h =>
+                                    if (geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).Any())
                                     {
-                                        if (h.Sorted != (int)mpeData["SORTED"])
+                                        geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).ToList().ForEach(h =>
                                         {
-                                            h.Sorted = (int)mpeData["SORTED"];
-                                            pushDBUpdate = true;
-                                        }
+                                            if (h.Sorted != (int)mpeData["SORTED"])
+                                            {
+                                                h.Sorted = (int)mpeData["SORTED"];
+                                                pushDBUpdate = true;
+                                            }
 
-                                        if (h.Rejected != (int)mpeData["REJECTED"])
-                                        {
-                                            h.Rejected = (int)mpeData["REJECTED"];
-                                            pushDBUpdate = true;
-                                        }
-                                        if (h.Count != (int)mpeData["INDUCTED"])
-                                        {
-                                            h.Count = (int)mpeData["INDUCTED"];
-                                            pushDBUpdate = true;
-                                        }
+                                            if (h.Rejected != (int)mpeData["REJECTED"])
+                                            {
+                                                h.Rejected = (int)mpeData["REJECTED"];
+                                                pushDBUpdate = true;
+                                            }
+                                            if (h.Count != (int)mpeData["INDUCTED"])
+                                            {
+                                                h.Count = (int)mpeData["INDUCTED"];
+                                                pushDBUpdate = true;
+                                            }
 
-                                    });
+                                        });
+                                    }
+                                    else
+                                    {
+                                        geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
+                                        {
+                                            Hour = hr,
+                                            Sorted = (int)mpeData["SORTED"],
+                                            Rejected = (int)mpeData["REJECTED"],
+                                            Count = (int)mpeData["INDUCTED"]
+                                        });
+                                        pushDBUpdate = true;
+                                    }
                                 }
                                 else
                                 {
-                                    geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
+                                    if (geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).Any())
                                     {
-                                        Hour = hr,
-                                        Sorted = (int)mpeData["SORTED"],
-                                        Rejected = (int)mpeData["REJECTED"],
-                                        Count = (int)mpeData["INDUCTED"]
-                                    });
-                                    pushDBUpdate = true;
+                                        geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).ToList().ForEach(h =>
+                                        {
+                                            h.Sorted = 0;
+                                            h.Rejected = 0;
+                                            h.Count = 0;
+                                        });
+                                    }
+                                    else
+                                    {
+                                        geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
+                                        {
+                                            Hour = hr,
+                                            Sorted = 0,
+                                            Rejected = 0,
+                                            Count = 0
+                                        });
+                                    }
                                 }
                             }
-                            else
-                            {
-                                if (geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).Any())
-                                {
-                                    geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).ToList().ForEach(h =>
-                                    {
-                                        h.Sorted = 0;
-                                        h.Rejected = 0;
-                                        h.Count = 0;
-                                    });
-                                }
-                                else
-                                {
-                                    geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
-                                    {
-                                        Hour = hr,
-                                        Sorted = 0,
-                                        Rejected = 0,
-                                        Count = 0
-                                    });
-                                }
-                            }
-                        }
 
+                        }
                     }
-
                     if (pushDBUpdate)
                     {
                         await _hubServices.Clients.Group(geoZone.Properties.Type).SendAsync($"update{geoZone.Properties.Type}zoneRunPerformance", geoZone.Properties.MPERunPerformance);

@@ -26,5 +26,9 @@
   {
     "outputFile": "wwwroot/CRS/Content/default.css",
     "inputFile": "wwwroot/CRS/Content/default.scss"
+  },
+  {
+    "outputFile": "wwwroot/AssetInventory/Content/inventory.css",
+    "inputFile": "wwwroot/AssetInventory/Content/inventory.scss"
   }
 ]
