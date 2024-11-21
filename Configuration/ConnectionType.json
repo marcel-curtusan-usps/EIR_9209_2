@@ -127,6 +127,12 @@
         "Name": "BCSMPPscCount",
         "Description": "IDS Pieces Count for BCDS, DISOSS and CIOSS",
         "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+      },
+      {
+        "Id": "4ba953ca-643c-44d1-8634-e94fe5e752a3",
+        "Name": "SIPSPscCount",
+        "Description": "IDS Pieces Count for SIPS",
+        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
       }
     ]
   },
