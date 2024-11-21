@@ -25,14 +25,14 @@ namespace EIR_9209_2.Controllers
         // GET: api/<Connection>
         [HttpGet]
         [Route("AllConnection")]
-        public object GetByAllConnection()
+        public async Task<object> GetByAllConnection()
         {
             //handle bad requests
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            return Ok(_connectionRepository.GetAll());
+            return Ok(await _connectionRepository.GetAll());
         }
         /// <summary>
         /// 

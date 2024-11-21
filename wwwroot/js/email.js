@@ -155,24 +155,16 @@ async function init_emailList() {
             else {
                 $('#' + EmailListtable).DataTable().clear().draw();
             }
-            $.ajax({
-                url: SiteURLconstructor(window.location) + "/api/EmailAgent/AllEmail",
-                type: 'GET',
-                success: function (data) {
+            fetch('../api/EmailAgent/AllEmail')
+                .then(response => response.json())
+                .then(data => {
                     if (data.length > 0) {
                         Promise.all([loadEmailListDatatable(data.sort(), EmailListtable)]);
                     }
-
-                },
-                error: function (error) {
-                    console.log(error);
-                },
-                faulure: function (fail) {
-                    console.log(fail);
-                },
-                complete: function (complete) {
-                }
-            });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
             resolve();
             return false;
         });

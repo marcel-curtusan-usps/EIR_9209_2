@@ -869,16 +869,19 @@ async function init_connection() {
                 });
             }
             //loading connections
-            connection.invoke("GetConnectionList").then(function (data) {
-                if (data.length > 0) {
-                    Promise.all([loadConnectionDatatable(data.sort(SortByConnectionName), ConnectionListtable)]);
-                }
-                connection.invoke("JoinGroup", "Connections").catch(function (err) {
-                    console.error("Error joining Connections group: ", err);
+            fetch('../api/Connections/AllConnection')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        Promise.all([loadConnectionDatatable(data.sort(SortByConnectionName), ConnectionListtable)]);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                 });
-
-            }).catch(function (err) {
-                console.error("Error loading connection list: ", err);
+      
+            connection.invoke("JoinGroup", "Connections").catch(function (err) {
+                console.error("Error joining Connections group: ", err);
             });
             resolve();
             return false;

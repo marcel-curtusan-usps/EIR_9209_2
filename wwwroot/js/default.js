@@ -45,43 +45,46 @@ async function start() {
 };
 function initializeOSL() {
     // Load Application Info
-    connection.invoke("GetApplicationInfo").then(function (data) {
-        appData = JSON.parse(data);
-        siteTours = JSON.parse(appData.Tours);
-        Promise.all([setUserProfile()]);
-        ianaTimeZone = getIANATimeZone(getPostalTimeZone(appData.TimeZoneAbbr));
-        Promise.all([updateOSLattribution(appData)]);
-        if (/^(Admin|OIE)/i.test(appData.Role)) {
-            init_geoman_editing();
-            sidebar.addPanel({
-                id: 'setting',
-                tab: '<span class="iconCenter"><i class="pi-iconGearFill"></i></span>',
-                position: 'bottom',
-            });
-            Promise.all([init_applicationConfiguration()]);
-            Promise.all([init_SiteInformation()]);
-            init_connectiontType();
-            init_emailList();
-            init_dacodetocraftType();
-        }
-        init_connection();
-        init_backgroundImages();
-        init_osl();
-        init_TagSearch();
-        init_geoZoneArea();  
-        init_geoZoneMPE();
-        init_geoZoneKiosk(); 
-        init_geoZoneDockDoor();
-        init_accessPoints();
-        init_tagsAGV();
-        init_tagsPIV();
-        init_tagsCamera();
-        init_tags();
-        $(`span[id="fotf-site-facility-name"]`).text(appData.SiteName);
-    }).catch(function (err) {
-        console.error("Error loading application info: ", err);
-    });
-    
+    fetch('../api/ApplicationConfiguration/Configuration')
+        .then(response => response.json())
+        .then(data => {
+            appData = data;
+            document.title = appData.name + ' (' + appData.siteId + ')';
+            siteTours = appData.tours;
+            Promise.all([setUserProfile()]);
+            ianaTimeZone = getIANATimeZone(getPostalTimeZone(appData.timeZoneAbbr));
+            Promise.all([updateOSLattribution(appData)]);
+            if (/^(Admin|OIE)/i.test(appData.Role)) {
+                init_geoman_editing();
+                sidebar.addPanel({
+                    id: 'setting',
+                    tab: '<span class="iconCenter"><i class="pi-iconGearFill"></i></span>',
+                    position: 'bottom',
+                });
+                Promise.all([init_applicationConfiguration()]);
+                Promise.all([init_SiteInformation()]);
+                init_connectiontType();
+                init_emailList();
+                init_dacodetocraftType();
+            }
+            init_connection();
+            init_backgroundImages();
+            init_osl();
+            init_TagSearch();
+            init_geoZoneArea();
+            init_geoZoneMPE();
+            init_geoZoneKiosk();
+            init_geoZoneDockDoor();
+            init_accessPoints();
+            init_tagsAGV();
+            init_tagsPIV();
+            init_tagsCamera();
+            init_tags();
+            $(`span[id="fotf-site-facility-name"]`).text(appData.name);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }
 
 connection.onclose(async () => {

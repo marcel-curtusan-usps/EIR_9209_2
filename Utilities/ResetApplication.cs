@@ -107,7 +107,7 @@ namespace EIR_9209_2.Utilities
         {
             try
             {
-                if (_worker.DeactivateAllEndpoints())
+                if (await _worker.DeactivateAllEndpoints())
                 {
                     var clearZones = await _geoZones.ResetGeoZoneList();
                     var clearTags = await _tags.ResetTagList();
@@ -144,7 +144,7 @@ namespace EIR_9209_2.Utilities
                 var setupEmployees = await _employees.SetupEmployeesList();
                 if (await _connections.SetupConnectionsList())
                 {
-                    foreach (var endpoint in _connections.GetAll())
+                    foreach (var endpoint in await _connections.GetAll())
                     {
                         _worker.AddEndpoint(endpoint);
                     }

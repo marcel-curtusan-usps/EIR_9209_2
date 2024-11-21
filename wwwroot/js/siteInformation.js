@@ -5,13 +5,18 @@ async function init_SiteInformation() {
     return new Promise((resolve, reject) => {
     try {
         createSiteInfoDataTable(siteInfotable);
+        fetch('../api/SiteInformation/SiteInfo')
+            .then(response => response.json())
+            .then(data => {
+                loadSiteInfoDatatable(formatSiteInfodata(data), siteInfotable);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
         connection.invoke("GetSiteInfo").then(function (data) {
             siteInfo = data;
            
-            $(document).prop('title', data.displayName + ' (' + data.siteId + ')');
-            $('#fotf-site-facility-name').empty();
-            $('#fotf-site-facility-name').append(data.displayName);
-            loadSiteInfoDatatable(formatSiteInfodata(data), siteInfotable);
+         
         }).catch(function (err) {
             // handle error
             console.error(err);

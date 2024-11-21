@@ -238,6 +238,11 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     currentGeoZone.Properties.LDC = NewGeoZoneProperties.LDC;
                     saveToFile = true;
                 }
+                if (currentGeoZone.Properties.RejectBins != NewGeoZoneProperties.RejectBins)
+                {
+                    currentGeoZone.Properties.RejectBins = NewGeoZoneProperties.RejectBins;
+                    saveToFile = true;
+                }
                 if (currentGeoZone.Properties.PayLocation != NewGeoZoneProperties.PayLocation)
                 {
                     currentGeoZone.Properties.PayLocation = NewGeoZoneProperties.PayLocation;

@@ -62,7 +62,7 @@ namespace EIR_9209_2.Service
         {
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
             await Task.Delay(2000, stoppingToken);
-            foreach (var endpoint in _connections.GetAll())
+            foreach (var endpoint in await _connections.GetAll())
             {
                 AddEndpoint(endpoint);
             }
@@ -152,11 +152,11 @@ namespace EIR_9209_2.Service
                 return false;
             }
         }
-        public bool DeactivateAllEndpoints()
+        public async Task<bool> DeactivateAllEndpoints()
         {
             try
             {
-                foreach (var endpoint in _connections.GetAll())
+                foreach (var endpoint in await _connections.GetAll())
                 {
                     if (_endPointServices.TryGetValue(endpoint.Id, out var endpointService))
                     {

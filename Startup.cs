@@ -37,6 +37,8 @@ public class Startup
     /// <param name="services"></param>
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddHttpContextAccessor();
+        services.AddTransient<IUserService, UserService>();
         // Configure logging
         services.AddLogging();
         services.AddAuthentication(IISDefaults.AuthenticationScheme); // Add Windows Authentication

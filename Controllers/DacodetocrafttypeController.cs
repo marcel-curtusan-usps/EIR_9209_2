@@ -29,7 +29,7 @@ namespace EIR_9209_2.Controllers
         /// <returns></returns>
         // GET: api/<DAcode>
         [HttpGet]
-        [Route("Get")]
+        [Route("GetDacodeToCraftTypeList")]
         public object Get()
         {
             //handle bad requests

@@ -99,7 +99,7 @@ new L.Control.Zoom({ position: 'bottomright' }).addTo(OSLmap);
 //}).addTo(OSLmap);
 async function updateOSLattribution(data) {
     return new Promise((resolve, reject) => {
-        OSLmap.attributionControl.setPrefix("USPS " + data.ApplicationName + " (" + data.ApplicationVersion + ") | " + data.SiteName);
+        OSLmap.attributionControl.setPrefix("USPS " + data.ApplicationName + " (" + data.ApplicationVersion + ") | " + data.name);
         resolve();
         return false;
     });

@@ -71,14 +71,15 @@ async function init_dacodetocraftType() {
             });
             createDacodetocrafttypeDataTable(dacodetocrafttypetable);
             //load Designation Activity to Craft Type
-            connection.invoke("GetDacodeToCraftTypeList").then(function (data) {
-                if (data.length > 0) {
-                    loadDacodetocrafttypeDatatable(data, "dacodetocrafttypetable");
-                }
-            }).catch(function (err) {
-                // handle error
-                console.error(err);
-            });
+            fetch('../api/ADacodetocrafttypes/GetDacodeToCraftTypeList')
+                .then(response => response.json())
+                .then(data => {
+                    loadAppSettingDatatable(formatdata(data), AppTable);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+     
             connection.invoke("JoinGroup", "DacodeToCraftTypes").catch(function (err) {
                 return console.error(err.toString());
             });

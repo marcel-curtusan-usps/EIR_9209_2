@@ -112,7 +112,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         return connection;
     }
 
-    public IEnumerable<Connection> GetAll()
+    public async Task<IEnumerable<Connection>> GetAll()
     {
         return _connectionList.Values;
     }
