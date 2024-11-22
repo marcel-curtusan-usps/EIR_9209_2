@@ -1227,26 +1227,28 @@
                             <span id="error_machine_zone_name" class="text-danger"></span>
                         </div>
                         <div id="machine_manual_row" style="display:none">
-                            <div class="form-group col-md-4">
-                                <label for="machine_name" class="control-label">Name</label>
-                                <input id="machine_name" type="text" class="form-control" name="machine_name" />
-                                <span id="errormachine_name" class="text-danger"></span>
+                            <div class="row">
+                                <div class="form-group col-md-4">
+                                    <label for="machine_name" class="control-label">Name</label>
+                                    <input id="machine_name" type="text" class="form-control" name="machine_name" />
+                                    <span id="error_machine_name" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label for="machine_number" class="control-label">Number</label>
+                                    <input id="machine_number" type="text" class="form-control" name="machine_number" />
+                                    <span id="error_machine_number" class="text-danger"></span>
+                                </div>
                             </div>
                             <div class="form-group col-md-4">
-                                <label for="machine_number" class="control-label">Number</label>
-                                <input id="machine_number" type="text" class="form-control" name="machine_number" />
-                                <span id="error_machine_number" class="text-danger"></span>
+                                <label for="mpe_group_select" class="control-label">Group</label>
+                                <select id="mpe_group_select" title="Select Group Name" class="form-control pb-1" name="mpe_group_select">
+                                </select>
                             </div>
-                        </div>
-                        <div class="form-group col-md-4">
-                            <label for="mpe_group_select" class="control-label">Group</label>
-                            <select id="mpe_group_select" title="Select Group Name" class="form-control pb-1" name="mpe_group_select">
-                            </select>
-                        </div>
-                        <div id="mpegroupname_div" class="form-group col-md-4">
-                            <label for="mpegroupname" class="control-label">Enter New Group Name</label>
-                            <input id="mpegroupname" title="New Group Name" type="text" class="form-control" name="mpegroupname" placeholder="Ex. Parcels North" />
-                            <span id="error_mpegroupname" class="text-danger"></span>
+                            <div id="mpegroupname_div" class="form-group col-md-4">
+                                <label for="mpegroupname" class="control-label">Enter New Group Name</label>
+                                <input id="mpegroupname" title="New Group Name" type="text" class="form-control" name="mpegroupname" placeholder="Ex. Parcels North" />
+                                <span id="error_mpegroupname" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="row">
@@ -2664,7 +2666,7 @@
                             <div class="input-grouppl-1 d-flex justify-content-between">
                                 <!-- Asset Inventory Buttons -->
                                 <div role="group" class=" flex-fill px-0 mt-2 mx-3 mr-p5rem" aria-label="Connected Facilities API ">
-                                    <a type="button" class="btn btn-light flex-fill mr-3" href="../AssetInventory/inventory.html" target="_blank">Asset Inventory</a>
+                                    <a type="button" class="btn btn-light flex-fill mr-3" href="../AssetInventory/default.html" target="_blank">Asset Inventory</a>
                                 </div>
                             </div>
                         </div>

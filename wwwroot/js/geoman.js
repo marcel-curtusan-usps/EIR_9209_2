@@ -341,6 +341,11 @@ function CreateZone(newlayer) {
                 togeo.properties.name = $('input[id=manual_name]').val();
                 togeo.properties.number = $('input[id=manual_number]').val().padStart(3, '0');
             }
+            else if (/(MPE)/i.test($('select[name=zone_select_name] option:selected').val())) {
+                togeo.properties.mpeName = $('input[id=manual_name]').val()
+                togeo.properties.mpeNumber = $('input[id=manual_number]').val();
+                togeo.properties.name = $('input[id=manual_name]').val() + "-" + $('input[id=manual_number]').val().padStart(3, '0');
+            }
             else if (/(Area)/i.test($('select[name=zone_select_name] option:selected').val())) {
                 togeo.properties.name = $('input[id=manual_name]').val();
             }

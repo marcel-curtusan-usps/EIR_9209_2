@@ -162,8 +162,8 @@ function getTourHours(tournumber) {
         let endTime = siteTours['tour' + tournumber + 'End'];
         const interval = "01:00"
 
-        let dtStart = DateTime.fromFormat(startTime, "HH:mm");
-        let dtEnd = DateTime.fromFormat(endTime, "HH:mm");
+        let dtStart = DateTime.fromFormat(startTime, "HH:mm").setZone(ianaTimeZone);
+        let dtEnd = DateTime.fromFormat(endTime, "HH:mm").setZone(ianaTimeZone);
         if (dtStart > dtEnd) {
             dtStart = dtStart.minus({ hours: 24 });
         }
@@ -264,9 +264,13 @@ const timeZoneMapping = {
 };
 const postaltimeZoneMapping = {
     'PST1': 'PDT',
+    'PST2': 'PDT',
     'MST1': 'MDT',
+    'MST2': 'MST',
     'CST1': 'CDT',
-    'EST1': 'EDT'
+    'CST2': 'CDT',
+    'EST1': 'EDT',
+    'EST2': 'EDT'
 };
 
 /**

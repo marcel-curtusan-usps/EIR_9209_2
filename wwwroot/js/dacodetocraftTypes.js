@@ -71,7 +71,7 @@ async function init_dacodetocraftType() {
             });
             createDacodetocrafttypeDataTable(dacodetocrafttypetable);
             //load Designation Activity to Craft Type
-            fetch('../api/ADacodetocrafttypes/GetDacodeToCraftTypeList')
+            fetch('../api/Dacodetocrafttypes/GetDacodeToCraftTypeList')
                 .then(response => response.json())
                 .then(data => {
                     loadAppSettingDatatable(formatdata(data), AppTable);

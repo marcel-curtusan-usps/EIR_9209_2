@@ -27,7 +27,7 @@ namespace EIR_9209_2.DataStore
             if (_siteInfo.TryAdd(site.FdbId, site))
             {
                 _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_siteInfo.Values.FirstOrDefault(), Formatting.Indented));
-         
+
             }
         }
 
@@ -57,7 +57,7 @@ namespace EIR_9209_2.DataStore
                 _logger.LogError(e.Message);
                 return null;
             }
-         
+
         }
 
         public void Update(SiteInformation site)
@@ -170,12 +170,18 @@ namespace EIR_9209_2.DataStore
                     { "AKST", "America/Anchorage" },
                     { "HST", "Pacific/Honolulu" },
                     { "EST1", "America/New_York" },
+                       { "EST2", "America/New_York" },
                     { "CST1", "America/Chicago" },
+                      { "CST2", "America/Chicago" },
                     { "MST1", "America/Denver" },
+                    { "MST2","America/Denver"},
                     { "PST1", "America/Los_Angeles" },
+                     { "PST2", "America/Los_Angeles" },
                     { "AKST1", "America/Anchorage" },
-                    { "HST1", "Pacific/Honolulu" }
-                };
+                    { "AKST2", "America/Anchorage" },
+                    { "HST1", "Pacific/Honolulu" },
+                      { "HST2", "Pacific/Honolulu" }
+        };
     }
 
 }

@@ -1038,71 +1038,73 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                                 geoZone.Properties.DataSource = "IDS";
                                 pushDBUpdate = true;
                             }
-                            List<string> hourslist = GetListOfHours(336);
-                            foreach (string hr in hourslist)
+                            List<string> hourslist = GetListOfHours(24);
+                            if (hourslist != null)
                             {
-                                var mpeData = result.Where(item => item["MPE_NAME"]?.ToString() == mpeName && item["HOUR"]?.ToString() == hr).FirstOrDefault();
-                                if (mpeData != null)
+                                foreach (string hr in hourslist)
                                 {
-                                    if (geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).Any())
+                                    var mpeData = result.Where(item => item["MPE_NAME"]?.ToString() == mpeName && item["HOUR"]?.ToString() == hr).FirstOrDefault();
+                                    if (mpeData != null)
                                     {
-                                        geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).ToList().ForEach(h =>
+                                        if (geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).Any())
                                         {
-                                            if (h.Sorted != (int)mpeData["SORTED"])
+                                            geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).ToList().ForEach(h =>
                                             {
-                                                h.Sorted = (int)mpeData["SORTED"];
-                                                pushDBUpdate = true;
-                                            }
+                                                if (h.Sorted != (int)mpeData["SORTED"])
+                                                {
+                                                    h.Sorted = (int)mpeData["SORTED"];
+                                                    pushDBUpdate = true;
+                                                }
 
-                                            if (h.Rejected != (int)mpeData["REJECTED"])
-                                            {
-                                                h.Rejected = (int)mpeData["REJECTED"];
-                                                pushDBUpdate = true;
-                                            }
-                                            if (h.Count != (int)mpeData["INDUCTED"])
-                                            {
-                                                h.Count = (int)mpeData["INDUCTED"];
-                                                pushDBUpdate = true;
-                                            }
+                                                if (h.Rejected != (int)mpeData["REJECTED"])
+                                                {
+                                                    h.Rejected = (int)mpeData["REJECTED"];
+                                                    pushDBUpdate = true;
+                                                }
+                                                if (h.Count != (int)mpeData["INDUCTED"])
+                                                {
+                                                    h.Count = (int)mpeData["INDUCTED"];
+                                                    pushDBUpdate = true;
+                                                }
 
-                                        });
+                                            });
+                                        }
+                                        else
+                                        {
+                                            geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
+                                            {
+                                                Hour = hr,
+                                                Sorted = (int)mpeData["SORTED"],
+                                                Rejected = (int)mpeData["REJECTED"],
+                                                Count = (int)mpeData["INDUCTED"]
+                                            });
+                                            pushDBUpdate = true;
+                                        }
                                     }
                                     else
                                     {
-                                        geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
+                                        if (geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).Any())
                                         {
-                                            Hour = hr,
-                                            Sorted = (int)mpeData["SORTED"],
-                                            Rejected = (int)mpeData["REJECTED"],
-                                            Count = (int)mpeData["INDUCTED"]
-                                        });
-                                        pushDBUpdate = true;
-                                    }
-                                }
-                                else
-                                {
-                                    if (geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).Any())
-                                    {
-                                        geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).ToList().ForEach(h =>
+                                            geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).ToList().ForEach(h =>
+                                            {
+                                                h.Sorted = 0;
+                                                h.Rejected = 0;
+                                                h.Count = 0;
+                                            });
+                                        }
+                                        else
                                         {
-                                            h.Sorted = 0;
-                                            h.Rejected = 0;
-                                            h.Count = 0;
-                                        });
-                                    }
-                                    else
-                                    {
-                                        geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
-                                        {
-                                            Hour = hr,
-                                            Sorted = 0,
-                                            Rejected = 0,
-                                            Count = 0
-                                        });
+                                            geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
+                                            {
+                                                Hour = hr,
+                                                Sorted = 0,
+                                                Rejected = 0,
+                                                Count = 0
+                                            });
+                                        }
                                     }
                                 }
                             }
-
                         }
                     }
                     if (pushDBUpdate)
@@ -1122,7 +1124,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         catch (Exception ex)
         {
 
-            _logger.LogError(ex, "Error Processing data from");
+            _logger.LogError(ex, "Error Processing data from Ids");
             return false;
         }
         finally
@@ -1133,8 +1135,17 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 
     private List<string> GetListOfHours(int hours)
     {
-        var localTime = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
-        return Enumerable.Range(0, hours).Select(i => localTime.AddHours(-hours).AddHours(i).ToString("yyyy-MM-dd HH:00")).ToList();
+        try
+        {
+            var localTime = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
+            return Enumerable.Range(0, hours).Select(i => localTime.AddHours(-hours).AddHours(i).ToString("yyyy-MM-dd HH:00")).ToList();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error Processing hour");
+            return null;
+        }
+
     }
 
     public async void UpdateMPERunActivity(List<MPERunPerformance> mpeList)

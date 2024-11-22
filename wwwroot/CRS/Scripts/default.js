@@ -236,9 +236,13 @@ const timeZoneMapping = {
 };
 const postaltimeZoneMapping = {
     'PST1': 'PDT',
+    'PST2': 'PDT',
     'MST1': 'MDT',
+    'MST2': 'MDT',
     'CST1': 'CDT',
-    'EST1': 'EDT'
+    'CST2': 'CDT',
+    'EST1': 'EDT',
+    'EST2': 'EDT'
 };
 
 /**

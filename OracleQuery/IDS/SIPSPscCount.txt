@@ -21,7 +21,7 @@ FROM
                     L.MPE_NAME                              AS MPE_NAME,
                     (
                         CASE
-                            WHEN A.POCKETNUM NOT IN (201) THEN
+                            WHEN A.POCKETNUM NOT IN (:REJECTBINS) THEN
                                 'Sorted'
                             ELSE
                                 'Rejected'
@@ -48,7 +48,7 @@ FROM
                     L.MPE_NAME,
                     (
                         CASE
-                            WHEN A.POCKETNUM NOT IN (201) THEN
+                            WHEN A.POCKETNUM NOT IN (:REJECTBINS) THEN
                                 'Sorted'
                             ELSE
                                 'Rejected'

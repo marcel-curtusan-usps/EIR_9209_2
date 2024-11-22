@@ -10,7 +10,7 @@
     <div class="container-fluid">
 
         <!-- Card Section -->
-        <div class="col" >
+        <div class="col">
             <card-navigation navtype="tabbed" class="mb-4">
                 <div class="card mb-1">
                     <div class="card-header">
@@ -22,16 +22,14 @@
                             <div class="col-sm-4">
                                 <div class="card border-primary">
                                     <div class="card-body">
-                                        <button type="button" class="btn btn-success float-end">Check In</button>
-                                        <h5 class="card-title">In</h5>
-                                        <p class="card-text fs-3" id="inCount">2</p>
+                                        <button type="button" class="btn btn-success float-end " id="checkinbtn">Check In</button>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-sm-4">
                                 <div class="card border-success">
                                     <div class="card-body">
-                                        <button type="button" class="btn btn-warning float-end">Check Out</button>
+                                        <button type="button" class="btn btn-warning float-end" id="checkoutbtn">Check Out</button>
                                         <h5 class="card-title">Out</h5>
                                         <p class="card-text fs-3" id="outCount">10</p>
                                     </div>
@@ -41,7 +39,7 @@
                                 <div class="card border-warning">
                                     <div class="card-body">
                                         <h5 class="card-title">Inventory</h5>
-                                        <p class="card-text fs-3"id="totalInvetory">210</p>
+                                        <p class="card-text fs-3" id="totalInvetory">210</p>
                                     </div>
                                 </div>
                             </div>
@@ -72,14 +70,48 @@
                 </div>
             </card-navigation>
         </div>
+        <!-- Modal Section -->
+        <div class="modal fade" id="assetModal" tabindex="-1" aria-labelledby="assetModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="col-11">
+                            <h5 class="modal-title" id="assetModalLabel"></h5>
+                        </div>
+                        <button class="col-1 btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="assetForm">
+                            <div class="mb-3">
+                                <label for="barcode_type" class="form-label">Barcode Type</label>
+                                <input type="text" class="form-control" id="barcodeType" name="_barcode_type" required>
+                            </div>
+                            <div class="mb-3" id="einContainer" style="display: none;">
+                                <label for="_ein_type" class="form-label">EIN Type</label>
+                                <input type="text" class="form-control" id="ein" name="_ein_type" required>
+                            </div>
+                            <div class="mb-3" id="notesContainer" style="display: none;">
+                                <label for="notes" class="form-label">Notes</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline-secondary float-start" type="button" data-bs-dismiss="modal">Close</button>
+                        <div class="col text-center"><span class="text-info" id="error_dacodetypevalue"></span></div>
+                        <button class=" btn btn-primary float-end" type="button" id="assetModalsubmit">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-                    <script src="../lib/jquery/jquery.min.js"></script>
-                    <script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
-                    <script src="../lib/luxon/luxon.min.js"></script>
-                    <script src="../lib/datatables.net/datatables.js"></script>
-                    <script src="../lib/datatables.net-responsive/datatables.responsive.js"></script>
-                    <script src="../lib/datatables.net-buttons/js/datatables.buttons.js"></script>
-                    <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
-                    <script src="Scripts/inventory.js"></script>
+    <script src="../lib/jquery/jquery.min.js"></script>
+    <script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="../lib/luxon/luxon.min.js"></script>
+    <script src="../lib/datatables.net/datatables.js"></script>
+    <script src="../lib/datatables.net-responsive/datatables.responsive.js"></script>
+    <script src="../lib/datatables.net-buttons/js/datatables.buttons.js"></script>
+    <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script src="Scripts/inventory.js"></script>
 </body>
 </html>

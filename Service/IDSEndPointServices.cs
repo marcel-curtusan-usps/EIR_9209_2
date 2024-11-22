@@ -27,7 +27,10 @@ namespace EIR_9209_2.Service
                     ["endHour"] = _endpointConfig.HoursForward,
                     ["queryName"] = _endpointConfig.MessageType
                 };
-
+                if (_endpointConfig.MessageType.Equals("SIPSPscCount", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    data["rejectBins"] = "201";
+                }
                 JToken result = await _ids.GetOracleIDSData(data);
                 if (_endpointConfig.LogData)
                 {

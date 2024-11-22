@@ -77,6 +77,12 @@ namespace EIR_9209_2.DatabaseCalls.IDS
                                                 ((JObject)Request_data)["endHour"].Replace(new JValue(startHour));
 
                                             }
+                                            if (((JObject)Request_data).ContainsKey("rejectBins") && ((JObject)Request_data).Type != JTokenType.String)
+                                            {
+                                                string rejectBins = (string)((JObject)Request_data)["rejectBins"];
+                                                ((JObject)Request_data)["rejectBins"].Replace(new JValue(rejectBins));
+
+                                            }
                                             foreach (KeyValuePair<string, JToken> property in (JObject)Request_data)
                                             {
                                                 if (property.Key != "queryName")
@@ -91,7 +97,7 @@ namespace EIR_9209_2.DatabaseCalls.IDS
                                                         {
                                                             command.Parameters.Add(string.Concat(":", property.Key) ?? "", OracleDbType.Int32, (int)property.Value, ParameterDirection.Input);
                                                         }
-                                                        else
+                                                        if (property.Value.Type == JTokenType.String)
                                                         {
                                                             command.Parameters.Add(string.Concat(":", property.Key) ?? "", OracleDbType.Varchar2, property.Value?.ToString(), ParameterDirection.Input);
                                                         }
