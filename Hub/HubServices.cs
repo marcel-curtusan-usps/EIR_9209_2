@@ -250,7 +250,7 @@ public class HubServices : Hub
     }
     public async Task<object> GetGeoZones(string zoneType)
     {
-        return await _geoZones.GetGeoZone(zoneType);
+        return await _geoZones.GetGeoZonebyType(zoneType);
     }
     public async Task<MPERunPerformance> GetGeoZoneMPEData(string zoneName)
     {

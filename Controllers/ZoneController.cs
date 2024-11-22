@@ -58,7 +58,7 @@ namespace EIR_9209_2.Controllers
             {
                 return await Task.FromResult(BadRequest(ModelState));
             }
-            return await _zonesRepository.GetGeoZone(type);
+            return await _zonesRepository.GetGeoZonebyType(type);
         }
         // POST api/<ZoneController>
         [HttpPost]

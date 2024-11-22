@@ -29,7 +29,18 @@ namespace EIR_9209_2.Service
                 };
                 if (_endpointConfig.MessageType.Equals("SIPSPscCount", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    data["rejectBins"] = "201";
+                    var geoZones = await _geoZones.GetGeoZonebyName("MPE", "SIPS|ADUS|SDUS");
+                    var geoZonesArray = geoZones as JArray;
+                    var rejectBins = geoZonesArray?.Select(gz => gz["properties"]["rejectBins"]).FirstOrDefault();
+                    if (rejectBins != null)
+                    {
+                        data["rejectBins"] = rejectBins;
+                    }
+                    else
+                    {
+                        data["rejectBins"] = "201"; // Default value if no rejectBins found
+                    }
+                   
                 }
                 JToken result = await _ids.GetOracleIDSData(data);
                 if (_endpointConfig.LogData)

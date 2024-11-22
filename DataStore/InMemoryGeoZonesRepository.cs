@@ -1762,8 +1762,39 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
 
     }
+    public async Task<object> GetGeoZonebyName(string type, string name)
+    {
+        try
+        {
+            var regexPattern = string.Concat("(", name, ")");
+            // Convert GeoZone list to JArray
+            JArray geoZones = JArray.FromObject(_geoZoneList.Values.Where(gz => gz.Properties.Type == type && Regex.IsMatch(gz.Properties.Name, regexPattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).ToList());
+            // Convert GeoZoneKiosk list to JArray
+            JArray geoZoneKiosk = JArray.FromObject(_geoZonekioskList.Values.Where(gz => gz.Properties.Type == type && Regex.IsMatch(gz.Properties.Name, regexPattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).ToList());
+            // Convert GeoZoneKiosk list to JArray
+            JArray geoZoneDockdoor = JArray.FromObject(_geoZoneDockDoorList.Values.Where(gz => gz.Properties.Type == type && Regex.IsMatch(gz.Properties.Name, regexPattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).ToList());
 
-    public async Task<object> GetGeoZone(string zoneType)
+            // Merge the two geoZoneKiosk into a single JArray
+            geoZones.Merge(geoZoneKiosk, new JsonMergeSettings
+            {
+                MergeArrayHandling = MergeArrayHandling.Concat,
+
+            });
+            // Merge the two geoZoneDockdoor into a single JArray
+            geoZones.Merge(geoZoneDockdoor, new JsonMergeSettings
+            {
+                MergeArrayHandling = MergeArrayHandling.Concat,
+
+            });
+            return geoZones;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+    }
+    public async Task<object> GetGeoZonebyType(string zoneType)
     {
         try
         {
@@ -2449,5 +2480,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             return null;
         }
     }
+
+ 
     #endregion
 }
