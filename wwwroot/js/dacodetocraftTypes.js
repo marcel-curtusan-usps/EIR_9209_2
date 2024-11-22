@@ -74,7 +74,7 @@ async function init_dacodetocraftType() {
             fetch('../api/Dacodetocrafttypes/GetDacodeToCraftTypeList')
                 .then(response => response.json())
                 .then(data => {
-                    loadAppSettingDatatable(formatdata(data), AppTable);
+                    loadDacodetocrafttypeDatatable(data, dacodetocrafttypetable);
                 })
                 .catch(error => {
                     console.error('Error:', error);
