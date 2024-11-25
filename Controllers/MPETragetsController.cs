@@ -193,10 +193,10 @@ namespace EIR_9209_2.Controllers
                 foreach (var item in targetHourly)
                 {
                     TargetHourlyData targetHourlyData = new TargetHourlyData();
-                    targetHourlyData.MpeType = item.MpeType;
+                    targetHourlyData.MpeName = item.MpeName;
                     targetHourlyData.MpeNumber = item.MpeNumber;
-                    targetHourlyData.MpeId = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}";
-                    targetHourlyData.Id = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.Hour}";
+                    targetHourlyData.MpeId = $"{item.MpeName}-{item.MpeNumber.ToString().PadLeft(3, '0')}";
+                    targetHourlyData.Id = $"{item.MpeName}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.Hour}";
                     targetHourlyData.TargetHour = item.Hour.ToString().PadLeft(5, '0');
                     targetHourlyData.HourlyTargetVol = item.TargetVolume;
                     targetHourlyData.HourlyRejectRatePercent = item.TargetReject;
@@ -245,7 +245,7 @@ namespace EIR_9209_2.Controllers
 
     internal class TargetHourly
     {
-        public string MpeType { get; set; }
+        public string MpeName { get; set; }
         public string MpeNumber { get; set; }
         public string Hour { get; set; }
         public int TargetVolume { get; set; }
@@ -256,7 +256,7 @@ namespace EIR_9209_2.Controllers
     {
         public TargetHourlyDataMap()
         {
-            Map(m => m.MpeType).Name("MpeType");
+            Map(m => m.MpeName).Name("MpeName");
             Map(m => m.MpeNumber).Name("MpeNumber");
             Map(m => m.Hour).Name("Hour");
             Map(m => m.TargetVolume).Name("TargetVolume");

@@ -225,6 +225,7 @@ function createLoadMPERejectHourData(tourNumber, targets, mpedata) {
         }
         dataActualPercent[tourhours[i]] = hourMPE == null ? "" : mpeCount > 0 ? ((mpeReject / mpeCount * 100).toFixed(1)) : (0.0).toFixed(1);
         actualPercentTTL = quantityTTL > 0 ? ((quantityTTL / mpeActualTTL * 100).toFixed(1)) : 0;
+        let ey = "";
     }
     dataQuantity["tourTotal"] = quantityTTL;
     dataTargetPercent["tourTotal"] = targetPercentTTL; 
@@ -235,7 +236,11 @@ function createLoadMPERejectHourData(tourNumber, targets, mpedata) {
     $('#' + MPERejectTabel).DataTable().clear().draw();
     Promise.all([updateMpeDataTable(dataArray, MPERejectTabel)]);
 }
-function createMPEDataTable(tourNumber) {
+function createhourlyTargetDataTable(tourNumber) {
+    if ($.fn.dataTable.isDataTable("#" + MPEHourlyTabel)) {// Check if DataTable has been previously created and therefore needs to be flushed
+
+        $('#' + MPEHourlyTabel).DataTable().destroy(); // destroy the dataTableObject
+    }
     $('#' + MPEHourlyTabel).DataTable({
         dom: 'Bfrtip',
         bFilter: false,
@@ -274,7 +279,12 @@ function createMPEDataTable(tourNumber) {
         }
     });
 }
-function createRejectDataTable(tourNumber) {
+function createhourlyRejectDataTable(tourNumber) {
+
+    if ($.fn.dataTable.isDataTable("#" + MPERejectTabel)) {// Check if DataTable has been previously created and therefore needs to be flushed
+
+        $('#' + MPERejectTabel).DataTable().destroy(); // destroy the dataTableObject
+    }
     $('#' + MPERejectTabel).DataTable({
         dom: 'Bfrtip',
         bFilter: false,

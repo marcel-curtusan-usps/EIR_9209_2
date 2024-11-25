@@ -18,6 +18,12 @@ $(function () {
         /* close the sidebar */
 
         Promise.all([loadcheckin_outModal("in")]);
+
+    });
+    $('button[id=checkinbtn]').off().on('click', function () {
+        /* close the sidebar */
+
+        Promise.all([loadcheckin_outModal("in")]);
         
     });
     $('button[id=checkoutbtn]').off().on('click', function () {
@@ -27,6 +33,18 @@ $(function () {
 
     });
 });
+async function loadInventoryData() {
+    let data = await fetch('../api/Inventory/GetInventoryData')
+        .then(response => response.json())
+        .then(data => {
+            return data;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    return data;
+    $('#assetModal').modal('show');
+}
 async function loadcheckin_outModal(type) {
     if (type === "out") {
         // Unhide the EIN Type input field

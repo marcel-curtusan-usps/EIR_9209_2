@@ -70,6 +70,25 @@ function initializeMpeHourly() {
     try {
         // Start the connection
         $('button[id=mpeName]').text(MPEName);
+
+        $('select[id=ddlTourSelect]').on("change", function () {
+            let tournumberSelected = $('select[id=ddlTourSelect] option:selected').val();
+            if (tournumberSelected !== "") {
+                $('button[id=tourNumber]').text(tournumberSelected);
+                createhourlyTargetDataTable(tournumberSelected);
+                createhourlyRejectDataTable(tournumberSelected);
+                createLoadMPEHourData(tournumberSelected, mpeTartgets, mpeRunData);
+                createLoadMPERejectHourData(tournumberSelected, mpeTartgets, mpeRunData);
+            }
+            else {
+                $('button[id=tourNumber]').text(getTour());
+                createhourlyTargetDataTable(getTour());
+                createhourlyRejectDataTable(getTour());
+                createLoadMPEHourData(getTour(), mpeTartgets, mpeRunData);
+                createLoadMPERejectHourData(getTour(), mpeTartgets, mpeRunData);
+            }
+   
+        });
         mpeHourlyConnection.invoke("GetApplicationInfo").then(function (data) {
             appData = JSON.parse(data);
             //if data is not null
@@ -80,8 +99,8 @@ function initializeMpeHourly() {
                 ianaTimeZone = getIANATimeZone(getPostalTimeZone(appData.TimeZoneAbbr));
                 $('button[id=tourNumber]').text(getTour());
                 currentTime = luxon.DateTime.local().setZone(ianaTimeZone)
-                createMPEDataTable(getTour());
-                createRejectDataTable(getTour());
+                createhourlyTargetDataTable(getTour());
+                createhourlyRejectDataTable(getTour());
             }
         }).catch(function (err) {
             console.error("Error loading application info: ", err);
@@ -162,8 +181,8 @@ function getTourHours(tournumber) {
         let endTime = siteTours['tour' + tournumber + 'End'];
         const interval = "01:00"
 
-        let dtStart = DateTime.fromFormat(startTime, "HH:mm").setZone(ianaTimeZone);
-        let dtEnd = DateTime.fromFormat(endTime, "HH:mm").setZone(ianaTimeZone);
+        let dtStart = DateTime.fromFormat(startTime, "HH:mm");
+        let dtEnd = DateTime.fromFormat(endTime, "HH:mm");
         if (dtStart > dtEnd) {
             dtStart = dtStart.minus({ hours: 24 });
         }

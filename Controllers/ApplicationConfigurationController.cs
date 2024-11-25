@@ -87,11 +87,11 @@ namespace EIR_9209_2.Controllers
             }
         }
 
-        private async Task<JObject> GetConfigurationSetting()
+        private async Task<object> GetConfigurationSetting()
         {
             try
             {
-                JObject configurationValues = [];
+                Dictionary<string, string?> configurationValues = [];
                 var applicationSettings = _configuration.GetSection("ApplicationConfiguration");
                 if (applicationSettings.Exists())
                 {
@@ -220,6 +220,8 @@ namespace EIR_9209_2.Controllers
                                 NassCode.Value = nassCodeValue;
                                 if (await _resetApplication.GetNewSiteInfo(nassCodeValue))
                                 {
+                                    await _hubContext.Clients.Group("SiteInformation").SendAsync($"updateSiteInformation", await _siteInfo.GetSiteInfo(), cancellationToken: CancellationToken.None);
+
                                     if (await _resetApplication.Reset())
                                     {
                                         if (await _application.Update(NassCode.Key, NassCode.Value))
@@ -262,7 +264,7 @@ namespace EIR_9209_2.Controllers
 
                         }
                     }
-                    await _hubContext.Clients.Group("ApplicationConfiguration").SendAsync($"updateApplicationConfiguration", GetAppSetting(), cancellationToken: CancellationToken.None);
+                    await _hubContext.Clients.Group("ApplicationConfiguration").SendAsync($"updateApplicationConfiguration",await GetConfigurationSetting(), cancellationToken: CancellationToken.None);
                     return Ok();
 
                 }

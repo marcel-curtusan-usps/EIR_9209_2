@@ -121,8 +121,8 @@ namespace EIR_9209_2.Models
     {
         [JsonProperty("id")]
         public string Id { get; set; } = "";
-        [JsonProperty("mpeType")]
-        public string MpeType { get; set; } = "";
+        [JsonProperty("mpeName")]
+        public string MpeName { get; set; } = "";
         [JsonProperty("mpeNumber")]
         public string MpeNumber { get; set; } = "";
         [JsonProperty("mpeId")]

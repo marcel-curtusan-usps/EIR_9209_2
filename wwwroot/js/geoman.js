@@ -326,27 +326,43 @@ function CreateZone(newlayer) {
             visible: true
         }
         $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
+         
             togeo.properties = geoProp;
             togeo.properties.type = $('select[name=zone_type] option:selected').val();
             if (/Bin/i.test($('select[name=zone_type] option:selected').val())) {
                 togeo.properties.bins = $('textarea[id="bin_bins"]').val();
             }
-            else if (/(AGVLocation)/i.test($('select[name=zone_select_name] option:selected').val())) {
-                togeo.properties.name = $('input[id=manual_name]').val();
+            else if (/(AGVLocation)/i.test($('select[name=zone_type] option:selected').val())) {
+                if (/Not Listed$/.test($('select[name=zone_select_name] option:selected').val())) {
+                    togeo.properties.name = $('input[id=manual_name]').val() + $('input[id=manual_number]').val();
+                }
+                else {
+            
+                    togeo.properties.name = $('select[name=zone_select_name] option:selected').val();
+                }
             }
-            else if (/(DockDoor)/i.test($('select[name=zone_select_name] option:selected').val())) {
+            else if (/(DockDoor)/i.test($('select[name=zone_type] option:selected').val())) {
                 togeo.properties.name = "DoorNumber"+$('input[id=manual_name]').val();
             }
-            else if (/(Kiosk)/i.test($('select[name=zone_select_name] option:selected').val())) {
+            else if (/(Kiosk)/i.test($('select[name=zone_type] option:selected').val())) {
                 togeo.properties.name = $('input[id=manual_name]').val();
                 togeo.properties.number = $('input[id=manual_number]').val().padStart(3, '0');
             }
-            else if (/(MPE)/i.test($('select[name=zone_select_name] option:selected').val())) {
-                togeo.properties.mpeName = $('input[id=manual_name]').val()
-                togeo.properties.mpeNumber = $('input[id=manual_number]').val();
-                togeo.properties.name = $('input[id=manual_name]').val() + "-" + $('input[id=manual_number]').val().padStart(3, '0');
+            else if (/(MPE)/i.test($('select[name=zone_type] option:selected').val())) {
+                if (/Not Listed$/.test($('select[name=zone_select_name] option:selected').val())) {
+                    togeo.properties.mpeName = $('input[id=manual_name]').val()
+                    togeo.properties.mpeNumber = $('input[id=manual_number]').val();
+                    togeo.properties.name = $('input[id=manual_name]').val() + "-" + $('input[id=manual_number]').val().padStart(3, '0');
+                }
+                else {
+                    let selectedMachine = $('select[name=zone_select_name] option:selected').val().split(/-(?=[^-]*$)/);
+                    togeo.properties.mpeName = selectedMachine[0];
+                    togeo.properties.mpeNumber = selectedMachine[1];
+                    togeo.properties.name = $('select[name=zone_select_name] option:selected').val();
+                }
+               
             }
-            else if (/(Area)/i.test($('select[name=zone_select_name] option:selected').val())) {
+            else if (/(Area)/i.test($('select[name=zone_type] option:selected').val())) {
                 togeo.properties.name = $('input[id=manual_name]').val();
             }
             else {

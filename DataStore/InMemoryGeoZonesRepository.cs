@@ -641,7 +641,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             {
                 foreach (TargetHourlyData item in data.Select(r => r).ToList())
                 {
-                    string mpeIdandHour = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.TargetHour}";
+                    string mpeIdandHour = $"{item.MpeName}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.TargetHour}";
                     item.Id = mpeIdandHour;
                     if (!_MPETargets.ContainsKey(mpeIdandHour))
                     {
@@ -2107,7 +2107,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             TargetHourlyData targetHourlyDatas = mpeData.ToObject<TargetHourlyData>();
             if (targetHourlyDatas != null)
             {
-                string mpeIdandHour = $"{targetHourlyDatas.MpeType}-{targetHourlyDatas.MpeNumber.ToString().PadLeft(3, '0')}{targetHourlyDatas.TargetHour}";
+                string mpeIdandHour = $"{targetHourlyDatas.MpeName}-{targetHourlyDatas.MpeNumber.ToString().PadLeft(3, '0')}{targetHourlyDatas.TargetHour}";
                 targetHourlyDatas.Id = mpeIdandHour;
                 if (!_MPETargets.ContainsKey(mpeIdandHour))
                 {
@@ -2154,7 +2154,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             TargetHourlyData targetHourlyDatas = mpeData.ToObject<TargetHourlyData>();
             if (targetHourlyDatas != null)
             {
-                string mpeIdandHour = $"{targetHourlyDatas.MpeType}-{targetHourlyDatas.MpeNumber.ToString().PadLeft(3, '0')}{targetHourlyDatas.TargetHour}";
+                string mpeIdandHour = $"{targetHourlyDatas.MpeName}-{targetHourlyDatas.MpeNumber.ToString().PadLeft(3, '0')}{targetHourlyDatas.TargetHour}";
                 if (string.IsNullOrEmpty(targetHourlyDatas.Id))
                 {
                     targetHourlyDatas.Id = mpeIdandHour;
@@ -2242,7 +2242,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             {
                 foreach (var item in targetHourlyDatas)
                 {
-                    string mpeIdandHour = $"{item.MpeType}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.TargetHour}";
+                    string mpeIdandHour = $"{item.MpeName}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.TargetHour}";
                     if (_MPETargets.ContainsKey(mpeIdandHour) && _MPETargets.TryRemove(mpeIdandHour, out TargetHourlyData deleted))
                     {
                         saveToFile = true;

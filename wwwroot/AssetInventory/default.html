@@ -31,15 +31,16 @@
                                     <div class="card-body">
                                         <button type="button" class="btn btn-warning float-end" id="checkoutbtn">Check Out</button>
                                         <h5 class="card-title">Out</h5>
-                                        <p class="card-text fs-3" id="outCount">10</p>
+                                        <p class="card-text fs-3" id="outCount"></p>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-sm-4" id="cardInventory" style="display:none;">
                                 <div class="card border-warning">
                                     <div class="card-body">
+                                        <button type="button" class="btn btn-warning float-end" id="inventorybtn">Check Out</button>
                                         <h5 class="card-title">Inventory</h5>
-                                        <p class="card-text fs-3" id="totalInvetory">210</p>
+                                        <p class="card-text fs-3" id="totalInvetory"></p>
                                     </div>
                                 </div>
                             </div>
@@ -71,6 +72,63 @@
             </card-navigation>
         </div>
         <!-- Modal Section -->
+
+        <div class="modal fade" id="inTakeInventoryModal" tabindex="-1" aria-labelledby="inTakeInventoryModal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="col-11">
+                            <h5 class="modal-title" id="inTakeInventoryLabel"></h5>
+                        </div>
+                        <button class="col-1 btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="assetForm">
+                            <div class="mb-3">
+                                <label for="itemName" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="itemName" >
+                            </div>
+                            <div class="mb-3">
+                                <label for="itemserialNumber" class="form-label">Serial Number</label>
+                                <input type="text" class="form-control" id="itemserialNumber" >
+                            </div>
+                            <div class="mb-3">
+                                <label for="itemDescription" class="form-label">Notes</label>
+                                <textarea class="form-control" id="itemDescription" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="itemCategory" class="control-label">Report Name</label>
+                                <select id="itemCategory" class="form-control pb-1">
+                                    <option value=""></option>
+                                </select>
+                                <span id="error_itemCategory" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label for="itemBarcode" class="form-label">Barcode</label>
+                                <input type="text" class="form-control" id="ItemBarcode" >
+                            </div>
+                            <div class="mb-3">
+                                <label for="itemBleTag" class="form-label">BLE</label>
+                                <input type="text" class="form-control" id="itemBarcode" >
+                            </div>
+                            <div class="mb-3" id="einContainer" style="display: none;">
+                                <label for="_ein_type" class="form-label">EIN Type</label>
+                                <input type="text" class="form-control" id="ein" name="_ein_type" >
+                            </div>
+                            <div class="mb-3" id="notesContainer">
+                                <label for="notes" class="form-label">Notes</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline-secondary float-start" type="button" data-bs-dismiss="modal">Close</button>
+                        <div class="col text-center"><span class="text-info" id="error_inTakeInventory"></span></div>
+                        <button class=" btn btn-primary float-end" type="button" id="inTakeInventorysubmit">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="modal fade" id="assetModal" tabindex="-1" aria-labelledby="assetModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -98,7 +156,7 @@
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-outline-secondary float-start" type="button" data-bs-dismiss="modal">Close</button>
-                        <div class="col text-center"><span class="text-info" id="error_dacodetypevalue"></span></div>
+                        <div class="col text-center"><span class="text-info" id="error_assetModal"></span></div>
                         <button class=" btn btn-primary float-end" type="button" id="assetModalsubmit">Save</button>
                     </div>
                 </div>

@@ -375,7 +375,20 @@ connection.on("updateMPEzone", async (mpeZonedata) => {
 });
 connection.on("updateMPEzoneTartgets", async (data) => {
     if ($('#Zone_Modal').hasClass('show')) {
-        if (data[0].mpeId === $('select[name=machine_zone_select_name] option:selected').val()) {
+        let mpeId = "";
+        if (!$('select[name=machine_zone_select_name] option:selected').val() === '') {
+            let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split(/-(?=[^-]*$)/);
+            mpeName = selectedMachine[0];
+            mpeNumber = selectedMachine[1];
+            mpeId = mpeName + "-" + mpeNumber.padStart(3, '0');
+        }
+        else {
+            mpeName = $('input[type=text][name=machine_name]').val();
+            mpeNumber = $('input[type=text][name=machine_number]').val();
+            mpeId = mpeName + "-" + mpeNumber.padStart(3, '0');
+        }
+     
+        if (data[0].mpeId === mpeId) {
             // Update the cell data in the DataTable
             for (var tourNumber in tourlist) {
                 loadTargetsHourDataTable(tourlist[tourNumber], data);
@@ -487,6 +500,7 @@ async function loadMachineData(data, table) {
         $('div[id=machine_div]').attr("data-id", data.id);
         $('div[id=machine_div]').css('display', 'block');
         $('div[id=ctstabs_div]').css('display', 'block');
+        $('div[id=machineChart_tr]').css('display', 'none');
         $('button[name=machineinfoedit]').attr('id', data.id);
         if (/^(Admin|Maintenance)/i.test(appData.Role)) {
             $('button[name=machineinfoedit]').css('display', 'block');
@@ -494,19 +508,21 @@ async function loadMachineData(data, table) {
         $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPE/default.html?MPEStatus=' + data.name, style: 'color:white;' }).html("View").appendTo($('span[name=mpeview]'));
         $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPE/hourlyreport.html?MPEStatus=' + data.name, style: 'color:white;' }).html("HR View").appendTo($('span[name=mpeHRview]'));
         $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/Reports/MPEPerformance.html?MPEStatus=' + data.name, style: 'color:white;' }).html("MPE Synopsis").appendTo($('span[name=mpePerfomance]'));
-        if (mpeData.mPEGroup !== '') {
+        if (data.mpeGroup !== '') {
             $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPESDO/MPESDO.html?MPEGroupName=' + mpeData.mpeGroup, style: 'color:white;' }).html("SDO View").appendTo($('span[name=mpeSDO]'));
         }
 
-        if (mpeData !== null) {
-      
-            if (/machinetable/i.test(table)) {
-                $('div[id=dps_div]').css('display', 'none');
-                let machinetop_Table = $('table[id=' + table + ']');
-                let machinetop_Table_Body = machinetop_Table.find('tbody');
-                machinetop_Table_Body.empty();
-                machinetop_Table_Body.append(machinetop_row_template.supplant(formatmachinetoprow(data)));
-
+     
+            
+        if (/machinetable/i.test(table)) {
+            $('div[id=dps_div]').css('display', 'none');
+            let machinetop_Table = $('table[id=' + table + ']');
+            let machinetop_Table_Body = machinetop_Table.find('tbody');
+            machinetop_Table_Body.empty();
+            machinetop_Table_Body.append(machinetop_row_template.supplant(formatmachinetoprow(data)));
+          
+           
+            if (mpeData !== null) {
                 if (mpeData.hasOwnProperty("bin_full_bins")) {
                     if (mpeData.bin_full_bins !== "") {
                         var result_style = document.getElementById('fullbin_tr').style;
@@ -566,11 +582,10 @@ async function loadMachineData(data, table) {
                 if (data.mpeRunPerformance.hasOwnProperty("hourlyData") && data.mpeRunPerformance.hourlyData.length > 0) {
                     Promise.all([GetMachinePerfGraph(data)]);
                 }
-                else {
-                    var mpgtrStyle = document.getElementById('machineChart_tr').style;
-                    mpgtrStyle.display = 'none';
-                }
                 FormatMachineRowColors(mpeData);
+            } else {
+                var mpgtrStyle = document.getElementById('machineChart_tr').style;
+                mpgtrStyle.display = 'none';
             }
         }
         sidebar.open('home'); 
@@ -593,7 +608,7 @@ let machinetop_row_template =
     '<tr id="fullbin_tr" style="display: none;"><td>Bin\'s That are Full</td><td colspan="2" style="white-space: normal; word-wrap:break-word;">{fullBins}</td></tr>' +
     '<tr id="arsrec_tr" style="display: none;"><td>ARS Recirc. Rejects</td><td colspan="2">{arsRecirc}</td></tr>' +
     '<tr id="sweeprec_tr" style="display: none;"><td>Sweep Recirc. Rejects</td><td colspan="2">{sweepRecirc}</td></tr>' +
-    '<tr id="machineChart_tr"><td colspan="3"><canvas id="machinechart" width="470" height="200"></canvas></td></tr>';
+    '<tr id="machineChart_tr" ><td colspan="3"><canvas id="machinechart" width="470" height="200"></canvas></td></tr>';
 
 function formatdpstoprow(properties) {
     return $.extend(properties, {
@@ -624,29 +639,34 @@ let dpstop_row_template =
     '<tr><td>Est. Completion Time</td><td>{completiondateTime}</td><td></td></tr>'
     ;
 function formatmachinetoprow(properties) {
-    return $.extend(properties, {
-        zoneId: properties.id,
-        zoneName: properties.name,
-        type: properties.type,
-        sortPlan: Vaildatesortplan(properties.mpeRunPerformance),// ? properties.MPEWatchData.cur_sortplan : "N/A",
-        opNum: properties.mpeRunPerformance.curOperationId,
-        sortPlanStart: VaildateMPEtime(properties.mpeRunPerformance.currentRunStart),
-        sortPlanEnd: VaildateMPEtime(properties.mpeRunPerformance.currentRunEnd),
-        peicesFed: properties.mpeRunPerformance.totSortplanVol,
-        throughput: properties.mpeRunPerformance.curThruputOphr,
-        rpgVol: properties.mpeRunPerformance.rpgEstVol,
-        stateBadge: getstatebadge(properties),
-        yieldCalNumber: getYiedCalNumber(properties.mpeRunPerformance),
-        stateText: getstateText(properties),
-        //estComp: VaildateEstComplete(properties.mpeRunPerformance.rpg),// checkValue(properties.MPEWatchData.rpg_est_comp_time) ? properties.MPEWatchData.rpg_est_comp_time : "Estimate Not Available",
-        estComp: VaildateEstComplete(properties.mpeRunPerformance.rpgEstimatedCompletion),
-        rpgStart: luxon.DateTime.fromISO(properties.mpeRunPerformance.rpgStartDtm).toFormat("yyyy-LL-dd HH:mm:ss"),
-        rpgEnd: luxon.DateTime.fromISO(properties.mpeRunPerformance.rpgEndDtm).toFormat("yyyy-LL-dd HH:mm:ss"),
-        expThroughput: properties.mpeRunPerformance.rpgExpectedThruput,
-        fullBins: properties.mpeRunPerformance.binFullBins,
-        arsRecirc: properties.mpeRunPerformance.arsRecrej3,
-        sweepRecirc: properties.mpeRunPerformance.sweepRecrej3
-    });
+    try {
+        return $.extend(properties, {
+            zoneId: properties.id,
+            zoneName: properties.name,
+            type: properties.type,
+            sortPlan: properties.mpeRunPerformance !== null ? Vaildatesortplan(properties.mpeRunPerformance) : "N/A",// ? properties.MPEWatchData.cur_sortplan : "N/A",
+            opNum: properties.mpeRunPerformance !== null ? properties.mpeRunPerformance.curOperationId : 0 ,
+            sortPlanStart: properties.mpeRunPerformance !== null ? VaildateMPEtime(properties.mpeRunPerformance.currentRunStart) : "N/A",
+            sortPlanEnd: properties.mpeRunPerformance !== null ? VaildateMPEtime(properties.mpeRunPerformance.currentRunEnd) : "N/A",
+            peicesFed: properties.mpeRunPerformance !== null ? properties.mpeRunPerformance.totSortplanVol : 0,
+            throughput: properties.mpeRunPerformance !== null ? properties.mpeRunPerformance.curThruputOphr : 0,
+            rpgVol: properties.mpeRunPerformance !== null ? properties.mpeRunPerformance.rpgEstVol : 0,
+            stateBadge: getstatebadge(properties),
+            yieldCalNumber: properties.mpeRunPerformance !== null ? getYiedCalNumber(properties.mpeRunPerformance) : 0,
+            stateText: getstateText(properties),
+            //estComp: VaildateEstComplete(properties.mpeRunPerformance.rpg),// checkValue(properties.MPEWatchData.rpg_est_comp_time) ? properties.MPEWatchData.rpg_est_comp_time : "Estimate Not Available",
+            estComp: properties.mpeRunPerformance !== null ? VaildateEstComplete(properties.mpeRunPerformance.rpgEstimatedCompletion) : "N/A",
+            rpgStart: properties.mpeRunPerformance !== null ? luxon.DateTime.fromISO(properties.mpeRunPerformance.rpgStartDtm).toFormat("yyyy-LL-dd HH:mm:ss") : 0,
+            rpgEnd: properties.mpeRunPerformance !== null ? luxon.DateTime.fromISO(properties.mpeRunPerformance.rpgEndDtm).toFormat("yyyy-LL-dd HH:mm:ss") : 0,
+            expThroughput: properties.mpeRunPerformance !== null ? properties.mpeRunPerformance.rpgExpectedThruput : 0,
+            fullBins: properties.mpeRunPerformance !== null ? properties.mpeRunPerformance.binFullBins : 0,
+            arsRecirc: properties.mpeRunPerformance !== null ? properties.mpeRunPerformance.arsRecrej3 : 0,
+            sweepRecirc: properties.mpeRunPerformance !== null ? properties.mpeRunPerformance.sweepRecrej3 : 0
+        });
+    }
+    catch (e) {
+        console.log(e);
+    }
 }
 function getstatebadge(properties) {
     try {
@@ -909,7 +929,7 @@ async function Edit_Machine_Info(id) {
         if ($.isEmptyObject(Data)) return;
         MPEwNUMBER = Data.name;
 
-        $('input[id=machine_id]').val(Data.id);
+        $('input[id=zone_id]').val(Data.id);
         $('input[id=machine_ip]').val(Data.mpeIpAddress);
         $('select[id=zone_Type]').val(Data.type);
         $('input[id=mpeRejectBins]').val(Data.rejectBins)
@@ -967,18 +987,15 @@ async function Edit_Machine_Info(id) {
                 $('button[id=machinesubmitBtn]').prop('disabled', true);
                 let tyrr = $('select[name=machine_zone_select_name] option:selected').val();
                 if (!$('select[name=machine_zone_select_name] option:selected').val() === '') {
-                    let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
-                    jsonObject.mpeName = machineName = selectedMachine[0];
-                    jsonObject.mpeNumber = machineNumber = selectedMachine[1];
-                    jsonObject.name = $('select[name=machine_zone_select_name] option:selected').val();
-
+                    let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split(/-(?=[^-]*$)/);
+                    jsonObject.mpeName = selectedMachine[0];
+                    jsonObject.mpeNumber =  selectedMachine[1];
+                    jsonObject.name = jsonObject.mpeName + "-" + jsonObject.mpeNumber.padStart(3, '0')
                 }
                 else {
                     jsonObject.mpeName = $('input[type=text][name=machine_name]').val();
                     jsonObject.mpeNumber = $('input[type=text][name=machine_number]').val();
-                    let name = $('input[type=text][name=machine_name]').val() + "-" + $('input[type=text][name=machine_number]').val();
-                    jsonObject.name = name;
-
+                    jsonObject.name = jsonObject.mpeName + "-" + jsonObject.mpeNumber.padStart(3, '0');
                 }
                 jsonObject.rejectBins = $('input[type=text][name=mpeRejectBins]').val();
                 jsonObject.floorId = $('input[type=text][name=machine_ip]').val();
@@ -1523,12 +1540,18 @@ function createTargetDataTable(table, tour) {
                     // Get the header text of the clicked cell's column
                     var headerText = $(api.column(columnIndex).header()).text();
                     // Get all data for the clicked column
-                    var columnData = api.column(columnIndex).data().toArray();
-
-                    // Display the data (for example, in the console)
-                    console.log('Column data:', columnData);
-                    let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
-
+                    let columnData = api.column(columnIndex).data().toArray();      
+                    let mpeName = "";  
+                    let mpeNumber = "";
+                    if (!$('select[name=machine_zone_select_name] option:selected').val() === '') {
+                        let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split(/-(?=[^-]*$)/);
+                        mpeName = selectedMachine[0];
+                        mpeNumber = selectedMachine[1];
+                    }
+                    else {
+                        mpeName = $('input[type=text][name=machine_name]').val();
+                        mpeNumber = $('input[type=text][name=machine_number]').val();
+                    }
                     // Optionally, you can trigger a modal or any other action with the column data
                     $('#Targets_Modal').modal('show');
                     // Pass data to the modal
@@ -1540,12 +1563,13 @@ function createTargetDataTable(table, tour) {
                     // Handle the save button click event
                     $('#targetHoursubmitBtn').off('click').on('click', function () {
                         let jsonObject = {
-                            "MpeType": selectedMachine[0],
-                            "MpeNumber": selectedMachine[1],
-                            "TargetHour": headerText,
-                            "MpeId": $('select[name=machine_zone_select_name] option:selected').val() ,
-                            "HourlyTargetVol": $('input[name="hourlyTargetVol"]').val(),
-                            "HourlyRejectRatePercent": $('input[name="hourlyRejectRatePercent"]').val()
+                            "id": $('input[id=zone_id]').val(),
+                            "mpeName": mpeName,
+                            "mpeNumber": mpeNumber,
+                            "targetHour": headerText,
+                            "mpeId": mpeName + "-" + mpeNumber.padStart(3, '0'),
+                            "hourlyTargetVol": $('input[name="hourlyTargetVol"]').val(),
+                            "hourlyRejectRatePercent": $('input[name="hourlyRejectRatePercent"]').val()
                         }
                         //make a ajax call to get the Connection details
                         $.ajax({
@@ -1590,7 +1614,17 @@ function createTargetDataTable(table, tour) {
                             var columnData = api.column(columnIndex).data().toArray();
                             // Trigger the modal popup
                             $('#Targets_Modal').modal('show');
-                            let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
+                            let mpeName = "";
+                            let mpeNumber = "";
+                            if (!$('select[name=machine_zone_select_name] option:selected').val() === '') {
+                                let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split(/-(?=[^-]*$)/);
+                                mpeName = selectedMachine[0];
+                                mpeNumber = selectedMachine[1];
+                            }
+                            else {
+                                mpeName = $('input[type=text][name=machine_name]').val();
+                                mpeNumber = $('input[type=text][name=machine_number]').val();
+                            }
                             // Pass data to the modal
                             $('#Targets_Modal').find('input[name="targetHour"]').val(headerText);
                             // Pass data to the modal
@@ -1600,12 +1634,13 @@ function createTargetDataTable(table, tour) {
                             // Handle the save button click event
                             $('#targetHoursubmitBtn').off('click').on('click', function () {
                                 let jsonObject = {
-                                    "MpeType": selectedMachine[0],
-                                    "MpeNumber": selectedMachine[1],
-                                    "TargetHour": headerText,
-                                    "MpeId": $('select[name=machine_zone_select_name] option:selected').val(),
-                                    "HourlyTargetVol": $('input[name="hourlyTargetVol"]').val(),
-                                    "HourlyRejectRatePercent": $('input[name="hourlyRejectRatePercent"]').val()
+                                    "id": $('input[id=zone_id]').val(),
+                                    "mpeName": mpeName,
+                                    "mpeNumber": mpeNumber,
+                                    "targetHour": headerText,
+                                    "mpeId": mpeName + "-"+ mpeNumber.padStart(3, '0'),
+                                    "hourlyTargetVol": $('input[name="hourlyTargetVol"]').val(),
+                                    "hourlyRejectRatePercent": $('input[name="hourlyRejectRatePercent"]').val()
                                 }
                                 //make a ajax call to get the Connection details
                                 $.ajax({

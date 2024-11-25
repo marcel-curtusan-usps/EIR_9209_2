@@ -1,6 +1,17 @@
 ﻿
 //connection types
 let siteInfotable = "siteInfotable";
+connection.on("updateSiteInformation", async (data) => {
+    try {
+        return new Promise((resolve, reject) => {
+            loadSiteInfoDatatable(formatSiteInfodata(data), siteInfotable);
+            resolve();
+            return false;
+        });
+    } catch (e) {
+        throw new Error(e.toString());
+    }
+});
 async function init_SiteInformation() {
     return new Promise((resolve, reject) => {
     try {
