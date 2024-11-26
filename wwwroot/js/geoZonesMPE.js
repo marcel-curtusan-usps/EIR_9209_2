@@ -923,7 +923,7 @@ async function Edit_Machine_Info(id) {
         Data = geoZoneMPE._layers[leafletIds].feature.properties;
         $('#modalZoneHeader_ID').text('Edit MPE |' + Data.name);
         await Promise.all([getlistofMPE(), getlistofMPEGroups()]).then(() => {
-
+            $('select[id=machine_zone_select_name]').val(Data.name);
             $('select[id=mpe_group_select]').val(Data.mpeGroup);
         });
         if ($.isEmptyObject(Data)) return;
@@ -958,13 +958,13 @@ async function Edit_Machine_Info(id) {
             });
         }
 
-        if (!$('select[name=machine_zone_select_name] option:selected').val() === "" && $('select[name=machine_zone_select_name] option:selected').val() !== '**Machine Not Listed') {
+        if ($('select[id=machine_zone_select_name]').val() !== "") {
             $('#machine_manual_row').hide();
             $('#machine_select_row').show();
             $('select[id=machine_zone_select_name]').val(Data.name).trigger('change');
         } else {
             if (Data.mpeName === "") {
-                let tempSplit = Data.name.split("-");
+                let tempSplit = Data.name.split(/-(?=[^-]*$)/);
                 $('input[id=machine_name]').val(tempSplit[0]);
                 $('input[id=machine_number]').val(tempSplit[1]);
             }

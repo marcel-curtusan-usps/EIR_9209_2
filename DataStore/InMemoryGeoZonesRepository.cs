@@ -1015,8 +1015,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     var geoZone = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE" && r.Value.Properties.Name == mpeName).Select(y => y.Value).FirstOrDefault();
                     lock (_geoZoneList)
                     {
-                        if (geoZone != null && geoZone.Properties.MPERunPerformance != null)
+                        if (geoZone != null)
                         {
+                            if (geoZone.Properties.MPERunPerformance == null)
+                            {
+                                geoZone.Properties.MPERunPerformance = new();
+                            }
                             if (geoZone.Properties.MPERunPerformance.MpeId != mpeName)
                             {
                                 geoZone.Properties.MPERunPerformance.MpeId = mpeName;
@@ -1025,7 +1029,6 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                             {
                                 geoZone.Properties.MPERunPerformance.ZoneId = geoZone.Properties.Id;
                             }
-
                             if (geoZone.Properties.MPERunPerformance.CurSortplan == "")
                             {
                                 geoZone.Properties.MPERunPerformance.CurSortplan = "0";
