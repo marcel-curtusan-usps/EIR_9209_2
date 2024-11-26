@@ -376,7 +376,7 @@ connection.on("updateMPEzone", async (mpeZonedata) => {
 connection.on("updateMPEzoneTartgets", async (data) => {
     if ($('#Zone_Modal').hasClass('show')) {
         let mpeId = "";
-        if (!$('select[name=machine_zone_select_name] option:selected').val() === '') {
+        if ($('select[name=machine_zone_select_name] option:selected').val() !== '') {
             let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split(/-(?=[^-]*$)/);
             mpeName = selectedMachine[0];
             mpeNumber = selectedMachine[1];
@@ -445,13 +445,11 @@ async function deleteMPEFeature(data) {
     }
 }
 function enablezoneSubmit() {
-    let temp = $('div[id="machine_select_row"]').is(":visible");
-    let temp1 = $('select[name=machine_zone_select_name]').hasClass('is-valid');
     if ($('div[id="machine_select_row"]').is(":visible")
         && $('select[name=machine_zone_select_name]').hasClass('is-valid')) {
         $('button[id=machinesubmitBtn]').prop('disabled', false);
     }
-    if ($('div[id="machine_manual_row"]').is(":visible") &&
+    else if ($('div[id="machine_manual_row"]').is(":visible") &&
         $('input[type=text][name=machine_name]').hasClass('is-valid') &&
         $('input[type=text][name=machine_number]').hasClass('is-valid')) {
         $('button[id=machinesubmitBtn]').prop('disabled', false);
@@ -506,7 +504,7 @@ async function loadMachineData(data, table) {
             $('button[name=machineinfoedit]').css('display', 'block');
         }
         $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPE/default.html?MPEStatus=' + data.name, style: 'color:white;' }).html("View").appendTo($('span[name=mpeview]'));
-        $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPE/hourlyreport.html?MPEStatus=' + data.name, style: 'color:white;' }).html("HR View").appendTo($('span[name=mpeHRview]'));
+        $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPE/hourlyreport.html?MpeName=' + data.name, style: 'color:white;' }).html("HR View").appendTo($('span[name=mpeHRview]'));
         $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/Reports/MPEPerformance.html?MPEStatus=' + data.name, style: 'color:white;' }).html("MPE Synopsis").appendTo($('span[name=mpePerfomance]'));
         if (data.mpeGroup !== '') {
             $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPESDO/MPESDO.html?MPEGroupName=' + mpeData.mpeGroup, style: 'color:white;' }).html("SDO View").appendTo($('span[name=mpeSDO]'));
@@ -986,7 +984,7 @@ async function Edit_Machine_Info(id) {
                 let jsonObject = {};
                 $('button[id=machinesubmitBtn]').prop('disabled', true);
                 let tyrr = $('select[name=machine_zone_select_name] option:selected').val();
-                if (!$('select[name=machine_zone_select_name] option:selected').val() === '') {
+                if ($('select[name=machine_zone_select_name] option:selected').val() !== "") {
                     let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split(/-(?=[^-]*$)/);
                     jsonObject.mpeName = selectedMachine[0];
                     jsonObject.mpeNumber =  selectedMachine[1];
@@ -1543,7 +1541,7 @@ function createTargetDataTable(table, tour) {
                     let columnData = api.column(columnIndex).data().toArray();      
                     let mpeName = "";  
                     let mpeNumber = "";
-                    if (!$('select[name=machine_zone_select_name] option:selected').val() === '') {
+                    if ($('select[name=machine_zone_select_name] option:selected').val() !== '') {
                         let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split(/-(?=[^-]*$)/);
                         mpeName = selectedMachine[0];
                         mpeNumber = selectedMachine[1];
@@ -1616,7 +1614,7 @@ function createTargetDataTable(table, tour) {
                             $('#Targets_Modal').modal('show');
                             let mpeName = "";
                             let mpeNumber = "";
-                            if (!$('select[name=machine_zone_select_name] option:selected').val() === '') {
+                            if ($('select[name=machine_zone_select_name] option:selected').val() !== '') {
                                 let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split(/-(?=[^-]*$)/);
                                 mpeName = selectedMachine[0];
                                 mpeNumber = selectedMachine[1];

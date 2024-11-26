@@ -1041,7 +1041,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                                 geoZone.Properties.DataSource = "IDS";
                                 pushDBUpdate = true;
                             }
-                            List<string> hourslist = GetListOfHours(24);
+                            List<string> hourslist = GetListOfHours(240);
                             if (hourslist != null)
                             {
                                 foreach (string hr in hourslist)

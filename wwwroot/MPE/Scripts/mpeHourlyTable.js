@@ -140,13 +140,21 @@ function createLoadMPEHourData(tourNumber,targets,mpedata) {
     for (let i = 0; i < tourhours.length; i++) {
         const hourTarget = targets.find(target => target.targetHour === tourhours[i]);
         let curtDayandHour = ""
-        if (tourNumber === 1 && new RegExp('^(00|01|02|03|04|05|06|07|08)').test(tourhours[i])) {
-            curtDayandHour = currentTime.plus({ day: 1 }).day.toString().padStart(2, '0') + " " + tourhours[i];
+        if (tourNumber === 1) {
+            curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + " " + tourhours[i];
+            const tempHourMPE = mpedata.hourlyData.find(hourlyData => hourlyData.hour.endsWith(curtDayandHour));
+            if (tempHourMPE === undefined) {
+                curtDayandHour = currentTime.minus({ day: 1 }).toFormat('yyyy-MM-dd') + " " + tourhours[i];
+            }
+            else {
+                curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + " " + tourhours[i];
+            }
+
         }
         else {
-          curtDayandHour = currentTime.day.toString().padStart(2, '0') + " " + tourhours[i];
+            curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + " " + tourhours[i];
         }
-         
+
         const hourMPE = mpedata.hourlyData.find(hourlyData => hourlyData.hour.endsWith(curtDayandHour));
 
         let targetHourlyVol = hourTarget == null ? "-" : parseInt(hourTarget?.hourlyTargetVol);
@@ -202,12 +210,21 @@ function createLoadMPERejectHourData(tourNumber, targets, mpedata) {
     for (let i = 0; i < tourhours.length; i++) {
         const hourTarget = targets.find(target => target.targetHour === tourhours[i]);
         let curtDayandHour = ""
-        if (tourNumber === 1 && new RegExp('^(00|01|02|03|04|05|06|07|08)').test(tourhours[i])) {
-            curtDayandHour = currentTime.plus({ day: 1 }).day.toString().padStart(2, '0') + " " + tourhours[i];
+        if (tourNumber === 1) {
+            curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + " " + tourhours[i];
+            const tempHourMPE = mpedata.hourlyData.find(hourlyData => hourlyData.hour.endsWith(curtDayandHour));
+            if (tempHourMPE === undefined) {
+                curtDayandHour = currentTime.minus({ day: 1 }).toFormat('yyyy-MM-dd') + " " + tourhours[i];
+            }
+            else {
+                curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + " " + tourhours[i];
+            }
+
         }
         else {
-            curtDayandHour = currentTime.day.toString().padStart(2, '0') + " " + tourhours[i];
+            curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + " " + tourhours[i];
         }
+
         const hourMPE = mpedata.hourlyData.find(hourlyData => hourlyData.hour.endsWith(curtDayandHour));
   
         let mpeCount = parseInt(hourMPE?.count) || 0;
@@ -225,7 +242,6 @@ function createLoadMPERejectHourData(tourNumber, targets, mpedata) {
         }
         dataActualPercent[tourhours[i]] = hourMPE == null ? "" : mpeCount > 0 ? ((mpeReject / mpeCount * 100).toFixed(1)) : (0.0).toFixed(1);
         actualPercentTTL = quantityTTL > 0 ? ((quantityTTL / mpeActualTTL * 100).toFixed(1)) : 0;
-        let ey = "";
     }
     dataQuantity["tourTotal"] = quantityTTL;
     dataTargetPercent["tourTotal"] = targetPercentTTL; 

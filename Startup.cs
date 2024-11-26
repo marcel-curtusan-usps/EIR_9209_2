@@ -59,6 +59,7 @@ public class Startup
         services.AddSingleton<IInMemoryEmployeesRepository, InMemoryEmployeesRepository>();
         services.AddSingleton<IInMemoryEmployeesSchedule, InMemoryEmployeesSchedule>();
         services.AddSingleton<IInMemoryCamerasRepository, InMemoryCamerasRepository>();
+        services.AddSingleton<IInMemoryInventoryRepository, InMemoryInventoryRepository>();
         services.AddSingleton<IIDS, IDS>();
         services.AddSingleton<ScreenshotService>();
         services.AddSingleton<EmailService>();

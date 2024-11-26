@@ -5,6 +5,7 @@ let siteInfo = {};
 let ianaTimeZone = "";
 let MPEName = "";
 let TourNumber = "";
+let DateProvided = "";
 let tourHours = [];
 let mpeTartgets = {};
 let mpeRunData = {};
@@ -30,12 +31,14 @@ const mpeHourlyConnection = new signalR.HubConnectionBuilder()
 */
 $.urlParam = function (name) {
     let results = new RegExp('[\?&]' + name + '=([^&#]*)', 'i').exec(window.location.search);
-    MPEName = (results !== null) ? results[1] || 0 : "";
-    return MPEName;
+    return (results !== null) ? results[1] || 0 : "";
 }
 
 $(function () {
-    document.title = $.urlParam("mpeStatus");
+    MPEName = $.urlParam("MpeName");
+    document.title = MPEName;  
+    TourNumber = parseInt($.urlParam("TourNumber"), 10);
+    DateProvided = $.urlParam("Date");
     setHeight();
     $('span[id=headerIdSpan]').text(MPEName + " Machine Performance");
 });
@@ -70,25 +73,6 @@ function initializeMpeHourly() {
     try {
         // Start the connection
         $('button[id=mpeName]').text(MPEName);
-
-        $('select[id=ddlTourSelect]').on("change", function () {
-            let tournumberSelected = $('select[id=ddlTourSelect] option:selected').val();
-            if (tournumberSelected !== "") {
-                $('button[id=tourNumber]').text(tournumberSelected);
-                createhourlyTargetDataTable(tournumberSelected);
-                createhourlyRejectDataTable(tournumberSelected);
-                createLoadMPEHourData(tournumberSelected, mpeTartgets, mpeRunData);
-                createLoadMPERejectHourData(tournumberSelected, mpeTartgets, mpeRunData);
-            }
-            else {
-                $('button[id=tourNumber]').text(getTour());
-                createhourlyTargetDataTable(getTour());
-                createhourlyRejectDataTable(getTour());
-                createLoadMPEHourData(getTour(), mpeTartgets, mpeRunData);
-                createLoadMPERejectHourData(getTour(), mpeTartgets, mpeRunData);
-            }
-   
-        });
         mpeHourlyConnection.invoke("GetApplicationInfo").then(function (data) {
             appData = JSON.parse(data);
             //if data is not null
@@ -97,10 +81,23 @@ function initializeMpeHourly() {
                 siteTours = JSON.parse(appData.Tours);
                 // Use the mapping function to get the correct IANA time zone
                 ianaTimeZone = getIANATimeZone(getPostalTimeZone(appData.TimeZoneAbbr));
-                $('button[id=tourNumber]').text(getTour());
-                currentTime = luxon.DateTime.local().setZone(ianaTimeZone)
-                createhourlyTargetDataTable(getTour());
-                createhourlyRejectDataTable(getTour());
+                if (DateProvided != "") {
+                    currentTime = luxon.DateTime.fromFormat(DateProvided, 'yyyy-MM-dd');
+                }
+                else {
+                    currentTime = luxon.DateTime.local().setZone(ianaTimeZone);
+                }
+              
+                if (TourNumber > 0) {
+                    $('button[id=tourNumber]').text(TourNumber);
+                    createhourlyTargetDataTable(TourNumber);
+                    createhourlyRejectDataTable(TourNumber);
+                } else
+                {
+                    $('button[id=tourNumber]').text(getTour());
+                    createhourlyTargetDataTable(getTour());
+                    createhourlyRejectDataTable(getTour());
+                }
             }
         }).catch(function (err) {
             console.error("Error loading application info: ", err);
@@ -114,8 +111,14 @@ function initializeMpeHourly() {
             mpeHourlyConnection.invoke("GetGeoZoneMPEData", MPEName).then((mpeData) => {
                 if (mpeData) {
                     mpeRunData = mpeData;
-                    createLoadMPEHourData(getTour(), mpeTartgets, mpeRunData);
-                    createLoadMPERejectHourData(getTour(), mpeTartgets, mpeRunData);
+                    if (TourNumber > 0) {
+                        createLoadMPEHourData(TourNumber, mpeTartgets, mpeRunData);
+                        createLoadMPERejectHourData(TourNumber, mpeTartgets, mpeRunData);
+                    }
+                    else {
+                        createLoadMPEHourData(getTour(), mpeTartgets, mpeRunData);
+                        createLoadMPERejectHourData(getTour(), mpeTartgets, mpeRunData);
+                    }
                 }
 
             }).catch(function (err) {

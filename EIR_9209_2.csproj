@@ -6,10 +6,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
-		<AssemblyVersion>2.0.7.70</AssemblyVersion>
+		<AssemblyVersion>2.0.7.71</AssemblyVersion>
 		<OutputType>Exe</OutputType>
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-		<FileVersion>2.0.7.70</FileVersion>
+		<FileVersion>2.0.7.71</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -173,6 +173,87 @@
 	<ItemGroup>
 		<None Include="bundleconfig.json" />
 		<None Include="compilerconfig.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="DataStore\IInMemoryApplicationRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\IInMemoryBackgroundImageRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\IInMemoryCamerasRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\IInMemoryConnectionRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\IInMemoryDacodeRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\IInMemoryEmailRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\IInMemoryEmployeesRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\IInMemoryEmployeesSchedule.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\IInMemoryGeoZonesRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\IInMemoryInventoryRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\IInMemorySiteInfoRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\IInMemoryTACSReports.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\IInMemoryTagsRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\InMemoryApplicationRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\InMemoryBackgroundImageRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\InMemoryCamerasRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\InMemoryConnectionRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\InMemoryDacodeRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\InMemoryEmailRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\InMemoryEmployeesRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\InMemoryEmployeesSchedule.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\InMemoryGeoZonesRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\InMemoryInventoryRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\InMemorySiteInfoRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\InMemoryTACSReports.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="DataStore\InMemoryTagsRepository.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
