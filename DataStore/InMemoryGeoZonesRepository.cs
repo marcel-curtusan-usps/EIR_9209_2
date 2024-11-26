@@ -985,13 +985,23 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
+    /// <summary>
+    /// Processes IDS data and updates the in-memory repository accordingly.
+    /// </summary>
+    /// <param name="result">A JToken object containing the data to be processed.</param>
+    /// <param name="stoppingToken">A CancellationToken to handle task cancellation.</param>
+    /// <returns>A Task representing the asynchronous operation, with a boolean result indicating success or failure.</returns>
+    /// <remarks>
+    /// This method processes data from an IDS, updates the in-memory repository, and pushes updates to clients if necessary.
+    /// It handles potential exceptions and supports task cancellation.
+    /// </remarks>
     public async Task<bool> ProcessIDSData(JToken result, CancellationToken stoppingToken)
     {
         try
-        {  // Check if result contains MPE_NAME
+        {
+            // Check if result contains MPE_NAME
             if (result.Type == JTokenType.Array && result.Any(item => item["MPE_NAME"] != null))
             {
-                //List<string> mpeNames = result.Select(item => item["MPE_NAME"]?.ToString()).Distinct().OrderBy(name => name).ToList();
                 List<string> mpeNames = result
                    .Where(item => item["MPE_NAME"] != null)
                    .Select(item => item["MPE_NAME"]?.ToString())
@@ -1000,12 +1010,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                    .ToList();
                 foreach (string mpeName in mpeNames)
                 {
-                    //check if cancellationToken has been called
+                    // Check if cancellationToken has been called
                     if (stoppingToken.IsCancellationRequested)
                     {
                         return false;
                     }
-                    //if mpename not in MPE list add it
+                    // If mpeName not in MPE list, add it
                     if (!_MPENameList.Contains(mpeName))
                     {
                         _MPENameList.Add(mpeName);
@@ -1041,61 +1051,65 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                                 geoZone.Properties.DataSource = "IDS";
                                 pushDBUpdate = true;
                             }
+                            /// <summary>
+                            /// Processes hourly data for each hour in the last 240 hours.
+                            /// </summary>
+                            /// <param name="hourslist">List of hours to process.</param>
+                            /// <param name="result">The JToken result containing IDS data.</param>
+                            /// <param name="mpeName">The name of the MPE to process.</param>
+                            /// <param name="geoZone">The GeoZone object to update.</param>
+                            /// <param name="pushDBUpdate">Flag indicating whether to push updates to the database.</param>
                             List<string> hourslist = GetListOfHours(240);
                             if (hourslist != null)
                             {
                                 foreach (string hr in hourslist)
                                 {
-                                    var mpeData = result.Where(item => item["MPE_NAME"]?.ToString() == mpeName && item["HOUR"]?.ToString() == hr).FirstOrDefault();
-                                    if (mpeData != null)
+                                    var mpeIDSData = result.FirstOrDefault(item => item["MPE_NAME"]?.ToString() == mpeName && item["HOUR"]?.ToString() == hr);
+                                    if (mpeIDSData != null)
                                     {
-                                        if (geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).Any())
+                                        var hourlyData = geoZone.Properties.MPERunPerformance.HourlyData.FirstOrDefault(h => h.Hour == hr);
+                                        if (hourlyData != null)
                                         {
-                                            geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).ToList().ForEach(h =>
+                                            bool sortedUpdated = (int)mpeIDSData["SORTED"] > hourlyData.Sorted;
+                                            bool rejectedUpdated = (int)mpeIDSData["REJECTED"] > hourlyData.Rejected;
+                                            bool countUpdated = (int)mpeIDSData["INDUCTED"] > hourlyData.Count;
+
+                                            if (sortedUpdated || rejectedUpdated || countUpdated)
                                             {
-                                                if (h.Sorted != (int)mpeData["SORTED"])
+                                                if (sortedUpdated)
                                                 {
-                                                    h.Sorted = (int)mpeData["SORTED"];
-                                                    pushDBUpdate = true;
+                                                    hourlyData.Sorted = (int)mpeIDSData["SORTED"];
                                                 }
 
-                                                if (h.Rejected != (int)mpeData["REJECTED"])
+                                                if (rejectedUpdated)
                                                 {
-                                                    h.Rejected = (int)mpeData["REJECTED"];
-                                                    pushDBUpdate = true;
-                                                }
-                                                if (h.Count != (int)mpeData["INDUCTED"])
-                                                {
-                                                    h.Count = (int)mpeData["INDUCTED"];
-                                                    pushDBUpdate = true;
+                                                    hourlyData.Rejected = (int)mpeIDSData["REJECTED"];
                                                 }
 
-                                            });
+                                                if (countUpdated)
+                                                {
+                                                    hourlyData.Count = (int)mpeIDSData["INDUCTED"];
+                                                }
+
+                                                pushDBUpdate = true;
+                                            }
                                         }
                                         else
                                         {
                                             geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
                                             {
                                                 Hour = hr,
-                                                Sorted = (int)mpeData["SORTED"],
-                                                Rejected = (int)mpeData["REJECTED"],
-                                                Count = (int)mpeData["INDUCTED"]
+                                                Sorted = (int)mpeIDSData["SORTED"],
+                                                Rejected = (int)mpeIDSData["REJECTED"],
+                                                Count = (int)mpeIDSData["INDUCTED"]
                                             });
                                             pushDBUpdate = true;
                                         }
                                     }
                                     else
                                     {
-                                        if (geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).Any())
-                                        {
-                                            geoZone.Properties.MPERunPerformance.HourlyData.Where(h => h.Hour == hr).ToList().ForEach(h =>
-                                            {
-                                                h.Sorted = 0;
-                                                h.Rejected = 0;
-                                                h.Count = 0;
-                                            });
-                                        }
-                                        else
+                                        var hourlyData = geoZone.Properties.MPERunPerformance.HourlyData.FirstOrDefault(h => h.Hour == hr);
+                                        if (hourlyData == null)
                                         {
                                             geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
                                             {
