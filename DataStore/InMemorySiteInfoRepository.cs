@@ -105,7 +105,7 @@ namespace EIR_9209_2.DataStore
             }
         }
 
-        public DateTime GetCurrentTimeInTimeZone(DateTime currentTime)
+        public async Task<DateTime> GetCurrentTimeInTimeZone(DateTime currentTime)
         {
             string timeZoneId = "";
             try
@@ -161,27 +161,27 @@ namespace EIR_9209_2.DataStore
             }
         }
 
-        private static readonly Dictionary<string, string> CustomTimeZoneMappings = new Dictionary<string, string>
-                {
-                    { "EST", "America/New_York" },
-                    { "CST", "America/Chicago" },
-                    { "MST", "America/Denver" },
-                    { "PST", "America/Los_Angeles" },
-                    { "AKST", "America/Anchorage" },
-                    { "HST", "Pacific/Honolulu" },
-                    { "EST1", "America/New_York" },
-                       { "EST2", "America/New_York" },
-                    { "CST1", "America/Chicago" },
-                      { "CST2", "America/Chicago" },
-                    { "MST1", "America/Denver" },
-                    { "MST2","America/Denver"},
-                    { "PST1", "America/Los_Angeles" },
-                     { "PST2", "America/Los_Angeles" },
-                    { "AKST1", "America/Anchorage" },
-                    { "AKST2", "America/Anchorage" },
-                    { "HST1", "Pacific/Honolulu" },
-                      { "HST2", "Pacific/Honolulu" }
-        };
+        private static readonly Dictionary<string, string> CustomTimeZoneMappings = new()
+        {
+            { "EST", "America/New_York" },
+            { "CST", "America/Chicago" },
+            { "MST", "America/Denver" },
+            { "PST", "America/Los_Angeles" },
+            { "AKST", "America/Anchorage" },
+            { "HST", "Pacific/Honolulu" },
+            { "EST1", "America/New_York" },
+            { "EST2", "America/New_York" },
+            { "CST1", "America/Chicago" },
+            { "CST2", "America/Chicago" },
+            { "MST1", "America/Denver" },
+            { "MST2","America/Denver"},
+            { "PST1", "America/Los_Angeles" },
+            { "PST2", "America/Los_Angeles" },
+            { "AKST1", "America/Anchorage" },
+            { "AKST2", "America/Anchorage" },
+            { "HST1", "Pacific/Honolulu" },
+            { "HST2", "Pacific/Honolulu" }
+            };
     }
 
 }

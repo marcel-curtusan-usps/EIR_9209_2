@@ -167,6 +167,8 @@
 
 	<ItemGroup>
 		<Folder Include="Properties\PublishProfiles\" />
+		<Folder Include="wwwroot\DockDoor\Content\" />
+		<Folder Include="wwwroot\DockDoor\Scripts\" />
 		<Folder Include="wwwroot\images\" />
 	</ItemGroup>
 

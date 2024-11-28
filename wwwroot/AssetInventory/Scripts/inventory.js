@@ -7,7 +7,7 @@ $(function () {
             document.title = data.displayName;
             $('span[id=sitename]').text(data.displayName);
             $('span[id=moddatedisplay]').text(data.displayName);
-            if (/^(Admin|OIE)/i.test(data.Role)) {
+            if (/^(Admin|Maintenance|OIE)/i.test(data.Role)) {
                 $('div[id=cardInventory]').css('display', 'block');
             }
         })

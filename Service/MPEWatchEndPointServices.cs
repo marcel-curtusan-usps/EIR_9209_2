@@ -288,7 +288,7 @@ namespace EIR_9209_2.Service
         public class mpeWatchHourlyData
         {
             [JsonProperty("hour")]
-            public string Hour { get; set; } = "";
+            public DateTime Hour { get; set; } = DateTime.MinValue;
 
             [JsonProperty("count")]
             public int Count { get; set; } = 0;

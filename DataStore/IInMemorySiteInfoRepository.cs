@@ -9,7 +9,7 @@ namespace EIR_9209_2.DataStore
         void Update(SiteInformation site);
         SiteInformation Get(string id);
         Task<SiteInformation> GetSiteInfo();
-        DateTime GetCurrentTimeInTimeZone(DateTime now);
+        Task<DateTime> GetCurrentTimeInTimeZone(DateTime now);
         Task<bool> ResetSiteInfoList();
         Task<bool> SetupSiteInfoList();
     }

@@ -236,7 +236,7 @@ async function LoadDockDoorTable(data) {
             $("<a/>").attr({ target: "_blank", href: data.externalUrl, style: 'color:white;' }).html("View").appendTo($('span[name=doorview]'));
         }
         else {
-            $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + 'Dockdoor/Dockdoor.aspx?DockDoor=' + data.doorNumber, style: 'color:white;' }).html("View").appendTo($('span[name=doorview]'));
+            $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/Dockdoor/Dockdoor.aspx?DockDoor=' + data.doorNumber, style: 'color:white;' }).html("View").appendTo($('span[name=doorview]'));
         }
         let dataArray = [];
         $.each(data, function (key) {

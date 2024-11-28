@@ -401,7 +401,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     var mpe = _geoZoneList.Where(r => r.Value.Properties.Name == area && r.Value.Properties.Type == "MPE").Select(y => y.Value.Properties).FirstOrDefault();
                     if (mpe != null)
                     {
-                        List<DateTime>? hoursInMpeDateTime = mpe.MPERunPerformance?.HourlyData.Select(x => DateTime.Parse(x.Hour, CultureInfo.CurrentCulture, DateTimeStyles.None)).ToList();
+                        List<DateTime>? hoursInMpeDateTime = mpe.MPERunPerformance?.HourlyData.Select(x => x.Hour).ToList();
                         if (!_mpeSummary.ContainsKey(area))
                         {
                             _mpeSummary.TryAdd(area, new Dictionary<DateTime, MPESummary>());
@@ -447,9 +447,9 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             //    standardPiecseFeed = AR.Hourlydata.Where(r => r.Hour == hour).FirstOrDefault()?.Count ?? 0;
             //    standardStaffHrs = AR.Hourlydata.Where(r => r.Hour == hour).FirstOrDefault()?.StaffCount ?? 0;
             //}
-            var piecesCountThisHour = mpe.HourlyData.Where(r => r.Hour == hour).FirstOrDefault()?.Count;
-            var piecesSortedThisHour = mpe.HourlyData.Where(r => r.Hour == hour).FirstOrDefault()?.Sorted;
-            var piecesRejectedThisHour = mpe.HourlyData.Where(r => r.Hour == hour).FirstOrDefault()?.Rejected;
+            var piecesCountThisHour = mpe.HourlyData.Where(r => r.Hour == Dateandhour).FirstOrDefault()?.Count;
+            var piecesSortedThisHour = mpe.HourlyData.Where(r => r.Hour == Dateandhour).FirstOrDefault()?.Sorted;
+            var piecesRejectedThisHour = mpe.HourlyData.Where(r => r.Hour == Dateandhour).FirstOrDefault()?.Rejected;
             var actualYieldcal = 0.0;
             var laborHrs = new Dictionary<string, double>();
             var laborCounts = new Dictionary<string, int>();
@@ -471,9 +471,9 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 
                 var clerkAndMailHandlerCountThisHour = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds) / (1000 * 60 * 60);
                 actualYieldcal = piecesForYield != null && clerkAndMailHandlerCountThisHour > 0 ? piecesForYield.Value / clerkAndMailHandlerCountThisHour : 0.0;
-                if (mpe.HourlyData.Where(r => r.Hour == hour).Select(y => y.Count).Any())
+                if (mpe.HourlyData.Where(r => r.Hour == Dateandhour).Select(y => y.Count).Any())
                 {
-                    actualYieldcal = mpe.HourlyData.Where(r => r.Hour == hour).Select(y => y.Count).First() / (entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds) / (1000 * 60 * 60));
+                    actualYieldcal = mpe.HourlyData.Where(r => r.Hour == Dateandhour).Select(y => y.Count).First() / (entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds) / (1000 * 60 * 60));
                 }
                 laborHrs = entriesThisArea.GroupBy(e => e.Type).ToDictionary(g => g.Key, g => g.Sum(e => e.DwellTimeDurationInArea.TotalMilliseconds));
                 laborCounts = entriesThisArea.GroupBy(e => e.Type).ToDictionary(g => g.Key, g => g.Count());
@@ -755,7 +755,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 mpe.MpeId = string.Concat(mpe.MpeType, "-", mpe.MpeNumber.ToString().PadLeft(3, '0'));
                 DateTime CurrentRunEnd = (!string.IsNullOrEmpty(mpe.CurrentRunEnd) && mpe.CurrentRunEnd != "0")
               ? DateTime.ParseExact(mpe.CurrentRunEnd, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
-              : _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
+              : await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                 //if mpename not in MPE list add it
                 if (!_MPENameList.Contains(mpe.MpeId))
                 {
@@ -767,13 +767,14 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 int.TryParse(mpe.TotSortplanVol, out int TotSortplanVol);
 
                 double RpgEstimatedHrs = 0;
+                DateTime currentTime = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                 DateTime RpgEstimatedCompletion = DateTime.MinValue;
                 if (string.IsNullOrEmpty(mpe.CurrentRunEnd) || mpe.CurrentRunEnd == "0")
                 {
                     if (CurThruputOphr > 0 && RpgEstVol > 0)
                     {
                         RpgEstimatedHrs = ((double)RpgEstVol - (double)TotSortplanVol) / (double)CurThruputOphr;
-                        RpgEstimatedCompletion = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now).AddHours(RpgEstimatedHrs);
+                        RpgEstimatedCompletion = currentTime.AddHours(RpgEstimatedHrs);
                     }
                 }
                 int NextOperationId = 0;
@@ -859,7 +860,6 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                             geoZone.Properties.MPERunPerformance.CurOperationId = mpe.CurOperationId;
                             pushUIUpdate = true;
                         }
-
                         if (geoZone.Properties.MPERunPerformance.UnplanMaintSpStatus != mpe.UnplanMaintSpStatus)
                         {
                             geoZone.Properties.MPERunPerformance.UnplanMaintSpStatus = mpe.UnplanMaintSpStatus;
@@ -926,6 +926,60 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                             pushUIUpdate = true;
                         }
                     }
+                    /// <summary>
+                    /// Processes hourly data for each hour in the last 240 hours.
+                    /// </summary>
+                    /// <param name="hourslist">List of hours to process.</param>
+                    /// <param name="result">The JToken result containing IDS data.</param>
+                    /// <param name="mpeName">The name of the MPE to process.</param>
+                    /// <param name="geoZone">The GeoZone object to update.</param>
+                    /// <param name="pushUIUpdate">Flag indicating whether to push updates to the UI.</param>
+                    List<DateTime> hourslist = await GetListOfHours(240);
+                    if (hourslist != null)
+                    {
+                        foreach (DateTime hr in hourslist)
+                        {
+                            var mpeWatchData = mpe.HourlyData.FirstOrDefault(item => item.Hour== hr);
+                            if (mpeWatchData != null)
+                            {
+                                var hourlyData = geoZone.Properties.MPERunPerformance.HourlyData.FirstOrDefault(h => h.Hour == hr);
+                                if (hourlyData != null)
+                                {
+                                    bool countUpdated = mpeWatchData.Count > hourlyData.Count;
+                                    if (countUpdated)
+                                    {
+                                        hourlyData.Count = mpeWatchData.Count;
+                                        pushUIUpdate = true;
+                                    }
+                                }
+                                else
+                                {
+                                    geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
+                                    {
+                                        Hour = hr,
+                                        Count = mpeWatchData.Count
+                                    });
+                                    pushUIUpdate = true;
+                                }
+                            }
+                            else
+                            {
+                                var hourlyData = geoZone.Properties.MPERunPerformance.HourlyData.FirstOrDefault(h => h.Hour == hr);
+                                if (hourlyData == null)
+                                {
+                                    geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
+                                    {
+                                        Hour = hr
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                    //This line of code ensures that only the HourlyData records with hours present in the hourslist
+                    //are retained in the HourlyData list of the MPERunPerformance property of a GeoZone object. All other records are removed.
+                    //This is useful for maintaining a clean and relevant dataset by discarding outdated or unnecessary data.
+                    geoZone.Properties.MPERunPerformance.HourlyData.RemoveAll(h => !hourslist.Contains(h.Hour));
                     if (pushUIUpdate)
                     {
                         await _hubServices.Clients.Group(geoZone.Properties.Type).SendAsync($"update{geoZone.Properties.Type}zoneRunPerformance", geoZone.Properties.MPERunPerformance);
@@ -999,6 +1053,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     {
         try
         {
+            List<DateTime> hourslist = await GetListOfHours(240);
             // Check if result contains MPE_NAME
             if (result.Type == JTokenType.Array && result.Any(item => item["MPE_NAME"] != null))
             {
@@ -1059,12 +1114,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                             /// <param name="mpeName">The name of the MPE to process.</param>
                             /// <param name="geoZone">The GeoZone object to update.</param>
                             /// <param name="pushDBUpdate">Flag indicating whether to push updates to the database.</param>
-                            List<string> hourslist = GetListOfHours(240);
+                         
                             if (hourslist != null)
                             {
-                                foreach (string hr in hourslist)
+                                foreach (DateTime hr in hourslist)
                                 {
-                                    var mpeIDSData = result.FirstOrDefault(item => item["MPE_NAME"]?.ToString() == mpeName && item["HOUR"]?.ToString() == hr);
+                                    var mpeIDSData = result.FirstOrDefault(item => item["MPE_NAME"]?.ToString() == mpeName && item["HOUR"]?.ToString() == hr.ToString("yyyy-MM-dd HH:mm"));
                                     if (mpeIDSData != null)
                                     {
                                         var hourlyData = geoZone.Properties.MPERunPerformance.HourlyData.FirstOrDefault(h => h.Hour == hr);
@@ -1114,14 +1169,17 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                                             geoZone.Properties.MPERunPerformance.HourlyData.Add(new HourlyData
                                             {
                                                 Hour = hr,
-                                                Sorted = 0,
-                                                Rejected = 0,
-                                                Count = 0
                                             });
                                         }
                                     }
                                 }
                             }
+
+                            //This line of code ensures that only the HourlyData records with hours present in the hourslist
+                            //are retained in the HourlyData list of the MPERunPerformance property of a GeoZone object. All other records are removed.
+                            //This is useful for maintaining a clean and relevant dataset by discarding outdated or unnecessary data.
+                            geoZone.Properties.MPERunPerformance.HourlyData.RemoveAll(h => !hourslist.Contains(h.Hour));
+
                         }
                     }
                     if (pushDBUpdate)
@@ -1146,21 +1204,27 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
         finally
         {
+           
             _ = Task.Run(() => RunMPESummaryReport()).ConfigureAwait(false);
         }
     }
 
-    private List<string> GetListOfHours(int hours)
+    private async Task<List<DateTime>> GetListOfHours(int hours)
     {
         try
         {
-            var localTime = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
-            return Enumerable.Range(0, hours).Select(i => localTime.AddHours(-hours).AddHours(i).ToString("yyyy-MM-dd HH:00")).ToList();
+            var currentTime = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
+            var localTime = new DateTime(currentTime.Year, currentTime.Month, currentTime.Day, currentTime.Hour, 0, 0);
+
+            return Enumerable.Range(0, hours)
+                             .Select(i => localTime.AddHours(-hours + i))
+                             .OrderByDescending(dt => dt)
+                             .ToList();
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Error Processing hour");
-            return null;
+            return [DateTime.MinValue];
         }
 
     }
@@ -1179,7 +1243,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                           : DateTime.MinValue;
                 DateTime CurrentRunEnd = (!string.IsNullOrEmpty(mpe.CurrentRunEnd) && mpe.CurrentRunEnd != "0")
                  ? DateTime.ParseExact(mpe.CurrentRunEnd, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
-                 : _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
+                 : await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                 string mpe_id = string.Concat(mpe.MpeId, @"_", new DateTime(CurrentRunStart.Year, CurrentRunStart.Month, CurrentRunStart.Day, CurrentRunStart.Hour, CurrentRunStart.Minute, 0, 0).ToString(""));
 
                 int.TryParse(mpe.MpeNumber, out int MpeNum);
@@ -1603,7 +1667,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     {
                         if (item.ContainsKey("routeTripId"))
                         {
-                            updateDockDoorUI = UpdateGeoZoneProperties(item, DockDoorZone);
+                            updateDockDoorUI = await UpdateGeoZoneProperties(item, DockDoorZone);
                         }
                         else
                         {
@@ -1635,7 +1699,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 
 
     }
-    private bool UpdateGeoZoneProperties(JObject item, GeoZoneDockDoor geoZone)
+    private async Task<bool> UpdateGeoZoneProperties(JObject item, GeoZoneDockDoor geoZone)
     {
         bool updateUI = false;
 
@@ -1665,7 +1729,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         updateUI |= UpdateProperty(item, "status", ref status, true);
         updateUI |= UpdateProperty(item, "scheduledDtm", ref scheduledDtm, true, GetSVDate);
         // Calculate tripMin from scheduledDtm
-        var newTripMin = GetTripMin(scheduledDtm);
+        var newTripMin = await GetTripMin(scheduledDtm);
 
         // Check if tripMin has changed
         if (tripMin != newTripMin)
@@ -1753,11 +1817,11 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
 
     }
-    private int GetTripMin(DateTime tripDtm)
+    private async Task<int> GetTripMin(DateTime tripDtm)
     {
         try
         {
-            return (int)Math.Ceiling(tripDtm.Subtract(GetDTMNow()).TotalMinutes);
+            return (int)Math.Ceiling(tripDtm.Subtract(await GetDTMNow()).TotalMinutes);
         }
         catch (Exception e)
         {
@@ -1766,11 +1830,11 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
 
     }
-    private DateTime GetDTMNow()
+    private async Task<DateTime> GetDTMNow()
     {
         try
         {
-            return _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
+            return await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
         }
         catch (Exception e)
         {

@@ -28,7 +28,7 @@ namespace EIR_9209_2.Service
                 if (siteinfo != null)
                 {
                     IQueryService queryService;
-                    var now = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
+                    var now = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                     string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
                     string FormatUrl = string.Format(_endpointConfig.Url, server, siteinfo.FinanceNumber, now.ToString("yyyyMMdd"));
                     queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(

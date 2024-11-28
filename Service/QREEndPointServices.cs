@@ -39,7 +39,7 @@ namespace EIR_9209_2.Service
                         FormatUrl = string.Format(_endpointConfig.Url, server);
                         queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
 
-                        var now = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
+                        var now = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                         var endingHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
                         var startingHour = endingHour.AddHours(-1 * _endpointConfig.HoursBack);
                         var currentHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
@@ -111,7 +111,7 @@ namespace EIR_9209_2.Service
                         FormatUrl = string.Format(_endpointConfig.Url,server);
                         queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
 
-                        var now = _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
+                        var now = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                         var endingHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
                         var hourBack = _endpointConfig.HoursBack;
                         var startingHour = endingHour.AddHours(-1 * _endpointConfig.HoursBack);

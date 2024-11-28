@@ -141,18 +141,18 @@ function createLoadMPEHourData(tourNumber,targets,mpedata) {
         const hourTarget = targets.find(target => target.targetHour === tourhours[i]);
         let curtDayandHour = ""
         if (tourNumber === 1) {
-            curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + " " + tourhours[i];
+            curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + "T" + tourhours[i] + ":00";
             const tempHourMPE = mpedata.hourlyData.find(hourlyData => hourlyData.hour.endsWith(curtDayandHour));
             if (tempHourMPE === undefined) {
-                curtDayandHour = currentTime.minus({ day: 1 }).toFormat('yyyy-MM-dd') + " " + tourhours[i];
+                curtDayandHour = currentTime.minus({ day: 1 }).toFormat('yyyy-MM-dd') + "T" + tourhours[i] + ":00";
             }
             else {
-                curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + " " + tourhours[i];
+                curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + "T" + tourhours[i] + ":00";
             }
 
         }
         else {
-            curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + " " + tourhours[i];
+            curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + "T" + tourhours[i] + ":00";
         }
 
         const hourMPE = mpedata.hourlyData.find(hourlyData => hourlyData.hour.endsWith(curtDayandHour));
@@ -211,18 +211,18 @@ function createLoadMPERejectHourData(tourNumber, targets, mpedata) {
         const hourTarget = targets.find(target => target.targetHour === tourhours[i]);
         let curtDayandHour = ""
         if (tourNumber === 1) {
-            curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + " " + tourhours[i];
+            curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + "T" + tourhours[i] + ":00";
             const tempHourMPE = mpedata.hourlyData.find(hourlyData => hourlyData.hour.endsWith(curtDayandHour));
             if (tempHourMPE === undefined) {
-                curtDayandHour = currentTime.minus({ day: 1 }).toFormat('yyyy-MM-dd') + " " + tourhours[i];
+                curtDayandHour = currentTime.minus({ day: 1 }).toFormat('yyyy-MM-dd') + "T" + tourhours[i] + ":00";
             }
             else {
-                curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + " " + tourhours[i];
+                curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + "T" + tourhours[i] + ":00";
             }
 
         }
         else {
-            curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + " " + tourhours[i];
+            curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + "T" + tourhours[i] + ":00";
         }
 
         const hourMPE = mpedata.hourlyData.find(hourlyData => hourlyData.hour.endsWith(curtDayandHour));

@@ -314,7 +314,7 @@ async function init_geoZoneMPE() {
             connection.invoke("JoinGroup", "MPETartgets").catch(function (err) {
                 return console.error(err.toString());
             });
-            if (/^(admin)/i.test(appData.Role)) {
+            if (/^(Admin|Maintenance|OIE)/i.test(appData.Role)) {
                 $('button[name=machineinfoedit]').off().on('click', function () {
                     /* close the sidebar */
                     sidebar.close();
@@ -500,7 +500,7 @@ async function loadMachineData(data, table) {
         $('div[id=ctstabs_div]').css('display', 'block');
         $('div[id=machineChart_tr]').css('display', 'none');
         $('button[name=machineinfoedit]').attr('id', data.id);
-        if (/^(Admin|Maintenance)/i.test(appData.Role)) {
+        if (/^(Admin|Maintenance|OIE)/i.test(appData.Role)) {
             $('button[name=machineinfoedit]').css('display', 'block');
         }
         $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPE/default.html?MPEStatus=' + data.name, style: 'color:white;' }).html("View").appendTo($('span[name=mpeview]'));
@@ -509,9 +509,6 @@ async function loadMachineData(data, table) {
         if (data.mpeGroup !== '') {
             $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPESDO/MPESDO.html?MPEGroupName=' + mpeData.mpeGroup, style: 'color:white;' }).html("SDO View").appendTo($('span[name=mpeSDO]'));
         }
-
-     
-            
         if (/machinetable/i.test(table)) {
             $('div[id=dps_div]').css('display', 'none');
             let machinetop_Table = $('table[id=' + table + ']');
