@@ -26,7 +26,7 @@ $(function () {
         Promise.all([loadcheckin_outModal("in")]);
         
     });
-    $('button[id=checkoutbtn]').off().on('click', function () {
+    $('button[id=addInventorybtn]').off().on('click', function () {
         /* close the sidebar */
 
         Promise.all([loadcheckin_outModal("out")]);
@@ -60,7 +60,7 @@ async function loadcheckin_outModal(type) {
         $('div[id=notesContainer]').css('display', 'block');
         $('button[id=assetModalsubmit]').text('Check-In');
     }
-    $('#assetModal').modal('show');
+    $('#checkIn-OutAssetModal').modal('show');
 }
 
 function createInventoryDataTable(table) {

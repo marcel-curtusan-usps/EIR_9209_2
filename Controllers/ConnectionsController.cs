@@ -25,7 +25,7 @@ namespace EIR_9209_2.Controllers
         // GET: api/<Connection>
         [HttpGet]
         [Route("AllConnection")]
-        public async Task<object> GetByAllConnection()
+        public async Task<ActionResult> GetByAllConnection()
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -42,14 +42,14 @@ namespace EIR_9209_2.Controllers
         // GET api/<Connection>/5
         [HttpGet]
         [Route("ConnectionId")]
-        public object GetByConnectionId(string id)
+        public async Task<ActionResult> GetByConnectionId(string id)
         {
             //handle bad requests
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            return Ok(_connectionRepository.Get(id));
+            return Ok(await _connectionRepository.Get(id));
         }
 
         // POST api/<Connection>
@@ -60,7 +60,7 @@ namespace EIR_9209_2.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Add")]
-        public async Task<object> PostAddConnection([FromBody] JObject value)
+        public async Task<ActionResult> PostAddConnection([FromBody] JObject value)
         {
             try
             {
@@ -107,7 +107,7 @@ namespace EIR_9209_2.Controllers
         // POST api/<Connection>
         [HttpPost]
         [Route("Update")]
-        public object PostUpdateConnection([FromBody] JObject value)
+        public async Task<ActionResult> PostUpdateConnection([FromBody] JObject value)
         {
             try
             {
@@ -117,7 +117,7 @@ namespace EIR_9209_2.Controllers
                     return BadRequest(ModelState);
                 }
                 var connectionToUpdate = value.ToObject<Connection>();
-                if (_worker.UpdateEndpoint(connectionToUpdate))
+                if (await _worker.UpdateEndpoint(connectionToUpdate))
                 {
                     return Ok();
                 }
@@ -140,7 +140,7 @@ namespace EIR_9209_2.Controllers
         // DELETE api/<Connection>/5
         [HttpDelete]
         [Route("Delete")]
-        public async Task<object> Delete(string id)
+        public async Task<ActionResult> Delete(string id)
         {
             try
             {
@@ -149,9 +149,9 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var connection = _connectionRepository.Get(id);
+                var connection = await _connectionRepository.Get(id);
                 connection.ActiveConnection = false;
-                if (_worker.UpdateEndpoint(connection))
+                if (await _worker.UpdateEndpoint(connection))
                 {
                     var conn = await _connectionRepository.Remove(id);
                     if (conn != null && _worker.RemoveEndpoint(connection))
@@ -162,7 +162,7 @@ namespace EIR_9209_2.Controllers
                 }
                 else
                 {
-                    return new JObject { ["Message"] = $"Connection Id:{id} was not Found" };
+                    return BadRequest(new JObject { ["Message"] = $"Connection Id:{id} was not Found" });
                 }
             }
             catch (Exception e)

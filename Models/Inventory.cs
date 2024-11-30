@@ -23,5 +23,5 @@ public class Inventory
     public DateTime CreateDateTime { get; set; }
     [JsonProperty("moddifyDateTime")]
     public DateTime ModifyDateTime { get; set; }
-
+    public DateTime CreatedDate { get; internal set; }
 }

@@ -3,7 +3,7 @@
 public interface IInMemoryConnectionRepository
 {
     //Connection 
-    Connection Get(string id);
+    Task<Connection> Get(string id);
     Task<Connection> Add(Connection connection);
     Task<Connection> Remove(string connectionId);
     Task<Connection> Update(Connection connection);

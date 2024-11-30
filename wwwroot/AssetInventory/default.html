@@ -38,9 +38,18 @@
                             <div class="col-sm-4" id="cardInventory" style="display:none;">
                                 <div class="card border-warning">
                                     <div class="card-body">
-                                        <button type="button" class="btn btn-warning float-end" id="inventorybtn">Check Out</button>
-                                        <h5 class="card-title">Inventory</h5>
-                                        <p class="card-text fs-3" id="totalInvetory"></p>
+                                        <div class="row">
+                                            <div class="col">
+                                                <h5 class="card-title">Inventory Available</h5>
+                                                <p class="card-text fs-3" id="totalInvetory"></p>
+                                            </div>
+                                            <div class="col">
+                                                <button type="button" class="btn btn-success float-end" id="addInventorybtn">Add Inventory</button>
+                                            </div>
+                                            <div class="col">
+                                                <button type="button" class="btn btn-success float-end" id="addInventoryCategorybtn">Add Category</button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -129,7 +138,7 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="assetModal" tabindex="-1" aria-labelledby="assetModalLabel" aria-hidden="true">
+        <div class="modal fade" id="checkInOutAssetModal" tabindex="-1" aria-labelledby="assetModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">

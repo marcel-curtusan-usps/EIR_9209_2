@@ -106,7 +106,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         }
 
     }
-    public Connection Get(string id)
+    public async Task<Connection?> Get(string id)
     {
         _connectionList.TryGetValue(id, out Connection connection);
         return connection;

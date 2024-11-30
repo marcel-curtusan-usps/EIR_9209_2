@@ -137,11 +137,11 @@ namespace EIR_9209_2.Service
                 return false;
             }
         }
-        public bool UpdateEndpoint(Connection updateConfig)
+        public async Task<bool> UpdateEndpoint(Connection updateConfig)
         {
             if (_endPointServices.TryGetValue(updateConfig.Id, out var endpointService))
             {
-                endpointService.Update(updateConfig);
+             await endpointService.Update(updateConfig);
 
                 _logger.LogInformation("Updated Configuration for endpoint {Id}", updateConfig.Id);
                 return true;
@@ -161,7 +161,7 @@ namespace EIR_9209_2.Service
                     if (_endPointServices.TryGetValue(endpoint.Id, out var endpointService))
                     {
                         endpoint.ActiveConnection = false;
-                        if (UpdateEndpoint(endpoint))
+                        if (await UpdateEndpoint(endpoint))
                         {
                             RemoveEndpoint(endpoint);
                         } 
