@@ -31,8 +31,8 @@ namespace EIR_9209_2.Service
                 {
                     var geoZones = await _geoZones.GetGeoZonebyName("MPE", "SIPS|ADUS|SDUS");
                     var geoZonesArray = geoZones as JArray;
-                    var rejectBins = geoZonesArray?.Select(gz => gz["properties"]["rejectBins"]).FirstOrDefault();
-                    if (rejectBins != null)
+                    var rejectBins = geoZonesArray?.Where(gz => gz["properties"]["rejectBins"].ToString() != "").Select(gz => gz["properties"]["rejectBins"]).FirstOrDefault()?.ToString();
+                    if (rejectBins != null && rejectBins != "")
                     {
                         data["rejectBins"] = rejectBins;
                     }

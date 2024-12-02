@@ -2,13 +2,14 @@
 --          = Count(*) - (INDUCTNUMBER = 0) + (VCSDESKID = 1)
 -- EPPS INDUCTED = Total - No Induction#
 --          = Count(*) - INDUCTNUMBER = 0
+-- 11/27/2024 Reject by Inventory_Map REJ, Rework, Manual label bin
 SELECT
     MPE_NAME,
     HR
-    ||':00'          AS HOUR,
-    0 AS SORTED,
-    0 AS REJECTED,
-    NVL(INDUCTED, 0) AS INDUCTED
+    ||':00'                         AS HOUR,
+    NVL(SORTED, 0)                  AS SORTED,
+    NVL(REJECTED, 0)                AS REJECTED,
+    NVL(SORTED, 0)+NVL(REJECTED, 0) AS INDUCTED
 FROM
     (
         SELECT
@@ -18,44 +19,51 @@ FROM
             SUM(S.COUNT) AS "TOTAL"
         FROM
             (
-                SELECT /*+ PARALLEL(A, 16)*/
+                SELECT /*+ PARALLEL(A, 32)*/
                     L.MPE_NAME,
                     (
                         CASE
-                            WHEN L.MPE_TYPE='EPPS' AND A.INDUCTNUMBER != 0 THEN
-                                'Inducted'
-                            WHEN L.MPE_TYPE='APPS' AND (A.INDUCTNUMBER != 0 OR A.VCSDESKID = 1) THEN
-                                'Inducted'
-                            ELSE
+                            WHEN L.MPE_TYPE='EPPS' AND A.INDUCTNUMBER = 0 THEN
                                 'PreScanned'
+                            WHEN L.MPE_TYPE='APPS' AND A.INDUCTNUMBER = 0 THEN
+                                'PreScanned'
+                            WHEN UPPER(I.DEST_DISPLAY_TEXT) LIKE '%REJ%' OR UPPER(I.DEST_DISPLAY_TEXT) LIKE '%REWORK%' OR UPPER(I.DEST_DISPLAY_TEXT) LIKE '%MANUAL%' OR I.DEST_DISPLAY_TEXT IS NULL THEN
+                                'Rejected'
+                            ELSE
+                                'Sorted'
                         END)AS                                RESULT,
                     TO_CHAR(A.DATA_DATE, 'yyyy-mm-dd hh24') AS HR,
                     COUNT(*)                                AS COUNT
                 FROM
-                    DCSDBA.APPSMP   A,
-                    DCSDBA.MPE_LIST L
+                    DCSDBA.APPSMP        A,
+                    DCSDBA.MPE_LIST      L,
+                    DCSDBA.INVENTORY_MAP I
                 WHERE
-                    A.MPE_ID IN (
+                    A.CHANGE_DATE>= TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24
+                    AND A.CHANGE_DATE< TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24 +(:ENDHOUR)/24
+                    AND A.MPE_ID IN (
                         SELECT
                             MPE_ID
                         FROM
                             DCSDBA.MPE_LIST
                         WHERE
-                            MPE_TYPE IN ('APPS','EPPS')
+                            MPE_TYPE IN ('APPS', 'EPPS')
                     )
-                    AND A.DATA_DATE>= TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24
-                    AND A.DATA_DATE< TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24 +(:ENDHOUR)/24
                     AND A.MPE_ID = L.MPE_ID
+                    AND A.SORTPLAN_ID = I.SORTPLAN_ID
+                    AND A.POCKETNUM = I.POCKET_NUM
                 GROUP BY
                     L.MPE_NAME,
                     (
                         CASE
-                            WHEN L.MPE_TYPE='EPPS' AND A.INDUCTNUMBER != 0 THEN
-                                'Inducted'
-                            WHEN L.MPE_TYPE='APPS' AND (A.INDUCTNUMBER != 0 OR A.VCSDESKID = 1) THEN
-                                'Inducted'
-                            ELSE
+                            WHEN L.MPE_TYPE='EPPS' AND A.INDUCTNUMBER = 0 THEN
                                 'PreScanned'
+                            WHEN L.MPE_TYPE='APPS' AND (A.INDUCTNUMBER = 0) THEN
+                                'PreScanned'
+                            WHEN UPPER(I.DEST_DISPLAY_TEXT) LIKE '%REJ%' OR UPPER(I.DEST_DISPLAY_TEXT) LIKE '%REWORK%' OR UPPER(I.DEST_DISPLAY_TEXT) LIKE '%MANUAL%' OR I.DEST_DISPLAY_TEXT IS NULL THEN
+                                'Rejected'
+                            ELSE
+                                'Sorted'
                         END),
                     TO_CHAR(A.DATA_DATE, 'yyyy-mm-dd hh24')
                 ORDER BY

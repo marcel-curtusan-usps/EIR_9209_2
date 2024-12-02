@@ -207,7 +207,7 @@ async function buildDataTable(data) {
             tabledataObject = {
                 "order": 3,
                 "Name": "Throughput",
-                "Planned": data.expectedThroughput,
+                "Planned": data.rpgExpectedThruput,
                 "Actual": data.curThruputOphr,
             }
             dataArray.push(tabledataObject);
