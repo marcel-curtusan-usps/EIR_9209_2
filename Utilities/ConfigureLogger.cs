@@ -21,7 +21,7 @@ namespace EIR_9209_2.Utilities
 #if DEBUG
                 configuration = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", true, true)
+                    .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? ""}.json", true, true)
                     .Build();
 #else
                 configuration = new ConfigurationBuilder()
