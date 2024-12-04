@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Configuration;
 
 namespace EIR_9209_2.DataStore
 {
@@ -15,12 +16,16 @@ namespace EIR_9209_2.DataStore
             _fileService = fileService;
             _logger = logger;
             _configuration = configuration;
+#if DEBUG
+            fileName = $"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? ""}.json";
 
+#endif
         }
         public async Task<bool> Update(string key, string value)
         {
             try
             {
+
                 // Read data from file
                 var fileContent = await _fileService.ReadFileFromRoot(fileName,"");
                 if (!string.IsNullOrEmpty(fileContent))

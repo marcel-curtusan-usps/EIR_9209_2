@@ -17,11 +17,18 @@ namespace EIR_9209_2.Utilities
             var logFilePath = Helper.GetLogFilePath();
             try
             {
+               
+#if DEBUG
+                configuration = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", true, true)
+                    .Build();
+#else
                 configuration = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json", false, true)
-                    .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", true, true)
                     .Build();
+#endif
             }
             catch (Exception e)
             {
