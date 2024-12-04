@@ -1214,7 +1214,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         try
         {
             var currentTime = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
-            var localTime = new DateTime(currentTime.Year, currentTime.Month, currentTime.Day, currentTime.Hour, 0, 0);
+            var localTime = new DateTime(currentTime.Year, currentTime.Month, currentTime.Day, (currentTime.Hour + 1), 0, 0);
 
             return Enumerable.Range(0, hours)
                              .Select(i => localTime.AddHours(-hours + i))
