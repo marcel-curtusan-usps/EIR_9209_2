@@ -140,7 +140,7 @@ function createLoadMPEHourData(tourNumber,targets,mpedata) {
     for (let i = 0; i < tourhours.length; i++) {
         const hourTarget = targets.find(target => target.targetHour === tourhours[i]);
         let curtDayandHour = ""
-        if (tourNumber === 1) {
+        if (tourNumber === 1 && !new RegExp('^(00|01|02|03|04|05|06|07|08)').test(tourhours[i])) {
             curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + "T" + tourhours[i] + ":00";
             const tempHourMPE = mpedata.hourlyData.find(hourlyData => hourlyData.hour.endsWith(curtDayandHour));
             if (tempHourMPE === undefined) {
@@ -210,7 +210,7 @@ function createLoadMPERejectHourData(tourNumber, targets, mpedata) {
     for (let i = 0; i < tourhours.length; i++) {
         const hourTarget = targets.find(target => target.targetHour === tourhours[i]);
         let curtDayandHour = ""
-        if (tourNumber === 1) {
+        if (tourNumber === 1 && !new RegExp('^(00|01|02|03|04|05|06|07|08)').test(tourhours[i])) {
             curtDayandHour = currentTime.toFormat('yyyy-MM-dd') + "T" + tourhours[i] + ":00";
             const tempHourMPE = mpedata.hourlyData.find(hourlyData => hourlyData.hour.endsWith(curtDayandHour));
             if (tempHourMPE === undefined) {
