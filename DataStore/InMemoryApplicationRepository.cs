@@ -21,7 +21,7 @@ namespace EIR_9209_2.DataStore
 
 #endif
         }
-        public async Task<bool> Update(string key, string value)
+        public async Task<bool> Update(string key, string value, string section)
         {
             try
             {
@@ -31,7 +31,7 @@ namespace EIR_9209_2.DataStore
                 if (!string.IsNullOrEmpty(fileContent))
                 {
                     var jsonObj = JObject.Parse(fileContent);
-                    var appSettingsSection = jsonObj["ApplicationConfiguration"];
+                    var appSettingsSection = jsonObj[section];
                     appSettingsSection[key] = value;
                     await _fileService.WriteFileInRoot(fileName,"", JsonConvert.SerializeObject(jsonObj, Formatting.Indented));
                     return true;

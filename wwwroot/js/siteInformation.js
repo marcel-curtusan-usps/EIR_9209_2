@@ -45,15 +45,15 @@ async function init_SiteInformation() {
     });
 }
 function createSiteInfoDataTable(table) {
-    let arrayColums = [{
-        "KEY_NAME": "",
-        "VALUE": ""
-    }]
+    let arrayColumns = {
+        "displayName": "",
+        "value": ""
+    }
     let columns = [];
     let tempc = {};
-    $.each(arrayColums[0], function (key) {
+    $.each(arrayColumns, function (key) {
         tempc = {};
-        if (/KEY_NAME/i.test(key)) {
+        if (/displayName/i.test(key)) {
             tempc = {
                 "title": 'Name',
                 "width": "30%",
@@ -61,7 +61,7 @@ function createSiteInfoDataTable(table) {
             }
         }
         //else if (/VALUE/i.test(key)) {
-        else if (/VALUE/i.test(key)) {
+        else if (/value/i.test(key)) {
             tempc = {
                 "title": "Value",
                 "width": "50%",
@@ -109,7 +109,7 @@ function updateSiteInfoDataTable(newdata, table) {
         $('#' + table).DataTable().rows(function (idx, data, node) {
             loadnew = false;
             for (const element of newdata) {
-                if (data.KEY_NAME === element.KEY_NAME) {
+                if (data.value === element.value) {
                     $('#' + table).DataTable().row(node).data(element).draw().invalidate();
                 }
             }
@@ -119,40 +119,16 @@ function updateSiteInfoDataTable(newdata, table) {
         }
     }
 }
-function formatSiteInfodata(result) {
-    let reformatdata = [];
-    try {
-        for (let key in result) {
-            if (result.hasOwnProperty(key) && key !== "tours" && key !== "nassCode") {
-                let temp = {
-                    "KEY_NAME": "",
-                    "VALUE": ""
-                };
-                temp['KEY_NAME'] = key;
-                temp['VALUE'] = result[key];
-                reformatdata.push(temp);
-            }
-            //check if the key is an object
-            if (typeof result[key] === 'object') {
-                let tours = result[key];
-                for (let key in tours) {
-                    if (tours.hasOwnProperty(key) && key !== "siteId") {
-                        let temp = {
-                            "KEY_NAME": "",
-                            "VALUE": ""
-                        };
-                        temp['KEY_NAME'] = key;
-                        temp['VALUE'] = tours[key];
-                        reformatdata.push(temp);
-                    }
-                }
-            }
-           
+function formatSiteInfodata(data) {
+    let reformattedData = [];
+    for (let key in data) {
+        if (data.hasOwnProperty(key)) {
+            reformattedData.push({
+                displayName: insertSpaceBeforeCapitalLetters(key),
+                name: key,
+                value: data[key]
+            });
         }
-
-    } catch (e) {
-        throw new Error(e.toString());
     }
-
-    return reformatdata;
+    return reformattedData;
 }

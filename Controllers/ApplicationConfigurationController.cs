@@ -86,6 +86,48 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(e.Message);
             }
         }
+        [HttpGet]
+        [Route("UserRole")]
+        public async Task<ActionResult> GetByConfigurationRoleGroups()
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
+                var appUserRole = await GetConfigurationRoleGroups();
+
+                return Ok(appUserRole);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
+
+        private async Task<object> GetConfigurationRoleGroups()
+        {
+            try
+            {
+                Dictionary<string, string?> userRoleValues = [];
+                var applicationUserRole = _configuration.GetSection("UserRole");
+                if (applicationUserRole.Exists())
+                {
+                    foreach (var setting in applicationUserRole.GetChildren())
+                    {
+                        userRoleValues.Add(setting.Key, setting.Value);
+                    }
+                }
+                return userRoleValues;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
+        }
 
         private async Task<object> GetConfigurationSetting()
         {
@@ -195,7 +237,7 @@ namespace EIR_9209_2.Controllers
 
                             if (await _resetApplication.Reset())
                             {
-                                if (await _application.Update(NassCode.Key, NassCode.Value))
+                                if (await _application.Update(NassCode.Key, NassCode.Value, "ApplicationConfiguration"))
                                 {
                                     _logger.LogInformation($"NASS Code have been update {nassCodeValue}");
                                 }
@@ -224,7 +266,7 @@ namespace EIR_9209_2.Controllers
 
                                     if (await _resetApplication.Reset())
                                     {
-                                        if (await _application.Update(NassCode.Key, NassCode.Value))
+                                        if (await _application.Update(NassCode.Key, NassCode.Value, "ApplicationConfiguration"))
                                         {
                                             bool SetupResult = await _resetApplication.Setup();
                                         }                                       
@@ -247,7 +289,7 @@ namespace EIR_9209_2.Controllers
                         var currentValue = value.Properties().First(p => Regex.IsMatch(p.Name.ToString(), "IdsConnectionString", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Value.ToString();
                         var ConnectionString = applicationSettings.GetSection("IdsConnectionString");
                         ConnectionString.Value = _encryptDecrypt.Encrypt(currentValue);
-                        if (await _application.Update(ConnectionString.Key, ConnectionString.Value))
+                        if (await _application.Update(ConnectionString.Key, ConnectionString.Value, "ApplicationConfiguration"))
                         {
                             _logger.LogInformation($"IDS Connection String drive have been update {ConnectionString.Value}");
 
@@ -258,7 +300,7 @@ namespace EIR_9209_2.Controllers
                         var currentBaseDriveValue = value.Properties().First(p => Regex.IsMatch(p.Name, "BaseDrive", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Value.ToString();
                         var BaseDrive = applicationSettings.GetSection("BaseDrive");
                         BaseDrive.Value = currentBaseDriveValue;
-                        if (await _application.Update(BaseDrive.Key, BaseDrive.Value))
+                        if (await _application.Update(BaseDrive.Key, BaseDrive.Value, "ApplicationConfiguration"))
                         {
                             _logger.LogInformation($"Base drive have been update {BaseDrive.Value}");
 
@@ -266,6 +308,55 @@ namespace EIR_9209_2.Controllers
                     }
                     await _hubContext.Clients.Group("ApplicationConfiguration").SendAsync($"updateApplicationConfiguration",await GetConfigurationSetting(), cancellationToken: CancellationToken.None);
                     return Ok();
+
+                }
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        // PUT api/<SiteConfigurationController>/5
+        [HttpPut]
+        [Route("UpdateUserRole")]
+        public async Task<object> PostByUpdateUserRole([FromBody] JObject appUserRole)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
+                // Example: Update a specific configuration setting
+                var applicationUserRole = _configuration.GetSection("UserRole");
+
+                if (applicationUserRole.Exists())
+                {
+                    foreach (var userRole in applicationUserRole.GetChildren())
+                    {
+                        var matchingProperty = appUserRole.Properties().FirstOrDefault(p => p.Name.Equals(userRole.Key, StringComparison.OrdinalIgnoreCase));
+                        if (matchingProperty != null)
+                        {
+                            // Handle the matching key
+                            var newValue = matchingProperty.Value.ToString().Trim();
+                            if (userRole.Value != newValue)
+                            {
+                                userRole.Value = newValue;
+                            }
+                            if (await _application.Update(userRole.Key, userRole.Value, "UserRole"))
+                            {
+                                await _hubContext.Clients.Group("ApplicationRoleGroups").SendAsync($"updateApplicationRoleGroups", await GetConfigurationRoleGroups(), cancellationToken: CancellationToken.None);
+                            }
+                        }
+                    }
+                    return Ok(await GetConfigurationRoleGroups());
 
                 }
                 return BadRequest();

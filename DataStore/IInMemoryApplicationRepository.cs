@@ -2,6 +2,6 @@
 {
     public interface IInMemoryApplicationRepository
     {
-        Task<bool> Update(string key, string value);
+        Task<bool> Update(string key, string value, string section);
     }
 }

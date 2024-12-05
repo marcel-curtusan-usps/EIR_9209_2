@@ -727,6 +727,42 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="AppRoleGroupsValueModal" tabindex="-1" role="dialog" style="z-index: 12000;" data-backdrop="static" aria-labelledby="AppSetting_value_Modal_Label">
+        <div class="modal-dialog" style="max-width: 50%;">
+            <div class="modal-content bg-white">
+                <div class="modal-header">
+                    <div class="col-11">
+                        <h4 class="modal-title" id="approlegroupsmodalHeader"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="roleNameId" class="col-form-label">Attribute:</label>
+                                    <input class="form-control" disabled="disabled" id="roleNameId" />
+                                </div>
+                            </div>
+                            <div class="form-group row valuediv">
+                                <div class="col">
+                                    <label for="modalroleValue" class="col-form-label">Value:</label>
+                                    <input class="form-control" id="roleValue" />
+                                    <span class="text-info" id="error_roleValue"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary float-right" type="button" data-bs-dismiss="modal" aria-label="Close">Close</button>
+                    <div class="col text-center"><span class="text-info" id="error_approlegroupsbtn"></span></div>
+                    <button class=" btn btn-primary float-right" type="button" id="approlegroupsbtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="modal fade" id="ConnectionType_value_Modal" tabindex="-1" role="dialog" style="z-index: 12000;" data-backdrop="static">
         <div class="modal-dialog" style="max-width: 50%;">
@@ -1603,7 +1639,7 @@
                     <div class="row">
                         <div class="form-group col-md-4">
                             <label for="crsKioskName" class="control-label">Name</label>
-                            <input id="crsioskName" type="text" class="form-control"/>
+                            <input id="crsioskName" type="text" class="form-control" />
                             <span id="errorCrsKioskName" class="text-danger"></span>
                         </div>
                         <div class="form-group col-md-4">
@@ -2833,6 +2869,21 @@
                     </div>
                     <div class="card w-100">
                         <div class="card-header pl-1 d-flex justify-content-between">
+                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">User Role Groups</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive fixedHeader variableHeight">
+                                <table aria-describedby="" class="table table-sm table-hover mb-1 border-bottom" id="app_roleGroupsTable">
+                                    <thead class="table-dark">
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card w-100">
+                        <div class="card-header pl-1 d-flex justify-content-between">
                             <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Email Subscription</h6>
                             <button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem" name="addEmail" onclick="Add_Email()" title="Add New Email">Add</button>
                         </div>
@@ -3116,6 +3167,7 @@
     <script src="../js/default.js"></script>
     <script src="../js/geoman.js"></script>
     <script src="../js/applicationConfiguration.js"></script>
+    <script src="../js/applicationRoleGroups.js"></script>
     <script src="../js/siteInformation.js"></script>
     <script src="../js/connections.js"></script>
     <script src="../js/connectionTypes.js"></script>

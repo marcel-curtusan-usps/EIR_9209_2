@@ -1,4 +1,4 @@
-﻿let AppTable = "app_settingtable"
+﻿let AppRoleTable = "app_roleGroupsTable"
 
 $('#AppSetting_value_Modal').on('hidden.bs.modal', function () {
     $(this)
@@ -43,10 +43,11 @@ $('#AppSetting_value_Modal').on('shown.bs.modal', function () {
         }
     });
 });
-connection.on("updateApplicationConfiguration", async (data) => {
+connection.on("updateApplicationRoleGroups", async (data) => {
     try {
         return new Promise((resolve, reject) => {
-            Promise.all([updateAppSettingDataTable(formatSettingData(data), AppTable)]);
+        
+            Promise.all([updateAppRoleGroupsDataTable(formatRoledata(data), AppRoleTable)]);
             resolve();
             return false;
         });
@@ -54,20 +55,20 @@ connection.on("updateApplicationConfiguration", async (data) => {
         throw new Error(e.toString());
     }
 });
-async function init_applicationConfiguration() {
+async function init_applicationRoleGroups() {
     return new Promise((resolve, reject) => {
         try {
-            createAppSettingDataTable(AppTable);
-            fetch('../api/ApplicationConfiguration/Setting')
+            createAppRoleGroupsDataTable(AppRoleTable);
+            fetch('../api/ApplicationConfiguration/UserRole')
                 .then(response => response.json())
                 .then(data => {
-                    loadAppSettingDatatable(formatSettingData(data), AppTable);
+                    loadAppRoleGroupsDatatable(formatRoledata(data), AppRoleTable);
                 })
                 .catch(error => {
                     console.error('Error:', error);
                 });
             ////get data from application configuration controller
-            connection.invoke("JoinGroup", "ApplicationConfiguration").catch(function (err) {
+            connection.invoke("JoinGroup", "ApplicationRoleGroups").catch(function (err) {
                 return console.error(err.toString());
             });
             resolve();
@@ -75,86 +76,83 @@ async function init_applicationConfiguration() {
         } catch (e) {
             throw new Error(e.toString());
             reject();
+            return false;
         }
     });
 }
-//app setting
-function Edit_AppSetting_Value(Data) {
+//app RoleGroups
+function Edit_AppRoleGroupsValue(roleData) {
     $('.valuediv').css("display", "block");
     $('.timezonediv').css("display", "none");
     $('.value_row_toggle').css("display", "none");
-    $('#appsettingvaluemodalHeader').text('Edit ' + Data.name + ' Setting');
-    $('input[id=modalKeyID]').val(Data.name);
-    $('input[id=modalValueID]').val(Data.value);
-    if (/TIMEZONE/i.test(Data.name)) {
-        fotfmanager.server.getTimeZone().done(function (data) {
-            $('.valuediv').css("display", "none");
-            $('.timezonediv').css("display", "block");
-            $('#timezoneValueID').empty();
-            $('<option/>').val("").appendTo('#timezoneValueID');
-            $.each(data, function () {
-                $('<option/>').val(this).html(this).appendTo('#timezoneValueID');
-            })
-            $('#timezoneValueID').val(value);
-        })
-    }
-    if (/^(LOG_API_DATA|LOCAL_PROJECT_DATA|REMOTEDB|SERVER_ACTIVE)/i.test(Data.name)) {
-        $('.valuediv').css("display", "none");
-        $('.value_row_toggle').css("display", "block");
-        if (/True/i.test(Data.VALUE)) {
-            $('input[type=checkbox][name="appsetting_value"]').prop('checked', true).change();
-            $('#modalValueID').val('true');
-        }
-        //else if (/False/i.test(Data.VALUE)) {
-        if (/False/i.test(Data.VALUE)) {
-            $('input[type=checkbox][name="appsetting_value"]').prop('checked', false).change();
-            $('#modalValueID').val('false');
-        }
-    }
+    $('#approlegroupsmodalHeader').text('Edit ' + roleData.displayName + ' Role Group');
+    $('input[id=roleNameId]').val(roleData.name);
+    $('input[id=roleValue]').val(roleData.value);
 
-    $('button[id=appsettingvalue]').off().on('click', function () {
-        $('button[id=appsettingvalue]').prop('disabled', true);
+    $('button[id=approlegroupsbtn]').off().on('click', function () {
+        $('button[id=approlegroupsbtn]').prop('disabled', true);
         let jsonObject = {};
-        if (/TIMEZONE/i.test(Data.name)) {
-            jsonObject[Data.name] = $("#timezoneValueID option:selected").val();
-        }
-        else {
-            jsonObject[Data.name] = $('input[id=modalValueID]').val();
-        }
+   
+        jsonObject[roleData.name] = $('input[id=roleValue]').val();
+        
         if (!$.isEmptyObject(jsonObject)) {
-            $.ajax({
-                url: SiteURLconstructor(window.location) + '/api/ApplicationConfiguration/Update',
-                data: JSON.stringify(jsonObject),
-                contentType: 'application/json',
-                type: 'POST',
-                success: function (data) {
-                    $('span[id=error_appsettingvalue]').text("Data has been updated");
-                    connection.invoke("GetApplicationInfo").then(function (data) {
-                        appData = JSON.parse(data);
-                        Promise.all([updateOSLattribution(appData)]);
-                    });
-                },
-                error: function (error) {
-                    $('span[id=error_appsettingvalue]').text(error);
-                    $('button[id=apisubmitBtn]').prop('disabled', false);
-                    //console.log(error);
-                },
-                faulure: function (fail) {
-                    console.log(fail);
-                },
-                complete: function (complete) {
 
+            // Make a fetch call to add the inventory
+            fetch(`../api/ApplicationConfiguration/UpdateUserRole`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonObject)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(successdata => {
+                    $('span[id=error_approlegroupsbtn]').text("Data has been updated");
                     setTimeout(function () {
-                        $("#AppSetting_value_Modal").modal('hide');
+                        $("#AppRoleGroupsValueModal").modal('hide');
+                        $('button[id=approlegroupsbtn]').prop('disabled', false);
+                        updateAppRoleGroupsDataTable(formatRoledata(successdata) , AppRoleTable);
+                    }, 500);
+                })
+                .catch(error => {
+                    $('span[id=error_approlegroupsbtn]').text(error);
+                    $('button[id=approlegroupsbtn]').prop('disabled', false);
+                    console.log(error);
+                });
+            //$.ajax({
+            //    url: SiteURLconstructor(window.location) + '/api/ApplicationConfiguration/Update',
+            //    data: JSON.stringify(jsonObject),
+            //    contentType: 'application/json',
+            //    type: 'POST',
+            //    success: function (data) {
+            //        $('span[id=error_approlegroupsbtn]').text("Data has been updated");
+            //    },
+            //    error: function (error) {
+            //        $('span[id=error_approlegroupsbtn]').text(error);
+            //        $('button[id=approlegroupsbtn]').prop('disabled', false);
+            //        //console.log(error);
+            //    },
+            //    faulure: function (fail) {
+            //        console.log(fail);
+            //    },
+            //    complete: function (complete) {
 
-                    }, 800);
-                }
-            });
+            //        setTimeout(function () {
+            //            $("#AppSetting_value_Modal").modal('hide');
+
+            //        }, 800);
+            //    }
+            //});
         }
     });
-    $('#AppSetting_value_Modal').modal('show');
+    $('#AppRoleGroupsValueModal').modal('show');
 }
-function createAppSettingDataTable(table) {
+function createAppRoleGroupsDataTable(table) {
     let arrayColumns = {
         "displayName": "",
         "value": "",
@@ -162,7 +160,6 @@ function createAppSettingDataTable(table) {
     }
     let columns = [];
     let tempc = {};
-    //$.each(arrayColums[0], function (key, value) {
     $.each(arrayColumns, function (key) {
         tempc = {};
         if (/displayName/i.test(key)) {
@@ -181,7 +178,7 @@ function createAppSettingDataTable(table) {
             }
         }
         //else if (/Action/i.test(key)) {
-        else if (/action/i.test(key)) {
+        else if (/Action/i.test(key)) {
             tempc = {
                 "title": "Action",
                 "width": "10%",
@@ -225,29 +222,54 @@ function createAppSettingDataTable(table) {
         let table = $(td).closest('table');
         let row = $(table).DataTable().row(td.closest('tr'));
         if (/editappsetting/ig.test(this.name)) {
-            Edit_AppSetting_Value(row.data());
+
+            Edit_AppRoleGroupsValue(row.data());
         }
     });
 }
-function loadAppSettingDatatable(data, table) {
-    if ($.fn.dataTable.isDataTable("#" + table)) {
-        $('#' + table).DataTable().rows.add(data).draw();
+async function loadAppRoleGroupsDatatable(data, table) {
+    try {
+        return new Promise((resolve, reject) => {
+            if ($.fn.dataTable.isDataTable("#" + table)) {
+                $('#' + table).DataTable().rows.add(data).draw();
+            }
+            resolve();
+            return true;
+        });
+    } catch (e) {
+        throw new Error(e.toString());
+        reject();
+        return false;
     }
 }
-function updateAppSettingDataTable(newdata, table) {
-    if ($.fn.dataTable.isDataTable("#" + table)) {
-        $('#' + table).DataTable().rows(function (idx, data, node) {
-            
-            for (const element of newdata) {
-                if (data.name.toLowerCase() === element.name.toLowerCase()) {
-                    if (data.value !== element.value) {
-                        $('#' + table).DataTable().row(node).data(element).draw().invalidate();
+function updateAppRoleGroupsDataTable(newdata, table) {
+    try {
+        return new Promise((resolve, reject) => {
+            let loadnew = true;
+            if ($.fn.dataTable.isDataTable("#" + table)) {
+                $('#' + table).DataTable().rows(function (idx, data, node) {
+
+                    loadnew = false;
+                    for (const element of newdata) {
+                        if (data.name === element.name) {
+                            if (data.value !== element.value) {
+                                $('#' + table).DataTable().row(node).data(element).draw().invalidate();
+                            }
+                        }
                     }
+                });
+                if (loadnew) {
+                    loadAppSettingsDataTable([newdata], table);
                 }
             }
-        })
+            resolve();
+            return false;
+        });
+    } catch (e) {
+        throw new Error(e.toString());
     }
 }
+
 function Get_value(Data) {
     try {
         if (/^(True)$|^(False)$/i.test(Data.VALUE)) {
@@ -267,7 +289,7 @@ function Get_value(Data) {
         console.error(e.toString());
     }
 }
-function formatSettingData(data) {
+function formatRoledata(data) {
     let reformattedData = [];
     for (let key in data) {
         if (data.hasOwnProperty(key)) {
@@ -279,4 +301,25 @@ function formatSettingData(data) {
         }
     }
     return reformattedData;
+}
+function formatdata(result) {
+    let reformatdata = [];
+    try {
+        for (let key in result) {
+            if (result.hasOwnProperty(key)) {
+                let temp = {
+                    "KEY_NAME": "",
+                    "VALUE": ""
+                };
+                temp['KEY_NAME'] = key;
+                temp['VALUE'] = result[key];
+                reformatdata.push(temp);
+            }
+        }
+
+    } catch (e) {
+        console.log(e);
+    }
+
+    return reformatdata;
 }

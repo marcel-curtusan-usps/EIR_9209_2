@@ -113,7 +113,10 @@ async function createDacodetocrafttypeDataTable(table) {
                     tempc = {
                         "title": "Craft Type",
                         "width": "50%",
-                        "mDataProp": key
+                        "mDataProp": key,
+                        "mRender": function (data, full) {
+                            return insertSpaceBeforeCapitalLetters(data);
+                        }
                     }
                 }
                 if (/Action/i.test(key)) {
@@ -132,7 +135,7 @@ async function createDacodetocrafttypeDataTable(table) {
                 columns.push(tempc);
 
             });
-            let DacodetocrafttypeTable = $('#' + table).DataTable({
+           $('#' + table).DataTable({
                 dom: 'Bfrtip',
                 bFilter: false,
                 bdeferRender: true,
