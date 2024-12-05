@@ -1,4 +1,4 @@
-﻿@import url('../../css/bootstrap-icons.css');
+﻿
 @import url('../../lib/bootstrap/dist/css/bootstrap.css');
 @import url('../../lib/bootstrap/dist/css/bootstrap.rtl.css');
 @import url('../../lib/bootstrap/dist/css/bootstrap-grid.css');
@@ -17,6 +17,7 @@ body {
 .table-container {
     margin-top: 20px;
 }
+
 .custom-btn-height {
     height: calc(2 * 2rem) !important; /* 2 times the default button height */
     display: flex !important;
