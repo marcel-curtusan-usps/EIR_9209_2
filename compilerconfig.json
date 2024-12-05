@@ -30,5 +30,9 @@
   {
     "outputFile": "wwwroot/AssetInventory/Content/inventory.css",
     "inputFile": "wwwroot/AssetInventory/Content/inventory.scss"
+  },
+  {
+    "outputFile": "wwwroot/AssetInventory/Content/mangeAssets.css",
+    "inputFile": "wwwroot/AssetInventory/Content/mangeAssets.scss"
   }
 ]

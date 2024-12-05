@@ -11,9 +11,10 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class InventoryController(ILogger<InventoryController> logger, IInMemoryInventoryRepository inventory,IHubContext<HubServices> hubContext) : ControllerBase
+    public class InventoryController(ILogger<InventoryController> logger, IInMemoryInventoryRepository inventory, IInMemorySiteInfoRepository siteInfo, IHubContext<HubServices> hubContext) : ControllerBase
     {
         private readonly ILogger<InventoryController> _logger = logger;
+        private readonly IInMemorySiteInfoRepository _siteInfo = siteInfo;
         private readonly IInMemoryInventoryRepository _inventory = inventory;
         private readonly IHubContext<HubServices> _hubContext = hubContext;
         // GET: api/<InventoryController>
@@ -96,7 +97,7 @@ namespace EIR_9209_2.Controllers
                 Inventory inventoryItem = value.ToObject<Inventory>();
                 //add the connection id
                 inventoryItem.Id = Guid.NewGuid().ToString();
-                inventoryItem.CreatedDate = DateTime.Now;
+                inventoryItem.CreateDateTime = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now); 
                 //add to the connection repository
                 var addInventoryItem = await _inventory.Add(inventoryItem);
                 if (addInventoryItem != null)
@@ -130,7 +131,7 @@ namespace EIR_9209_2.Controllers
                 InventoryCategory inventoryCategoryItem = value.ToObject<InventoryCategory>();
                 //add the connection id
                 inventoryCategoryItem.Id = Guid.NewGuid().ToString();
-                inventoryCategoryItem.CreatedDate = DateTime.Now;
+                inventoryCategoryItem.CreatedDate = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                 //add to the connection repository
                 var addInventoryCategoryItem = await _inventory.AddCategory(inventoryCategoryItem);
                 if (addInventoryCategoryItem != null)
@@ -164,7 +165,7 @@ namespace EIR_9209_2.Controllers
                 InventoryTracking inventoryTrackingItem = value.ToObject<InventoryTracking>();
                 //add the connection id
                 inventoryTrackingItem.Id = Guid.NewGuid().ToString();
-                inventoryTrackingItem.CreatedDate = DateTime.Now;
+                inventoryTrackingItem.CreatedDate = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                 //add to the connection repository
                 var addInventoryTrackingItem = await _inventory.AddTracking(inventoryTrackingItem);
                 if (addInventoryTrackingItem != null)
@@ -195,11 +196,12 @@ namespace EIR_9209_2.Controllers
                     return BadRequest(ModelState);
                 }
                 var inventoryItem = value.ToObject<Inventory>();
+                inventoryItem.ModifyDateTime = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                 var inventoryItemToUpdate = await _inventory.Update(inventoryItem);
                 if (inventoryItemToUpdate !=null)
                 {
                     await _hubContext.Clients.Group("Inventory").SendAsync("UpdateInventory", inventoryItem);
-                    return Ok();
+                    return Ok(inventoryItemToUpdate);
                 }
                 else
                 {
@@ -288,7 +290,7 @@ namespace EIR_9209_2.Controllers
                 if (inventoryDelete != null)
                 {
                     await _hubContext.Clients.Group("Inventory").SendAsync("DeleteInventory", id);
-                    return Ok();
+                    return Ok(inventoryDelete);
                 }
                 else
                 {

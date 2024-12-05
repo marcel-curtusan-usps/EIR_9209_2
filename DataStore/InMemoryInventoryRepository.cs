@@ -238,8 +238,12 @@ namespace EIR_9209_2.DataStore
             {
                 if (_inventoryList.TryGetValue(inventoryItem.Id, out Inventory? currentInventoryItem) && _inventoryList.TryUpdate(inventoryItem.Id, inventoryItem, currentInventoryItem))
                 {
-                    saveToFile = true;
-                    return currentInventoryItem;
+                    if (_inventoryList.TryGetValue(inventoryItem.Id, out Inventory inven))
+                    {
+                        saveToFile = true;
+                        return inven;
+                    }
+                    return null;
                 }
                 else
                 {

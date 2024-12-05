@@ -172,6 +172,11 @@
       "provider": "cdnjs",
       "library": "datatables.net-responsive@3.0.3",
       "destination": "wwwroot/lib/datatables.net-responsive/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "qrcodejs@1.0.0",
+      "destination": "wwwroot/lib/qrcodejs/"
     }
   ]
 }

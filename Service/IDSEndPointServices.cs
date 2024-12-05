@@ -1,9 +1,7 @@
 ﻿using EIR_9209_2.DatabaseCalls.IDS;
-using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
 using NuGet.Protocol;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EIR_9209_2.Service
 {

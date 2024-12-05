@@ -1,11 +1,12 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Site Assets</title>
-    <link href="Content/inventory.css" rel="stylesheet" />
-    <script src="../lib/qrcodejs/qrcode.js"></script>
+    <title>Assets Inventory</title>
+    <link href="Content/mangeAssets.css" rel="stylesheet" />
+    <link href="../css/bootstrap-icons.min.css" rel="stylesheet" />
+
 </head>
 <body>
     <div class="container-fluid">
@@ -20,39 +21,23 @@
                     </div>
                     <div class="card-body p-0 ">
                         <div class="row g-4 justify-content-center">
-                            <div class="col-sm-4">
-                                <div class="card border-primary">
-                                    <div class="card-body p-0">
-                                        <button type="button" class="btn btn-success w-100 custom-btn-height" id="checkinbtn">Check In</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-4">
-                                <div class="card border-success">
-                                    <div class="card-body p-0">
-                                        <div class="row m-0">
-                                            <div class="col p-0">
-                                                <button type="button" class="btn btn-warning w-100 custom-btn-height" id="checkoutbtn">Check Out  <p class="card-text fs-3" id="outCount"></p></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="col-sm-4" id="cardInventory" style="display:none;">
                                 <div class="card border-warning">
-                                    <div class="card-body p-0">
-                                        <div class="row m-0">
-                                            <div class="col p-0">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col">
                                                 <h5 class="card-title">Items Available</h5>
                                                 <p class="card-text fs-3" id="totalInvetory"></p>
                                             </div>
-                                            <div class="col p-0">
-                                                <a target="_blank" href="/AssetInventory/manageAssets.html" class="btn btn-primary w-100 custom-btn-height" id="inventorybtn">Inventory</a>
+                                            <div class="col">
+                                                <button type="button" class="btn btn-success float-end" id="addInventorybtn">Add Inventory</button>
+                                            </div>
+                                            <div class="col">
+                                                <button type="button" class="btn btn-success float-end" id="addInventoryCategorybtn">Add Category</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
                             </div>
                         </div>
                     </div>
@@ -69,7 +54,7 @@
                     <div class="card-body p-0">
                         <div class="tab-content p-0">
                             <div class="table-container">
-                                <table id="assetsTable" class="table table-striped table-bordered" style="width:100%">
+                                <table id="assetsListTable" class="table table-striped table-bordered" style="width:100%">
                                     <thead class="table-dark">
                                     </thead>
                                     <tbody>
@@ -82,7 +67,31 @@
             </card-navigation>
         </div>
         <!-- Modal Section -->
-
+        <div class="modal fade" id="RemoveInventoryModal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="RemoveConfirmationModal_Label">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content bg-white">
+                    <div class="modal-header">
+                        <div class="col">
+                            <h4 class="modal-title" id="removeInventoryModalId"><span aria-hidden="true"></span></h4>
+                        </div>
+                        <button class="col-1 btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                <h4 class="remove-body"></h4>
+                                <h4 class="remove-body">Do you want to proceed ?</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
+                        <div class="col text-center"><span class="text-info " id="error_removeInventory"></span></div>
+                        <button class=" btn btn-primary float-right" type="button" id="removeInventory">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="modal fade" id="inTakeInventoryModal" tabindex="-1" aria-labelledby="inTakeInventoryModal" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
@@ -107,7 +116,7 @@
                                 <textarea class="form-control" id="itemDescription" rows="3"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label for="itemCategory" class="control-label">Report Name</label>
+                                <label for="itemCategory" class="control-label">Category Type</label>
                                 <select id="itemCategory" class="form-control pb-1">
                                     <option value=""></option>
                                 </select>
@@ -115,12 +124,12 @@
                             </div>
                             <div class="mb-3">
                                 <label for="itemBarcode" class="form-label">Barcode</label>
-                                <input type="text" class="form-control" id="ItemBarcode">
+                                <input type="text" class="form-control" id="itemBarcode">
                                 <div class="outputBarcode"></div>
                             </div>
                             <div class="mb-3">
                                 <label for="itemBleTag" class="form-label">BLE</label>
-                                <input type="text" class="form-control" id="itemBarcode">
+                                <input type="text" class="form-control" id="itemBleTag">
                             </div>
                             <div class="mb-3" id="einContainer" style="display: none;">
                                 <label for="_ein_type" class="form-label">EIN Type</label>
@@ -140,39 +149,6 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="checkInOutAssetModal" tabindex="-1" aria-labelledby="assetModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <div class="col-11">
-                            <h5 class="modal-title" id="assetModalLabel"></h5>
-                        </div>
-                        <button class="col-1 btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="assetForm">
-                            <div class="mb-3">
-                                <label for="barcode_type" class="form-label">Barcode Type</label>
-                                <input type="text" class="form-control" id="barcodeType" name="_barcode_type" required>
-                            </div>
-                            <div class="mb-3" id="einContainer" style="display: none;">
-                                <label for="_ein_type" class="form-label">EIN Type</label>
-                                <input type="text" class="form-control" id="ein" name="_ein_type" required>
-                            </div>
-                            <div class="mb-3" id="notesContainer" style="display: none;">
-                                <label for="notes" class="form-label">Notes</label>
-                                <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-outline-secondary float-start" type="button" data-bs-dismiss="modal">Close</button>
-                        <div class="col text-center"><span class="text-info" id="error_assetModal"></span></div>
-                        <button class=" btn btn-primary float-end" type="button" id="assetModalsubmit">Save</button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
     <script src="../lib/jquery/jquery.min.js"></script>
     <script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
@@ -181,7 +157,6 @@
     <script src="../lib/datatables.net-responsive/datatables.responsive.js"></script>
     <script src="../lib/datatables.net-buttons/js/datatables.buttons.js"></script>
     <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
-
-    <script src="Scripts/inventory.js"></script>
+    <script src="Scripts/mangeAssets.js"></script>
 </body>
 </html>

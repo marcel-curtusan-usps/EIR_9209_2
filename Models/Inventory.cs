@@ -19,9 +19,10 @@ public class Inventory
     public string Barcode { get; set; }
     [JsonProperty("bleTag")]
     public string BLETag { get; set; }
+    [JsonProperty("status")]
+    public string Status { get; set; }
     [JsonProperty("createDateTime")]
     public DateTime CreateDateTime { get; set; }
     [JsonProperty("moddifyDateTime")]
     public DateTime ModifyDateTime { get; set; }
-    public DateTime CreatedDate { get; internal set; }
 }
