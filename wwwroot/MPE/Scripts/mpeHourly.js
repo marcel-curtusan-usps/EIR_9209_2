@@ -9,8 +9,7 @@ let DateProvided = "";
 let tourHours = [];
 let mpeTartgets = {};
 let mpeRunData = {};
-let MPEhourlyMaxdate = null;
-let MPEhourlyMindate = null;
+let tourDates = null;
 let colHourcount = 0;
 let retryCount = 0;
 let currentTime = null;
@@ -87,14 +86,15 @@ function initializeMpeHourly() {
                 else {
                     currentTime = luxon.DateTime.local().setZone(ianaTimeZone);
                 }
-              
                 if (TourNumber > 0) {
                     $('button[id=tourNumber]').text(TourNumber);
+                    $('button[id=tourDates]').text(getTourDates(TourNumber));
                     createhourlyTargetDataTable(TourNumber);
                     createhourlyRejectDataTable(TourNumber);
                 } else
                 {
                     $('button[id=tourNumber]').text(getTour());
+                    $('button[id=tourDates]').text(tourDates);
                     createhourlyTargetDataTable(getTour());
                     createhourlyRejectDataTable(getTour());
                 }
@@ -200,6 +200,31 @@ function getTourHours(tournumber) {
         return tourhours;
     }
 }
+function getTourDates(tournumber) {
+    if (tournumber == 1) {
+        if (DateProvided != "") {
+            let currentTimetmp = currentTime;
+            currentTimetmp = currentTimetmp.plus({ days: 1 });
+            tourDates = currentTime.month + '/' + currentTime.day + ' ' + siteTours.tour1Start + ' - ' + currentTimetmp.month + '/' + currentTimetmp.day + ' ' + siteTours.tour2Start;
+        } else {
+            let tour1hour = siteTours.tour1Start.split(":")[0];
+            if (currentTime.hour >= tour1hour) {
+                let currentTimetmp = currentTime;
+                currentTimetmp = currentTimetmp.plus({ days: 1 });
+                tourDates = currentTime.month + '/' + currentTime.day + ' ' + siteTours.tour1Start + ' - ' + currentTimetmp.month + '/' + currentTimetmp.day + ' ' + siteTours.tour2Start;
+            } else {
+                let currentTimetmp = currentTime;
+                currentTimetmp = currentTimetmp.minus({ days: 1 });
+                tourDates = currentTimetmp.month + '/' + currentTimetmp.day + ' ' + siteTours.tour1Start + ' - ' + currentTime.month + '/' + currentTime.day + ' ' + siteTours.tour2Start;
+            }
+        }
+    } else if (tournumber == 2) {
+        tourDates = currentTime.month + '/' + currentTime.day + ' ' + siteTours.tour2Start + ' - ' + siteTours.tour3Start;
+    } else {
+        tourDates = currentTime.month + '/' + currentTime.day + ' ' + siteTours.tour3Start + ' - ' + siteTours.tour1Start;
+    }
+    return tourDates;
+}
 function getTour() {
     let curtour = "";
     let tourstlist = [];
@@ -210,37 +235,25 @@ function getTour() {
         }
     });
     tourstlist.sort();
-    let now = luxon.DateTime.local().setZone(ianaTimeZone);
-    let starthour = "";
-    let endhour = "";
 
+    let now = luxon.DateTime.local().setZone(ianaTimeZone);
     if (now.hour >= tourstlist[2] || now.hour < tourstlist[0]) {
         curtour = 1;
         let nowtmp = now;
         if (nowtmp.hour < tourstlist[0]) {
             nowtmp = nowtmp.minus({ hours: 24 });
-            starthour = nowtmp.year + '-' + nowtmp.month + '-' + nowtmp.day + ' ' + siteTours.tour1Start;
-            endhour = now.year + '-' + now.month + '-' + now.day + ' ' + siteTours.tour1End;
+            tourDates = nowtmp.month + '/' + nowtmp.day + ' ' + siteTours.tour1Start + ' - ' + now.month + '/' + now.day + ' ' + siteTours.tour2Start;
         } else if (nowtmp.hour >= tourstlist[2]) {
             nowtmp = nowtmp.plus({ hours: 24 });
-            starthour = now.year + '-' + now.month + '-' + now.day + ' ' + siteTours.tour1Start;
-            endhour = nowtmp.year + '-' + nowtmp.month + '-' + nowtmp.day + ' ' + siteTours.tour1End;
+            tourDates = now.month + '/' + now.day + ' ' + siteTours.tour1Start + ' - ' + nowtmp.month + '/' + nowtmp.day + ' ' + siteTours.tour2Start;
         }
     } else if (now.hour < tourstlist[1]) {
         curtour = 2;
-        //start time
-        starthour = now.year + '-' + now.month + '-' + now.day + ' ' + siteTours.tour2Start;
-        //end time
-        endhour = now.year + '-' + now.month + '-' + now.day + ' ' + siteTours.tour2End;
+        tourDates = now.month + '/' + now.day + ' ' + siteTours.tour2Start + ' - ' + siteTours.tour3Start;
     } else {
         curtour = 3;
-        //start time
-        starthour = now.year + '-' + now.month + '-' + now.day + ' ' + siteTours.tour3Start;
-        //end time
-        endhour = now.year + '-' + now.month + '-' + now.day + ' ' + siteTours.tour3End;
+        tourDates = now.month + '/' + now.day + ' ' + siteTours.tour3Start + ' - ' + siteTours.tour1Start;
     }
-    MPEhourlyMindate = luxon.DateTime.fromFormat(starthour, 'yyyy-MM-dd hh:mm', { zone: ianaTimeZone });
-    MPEhourlyMaxdate = luxon.DateTime.fromFormat(endhour, 'yyyy-MM-dd hh:mm', { zone: ianaTimeZone });
     return curtour;
 }
 
