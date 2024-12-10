@@ -31,6 +31,7 @@ $(function () {
 function createAssetsInventoryDataTable(table) {
     let arrayColums = [{
         "name": "",
+        "serialNumber": "",
         "barcode": "",
         "category": "",
         "status": "",

@@ -40,6 +40,36 @@ namespace EIR_9209_2.Controllers
         }
         // GET: api/<InventoryController>
         [HttpGet]
+        [Route("InventoryCount")]
+        public async Task<ActionResult> GetInventoryListCount()
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
+                var inventoryList = await _inventory.GetInventoryList();
+                var inventoryTrackingList = await _inventory.GetInventoryTrackingList();
+                // Assuming InventoryTracking has a property `IsCheckedOut` and `SerialNumber`
+                var checkedOutInventoryIds = inventoryTrackingList
+                    .Where(tracking => tracking.IsCheckedOut)
+                    .Select(tracking => tracking.SerialNumber)
+                    .ToHashSet();
+
+                var availableInventoryCount = inventoryList
+                    .Count(inventory => !checkedOutInventoryIds.Contains(inventory.Id));
+                var result = new { availableItems = availableInventoryCount };
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
+        // GET: api/<InventoryController>
+        [HttpGet]
         [Route("InventoryCategory")]
         public async Task<ActionResult> GetInventoryCategoryList()
         {
@@ -70,9 +100,9 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest();
                 }
-                var inventoryCategoryList = await _inventory.GetInventoryTrackingList();
+                var inventoryTrackingList = await _inventory.GetInventoryTrackingList();
 
-                return Ok(inventoryCategoryList);
+                return Ok(inventoryTrackingList);
             }
             catch (Exception e)
             {
@@ -170,6 +200,7 @@ namespace EIR_9209_2.Controllers
                 var addInventoryTrackingItem = await _inventory.AddTracking(inventoryTrackingItem);
                 if (addInventoryTrackingItem != null)
                 {
+                    await _hubContext.Clients.Group("Inventory").SendAsync("AddInventoryTracking", inventoryTrackingItem);
                     return Ok(addInventoryTrackingItem);
                 }
                 else
@@ -261,7 +292,7 @@ namespace EIR_9209_2.Controllers
                 if (trackingItemToUpdate != null)
                 {
                     await _hubContext.Clients.Group("Inventory").SendAsync("UpdateInventoryTracking", trackingItemToUpdate);
-                    return Ok();
+                    return Ok(trackingItemToUpdate);
                 }
                 else
                 {

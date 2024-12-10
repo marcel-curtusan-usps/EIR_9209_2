@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Server.IISIntegration;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
@@ -101,7 +102,7 @@ public class Startup
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Version = "1.0.0.1",
+                    Version = Helper.GetCurrentVersion(),
                     Title = $"{Helper.GetAppName()}",
                     Description = "Swagger - OpenAPI 3.0",
                     Contact = new OpenApiContact()
@@ -170,5 +171,21 @@ public class Startup
             app.UseExceptionHandler("/Error");
             app.UseHsts();
         }
+        app.ApplicationServices.GetRequiredService<IFilePathProvider>();
+        app.ApplicationServices.GetRequiredService<IFileService>();
+        app.ApplicationServices.GetRequiredService<IInMemoryApplicationRepository>();
+        app.ApplicationServices.GetRequiredService<IEncryptDecrypt>();
+        app.ApplicationServices.GetRequiredService<IInMemorySiteInfoRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryEmailRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryBackgroundImageRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryConnectionRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryDacodeRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryTagsRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryGeoZonesRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryEmployeesRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryEmployeesSchedule>();
+        app.ApplicationServices.GetRequiredService<IInMemoryCamerasRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryInventoryRepository>();
+        app.ApplicationServices.GetRequiredService<IIDS>();
     }
 }

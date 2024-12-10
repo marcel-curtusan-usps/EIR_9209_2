@@ -18,7 +18,7 @@ body {
 }
 
 .custom-btn-height {
-  height: 4rem !important; /* 2 times the default button height */
+  height: 5rem !important; /* 2 times the default button height */
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
