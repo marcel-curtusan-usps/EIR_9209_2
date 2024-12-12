@@ -44,8 +44,14 @@ FROM
                         WHERE
                             MPE_TYPE IN ('DBCS', 'CIOSS', 'DIOSS')
                     )
-                    AND B.DATA_DATE>= TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24
-                    AND B.DATA_DATE< TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24 +(:ENDHOUR)/24
+                    --AND B.DATA_DATE>= TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24
+                    --AND B.DATA_DATE< TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24 +(:ENDHOUR)/24
+                    AND B.DATA_DAY in (:DATADAYLIST)
+                    --AND (
+                    --      (:DATADAYSTART <= :DATADAYEND) AND B.DATA_DAY >= :DATADAYSTART AND B.DATA_DAY <= :DATADAYEND
+                    --      OR
+                    --      (:DATADAYSTART > :DATADAYEND) AND (B.DATA_DAY >= :DATADAYSTART OR B.DATA_DAY <= :DATADAYEND)
+                    --)
                     AND B.MPE_ID = L.MPE_ID
                 GROUP BY
                     L.MPE_NAME,

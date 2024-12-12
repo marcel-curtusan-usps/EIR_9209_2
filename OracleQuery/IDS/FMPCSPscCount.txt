@@ -49,8 +49,14 @@ FROM
                                 WHERE
                                     SOFTWARE_VERSION LIKE 'FMPCS%'
                             )
-                            AND F.DATA_DATE>= TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24
-                            AND F.DATA_DATE< TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24 +(:ENDHOUR)/24
+                            --AND F.DATA_DATE>= TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24
+                            --AND F.DATA_DATE< TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24 +(:ENDHOUR)/24
+                            AND F.DATA_DAY in (:DATADAYLIST)
+                            --AND (
+                            --    (:DATADAYSTART <= :DATADAYEND) AND F.DATA_DAY >= :DATADAYSTART AND F.DATA_DAY <= :DATADAYEND
+                            --    OR
+                            --    (:DATADAYSTART > :DATADAYEND) AND (F.DATA_DAY >= :DATADAYSTART OR F.DATA_DAY <= :DATADAYEND)
+                            --)
                             AND F.MPE_ID = L.MPE_ID
                         GROUP BY
                             L.MPE_NAME,
@@ -84,8 +90,14 @@ FROM
                                 WHERE
                                     SOFTWARE_VERSION LIKE 'FMPCS%'
                             )
-                            AND U.DATA_DATE>= TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24
-                            AND U.DATA_DATE< TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24 +(:ENDHOUR)/24
+                            --AND U.DATA_DATE>= TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24
+                            --AND U.DATA_DATE< TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24 +(:ENDHOUR)/24
+                            AND U.DATA_DAY in (:DATADAYLIST)
+                            --AND (
+                            --    (:DATADAYSTART <= :DATADAYEND) AND U.DATA_DAY >= :DATADAYSTART AND U.DATA_DAY <= :DATADAYEND
+                            --    OR
+                            --    (:DATADAYSTART > :DATADAYEND) AND (U.DATA_DAY >= :DATADAYSTART OR U.DATA_DAY <= :DATADAYEND)
+                            --)
                             AND U.MPE_ID = L.MPE_ID
                             AND TO_NUMBER(RT_OPERATIONNUM) != 0
                         GROUP BY

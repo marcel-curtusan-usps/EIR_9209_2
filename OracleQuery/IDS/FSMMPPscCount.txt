@@ -42,8 +42,14 @@ FROM
                         WHERE
                             MPE_TYPE IN ('AFSM100')
                     )
-                    AND F.DATA_DATE>= TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24
-                    AND F.DATA_DATE< TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24 +(:ENDHOUR)/24
+                    --AND F.DATA_DATE>= TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24
+                    --AND F.DATA_DATE< TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24 +(:ENDHOUR)/24
+                    AND F.DATA_DAY in (:DATADAYLIST)
+                    --AND (
+                    --      (:DATADAYSTART <= :DATADAYEND) AND F.DATA_DAY >= :DATADAYSTART AND F.DATA_DAY <= :DATADAYEND
+                    --      OR
+                    --      (:DATADAYSTART > :DATADAYEND) AND (F.DATA_DAY >= :DATADAYSTART OR F.DATA_DAY <= :DATADAYEND)
+                    --)
                     AND F.MPE_ID = L.MPE_ID
                 GROUP BY
                     L.MPE_NAME,

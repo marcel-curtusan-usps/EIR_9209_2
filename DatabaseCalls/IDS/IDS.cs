@@ -12,7 +12,8 @@ namespace EIR_9209_2.DatabaseCalls.IDS
 
         private readonly ILogger<IDS> _logger = logger;
         private readonly IConfiguration _configuration = configuration;
-        private string query = string.Empty;
+        //private string query = string.Empty;
+        //private string queryNew = string.Empty;
         private string OracleConnectionString = string.Empty;
         private JToken result = new JObject();
 
@@ -33,9 +34,24 @@ namespace EIR_9209_2.DatabaseCalls.IDS
                             string directory = Path.Combine(_configuration[key: "ApplicationConfiguration:OracleQueryDirectory"], "IDS");
                             var fileName = $"{Request_data["queryName"]?.ToString()}.txt";
 
-                            query = await _fileService.ReadFileFromRoot(fileName, directory);
+                            var query = await _fileService.ReadFileFromRoot(fileName, directory);
+                            var queryNew = "";
                             if (!string.IsNullOrEmpty(query))
                             {
+                                if (query.Contains(":DATADAYLIST") || query.Contains(":REJECTBINS"))
+                                {
+                                    string datadayList = (string)((JObject)Request_data)["datadayList"];
+                                    string rejectBins = (string)((JObject)Request_data)["rejectBins"];
+                                    if (query.Contains(":DATADAYLIST") && query.Contains(":REJECTBINS"))
+                                    {
+                                        queryNew = query.Replace(":DATADAYLIST", datadayList).Replace(":REJECTBINS", rejectBins);
+                                    } 
+                                    else
+                                    {
+                                        queryNew = query.Replace(":DATADAYLIST", datadayList);
+                                    }
+                                    query = queryNew;
+                                }
                                 using (OracleConnection connection = new OracleConnection(_encryptDecrypt.Decrypt(OracleConnectionString)))
                                 {
                                     using (OracleCommand command = new OracleCommand(query, connection))
@@ -65,24 +81,34 @@ namespace EIR_9209_2.DatabaseCalls.IDS
                                                     ((JObject)Request_data)["startDate"]?.Replace(new JValue(startDate));
                                                 }
                                             }
-                                            if (((JObject)Request_data).ContainsKey("startHour") && ((JObject)Request_data).Type != JTokenType.Integer)
-                                            {
-                                                int startHour = (int)Request_data["startHour"];
-                                                Request_data["startHour"]?.Replace(new JValue(startHour));
+                                            //if (((JObject)Request_data).ContainsKey("startHour") && ((JObject)Request_data).Type != JTokenType.Integer)
+                                            //{
+                                            //    int startHour = (int)Request_data["startHour"];
+                                            //    Request_data["startHour"]?.Replace(new JValue(startHour));
 
-                                            }
-                                            if (((JObject)Request_data).ContainsKey("endHour") && ((JObject)Request_data).Type != JTokenType.Integer)
-                                            {
-                                                int startHour = (int)((JObject)Request_data)["endHour"];
-                                                ((JObject)Request_data)["endHour"].Replace(new JValue(startHour));
+                                            //}
+                                            //if (((JObject)Request_data).ContainsKey("endHour") && ((JObject)Request_data).Type != JTokenType.Integer)
+                                            //{
+                                            //    int startHour = (int)((JObject)Request_data)["endHour"];
+                                            //    ((JObject)Request_data)["endHour"].Replace(new JValue(startHour));
 
-                                            }
-                                            if (((JObject)Request_data).ContainsKey("rejectBins") && ((JObject)Request_data).Type != JTokenType.String)
-                                            {
-                                                string rejectBins = (string)((JObject)Request_data)["rejectBins"];
-                                                ((JObject)Request_data)["rejectBins"].Replace(new JValue(rejectBins));
+                                            //}
+                                            //if (((JObject)Request_data).ContainsKey("datadayStart") && ((JObject)Request_data).Type != JTokenType.Integer)
+                                            //{
+                                            //    int datadayStart = (int)Request_data["datadayStart"];
+                                            //    Request_data["datadayStart"]?.Replace(new JValue(datadayStart));
+                                            //}
+                                            //if (((JObject)Request_data).ContainsKey("datadayEnd") && ((JObject)Request_data).Type != JTokenType.Integer)
+                                            //{
+                                            //    int datadayEnd = (int)Request_data["datadayEnd"];
+                                            //    Request_data["datadayEnd"]?.Replace(new JValue(datadayEnd));
+                                            //}
+                                            //if (((JObject)Request_data).ContainsKey("rejectBins") && ((JObject)Request_data).Type != JTokenType.String)
+                                            //{
+                                            //    string rejectBins = (string)((JObject)Request_data)["rejectBins"];
+                                            //    ((JObject)Request_data)["rejectBins"].Replace(new JValue(rejectBins));
 
-                                            }
+                                            //}
                                             foreach (KeyValuePair<string, JToken> property in (JObject)Request_data)
                                             {
                                                 if (property.Key != "queryName")

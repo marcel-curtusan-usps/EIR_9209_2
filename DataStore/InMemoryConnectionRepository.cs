@@ -138,6 +138,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
                     foreach (Connection item in data.Select(r => r).ToList())
                     {
                         item.Status = EWorkerServiceState.Stopped;
+                        item.LasttimeApiConnected = DateTime.MinValue;
                         _connectionList.TryAdd(item.Id, item);
                     }
                 }
