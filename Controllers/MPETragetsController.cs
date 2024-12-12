@@ -169,7 +169,7 @@ namespace EIR_9209_2.Controllers
         /// </remarks>
         /// <response code="201">Returns When WebEOR Data has been Loaded</response>
         /// <response code="400">If the File name was provided </response>
-        [HttpPost]
+
         [HttpPost]
         [Route("UploadTarget")]
         public async Task<IActionResult> UploadTargetData(IFormFile file)
