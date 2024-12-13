@@ -39,10 +39,8 @@ FROM
                             DCSDBA.MPE_LIST
                         WHERE
                             MPE_TYPE IN ('SDUS')
-                            and MPE_SERIAL_NUM like '%PSS%'
                     )
-                    AND A.DATA_DATE>= TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24
-                    AND A.DATA_DATE< TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24 +(:ENDHOUR)/24
+                    AND A.DATA_DAY in (:DATADAYLIST)
                     AND A.MPE_ID = L.MPE_ID
                 GROUP BY
                     L.MPE_NAME,
