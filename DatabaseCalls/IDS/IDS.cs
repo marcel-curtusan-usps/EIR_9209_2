@@ -9,14 +9,11 @@ namespace EIR_9209_2.DatabaseCalls.IDS
 {
     public class IDS(ILogger<IDS> logger, IConfiguration configuration, IFileService fileService, IEncryptDecrypt encryptDecrypt) : IIDS
     {
-
         private readonly ILogger<IDS> _logger = logger;
         private readonly IConfiguration _configuration = configuration;
-        //private string query = string.Empty;
-        //private string queryNew = string.Empty;
+        private string query = string.Empty;
         private string OracleConnectionString = string.Empty;
         private JToken result = new JObject();
-
         private readonly IFileService _fileService = fileService;
         private readonly IEncryptDecrypt _encryptDecrypt = encryptDecrypt;
 
@@ -33,25 +30,9 @@ namespace EIR_9209_2.DatabaseCalls.IDS
                         {
                             string directory = Path.Combine(_configuration[key: "ApplicationConfiguration:OracleQueryDirectory"], "IDS");
                             var fileName = $"{Request_data["queryName"]?.ToString()}.txt";
-
-                            var query = await _fileService.ReadFileFromRoot(fileName, directory);
-                            var queryNew = "";
+                            query = await _fileService.ReadFileFromRoot(fileName, directory);
                             if (!string.IsNullOrEmpty(query))
                             {
-                                if (query.Contains(":DATADAYLIST") || query.Contains(":REJECTBINS"))
-                                {
-                                    string datadayList = (string)((JObject)Request_data)["datadayList"];
-                                    string rejectBins = (string)((JObject)Request_data)["rejectBins"];
-                                    if (query.Contains(":DATADAYLIST") && query.Contains(":REJECTBINS"))
-                                    {
-                                        queryNew = query.Replace(":DATADAYLIST", datadayList).Replace(":REJECTBINS", rejectBins);
-                                    } 
-                                    else
-                                    {
-                                        queryNew = query.Replace(":DATADAYLIST", datadayList);
-                                    }
-                                    query = queryNew;
-                                }
                                 using (OracleConnection connection = new OracleConnection(_encryptDecrypt.Decrypt(OracleConnectionString)))
                                 {
                                     using (OracleCommand command = new OracleCommand(query, connection))
@@ -63,69 +44,18 @@ namespace EIR_9209_2.DatabaseCalls.IDS
                                                 connection.Open();
                                             }
                                             command.Parameters.Clear();
-                                            command.BindByName = true;
-                                            if (((JObject)Request_data).ContainsKey("endDate"))
-                                            {
-                                                var endDateStr = ((JObject)Request_data)["endDate"]?.ToString();
-                                                if (DateTimeOffset.TryParse(endDateStr, out var endDate))
-                                                {
-                                                    ((JObject)Request_data)["endDate"]?.Replace(new JValue(endDate));
-                                                }
-
-                                            }
-                                            if (((JObject)Request_data).ContainsKey("startDate"))
-                                            {
-                                                var startDateStr = ((JObject)Request_data)["startDate"]?.ToString();
-                                                if (DateTimeOffset.TryParse(startDateStr, out var startDate))
-                                                {
-                                                    ((JObject)Request_data)["startDate"]?.Replace(new JValue(startDate));
-                                                }
-                                            }
-                                            //if (((JObject)Request_data).ContainsKey("startHour") && ((JObject)Request_data).Type != JTokenType.Integer)
-                                            //{
-                                            //    int startHour = (int)Request_data["startHour"];
-                                            //    Request_data["startHour"]?.Replace(new JValue(startHour));
-
-                                            //}
-                                            //if (((JObject)Request_data).ContainsKey("endHour") && ((JObject)Request_data).Type != JTokenType.Integer)
-                                            //{
-                                            //    int startHour = (int)((JObject)Request_data)["endHour"];
-                                            //    ((JObject)Request_data)["endHour"].Replace(new JValue(startHour));
-
-                                            //}
-                                            //if (((JObject)Request_data).ContainsKey("datadayStart") && ((JObject)Request_data).Type != JTokenType.Integer)
-                                            //{
-                                            //    int datadayStart = (int)Request_data["datadayStart"];
-                                            //    Request_data["datadayStart"]?.Replace(new JValue(datadayStart));
-                                            //}
-                                            //if (((JObject)Request_data).ContainsKey("datadayEnd") && ((JObject)Request_data).Type != JTokenType.Integer)
-                                            //{
-                                            //    int datadayEnd = (int)Request_data["datadayEnd"];
-                                            //    Request_data["datadayEnd"]?.Replace(new JValue(datadayEnd));
-                                            //}
-                                            //if (((JObject)Request_data).ContainsKey("rejectBins") && ((JObject)Request_data).Type != JTokenType.String)
-                                            //{
-                                            //    string rejectBins = (string)((JObject)Request_data)["rejectBins"];
-                                            //    ((JObject)Request_data)["rejectBins"].Replace(new JValue(rejectBins));
-
-                                            //}
+                                            command.BindByName = false;
+                                    
                                             foreach (KeyValuePair<string, JToken> property in (JObject)Request_data)
                                             {
                                                 if (property.Key != "queryName")
                                                 {
-                                                    if (!string.IsNullOrEmpty((string)property.Value) && Regex.IsMatch(query, "(\\:" + property.Key + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
+                                                    if (property.Key.Equals("datadayList", StringComparison.CurrentCultureIgnoreCase) || property.Key.Equals("rejectBins", StringComparison.CurrentCultureIgnoreCase))
                                                     {
-                                                        if (property.Value.Type == JTokenType.Date)
+                                                        if (property.Value.Type == JTokenType.Array && property.Value is JArray array && array.All(item => item.Type == JTokenType.Integer))
                                                         {
-                                                            command.Parameters.Add(string.Concat(":", property.Key) ?? "", OracleDbType.TimeStamp, (DateTime)property.Value, ParameterDirection.Input);
-                                                        }
-                                                        if (property.Value.Type == JTokenType.Integer)
-                                                        {
-                                                            command.Parameters.Add(string.Concat(":", property.Key) ?? "", OracleDbType.Int32, (int)property.Value, ParameterDirection.Input);
-                                                        }
-                                                        if (property.Value.Type == JTokenType.String)
-                                                        {
-                                                            command.Parameters.Add(string.Concat(":", property.Key) ?? "", OracleDbType.Varchar2, property.Value?.ToString(), ParameterDirection.Input);
+                                                            string intArrayString = string.Join(",", array.Select(item => item.ToString()));
+                                                            command.CommandText = query = query.Replace($":{property.Key.ToUpper()}", intArrayString);
                                                         }
                                                     }
                                                 }

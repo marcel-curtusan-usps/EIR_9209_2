@@ -24,31 +24,31 @@ namespace EIR_9209_2.Service
         {
             try
             {
+                List<int> datadayList = [];
+                List<int> rejectBinList = [];
                 DateTime currentTime = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                 int datadayStart = 0;
                 if (_endpointConfig.LasttimeApiConnected.Year == 1 || (DateTime.Now - _endpointConfig.LasttimeApiConnected).TotalHours > 24)
                 {
-                    datadayStart = GetDataDay(currentTime.AddDays(-7));
+                    datadayStart = GetJulianDateDay(currentTime.AddDays(-7));
                 }
                 else
                 {
-                    datadayStart = GetDataDay(currentTime.AddDays(-1));
+                    datadayStart = GetJulianDateDay(currentTime.AddDays(-1));
                 }
-                int datadayEnd = GetDataDay(currentTime);
-                var datadayList = "";
+                int datadayEnd = GetJulianDateDay(currentTime);
+           
                 if (datadayStart < datadayEnd)
                 {
-                    var numberList = Enumerable.Range(datadayStart, datadayEnd-datadayStart+1).ToList();
-                    datadayList = string.Join(",", numberList);
+                    datadayList = Enumerable.Range(datadayStart, datadayEnd-datadayStart+1).ToList();
                 }
                 else
                 {
-                    var numberList = Enumerable.Range(datadayStart, 63 - datadayStart + 1).ToList().Concat(Enumerable.Range(1, datadayEnd).ToList());
-                    datadayList = string.Join(",", numberList);
+                    datadayList = Enumerable.Range(datadayStart, 63 - datadayStart + 1).ToList();
                 }
                 JObject data = new JObject
                 {
-                    ["datadayList"] = datadayList,
+                    ["datadayList"] = new JArray(datadayList),
                     ["queryName"] = _endpointConfig.MessageType
                 };
                 if (_endpointConfig.MessageType.Equals("SIPSPscCount", StringComparison.CurrentCultureIgnoreCase))
@@ -58,12 +58,22 @@ namespace EIR_9209_2.Service
                     var rejectBins = geoZonesArray?.Where(gz => gz["properties"]["rejectBins"].ToString() != "").Select(gz => gz["properties"]["rejectBins"]).FirstOrDefault()?.ToString();
                     if (rejectBins != null && rejectBins != "")
                     {
-                        data["rejectBins"] = rejectBins;
+                        var rejectBinNumbers = rejectBins.Split(',').Select(int.Parse);
+                        HashSet<int> uniqueRejectBins = new HashSet<int>(rejectBinList);
+
+                        foreach (var bin in rejectBinNumbers)
+                        {
+                            if (uniqueRejectBins.Add(bin))
+                            {
+                                rejectBinList.Add(bin);
+                            }
+                        }
                     }
                     else
                     {
-                        data["rejectBins"] = "201"; // Default value if no rejectBins found
+                        rejectBinList.Add(49); // Default value if no rejectBins found
                     }
+                    data["rejectBins"] = new JArray(rejectBinList);
                 }
                 JToken result = await _ids.GetOracleIDSData(data);
                 if (_endpointConfig.LogData)
@@ -124,7 +134,7 @@ namespace EIR_9209_2.Service
         {
            await _geoZones.ProcessIDSData(result, stoppingToken);
         }
-        private int GetDataDay(DateTime datadayTime)
+        private int GetJulianDateDay(DateTime datadayTime)
         {
             //Julian Date from DCS_CNVRT_DATE function in IDS
             return Convert.ToInt32((datadayTime.AddDays(22).AddDays(-7 / 24).ToOADate() + 2415018.5) % 63) == 0 ? 63 : Convert.ToInt32((datadayTime.AddDays(22).AddDays(-7 / 24).ToOADate() + 2415018.5) % 63);
