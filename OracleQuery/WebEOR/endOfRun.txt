@@ -1,0 +1,20 @@
+﻿SELECT pf.site_name,
+                pf.site_id,
+                ad.mods_date,
+                mt.mach_type_desc,
+                mach.machine_nbr,
+                lpad(ad.mail_operation_nbr, 6, '0'),
+                ad.machine_sort_program_name,
+                ad.tour_code,
+                TO_CHAR( ad.start_dtm, 'MM/DD/YY HH24:MI') start_date,
+                TO_CHAR( ad.end_dtm, 'MM/DD/YY HH24:MI') end_date,
+                ad.total_pieces_fed_cnt
+FROM eor_global.application_data_t ad, eor_global.all_postal_facility_t pf, eor_global.machine_type mt, eor_global.all_machine_t mach
+WHERE mach.mach_type_code = mt.mach_type_code
+                AND pf.site_id = mach.site_id
+                AND ad.machine_ID = mach.machine_id
+                AND ad.mods_date >= TRUNC( sysdate - 2 )
+                AND ad.mods_date <= TRUNC( sysdate )                  
+                AND (pf.site_id in (SELECT site_id  FROM eor_global.all_postal_facility_t x START WITH x.site_id = 99064 CONNECT BY PRIOR x.site_id = x.parent_site_id AND x.site_id <> 99064)
+                OR  pf.site_id in (SELECT site_id  FROM eor_global.all_postal_facility_t x START WITH x.site_id = 27082 CONNECT BY PRIOR x.site_id = x.parent_site_id AND x.site_id <> 27082 ))
+order by pf.site_name, ad.mods_date, mt.mach_type_desc,mach.machine_nbr
