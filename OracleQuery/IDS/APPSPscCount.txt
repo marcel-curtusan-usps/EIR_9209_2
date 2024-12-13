@@ -39,8 +39,7 @@ FROM
                     DCSDBA.MPE_LIST      L,
                     DCSDBA.INVENTORY_MAP I
                 WHERE
-                    A.CHANGE_DATE>= TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24
-                    AND A.CHANGE_DATE< TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24 +(:ENDHOUR)/24
+                    A.DATA_DAY in (:DATADAYLIST)
                     AND A.MPE_ID IN (
                         SELECT
                             MPE_ID
@@ -58,7 +57,7 @@ FROM
                         CASE
                             WHEN L.MPE_TYPE='EPPS' AND A.INDUCTNUMBER = 0 THEN
                                 'PreScanned'
-                            WHEN L.MPE_TYPE='APPS' AND (A.INDUCTNUMBER = 0) THEN
+                            WHEN L.MPE_TYPE='APPS' AND A.INDUCTNUMBER = 0 THEN
                                 'PreScanned'
                             WHEN UPPER(I.DEST_DISPLAY_TEXT) LIKE '%REJ%' OR UPPER(I.DEST_DISPLAY_TEXT) LIKE '%REWORK%' OR UPPER(I.DEST_DISPLAY_TEXT) LIKE '%MANUAL%' OR I.DEST_DISPLAY_TEXT IS NULL THEN
                                 'Rejected'
