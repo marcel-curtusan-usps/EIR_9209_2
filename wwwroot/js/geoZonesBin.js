@@ -177,9 +177,15 @@ let geoZoneBin = new L.GeoJSON(null, {
         layer.zoneId = feature.properties.id;
         if (!isBinZoneRemoved) {
             layer.on('click', function (e) {
+                if (e.sourceTarget.hasOwnProperty("_content")) {
+                    OSLmap.setView(e.sourceTarget._latlng, 4);
+                }
+                else {
+                    OSLmap.setView(e.sourceTarget.getCenter(), 4);
+                }  
                 //set to the center of the polygon.
                 $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
-                OSLmap.setView(e.latlng);
+              
                 if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
                     if ($('#zoneselect').val() === feature.properties.id) {
                         sidebar.close('home');

@@ -21,7 +21,7 @@
                         </select>
                         <button class="btn btn-outline-secondary" type="button">Button</button>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
@@ -30,11 +30,12 @@
                 <div class="welcomeCenter text-center">
                     <p class="welcomeMessage"> Welcome! </p>
                     <p class="please"> Please scan your badge </p>
-                    <label for="encodedId" class="visually-hidden">Encoded ID:</label>
+                    <label for="barcodeScan" class="visually-hidden">Scan / Type Encoded ID:</label>
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" placeholder="Encoded ID:" id="encodedId" aria-label="Encoded Id">
-                        <button id="encodedIdBtn" type="button" class="btn btn-outline-secondary">Search</button>
+                        <input type="text" class="form-control" placeholder="Encoded ID:" id="barcodeScan" aria-label="Encoded Id">
+                        <button id="barcodeScanBtn" type="button" class="btn btn-outline-secondary">Search</button>
                     </div>
+                    <span class="text-info" id="errorBarcodeScan"></span>
                 </div>
             </div>
         </div>
@@ -45,7 +46,7 @@
                         <div class="col">
                             <div class="topBar">
                                 <div class="component" id="profile">
-                                    <p class="prof-id"></p>
+                                    <p class="prof-id" id="profId"></p>
                                     <i class="bi-person"></i>
                                 </div>
                             </div>
@@ -54,20 +55,14 @@
                             <div class="col">
                                 <div class="component" id="schedule-box">
                                     <h2>TACS Log</h2>
-                                    <div class="row" id="labels">
-                                        <div style="flex: 1 1 0%;">
-                                            <p>Op Code</p>
+                                    <div class="card-body pb-0">
+                                        <div class="table-responsive">
+                                            <table aria-describedby="" class="table table-striped table-sm table-hover mb-0 border-bottom" id="tacsdatatable">
+                                                <thead class="table-dark">
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
                                         </div>
-                                        <div style="flex: 1 1 0%;">
-                                            <p>Event</p>
-                                        </div>
-                                        <div style="flex: 1 1 0%;">
-                                            <p>Date &amp; Time</p>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h3>Error</h3>
-                                        <p>An error occurred</p>
                                     </div>
                                 </div>
                             </div>
@@ -136,6 +131,7 @@
     <script src="../lib/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="../lib/microsoft/signalr/dist/browser/signalr.js"></script>
     <script src="../lib/microsoft/signalr-protocol-msgpack/dist/browser/signalr-protocol-msgpack.js"></script>
+    <script src="../lib/scannerdetection/jquery.scannerdetection.min.js"></script>
     <script src="Scripts/default.js"></script>
 </body>
 </html>

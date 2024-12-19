@@ -213,7 +213,7 @@ namespace EIR_9209_2.Controllers
         // PUT api/<SiteConfigurationController>/5
         [HttpPost]
         [Route("Update")]
-        public async Task<object> PostByUpdateApplicationConfiguration([FromBody] JObject value)
+        public async Task<object> PostByUpdateApplicationConfiguration([FromBody] JObject appSettingsData)
         {
             try
             {
@@ -223,92 +223,66 @@ namespace EIR_9209_2.Controllers
                 }
                 // Example: Update a specific configuration setting
                 var applicationSettings = _configuration.GetSection("ApplicationConfiguration");
-
-                if (applicationSettings.Exists())
+                if (!applicationSettings.Exists())
                 {
-                    var appName = applicationSettings.GetSection("ApplicationName");
-                    if (value.Properties().Any(p => Regex.IsMatch(p.Name, "NassCode", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))))
+                    return BadRequest("Application configuration not found.");
+                }
+
+                foreach (var setting in applicationSettings.GetChildren())
+                {
+                    var matchingProperty = appSettingsData.Properties().FirstOrDefault(p => p.Name.Equals(setting.Key, StringComparison.OrdinalIgnoreCase));
+                    if (matchingProperty != null)
                     {
-                        var NassCode = applicationSettings.GetSection("NassCode");
-                        var nassCodeValue = value.Properties().First(p => Regex.IsMatch(p.Name, "NassCode", RegexOptions.IgnoreCase,TimeSpan.FromSeconds(10))).Value.ToString();
-                        if (nassCodeValue == "")
+                        // Handle the matching key
+                        var newValue = matchingProperty.Value.ToString().Trim();
+                        if (matchingProperty.Name.EndsWith("NassCode", StringComparison.OrdinalIgnoreCase))
                         {
-                            NassCode.Value = nassCodeValue;
-
-                            if (await _resetApplication.Reset())
+                            var currentNassCodeValue = setting.Value;
+                            if (!string.IsNullOrEmpty(newValue) && currentNassCodeValue != newValue && (!newValue.StartsWith('-')))
                             {
-                                if (await _application.Update(NassCode.Key, NassCode.Value, "ApplicationConfiguration"))
-                                {
-                                    _logger.LogInformation($"NASS Code have been update {nassCodeValue}");
-                                }
-                            }
-                        }
-                        else
-                        {
-                            
-                            var currentnassCodeValue = NassCode.Value;
-                            // <summary>
-                            //1.The code checks if the value of the setting is not equal to the nassCode provided in the value parameter. This condition is used to determine if the nassCode needs to be updated.
-                            //2.If the condition is true, the code enters the if block and executes the following steps:
-                            //a.It calls the _resetApplication.GetNewSiteInfo method with the nassCode value as a parameter.This method is responsible for retrieving new site information based on the provided nassCode.
-                            //b.If the GetNewSiteInfo method returns true, indicating that new site information is successfully retrieved, the code proceeds to update the setting.Value with the nassCode value.
-                            //c.After updating the setting.Value, the code calls the _resetApplication.Reset method.This method is responsible for resetting the application based on the updated configuration.
-                            //d.If the Reset method returns true, indicating that the application reset is successful, the code proceeds to update the application using the _application.Update method. This method updates the specified setting.Key with the new setting.Value.
-                            //e.Finally, the code calls the _resetApplication.Setup method, which performs the setup process for the application.
-                            //3.If the GetNewSiteInfo method returns false, indicating that new site information retrieval failed, the code enters the else block and returns a BadRequest response.
-                            // </summary>
-                            if (NassCode.Value != nassCodeValue)
-                            {
-                                NassCode.Value = nassCodeValue;
-                                if (await _resetApplication.GetNewSiteInfo(nassCodeValue))
-                                {
-                                    await _hubContext.Clients.Group("SiteInformation").SendAsync($"updateSiteInformation", await _siteInfo.GetSiteInfo(), cancellationToken: CancellationToken.None);
+                                setting.Value = newValue;
 
-                                    if (await _resetApplication.Reset())
+                                if (await _resetApplication.Reset())
+                                {
+                                    if (await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
                                     {
-                                        if (await _application.Update(NassCode.Key, NassCode.Value, "ApplicationConfiguration"))
-                                        {
-                                            bool SetupResult = await _resetApplication.Setup();
-                                        }                                       
+                                        _logger.LogInformation($"{setting.Key} have been update {setting.Value}");
                                     }
-                                }
-                                else
-                                {
-                                    NassCode.Value = currentnassCodeValue;
-                                    return BadRequest();
                                 }
                             }
                             else
                             {
-                                return BadRequest();
+                                setting.Value = "";
+
+                                if (await _resetApplication.Reset())
+                                {
+                                    if (await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
+                                    {
+                                        bool SetupResult = await _resetApplication.Setup();
+                                    }
+                                }
                             }
                         }
-                    }
-                    else if (value.Properties().Any(p => Regex.IsMatch(p.Name, "IdsConnectionString", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))))
-                    {
-                        var currentValue = value.Properties().First(p => Regex.IsMatch(p.Name.ToString(), "IdsConnectionString", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Value.ToString();
-                        var ConnectionString = applicationSettings.GetSection("IdsConnectionString");
-                        ConnectionString.Value = _encryptDecrypt.Encrypt(currentValue);
-                        if (await _application.Update(ConnectionString.Key, ConnectionString.Value, "ApplicationConfiguration"))
+                        else if (matchingProperty.Name.EndsWith("ConnectionString", StringComparison.OrdinalIgnoreCase))
                         {
-                            _logger.LogInformation($"IDS Connection String drive have been update {ConnectionString.Value}");
+                            setting.Value = _encryptDecrypt.Encrypt(newValue);
+                            if (await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
+                            {
+                                _logger.LogInformation($"{setting.Key} drive have been update {setting.Value}");
 
+                            }
                         }
-                    }
-                    else if (value.Properties().Any(p => Regex.IsMatch(p.Name, "BaseDrive", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))))
-                    {
-                        var currentBaseDriveValue = value.Properties().First(p => Regex.IsMatch(p.Name, "BaseDrive", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Value.ToString();
-                        var BaseDrive = applicationSettings.GetSection("BaseDrive");
-                        BaseDrive.Value = currentBaseDriveValue;
-                        if (await _application.Update(BaseDrive.Key, BaseDrive.Value, "ApplicationConfiguration"))
+                        else
                         {
-                            _logger.LogInformation($"Base drive have been update {BaseDrive.Value}");
-
+                            setting.Value = newValue;
+                            if (await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
+                            {
+                                _logger.LogInformation($"{setting.Key} have been update {setting.Value}");
+                            }
                         }
+                        await _hubContext.Clients.Group("ApplicationConfiguration").SendAsync($"updateApplicationConfiguration", await GetConfigurationSetting(), cancellationToken: CancellationToken.None);
+                        return Ok();
                     }
-                    await _hubContext.Clients.Group("ApplicationConfiguration").SendAsync($"updateApplicationConfiguration",await GetConfigurationSetting(), cancellationToken: CancellationToken.None);
-                    return Ok();
-
                 }
                 return BadRequest();
             }

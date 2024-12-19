@@ -7,6 +7,7 @@ let tourNumber = "";
 let tourHours = [];
 let retryCount = 0;
 let kioskId = "";
+const tacsDataTable = "tacsdatatable";
 const maxRetries = 5;
 const crsConnection = new signalR.HubConnectionBuilder()
     .withUrl(SiteURLconstructor(window.location) + "/hubServics")
@@ -32,24 +33,25 @@ $(function () {
     }
     else {
         Promise.all([restEIN()]);
-        $('input[type=text][name=encodedId]').on("keyup", () => {
-            if (($('input[type=text][name=encodedId]').val() === '')) {
-                $('input[type=text][name=encodedId]').css("border-color", "#2eb82e").removeClass('is-valid').removeClass('is-valid');
-                $('span[id=error_encodedId]').text("");
-                $('button[id=submitBtn]').prop('disabled', false);
+        $('input[type=text][name=barcodeScanBtn]').on("keyup", () => {
+            if (($('input[name=barcodeScanBtn]').val() === '')) {
+                $('input[name=barcodeScanBtn]').css("border-color", "#2eb82e").removeClass('is-valid').removeClass('is-valid');
+                $('span[id=errorBarcodeScan]').text("");
+                $('button[id=barcodeScanBtn]').prop('disabled', false);
             }
             else {
-                $('input[type=text][name=encodedId]').css("border-color", "#D3D3D3").removeClass('is-invalid').addClass('is-valid');
-                $('span[id=error_encodedId]').text("");
-                $('button[id=submitBtn]').prop('disabled', true);
+                $('input[id=barcodeScanBtn]').css("border-color", "#D3D3D3").removeClass('is-invalid').addClass('is-valid');
+                $('span[id=errorBarcodeScan]').text("");
+                $('button[id=barcodeScanBtn]').prop('disabled', true);
             }
         });
       
         setHeight();
         $('span[id=kisokIdSpan]').text(kioskId);
-        $('button[id=encodedIdBtn]').off().on('click', () => {
-            Promise.all([loadEIN($('input[type=text][id=encodedId]').val())]);
+        $('button[id=barcodeScanBtn]').off().on('click', () => {
+            Promise.all([loadEIN($('input[id=barcodeScan]').val())]);
         });
+
         $('button[id=cancelBtn]').off().on('click', () => {
             Promise.all([restEIN()]);
         });
@@ -57,6 +59,8 @@ $(function () {
         // Check and set focus every 3 seconds
         setInterval(checkAndSetFocus, 3000);
     }
+    $('input[id=barcodeScan]').scannerDetection({});
+
 });
 async function kioskConfig() {
     $('div[id=landing]').css('display', 'none');
@@ -86,11 +90,33 @@ async function kioskConfig() {
         }
     });
 }
-async function loadEIN(data) {
-    $('div[id=landing]').css('display', 'none');
-    $('div[id=kioskSelection]').css('display', 'none');
-    $('div[id=root]').css('display', 'block');
+async function loadEIN(payLoadData) {
+
+    await fetch(`../api/ClockRingStation/GetByEIN?code=${payLoadData}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json()
+        })
+        .then(async data => {
+            $('div[id=landing]').css('display', 'none');
+            $('div[id=kioskSelection]').css('display', 'none');
+            $('div[id=root]').css('display', 'block');
+            $('p[id=profId]').text(await formatProfId(data));
+        })
+        .catch(error => {
+            $('input[id=barcodeScan]').val("");
+            $('span[id=errorBarcodeScan]').text(`Error: ${error}`);
+            console.error('Error:', error);
+        });
 };
+//rule: display the profId in the format of first 3 letters of last name and the last 4 digits of the EIN
+async function formatProfId(data) {
+    //data.EmployeeId
+    //data.LastName
+    return data.lastName.substring(0, 3).toUpperCase() + data.employeeId.substring(data.employeeId.length - 4);
+}
 async function restEIN() {
     $('div[id=root]').css('display', 'none');
     $('div[id=kioskSelection]').css('display', 'none');

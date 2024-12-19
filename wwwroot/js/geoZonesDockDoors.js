@@ -20,13 +20,14 @@
             dockDoorNumber += "-" + feature.properties.tripDirectionInd
         }
         layer.on('click', function (e) {
-
-            //if sourceTarget is not available, use target
-            if (e.sourceTarget.getCenter) {
-               
-                OSLmap.setView(e.sourceTarget.getCenter(), 4);
-                Promise.all([LoadDockDoorTable(feature.properties)]);
+            if (e.sourceTarget.hasOwnProperty("_content")) {
+                OSLmap.setView(e.sourceTarget._latlng, 4);
             }
+            else {
+                OSLmap.setView(e.sourceTarget.getCenter(), 4);
+            }
+            Promise.all([LoadDockDoorTable(feature.properties)]);
+
         });
         layer.bindTooltip(dockDoorNumber.toString(), {
             permanent: true,

@@ -45,6 +45,8 @@ sidebar.on('content', function (ev) {
             break;
         case 'userprofile':
             break;
+        case 'assetinventory':
+            break;
         case 'vehicleinfo':
             break;
         case 'notificationsetup':

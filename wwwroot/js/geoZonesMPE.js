@@ -239,7 +239,12 @@ let geoZoneMPE = new L.GeoJSON(null, {
 
         layer.zoneId = feature.properties.id;
         layer.on('click', function (e) {
-            OSLmap.setView(e.sourceTarget.getCenter(), 3);
+            if (e.sourceTarget.hasOwnProperty("_content")) {
+                OSLmap.setView(e.sourceTarget._latlng, 4);
+            }
+            else {
+                OSLmap.setView(e.sourceTarget.getCenter(), 4);
+            }  
             Promise.all([loadMachineData(feature.properties, MPETable)]);
 
         });

@@ -185,8 +185,7 @@ namespace EIR_9209_2.DataStore
         {
             try
             {
-                ConcurrentDictionary<string, EmployeeInfo> _empList = _employees.GetEMPInfo();
-                List<string?> empList = _empList.Where(r => !string.IsNullOrEmpty(r.Value.EmployeeId)).Select(item => item.Value.EmployeeId).Distinct().ToList();
+                List<string?> empList = await _employees.GetDistinctEmployeeIdList();
                 // If any employee is found
                 if (empList.Any())
                 {
@@ -199,6 +198,7 @@ namespace EIR_9209_2.DataStore
                     {
                         payWeek = _empsch.Select(r => r.Value.PayWeek).Distinct().ToList().FirstOrDefault();
                         var empSchdate = _empsch.Where(r => r.Value.EIN == emp && r.Value.PayWeek == payWeek).Select(y => y.Value).OrderBy(o => o.Day).ToList();
+                        var _empList = await _employees.GetEmployeeByEIN(emp);
                         if (empSchdate.Any())
                         {
                             if (startOfWeek == DateTime.MinValue && _empsch.Count() > 0)
@@ -225,7 +225,7 @@ namespace EIR_9209_2.DataStore
                                 }
                                 var daydiff = (curt.Day - 1) * -1;
                                 DateTime curdate = new DateTime();
-                                if (_empList[emp].TourNumber == "3")
+                                if (_empList.TourNumber == "3")
                                 {
                                     curdate = DateTime.Parse(curt.BeginTourDtm, CultureInfo.CurrentCulture, DateTimeStyles.None);
                                 }
@@ -262,7 +262,7 @@ namespace EIR_9209_2.DataStore
                                         EndTourDtm = fullWeekRange[i].ToString("MMMM, dd yyyy HH:mm:ss")
                                     };
                                 }
-                                var dailyInfo = await GetDailySummaryforEmployee(emp, fullWeekRange[i], schData, _empList[emp]);
+                                var dailyInfo = await GetDailySummaryforEmployee(emp, fullWeekRange[i], schData, _empList);
 
                                 _schReport[emp][fullWeekRange[i].Date] = dailyInfo;
 

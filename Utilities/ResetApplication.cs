@@ -19,6 +19,7 @@ namespace EIR_9209_2.Utilities
         private readonly IInMemoryEmailRepository _email;
         private readonly IInMemorySiteInfoRepository _siteInfo;
         private readonly IInMemoryEmployeesRepository _employees;
+        private readonly IInMemoryTACSReports _tacs;
         private readonly IInMemoryCamerasRepository _cameras;
         private readonly IFileService _fileService;
         private readonly IInMemoryEmployeesSchedule _schedule;
@@ -33,6 +34,7 @@ namespace EIR_9209_2.Utilities
             IInMemoryEmailRepository email,
             IInMemorySiteInfoRepository siteInfo,
             IInMemoryEmployeesRepository employees,
+            IInMemoryTACSReports tacs,
             IInMemoryCamerasRepository cameras,
             IFileService fileService,
             IInMemoryEmployeesSchedule schedule,
@@ -48,6 +50,7 @@ namespace EIR_9209_2.Utilities
             _email = email;
             _siteInfo = siteInfo;
             _employees = employees;
+            _tacs = tacs;
             _worker = worker;
             _fileService = fileService;
             _schedule = schedule;
@@ -115,7 +118,8 @@ namespace EIR_9209_2.Utilities
                     var clearConnections = await _connections.ResetConnectionsList();
                     var clearEmails = await _email.ResetEmailsList();
                     var clearSiteInfo = await _siteInfo.ResetSiteInfoList();
-                    var clearEmployees = await _employees.ResetEmployeesList();
+                    var clearEmployees = await _employees.Reset();
+                    var clearTacs = await _tacs.Reset();
                     var clearSchedule = await _schedule.ResetScheduleList();
                     var clearCameras = await _cameras.ResetCamerasList();
                     return true;
@@ -141,7 +145,8 @@ namespace EIR_9209_2.Utilities
                 var setupTags = await _tags.SetupTagList();
                 var setupBackgroundImage = await _backgroundImage.SetupBackgroundImageList();
                 var setupEmails = await _email.SetupEmailsList();
-                var setupEmployees = await _employees.SetupEmployeesList();
+                var setupEmployees = await _employees.Setup();
+                var setupTacs = await _tacs.Setup();
                 if (await _connections.SetupConnectionsList())
                 {
                     foreach (var endpoint in await _connections.GetAll())

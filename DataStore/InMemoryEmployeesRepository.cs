@@ -36,9 +36,17 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         LoadDataFromFile().Wait();
 
     }
-    public Task<EmployeeInfo> GetEmployeeByBLE(string id)
+    public async Task<EmployeeInfo?> GetEmployeeByBLE(string id)
     {
-      return  Task.FromResult(_empList.Where(r => r.Value.BleId == id).Select(r => r.Value).FirstOrDefault());
+        try
+        {
+            return _empList.Where(r => r.Value.BleId == id).Select(r => r.Value).FirstOrDefault();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        } 
     }
     private async Task LoadDataFromFile()
     {
@@ -82,7 +90,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
         }
     }
-    public IEnumerable<EmployeeInfo> GetAll() => _empList.Values;
+    public async Task<IEnumerable<EmployeeInfo>> GetAll() => _empList.Values;
     public async Task LoadEmployees(JToken data)
     {
         bool savetoFile = false;
@@ -136,7 +144,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         }
     }
 
-    public Task<bool> ResetEmployeesList()
+    public Task<bool> Reset()
     {
         try
         {
@@ -150,7 +158,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         }
     }
 
-    public Task<bool> SetupEmployeesList()
+    public Task<bool> Setup()
     {
         try
         {
@@ -478,8 +486,43 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         }
     }
 
-    public ConcurrentDictionary<string, EmployeeInfo> GetEMPInfo()
+
+
+    public async Task<object?> GetEmployeeByCode(string code)
     {
-        return _empList;
+        try
+        {
+            return _empList.Where(r => r.Value.EmployeeId == code || r.Value.EncodedId == code).Select(r => r.Value).FirstOrDefault();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+    }
+    public async Task<EmployeeInfo?> GetEmployeeByEIN(string code)
+    {
+        try
+        {
+            return _empList.Where(r => r.Value.EmployeeId == code || r.Value.EncodedId == code).Select(r => r.Value).FirstOrDefault();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+    }
+
+    public async Task<List<string?>> GetDistinctEmployeeIdList()
+    {
+        try
+        {
+            return _empList.Where(r => !string.IsNullOrEmpty(r.Value.EmployeeId)).Select(item => item.Value.EmployeeId).Distinct().ToList();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
     }
 }

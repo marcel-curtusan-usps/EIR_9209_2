@@ -641,11 +641,9 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             {
                 foreach (TargetHourlyData item in data.Select(r => r).ToList())
                 {
-                    string mpeIdandHour = $"{item.MpeName}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.TargetHour}";
-                    item.Id = mpeIdandHour;
-                    if (!_MPETargets.ContainsKey(mpeIdandHour))
+                    if (!_MPETargets.ContainsKey(item.Id))
                     {
-                        _MPETargets.TryAdd(mpeIdandHour, item);
+                        _MPETargets.TryAdd(item.Id, item);
                     }
                 }
             }
