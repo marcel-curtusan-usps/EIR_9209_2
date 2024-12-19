@@ -241,14 +241,15 @@ $keypad-width: 49vw; //Sets for input display and keypad
 $keypad-height: 31vh; //Sets for keypad
 
 /*Input Display*/
-.display {
+.Keypad-display {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     align-items: center;
     height: 5vh;
     //width: $component-width;
     padding: 10px;
     font-size: 4vh;
+    font-weight:bolder;
     background-color: white;
     border-radius: 10px;
     box-shadow: 2px 2px 2px 2px gray;
@@ -387,7 +388,7 @@ $keypad-height: 31vh; //Sets for keypad
     justify-content: flex-end;*/
 }
 
-#confirm {
+#confirmBtn {
     background-color: #00a408;
     color: white !important;
     font-size: 2vw;
@@ -395,7 +396,7 @@ $keypad-height: 31vh; //Sets for keypad
     margin-bottom: -3vh;
 }
 
-#confirm:hover {
+#confirmBtn:hover {
     background-color: #02750c !important; /* Dark green on hover */
 }
 

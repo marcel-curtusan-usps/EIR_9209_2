@@ -7,12 +7,14 @@ let tourNumber = "";
 let tourHours = [];
 let retryCount = 0;
 let kioskId = "";
+let inactivityTimeout;
+let errorTimeout;
+const inactivityTimeLimit = 15000; // 15 seconds
 const tacsDataTable = "tacsdatatable";
 const maxRetries = 5;
 const crsConnection = new signalR.HubConnectionBuilder()
     .withUrl(SiteURLconstructor(window.location) + "/hubServics")
     .withAutomaticReconnect([0, 2000, 10000, 30000]) // Exponential backoff intervals
-    .configureLogging(signalR.LogLevel.Information)
     .configureLogging(signalR.LogLevel.Information)
     .withHubProtocol(new signalR.JsonHubProtocol())
     .build();
@@ -26,21 +28,42 @@ function updateDateTime() {
     var footerDateElement = document.getElementById("footerDate");
     footerDateElement.textContent = formattedDate;
 }
-
-// Update the date and time every second
-setInterval(updateDateTime, 1000);
-
 async function tacsTime() {
+
+    const currentTime = dateTime.local(); // Get the current local time using luxon
 
     // TACS time shows military hour, and minutes as a decimal out of 100
     // 30 minutes would be HR.50
-    const hours = padZero(currentTime.getHours());
-    const minutesDecimal = currentTime.getMinutes() / 60;
-    const minutes = padZero(Math.round(minutesDecimal * 100));
-    const currentDate = currentTime.toLocaleDateString();
+    const hours = currentTime.hour.toString().padStart(2, '0');
+    const minutesDecimal = currentTime.minute / 60;
+    const minutes = Math.round(minutesDecimal * 100).toString().padStart(2, '0');
+    const currentDate = currentTime.toLocaleString(dateTime.DATE_SHORT);
 
-    $('span[id=tacsTime]').text(currentDate + currentTime);
+    $('span[id=tacsTime]').text(currentDate + ' ' + hours + '.' + minutes);
 }
+// Update the date and time every second
+setInterval(updateDateTime, 1000);
+setInterval(tacsTime, 30000);
+function resetInactivityTimer() {
+    clearTimeout(inactivityTimeout);
+    inactivityTimeout = setTimeout(() => {
+        Promise.all([restEIN()]);
+    }, inactivityTimeLimit);
+}
+function setupInactivityListener() {
+    const events = ['mousemove', 'keydown', 'scroll', 'click', 'touchstart'];
+    events.forEach(event => {
+        document.addEventListener(event, resetInactivityTimer, false);
+    });
+}
+function removeInactivityListener() {
+    const events = ['mousemove', 'keydown', 'scroll', 'click', 'touchstart'];
+    events.forEach(event => {
+        document.removeEventListener(event, resetInactivityTimer, false);
+    });
+    clearTimeout(inactivityTimeout);
+}
+
 
 /**
 * Extracts a URL parameter by name from the current window location.
@@ -55,6 +78,8 @@ $.urlParam = function (name) {
 
 $(function () {
     document.title = $.urlParam("kioskId");
+    tacsTime();
+    createTacsDatatable(tacsDataTable);
     if (!kioskId) {
         Promise.all([kioskConfig()]);
     }
@@ -82,9 +107,12 @@ $(function () {
         $('button[id=cancelBtn]').off().on('click', () => {
             Promise.all([restEIN()]);
         });
+        $('button[id=confirmBtn]').off().on('click', () => {
+            Promise.all([restEIN()]);
+        });
 
-        // Check and set focus every 3 seconds
-        setInterval(checkAndSetFocus, 3000);
+        //// Check and set focus every 3 seconds
+        //setInterval(checkAndSetFocus, 3000);
     }
     $('input[id=barcodeScan]').scannerDetection({});
 
@@ -118,26 +146,126 @@ async function kioskConfig() {
     });
 }
 async function loadEIN(payLoadData) {
-
+    $('input[id=barcodeScan]').val("");
     await fetch(`../api/ClockRingStation/GetByEIN?code=${payLoadData}`)
         .then(response => {
             if (!response.ok) {
+            errorTimeout = setTimeout(function () {
+                    Promise.all([restEIN()]);
+                }, 5000);
                 throw new Error(`HTTP error! status: ${response.status}`);
+            } else if (response.ok && response.status != 200) {
+                $('span[id=errorBarcodeScan]').text(`Employee ${payLoadData} Not Found`);
+                errorTimeout =  setTimeout(function () {
+                    Promise.all([restEIN()]);
+                }, 5000);
+                throw new Error();
             }
-            return response.json()
+            else {
+                return response.json()
+            }
+      
         })
         .then(async data => {
+            clearTimeout(errorTimeout);
             $('div[id=landing]').css('display', 'none');
             $('div[id=kioskSelection]').css('display', 'none');
             $('div[id=root]').css('display', 'block');
             $('p[id=profId]').text(await formatProfId(data));
+            if (data.hasOwnProperty("topOpCodes") && data.topOpCodes.length > 0) {
+                await loadTopCodes(data.topOpCodes);
+            }
+            if (data.hasOwnProperty("tacsLog") && data.tacsLog.length > 0) {
+                await loadTacsLogs(data.tacsLog);
+            }
+            // Start the inactivity listener
+            setupInactivityListener();
+            resetInactivityTimer();
         })
         .catch(error => {
-            $('input[id=barcodeScan]').val("");
-            $('span[id=errorBarcodeScan]').text(`Error: ${error}`);
             console.error('Error:', error);
         });
 };
+async function loadTopCodes(codesList) {
+    try {
+        const topCodeListDiv = $('div[id=topCodeList]');
+        topCodeListDiv.empty(); // Clear any existing content
+        topOpCodes.forEach(code => {
+            const codeElement = $('<div>')
+                .text(code)
+                .attr('data-tranCode', code); // Add data-tranCode attribute
+            topCodeListDiv.append(codeElement);
+        });
+    } catch (e) {
+        console.error('Error:', e);
+    }
+}
+async function loadTacsDatatable(codesList) {
+    try {
+        const topCodeListDiv = $('div[id=topCodeList]');
+        topCodeListDiv.empty(); // Clear any existing content
+        topOpCodes.forEach(code => {
+            const codeElement = $('<div>')
+                .text(code)
+                .attr('data-opCode', code); // Add data-opCode attribute
+            topCodeListDiv.append(codeElement);
+        });
+    } catch (e) {
+        console.error('Error:', e);
+    }
+}
+function constructTacsColumns() {
+
+    let columns = [];
+    var column0 =
+    {
+        //first column is always the name
+        title: "Op Code",
+        data: "name",
+        width: '240px'
+    };
+    var column1 =
+    {
+        //first column is always the name
+        title: "Event",
+        data: "name",
+        width: '240px'
+    };
+    var column2 =
+    {
+        //first column is always the name
+        title: "Date & Time",
+        data: "name",
+        width: '240px'
+    };
+    columns[0] = column0;
+    columns[1] = column1;
+    columns[2] = column2;
+    return columns;
+}
+function createTacsDatatable(table) {
+    try {
+        $('#' + table).DataTable({
+            dom: 'Bfrtip',
+            bFilter: false,
+            bdeferRender: true,
+            bpaging: false,
+            bPaginate: false,
+            autoWidth: false,
+            bInfo: false,
+            ordering: false, // Disable sorting for all columns
+            destroy: true,
+            language: {
+                zeroRecords: "No Data",
+                emptyTable: "No TACS Log"
+            },
+            order: [[]],
+            aoColumns: constructTacsColumns()
+        });
+    } catch (e) {
+        console.log("Error fetching machine info: ", e);
+    }
+}
 //rule: display the profId in the format of first 3 letters of last name and the last 4 digits of the EIN
 async function formatProfId(data) {
     //data.EmployeeId
@@ -145,10 +273,14 @@ async function formatProfId(data) {
     return data.lastName.substring(0, 3).toUpperCase() + data.employeeId.substring(data.employeeId.length - 4);
 }
 async function restEIN() {
+    // Remove the inactivity listener
+    removeInactivityListener();
     $('div[id=root]').css('display', 'none');
     $('div[id=kioskSelection]').css('display', 'none');
     $('div[id=landing]').css('display', 'block');
-    $('input[id=encodedId]').val('').trigger('keyup').focus();
+    $('span[id=errorBarcodeScan]').text("");
+    $('input[id=barcodeScan]').val('').trigger('keyup').focus();
+    $('div[id=Keypad-display]').text('');
     
 }
 /**
@@ -348,16 +480,16 @@ function SiteURLconstructor(winLoc) {
 
 // Function to handle keypad button clicks
 function handleKeypadClick(event) {
-    const display = document.querySelector('.display');
+    const KeypadDisplay = document.querySelector('.Keypad-display');
     const buttonValue = event.target.textContent;
 
     if (buttonValue === '←') {
         // Handle backspace
-        display.textContent = display.textContent.slice(0, -1);
+        KeypadDisplay.textContent = KeypadDisplay.textContent.slice(0, -1);
     } else {
         // Append the button value to the display if it's not backspace and length is less than 3
-        if (display.textContent.length < 3) {
-            display.textContent += buttonValue;
+        if (KeypadDisplay.textContent.length < 3) {
+            KeypadDisplay.textContent += buttonValue;
         }
     }
 }
@@ -369,11 +501,11 @@ document.querySelectorAll('#keypad button').forEach(button => {
 
 // Function to handle top code button clicks
 function handleTopCodeClick(event) {
-    const display = document.querySelector('.display');
+    const KeypadDisplay = document.querySelector('.Keypad-display');
     const buttonValue = event.target.textContent;
 
     // Set the display to the button value
-    display.textContent = buttonValue;
+    KeypadDisplay.textContent = buttonValue;
 }
 
 // Add event listeners to top code buttons
