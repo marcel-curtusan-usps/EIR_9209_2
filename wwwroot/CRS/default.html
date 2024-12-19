@@ -6,122 +6,255 @@
     <link href="Content/default.css" rel="stylesheet" />
 </head>
 <body>
-    <div class="card">
-        <div class="card-header header">
-            <h2 id="headerLabel">Kiosk ID:<span id="kisokIdSpan"></span></h2>
-        </div>
-        <div class="card-body text-center" id="kioskSelection" style="display:block">
-            <div class="container-fluid p-0 d-flex justify-content-center align-items-center">
-                <div class="welcomeCenter text-center">
-                    <p class="welcomeMessage"> Welcome! </p>
-                    <p class="please"> Select a Kiosk Id Configured </p>
-                    <div class="input-group mb-3">
-                        <select class="form-select" id="kioskSelect" aria-label="Example select with button addon">
-                            <option selected>Choose...</option>
-                        </select>
-                        <button class="btn btn-outline-secondary" type="button">Button</button>
-                    </div>
+    <!--<div class="card">-->
+    <!--------- Header ---------->
 
-                </div>
-            </div>
-        </div>
-        <div class="card-body text-center" id="landing" style="display:none">
-            <div class="container-fluid p-0 d-flex justify-content-center align-items-center">
-                <div class="welcomeCenter text-center">
-                    <p class="welcomeMessage"> Welcome! </p>
-                    <p class="please"> Please scan your badge </p>
-                    <label for="barcodeScan" class="visually-hidden">Scan / Type Encoded ID:</label>
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" placeholder="Encoded ID:" id="barcodeScan" aria-label="Encoded Id">
-                        <button id="barcodeScanBtn" type="button" class="btn btn-outline-secondary">Search</button>
-                    </div>
-                    <span class="text-info" id="errorBarcodeScan"></span>
-                </div>
-            </div>
-        </div>
-        <div class="card-body" id="root" style="display:none">
-            <div class="kiosk-container">
-                <div class="mainGrid">
-                    <div class="row">
-                        <div class="col">
-                            <div class="topBar">
-                                <div class="component" id="profile">
-                                    <p class="prof-id" id="profId"></p>
-                                    <i class="bi-person"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="col">
-                                <div class="component" id="schedule-box">
-                                    <h2>TACS Log</h2>
-                                    <div class="card-body pb-0">
-                                        <div class="table-responsive">
-                                            <table aria-describedby="" class="table table-striped table-sm table-hover mb-0 border-bottom" id="tacsdatatable">
-                                                <thead class="table-dark">
-                                                </thead>
-                                                <tbody></tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="Keypad-parent">
-                                <div class="display"></div>
-                                <div class="component" id="keypad">
-                                    <button>1</button>
-                                    <button>2</button>
-                                    <button>3</button>
-                                    <button>4</button>
-                                    <button>5</button>
-                                    <button>6</button>
-                                    <button>7</button>
-                                    <button>8</button>
-                                    <button>9</button>
-                                    <button>0</button>
-                                    <button>←</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="component" id="topCodesContainer">
-                                <button class="topCodeButton" data-tranCode="011">000</button>
-                                <button class="topCodeButton" data-tranCode="011">123</button>
-                                <button class="topCodeButton" data-tranCode="011">555</button>
-                                <button class="topCodeButton" data-tranCode="011">789</button>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="flexContainer">
-                                <div class="component" id="button-container">
-                                    <button type="button" class="clockButtons" id="bt" data-tranCode="010">Begin Tour (BT)</button>
-                                    <button type="button" class="clockButtons" id="ol" data-tranCode="012">Out to Lunch (OL)</button>
-                                    <button type="button" class="clockButtons" id="il" data-tranCode="013">In from Lunch (IL)</button>
-                                    <button type="button" class="clockButtons" id="et" data-tranCode="014">End Tour (ET)</button>
-                                    <button type="button" class="clockButtons" id="mv" data-tranCode="011">Move (MV)</button>
-                                    <div id="cancel-container">
-                                        <button type="button" class="clockButtons" id="cancelBtn">Cancel</button>
-                                    </div>
-                                    <div class="confirm-container">
-                                        <button type="button" class="clockButtons" id="confirm">Confirm</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <div class="card-header header">
+        <p id="headerLabel" style="margin-left: 10px;">Kiosk ID: <span id="kisokIdSpan"></span></p>
+        <p id="headerLabel" style="margin-right: 10px;">Tacs Time:<span id="tacsTime"></span></p>
+    </div>
+
+    <!--------- Kiosk Selection ---------->
+
+
+    <div class="card-body text-center" id="kioskSelection" style="display:block">
+        <div class="container-fluid p-0 d-flex justify-content-center align-items-center">
+            <div class="welcomeCenter text-center">
+                <p class="welcomeMessage"> Welcome! </p>
+                <p class="please"> Select a Kiosk Id Configured </p>
+                <div class="input-group mb-3">
+                    <select class="form-select" id="kioskSelect" aria-label="Example select with button addon">
+                        <option selected>Choose...</option>
+                    </select>
+                    <button class="btn btn-outline-secondary" type="button">Button</button>
                 </div>
 
             </div>
-        </div>
-        <div class="card-footer text-body-secondary footer">
-            <p class="date" id="footerDate">10/23/2024 | 11:15:18 AM</p>
-            <p class="USPS" id="footerLabel">USPS</p>
         </div>
     </div>
+
+    <!--------- Welcome Page ---------->
+
+    <div class="card-body text-center" id="landing" style="display:none">
+        <div class="container-fluid p-0 d-flex justify-content-center align-items-center">
+            <div class="welcomeCenter text-center">
+                <p class="welcomeMessage"> Welcome! </p>
+                <p class="please"> Please scan your badge </p>
+                <label for="encodedId" class="visually-hidden">Encoded ID:</label>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Encoded ID:" id="encodedId" aria-label="Encoded Id">
+                    <button id="encodedIdBtn" type="button" class="btn btn-outline-secondary">Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="" id="root" style="display: none;">
+        <!-- class = card-body -->
+        <div class="kiosk-container">
+
+            <!--<div class="container" style="background-color:purple; width:"100%">-->
+            <div class="row row-cols-2">
+                <div class="col-6">
+
+                    <div class="component" id="profile">
+                        <div>
+                            <p class="prof-id">RE6789</p>
+                            <i class="bi-person-circle" id="profileImg"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+
+
+
+
+                    <!--------- Tacs Log ---------->
+
+                    <div class="component" id="schedule-box">
+                        <h2>TACS Log</h2>
+                        <div class="row" id="labels">
+                            <div style="flex: 1 1 0%;">
+                                <p>Op Code</p>
+                            </div>
+                            <div style="flex: 1 1 0%;">
+                                <p>Event</p>
+                            </div>
+                            <div style="flex: 1 1 0%;">
+                                <p>Date &amp; Time</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h3>Error</h3>
+                            <p>An error occurred</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+
+
+
+                    <div class="Keypad-parent">
+                        <div class="display"></div>
+
+                        <!--------- Keypad ---------->
+
+                        <div class="component" id="keypad">
+                            <button>1</button>
+                            <button>2</button>
+                            <button>3</button>
+                            <button>4</button>
+                            <button>5</button>
+                            <button>6</button>
+                            <button>7</button>
+                            <button>8</button>
+                            <button>9</button>
+                            <button>0</button>
+                            <button>←</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+
+
+                    <!--------- Clock Buttons ---------->
+                    <div class="component" id="button-container">
+                        <button type="button" class="clockButtons" id="bt" data-tranCode="010">Begin Tour (BT)</button>
+                        <button type="button" class="clockButtons" id="ol" data-tranCode="012">Out to Lunch (OL)</button>
+                        <button type="button" class="clockButtons" id="il" data-tranCode="013">In from Lunch (IL)</button>
+                        <button type="button" class="clockButtons" id="et" data-tranCode="014">End Tour (ET)</button>
+                        <button type="button" class="clockButtons" id="mv" data-tranCode="011">Move (MV)</button>
+                        <div id="cancel-container">
+                            <button type="button" class="clockButtons" id="cancelBtn">Cancel</button>
+                        </div>
+                        <div class="confirm-container">
+                            <button type="button" class="clockButtons" id="confirm">Confirm</button>
+                        </div>
+                    </div>
+                </div>
+                <!--</div>-->
+
+                <div class="component" id="topCodesContainer">
+
+                    <button class="topCodeButton" data-tranCode="011">000</button>
+                    <button class="topCodeButton" data-tranCode="011">123</button>
+                    <button class="topCodeButton" data-tranCode="011">555</button>
+                    <button class="topCodeButton" data-tranCode="011">789</button>
+                    <button class="topCodeButton" data-tranCode="011">111</button>
+                    <button class="topCodeButton" data-tranCode="011">333</button>
+                    <button class="topCodeButton" data-tranCode="011">555</button>
+                    <button class="topCodeButton" data-tranCode="011">777</button>
+                </div>
+            </div>
+
+            <!--------- Footer ---------->
+
+            <div class=" text-body-secondary footer">
+                <p class="date" id="footerDate"></p>
+                <p class="USPS" id="footerLabel">USPS</p>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <!--<div class="mainGrid">
+    <div class="row">
+        <div class="col">
+            <div class="topBar">-->
+    <!--------- Profile ---------->
+    <!--<div class="component" id="profile">
+                <div>
+                    <p class="prof-id">RE6789</p>
+                    <i class="bi-person-circle" id="profileImg"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="padding: 0;">
+        <div class="col">-->
+    <!--------- TACS Log ---------->
+    <!--<div class="component" id="schedule-box">
+                    <h2>TACS Log</h2>
+                    <div class="row" id="labels">
+                        <div style="flex: 1 1 0%;">
+                            <p>Op Code</p>
+                        </div>
+                        <div style="flex: 1 1 0%;">
+                            <p>Event</p>
+                        </div>
+                        <div style="flex: 1 1 0%;">
+                            <p>Date &amp; Time</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Error</h3>
+                        <p>An error occurred</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="Keypad-parent">
+                <div class="display"></div>-->
+    <!--------- Keypad ---------->
+    <!--<div class="component" id="keypad">
+                <button>1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>4</button>
+                <button>5</button>
+                <button>6</button>
+                <button>7</button>
+                <button>8</button>
+                <button>9</button>
+                <button>0</button>
+                <button>←</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col flexContainer" style="width: 38vw; margin-right: -5px;">-->
+    <!--------- Clock Buttons ---------->
+    <!--<div class="component" id="button-container">
+                <button type="button" class="clockButtons" id="bt" data-tranCode="010">Begin Tour (BT)</button>
+                <button type="button" class="clockButtons" id="ol" data-tranCode="012">Out to Lunch (OL)</button>
+                <button type="button" class="clockButtons" id="il" data-tranCode="013">In from Lunch (IL)</button>
+                <button type="button" class="clockButtons" id="et" data-tranCode="014">End Tour (ET)</button>
+                <button type="button" class="clockButtons" id="mv" data-tranCode="011">Move (MV)</button>
+                <div id="cancel-container">
+                    <button type="button" class="clockButtons" id="cancelBtn">Cancel</button>
+                </div>
+                <div class="confirm-container">
+                    <button type="button" class="clockButtons" id="confirm">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">-->
+    <!--------- Top Codes ---------->
+    <!--<div class="component" id="topCodesContainer">
+
+                <button class="topCodeButton" data-tranCode="011">000</button>
+                <button class="topCodeButton" data-tranCode="011">123</button>
+                <button class="topCodeButton" data-tranCode="011">555</button>
+                <button class="topCodeButton" data-tranCode="011">789</button>
+                <button class="topCodeButton" data-tranCode="011">111</button>
+                <button class="topCodeButton" data-tranCode="011">333</button>
+                <button class="topCodeButton" data-tranCode="011">555</button>
+                <button class="topCodeButton" data-tranCode="011">777</button>
+            </div>
+        </div>
+    </div>-->
+    <!--</div>-->
     <script src="../lib/jquery/jquery.min.js"></script>
     <script src="../lib/luxon/luxon.js"></script>
     <script src="../lib/jquery-validation/jquery.validate.js"></script>

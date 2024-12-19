@@ -2,6 +2,8 @@
 @import url('../../lib/bootstrap-datepicker/css/bootstrap-datepicker.css');
 @import url('../../css/bootstrap-icons.css');
 
+//Global Styles
+
 a {
     font-weight: 500;
     color: #646cff;
@@ -15,6 +17,9 @@ a:hover {
 html, body {
     height: 100%;
     width: 100%;
+    overflow: hidden; // Prevent scroll bars
+    /*    margin: 0; // Add this line
+    padding: 0; // Add this line*/
 }
 
 .main-content {
@@ -54,7 +59,6 @@ button:hover {
     color: white;
 }
 
-
 .label-left-align {
     font-size: 16px;
     margin-bottom: 2px;
@@ -69,24 +73,14 @@ button:hover {
     font-size: 16px;
 }
 
-button {
-    border-radius: 10px !important;
-    color: navy;
-    box-shadow: 2px 2px 2px gray;
-    font-weight: bold;
-    border: none;
-}
-
-button:hover {
-    background-color: navy !important; /* Navy on hover */
-    color: white;
-}
-
+$component-width: 48vw;
 
 .component {
     background-color: lightblue;
     border-radius: 10px;
     box-shadow: 2px 2px 2px 2px gray;
+    //width: 49vw !important;
+    //width: $component-width;
 }
 
 code {
@@ -97,44 +91,195 @@ code {
     background-color: var(--primaryColor) !important;
 }
 
+.kiosk-container{
+    padding: 1vw;
+}
+
+/*--------------------------- Header ---------------------------*/
+
+.header {
+    overflow: hidden;
+    background-color: #11005c;
+    margin-top: 0px !important;
+    height: 3vw;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    vertical-align: top;
+    font-weight: bold;
+    font-size: 2vw;
+    color: white;
+    margin-bottom: 6px;
+    padding: 0;
+}
+
+.station {
+    float: left;
+}
+
+#headerDate {
+    color: white;
+}
+
+#headerLabel {
+    color: white;
+}
+
+/*----------------------------Welcome------------------------------*/
+.welcomeCenter {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin-top: -5vw;
+}
+
+.welcomeMessage {
+    color: navy;
+    font-size: 5vw;
+}
+
+.scanSubmit {
+    background-color: lightgray;
+}
+
+.welcomeCenter button:hover {
+    background-color: #e2e2e2; /* Darker grey on hover */
+}
+
+.please {
+    font-size: 25px;
+}
+
+/*.hideFromUser {
+    position: absolute;
+    left: -9999px;
+}*/
+
+/*--------------------------- Profile ---------------------------*/
+
+#profile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    //background-color: white;
+    padding: 10px !important;
+    margin-left: 6px;
+    text-align: center;
+    color: navy;
+    overflow: hidden;
+    //width: 40vw;
+    height: 38vh;
+}
+
+.prof-id {
+    color: navy;
+    font-size: 6vw;
+    font-weight: bold;
+    justify-content: center;
+    margin: 0;
+}
+
+#profileImg {
+    font-size: 5vw;
+    justify-content: center;
+}
+
+/*------------------------TACSLog------------------------------*/
+#schedule-box {
+    padding: 7px;
+    /*top right bottom left*/
+    margin: 0px 0px 0px 0px !important;
+    text-align: center;
+    color: navy;
+    overflow: hidden;
+    //width: 49vw;
+    height: 38vh;
+}
+
+#labels {
+    font-size: 25px;
+    /*top right bottom left*/
+    padding: 2px;
+}
+
+#schedule-box h2 {
+    font-weight: bold;
+}
+
+#schedule-box p {
+    margin: 0;
+    white-space: nowrap;
+}
+
+#schedule-box .row {
+    background-color: #f2f2f2;
+    margin: 0px 10px 5px 10px;
+    border-bottom: 1px solid black;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#schedule-box .row div {
+    flex-basis: 33.33%;
+    padding: 5px;
+}
+
+/*First Row / Labels*/
+#schedule-box #labels {
+    font-weight: bold;
+    text-decoration-line: underline;
+    margin: 10px;
+}
+
+
+/* ------------------ Keypad ------------------- */
+
+$keypad-width: 49vw; //Sets for input display and keypad
+$keypad-height: 31vh; //Sets for keypad
+
 /*Input Display*/
 .display {
     display: flex;
     justify-content: flex-end;
     align-items: center;
     height: 5vh;
-    width: 24.6vw;
+    //width: $component-width;
     padding: 10px;
-    font-size: 18px;
+    font-size: 4vh;
     background-color: white;
     border-radius: 10px;
     box-shadow: 2px 2px 2px 2px gray;
     margin-left: 6px;
-    margin-top: 10px;
+    margin-top: 6px;
 }
 
 #keypad {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(4, 1fr);
-    grid-gap: 20px;
-    justify-content: center;
+    grid-gap: 8px;
     align-items: center;
-    width: 24.6vw;
-    height: var(--keypad-container-height);
+    //width: $component-width;
+    height: $keypad-height;
     margin: 6px 0px 0px 6px;
-    padding: 5px;
+    padding: 6px;
 }
 
 #keypad button {
-    min-width: 80px;
-    width: 100%;
-    height: calc(var(--keypad-container-height)/6);
+    //min-width: 80px;
+    //width: calc($component-width/3.25);
+    width: 12vw;
+    height: calc($keypad-height/5);
     padding: 0px;
-    font-size: 20px;
+    font-size: 3vw;
     background-color: #f7f7f7;
     cursor: pointer;
     margin: 0px;
+    justify-content: center;
+    line-height: 1;
 }
 
 /*#keypad button:hover {
@@ -142,33 +287,41 @@ code {
 /*color: white;
     }*/
 
-/* ------------------ 4th row styles ------------------- */
+/* ------ Bottom Row styling ------ */
 
-/*Newly 0 Button Button*/
+/*0 Button */
 #keypad button:nth-last-child(2) {
     grid-row: 4;
     grid-column: 2;
 }
 
-/*Back Button*/
+/*Back Arrow  Button*/
 #keypad button:last-child {
     grid-row: 4;
     grid-column: 3;
-    font-size: 25px;
-    line-height: 0;
+    //font-size: 25px;
+    //line-height: 0;
 }
-/*----Button----*/
+
+
+
+/*----------------- Buttons Component ---------------------*/
 
 #button-container {
     display: grid;
     grid-template-columns: repeat(4, auto);
     grid-template-rows: repeat(4, auto);
     grid-gap: 10px;
-    padding: 10px;
+    padding: 5px;
     align-items: center;
-    width: 49vw;
-    height: var(--button-container-height);
-    margin: 6px 6px 4px -15px;
+    //width: 48vw;
+    //height: var(--button-container-height);
+    height: 36.7vh;
+    /*top right bottom left*/
+    //margin: 6px 6px 4px -15px;
+    margin-top: 6px;
+    margin-left: -1px;
+    right: 0;
 }
 
 .clockButtons {
@@ -176,9 +329,12 @@ code {
     text-align: center;
     overflow: hidden;
     margin: 0;
+    margin-bottom: -5vh;
+    margin-top: -5vh;
     border: none;
-    font-size: 20px;
-    height: calc(var(--button-container-height)/5.5);
+    font-size: 2vw;
+    //height: calc(var(--button-container-height)/5.5);
+    height: 100%;
     width: 100% /* Adjust button width based on container width */
 }
 
@@ -213,59 +369,61 @@ code {
     grid-area: 4 / 1 / 5 / 2;
 }
 
-#cancel {
-    background-color: red;
+#cancelBtn {
+    background-color: red !important;
     color: white !important;
-    font-size: 20px;
+    font-size: 2vw;
+    height: 8vh;
+    margin-bottom: -3vh;
 }
 
-/*.clockButtons:hover {
-    background-color: navy;*/ /* Navy on hover */
-    /*color: white;
-}*/
-
-#cancel:hover {
+#cancelBtn:hover {
     background-color: #a90000 !important; /* Dark red on hover */
+}
+
+.confirm-container { /* Add a new container for the Confirm button */
+    grid-area: 4 / 2 / 5 / 5; /* Span across columns 3 and 4 */
+    /*    display: flex;
+    justify-content: flex-end;*/
+}
+
+#confirm {
+    background-color: #00a408;
+    color: white !important;
+    font-size: 2vw;
+    height: 8vh;
+    margin-bottom: -3vh;
 }
 
 #confirm:hover {
     background-color: #02750c !important; /* Dark green on hover */
 }
 
-.confirm-container { /* Add a new container for the Confirm button */
-    grid-area: 4 / 2 / 5 / 5; /* Span across columns 3 and 4 */
-    display: flex;
-    justify-content: flex-end;
-}
-
-#confirm {
-    background-color: #00a408;
-    color: white !important;
-    font-size: 25px;
-    
-}
-
-/*-----TopCodes----*/
+/*--------------------------TopCodes----------------------------*/
 #topCodesContainer {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    grid-gap: 20px;
+    display: flex;
+    //grid-template-columns: repeat(2, 1fr);
+    //grid-template-rows: repeat(2, 1fr);
+    grid-gap: 2vw;
     justify-content: center;
     align-items: center;
-    width: 98%;
-    height: 95%;
-    margin-right: 20px;
+    width: 99vw !important;
+    height: 10vh;
+    /*    margin-right: 20px;
     margin-top: 10px;
-    margin-bottom: 45px;
+    margin-bottom: 45px;*/
+    /*top right bottom left*/
+    margin: 10px 2px 0px 4px;
     padding: 5px;
 }
 
 .topCodeButton {
     margin: 0;
     border: none;
-    font-size: 20px;
-    height: 93px;
+    font-size: 3vw;
+    line-height: 1;
+    height: 100%;
+    width: 100%;
 }
 
 .topCodesContainer button:hover {
@@ -273,71 +431,23 @@ code {
     color: white;
 }
 
-/*----TACSLog----*/
-#schedule-box {
-    padding: 10px;
-    margin: 0px 0px 0px -15px;
-    text-align: center;
-    color: navy;
-    overflow: hidden;
-    width: 49vw;
-    height: 38vh;
-}
-
-#schedule-box h2 {
-    font-weight: bold;
-}
-
-#schedule-box p {
-    margin: 0;
-    white-space: nowrap;
-}
-
-#schedule-box .row {
-    background-color: #f2f2f2;
-    margin: 0px 10px 5px 10px;
-    border-bottom: 1px solid black;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
-#schedule-box .row div {
-    flex-basis: 33.33%;
-    padding: 5px;
-}
-
-/*First Row / Labels*/
-#schedule-box #labels {
-    font-weight: bold;
-    text-decoration-line: underline;
-    margin: 10px;
-}
-
-/*----footer----*/
+/*------------------------- Footer ----------------------------*/
 .footer {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
-    align-items: center;
     bottom: 0;
-    width: 100%;
+    right: 0;
+    width: 100% !important;
     height: 5vh;
     background-color: #11005c;
-    margin-top: 6px !important;
-    padding-top: 10px;
-    padding-left: 10px;
-    padding-right: 10px;
+    margin-top: 2px !important;
     position: fixed;
-    color: red !important;
 }
 
-.left {
+/*.left 
     text-align: left;
-}
-
-p {
-    color: navy;
-}
+}*/
 
 #logo {
     border-radius: 0%;
@@ -354,63 +464,3 @@ p {
 #footerLabel {
     color: white;
 }
-/*------Header-----*/
-.header {
-    overflow: hidden;
-    background-color: #11005c;
-    margin-top: 0px !important;
-    height: 3vw;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    vertical-align: top;
-    font-weight: bold;
-    font-size: 2vw;
-    color: white;
-    margin-bottom: 6px;
-    padding: 0;
-}
-
-.station {
-    float: left;
-}
-
-#headerDate {
-    color: white;
-}
-
-#headerLabel {
-    color: white;
-}
-
-/*----Welcome----*/
-.welcomeCenter {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin-top: -5vw;
-}
-
-.welcomeMessage {
-    color: navy;
-    font-size: 5vw;
-}
-
-.scanSubmit {
-    background-color: lightgray;
-}
-
-.welcomeCenter button:hover {
-    background-color: #e2e2e2; /* Darker grey on hover */
-}
-
-.please {
-    font-size: 25px;
-}
-
-/*.hideFromUser {
-    position: absolute;
-    left: -9999px;
-}*/

@@ -13,8 +13,35 @@ const crsConnection = new signalR.HubConnectionBuilder()
     .withUrl(SiteURLconstructor(window.location) + "/hubServics")
     .withAutomaticReconnect([0, 2000, 10000, 30000]) // Exponential backoff intervals
     .configureLogging(signalR.LogLevel.Information)
+    .configureLogging(signalR.LogLevel.Information)
     .withHubProtocol(new signalR.JsonHubProtocol())
     .build();
+
+// Get the current date and time
+function updateDateTime() {
+    var currentDate = new Date();
+    var formattedDate = currentDate.toLocaleString().replace(",", " | ");
+
+    // Set the date and time in the footer
+    var footerDateElement = document.getElementById("footerDate");
+    footerDateElement.textContent = formattedDate;
+}
+
+// Update the date and time every second
+setInterval(updateDateTime, 1000);
+
+async function tacsTime() {
+
+    // TACS time shows military hour, and minutes as a decimal out of 100
+    // 30 minutes would be HR.50
+    const hours = padZero(currentTime.getHours());
+    const minutesDecimal = currentTime.getMinutes() / 60;
+    const minutes = padZero(Math.round(minutesDecimal * 100));
+    const currentDate = currentTime.toLocaleDateString();
+
+    $('span[id=tacsTime]').text(currentDate + currentTime);
+}
+
 /**
 * Extracts a URL parameter by name from the current window location.
 * @param {string} name - The name of the URL parameter to extract.
@@ -318,3 +345,38 @@ function SiteURLconstructor(winLoc) {
         return winLoc.origin;
     }
 }
+
+// Function to handle keypad button clicks
+function handleKeypadClick(event) {
+    const display = document.querySelector('.display');
+    const buttonValue = event.target.textContent;
+
+    if (buttonValue === '←') {
+        // Handle backspace
+        display.textContent = display.textContent.slice(0, -1);
+    } else {
+        // Append the button value to the display if it's not backspace and length is less than 3
+        if (display.textContent.length < 3) {
+            display.textContent += buttonValue;
+        }
+    }
+}
+
+// Add event listeners to keypad buttons
+document.querySelectorAll('#keypad button').forEach(button => {
+    button.addEventListener('click', handleKeypadClick);
+});
+
+// Function to handle top code button clicks
+function handleTopCodeClick(event) {
+    const display = document.querySelector('.display');
+    const buttonValue = event.target.textContent;
+
+    // Set the display to the button value
+    display.textContent = buttonValue;
+}
+
+// Add event listeners to top code buttons
+document.querySelectorAll('.topCodeButton').forEach(button => {
+    button.addEventListener('click', handleTopCodeClick);
+});
