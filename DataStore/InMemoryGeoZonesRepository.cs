@@ -1911,6 +1911,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         {
             _geoZoneList.Clear();
             _geoZoneDockDoorList.Clear();
+            _geoZonekioskList.Clear();
             _mpeSummary.Clear();
             _QREAreaDwellResults.Clear();
             _MPENameList.Clear();
@@ -1933,6 +1934,8 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             LoadDataFromFile().Wait();
             // Load data from the first file into the first collection
             LoadDockDoorDataFromFile().Wait();
+            // Load data from the first file into the first collection
+            LoadKioskDataFromFile().Wait();
             return Task.FromResult(true);
         }
         catch (Exception e)

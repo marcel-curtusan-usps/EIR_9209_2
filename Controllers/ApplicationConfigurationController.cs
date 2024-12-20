@@ -247,6 +247,7 @@ namespace EIR_9209_2.Controllers
                                     if (await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
                                     {
                                         _logger.LogInformation($"{setting.Key} have been update {setting.Value}");
+                                        bool SetupResult = await _resetApplication.Setup();
                                     }
                                 }
                             }
@@ -258,7 +259,7 @@ namespace EIR_9209_2.Controllers
                                 {
                                     if (await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
                                     {
-                                        bool SetupResult = await _resetApplication.Setup();
+                                        _logger.LogInformation($"{setting.Key} have been update {setting.Value}");
                                     }
                                 }
                             }

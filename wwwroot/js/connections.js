@@ -754,7 +754,7 @@ async function Edit_Connection(data) {
                     jsonObject.oAuthUrl = $('input[type=text][name=idrequesturl]').val();
                 }
                 //check if the Basic Auth is checked
-                if ($('input[type=checkbox][name=basicAuth]').is(':checked')) {
+                if ($('input[type=checkbox][id=basicAuth]').is(':checked')) {
                     jsonObject.authType = "basicAuth";
                     jsonObject.oAuthUserName = $('input[type=text][name=tokenusername]').val();
                     jsonObject.oAuthPassword = $('input[type=text][name=tokenpassword]').val();
@@ -772,7 +772,7 @@ async function Edit_Connection(data) {
                     }
                 }
                 //check if the OAuth is checked
-                if ($('input[type=checkbox][name=oAuth2]').is(':checked')) {
+                if ($('input[type=checkbox][id=oAuth2]').is(':checked')) {
                     jsonObject.authType = "oAuth2";
                     jsonObject.oAuthUrl = $('input[type=text][name=tokenurl]').val();
                     jsonObject.oAuthUserName = $('input[type=text][name=tokenusername]').val();
