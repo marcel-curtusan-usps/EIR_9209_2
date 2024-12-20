@@ -6,10 +6,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
-		<AssemblyVersion>2.0.8.75</AssemblyVersion>
+		<AssemblyVersion>2.0.8.76</AssemblyVersion>
 		<OutputType>Exe</OutputType>
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-		<FileVersion>2.0.8.75</FileVersion>
+		<FileVersion>2.0.8.76</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -172,6 +172,7 @@
 		<Folder Include="wwwroot\DockDoor\Content\" />
 		<Folder Include="wwwroot\DockDoor\Scripts\" />
 		<Folder Include="wwwroot\images\" />
+		<Folder Include="wwwroot\lib\onscan\" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -790,6 +791,12 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\lib\microsoft\signalr\dist\browser\signalr.min.js.map">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\onscan\onscan.js">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\lib\onscan\onscan.min.js">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\MPE\Content\mpeHourly.css">

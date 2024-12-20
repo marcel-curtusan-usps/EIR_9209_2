@@ -7,8 +7,11 @@ let tourNumber = "";
 let tourHours = [];
 let retryCount = 0;
 let kioskId = "";
-let inactivityTimeout;
+var suffixKeyCodes = [9,13];
+var prefixKeyCodes = [];
 let errorTimeout;
+const errorTimeLimit = 2000; // 15 seconds
+let inactivityTimeout;
 const inactivityTimeLimit = 15000; // 15 seconds
 const tacsDataTable = "tacsdatatable";
 const maxRetries = 5;
@@ -80,19 +83,20 @@ $(function () {
     document.title = $.urlParam("kioskId");
     tacsTime();
     createTacsDatatable(tacsDataTable);
+
     if (!kioskId) {
         Promise.all([kioskConfig()]);
     }
     else {
         Promise.all([restEIN()]);
-        $('input[type=text][name=barcodeScanBtn]').on("keyup", () => {
-            if (($('input[name=barcodeScanBtn]').val() === '')) {
-                $('input[name=barcodeScanBtn]').css("border-color", "#2eb82e").removeClass('is-valid').removeClass('is-valid');
+        $('input[type=text][name=barcodeScan]').on("keyup", () => {
+            if (($('input[name=barcodeScan]').val() === '')) {
+                $('input[name=barcodeScan]').css("border-color", "#2eb82e").removeClass('is-valid').removeClass('is-valid');
                 $('span[id=errorBarcodeScan]').text("");
                 $('button[id=barcodeScanBtn]').prop('disabled', false);
             }
             else {
-                $('input[id=barcodeScanBtn]').css("border-color", "#D3D3D3").removeClass('is-invalid').addClass('is-valid');
+                $('input[id=barcodeScan]').css("border-color", "#D3D3D3").removeClass('is-invalid').addClass('is-valid');
                 $('span[id=errorBarcodeScan]').text("");
                 $('button[id=barcodeScanBtn]').prop('disabled', true);
             }
@@ -101,7 +105,19 @@ $(function () {
         setHeight();
         $('span[id=kisokIdSpan]').text(kioskId);
         $('button[id=barcodeScanBtn]').off().on('click', () => {
-            Promise.all([loadEIN($('input[id=barcodeScan]').val())]);
+            let scanValue = $('input[id=barcodeScan]').val()
+            if (scanValue !== "") {
+                $('span[id=errorBarcodeScan]').text("");
+                Promise.all([loadEIN(scanValue)]);
+            }
+            else {
+                $('span[id=errorBarcodeScan]').text("Please Scan USPS Badge");
+                clearTimeout(errorTimeout);
+                errorTimeout = setTimeout(() => {
+                    Promise.all([restEIN()]);
+                }, errorTimeLimit);
+            }
+          
         });
 
         $('button[id=cancelBtn]').off().on('click', () => {
@@ -110,11 +126,39 @@ $(function () {
         $('button[id=confirmBtn]').off().on('click', () => {
             Promise.all([restEIN()]);
         });
-
-        //// Check and set focus every 3 seconds
-        //setInterval(checkAndSetFocus, 3000);
     }
-    $('input[id=barcodeScan]').scannerDetection({});
+    var options = {
+        timeBeforeScanTest: 100,
+        avgTimeByChar: 30,
+        minLength:6,
+        suffixKeyCodes: suffixKeyCodes,
+        prefixKeyCodes: prefixKeyCodes,
+        scanButtonLongPressTime: 500,
+        stopPropagation: false,
+        preventDefault: false,
+        reactToPaste: true,
+        reactToKeyDown: false,
+        singleScanQty: 1
+    }
+    // Initialize
+    onScan.attachTo(document, {
+        suffixKeyCodes: [13], // enter-key expected at the end of a scan
+        reactToPaste: true, // Compatibility to built-in scanners in paste-mode (as opposed to keyboard-mode)
+        onScan: function (sCode, iQty) {
+            console.log('Scanned: ' + iQty + 'x ' + sCode);
+            if (sCode !== "") {
+                $('span[id=errorBarcodeScan]').text("");
+                Promise.all([loadEIN(sCode)]);
+            }
+            else {
+                $('span[id=errorBarcodeScan]').text("Invalid Scan");
+                clearTimeout(errorTimeout);
+                errorTimeout = setTimeout(() => {
+                    Promise.all([restEIN()]);
+                }, errorTimeLimit);
+            }
+        }
+    });
 
 });
 async function kioskConfig() {
@@ -146,6 +190,7 @@ async function kioskConfig() {
     });
 }
 async function loadEIN(payLoadData) {
+
     $('input[id=barcodeScan]').val("");
     await fetch(`../api/ClockRingStation/GetByEIN?code=${payLoadData}`)
         .then(response => {
@@ -156,9 +201,10 @@ async function loadEIN(payLoadData) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             } else if (response.ok && response.status != 200) {
                 $('span[id=errorBarcodeScan]').text(`Employee ${payLoadData} Not Found`);
-                errorTimeout =  setTimeout(function () {
+                clearTimeout(errorTimeout);
+                errorTimeout = setTimeout(() => {
                     Promise.all([restEIN()]);
-                }, 5000);
+                }, errorTimeLimit);
                 throw new Error();
             }
             else {
@@ -270,18 +316,18 @@ function createTacsDatatable(table) {
 async function formatProfId(data) {
     //data.EmployeeId
     //data.LastName
-    return data.lastName.substring(0, 3).toUpperCase() + data.employeeId.substring(data.employeeId.length - 4);
+    return data.lastName.substring(0, 2).toUpperCase() + data.employeeId.substring(data.employeeId.length - 4);
 }
 async function restEIN() {
     // Remove the inactivity listener
     removeInactivityListener();
+    $('button[id=confirmBtn]').prop('disabled', true);
     $('div[id=root]').css('display', 'none');
     $('div[id=kioskSelection]').css('display', 'none');
     $('div[id=landing]').css('display', 'block');
     $('span[id=errorBarcodeScan]').text("");
     $('input[id=barcodeScan]').val('').trigger('keyup').focus();
-    $('div[id=Keypad-display]').text('');
-    
+    $('div[id=Keypad-display]').text('');   
 }
 /**
  * Starts the SignalR connection with retry logic using exponential backoff and jitter.

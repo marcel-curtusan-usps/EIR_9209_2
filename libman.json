@@ -179,9 +179,9 @@
       "destination": "wwwroot/lib/qrcodejs/"
     },
     {
-      "provider": "cdnjs",
-      "library": "scannerdetection@1.2.0",
-      "destination": "wwwroot/lib/scannerdetection/"
+      "provider": "filesystem",
+      "library": ".config/",
+      "destination": "wwwroot/lib/onscan/"
     }
   ]
 }
