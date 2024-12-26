@@ -26,7 +26,7 @@ namespace EIR_9209_2.DataStore
         }
 
 
-
+   
         public void AddEmployeePayPeirods(List<TACSEmployeePayPeirod> employeePayPeirods)
         {
             foreach (TACSEmployeePayPeirod item in employeePayPeirods.Select(r => r).ToList())
@@ -34,14 +34,31 @@ namespace EIR_9209_2.DataStore
                 _employeePayPeirod.TryAdd(item.id, item);
             }
         }
+        public async Task<List<RawRings>> GetTACSRawRings(string code)
+        {
+            try
+            {
+                //find raw Ring with code and EmpInfo.EmpId
+                DateTime threeDaysAgo = DateTime.Now.AddDays(-3);
 
-        public async Task<bool?> AddTacsRawRings(JObject crsEvent)
+                // Find all raw rings for the last 3 days that match the code and EmpInfo.EmpId
+                var rawRings = _tacsRawRings.Values
+                    .Where(r => r.EmpInfo.EmpId == code && DateTime.Parse(r.TranInfo.TranDate) >= threeDaysAgo)
+                    .ToList();
+                return rawRings;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
+        }
+        public async Task<bool?> AddTacsRawRings(RawRings rawRings)
         {
             bool saveToFile = false;
             try
             {
                 DateTime currenttime = DateTime.Now;
-                var rawRings = crsEvent.ToObject<RawRings>();
                 if (rawRings == null)
                 {
                     return null;
@@ -200,5 +217,7 @@ namespace EIR_9209_2.DataStore
                 return Task.FromResult(true);
             }
         }
+
+      
     }
 }

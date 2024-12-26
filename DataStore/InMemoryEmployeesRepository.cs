@@ -492,7 +492,16 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
     {
         try
         {
-            return _empList.Where(r => r.Value.EmployeeId == code || r.Value.EncodedId == code).Select(r => r.Value).FirstOrDefault();
+            var empData =  _empList.Where(r => r.Value.EmployeeId == code || r.Value.EncodedId == code).Select(r => r.Value).FirstOrDefault();
+            if (empData != null)
+            {
+                return empData;
+            }
+            else
+            {
+                _logger.LogInformation($"Employee {code} not Found in Employee list ");
+                return null;
+            }
         }
         catch (Exception e)
         {

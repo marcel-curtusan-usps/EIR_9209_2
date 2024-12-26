@@ -1,9 +1,11 @@
 ﻿using EIR_9209_2.DataStore;
+using EIR_9209_2.Models;
 using EIR_9209_2.Service;
 using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
+using NuGet.Protocol;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -32,7 +34,21 @@ namespace EIR_9209_2.Controllers
                 }
                 if (!string.IsNullOrEmpty(code))
                 {
-                    return Ok(await _employees.GetEmployeeByCode(code));
+                    var employee = await _employees.GetEmployeeByCode(code);
+                    var empRawRings = await _tacs.GetTACSRawRings(code);
+                    if (employee != null)
+                    {
+                        var empAndRawRings = new
+                        {
+                            Employee = employee,
+                            RawRings = empRawRings
+                        };
+                        return Ok(empAndRawRings);
+                    }
+                    else
+                    {
+                        return NotFound("Employee not found");
+                    }
                 }
                 else
                 {
@@ -56,7 +72,7 @@ namespace EIR_9209_2.Controllers
         // POST api/<ClockRingStationController>
         [HttpPost]
         [Route("AddRawRings")]
-        public async Task<ActionResult> Post([FromBody] JObject crsEvent)
+        public async Task<ActionResult> PostAddRawRings([FromBody] JObject crsEvent)
         {
             try
             {
@@ -67,7 +83,8 @@ namespace EIR_9209_2.Controllers
                 }
                 if (crsEvent.HasValues)
                 {
-                    return Ok(await _tacs.AddTacsRawRings(crsEvent));
+                    RawRings rawRings = crsEvent.ToObject<RawRings>();
+                    return Ok(await _tacs.AddTacsRawRings(rawRings));
                 }
                 else
                 {
