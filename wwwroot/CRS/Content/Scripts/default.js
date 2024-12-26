@@ -12,7 +12,7 @@ var prefixKeyCodes = [];
 let errorTimeout;
 const errorTimeLimit = 2000; // 15 seconds
 let inactivityTimeout;
-const inactivityTimeLimit = 15000; // 15 seconds
+const inactivityTimeLimit = 15000000; // 15 seconds
 const tacsDataTable = "tacsdatatable";
 const maxRetries = 5;
 const crsConnection = new signalR.HubConnectionBuilder()
