@@ -9,7 +9,7 @@
     <!--------- Header ---------->
     <div class="card-header header">
         <p id="headerLabel" style="margin-left: 10px;">Kiosk ID: <span id="kisokIdSpan"></span></p>
-        <p id="headerLabel" style="margin-right: 10px;">Tacs Time:<span id="tacsTime"></span></p>
+        <p id="headerLabel" style="margin-right: 10px;">TACS Time:<span id="tacsTime"></span></p>
     </div>
     <!--------- Kiosk Selection ---------->
     <div class="card-body text-center" id="kioskSelection" style="display:block">
@@ -27,7 +27,6 @@
             </div>
         </div>
     </div>
-
     <!--------- Welcome Page ---------->
     <div class="card-body text-center" id="landing" style="display:none">
         <div class="container-fluid p-0 d-flex justify-content-center align-items-center">
@@ -37,7 +36,7 @@
                 <label for="encodedId" class="visually-hidden">Encoded ID:</label>
                 <div class="row">
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" placeholder="Encoded ID:" id="barcodeScan" aria-label="Encoded Id"> <!--barcodeScan-->
+                        <input type="text" class="form-control" placeholder="EIN | Encoded ID | BLE ID" id="barcodeScan" aria-label="EIN | Encoded ID | BLE ID"> <!--barcodeScan-->
                         <button id="barcodeScanBtn" type="button" class="btn btn-outline-secondary">Search</button> <!--barcodeScanBtn-->
                     </div>
                 </div>
@@ -48,15 +47,11 @@
             </div>
         </div>
     </div>
-
     <div class="" id="root" style="display: none;">
         <!-- class = card-body -->
         <div class="kiosk-container">
-
-            <!--<div class="container" style="background-color:purple; width:"100%">-->
             <div class="row row-cols-2">
                 <div class="col-6">
-
                     <div class="component" id="profile">
                         <div>
                             <p class="prof-id" id="profId"></p>
@@ -64,10 +59,8 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-6">
-                    <!--------- Tacs Log ---------->
-
+                    <!--------- TACS Log ---------->
                     <div class="component" id="schedule-box">
                         <h2>CRS Event Log</h2>
                         <div class="card-body pb-0">
@@ -82,13 +75,10 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-6">
-                    <div class="Keypad-parent" id="keypadParent" >
+                    <div class="Keypad-parent" id="keypadParent">
                         <div class="Keypad-display" id="Keypad-display"></div>
-
                         <!--------- Keypad ---------->
-
                         <div class="component" id="keypad">
                             <button>1</button>
                             <button>2</button>
@@ -104,10 +94,7 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-6">
-
-
                     <!--------- Clock Buttons ---------->
                     <div class="component" id="button-container">
                         <button type="button" class="clockButtons" id="bt" naem="standardCRSEvent" data-tranCode="010">Begin Tour (BT)</button>
@@ -124,25 +111,20 @@
                     </div>
                 </div>
                 <!--</div>-->
-
                 <div class="component" id="topCodesContainer">
                     <div class="row mb-3">
                         <h5>Most Used OPN Codes</h5>
                     </div>
                     <div id="topCodeList">
-
                     </div>
-
                 </div>
             </div>
-
-
         </div>
     </div>
     <!--------- Footer ---------->
     <div class="text-body-secondary footer">
-        <p class="date" id="footerDate"></p>
-        <p class="USPS" id="footerLabel">USPS</p>
+        <p class="date p-2" id="footerDate"></p>
+        <p class="USPS p-2" id="footerLabel">USPS</p>
     </div>
     <script src="../lib/jquery/jquery.min.js"></script>
     <script src="../lib/luxon/luxon.js"></script>

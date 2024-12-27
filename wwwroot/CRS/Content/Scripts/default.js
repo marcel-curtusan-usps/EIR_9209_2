@@ -10,11 +10,13 @@ let kioskId = "";
 var suffixKeyCodes = [9,13];
 var prefixKeyCodes = [];
 let errorTimeout;
+let currentUser = {};
 const errorTimeLimit = 2000; // 15 seconds
 let inactivityTimeout;
 const inactivityTimeLimit = 15000000; // 15 seconds
 const tacsDataTable = "tacsdatatable";
 const maxRetries = 5;
+const events = ['mousemove', 'keydown', 'scroll', 'click', 'touchstart'];
 const crsConnection = new signalR.HubConnectionBuilder()
     .withUrl(SiteURLconstructor(window.location) + "/hubServics")
     .withAutomaticReconnect([0, 2000, 10000, 30000]) // Exponential backoff intervals
@@ -54,20 +56,34 @@ function resetInactivityTimer() {
     }, inactivityTimeLimit);
 }
 function setupInactivityListener() {
-    const events = ['mousemove', 'keydown', 'scroll', 'click', 'touchstart'];
     events.forEach(event => {
         document.addEventListener(event, resetInactivityTimer, false);
     });
 }
 function removeInactivityListener() {
-    const events = ['mousemove', 'keydown', 'scroll', 'click', 'touchstart'];
     events.forEach(event => {
         document.removeEventListener(event, resetInactivityTimer, false);
     });
     clearTimeout(inactivityTimeout);
 }
+// Function to focus on the barcodeScan input
+function focusBarcodeScan() {
+    document.getElementById('barcodeScan').focus();
+}
 
+// Add event listeners for each event to trigger the focus
+function addFocusEventListeners() {
+    events.forEach(event => {
+        document.addEventListener(event, focusBarcodeScan);
+    })
+};
 
+// Function to remove event listeners for focusing on the barcodeScan input
+function removeFocusEventListeners() {
+    events.forEach(event => {
+        document.removeEventListener(event, focusBarcodeScan);
+    });
+}
 /**
 * Extracts a URL parameter by name from the current window location.
 * @param {string} name - The name of the URL parameter to extract.
@@ -80,7 +96,9 @@ $.urlParam = function (name) {
 }
 
 $(function () {
-    document.title = $.urlParam("kioskId");
+  
+    kioskId = $.urlParam("kioskId");
+    document.title = kioskId;
     tacsTime();
     createTacsDatatable(tacsDataTable);
 
@@ -88,6 +106,7 @@ $(function () {
         Promise.all([kioskConfig()]);
     }
     else {
+        focusBarcodeScan();
         Promise.all([restEIN()]);
         $('input[type=text][name=barcodeScan]').on("keyup", () => {
             if (($('input[name=barcodeScan]').val() === '')) {
@@ -101,7 +120,7 @@ $(function () {
                 $('button[id=barcodeScanBtn]').prop('disabled', true);
             }
         });
-      
+
         setHeight();
         $('span[id=kisokIdSpan]').text(kioskId);
         $('button[id=barcodeScanBtn]').off().on('click', () => {
@@ -117,50 +136,172 @@ $(function () {
                     Promise.all([restEIN()]);
                 }, errorTimeLimit);
             }
-          
+
+        });
+        $('button[id=bt]').off().on('click', () => {
+            let btTranCode = $('#bt').data('trancode');
+            $('div[id=Keypad-display]').text(btTranCode);
+            $('button[id=confirmBtn]').prop('disabled', false);
+        });
+        $('button[id=ol]').off().on('click', () => {
+            let olTranCode = $('#ol').data('trancode');
+            $('div[id=Keypad-display]').text(olTranCode);
+            $('button[id=confirmBtn]').prop('disabled', false);
+        });
+        $('button[id=il]').off().on('click', () => {
+            let ilTranCode = $('#il').data('trancode');
+            $('div[id=Keypad-display]').text(ilTranCode);
+            $('button[id=confirmBtn]').prop('disabled', false);
+        });
+        $('button[id=et]').off().on('click', () => {
+            let etTranCode = $('#et').data('trancode');
+            $('div[id=Keypad-display]').text(etTranCode);
+            $('button[id=confirmBtn]').prop('disabled', false);
+        });
+        $('button[id=mvBtn]').off().on('click', () => {
+            $('div[id=Keypad-display]').text("");
+        });
+        $('button[id=cancelBtn]').off().on('click',async () => {
+            await restEIN();
         });
 
-        $('button[id=cancelBtn]').off().on('click', () => {
-            Promise.all([restEIN()]);
+
+        $('button[id=confirmBtn]').off().on('click', async () => {
+            await confirmBtnSubmit().then(async () => {
+               await restEIN();
+            });         
         });
-        $('button[id=confirmBtn]').off().on('click', () => {
-            Promise.all([restEIN()]);
-        });
-    }
-    var options = {
-        timeBeforeScanTest: 100,
-        avgTimeByChar: 30,
-        minLength:6,
-        suffixKeyCodes: suffixKeyCodes,
-        prefixKeyCodes: prefixKeyCodes,
-        scanButtonLongPressTime: 500,
-        stopPropagation: false,
-        preventDefault: false,
-        reactToPaste: true,
-        reactToKeyDown: false,
-        singleScanQty: 1
-    }
-    // Initialize
-    onScan.attachTo(document, {
-        suffixKeyCodes: [13], // enter-key expected at the end of a scan
-        reactToPaste: true, // Compatibility to built-in scanners in paste-mode (as opposed to keyboard-mode)
-        onScan: function (sCode, iQty) {
-            console.log('Scanned: ' + iQty + 'x ' + sCode);
-            if (sCode !== "") {
-                $('span[id=errorBarcodeScan]').text("");
-                Promise.all([loadEIN(sCode)]);
-            }
-            else {
-                $('span[id=errorBarcodeScan]').text("Invalid Scan");
-                clearTimeout(errorTimeout);
-                errorTimeout = setTimeout(() => {
-                    Promise.all([restEIN()]);
-                }, errorTimeLimit);
-            }
+
+        var options = {
+            timeBeforeScanTest: 100,
+            avgTimeByChar: 30,
+            minLength: 6,
+            suffixKeyCodes: suffixKeyCodes,
+            prefixKeyCodes: prefixKeyCodes,
+            scanButtonLongPressTime: 500,
+            stopPropagation: false,
+            preventDefault: false,
+            reactToPaste: true,
+            reactToKeyDown: false,
+            singleScanQty: 1
         }
-    });
+        // Initialize
+        onScan.attachTo(document, {
+            suffixKeyCodes: [13], // enter-key expected at the end of a scan
+            reactToPaste: true, // Compatibility to built-in scanners in paste-mode (as opposed to keyboard-mode)
+            onScan: function (sCode, iQty) {
+                console.log('Scanned: ' + iQty + 'x ' + sCode);
+                if (sCode !== "") {
+                    $('span[id=errorBarcodeScan]').text("");
+                    Promise.all([loadEIN(sCode)]);
+                }
+                else {
+                    $('span[id=errorBarcodeScan]').text("Invalid Scan");
+                    clearTimeout(errorTimeout);
+                    errorTimeout = setTimeout(() => {
+                        Promise.all([restEIN()]);
+                    }, errorTimeLimit);
+                }
+            }
+        });
 
+    };
 });
+async function confirmBtnSubmit() {
+
+    // {
+    //"empInfo": {
+    //"empId": "02953255",
+    //"empIdType": "EIN"
+    //},
+    //"tranInfo":{
+    //"tranCode": "010",
+    //"ringReasonCode": "00",
+    //"tranDate": "2020-07-30",
+    //"tranTime": "07.00",
+    //"timeZoneCode": "UTC",
+    //"utcOffset": "-06:00",
+    //"dstObserved": true,
+    //"ringTypeCode": "000",
+    //"financeNo": "353340"
+    //},
+    //"ringInfo":{
+    //"financeNoUnitId": null,
+    //"rsc": null,
+    //"rscSuffix": null,
+    //"operationId": null,
+    //"localUnitNo": null,
+    //"routeNo": null,
+    //"activityDurationQty": null,
+    //"scheduledInd": null,
+    //"positionLevelNo": null,
+    //"facilityId": null,
+    //"vehicleId": null
+    //},
+    //"deviceInfo": {
+    //"deviceId": "MDD-12345",
+    //"deviceType": "MDD",
+    //"latitude": "44.818870",
+    //"longitude": "-93.167220"
+    //}
+    //}
+    let RawRingObject = {
+        empInfo: {
+            empId: currentUser.employeeId,
+            empIdType: "EIN"
+        },
+        tranInfo: {
+            tranCode: $('div[id=Keypad-display]').text(),
+            ringReasonCode: "00",
+            tranDate: "2020-07-30",
+            tranTime: "07.00",
+            timeZoneCode: "UTC",
+            utcOffset: "-06:00",
+            dstObserved: true,
+            ringTypeCode: "000",
+            financeNo: "353340"
+        },
+        ringInfo: {
+            OperationId: currentUser.baseOp
+        },
+        deviceInfo: {
+            deviceId: kioskId,
+            deviceType: "CRS",
+            latitude: "44.818870",
+            longitude: "-93.167220"
+        }
+    }
+
+    //create tacs event
+    fetch(`../api/ClockRingStation/AddRawRings`, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json-patch+json'
+        },
+        body: JSON.stringify(RawRingObject)
+    }).then(response => {
+        if (!response.ok) {
+            errorTimeout = setTimeout(function () {
+                Promise.all([restEIN()]);
+            }, errorTimeLimit);
+            throw new Error(`HTTP error! status: ${response.status}`);
+        } else if (response.ok && response.status != 200) {
+            $('span[id=errorBarcodeScan]').text(`Employee ${payLoadData} Not Found`);
+            clearTimeout(errorTimeout);
+            errorTimeout = setTimeout(() => {
+                Promise.all([restEIN()]);
+            }, errorTimeLimit);
+            throw new Error();
+        }
+        else {
+            return response.json()
+        }
+
+    }).then(async data => {
+    }).catch(error => {
+            console.error('Error:', error);
+        });
+};
 async function kioskConfig() {
     $('div[id=landing]').css('display', 'none');
     $('div[id=root]').css('display', 'none');
@@ -190,14 +331,19 @@ async function kioskConfig() {
     });
 }
 async function loadEIN(payLoadData) {
+    let payLoad = payLoadData;
 
+    // Trim to 9 characters from the end if payLoadData starts with 4 zeros
+    if (payLoadData.startsWith("0000")) {
+        payLoad = payLoadData.slice(-9);
+    }
     $('input[id=barcodeScan]').val("");
-    await fetch(`../api/ClockRingStation/GetByEIN?code=${payLoadData}`)
+    await fetch(`../api/ClockRingStation/GetByEIN?code=${payLoad}`)
         .then(response => {
             if (!response.ok) {
-            errorTimeout = setTimeout(function () {
+                errorTimeout = setTimeout(function () {
                     Promise.all([restEIN()]);
-                }, 5000);
+                }, errorTimeLimit);
                 throw new Error(`HTTP error! status: ${response.status}`);
             } else if (response.ok && response.status != 200) {
                 $('span[id=errorBarcodeScan]').text(`Employee ${payLoadData} Not Found`);
@@ -210,9 +356,11 @@ async function loadEIN(payLoadData) {
             else {
                 return response.json()
             }
-      
         })
         .then(async data => {
+            // If load is successful, remove the focus event listeners
+            removeFocusEventListeners();
+            currentUser = data;
             clearTimeout(errorTimeout);
             $('div[id=landing]').css('display', 'none');
             $('div[id=kioskSelection]').css('display', 'none');
@@ -321,6 +469,7 @@ async function formatProfId(data) {
 async function restEIN() {
     // Remove the inactivity listener
     removeInactivityListener();
+    currentUser = {};
     $('button[id=confirmBtn]').prop('disabled', true);
     $('div[id=root]').css('display', 'none');
     $('div[id=kioskSelection]').css('display', 'none');

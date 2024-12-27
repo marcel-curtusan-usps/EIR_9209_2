@@ -51,6 +51,19 @@
     ]
   },
   {
+    "Id": "1ad132ca-adc6-4449-aee1-7adc9aa549ed",
+    "Name": "TACS",
+    "Description": "Time and Attendance Collection System",
+    "MessageTypes": [
+      {
+        "Id": "b1da3037-4103-4e89-9c84-e4948b63be86",
+        "Name": "postRawRing",
+        "Description": "Raw Ring",
+        "BaseURL": "https://{0}/ihs-rawring-service-1.0/rawrings"
+      }
+    ]
+  },
+  {
     "Id": "4ed5b34b-499a-478d-9f9b-011c26868832",
     "Name": "SV",
     "Description": "Surface Visibility ",
