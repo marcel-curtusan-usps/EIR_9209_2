@@ -36,12 +36,14 @@ namespace EIR_9209_2.Controllers
                 {
                     var employee = await _employees.GetEmployeeByCode(code);
                     var empRawRings = await _tacs.GetTACSRawRings(code);
+                    var empTopOpnCode = await _tacs.GetTopOpnCodes(code);
                     if (employee != null)
                     {
                         var empAndRawRings = new
                         {
                             Employee = employee,
-                            RawRings = empRawRings
+                            RawRings = empRawRings,
+                            TopOpnCodes = empTopOpnCode
                         };
                         return Ok(empAndRawRings);
                     }
@@ -84,6 +86,7 @@ namespace EIR_9209_2.Controllers
                 if (crsEvent.HasValues)
                 {
                     RawRings rawRings = crsEvent.ToObject<RawRings>();
+               
                     return Ok(await _tacs.AddTacsRawRings(rawRings));
                 }
                 else

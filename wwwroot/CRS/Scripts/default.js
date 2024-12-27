@@ -360,17 +360,17 @@ async function loadEIN(payLoadData) {
         .then(async data => {
             // If load is successful, remove the focus event listeners
             removeFocusEventListeners();
-            currentUser = data;
+            currentUser = data.employee;
             clearTimeout(errorTimeout);
             $('div[id=landing]').css('display', 'none');
             $('div[id=kioskSelection]').css('display', 'none');
             $('div[id=root]').css('display', 'block');
-            $('p[id=profId]').text(await formatProfId(data));
-            if (data.hasOwnProperty("topOpCodes") && data.topOpCodes.length > 0) {
-                await loadTopCodes(data.topOpCodes);
+            $('p[id=profId]').text(await formatProfId(data.employee));
+            if (data.hasOwnProperty("topOpnCodes") && data.topOpnCodes.length > 0) {
+                await loadTopCodes(data.topOpnCodes);
             }
-            if (data.hasOwnProperty("tacsLog") && data.tacsLog.length > 0) {
-                await loadTacsLogs(data.tacsLog);
+            if (data.hasOwnProperty("rawRings") && data.rawRings.length > 0) {
+                await loadRawRingsLogs(data.rawRings);
             }
             // Start the inactivity listener
             setupInactivityListener();
@@ -394,18 +394,52 @@ async function loadTopCodes(codesList) {
         console.error('Error:', e);
     }
 }
-async function loadTacsDatatable(codesList) {
+async function loadRawRingsLogs(rawRingList) {
     try {
-        const topCodeListDiv = $('div[id=topCodeList]');
-        topCodeListDiv.empty(); // Clear any existing content
-        topOpCodes.forEach(code => {
-            const codeElement = $('<div>')
-                .text(code)
-                .attr('data-opCode', code); // Add data-opCode attribute
-            topCodeListDiv.append(codeElement);
+        // Create an array to hold the new data objects
+        let newData = rawRingList.map(rawRing => {
+            return {
+                id: rawRing.sourceTranId,
+                tranDateTime: `${rawRing.tranInfo.tranDate} ${rawRing.tranInfo.tranTime}`,
+                tranCode: rawRing.tranInfo.tranCode,
+                operationId: rawRing.ringInfo.operationId
+            };
         });
+
+        // Pass the new data to updateRawRingsDataTable
+        await updateRawRingsDataTable(newData, tacsDataTable);
     } catch (e) {
         console.error('Error:', e);
+    }
+}
+async function loadRawRingsDataTable(data, table) {
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        $('#' + table).DataTable().rows.add(data).draw();
+    }
+}
+async function updateRawRingsDataTable(newdata, table) {
+    try {
+        return new Promise((resolve, reject) => {
+            let loadnew = true;
+            if ($.fn.dataTable.isDataTable("#" + table)) {
+                for (const element of newdata) {
+                    $('#' + table).DataTable().rows(function (idx, data, node) {
+                        if (data.id === element.id) {
+                            loadnew = false;
+                            $('#' + table).DataTable().row(node).data(element).draw().invalidate();
+                        }
+
+                    });
+
+                    if (loadnew) {
+                        loadRawRingsDataTable([element], table);
+                    }
+                }
+            } resolve();
+            return false;
+        });
+    } catch (e) {
+        throw new Error(e.toString());
     }
 }
 function constructTacsColumns() {
@@ -415,22 +449,37 @@ function constructTacsColumns() {
     {
         //first column is always the name
         title: "Op Code",
-        data: "name",
-        width: '240px'
+        data: "operationId",
+        width: '20%'
     };
     var column1 =
     {
         //first column is always the name
         title: "Event",
-        data: "name",
-        width: '240px'
+        data: "tranCode",
+        width: '20%',
+        mRender: function (data, type, full) {
+            if (data === "010") {
+                return `BT (${data})`;
+            } else if (data === "012") {
+                return `OL (${data})`;
+            } else if (data === "013") {
+                return `IL (${data})`;
+            } else if (data === "014") {
+                return `ET (${data})`;
+            } else if (data === "011") {
+                return `MV (${data})`;
+            } else {
+                return data;
+            }
+        }
     };
     var column2 =
     {
         //first column is always the name
         title: "Date & Time",
-        data: "name",
-        width: '240px'
+        data: "tranDateTime",
+        width: '60%'
     };
     columns[0] = column0;
     columns[1] = column1;
@@ -476,7 +525,12 @@ async function restEIN() {
     $('div[id=landing]').css('display', 'block');
     $('span[id=errorBarcodeScan]').text("");
     $('input[id=barcodeScan]').val('').trigger('keyup').focus();
-    $('div[id=Keypad-display]').text('');   
+    $('div[id=Keypad-display]').text('');  
+    if ($.fn.dataTable.isDataTable("#" + tacsDataTable)) {// Check if DataTable has been previously created and therefore needs to be flushed
+        // For new version use table.destroy();
+        $('#' + tacsDataTable).DataTable().clear().draw(); // Empty the DOM element which contained DataTable
+        // The line above is needed if number of columns change in the Data
+    }
 }
 /**
  * Starts the SignalR connection with retry logic using exponential backoff and jitter.
