@@ -274,7 +274,7 @@
 	  <Content Update="wwwroot\CRS\default.html">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\CRS\Content\Scripts\default.js">
+	  <Content Update="wwwroot\CRS\Scripts\default.js">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\css\bootstrap-icons.css">
