@@ -121,6 +121,12 @@ $(function () {
             }
         });
 
+        $('#barcodeScan').on('keydown', function (event) {
+            if (event.keyCode === 13) { // Check if Enter key is pressed
+                $('#barcodeScanBtn').click(); // Trigger click event on barcodeScanBtn
+            }
+        });
+
         setHeight();
         $('span[id=kisokIdSpan]').text(kioskId);
         $('button[id=barcodeScanBtn]').off().on('click', () => {

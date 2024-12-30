@@ -80,45 +80,81 @@
                         <div class="Keypad-display" id="Keypad-display"></div>
                         <!--------- Keypad ---------->
                         <div class="component" id="keypad">
-                            <button>1</button>
-                            <button>2</button>
-                            <button>3</button>
-                            <button>4</button>
-                            <button>5</button>
-                            <button>6</button>
-                            <button>7</button>
-                            <button>8</button>
-                            <button>9</button>
-                            <button>0</button>
-                            <button>←</button>
+                            <button type="button" class="btn">1</button>
+                            <button type="button" class="btn">2</button>
+                            <button type="button" class="btn">3</button>
+                            <button type="button" class="btn">4</button>
+                            <button type="button" class="btn">5</button>
+                            <button type="button" class="btn">6</button>
+                            <button type="button" class="btn">7</button>
+                            <button type="button" class="btn">8</button>
+                            <button type="button" class="btn">9</button>
+                            <button type="button" class="btn">0</button>
+                            <button type="button" class="btn">←</button>
+                            <!--<button>2</button>
+                <button>3</button>-->
+                            <!--<button>4</button>
+                <button>5</button>
+                <button>6</button>
+                <button>7</button>
+                <button>8</button>
+                <button>9</button>
+                <button>0</button>
+                <button>←</button>-->
                         </div>
                     </div>
                 </div>
                 <div class="col-6">
                     <!--------- Clock Buttons ---------->
                     <div class="component" id="button-container">
-                        <button type="button" class="clockButtons" id="bt" naem="standardCRSEvent" data-tranCode="010">Begin Tour (BT)</button>
-                        <button type="button" class="clockButtons" id="ol" naem="standardCRSEvent" data-tranCode="012">Out to Lunch (OL)</button>
-                        <button type="button" class="clockButtons" id="il" naem="standardCRSEvent" data-tranCode="013">In from Lunch (IL)</button>
-                        <button type="button" class="clockButtons" id="et" naem="standardCRSEvent" data-tranCode="014">End Tour (ET)</button>
-                        <button type="button" class="clockButtons" id="mvBtn" data-tranCode="011">Move (MV)</button>
+                        <button type="button" class="btn clockButtons" id="bt" name="standardCRSEvent" data-tranCode="010">Begin Tour (BT)</button>
+                        <button type="button" class="btn clockButtons" id="ol" name="standardCRSEvent" data-tranCode="012">Out to Lunch (OL)</button>
+                        <button type="button" class="btn clockButtons" id="il" name="standardCRSEvent" data-tranCode="013">In from Lunch (IL)</button>
+                        <button type="button" class="btn clockButtons" id="et" name="standardCRSEvent" data-tranCode="014">End Tour (ET)</button>
+                        <button type="button" class="btn clockButtons" id="mvBtn" data-tranCode="011">Move (MV)</button>
                         <div id="cancel-container">
-                            <button type="button" class="clockButtons" id="cancelBtn">Cancel</button>
+                            <button type="button" class="btn clockButtons" id="cancelBtn">Cancel</button>
                         </div>
                         <div class="confirm-container">
-                            <button type="button" class="clockButtons" disabled="disabled" id="confirmBtn">Confirm</button>
+                            <button type="button" class="btn clockButtons" disabled="disabled" id="confirmBtn">Confirm</button>
                         </div>
                     </div>
                 </div>
-                <!--</div>-->
+
+                <!--------- Top Opn Codes ---------->
                 <div class="component" id="topCodesContainer">
-                    <div class="row mb-3">
-                        <h5>Most Used OPN Codes</h5>
+                    <div class="row mt-1">
+                        <div class="text-center" >
+                            <h5 id="topOpnCodeLabel">Most Used OPN Codes:</h5>
+                        </div>
                     </div>
-                    <div id="topCodeList">
+                    <div class="row">
+                        <div class="col-2">
+                            <button class="topCodeButton btn " data-tranCode="011">000</button>
+                        </div>
+                        <div class="col-2">
+                            <button class="topCodeButton btn " data-tranCode="011">123</button>
+                        </div>
+                        <div class="col-2">
+                            <button class="topCodeButton btn " data-tranCode="011">555</button>
+                        </div>
+                        <div class="col-2">
+                            <button class="topCodeButton btn " data-tranCode="011">789</button>
+                        </div>
+                        <div class="col-2">
+                            <button class="topCodeButton btn " data-tranCode="011">111</button>
+                        </div>
+                        <div class="col-2">
+                            <button class="topCodeButton btn " data-tranCode="011">333</button>
+                        </div>
                     </div>
                 </div>
+
+
+                <div id="topCodeList">
+                </div>
             </div>
+                </div>
         </div>
     </div>
     <!--------- Footer ---------->

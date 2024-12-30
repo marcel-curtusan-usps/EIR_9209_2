@@ -253,7 +253,7 @@ code {
   width: 12vw;
   height: 6.2vh;
   padding: 0px;
-  font-size: 3vw;
+  font-size: max(2vw, 50px);
   background-color: #f7f7f7;
   cursor: pointer;
   margin: 0px;
@@ -369,8 +369,6 @@ code {
 
 /*--------------------------TopCodes----------------------------*/
 #topCodesContainer {
-  display: flex;
-  grid-gap: 2vw;
   justify-content: center;
   align-items: center;
   width: 99vw !important;
@@ -383,12 +381,16 @@ code {
   padding: 5px;
 }
 
+#topOpnCodeLabel {
+  text-decoration: underline 5%;
+}
+
 .topCodeButton {
   margin: 0;
   border: none;
-  font-size: 3vw;
+  font-size: 2vw;
   line-height: 1;
-  height: 100%;
+  height: 5vh;
   width: 100%;
 }
 
