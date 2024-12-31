@@ -147,28 +147,27 @@ code {
 }*/
 /*--------------------------- Profile ---------------------------*/
 #profile {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   padding: 10px !important;
   margin-left: 6px;
   text-align: center;
-  color: navy;
+  color: black !important;
   overflow: hidden;
   height: 38vh;
 }
 
 .prof-id {
-  color: navy;
-  font-size: 6vw;
+  color: black;
+  font-size: 5rem;
   font-weight: bold;
-  justify-content: center;
   margin: 0;
+  margin-top: -15px !important;
+  margin-bottom: -10px;
 }
 
 #profileImg {
-  font-size: 5vw;
-  justify-content: center;
+  margin-top: -10px;
+  font-size: 8vw;
+  color: black;
 }
 
 /*------------------------TACSLog------------------------------*/
@@ -177,7 +176,6 @@ code {
   /*top right bottom left*/
   margin: 0px 0px 0px 0px !important;
   text-align: center;
-  color: navy;
   overflow: hidden;
   height: 38vh;
 }
@@ -249,17 +247,14 @@ code {
   width: 14.5vw;
   height: 6.2vh;
   padding: 0px;
-  font-size: max(2vw, 50px);
+  font-size: max(2vw, 40px);
   cursor: pointer;
   margin: 0px;
   justify-content: center;
   line-height: 1;
+  overflow: hidden;
 }
 
-/*#keypad button:hover {
-        background-color: navy;*/ /* Navy on hover */
-/*color: white;
-    }*/
 /* ------ Bottom Row styling ------ */
 /*0 Button */
 #keypad button:nth-last-child(2) {
@@ -374,7 +369,7 @@ code {
 }
 
 #topOpnCodeLabel {
-  font-size: 0.6vw;
+  font-size: 1vw;
   background-color: white;
   color: black;
   box-shadow: 1px 1px 1px 1px grey;
@@ -385,8 +380,9 @@ code {
   border: none;
   font-size: 2vw;
   line-height: 1;
-  height: 7vh;
+  height: 6vh;
   width: 100%;
+  font-weight: 700 !important;
 }
 
 .topCodesContainer button:hover {

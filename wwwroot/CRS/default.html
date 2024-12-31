@@ -62,8 +62,13 @@
                 </div>
                 <div class="col-6">
                     <!--------- TACS Log ---------->
-                    <div class="component" id="schedule-box">
-                        <h2>CRS Event Log</h2>
+                    <div class="component" id="schedule-box" style="position: relative; overflow: visible;">
+                        <!--<h2>CRS Event Log</h2>-->
+
+                        <div class="text-center floating-badge" style="margin-top:-25px; margin-bottom:5px;">
+                            <span class="badge" id="topOpnCodeLabel">CRS Event Log</span>
+                        </div>
+
                         <div class="card-body pb-0">
                             <div class="table-responsive">
                                 <table aria-describedby="" class="table table-striped table-sm table-hover mb-0 border-bottom" id="tacsdatatable">
@@ -81,27 +86,17 @@
                         <div class="Keypad-display" id="Keypad-display"></div>
                         <!--------- Keypad ---------->
                         <div class="component" id="keypad">
-                            <button type="button" class="btn btn-light" data-tranCode="011">1</button>
-                            <button type="button" class="btn btn-light" data-tranCode="011">2</button>
-                            <button type="button" class="btn btn-light" data-tranCode="011">3</button>
-                            <button type="button" class="btn btn-light" data-tranCode="011">4</button>
-                            <button type="button" class="btn btn-light" data-tranCode="011">5</button>
-                            <button type="button" class="btn btn-light" data-tranCode="011">6</button>
-                            <button type="button" class="btn btn-light" data-tranCode="011">7</button>
-                            <button type="button" class="btn btn-light" data-tranCode="011">8</button>
-                            <button type="button" class="btn btn-light" data-tranCode="011">9</button>
-                            <button type="button" class="btn btn-light" data-tranCode="011">0</button>
-                            <button type="button" class="btn btn-light">←</button>
-                            <!--<button>2</button>
-                        <button>3</button>-->
-                            <!--<button>4</button>
-                        <button>5</button>
-                        <button>6</button>
-                        <button>7</button>
-                        <button>8</button>
-                        <button>9</button>
-                        <button>0</button>
-                        <button>←</button>-->
+                            <button type="button" class="btn btn-light" data-tranCode="011" id="keypadButton">1</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011" id="keypadButton">2</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011" id="keypadButton">3</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011" id="keypadButton">4</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011" id="keypadButton">5</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011" id="keypadButton">6</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011" id="keypadButton">7</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011" id="keypadButton">8</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011" id="keypadButton">9</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011" id="keypadButton">0</button>
+                            <button type="button" class="btn btn-light" id="keypadButton">←</button>
                         </div>
                     </div>
                 </div>
@@ -117,43 +112,71 @@
                             <button type="button" class="btn btn-danger clockButtons" id="cancelBtn">Cancel</button>
                         </div>
                         <div class="confirm-container">
-                            <button type="button" class="btn btn-success clockButtons" disabled="disabled" id="confirmBtn">Confirm</button>
+                            <button type="button" class="btn btn-success clockButtons" data-bs-toggle="modal" data-bs-target="#exampleModal" disabled="disabled" id="confirmBtn">Confirm</button>
                         </div>
                     </div>
                 </div>
 
+
+
                 <!--------- Top Opn Codes ---------->
                 <div class="component" id="topCodesContainer">
-                    <div class="row mt-1">
+                    <!--<div class="row mt-1">
+                    <div class="text-center">
+                        <h5 id="topOpnCodeLabel">Most Used OPN Codes:</h5>
+                    </div>
+                </div>-->
+                    <div class="row p-0" style="margin-top:-15px; margin-bottom:5px;">
                         <div class="text-center">
-                            <h5 id="topOpnCodeLabel">Most Used OPN Codes:</h5>
+                            <span class="badge" id="topOpnCodeLabel">Most Used OPN Codes:</span>
                         </div>
                     </div>
                     <div class="row" id="topCodeList">
                         <div class="col-2">
-                            <button class="topCodeButton btn btn-light " data-tranCode="011">000</button>
+                            <button class="topCodeButton btn btn-light " data-tranCode="011" id="topCodeButton">000</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!--------- Footer ---------->
-    <div class="text-body-secondary footer">
-        <p class="date p-2" id="footerDate"></p>
-        <p class="USPS p-2" id="footerLabel">USPS</p>
-    </div>
 
-    <script src="../lib/jquery/jquery.min.js"></script>
-    <script src="../lib/luxon/luxon.js"></script>
-    <script src="../lib/jquery-validation/jquery.validate.js"></script>
-    <script src="../lib/jquery-validation/additional-methods.js"></script>
-    <script src="../lib/datatables.net/datatables.js"></script>
-    <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
-    <script src="../lib/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-    <script src="../lib/microsoft/signalr/dist/browser/signalr.js"></script>
-    <script src="../lib/microsoft/signalr-protocol-msgpack/dist/browser/signalr-protocol-msgpack.js"></script>
-    <script src="../lib/onscan/onscan.min.js"></script>
-    <script src="Scripts/default.js"></script>
+
+
+        <!--------- Footer ---------->
+        <div class="text-body-secondary footer">
+            <p class="date p-2" id="footerDate"></p>
+            <p class="USPS p-2" id="footerLabel">USPS</p>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" style="z-index: 2050;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="exampleModalLabel">Thank you</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="modalClose"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h5>You have submitted your clock event</h5>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="modalClose">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <script src="../lib/jquery/jquery.min.js"></script>
+        <script src="../lib/luxon/luxon.js"></script>
+        <script src="../lib/jquery-validation/jquery.validate.js"></script>
+        <script src="../lib/jquery-validation/additional-methods.js"></script>
+        <script src="../lib/datatables.net/datatables.js"></script>
+        <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+        <script src="../lib/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+        <script src="../lib/microsoft/signalr/dist/browser/signalr.js"></script>
+        <script src="../lib/microsoft/signalr-protocol-msgpack/dist/browser/signalr-protocol-msgpack.js"></script>
+        <script src="../lib/onscan/onscan.min.js"></script>
+        <script src="Scripts/default.js"></script>
 </body>
 </html>
