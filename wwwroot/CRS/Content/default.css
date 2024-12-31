@@ -43,17 +43,10 @@ html, body {
 }
 
 button {
-  background-color: #f9f9f9;
   border-radius: 10px;
-  color: navy;
   box-shadow: 2px 2px 2px gray;
   font-weight: bold;
   border: none;
-}
-
-button:hover {
-  background-color: navy !important; /* Navy on hover */
-  color: white;
 }
 
 .label-left-align {
@@ -231,7 +224,6 @@ code {
   padding: 10px;
   font-size: 4vh;
   font-weight: bolder;
-  background-color: white;
   border-radius: 10px;
   box-shadow: 2px 2px 2px 2px gray;
   margin-left: 6px;
@@ -254,7 +246,6 @@ code {
   height: 6.2vh;
   padding: 0px;
   font-size: max(2vw, 50px);
-  background-color: #f7f7f7;
   cursor: pointer;
   margin: 0px;
   justify-content: center;

@@ -13,9 +13,10 @@ let errorTimeout;
 let currentUser = {};
 const errorTimeLimit = 2000; // 15 seconds
 let inactivityTimeout;
-const inactivityTimeLimit = 15000000; // 15 seconds
+const inactivityTimeLimit = 15000; // 15 seconds
 const tacsDataTable = "tacsdatatable";
 const maxRetries = 5;
+let TranCode = "";
 const events = ['mousemove', 'keydown', 'scroll', 'click', 'touchstart'];
 const crsConnection = new signalR.HubConnectionBuilder()
     .withUrl(SiteURLconstructor(window.location) + "/hubServics")
@@ -145,27 +146,33 @@ $(function () {
 
         });
         $('button[id=bt]').off().on('click', () => {
-            let btTranCode = $('#bt').data('trancode');
-            $('div[id=Keypad-display]').text(btTranCode);
+            TranCode = $('#bt').data('trancode');
+            $('div[id=Keypad-display]').text(TranCode);
             $('button[id=confirmBtn]').prop('disabled', false);
         });
         $('button[id=ol]').off().on('click', () => {
-            let olTranCode = $('#ol').data('trancode');
-            $('div[id=Keypad-display]').text(olTranCode);
+            TranCode = $('#ol').data('trancode');
+            $('div[id=Keypad-display]').text(TranCode);
             $('button[id=confirmBtn]').prop('disabled', false);
         });
         $('button[id=il]').off().on('click', () => {
-            let ilTranCode = $('#il').data('trancode');
-            $('div[id=Keypad-display]').text(ilTranCode);
+            TranCode = $('#il').data('trancode');
+            $('div[id=Keypad-display]').text(TranCode);
             $('button[id=confirmBtn]').prop('disabled', false);
         });
         $('button[id=et]').off().on('click', () => {
-            let etTranCode = $('#et').data('trancode');
-            $('div[id=Keypad-display]').text(etTranCode);
+            TranCode = $('#et').data('trancode');
+            $('div[id=Keypad-display]').text(TranCode);
             $('button[id=confirmBtn]').prop('disabled', false);
         });
         $('button[id=mvBtn]').off().on('click', () => {
-            $('div[id=Keypad-display]').text("");
+            TranCode = $('#il').data('trancode');
+            $('div[id=Keypad-display]').text(""); 
+            $('button[id=bt]').prop('disabled', true);
+            $('button[id=ol]').prop('disabled', true);
+            $('button[id=il]').prop('disabled', true);
+            $('button[id=et]').prop('disabled', true);
+
         });
         $('button[id=cancelBtn]').off().on('click',async () => {
             await restEIN();
@@ -257,7 +264,7 @@ async function confirmBtnSubmit() {
             empIdType: "EIN"
         },
         tranInfo: {
-            tranCode: $('div[id=Keypad-display]').text(),
+            tranCode: TranCode,
             ringReasonCode: "00",
             tranDate: "2020-07-30",
             tranTime: "07.00",
@@ -268,7 +275,7 @@ async function confirmBtnSubmit() {
             financeNo: "353340"
         },
         ringInfo: {
-            OperationId: currentUser.baseOp
+            OperationId: TranCode === "011" ? $('div[id=Keypad-display]').text() : currentUser.baseOp
         },
         deviceInfo: {
             deviceId: kioskId,
@@ -372,6 +379,7 @@ async function loadEIN(payLoadData) {
             $('div[id=kioskSelection]').css('display', 'none');
             $('div[id=root]').css('display', 'block');
             $('p[id=profId]').text(await formatProfId(data.employee));
+
             if (data.hasOwnProperty("topOpnCodes") && data.topOpnCodes.length > 0) {
                 await loadTopCodes(data.topOpnCodes);
             }
@@ -454,7 +462,7 @@ function constructTacsColumns() {
     var column0 =
     {
         //first column is always the name
-        title: "Op Code",
+        title: "OPN Code",
         data: "operationId",
         width: '20%'
     };
@@ -532,6 +540,11 @@ async function restEIN() {
     $('span[id=errorBarcodeScan]').text("");
     $('input[id=barcodeScan]').val('').trigger('keyup').focus();
     $('div[id=Keypad-display]').text('');  
+    $('button[id=bt]').prop('disabled', false);
+    $('button[id=ol]').prop('disabled', false);
+    $('button[id=il]').prop('disabled', false);
+    $('button[id=et]').prop('disabled', false);
+    $('button[id=mvBtn]').prop('disabled', false);
     if ($.fn.dataTable.isDataTable("#" + tacsDataTable)) {// Check if DataTable has been previously created and therefore needs to be flushed
         // For new version use table.destroy();
         $('#' + tacsDataTable).DataTable().clear().draw(); // Empty the DOM element which contained DataTable
@@ -737,14 +750,30 @@ function SiteURLconstructor(winLoc) {
 function handleKeypadClick(event) {
     const KeypadDisplay = document.querySelector('.Keypad-display');
     const buttonValue = event.target.textContent;
-
+    TranCode = event.target.dataset.trancode;
     if (buttonValue === '←') {
         // Handle backspace
         KeypadDisplay.textContent = KeypadDisplay.textContent.slice(0, -1);
+        if (KeypadDisplay.textContent.length <= 0) {
+            $('button[id=bt]').prop('disabled', false);
+            $('button[id=ol]').prop('disabled', false);
+            $('button[id=il]').prop('disabled', false);
+            $('button[id=et]').prop('disabled', false);
+            $('button[id=mvBtn]').prop('disabled', false);
+            $('button[id=confirmBtn]').prop('disabled', true);
+        }
     } else {
         // Append the button value to the display if it's not backspace and length is less than 3
         if (KeypadDisplay.textContent.length < 3) {
             KeypadDisplay.textContent += buttonValue;
+            if (KeypadDisplay.textContent.length === 3) {
+                $('button[id=bt]').prop('disabled', true);
+                $('button[id=ol]').prop('disabled', true);
+                $('button[id=il]').prop('disabled', true);
+                $('button[id=et]').prop('disabled', true);
+                $('button[id=mvBtn]').prop('disabled', true);
+                $('button[id=confirmBtn]').prop('disabled', false);
+            }
         }
     }
 }
@@ -756,11 +785,17 @@ document.querySelectorAll('#keypad button').forEach(button => {
 
 // Function to handle top code button clicks
 function handleTopCodeClick(event) {
-    const KeypadDisplay = document.querySelector('.Keypad-display');
     const buttonValue = event.target.textContent;
-
+    TranCode = event.target.dataset.trancode;
+    $('div[id=Keypad-display]').text("");
+    $('button[id=bt]').prop('disabled', true);
+    $('button[id=ol]').prop('disabled', true);
+    $('button[id=il]').prop('disabled', true);
+    $('button[id=et]').prop('disabled', true);
+    $('button[id=mvBtn]').prop('disabled', true);
+    $('button[id=confirmBtn]').prop('disabled', false);
     // Set the display to the button value
-    KeypadDisplay.textContent = buttonValue;
+    $('div[id=Keypad-display]').text(buttonValue); ;
 }
 
 // Add event listeners to top code buttons
