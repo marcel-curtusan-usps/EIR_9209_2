@@ -29,6 +29,7 @@
 		<Compile Remove="MongoDBServices\**" />
 		<Compile Remove="SiteIdentity\**" />
 		<Compile Remove="Tags\**" />
+		<Compile Remove="wwwroot\images\**" />
 		<Compile Remove="wwwroot\js\bootstrap\**" />
 		<Compile Remove="wwwroot\js\leaflet\**" />
 		<Compile Remove="wwwroot\js\microsoft\**" />
@@ -41,6 +42,7 @@
 		<Content Remove="MongoDBServices\**" />
 		<Content Remove="SiteIdentity\**" />
 		<Content Remove="Tags\**" />
+		<Content Remove="wwwroot\images\**" />
 		<Content Remove="wwwroot\js\bootstrap\**" />
 		<Content Remove="wwwroot\js\leaflet\**" />
 		<Content Remove="wwwroot\js\microsoft\**" />
@@ -53,6 +55,7 @@
 		<EmbeddedResource Remove="MongoDBServices\**" />
 		<EmbeddedResource Remove="SiteIdentity\**" />
 		<EmbeddedResource Remove="Tags\**" />
+		<EmbeddedResource Remove="wwwroot\images\**" />
 		<EmbeddedResource Remove="wwwroot\js\bootstrap\**" />
 		<EmbeddedResource Remove="wwwroot\js\leaflet\**" />
 		<EmbeddedResource Remove="wwwroot\js\microsoft\**" />
@@ -65,6 +68,7 @@
 		<None Remove="MongoDBServices\**" />
 		<None Remove="SiteIdentity\**" />
 		<None Remove="Tags\**" />
+		<None Remove="wwwroot\images\**" />
 		<None Remove="wwwroot\js\bootstrap\**" />
 		<None Remove="wwwroot\js\leaflet\**" />
 		<None Remove="wwwroot\js\microsoft\**" />
@@ -171,7 +175,6 @@
 		<Folder Include="Properties\PublishProfiles\" />
 		<Folder Include="wwwroot\DockDoor\Content\" />
 		<Folder Include="wwwroot\DockDoor\Scripts\" />
-		<Folder Include="wwwroot\images\" />
 		<Folder Include="wwwroot\lib\onscan\" />
 	</ItemGroup>
 

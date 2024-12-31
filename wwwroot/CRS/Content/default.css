@@ -1,6 +1,10 @@
 ﻿@import url("../../lib/bootstrap/dist/css/bootstrap.css");
 @import url("../../lib/bootstrap-datepicker/css/bootstrap-datepicker.css");
 @import url("../../css/bootstrap-icons.css");
+.dt-scroll-body table thead {
+  display: none;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -43,17 +47,10 @@ html, body {
 }
 
 button {
-  background-color: #f9f9f9 !important;
   border-radius: 10px;
-  color: navy;
   box-shadow: 2px 2px 2px gray;
   font-weight: 700 !important;
   border: none;
-}
-
-button:hover {
-  background-color: navy !important; /* Navy on hover */
-  color: white !important;
 }
 
 .label-left-align {
@@ -231,7 +228,6 @@ code {
   padding: 10px;
   font-size: 4vh;
   font-weight: bolder;
-  background-color: white;
   border-radius: 10px;
   box-shadow: 2px 2px 2px 2px gray;
   margin-left: 6px;
@@ -253,8 +249,7 @@ code {
   width: 14.5vw;
   height: 6.2vh;
   padding: 0px;
-  font-size: max(2vw, 40px);
-  background-color: #f7f7f7;
+  font-size: max(2vw, 50px);
   cursor: pointer;
   margin: 0px;
   justify-content: center;
