@@ -165,7 +165,9 @@ $(function () {
             $('button[id=confirmBtn]').prop('disabled', false);
         });
         $('button[id=mvBtn]').off().on('click', () => {
-            $('div[id=Keypad-display]').text("");
+            let mvTranCode = $('#mvBtn').data('trancode');
+            $('div[id=Keypad-display]').text(mvTranCode);
+            $('button[id=confirmBtn]').prop('disabled', false);
         });
         $('button[id=cancelBtn]').off().on('click',async () => {
             await restEIN();
@@ -509,7 +511,9 @@ function createTacsDatatable(table) {
                 emptyTable: "No TACS Log"
             },
             order: [[]],
-            aoColumns: constructTacsColumns()
+            aoColumns: constructTacsColumns(),
+            scrollY: '28vh', // Set the height for vertical scrolling
+            scrollCollapse: true // Enable collapsing of the table when there are fewer rows
         });
     } catch (e) {
         console.log("Error fetching machine info: ", e);
@@ -525,6 +529,8 @@ async function restEIN() {
     // Remove the inactivity listener
     removeInactivityListener();
     currentUser = {};
+    $('button[id=confirmBtn]').prop('disabled', true);
+    $('button[id=clockButtons]').prop('disabled', true);
     $('button[id=confirmBtn]').prop('disabled', true);
     $('div[id=root]').css('display', 'none');
     $('div[id=kioskSelection]').css('display', 'none');

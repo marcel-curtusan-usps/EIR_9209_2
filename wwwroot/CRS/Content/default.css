@@ -43,17 +43,17 @@ html, body {
 }
 
 button {
-  background-color: #f9f9f9;
+  background-color: #f9f9f9 !important;
   border-radius: 10px;
   color: navy;
   box-shadow: 2px 2px 2px gray;
-  font-weight: bold;
+  font-weight: 700 !important;
   border: none;
 }
 
 button:hover {
   background-color: navy !important; /* Navy on hover */
-  color: white;
+  color: white !important;
 }
 
 .label-left-align {
@@ -242,7 +242,7 @@ code {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(4, 1fr);
-  grid-gap: 8px;
+  grid-gap: 10px;
   align-items: center;
   height: 31vh;
   margin: 6px 0px 0px 6px;
@@ -250,10 +250,10 @@ code {
 }
 
 #keypad button {
-  width: 12vw;
+  width: 14.5vw;
   height: 6.2vh;
   padding: 0px;
-  font-size: max(2vw, 50px);
+  font-size: max(2vw, 40px);
   background-color: #f7f7f7;
   cursor: pointer;
   margin: 0px;
@@ -356,7 +356,7 @@ code {
 }
 
 #confirmBtn {
-  background-color: #00a408;
+  background-color: #00a408 !important;
   color: white !important;
   font-size: 2vw;
   height: 8vh;
@@ -373,16 +373,16 @@ code {
   align-items: center;
   width: 99vw !important;
   height: 10vh;
-  /*    margin-right: 20px;
-  margin-top: 10px;
-  margin-bottom: 45px;*/
   /*top right bottom left*/
   margin: 10px 2px 0px 4px;
-  padding: 5px;
+  padding: 0.3vw 1vw 0vw 1vw;
 }
 
 #topOpnCodeLabel {
-  text-decoration: underline 5%;
+  font-size: 0.6vw;
+  background-color: white;
+  color: black;
+  box-shadow: 1px 1px 1px 1px grey;
 }
 
 .topCodeButton {
@@ -390,7 +390,7 @@ code {
   border: none;
   font-size: 2vw;
   line-height: 1;
-  height: 5vh;
+  height: 7vh;
   width: 100%;
 }
 
@@ -407,15 +407,12 @@ code {
   bottom: 0;
   right: 0;
   width: 100% !important;
-  height: 5vh;
+  height: 4vh;
   background-color: #11005c;
   margin-top: 2px !important;
   position: fixed;
 }
 
-/*.left 
-    text-align: left;
-}*/
 #logo {
   border-radius: 0%;
   width: 12vw;
