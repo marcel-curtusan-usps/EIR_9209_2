@@ -49,7 +49,7 @@ html, body {
 button {
   border-radius: 10px;
   box-shadow: 2px 2px 2px gray;
-  font-weight: bold;
+  font-weight: 700 !important;
   border: none;
 }
 
@@ -147,28 +147,27 @@ code {
 }*/
 /*--------------------------- Profile ---------------------------*/
 #profile {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   padding: 10px !important;
   margin-left: 6px;
   text-align: center;
-  color: navy;
+  color: black !important;
   overflow: hidden;
   height: 38vh;
 }
 
 .prof-id {
-  color: navy;
-  font-size: 6vw;
+  color: black;
+  font-size: 5rem;
   font-weight: bold;
-  justify-content: center;
   margin: 0;
+  margin-top: -15px !important;
+  margin-bottom: -10px;
 }
 
 #profileImg {
-  font-size: 5vw;
-  justify-content: center;
+  margin-top: -10px;
+  font-size: 8vw;
+  color: black;
 }
 
 /*------------------------TACSLog------------------------------*/
@@ -177,7 +176,6 @@ code {
   /*top right bottom left*/
   margin: 0px 0px 0px 0px !important;
   text-align: center;
-  color: navy;
   overflow: hidden;
   height: 38vh;
 }
@@ -238,7 +236,7 @@ code {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(4, 1fr);
-  grid-gap: 8px;
+  grid-gap: 10px;
   align-items: center;
   height: 31vh;
   margin: 6px 0px 0px 6px;
@@ -246,20 +244,17 @@ code {
 }
 
 #keypad button {
-  width: 12vw;
+  width: 14.5vw;
   height: 6.2vh;
   padding: 0px;
-  font-size: max(2vw, 50px);
+  font-size: max(2vw, 40px);
   cursor: pointer;
   margin: 0px;
   justify-content: center;
   line-height: 1;
+  overflow: hidden;
 }
 
-/*#keypad button:hover {
-        background-color: navy;*/ /* Navy on hover */
-/*color: white;
-    }*/
 /* ------ Bottom Row styling ------ */
 /*0 Button */
 #keypad button:nth-last-child(2) {
@@ -351,7 +346,7 @@ code {
 }
 
 #confirmBtn {
-  background-color: #00a408;
+  background-color: #00a408 !important;
   color: white !important;
   font-size: 2vw;
   height: 8vh;
@@ -368,16 +363,16 @@ code {
   align-items: center;
   width: 99vw !important;
   height: 10vh;
-  /*    margin-right: 20px;
-  margin-top: 10px;
-  margin-bottom: 45px;*/
   /*top right bottom left*/
   margin: 10px 2px 0px 4px;
-  padding: 5px;
+  padding: 0.3vw 1vw 0vw 1vw;
 }
 
 #topOpnCodeLabel {
-  text-decoration: underline 5%;
+  font-size: 1vw;
+  background-color: white;
+  color: black;
+  box-shadow: 1px 1px 1px 1px grey;
 }
 
 .topCodeButton {
@@ -385,8 +380,9 @@ code {
   border: none;
   font-size: 2vw;
   line-height: 1;
-  height: 5vh;
+  height: 6vh;
   width: 100%;
+  font-weight: 700 !important;
 }
 
 .topCodesContainer button:hover {
@@ -402,15 +398,12 @@ code {
   bottom: 0;
   right: 0;
   width: 100% !important;
-  height: 5vh;
+  height: 4vh;
   background-color: #11005c;
   margin-top: 2px !important;
   position: fixed;
 }
 
-/*.left 
-    text-align: left;
-}*/
 #logo {
   border-radius: 0%;
   width: 12vw;

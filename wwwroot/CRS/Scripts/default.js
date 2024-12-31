@@ -13,7 +13,8 @@ let errorTimeout;
 let currentUser = {};
 const errorTimeLimit = 2000; // 15 seconds
 let inactivityTimeout;
-const inactivityTimeLimit = 15000; // 15 seconds
+const inactivityTimeLimit = 1500000; // 1500 seconds
+const modalTimeLimit = 2000; // 2 seconds
 const tacsDataTable = "tacsdatatable";
 const maxRetries = 5;
 let TranCode = "";
@@ -172,6 +173,8 @@ $(function () {
             $('button[id=ol]').prop('disabled', true);
             $('button[id=il]').prop('disabled', true);
             $('button[id=et]').prop('disabled', true);
+            $('button[id=keypadButton]').prop('disabled', false);
+
 
         });
         $('button[id=cancelBtn]').off().on('click',async () => {
@@ -179,7 +182,7 @@ $(function () {
         });
 
 
-        $('button[id=confirmBtn]').off().on('click', async () => {
+        $('button[id=modalClose]').off().on('click', async () => {
             await confirmBtnSubmit().then(async () => {
                await restEIN();
             });         
@@ -493,11 +496,20 @@ function constructTacsColumns() {
         //first column is always the name
         title: "Date & Time",
         data: "tranDateTime",
-        width: '60%'
+        width: '40%'
+    };
+    var column3 =
+    {
+        //first column is always the name
+        title: "Duration",
+        data: "tranCode",
+        width: '20%'
     };
     columns[0] = column0;
     columns[1] = column1;
     columns[2] = column2;
+    columns[3] = column3;
+
     return columns;
 }
 function createTacsDatatable(table) {
@@ -512,14 +524,16 @@ function createTacsDatatable(table) {
             bInfo: false,
             ordering: false, // Disable sorting for all columns
             destroy: true,
-            scrollY: 250,
+            //scrollY: 250,
             scroller: true,
             language: {
                 zeroRecords: "No Data",
                 emptyTable: "No TACS Log"
             },
             order: [[]],
-            aoColumns: constructTacsColumns()
+            aoColumns: constructTacsColumns(),
+            scrollY: '30vh', // Set the height for vertical scrolling
+            scrollCollapse: true // Enable collapsing of the table when there are fewer rows
         });
     } catch (e) {
         console.log("Error fetching machine info: ", e);
@@ -535,6 +549,9 @@ async function restEIN() {
     // Remove the inactivity listener
     removeInactivityListener();
     currentUser = {};
+    $('button[id=confirmBtn]').prop('disabled', true);
+    $('button[id=clockButtons]').prop('disabled', true);
+    $('button[id=keypadButton]').prop('disabled', true);
     $('button[id=confirmBtn]').prop('disabled', true);
     $('div[id=root]').css('display', 'none');
     $('div[id=kioskSelection]').css('display', 'none');
@@ -801,3 +818,21 @@ function handleTopCodeClick(event) {
     $('div[id=Keypad-display]').text(buttonValue); ;
 }
 
+// Function to handle modal timeout
+function startModalTimeout() {
+    modalTimeout = setTimeout(async () => {
+        $('#exampleModal').modal('hide');
+        await restEIN();
+    }, modalTimeLimit);
+}
+
+// Event listener for modal show event
+$('#exampleModal').on('shown.bs.modal', function () {
+    startModalTimeout();
+});
+
+// Event listener for modal close button
+$('#modalClose').on('click', function () {
+    clearTimeout(modalTimeout);
+    restEIN();
+});
