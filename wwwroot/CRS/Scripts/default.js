@@ -130,17 +130,17 @@ $(function () {
 
         setHeight();
         $('span[id=kisokIdSpan]').text(kioskId);
-        $('button[id=barcodeScanBtn]').off().on('click', () => {
+        $('button[id=barcodeScanBtn]').off().on('click', async () => {
             let scanValue = $('input[id=barcodeScan]').val()
             if (scanValue !== "") {
                 $('span[id=errorBarcodeScan]').text("");
-                Promise.all([loadEIN(scanValue)]);
+                await loadEIN(scanValue);
             }
             else {
                 $('span[id=errorBarcodeScan]').text("Please Scan USPS Badge");
                 clearTimeout(errorTimeout);
-                errorTimeout = setTimeout(() => {
-                    Promise.all([restEIN()]);
+                errorTimeout = setTimeout(async () => {
+                    await restEIN();
                 }, errorTimeLimit);
             }
 
@@ -354,15 +354,10 @@ async function loadEIN(payLoadData) {
     await fetch(`../api/ClockRingStation/GetByEIN?code=${payLoad}`)
         .then(response => {
             if (!response.ok) {
-                errorTimeout = setTimeout(function () {
-                    Promise.all([restEIN()]);
-                }, errorTimeLimit);
-                throw new Error(`HTTP error! status: ${response.status}`);
-            } else if (response.ok && response.status != 200) {
                 $('span[id=errorBarcodeScan]').text(`Employee ${payLoadData} Not Found`);
                 clearTimeout(errorTimeout);
-                errorTimeout = setTimeout(() => {
-                    Promise.all([restEIN()]);
+                errorTimeout = setTimeout(async () => {
+                   await restEIN();
                 }, errorTimeLimit);
                 throw new Error();
             }
@@ -402,7 +397,7 @@ async function loadTopCodes(codesList) {
             const codeElement = $('<div>').addClass('col-2').append(
                 $('<div>').addClass('topCodeButton btn btn-light')
                 .text(code)
-                .attr('data-tranCode', code)); // Add data-tranCode attribute
+                .attr('data-tranCode', "011")); // Add data-tranCode attribute
             topCodeListDiv.append(codeElement);
         });
         // Add event listeners to top code buttons
@@ -552,6 +547,7 @@ async function restEIN() {
     $('button[id=il]').prop('disabled', false);
     $('button[id=et]').prop('disabled', false);
     $('button[id=mvBtn]').prop('disabled', false);
+    $('div[id=topCodeList]').empty();
     if ($.fn.dataTable.isDataTable("#" + tacsDataTable)) {// Check if DataTable has been previously created and therefore needs to be flushed
         // For new version use table.destroy();
         $('#' + tacsDataTable).DataTable().clear().draw(); // Empty the DOM element which contained DataTable

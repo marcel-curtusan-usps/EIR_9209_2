@@ -49,7 +49,7 @@ namespace EIR_9209_2.Controllers
                     }
                     else
                     {
-                        return NotFound("Employee not found");
+                        return StatusCode(404, new { Message = "Employee not found" });
                     }
                 }
                 else
@@ -60,7 +60,7 @@ namespace EIR_9209_2.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(e.Message);
+                return BadRequest(new { Message = e.Message });
             }
         }
 
@@ -85,7 +85,11 @@ namespace EIR_9209_2.Controllers
                 }
                 if (crsEvent.HasValues)
                 {
-                    RawRings rawRings = crsEvent.ToObject<RawRings>();
+                    RawRings? rawRings = crsEvent?.ToObject<RawRings>();
+                    if (rawRings == null)
+                    {
+                        return BadRequest("CRS Event conversion failed");
+                    }
                
                     return Ok(await _tacs.AddTacsRawRings(rawRings));
                 }

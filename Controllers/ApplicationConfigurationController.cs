@@ -107,7 +107,7 @@ namespace EIR_9209_2.Controllers
             }
         }
 
-        private async Task<object> GetConfigurationRoleGroups()
+        private async Task<Dictionary<string, string?>> GetConfigurationRoleGroups()
         {
             try
             {
@@ -120,16 +120,16 @@ namespace EIR_9209_2.Controllers
                         userRoleValues.Add(setting.Key, setting.Value);
                     }
                 }
-                return userRoleValues;
+                return await Task.FromResult(userRoleValues);
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return null;
+                return [];
             }
         }
 
-        private async Task<object> GetConfigurationSetting()
+        private async Task<Dictionary<string, string?>> GetConfigurationSetting()
         {
             try
             {
@@ -141,7 +141,7 @@ namespace EIR_9209_2.Controllers
                     {
                         if (setting.Key.EndsWith("ConnectionString"))
                         {
-                            configurationValues.Add(setting.Key, _encryptDecrypt.Decrypt(setting.Value));
+                            configurationValues.Add(setting.Key, await Task.Run(() => _encryptDecrypt.Decrypt(setting.Value ?? string.Empty)));
                         }
                         else
                         {
@@ -150,12 +150,12 @@ namespace EIR_9209_2.Controllers
 
                     }
                 }
-                return configurationValues;
+                return await Task.FromResult(configurationValues);
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return null;
+                return [];
             }
         }
 

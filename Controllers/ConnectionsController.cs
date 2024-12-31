@@ -70,7 +70,11 @@ namespace EIR_9209_2.Controllers
                     return BadRequest(ModelState);
                 }
                 //convert the JObject to a Connection object
-                Connection connection = value.ToObject<Connection>();
+                Connection? connection = value.ToObject<Connection>();
+                if (connection == null)
+                {
+                    return BadRequest(new JObject { ["message"] = "Invalid connection data" });
+                }
                 //add the connection id
                 connection.Id = Guid.NewGuid().ToString();
                 connection.CreatedDate = DateTime.Now;
@@ -117,7 +121,7 @@ namespace EIR_9209_2.Controllers
                     return BadRequest(ModelState);
                 }
                 var connectionToUpdate = value.ToObject<Connection>();
-                if (await _worker.UpdateEndpoint(connectionToUpdate))
+                if (connectionToUpdate != null && await _worker.UpdateEndpoint(connectionToUpdate))
                 {
                     return Ok();
                 }
