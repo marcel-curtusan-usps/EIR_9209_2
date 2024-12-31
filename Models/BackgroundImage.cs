@@ -1,14 +1,7 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
-using Newtonsoft.Json;
-
-namespace EIR_9209_2.Models
+﻿namespace EIR_9209_2.Models
 {
-    public class BackgroundImage
+    public class OSLImage
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public required string _id { get; set; }
         public double widthMeter { get; set; } = 0.0;
         public double xMeter { get; set; } = 0.0;
         public bool visible { get; set; }
@@ -27,5 +20,6 @@ namespace EIR_9209_2.Models
         public double metersPerPixelX { get; set; } = 0.0;
         public bool updateStatus { get; set; } = false;
         public string coordinateSystemId { get; set; } = "";
+        public string source { get; set; } = "";
     }
 }

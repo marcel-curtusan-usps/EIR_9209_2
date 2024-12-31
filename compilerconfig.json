@@ -1,0 +1,38 @@
+﻿[
+  {
+    "outputFile": "wwwroot/css/Site.css",
+    "inputFile": "wwwroot/css/Site.scss"
+  },
+  {
+    "outputFile": "wwwroot/Reports/Content/mpePerformance.css",
+    "inputFile": "wwwroot/Reports/Content/mpePerformance.scss"
+  },
+  {
+    "outputFile": "wwwroot/Reports/Content/siteRollUp.css",
+    "inputFile": "wwwroot/Reports/Content/siteRollUp.scss"
+  },
+  {
+    "outputFile": "wwwroot/MPE/Content/mpeView.css",
+    "inputFile": "wwwroot/MPE/Content/mpeView.scss"
+  },
+  {
+    "outputFile": "wwwroot/Reports/Content/empSchedule.css",
+    "inputFile": "wwwroot/Reports/Content/empSchedule.scss"
+  },
+  {
+    "outputFile": "wwwroot/MPE/Content/mpeHourly.css",
+    "inputFile": "wwwroot/MPE/Content/mpeHourly.scss"
+  },
+  {
+    "outputFile": "wwwroot/CRS/Content/default.css",
+    "inputFile": "wwwroot/CRS/Content/default.scss"
+  },
+  {
+    "outputFile": "wwwroot/AssetInventory/Content/inventory.css",
+    "inputFile": "wwwroot/AssetInventory/Content/inventory.scss"
+  },
+  {
+    "outputFile": "wwwroot/AssetInventory/Content/mangeAssets.css",
+    "inputFile": "wwwroot/AssetInventory/Content/mangeAssets.scss"
+  }
+]

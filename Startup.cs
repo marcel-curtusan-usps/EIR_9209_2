@@ -1,18 +1,24 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using EIR_9209_2.DatabaseCalls.IDS;
+using EIR_9209_2.DataStore;
+using EIR_9209_2.Service;
+using EIR_9209_2.Utilities;
+using MessagePack;
+using MessagePack.Resolvers;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Negotiate;
+using Microsoft.AspNetCore.Server.IISIntegration;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.DependencyInjection;
-using EIR_9209_2.Models;
-using EIR_9209_2.Controllers;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Reflection;
+using System.Text;
 
 public class Startup
 {
     private readonly IWebHostEnvironment _hostingEnv;
-
     private IConfiguration Configuration { get; }
 
     /// <summary>
@@ -32,113 +38,95 @@ public class Startup
     /// <param name="services"></param>
     public void ConfigureServices(IServiceCollection services)
     {
-
-        //setup mongodb 
-        services.Configure<MongoDBSettings>(Configuration.GetSection("MongoDB"));
-        services.AddSingleton<MongoDBContext>();
-        services.AddSingleton(provider => provider.GetRequiredService<MongoDBContext>().Database);
-        services.AddSingleton<MongoDbHealthCheck>();
-        services.AddHealthChecks().AddCheck<MongoDbHealthCheck>("mongodb");
-
-        services.AddSingleton<IBackgroundImageRepository, BackgroundImageRepository>();
-        services.AddSingleton<IConnectionRepository, ConnectionRepository>();
-        services.AddSingleton<BackgroundServiceManager>();
-        //Read configuration data from ConnectionList.json file from the Configuration folder
-        //var connectionLists = new ConfigurationBuilder()
-        //    .SetBasePath(Directory.GetCurrentDirectory())
-        //    .AddJsonFile("Configuration/ConnectionList.json", optional: false, reloadOnChange: true)
-        //    .Build();
-        //var connectionList = connectionLists.GetSection("ConnectionList").Get<Connection[]>();
-        //if (connectionList != null)
-        //{
-        //    foreach (var conn in connectionList)
-        //    {
-        //        var ConnectionRepository = services.BuildServiceProvider().GetRequiredService<IConnectionRepository>();
-        //        ConnectionRepository.Add(conn).Wait();
-        //    }
-        //}
-        //load background images in memory
-        // var backgroundImageRepository = new BackgroundImageRepository();
-        // services.AddSingleton<IBackgroundImageRepository>(backgroundImageRepository);
-
-        //Read configuration data from ConnectionList.json file from the Configuration folder
-        //var backgroundImages = new ConfigurationBuilder()
-        //    .SetBasePath(Directory.GetCurrentDirectory())
-        //    .AddJsonFile("Configuration/BackgroundImage.json", optional: false, reloadOnChange: true)
-        //    .Build();
-        //var backgroundImage = backgroundImages.GetSection("BackgroundImages").Get<BackgroundImage[]>();
-        //if (backgroundImage != null)
-        //{
-        //    foreach (var image in backgroundImage)
-        //    {
-        //        var backgroundImageRepository = services.BuildServiceProvider().GetRequiredService<IBackgroundImageRepository>();
-        //        backgroundImageRepository.Add(image).Wait();
-        //    }
-        //}
-        // Start a new service for each record in the connection list
-        //var ConnectionRepository = services.BuildServiceProvider().GetRequiredService<IConnectionRepository>();
-        //var connectionList = ConnectionRepository.GetAll().Result;
-        //if (connectionList != null)
-        //{
-        //    foreach (var connection in connectionList)
-        //    {
-        //        services.AddHttpClient(connection.Name);
-        //        services.AddHostedService(provider =>
-        //        {
-        //            HttpClient httpClient = provider.GetRequiredService<IHttpClientFactory>().CreateClient(connection.Name);
-        //            return new ConnectionBackgroundService(provider.GetRequiredService<ILogger<ConnectionBackgroundService>>(), httpClient, connection, provider.GetRequiredService<IHubContext<HubServices>>(), provider.GetRequiredService<BackgroundServiceManager>(), connection.Id);
-        //        });
-
-        //    }
-        //}
+        services.AddHttpContextAccessor();
+        services.AddTransient<IUserService, UserService>();
+        // Configure logging
+        services.AddLogging();
+        services.AddAuthentication(IISDefaults.AuthenticationScheme); // Add Windows Authentication
+        services.AddSingleton<IFilePathProvider, FilePathProvider>();
+        services.AddSingleton<IFileService, FileService>();
+        services.AddSingleton<ILoggerService, LoggerService>();
+        services.AddSingleton<IResetApplication, ResetApplication>();
+        services.AddSingleton<IInMemoryApplicationRepository, InMemoryApplicationRepository>();
+        services.AddSingleton<IEncryptDecrypt, EncryptDecrypt>();
+        services.AddSingleton<IInMemorySiteInfoRepository, InMemorySiteInfoRepository>();
+        services.AddSingleton<IInMemoryTACSReports, InMemoryTACSReports>();
+        services.AddSingleton<IInMemoryEmailRepository, InMemoryEmailRepository>();
+        services.AddSingleton<IInMemoryBackgroundImageRepository, InMemoryBackgroundImageRepository>();
+        services.AddSingleton<IInMemoryConnectionRepository, InMemoryConnectionRepository>();
+        services.AddSingleton<IInMemoryDacodeRepository, InMemoryDacodeRepository>();
+        services.AddSingleton<IInMemoryTagsRepository, InMemoryTagsRepository>();
+        services.AddSingleton<IInMemoryGeoZonesRepository, InMemoryGeoZonesRepository>();
+        services.AddSingleton<IInMemoryEmployeesRepository, InMemoryEmployeesRepository>();
+        services.AddSingleton<IInMemoryEmployeesSchedule, InMemoryEmployeesSchedule>();
+        services.AddSingleton<IInMemoryCamerasRepository, InMemoryCamerasRepository>();
+        services.AddSingleton<IInMemoryInventoryRepository, InMemoryInventoryRepository>();
+        services.AddSingleton<IIDS, IDS>();
+        services.AddSingleton<ScreenshotService>();
+        services.AddSingleton<EmailService>();
+        services.AddSingleton<Worker>();
+        services.AddHostedService(p => p.GetRequiredService<Worker>());
+        services.AddHttpClient();
         //add SignalR to the services
-        services.AddSignalR().AddJsonProtocol(options =>
+        services.AddSignalR(options =>
+            {
+                options.MaximumReceiveMessageSize = 100_000;
+                options.MaximumParallelInvocationsPerClient = 5;
+            })
+            .AddJsonProtocol(options =>
+            {
+                options.PayloadSerializerOptions.PropertyNameCaseInsensitive = true;
+            }).AddMessagePackProtocol();
+        services.AddCors(o =>
         {
-            options.PayloadSerializerOptions.PropertyNamingPolicy = null;
-            options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        }); ;
-        services.AddSingleton<HubServices, HubServices>();
+            o.AddPolicy("Everything", p =>
+            {
+                p.AllowAnyHeader()
+                 .AllowAnyMethod()
+                 .AllowAnyOrigin();
+            });
+        });
+   
+        services.AddSingleton<HubServices>();
         // Add framework services.
-        services
-            .AddMvc(options =>
+        services.AddMvc(options =>
             {
                 options.InputFormatters.RemoveType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonInputFormatter>();
                 options.OutputFormatters.RemoveType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonOutputFormatter>();
-            })
-            .AddNewtonsoftJson(opts =>
+            }).AddNewtonsoftJson(opts =>
             {
                 opts.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 opts.SerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
-            })
-            .AddXmlSerializerFormatters();
-
-
-        services
-            .AddSwaggerGen(c =>
+            }).AddXmlSerializerFormatters();
+        services.AddSwaggerGen(options =>
             {
-                c.SwaggerDoc("1.0.11", new OpenApiInfo
+                options.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Version = "1.0.11",
-                    Title = "Swagger - OpenAPI 3.0",
-                    Description = "Swagger - OpenAPI 3.0 (ASP.NET Core 8.0)",
+                    Version = Helper.GetCurrentVersion(),
+                    Title = $"{Helper.GetAppName()}",
+                    Description = "Swagger - OpenAPI 3.0",
                     Contact = new OpenApiContact()
                     {
-                        Name = "Swagger Codegen Contributors",
-                        Url = new Uri("https://github.com/swagger-api/swagger-codegen"),
-                        Email = "apiteam@swagger.io"
+                        Name = $"{Helper.GetAppName()} API Support",
+                        Email = "cf-sels_support@usps.gov"
                     },
-                    TermsOfService = new Uri("http://swagger.io/terms/")
-                });
-                c.CustomSchemaIds(type => type.FullName);
-                // c.IncludeXmlComments($"{AppContext.BaseDirectory}{Path.DirectorySeparatorChar}{_hostingEnv.ApplicationName}.xml");
-                // Sets the basePath property in the Swagger document generated
-                c.DocumentFilter<BasePathFilter>("/api/v3");
+                    License = new OpenApiLicense
+                    {
+                        Name = "USPS EMS Group License"
+                    }
 
-                // Include DataAnnotation attributes on Controller Action parameters as Swagger validation rules (e.g required, pattern, ..)
-                // Use [ValidateModelState] on Actions to actually validate it in C# as well!
-                //c.OperationFilter<GeneratePathParamsValidationFilter>();
-            });
+                });
+                // using System.Reflection;
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+                options.UseInlineDefinitionsForEnums();
+                options.CustomSchemaIds(type => type.FullName);
+                options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+                options.OperationFilter<GeneratePathParamsValidationFilter>();
+            });       
+
     }
+
 
     /// <summary>
     /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -149,35 +137,30 @@ public class Startup
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
     {
         app.UseRouting();
-
-        //TODO: Uncomment this if you need wwwroot folder
-        // app.UseStaticFiles();
-        app.UseHealthChecks("/health");
-        app.UseAuthorization();
-
+        app.UseAuthentication(); // Ensure authentication middleware is added
+        app.UseAuthorization(); // Ensure authorization middleware is added
+        var swaggerConfig = Configuration.GetSection("Swagger");
+        var applicationConfiguration = Configuration.GetSection("ApplicationConfiguration");
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
-            //TODO: Either use the SwaggerGen generated Swagger contract (generated from C# classes)
-            c.SwaggerEndpoint("/swagger/1.0.11/swagger.json", "Swagger - OpenAPI 3.0");
-
-            //TODO: Or alternatively use the original Swagger contract that's included in the static files
-            // c.SwaggerEndpoint("/swagger-original.json", "Swagger  - OpenAPI 3.0 Original");
+            if (env.IsDevelopment())
+            {
+                c.SwaggerEndpoint(swaggerConfig["Endpoint"], $"{applicationConfiguration["ApplicationName"]} API's");
+            }
+            else
+            {
+                c.SwaggerEndpoint($"/{applicationConfiguration["ApplicationName"]}{swaggerConfig["Endpoint"]}", $"{applicationConfiguration["ApplicationName"]} API's");
+            }
         });
-
-        //TODO: Use Https Redirection
-        // app.UseHttpsRedirection();
-        app.UseFileServer();
-        app.UseDefaultFiles();
-        app.UseStaticFiles();
+        app.UseFileServer(); 
+        app.UseDefaultFiles(); // Use the configured options
+        app.UseStaticFiles(); // Serve static files
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
             endpoints.MapHub<HubServices>("/hubServics");
         });
-
-
-
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
@@ -186,8 +169,23 @@ public class Startup
         {
             //TODO: Enable production exception handling (https://docs.microsoft.com/en-us/aspnet/core/fundamentals/error-handling)
             app.UseExceptionHandler("/Error");
-
             app.UseHsts();
         }
+        app.ApplicationServices.GetRequiredService<IFilePathProvider>();
+        app.ApplicationServices.GetRequiredService<IFileService>();
+        app.ApplicationServices.GetRequiredService<IInMemoryApplicationRepository>();
+        app.ApplicationServices.GetRequiredService<IEncryptDecrypt>();
+        app.ApplicationServices.GetRequiredService<IInMemorySiteInfoRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryEmailRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryBackgroundImageRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryConnectionRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryDacodeRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryTagsRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryGeoZonesRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryEmployeesRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryEmployeesSchedule>();
+        app.ApplicationServices.GetRequiredService<IInMemoryCamerasRepository>();
+        app.ApplicationServices.GetRequiredService<IInMemoryInventoryRepository>();
+        app.ApplicationServices.GetRequiredService<IIDS>();
     }
 }

@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link href="Content/mpeView.css" rel="stylesheet" />
+    <title>MPE</title>
+</head>
+<body>
+    <div class="card w-100" style="padding: 0px;">
+        <div class="card-header">
+            <div class="container-fluid">
+                <div class="row justify-content-md-center">
+                    <div class="col-3 float-end" style="padding: 0rem;">
+                        <label class="control-label" style="font-size: 3rem;" id="mpeName_text"></label>
+                        <label class="control-label" style="font-size: 3rem; font-weight: bolder;" id="mpeName"></label>
+                    </div>
+                    <div class="col-2" style="padding: 0rem;">
+                        <label class="control-label float-end" style="font-size: 3rem;" id="opn_text">Operation:</label>
+                    </div>
+                    <div class="col-1" style="padding: 0rem;">
+                        <label class="control-label float-start" style="font-size: 3rem; font-weight: bolder;" id="opn"></label>
+                    </div>
+                    <div class="col-3 text-center" style="padding: 0rem;">
+                        <label class="control-label float-end" style="font-size: 3rem; display:none" id="countdownText">Complete In:</label>
+                    </div>
+                    <div class="col-2" style="padding: 0rem;">
+                        <label class="control-label float-start" style="font-size: 3rem; font-weight: bolder;" id="countdown"></label>
+                    </div>
+                </div>
+                <div class="row justify-content-md-center">
+                    <div class="col-5" style="padding: 0rem;">
+                        <label class="control-label float-end" style="font-size: 2rem;" id="nextopntext">Next Operation:</label>
+                    </div>
+                    <div class="col-1" style="padding: 0rem;">
+                        <label class="control-label float-start" style="font-size: 2rem; font-weight: bolder;" id="nextopn"></label>
+                    </div>
+                    <div class="col-3 text-center" style="padding: 0rem;">
+                        <label class="control-label float-end" style="font-size: 2rem; display:none" id="nextstartText">Next OP Start Time:</label>
+                    </div>
+                    <div class="col-2" style="padding: 0rem;">
+                        <label class="control-label float-start" style="font-size: 2rem; font-weight: bolder;" id="nextstart"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body" style="padding: 0px;">
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped" id="mpeStatustable">
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="container-fluid">
+
+                <div class="row justify-content-md-center">
+                    <div class="col" style="padding: 0rem;">
+                        <label class="control-label float-end" style="font-size: 3rem;" id="mpe_status_txt">Machine Status:</label>
+                    </div>
+                    <div class="col text-lg-center" style="padding: 0rem;">
+                        <label class="control-label " style="font-size: 3rem; font-weight: bolder;" id="mpe_status"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../lib/jquery/jquery.min.js"></script>
+    <script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="../lib/luxon/luxon.min.js"></script>
+    <script src="../lib/datatables.net/datatables.js"></script>
+    <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script src="../lib/datatables.net/dataTables.min.js"></script>
+    <script src="Scripts/mpeView.js"></script>
+</body>
+</html>

@@ -1,4 +1,21 @@
-﻿html, body {
+﻿@import url("../lib/bootstrap/dist/css/bootstrap.css");
+@import url("../lib/bootstrap/dist/css/bootstrap-grid.css");
+@import url("../lib/bootstrap/dist/css/bootstrap-reboot.css");
+@import url("../lib/bootstrap/dist/css/bootstrap-utilities.css");
+@import url("../lib/leaflet/leaflet.min.css");
+@import url("../lib/leaflet-sidebar-v2/css/leaflet-sidebar.min.css");
+@import url("../lib/geoman-io/dist/leaflet-geoman.css");
+@import url("../lib/leaflet-easybutton/src/easy-button.css");
+.leaflet-sidebar-tabs > li, .leaflet-sidebar-tabs > ul > li {
+  width: 100%;
+  height: 40px;
+  color: #eee;
+  font-size: 12pt;
+  overflow: hidden;
+  transition: all 80ms;
+}
+
+html, body {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -6,6 +23,12 @@
   /* Better Font Rendering =========== */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.remove-body {
+  padding: 0;
+  margin: 0;
+  color: red;
 }
 
 #map {
@@ -33,6 +56,20 @@
   background: #fff;
   position: absolute;
   border-radius: 50%;
+}
+
+.marker-camera-cone {
+  width: 0;
+  height: 0;
+  border-left: 40px solid transparent;
+  border-right: 40px solid transparent;
+  border-bottom: 40px solid transparent;
+  border-top: 40px solid #007bff;
+  border-radius: 50% 50% 0 0;
+  opacity: 0.4;
+  position: absolute;
+  margin: -20px 0 0 -20px;
+  align-content: center;
 }
 
 .custom-div-icon i {
@@ -106,6 +143,14 @@ tr.shown td.details-control {
   font-size: 12px;
   font-size: 0.75rem;
   line-height: 1.5;
+}
+
+.leaflet-pm-toolbar .leaflet-buttons-control-button {
+  padding: 5px;
+  box-sizing: border-box;
+  position: relative;
+  background-color: #336;
+  z-index: 3;
 }
 
 .leaflet-bar a:hover,
@@ -263,6 +308,17 @@ tr.shown td.details-control {
   font-weight: bold;
   text-align: center;
   clip-path: polygon(50% 0%, 90% 50%, 50% 100%, 10% 50%);
+}
+
+.leaflet-tooltip.persontag_custodial {
+  background-color: #720e9e;
+  height: 20px;
+  min-width: 20px;
+  box-shadow: none;
+  font-size: unset;
+  font-weight: bold;
+  text-align: center;
+  clip-path: polygon(34.2% 0%, 67.4% 0%, 85.2% 23%, 48.4% 99.2%, 15.6% 24.2%);
 }
 
 .leaflet-tooltip.persontag_pse {
@@ -1919,7 +1975,7 @@ div.leaflet-touch div.leaflet-control-layers, div.leaflet-touch div.leaflet-bar 
   /* Better Font Rendering =========== */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  content: "\e916";
+  content: "\e927";
   color: #ffffff;
   font-size: 1.5rem;
 }
@@ -1940,7 +1996,7 @@ div.leaflet-touch div.leaflet-control-layers, div.leaflet-touch div.leaflet-bar 
   height: 36px;
   display: flex;
   flex-direction: column;
-  align-items: left;
+  align-items: center;
 }
 
 /* layer panel divider - appended based on the listing order in the layers list */
@@ -2318,4 +2374,37 @@ tr.hide-table-padding td {
   margin: 1rem -15px 0;
   border: solid #f8f9fa;
   border-width: 0.2rem 0 0;
+}
+
+.pi-iconEdit,
+.pi-trashFill,
+.bi-plus,
+.bi-bullseye {
+  font-size: 10px;
+  padding: 5px 5px;
+  border-radius: 5px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+.pi-iconEdit::before,
+.pi-trashFill::before,
+.bi-plus::before,
+.bi-bullseye::before {
+  font-size: 0.75rem;
+}
+
+/* styles.css */
+.green-presence {
+  background-color: green !important;
+  color: white; /* Optional: Change text color to white for better contrast */
+}
+
+.red-presence {
+  background-color: red !important;
+  color: white; /* Optional: Change text color to white for better contrast */
+}
+
+.red-presence .bi-bullseye {
+  color: white; /* Change icon color to white */
 }

@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="Content/default.css" rel="stylesheet" />
+</head>
+<body>
+    <!--------- Header ---------->
+    <div class="card-header header">
+        <p id="headerLabel" style="margin-left: 10px;">Kiosk ID: <span id="kisokIdSpan"></span></p>
+        <p id="headerLabel" style="margin-right: 10px;">TACS Time:<span id="tacsTime"></span></p>
+    </div>
+    <!--------- Kiosk Selection ---------->
+    <div class="card-body text-center" id="kioskSelection" style="display:block">
+        <div class="container-fluid p-0 d-flex justify-content-center align-items-center">
+            <div class="welcomeCenter text-center">
+                <p class="welcomeMessage"> Welcome! </p>
+                <p class="please"> Select a Kiosk Id Configured </p>
+                <div class="input-group mb-3">
+                    <select class="form-select" id="kioskSelect" aria-label="Example select with button addon">
+                        <option selected>Choose...</option>
+                    </select>
+                    <button class="btn btn-outline-secondary" type="button">Button</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--------- Welcome Page ---------->
+    <div class="card-body text-center" id="landing" style="display:none">
+        <div class="container-fluid p-0 d-flex justify-content-center align-items-center">
+            <div class="welcomeCenter text-center">
+                <p class="welcomeMessage"> Welcome! </p>
+                <p class="please"> Please scan your badge </p>
+                <label for="encodedId" class="visually-hidden">Encoded ID:</label>
+                <div class="row">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="EIN | Encoded ID | BLE ID" id="barcodeScan" aria-label="EIN | Encoded ID | BLE ID"> <!--barcodeScan-->
+                        <button id="barcodeScanBtn" type="button" class="btn btn-outline-secondary">Search</button> <!--barcodeScanBtn-->
+                    </div>
+                </div>
+                <div class="row">
+                    <span id="errorBarcodeScan" class="text-danger"></span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="" id="root" style="display: none;">
+        <!-- class = card-body -->
+        <div class="kiosk-container">
+            <div class="row row-cols-2">
+                <div class="col-6">
+                    <div class="component" id="profile">
+                        <div>
+                            <p class="prof-id" id="profId"></p>
+                            <i class="bi-person-circle" id="profileImg"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <!--------- TACS Log ---------->
+                    <div class="component" id="schedule-box">
+                        <h2>CRS Event Log</h2>
+                        <div class="card-body pb-0">
+                            <div class="table-responsive">
+                                <table aria-describedby="" class="table table-striped table-sm table-hover mb-0 border-bottom" id="tacsdatatable">
+                                    <thead class="table-dark">
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="Keypad-parent" id="keypadParent">
+                        <div class="Keypad-display" id="Keypad-display"></div>
+                        <!--------- Keypad ---------->
+                        <div class="component" id="keypad">
+                            <button type="button" class="btn btn-light" data-tranCode="011">1</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011">2</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011">3</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011">4</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011">5</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011">6</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011">7</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011">8</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011">9</button>
+                            <button type="button" class="btn btn-light" data-tranCode="011">0</button>
+                            <button type="button" class="btn btn-light">←</button>
+                            <!--<button>2</button>
+                        <button>3</button>-->
+                            <!--<button>4</button>
+                        <button>5</button>
+                        <button>6</button>
+                        <button>7</button>
+                        <button>8</button>
+                        <button>9</button>
+                        <button>0</button>
+                        <button>←</button>-->
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <!--------- Clock Buttons ---------->
+                    <div class="component" id="button-container">
+                        <button type="button" class="btn btn-light clockButtons" id="bt" name="standardCRSEvent" data-tranCode="010">Begin Tour (BT)</button>
+                        <button type="button" class="btn btn-light clockButtons" id="ol" name="standardCRSEvent" data-tranCode="012">Out to Lunch (OL)</button>
+                        <button type="button" class="btn btn-light clockButtons" id="il" name="standardCRSEvent" data-tranCode="013">In from Lunch (IL)</button>
+                        <button type="button" class="btn btn-light clockButtons" id="et" name="standardCRSEvent" data-tranCode="014">End Tour (ET)</button>
+                        <button type="button" class="btn btn-light clockButtons" id="mvBtn" data-tranCode="011">Move (MV)</button>
+                        <div id="cancel-container">
+                            <button type="button" class="btn btn-danger clockButtons" id="cancelBtn">Cancel</button>
+                        </div>
+                        <div class="confirm-container">
+                            <button type="button" class="btn btn-success clockButtons" disabled="disabled" id="confirmBtn">Confirm</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!--------- Top Opn Codes ---------->
+                <div class="component" id="topCodesContainer">
+                    <div class="row mt-1">
+                        <div class="text-center">
+                            <h5 id="topOpnCodeLabel">Most Used OPN Codes:</h5>
+                        </div>
+                    </div>
+                    <div class="row" id="topCodeList">
+                        <div class="col-2">
+                            <button class="topCodeButton btn btn-light " data-tranCode="011">000</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--------- Footer ---------->
+    <div class="text-body-secondary footer">
+        <p class="date p-2" id="footerDate"></p>
+        <p class="USPS p-2" id="footerLabel">USPS</p>
+    </div>
+    <script src="../lib/jquery/jquery.min.js"></script>
+    <script src="../lib/luxon/luxon.js"></script>
+    <script src="../lib/jquery-validation/jquery.validate.js"></script>
+    <script src="../lib/jquery-validation/additional-methods.js"></script>
+    <script src="../lib/datatables.net/datatables.js"></script>
+    <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script src="../lib/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="../lib/microsoft/signalr/dist/browser/signalr.js"></script>
+    <script src="../lib/microsoft/signalr-protocol-msgpack/dist/browser/signalr-protocol-msgpack.js"></script>
+    <script src="../lib/onscan/onscan.min.js"></script>
+    <script src="Scripts/default.js"></script>
+</body>
+</html>

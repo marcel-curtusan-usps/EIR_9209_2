@@ -1,0 +1,341 @@
+﻿[
+  {
+    "Id": "86c9b6dc-aeb3-43d2-abdd-4fbf4cf88cad",
+    "Name": "QPE",
+    "Description": "Quuppa Position Engine",
+    "MessageTypes": [
+      {
+        "Id": "9dcdba6c-b647-443e-a50b-15cfb6113f18",
+        "Name": "getTagData",
+        "Description": "Position Data",
+        "BaseURL": "http://{0}:8080/qpe/{1}?format=defaultLocationAndInfo&formatDefinition=,$(lastSeen.ts)&version=2"
+      },
+      {
+        "Id": "4bdeb7d9-f424-42df-8ea8-614caf4a73b4",
+        "Name": "getProjectInfo",
+        "Description": "Project Info Data",
+        "BaseURL": "http://{0}:8080/qpe/getProjectInfo?version=2"
+      }
+    ]
+  },
+  {
+    "Id": "f4ca3a1f-2889-4d24-9c54-3e2dd36c7b02",
+    "Name": "IVES",
+    "Description": "Informed Visibility Ent System",
+    "MessageTypes": [
+      {
+        "Id": "59d0e4ee-9ba2-40e0-aeb3-721c0bf60d1c",
+        "Name": "getEmpInfo",
+        "Description": "Staff Info by Finance Number",
+        "BaseURL": "https://{0}/rest/ives/v1/sch/employee/finno/{1}/func/1/dt/{2}"
+      },
+      {
+        "Id": "0ef2b6cf-7893-4759-9d23-dafe499e894e",
+        "Name": "getEmpSchedule",
+        "Description": "Staff Schedule by Finance Number",
+        "BaseURL": "https://{0}/rest/ives/v1/sch/work/finno/{1}/func/1/dt/{2}"
+      }
+    ]
+  },
+  {
+    "Id": "1aa48e5a-7a36-4548-bd56-54c5ae2cf2d8",
+    "Name": "HCES",
+    "Description": "Human Capital Enterprise System",
+    "MessageTypes": [
+      {
+        "Id": "aadf59a2-4bb7-47dc-ad00-864d377fb5fb",
+        "Name": "getByFacilityID",
+        "Description": "By Facility ID",
+        "BaseURL": "https://{0}/RESTAdapter/HCES/HANA/Data/Request/PII?ver=2"
+      }
+    ]
+  },
+  {
+    "Id": "1ad132ca-adc6-4449-aee1-7adc9aa549ed",
+    "Name": "TACS",
+    "Description": "Time and Attendance Collection System",
+    "MessageTypes": [
+      {
+        "Id": "b1da3037-4103-4e89-9c84-e4948b63be86",
+        "Name": "postRawRing",
+        "Description": "Raw Ring",
+        "BaseURL": "https://{0}/ihs-rawring-service-1.0/rawrings"
+      }
+    ]
+  },
+  {
+    "Id": "4ed5b34b-499a-478d-9f9b-011c26868832",
+    "Name": "SV",
+    "Description": "Surface Visibility ",
+    "MessageTypes": [
+      {
+        "Id": "894b0a07-7280-4fad-a78f-f2d44a5490c2",
+        "Name": "container",
+        "Description": "Inbound and Outbound Container for the Site",
+        "BaseURL": "https://{0}/svx/reports/containerInfoByEventDate?siteId={1}&eventDate={2}"
+      },
+      {
+        "Id": "330e0f86-8d07-4972-8f13-64acae0ddea9",
+        "Name": "trips",
+        "Description": "Inbound and Outbound trips at the site",
+        "BaseURL": "https://{0}/svx/trips/triprange?searchLevel=3&searchValue={1}&lowerBound={2}&upperBound={3}&colocated=undefined"
+      },
+      {
+        "Id": "7dce5774-2319-461c-b5f1-3c4c499992e8",
+        "Name": "getSVZones",
+        "Description": "List of Bullpens ",
+        "BaseURL": "https://{0}/svx/locations/{1}"
+      },
+      {
+        "Id": "288e7579-a153-4652-aa52-8c0676d9161a",
+        "Name": "doors",
+        "Description": "Dock Door Status",
+        "BaseURL": "https://{0}/svx/doors/{1}/status/"
+      },
+      {
+        "Id": "401765ff-94c7-4d2f-a110-0cbdef5fbd1c",
+        "Name": "getdoor_associated_trips",
+        "Description": "per-assigned  trips to Dock Door ",
+        "BaseURL": "https://{0}/svx/doors/{1}"
+      },
+      {
+        "Id": "bb776c8a-b1a7-477b-962e-c6e7d9772c0c",
+        "Name": "trip_itinerary",
+        "Description": "Trip Itinerary ",
+        "BaseURL": "https://{0}/svx/trips/itinerary"
+      }
+    ]
+  },
+  {
+    "Id": "38a2bd9a-960d-4cd9-bd68-a7187a72696a",
+    "Name": "IDS",
+    "Description": "IDS Connection",
+    "MessageTypes": [
+      {
+        "Id": "546cae78-4396-4324-bf78-f768f947de2c",
+        "Name": "FMPCSPscCount",
+        "Description": "IDS Pieces Count for USS",
+        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+      },
+      {
+        "Id": "cb56f648-bf3b-4950-a204-7783707a4e94",
+        "Name": "APPSPscCount",
+        "Description": "IDS Pieces Count for APPS and EPPS",
+        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+      },
+      {
+        "Id": "fb9b1016-296d-4b7c-ade2-add25de23be3",
+        "Name": "GENMPPscCount",
+        "Description": "IDS Pieces Count for HOPS",
+        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+      },
+      {
+        "Id": "02f2140e-6f56-472c-af97-adf3ea6d0d2c",
+        "Name": "FSMMPPscCount",
+        "Description": "IDS Pieces count for AFSM100 ",
+        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+      },
+      {
+        "Id": "77b5aa99-ddd3-421f-b6d9-33f0962f337a",
+        "Name": "BCSMPPscCount",
+        "Description": "IDS Pieces Count for BCDS, DISOSS and CIOSS",
+        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+      },
+      {
+        "Id": "4ba953ca-643c-44d1-8634-e94fe5e752a3",
+        "Name": "SIPSPscCount",
+        "Description": "IDS Pieces Count for SIPS",
+        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+      }
+    ]
+  },
+  {
+    "Id": "51fcec8f-f4c5-4e4e-90a9-32630a5e0da3",
+    "Name": "QRE",
+    "Description": "Quuppa Reporting Engine",
+    "MessageTypes": [
+      {
+        "Id": "8e0de261-e6d4-4272-a0ae-54237ff13006",
+        "Name": "AREA_AGGREGATION",
+        "Description": "QRE Tag Dwell Time",
+        "BaseURL": "http://{0}:8083/api/usps/report/generate"
+      },
+      {
+        "Id": "e5cee466-2612-4792-86f2-72480eb37532",
+        "Name": "TAG_TIMELINE",
+        "Description": "QRE Tag Timeline",
+        "BaseURL": "http://{0}:8083/api/usps/report/generate"
+      }
+    ]
+  },
+  {
+    "Id": "06bba3ac-aea6-4c11-9be9-0a005bf84933",
+    "Name": "SMS_Wrapper",
+    "Description": "ePACS Badge Scan",
+    "MessageTypes": [
+      {
+        "Id": "ae6bc4ca-f29a-4307-a18c-0bca0e700119",
+        "Name": "getEmployees",
+        "Description": "List of Badged in from the last 45 days",
+        "BaseURL": null
+      },
+      {
+        "Id": "f5539389-2d82-45e5-ab4d-857263e37a21",
+        "Name": "FDBIDEmployeeList",
+        "Description": "List of badges at site ",
+        "BaseURL": "http://{0}/SMSWrapper/api/EmployeeList/{1}?fdbid={2}"
+      },
+      {
+        "Id": "f5539389-2d82-45e5-ab4d-857263e37a51",
+        "Name": "NASSCodeEmployeeList",
+        "Description": "List of badges by Site NASS code ",
+        "BaseURL": "http://{0}/SMSWrapper/api/EmployeeList/{1}?nassCode={2}"
+      }
+    ]
+  },
+  {
+    "Id": "6eb46c30-9b9a-407f-aaed-fbb5556df3dc",
+    "Name": "SELS-RT",
+    "Description": "DATA Repo",
+    "MessageTypes": [
+      {
+        "Id": "4fd07dec-67df-4de1-9d98-939c510439d9",
+        "Name": "getTypes",
+        "Description": "Tag Types",
+        "BaseURL": null
+      },
+      {
+        "Id": "d7ac38f2-9f81-45bf-baea-719669154bd7",
+        "Name": "getIvEmpData",
+        "Description": "Employee Schedule",
+        "BaseURL": null
+      },
+      {
+        "Id": "8d9e6945-34fe-491a-be08-705ef53815a9",
+        "Name": "tagIdToEmpId",
+        "Description": "Tag to Employee EIN",
+        "BaseURL": null
+      }
+    ]
+  },
+  {
+    "Id": "6e5b0e92-ac49-467e-8069-0963082f4559",
+    "Name": "Email",
+    "Description": "Email",
+    "MessageTypes": [
+      {
+        "Id": "31289e3e-61e7-4c2b-9593-56e38de56716",
+        "Name": "SiteSynopsis",
+        "Description": "Site Synopsis",
+        "BaseURL": "https://{0}/CF/Reports/MPEPerformance.html?MPEStatus={1}"
+      },
+      {
+        "Id": "467b3c79-fe41-421d-89ff-5bbb3aa9daf9",
+        "Name": "MPESynopsis",
+        "Description": "MPE Synopsis",
+        "BaseURL": "https://{0}/CF/Reports/SitePerformance.html"
+      }
+    ]
+  },
+  {
+    "Id": "18b7493d-d844-46cb-bbb0-f41c3b03026c",
+    "Name": "CiscoSpaces",
+    "Description": "Cisco Spaces DNA",
+    "MessageTypes": [
+      {
+        "Id": "ff2ddf15-b3fc-4efc-be76-61d85e72a0d5",
+        "Name": "CLIENT",
+        "Description": "List of clients connected ",
+        "BaseURL": "https://{0}/api/location/v2/devices?deviceType={1}&mapElementLevel=floor&mapElementId={2}&format=geojson&page=1&tenantId={3}"
+      },
+      {
+        "Id": "de18eb79-c811-4ae0-84f5-8391ae470325",
+        "Name": "BLE_TAG",
+        "Description": "List of BLE Tags Connected",
+        "BaseURL": "https://{0}/api/location/v2/devices?deviceType={1}&mapElementLevel=floor&mapElementId={2}&searchType=wildcard&format=geojson&page=1&tenantId={3}"
+      },
+      {
+        "Id": "8df1c188-9d35-4c1d-9a7c-6e642fe7d04f",
+        "Name": "FLOOR",
+        "Description": "Floor Map",
+        "BaseURL": "https://{0}/api/location/v2/map/floor/{1}"
+      }
+    ]
+  },
+  {
+    "Id": "b408e97c-90e2-4fc2-9c22-4143651667f4",
+    "Name": "Web_Camera",
+    "Description": "Web Camera",
+    "MessageTypes": [
+      {
+        "Id": "7bec51cd-a7ca-45ad-b135-5b8421abfc64",
+        "Name": "getCameraStills",
+        "Description": "Camera Pictures",
+        "BaseURL": "http://{0}/axis-cgi/jpg/image.cgi?resolution=1280x720"
+      },
+      {
+        "Id": "a3944e1b-3f07-495f-97b1-3d85438625d9",
+        "Name": "Cameras",
+        "Description": "Camera List",
+        "BaseURL": "http://{0}:9214/CFC/index2.cfc?method=getOneSite&fdb_id={1}"
+      }
+    ]
+  },
+  {
+    "Id": "6e5b0e92-ac49-467e-8069-0963082f454a",
+    "Name": "TSA",
+    "Description": "Transportation Sweep-Side Assignment",
+    "MessageTypes": [
+      {
+        "Id": "31289e3e-61e7-4c2b-9593-56e38de5671a",
+        "Name": "MPEList",
+        "Description": "TSA MPE List",
+        "BaseURL": "https://{0}/cf/api/tsa/getData"
+      },
+      {
+        "Id": "467b3c79-fe41-421d-89ff-5bbb3aa9daf5",
+        "Name": "PrinterUsage",
+        "Description": "TSA Printer Stats",
+        "BaseURL": "https://{0}/cf/api/tsa/getData"
+      }
+    ]
+  },
+  {
+    "Id": "23ffa08b-c546-4f57-8a2c-c4274b3579be",
+    "Name": "MPEWatch",
+    "Description": "MPE Watch ",
+    "MessageTypes": [
+      {
+        "Id": "f751fc78-45e9-4057-afd4-dbc5f3896c0f",
+        "Name": "rpg_plan",
+        "Description": "RPG Run Plan",
+        "BaseURL": "http://{0}:8080/ords/mpemaster/mpemaster.api_page.get_data_by_time?id={1}&data_source={2}&start_time={3}&end_time={4}"
+      },
+      {
+        "Id": "f5845943-1fff-4fb2-a5ee-97645803399d",
+        "Name": "dps_run_estm",
+        "Description": "DPS Run Status",
+        "BaseURL": "http://{0}:8080/ords/mpemaster/mpemaster.api_page.get_data_by_time?id={1}&data_source={2}&start_time={3}&end_time={4}"
+      },
+      {
+        "Id": "af5438cc-e132-4780-9d77-b0a4e4e2ed9c",
+        "Name": "rpg_run_perf",
+        "Description": "MPE Run Status",
+        "BaseURL": "http://{0}:8080/ords/mpemaster/mpemaster.api_page.get_data_by_time?id={1}&data_source={2}&start_time={3}&end_time={4}"
+      }
+    ]
+  },
+  {
+    "Id": "e66c2d3b-d14c-452c-ae20-c04b96ea2dc8",
+    "Name": "MPE_Alerts",
+    "Description": "MPE Maintenances Call System ",
+    "MessageTypes": [
+      {
+        "Id": "07112487-6f7a-4a53-877e-e40913b3d284",
+        "Name": "macro",
+        "Description": "MPE Call system status",
+        "BaseURL": null
+      }
+    ]
+  }
+]

@@ -1,0 +1,216 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>MPE Performance</title>
+    <link href="Content/mpePerformance.css" rel="stylesheet" />
+    <link href="../css/bootstrap-icons.min.css" rel="stylesheet" />
+</head>
+<body>
+
+    <div>
+        <div icon="activity" title="Machine Performance" description="Site Machine Performance">
+            <div class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
+                <div class="px-4">
+                    <div class="page-header-content pt-0">
+                        <div class="row gx-4 align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <div class="page-header-icon">
+                                        <!---->
+                                    </div>
+                                    <span id="headerIdSpan">Machine Performance</span>
+
+                                </h1>
+                                <!---->
+                            </div>
+                            <div class="col-12 col-xl-auto mt-4">
+                                <!---->
+                            </div>
+                        </div>
+                        <!---->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="px-4 mt-n10">
+            <div>
+                <div class="row gx-4">
+                    <div class="col-4 mb-1">
+                        <div class="card lift h-100">
+                            <div class="card-body d-flex justify-content-center flex-column">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="me-3">
+                                        <h5>Operation / Sortplan </h5>
+                                    </div>
+                                    <div class="me-3"><h5 id="operation_number"></h5></div>
+                                    <div class="me-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4 mb-1">
+                        <div class="card lift h-100">
+                            <div class="card-body d-flex justify-content-center flex-column">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="me-3">
+                                        <h5>Total Volume</h5>
+                                    </div>
+                                    <div class="me-3"><h5 id="machine_volume_number"></h5></div>
+                                    <div class="me-3"></div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4 mb-1">
+                        <div class="card lift h-100">
+                            <div class="card-body d-flex justify-content-center flex-column">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="me-3">
+                                        <h5>Throughput</h5>
+                                    </div>
+                                    <div class="me-3"><h5 id="machine_throughput_number"></h5></div>
+                                    <div class="me-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row gx-4">
+                <div class="col">
+                    <div>
+                        <card-navigation navtype="tabbed" class="mb-4">
+                            <div class="card mb-1">
+                                <div class="modsdate card-header border-bottom d-flex">
+                                    <!-- <input type="text" id="datepicker" data-provide="datepicker" placeholder="Select Date" class="form-control ms-3" style="width: 200px;">-->
+                                    <section class="container">
+                                        <form class="row">
+                                            <div class="col-2">
+                                                <div class="input-group date" id="datepickerdiv">
+                                                    <input type="text" class="form-control" data-provide id="datepicker" />
+                                                    <span class="input-group-append">
+                                                        <span class="input-group-text bg-light d-block">
+                                                            <i class="bi bi-calendar"></i>
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </section>
+                                    <h6 class="modtext ms-auto">Date Range : <span id="moddatedisplay"></span></h6>
+
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="tab-content">
+                                        <div role="tabpanel" aria-labelledby="overview-tab" class="tab-pane fade show active">
+                                            <div class="row gx-4">
+                                                <div class="col-2">
+                                                    <div class="box">
+                                                        <div class="box-title">
+                                                            <p>Machine Details</p>
+                                                        </div>
+                                                        <div class="box-content">
+                                                            <div class="row">
+                                                                <div class="col-sm-6">
+                                                                    <div class="detail-title">
+                                                                        <p>Volume:</p>
+                                                                    </div>
+                                                                    <div class="detail-value">
+                                                                        <p>Plan:</p>
+                                                                        <p>Actual:</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-6">
+                                                                    <div class="detail-title">
+                                                                        <p>Throughput:</p>
+                                                                    </div>
+                                                                    <div class="detail-value">
+                                                                        <p>Plan:</p>
+                                                                        <p>Actual:</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-10">
+                                                    <div id="runVSplan" style="height: 247px">
+                                                        <canvas id="ganttRunVsPlan"></canvas>
+
+                                                    </div>
+
+                                                    <div class="d-flex">
+                                                        <!--<div class="form-check form-switch me-3" id="rightColumn">
+                                                            <input class="form-check-input align-self-center" type="checkbox" id="showStandardCheckbox" onclick="updateChart(this)" value="2"/>
+                                                            <label class="form-check-label" for="showStandardCheckbox" id="label">Toggle MPE Standard</label>
+                                                        </div>-->
+                                                        <div class="form-check form-switch me-3">
+                                                            <input class="form-check-input" type="checkbox" id="yStaffingHrsCountToggle" onchange="toggleYAxis('lineperfChart','yStaffingHrs')">
+                                                            <label class="form-check-label" for="yStaffingHrsCountToggle">Staffing Hours vs Count</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row gx-4">
+                                                <div class="col-2"></div>
+                                                <div class="col-10">
+                                                    <div id="lineperf" class="lineChartPerf">
+                                                        <canvas id="lineperfChart"></canvas>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </card-navigation>
+                    </div>
+                    <div class="tab-content" id="TabContent">
+                        <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                            <div class="d-flex align-items-cetner justify-content-between small mb-1">
+                                <div class="col p-0">
+                                    <div class="card mb-4">
+                                        <div class="card-header py-1">
+                                            <h5 class="m-0">Hourly Report Data</h5>
+                                        </div>
+                                        <div class="card-body p-1">
+                                            <div class="table-responsive" style="padding-right: 15px;">
+                                                <table class="table table-sm table-hover mb-0 border-bottom" id="mpePerformanceData">
+                                                    <thead class="table-dark">
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade show active" id="Labor" role="tabpanel" aria-labelledby="Labor-tab">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../lib/jquery/jquery.min.js"></script>
+    <script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="../lib/microsoft/signalr-protocol-msgpack/dist/browser/signalr-protocol-msgpack.min.js"></script>
+    <script src="../lib/luxon/luxon.min.js"></script>
+    <script src="../lib/chartjs/chart.umd.min.js"></script>
+    <script src="../lib/chartjs-plugin-datalabels/chartjs-plugin-datalabels.min.js"></script>
+    <script src="../lib/chartjs-adapter-luxon/chartjs-adapter-luxon.umd.min.js"></script>
+    <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script src="../lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="../lib/datatables.net/datatables.js"></script>
+    <script src="../lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+    <script src="../lib/bootstrap-datepicker/locales/bootstrap-datepicker.en-US.min.js"></script>
+    <script src="../js/lineChart.js"></script>
+    <script src="../js/ganttChart.js"></script>
+    <script src="Scripts/mpePerformance.js"></script>
+    <script src="Scripts/mpePerformanceTable.js"></script>
+</body>
+</html>

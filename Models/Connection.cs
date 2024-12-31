@@ -1,19 +1,31 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
+﻿
 using Newtonsoft.Json;
 
 public class Connection
 {
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
-    public required string _id { get; set; }
+    [JsonIgnore]
+    private EWorkerServiceState _status;
+    public EWorkerServiceState Status
+    {
+        get => _status;
+        set
+        {
+            if (_status != value)
+            {
+                _status = value;
+                // Update status in database or notify listeners of status change
+            }
+        }
+    }
     public bool ActiveConnection { get; set; } = false;
+    public bool LogData { get; set; } = false;
     public string AdminEmailRecepient { get; set; } = "";
     public bool ApiConnected { get; set; } = false;
+    [JsonProperty("name")]
     public string Name { get; set; } = "";
     public string CreatedByUsername { get; set; } = "";
     public DateTime CreatedDate { get; set; } = DateTime.Now;
-    public int Interval { get; set; } = 10;
+    public long MillisecondsInterval { get; set; } = 1000;
     public string DeactivatedByUsername { get; set; } = "";
     public DateTime DeactivatedDate { get; set; }
     public string Hostname { get; set; } = "";
@@ -27,11 +39,18 @@ public class Connection
     public string MessageType { get; set; } = "";
     public string NassCode { get; set; } = "";
     public string OutgoingApikey { get; set; } = "";
-    public Int32 Port { get; set; } = 0;
+    public int Port { get; set; } = 0;
     public bool UdpConnection { get; set; } = false;
     public bool TcpIpConnection { get; set; } = false;
     public bool WsConnection { get; set; } = false;
     public bool ApiConnection { get; set; } = false;
     public string Url { get; set; } = "";
-    public string Status { get; set; } = "";
+    public string AuthType { get; set; } = "";
+    public string OAuthUrl { get; set; } = "";
+    public string OAuthUserName { get; set; } = "";
+    public string OAuthPassword { get; set; } = "";
+    public string OAuthClientId { get; set; } = "";
+    public int MillisecondsTimeout { get; set; } = 60000;
+    public string? MapId { get; set; } = "";
+    public string? TenantId { get; set; } = "";
 }

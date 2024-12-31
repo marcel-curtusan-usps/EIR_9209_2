@@ -1,0 +1,21 @@
+﻿SELECT
+distinct (printers) , 
+sortername as MPE_NAME,
+sortplan,
+COUNT(*) TRANSACTIONS,
+COUNT(CASE STATUS WHEN 'Ready' THEN 1 END) Printed,
+COUNT(CASE WHEN STATUS <> 'Ready' AND ISCANCELLED = 'FALSE' THEN 1 END) ERROR,
+COUNT(CASE ISCANCELLED WHEN 'TRUE' THEN 1 END) CANCELED,
+LISTAGG(DISTINCT BIN, ',') WITHIN GROUP (ORDER BY BIN)  as "BINS" 
+from(
+SELECT
+TRIM(' '  FROM  SORTERNAME) as SORTERNAME ,
+regexp_substr(notes, '[^,]+', 1, 3) As Printers,
+regexp_substr(notes, '[^,]+$', 1, 1) as Status,
+iscancelled,
+SORTPROGRAMNAME as sortplan,
+to_char(BINNUMBER) as BIN
+
+FROM(select * from rsoedldnr where updatetime between :startDate and :endDate)
+)
+group by printers,sortplan, sortername

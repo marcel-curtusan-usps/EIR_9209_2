@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>STAR Report</title>
+    <link href="Content/empSchedule.css" rel="stylesheet" />
+</head>
+<body>
+
+    <div>
+        <div icon="activity" title="Employee Schedules" description="STAR Weekly Report">
+            <div class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
+                <div class="px-4">
+                    <div class="page-header-content pt-0">
+                        <div class="row gx-4 align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span id="headerIdSpan">STAR Weekly Report</span>
+                                </h1>
+                            </div>
+                            <div class="col-12 col-xl-auto mt-4">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="px-4 mt-n10">
+            <div class="row gx-4">
+                <div class="col">
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                            <div class="d-flex align-items-cetner justify-content-between small mb-1">
+                                <div class="col p-0">
+                                    <div class="card mb-2">
+                                        <div class="modsdate card-header border-bottom d-flex">
+                                            <strong>Data Source:</strong>
+                                            <br>
+                                            <table cellspacing="1" cellpadding="1">
+                                                <tr><td class="tacshr" width="10px"> &nbsp; </td><td> &nbsp; TACS</td></tr>
+                                                <tr><td class="selshr" width="10px"> &nbsp; </td><td> &nbsp; SELS</td></tr>
+                                            </table>
+                                            <section class="container">
+                                                <div class="form-group col-3">
+                                                    <label for="payweek" class="control-label">Pay-Week</label>
+                                                    <select id="payweek" class="form-control pb-1" name="payweek">
+                                                        <option value="none">No Pay-Week</option>
+                                                    </select>
+                                                    <span id="error_payweek" class="text-danger"></span>
+                                                </div>
+                                            </section>
+                                        </div>
+                                        <div class="card-body p-1">
+                                            <div class="table-responsive">
+                                                <table class="table schedtbl table-striped table-bordered table-sm table-hover mb-0" style="border: 1px solid black; table-layout: fixed;" id="empScheduleData">
+                                                    <thead class="table-dark">
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade show active" id="Labor" role="tabpanel" aria-labelledby="Labor-tab">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../lib/jquery/jquery.min.js"></script>
+    <script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="../lib/microsoft/signalr-protocol-msgpack/dist/browser/signalr-protocol-msgpack.min.js"></script>
+    <script src="../lib/luxon/luxon.min.js"></script>
+    <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script src="../lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="../lib/datatables.net/datatables.js"></script>
+    <script src="../lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+    <script src="../lib/bootstrap-datepicker/locales/bootstrap-datepicker.en-US.min.js"></script>
+    <script src="Scripts/empSchedule.js"></script>
+    <script src="Scripts/empScheduleTable.js"></script>
+</body>
+</html>

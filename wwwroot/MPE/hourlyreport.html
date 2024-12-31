@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link href="Content/mpeHourly.css" rel="stylesheet" />
+    <title>MPE</title>
+</head>
+<body>
+    <div class="card w-100" style="padding: 0px;">
+        <div class="card-header">
+            <div class="container-fluid">
+                <div class="row justify-content-md-center">
+                    <div class="col-2" style="padding: 0rem;">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-dark btn-sm disabled " id="mpeName" style="font-size: 2.5rem; font-weight: bolder;" type="button"></button>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <!--<div class="row justify-content-md-center">
+            <div class="col-2" style="display:block" id="tourSelection">
+                <label for="ddlTourSelect" class="control-label">Tour</label>
+                <select class="form-control form-inline" id="ddlTourSelect">
+                    <option value=""></option>
+                    <option value="1">Tour 1</option>
+                    <option value="2">Tour 2</option>
+                    <option value="3">Tour 3</option>
+                </select>
+            </div>
+        </div>-->
+                    </div>
+                    <div class="col-1" style="padding: 0rem;">
+                        <label class="control-label float-end" style="font-size: 3rem; font-weight: bolder;" id="tournumText">Tour: </label>
+                    </div>
+                    <div class="col-1" style="padding: 0rem;">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-dark btn-sm disabled" id="tourNumber" style="font-size: 2.5rem; font-weight: bolder;" type="button"></button>
+                        </div>
+                    </div>
+                    <div class="col-2" style="padding: 0rem;">
+                        <label class="control-label float-end" style="font-size: 3rem; font-weight: bolder;" id="tourdatesText">Date: </label>
+                    </div>
+                    <div class="col-4" style="padding: 0rem;">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-dark btn-sm disabled" id="tourDates" style="font-size: 2.5rem; font-weight: bolder;" type="button"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body" style="padding: 0px;">
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped" id="mpeHourlytable">
+                    <thead class="table-dark">
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-body" style="padding: 0px;">
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped" id="mpeRejecttable">
+                    <thead class="table-dark">
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="../lib/jquery/jquery.min.js"></script>
+    <script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="../lib/luxon/luxon.min.js"></script>
+    <script src="../lib/datatables.net/datatables.js"></script>
+    <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script src="Scripts/mpeHourly.js"></script>
+    <script src="Scripts/mpeHourlyTable.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "ApplicationName": "CF",
+  "ApplicationDescription": "CF",
+  "NassCode": "972",
+  "BaseDrive": "C:",
+  "BaseDirectory": "CF",
+  "ConfigurationDirectory": "Configuration",
+  "LogDirectory": "Logs",
+  "OracleQueryDirectory": "OracleQuery",
+  "IdsConnectionString": "eaeuqIrlgcz9dgIRHJBAm4+oh7AP25zHtcwlr/K256EbJmb2JFhnABhnEisVuMhdcqc923WnBA6o2k2cTWsPhd8HfywIL3eKb18HEI7Po4IwmkyLjbbULqVopi6+6EQqbhjq42ncjtD31ZdcYZsWxQ==",
+  "SupportEmail": "cf-sels_support@usps.gov",
+  "QREMinTimeOnArea": 300,
+  "QRETimeStep": 1,
+  "QREActivationTime": 1,
+  "QREDeactivationTime": 1,
+  "QREDisappearTime": 600,
+  "SiteDetailsUrl": "https://sv.usps.gov/svx/sites/search?ids="
+}

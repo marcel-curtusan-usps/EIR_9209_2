@@ -1,12 +1,35 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore;
+﻿using EIR_9209_2.Utilities;
+using Serilog;
 
-CreateWebHostBuilder(args).Build().Run();
-/// <summary>
-/// Create the web host builder.
-/// </summary>
-/// <param name="args"></param>
-/// <returns>IWebHostBuilder</returns>
-static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-    WebHost.CreateDefaultBuilder(args)
-        .UseStartup<Startup>();
+
+//SETUP LOGGER
+if (!ConfigureLogger.TryConfigureSerilog(out var failureMessage))
+{
+    SerilogDefaultLogger.LogError(failureMessage);
+    DefaultResponseEndpoint.Start(failureMessage);
+    Console.WriteLine($"An error occurred: {failureMessage}");
+    return;
+}
+Log.Information("Starting Application {AppName} version {Version}", Helper.GetAppName(), Helper.GetCurrentVersion());
+try
+{
+    CreateWebHostBuilder(args).Build().Run();
+    Log.Information("Startup complete");
+}
+catch (Exception ex)
+{
+
+    Log.Fatal(ex, "Host terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+
+}
+static IHostBuilder CreateWebHostBuilder(string[] args) =>
+    Host.CreateDefaultBuilder(args)
+    .UseSerilog()
+    .ConfigureWebHostDefaults(webBuilder =>
+    {
+        webBuilder.UseStartup<Startup>();
+    });
