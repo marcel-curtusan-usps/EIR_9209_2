@@ -1,6 +1,10 @@
 ﻿@import url("../../lib/bootstrap/dist/css/bootstrap.css");
 @import url("../../lib/bootstrap-datepicker/css/bootstrap-datepicker.css");
 @import url("../../css/bootstrap-icons.css");
+.dt-scroll-body table thead {
+  display: none;
+}
+
 a {
   font-weight: 500;
   color: #646cff;

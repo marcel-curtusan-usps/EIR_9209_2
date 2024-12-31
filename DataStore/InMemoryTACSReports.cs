@@ -66,7 +66,7 @@ namespace EIR_9209_2.DataStore
                     .SelectMany(list => list) // Flatten the lists of TopOpnCode
                     .Where(r => r.EmpId == code) // Filter by EmpId
                     .OrderByDescending(r => r.OperationIdCount) // Order by OperationIdCount in descending order
-                    .Take(10) // Take the top 10
+                    .Take(8) // Take the top 8
                     .Select(r => r.OperationId) // Select the OperationId
                     .ToList(); // Convert to a list
             }
@@ -98,7 +98,7 @@ namespace EIR_9209_2.DataStore
                 // add topOpnCode to the list
                 if (rawRings.TranInfo.TranCode == "011")
                 {
-                    _ = Task.Run(() => AddTopOpnCode(empId, rawRings.RingInfo.OperationId));
+                    _ = Task.Run(async () => await AddTopOpnCode(empId, rawRings.RingInfo.OperationId));
                 }
                 if (_tacsRawRings.ContainsKey(empId))
                 {
@@ -182,7 +182,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    await _fileService.WriteConfigurationFile(tacsTopOpnCodesFileName, _topOpnCodes.Values.SelectMany(list => list).ToList().ToString());
+                    await _fileService.WriteConfigurationFile(tacsTopOpnCodesFileName, JsonConvert.SerializeObject(_topOpnCodes.Values, Formatting.Indented));
                 }
             }
         }

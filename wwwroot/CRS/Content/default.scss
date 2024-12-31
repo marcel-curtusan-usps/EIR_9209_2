@@ -3,7 +3,9 @@
 @import url('../../css/bootstrap-icons.css');
 
 //Global Styles
-
+.dt-scroll-body table thead {
+    display: none;
+}
 a {
     font-weight: 500;
     color: #646cff;

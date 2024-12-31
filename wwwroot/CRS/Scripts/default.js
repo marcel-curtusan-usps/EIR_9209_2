@@ -398,11 +398,16 @@ async function loadTopCodes(codesList) {
     try {
         const topCodeListDiv = $('div[id=topCodeList]');
         topCodeListDiv.empty(); // Clear any existing content
-        topOpCodes.forEach(code => {
-            const codeElement = $('<div>')
+        codesList.forEach(code => {
+            const codeElement = $('<div>').addClass('col-2').append(
+                $('<div>').addClass('topCodeButton btn btn-light')
                 .text(code)
-                .attr('data-tranCode', code); // Add data-tranCode attribute
+                .attr('data-tranCode', code)); // Add data-tranCode attribute
             topCodeListDiv.append(codeElement);
+        });
+        // Add event listeners to top code buttons
+        document.querySelectorAll('.topCodeButton').forEach(button => {
+            button.addEventListener('click', handleTopCodeClick);
         });
     } catch (e) {
         console.error('Error:', e);
@@ -512,6 +517,8 @@ function createTacsDatatable(table) {
             bInfo: false,
             ordering: false, // Disable sorting for all columns
             destroy: true,
+            scrollY: 250,
+            scroller: true,
             language: {
                 zeroRecords: "No Data",
                 emptyTable: "No TACS Log"
@@ -798,7 +805,3 @@ function handleTopCodeClick(event) {
     $('div[id=Keypad-display]').text(buttonValue); ;
 }
 
-// Add event listeners to top code buttons
-document.querySelectorAll('.topCodeButton').forEach(button => {
-    button.addEventListener('click', handleTopCodeClick);
-});
