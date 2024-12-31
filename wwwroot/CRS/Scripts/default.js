@@ -633,6 +633,9 @@ async function initializeCRSKiosk() {
         console.log("Connection failed: ", err);
     }
 }
+crsConnection.on("epacScan", async (scanDate) => {
+    await handelIncomingScan(scanDate);
+});
 crsConnection.onclose(async () => {
     console.log("Connection closed. Attempting to reconnect...");
     showConnectionStatus("Connection lost. Attempting to reconnect...");
@@ -649,6 +652,18 @@ crsConnection.onreconnected((connectionId) => {
     showConnectionStatus("Reconnected.");
 });
 
+async function handelIncomingScan(incomingScan) {
+    try {
+        if (incomingScan.hasOwnProperty("kioskId") && incomingScan.kioskId === kioskId) {
+            if (incomingScan.hasOwnProperty("id")) {
+                await loadEIN(id);
+            }
+        }
+        
+    } catch (error) {
+        console.log("error: ", error);
+    }
+}
 /**
  * Displays the connection status message to the user.
  * @param {string} message - The message to display.
