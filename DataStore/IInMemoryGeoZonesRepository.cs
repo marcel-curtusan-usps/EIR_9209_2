@@ -51,9 +51,10 @@ public interface IInMemoryGeoZonesRepository
     #endregion
     #region //CRS Kiosk
     Task<object> GetAllKiosk();
+    Task<KioskDetails> CheckKioskZone(string deviceId);
     Task<GeoZoneKiosk> AddKiosk(GeoZoneKiosk newZone);
     Task<GeoZoneKiosk> RemoveKiosk(string id);
-    Task<GeoZoneKiosk> UpdateKiosk(KioskProperties? updatedKioskZone);
+    Task<GeoZoneKiosk> UpdateKiosk(KioskProperties updatedKioskZone);
     Task<GeoZoneKiosk> GetKiosk(string id);
 
 

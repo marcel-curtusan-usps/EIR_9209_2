@@ -2412,7 +2412,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             return false;
         }
     }
-    public async Task<GeoZoneKiosk?> AddKiosk(GeoZoneKiosk newgeoZone)
+    public async Task<GeoZoneKiosk> AddKiosk(GeoZoneKiosk newgeoZone)
     {
         bool saveToFile = false;
         try
@@ -2421,7 +2421,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             if (_geoZonekioskList.TryAdd(newgeoZone.Properties.Id, newgeoZone))
             {
                 saveToFile = true;
-                return await Task.FromResult(newgeoZone);
+                return newgeoZone;
             }
             else
             {
@@ -2442,7 +2442,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
         }
     }
-    public async Task<GeoZoneKiosk?> UpdateKiosk(KioskProperties updategeoZone)
+    public async Task<GeoZoneKiosk> UpdateKiosk(KioskProperties updategeoZone)
     {
         bool saveToFile = false;
         try
@@ -2458,9 +2458,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 {
                     currrentgeoZone.Properties.Number = updategeoZone.Number;
                 }
-
+                if (currrentgeoZone.Properties.DeviceId != updategeoZone.DeviceId)
+                {
+                    currrentgeoZone.Properties.DeviceId = updategeoZone.DeviceId;
+                }
                 saveToFile = true;
-                return await Task.FromResult(currrentgeoZone);
+                return currrentgeoZone;
             }
             else
             {
@@ -2550,11 +2553,11 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async Task<GeoZoneKiosk> GetKiosk(string id)
+    public async Task<GeoZoneKiosk?> GetKiosk(string id)
     {
         try
         {
-            return _geoZonekioskList.Where(r => r.Value.Properties.KioskId == id).Select(y => y.Value).FirstOrDefault();
+            return await Task.Run(() => _geoZonekioskList.Where(r => r.Value.Properties.KioskId == id).Select(y => y.Value).FirstOrDefault());
         }
         catch (Exception e)
         {
@@ -2562,7 +2565,41 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             return null;
         }
     }
+    public async Task<KioskDetails> CheckKioskZone(string id)
+    {
+        try
+        {
+            var kioskZone = await Task.Run(() => _geoZonekioskList
+             .Where(zone => zone.Value.Properties.DeviceId == id)
+             .Select(zone => zone.Value)
+             .FirstOrDefault());
 
- 
+            if (kioskZone != null)
+            {
+                return new KioskDetails
+                {
+                    IsFound = true,
+                    KioskName = kioskZone.Properties.Name,
+                    KioskNumber = kioskZone.Properties.Number,
+                    KioskId = kioskZone.Properties.KioskId
+                };
+            }
+            else
+            {
+                return new KioskDetails
+                {
+                    IsFound = false,
+                };
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return new KioskDetails
+            {
+                IsFound = false,
+            };
+        }
+    }
     #endregion
 }

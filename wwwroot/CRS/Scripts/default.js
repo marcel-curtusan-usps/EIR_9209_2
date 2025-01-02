@@ -53,8 +53,8 @@ setInterval(updateDateTime, 1000);
 setInterval(tacsTime, 30000);
 function resetInactivityTimer() {
     clearTimeout(inactivityTimeout);
-    inactivityTimeout = setTimeout(() => {
-        Promise.all([restEIN()]);
+    inactivityTimeout = setTimeout(async () => {
+        await restEIN();
     }, inactivityTimeLimit);
 }
 function setupInactivityListener() {
@@ -134,6 +134,7 @@ $(function () {
         $('button[id=barcodeScanBtn]').off().on('click', async () => {
             let scanValue = $('input[id=barcodeScan]').val()
             if (scanValue !== "") {
+                scanValue = scanValue.trim().slice(-8); // Trim and get the last 8 characters
                 $('span[id=errorBarcodeScan]').text("");
                 await loadEIN(scanValue);
             }
@@ -182,10 +183,18 @@ $(function () {
         });
 
 
-        $('button[id=modalClose]').off().on('click', async () => {
-            await confirmBtnSubmit().then(async () => {
-               await restEIN();
-            });         
+          $('button[id=confirmBtn]').off().on('click', async () => {
+            try {
+                await confirmBtnSubmit();
+                $('p[id=crsEvent]').text(TranCode)
+                $("#confirmModal").modal('show');
+                setTimeout(async function () {
+                    $("#confirmModal").modal('hide');
+                    await restEIN();
+                }, 3000); // Adjusted the timeout to ensure the modal is shown before hiding
+            } catch (error) {
+                console.error('Error during confirm button submission:', error);
+            }
         });
 
         var options = {
@@ -269,13 +278,13 @@ async function confirmBtnSubmit() {
         tranInfo: {
             tranCode: TranCode,
             ringReasonCode: "00",
-            tranDate: "2020-07-30",
-            tranTime: "07.00",
-            timeZoneCode: "UTC",
-            utcOffset: "-06:00",
-            dstObserved: true,
+            tranDate: "",
+            tranTime: "",
+            timeZoneCode: "",
+            utcOffset: "",
+            dstObserved: "",
             ringTypeCode: "000",
-            financeNo: "353340"
+            financeNo: ""
         },
         ringInfo: {
             OperationId: TranCode === "011" ? $('div[id=Keypad-display]').text() : currentUser.baseOp
@@ -283,8 +292,8 @@ async function confirmBtnSubmit() {
         deviceInfo: {
             deviceId: kioskId,
             deviceType: "CRS",
-            latitude: "44.818870",
-            longitude: "-93.167220"
+            latitude: "",
+            longitude: ""
         }
     }
 
@@ -398,7 +407,7 @@ async function loadTopCodes(codesList) {
         topCodeListDiv.empty(); // Clear any existing content
         codesList.forEach(code => {
             const codeElement = $('<div>').addClass('col-2').append(
-                $('<div>').addClass('topCodeButton btn btn-light')
+                $('<button>').addClass('topCodeButton btn btn-light')
                 .text(code)
                 .attr('data-tranCode', "011")); // Add data-tranCode attribute
             topCodeListDiv.append(codeElement);
@@ -656,7 +665,7 @@ async function handelIncomingScan(incomingScan) {
     try {
         if (incomingScan.hasOwnProperty("kioskId") && incomingScan.kioskId === kioskId) {
             if (incomingScan.hasOwnProperty("id")) {
-                await loadEIN(id);
+                await loadEIN(incomingScan.id);
             }
         }
         
