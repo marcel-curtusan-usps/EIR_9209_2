@@ -3,7 +3,7 @@
     "workbench.editor.defaultBinaryEditor": "default",
     "workbench.editor.enablePreviewFromCodeNavigation": true,
     "sonarlint.connectedMode.project": {
-        "connectionId": "sonar-usps",
+        "connectionId": "https-sonar-usps-gov-",
         "projectKey": "9209:fotf-EIR-9209-Connected-Facility"
     }
 }

@@ -238,7 +238,7 @@ namespace EIR_9209_2.Controllers
                             {
                                 setting.Value = newValue;
 
-                                if (await _resetApplication.Reset())
+                                if ( await _resetApplication.GetNewSiteInfo(newValue) && await _resetApplication.Reset())
                                 {
                                     if (await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
                                     {
