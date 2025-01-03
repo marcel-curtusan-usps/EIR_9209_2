@@ -204,7 +204,7 @@ namespace EIR_9209_2.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="appSettingsData">The application settings data to update</param>
         /// <returns></returns>
         // PUT api/<SiteConfigurationController>/5
         [HttpPost]
@@ -243,7 +243,7 @@ namespace EIR_9209_2.Controllers
                                     if (await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
                                     {
                                         _logger.LogInformation($"{setting.Key} have been update {setting.Value}");
-                                        bool SetupResult = await _resetApplication.Setup();
+                                        await _resetApplication.Setup();
                                     }
                                 }
                             }
@@ -292,7 +292,7 @@ namespace EIR_9209_2.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="appUserRole"></param>
         /// <returns></returns>
         // PUT api/<SiteConfigurationController>/5
         [HttpPut]
@@ -403,16 +403,16 @@ namespace EIR_9209_2.Controllers
                 return Task.FromResult(Enumerable.Empty<string>());
             }
 
-            if (windowsPrincipal.Identity is not WindowsIdentity windowsIdentity)
+            if (OperatingSystem.IsWindows() && windowsPrincipal.Identity is WindowsIdentity windowsIdentity)
             {
-                return Task.FromResult(Enumerable.Empty<string>());
+                var groups = windowsIdentity.Groups?
+                                            .Select(g => OperatingSystem.IsWindows() ? g.Translate(typeof(NTAccount)).ToString().TrimStart(@"USA\".ToCharArray()) : g.Value)
+                                            .ToList() ?? new List<string>();
+
+                return Task.FromResult<IEnumerable<string>>(groups);
             }
 
-            var groups = windowsIdentity.Groups
-                                        .Select(g => g.Translate(typeof(NTAccount)).ToString().TrimStart(@"USA\".ToCharArray()))
-                                        .ToList();
-
-            return Task.FromResult<IEnumerable<string>>(groups);
+            return Task.FromResult(Enumerable.Empty<string>());
         }
     }
 }

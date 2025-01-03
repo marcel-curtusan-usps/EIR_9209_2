@@ -3,7 +3,11 @@
     "workbench.editor.defaultBinaryEditor": "default",
     "workbench.editor.enablePreviewFromCodeNavigation": true,
     "sonarlint.connectedMode.project": {
-        "connectionId": "https-sonar-usps-gov-",
+        "connectionId": "sonar-usps",
         "projectKey": "9209:fotf-EIR-9209-Connected-Facility"
-    }
+    },
+    "github-enterprise.uri": "https://github.usps.gov",
+    "cSpell.words": [
+        "origo"
+    ]
 }
