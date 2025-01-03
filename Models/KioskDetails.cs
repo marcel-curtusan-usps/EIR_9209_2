@@ -1,5 +1,3 @@
-using System;
-
 namespace EIR_9209_2.Models;
 
 public class KioskDetails

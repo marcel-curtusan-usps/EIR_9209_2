@@ -1,3 +1,5 @@
 {
-    "iis.configDir": "${workspaceFolder}\\.vs\\EIR_9209_2\\config"
+    "iis.configDir": "${workspaceFolder}\\.vs\\EIR_9209_2\\config",
+    "workbench.editor.defaultBinaryEditor": "default",
+    "workbench.editor.enablePreviewFromCodeNavigation": true
 }

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using static EIR_9209_2.Service.MPEWatchEndPointServices;
 
 namespace EIR_9209_2.Service
 {

@@ -1,15 +1,11 @@
 ﻿using EIR_9209_2.DataStore;
-using EIR_9209_2.Models;
 using EIR_9209_2.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NuGet.Protocol;
-using System;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Text.RegularExpressions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -57,7 +53,7 @@ namespace EIR_9209_2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e, e.Message);
                 return BadRequest(e.Message);
             }
         }
@@ -82,7 +78,7 @@ namespace EIR_9209_2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e, e.Message);
                 return BadRequest(e.Message);
             }
         }
@@ -173,10 +169,10 @@ namespace EIR_9209_2.Controllers
                 }
                 else
                 {
-                    configurationValues.Add("User", this.User.Identity.IsAuthenticated ? await GetUserName(this.User) : "Operator");
-                    configurationValues.Add("Role", this.User.Identity.IsAuthenticated ? await GetUserRole(this.User) : "Operator");
-                    configurationValues.Add("Phone", this.User.Identity.IsAuthenticated ? await GetUserPhone(this.User) : "");
-                    configurationValues.Add("EmailAddress", this.User.Identity.IsAuthenticated ? await GetUserEmail(this.User) : "");
+                    configurationValues.Add("User", this.User?.Identity?.IsAuthenticated == true ? await GetUserName(this.User) : "Operator");
+                    configurationValues.Add("Role", this.User?.Identity?.IsAuthenticated == true ? await GetUserRole(this.User) : "Operator");
+                    configurationValues.Add("Phone", this.User?.Identity?.IsAuthenticated == true ? await GetUserPhone(this.User) : "");
+                    configurationValues.Add("EmailAddress", this.User?.Identity?.IsAuthenticated == true ? await GetUserEmail(this.User) : "");
                 }
                 configurationValues.Add("ApplicationVersion", Helper.GetCurrentVersion());
                 // Example: Retrieve a specific configuration section
@@ -200,7 +196,7 @@ namespace EIR_9209_2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e, e.Message);
                 return null;
             }
         }

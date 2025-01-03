@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using EIR_9209_2.DataStore;
-using NuGet.Protocol;
 namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
@@ -29,12 +28,62 @@ namespace EIR_9209_2.Controllers
                 if (scan.HasValues)
                 {
                     //log the scan 
+                    // {
+                    //   "action": "setSmsData",
+                    //   "Result": "success",
+                    //   "Message": null,
+                    //   "data": {
+                    //     "Transactions": [
+                    //        {
+                    //         "TimeAdded": 1735822815054,
+                    //         "encodedID": "90001260",
+                    //         "transactiondatetime": "1/2/2025 5:00:37 AM",
+                    //         "cardholderid": 481706,
+                    //         "areaid": 2665,
+                    //         "deviceid": 69579,
+                    //         "cardholderdata": {
+                    //           "currentStatus": "ACTIVE",
+                    //           "title": "MAIL HANDLER",
+                    //           "cardholderID": 481706,
+                    //           "firstname": "name",
+                    //           "lastname": "name",
+                    //           "activation": "Wednesday, April 14, 2010",
+                    //           "expiration": "Thursday, September 30, 2027",
+                    //           "blocked": false,
+                    //           "ein": "03073644",
+                    //           "designationActivity": "120",
+                    //           "dutyStationFDBID": "",
+                    //           "dutystationFinanceNumber": "",
+                    //           "importField": "f0eb8e5bd50a"
+                    //         }
+                    //       }
+                    //     ]
+                    //   }
+                    // }
+                    var transaction = scan["data"]?["Transactions"]?.FirstOrDefault();
+                    if (transaction == null)
+                    {
+                        //log request
+                        return Ok();
+                    }
+                    var transactionareaid = transaction["areaid"]?.ToString();
+                    var transactionCardholderId = transaction["cardholderid"]?.ToString();
+                    var transactionEncodedID = transaction["encodedID"]?.ToString();
+                    var transactionDeviceId = transaction["deviceid"]?.ToString();
+                    var transactionEin = transaction["cardholderdata"]?["ein"]?.ToString();
+                    var importField = transaction["cardholderdata"]?["importField"]?.ToString();
 
-                    var scanDeviceId = scan["deviceId"]?.ToString();
-                    var scanId = scan["id"]?.ToString();
-                    var kioskConfig = await _zones.CheckKioskZone(scanDeviceId);
+                    if (string.IsNullOrEmpty(transactionEin) || string.IsNullOrEmpty(transactionDeviceId) || string.IsNullOrEmpty(transactionareaid))
+                    {
+                        return Ok();
+                        //return BadRequest("One or more required fields are missing or null.");
+                    }
+                    //update Employee Info
+                    _ = Task.Run(async () => await _employees.UpdateEmployeeInfoFromEPAC(scan));
 
-                    if (scanDeviceId != null && kioskConfig.IsFound)
+                    var kioskConfig = await _zones.CheckKioskZone(transactionDeviceId);
+
+                    if (transactionDeviceId != null && kioskConfig.IsFound)
                     {
                         await _hubContext.Clients.Group("CRS").SendAsync("epacScan",
                          new
@@ -42,8 +91,8 @@ namespace EIR_9209_2.Controllers
                              kioskId = kioskConfig.KioskId,
                              kioskName = kioskConfig.KioskName,
                              kioskNumber = kioskConfig.KioskNumber,
-                             deviceId = scanDeviceId,
-                             id = scanId
+                             deviceId = transactionDeviceId,
+                             id = transactionEin
                          },
                          CancellationToken.None);
                     }

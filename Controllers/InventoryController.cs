@@ -1,6 +1,5 @@
 ﻿using EIR_9209_2.DataStore;
 using EIR_9209_2.Models;
-using EIR_9209_2.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
@@ -34,7 +33,7 @@ namespace EIR_9209_2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e,e.Message);
                 return BadRequest(e.Message);
             }
         }

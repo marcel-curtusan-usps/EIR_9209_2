@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Diagnostics;
-using Newtonsoft.Json;
-using Serilog;
+﻿using Newtonsoft.Json;
 using System.ComponentModel;
 
 namespace EIR_9209_2.Models

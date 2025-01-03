@@ -18,6 +18,7 @@ const modalTimeLimit = 2000; // 2 seconds
 const tacsDataTable = "tacsdatatable";
 const maxRetries = 5;
 let TranCode = "";
+let isKioskInUse = false;
 const events = ['mousemove', 'keydown', 'scroll', 'click', 'touchstart'];
 const crsConnection = new signalR.HubConnectionBuilder()
     .withUrl(SiteURLconstructor(window.location) + "/hubServics")
@@ -396,6 +397,7 @@ async function loadEIN(payLoadData) {
             // Start the inactivity listener
             setupInactivityListener();
             resetInactivityTimer();
+            isKioskInUse = true;
         })
         .catch(error => {
             console.error('Error:', error);
@@ -461,7 +463,8 @@ async function updateRawRingsDataTable(newdata, table) {
                         loadRawRingsDataTable([element], table);
                     }
                 }
-            } resolve();
+            }
+            resolve();
             return false;
         });
     } catch (e) {
@@ -556,6 +559,7 @@ async function formatProfId(data) {
 }
 async function restEIN() {
     // Remove the inactivity listener
+    isKioskInUse = false;
     removeInactivityListener();
     currentUser = {};
     $('button[id=confirmBtn]').prop('disabled', true);
@@ -663,7 +667,7 @@ crsConnection.onreconnected((connectionId) => {
 
 async function handelIncomingScan(incomingScan) {
     try {
-        if (incomingScan.hasOwnProperty("kioskId") && incomingScan.kioskId === kioskId) {
+        if (isKioskInUse === false && incomingScan.hasOwnProperty("kioskId") && incomingScan.kioskId === kioskId) {
             if (incomingScan.hasOwnProperty("id")) {
                 await loadEIN(incomingScan.id);
             }

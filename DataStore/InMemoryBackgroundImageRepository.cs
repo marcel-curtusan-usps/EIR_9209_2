@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageRepository
 {

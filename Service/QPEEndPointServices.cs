@@ -1,6 +1,5 @@
 ﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json.Linq;
 using NuGet.Protocol;
 
 namespace EIR_9209_2.Service

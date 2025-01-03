@@ -1,9 +1,7 @@
 ﻿using EIR_9209_2.DatabaseCalls.IDS;
 using EIR_9209_2.DataStore;
-using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
-using NuGet.Packaging;
 using NuGet.Protocol;
 
 namespace EIR_9209_2.Service

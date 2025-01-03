@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Management;
+﻿using System.Management;
 namespace EIR_9209_2.Utilities
 {
     public class SystemInformation : ISystemInformation

@@ -1,15 +1,10 @@
 ﻿using EIR_9209_2.DataStore;
 using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.CodeAnalysis.Differencing;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NuGet.Protocol;
-using Org.BouncyCastle.Asn1.Pkcs;
 using System.Collections.Concurrent;
 using System.Globalization;
-using System.Linq;
 using System.Text.RegularExpressions;
 using static EIR_9209_2.DataStore.InMemoryCamerasRepository;
 

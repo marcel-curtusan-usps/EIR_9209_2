@@ -2,19 +2,11 @@
 using EIR_9209_2.DataStore;
 using EIR_9209_2.Service;
 using EIR_9209_2.Utilities;
-using MessagePack;
-using MessagePack.Resolvers;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Server.IISIntegration;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System.Reflection;
-using System.Text;
 
 public class Startup
 {
