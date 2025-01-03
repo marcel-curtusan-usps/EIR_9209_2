@@ -27,10 +27,10 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     private readonly ILogger<InMemoryGeoZonesRepository> _logger;
     private readonly IFileService _fileService;
     protected readonly IHubContext<HubServices> _hubServices;
-    private readonly string fileName = "Zone.json";
+    private readonly string fileName = "Zones.json";
     private readonly string fileNameDockDoor = "ZonesDockDoor.json";
     private readonly string fileNameMpeTarget = "MPETargets.json";
-    private readonly string fileNameKiosk = "KioskConfig.json";
+    private readonly string fileNameKiosk = "ZonesKiosk.json";
     public InMemoryGeoZonesRepository(ILogger<InMemoryGeoZonesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices, IInMemorySiteInfoRepository siteInfo)
     {
         _fileService = fileService;
@@ -66,13 +66,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
             else
             {
-                _logger.LogError($"Zone File {fileName} list was not saved...");
+                _logger.LogError("Zone File {FileName} list was not saved...", fileName);
                 return null;
             }
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            _logger.LogError(e, e.Message);
             return null;
         }
         finally
@@ -96,13 +96,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
             else
             {
-                _logger.LogError($"Zone File {fileName} list was not saved...");
+                _logger.LogError("Zone File {FileName} list was not saved...", fileName);
                 return null;
             }
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            _logger.LogError(e, e.Message);
             return null;
         }
         finally
@@ -144,13 +144,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
             else
             {
-                _logger.LogError($"Dockdoor Zone File {fileNameDockDoor} list was not saved...");
+                _logger.LogError("Dockdoor Zone File {FileNameDockDoor} list was not saved...", fileNameDockDoor);
                 return null;
             }
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            _logger.LogError(e, e.Message);
             return null;
         }
         finally
@@ -174,13 +174,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
             else
             {
-                _logger.LogError($"Dock door Zone File {fileNameDockDoor} list was not saved...");
+                _logger.LogError("Dock door Zone File {FileNameDockDoor} list was not saved...", fileNameDockDoor);
                 return null;
             }
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            _logger.LogError(e, e.Message);
             return null;
         }
         finally
@@ -257,7 +257,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            _logger.LogError(e, e.Message);
             return null;
         }
         finally
@@ -301,7 +301,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            _logger.LogError(e, e.Message);
             return null;
         }
     }
