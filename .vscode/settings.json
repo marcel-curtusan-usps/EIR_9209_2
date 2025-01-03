@@ -1,5 +1,9 @@
 {
     "iis.configDir": "${workspaceFolder}\\.vs\\EIR_9209_2\\config",
     "workbench.editor.defaultBinaryEditor": "default",
-    "workbench.editor.enablePreviewFromCodeNavigation": true
+    "workbench.editor.enablePreviewFromCodeNavigation": true,
+    "sonarlint.connectedMode.project": {
+        "connectionId": "sonar-usps",
+        "projectKey": "9209:fotf-EIR-9209-Connected-Facility"
+    }
 }
