@@ -367,3 +367,5 @@ FodyWeavers.xsd
 
 # appsettings.Development.json
 **/appsettings.Development.json
+.sonarlint/EIR_9209_2.json
+.vscode/settings.json

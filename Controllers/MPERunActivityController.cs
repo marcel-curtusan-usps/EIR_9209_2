@@ -163,6 +163,19 @@ namespace EIR_9209_2.Controllers
                                 }
                             }
                         }
+                        if (MpeName == "APPS")
+                        {
+                            var geoZones = await _zones.GetGeoZonebyName("MPE", "APPS");
+                            if (geoZones != null)
+                            {
+                                      var geoZonesArray = geoZones as JArray;
+                                var appsNumber = geoZonesArray?.Where(gz => gz["properties"]["mpeNumber"].ToString() != "").Select(gz => gz["properties"]["mpeNumber"]).FirstOrDefault()?.ToString();
+                                if (!string.IsNullOrEmpty(appsNumber))
+                                {
+                                    int.TryParse(appsNumber, out mpeNumber);
+                                }
+                            }
+                        }
                         if (!int.TryParse(fields[3].AsSpan(0, 3), out int operationId)) // Use double.TryParse if it can be a floating-point number
                         {
                             return BadRequest("Field 3 is not a number");

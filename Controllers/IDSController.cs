@@ -1,5 +1,4 @@
 ﻿using EIR_9209_2.DatabaseCalls.IDS;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 

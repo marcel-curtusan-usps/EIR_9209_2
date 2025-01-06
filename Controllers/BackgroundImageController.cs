@@ -69,9 +69,16 @@ namespace EIR_9209_2.Controllers
                     return BadRequest("No file uploaded");
                 }
 
+                if (string.IsNullOrEmpty(value))
+                {
+                    return BadRequest("No value provided");
+                }
                 JObject valueJson = JObject.Parse(value);
                 OSLImage? newImage = valueJson.ToObject<OSLImage>();
-                newImage.coordinateSystemId = Guid.NewGuid().ToString();
+                if (newImage != null)
+                {
+                    newImage.coordinateSystemId = Guid.NewGuid().ToString();
+                }
                 // convert the file to a byte array to image
                 byte[] fileBytes;
                 string fileName = file.FileName;
@@ -81,26 +88,41 @@ namespace EIR_9209_2.Controllers
                     file.CopyTo(ms);
                     fileBytes = ms.ToArray();
                     string imageBase64Data = Convert.ToBase64String(fileBytes);
-                    using (Image image = Image.FromStream(ms))
-                    {
-                        // You can perform various operations on the image here
-                        // For example, you can resize, crop, or apply filters to the image
-                        // Once you're done with the image, you can save it or use it as needed
-                        newImage.origoX = image.Width;
-                        newImage.origoY = image.Height;
-
-                        newImage.base64 = string.Concat("data:image/png;base64,", imageBase64Data);
-                        newImage.fileName = fileName;
-                        newImage.id = Guid.NewGuid().ToString();
-                        newImage.widthMeter = newImage.origoX * newImage.metersPerPixelY;
-                        newImage.heightMeter = newImage.origoY * newImage.metersPerPixelX;
-                        //sent to the repository
-                        saveOSL = true;
-                    }
+                    #if WINDOWS
+                                        using (Image image = Image.FromStream(ms))
+                                        {
+                                            // You can perform various operations on the image here
+                                            // For example, you can resize, crop, or apply filters to the image
+                                            // Once you're done with the image, you can save it or use it as needed
+                                            newImage.origoX = image.Width;
+                                            newImage.origoY = image.Height;
+                    
+                                            newImage.base64 = string.Concat("data:image/png;base64,", imageBase64Data);
+                                            newImage.fileName = fileName;
+                                            newImage.id = Guid.NewGuid().ToString();
+                                            newImage.widthMeter = newImage.origoX * newImage.metersPerPixelY;
+                                            newImage.heightMeter = newImage.origoY * newImage.metersPerPixelX;
+                                            //sent to the repository
+                                            saveOSL = true;
+                                        }
+                    #else
+                                        // Handle non-Windows platforms
+                                        if (newImage != null)
+                                        {
+                                            newImage.base64 = string.Concat("data:image/png;base64,", imageBase64Data);
+                                            newImage.fileName = fileName;
+                                            newImage.id = Guid.NewGuid().ToString();
+                                            saveOSL = true;
+                                        }
+                    #endif
 
                 }
                 if (saveOSL)
                 {
+                    if (newImage == null)
+                    {
+                        return BadRequest(new JObject { ["message"] = "Image data is invalid." });
+                    }
                     var osl = await _backgroundImage.Add(newImage);
 
                     if (osl != null)

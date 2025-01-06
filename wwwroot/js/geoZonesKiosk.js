@@ -175,37 +175,40 @@ async function EditCrsKioskInfo(id) {
         $('input[id=zone_id]').val(Data.id);
         $('input[id=crsioskName]').val(Data.name);
         $('input[id=crsKioskNumber]').val(Data.number);
+        $('input[id=crsDeviceId]').val(Data.deviceId);
         $('select[id=zone_Type]').val(Data.type);
         $('button[id=CrsKioskSubmitBtn]').off().on('click', function () {
             let jsonObject = {
                 id: $('input[id=zone_id]').val(),
                 name: $('input[id=crsioskName]').val(),
                 number: $('input[id=crsKioskNumber]').val(),
+                deviceId: $('input[id=crsDeviceId]').val(),
                 type: $('select[name=zone_Type] option:selected').val()
             };
             //make a ajax call to get the Connection details
-            $.ajax({
-                url: SiteURLconstructor(window.location) + '/api/Zone/Update',
-                contentType: 'application/json-patch+json',
-                type: 'POST',
-                data: JSON.stringify(jsonObject),
-                success: function (data) {
+            fetch(`../api/Zone/Update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json-patch+json'
+                },
+                body: JSON.stringify(jsonObject)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(error => { throw new Error(error); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
                     setTimeout(function () {
                         $("#CRSKiosk_Modal").modal('hide');
                         sidebar.open('home');
                     }, 500);
-                },
-                error: function (error) {
-                    $('span[id=errorCrsKioskSubmitBtn]').text(error);
-                    //console.log(error);
-                },
-                faulure: function (fail) {
-                    console.log(fail);
-                },
-                complete: function (complete) {
-                    console.log(complete);
-                }
-            });
+                })
+                .catch(error => {
+                    $('span[id=errorCrsKioskSubmitBtn]').text(error.message);
+                    console.error('Error:', error);
+                });
 
         });
 

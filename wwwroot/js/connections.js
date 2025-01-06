@@ -660,7 +660,7 @@ async function Edit_Connection(data) {
 
         if (/^(idRequest)/i.test(data.authType)) {
             $('input[type=checkbox][id=idRequest]').prop('checked', true);
-            $('input[type=text][name=tokenurl]').prop("disabled", false).val(data.oAuthUrl);
+            $('input[type=text][name=idrequesturl]').prop("disabled", false).val(data.oAuthUrl);
             onidRequestConnection();
 
         }
@@ -1240,9 +1240,9 @@ function onidRequestConnection() {
     }
     $('div[id="IdRequest"]').css("display", "");
     $('input[type=text][name=tokenurl]').prop("disabled", false).css('display', "block").val("");
-    if (!checkValue($('input[type=text][name=tokenurl]').val())) {
+    if (!checkValue($('input[type=text][name=idrequesturl]').val())) {
         $('input[type=text][name=idrequesturl]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
-        $('span[id=error_idrequesturl]').text("Please Enter Token URL");
+        $('span[id=error_idrequesturl]').text("Please Enter Request Id URL");
     }
     else {
         $('input[type=text][name=idrequesturl]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');

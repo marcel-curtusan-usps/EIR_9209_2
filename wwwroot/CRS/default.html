@@ -112,7 +112,7 @@
                             <button type="button" class="btn btn-danger clockButtons" id="cancelBtn">Cancel</button>
                         </div>
                         <div class="confirm-container">
-                            <button type="button" class="btn btn-success clockButtons" data-bs-toggle="modal" data-bs-target="#exampleModal" disabled="disabled" id="confirmBtn">Confirm</button>
+                            <button type="button" class="btn btn-success clockButtons" disabled="disabled" id="confirmBtn">Confirm</button>
                         </div>
                     </div>
                 </div>
@@ -139,6 +139,7 @@
                 </div>
             </div>
         </div>
+        </div>
 
 
 
@@ -148,16 +149,16 @@
             <p class="USPS p-2" id="footerLabel">USPS</p>
         </div>
 
-        <!-- Modal -->r
-        <div class="modal fade" id="exampleModal" tabindex="-1" style="z-index: 2050;">
-            <div class="modal-dialog">
+        <!-- Modal -->
+        <div class="modal fade" id="confirmModal" tabindex="-1" style="z-index: 2050;">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title" id="exampleModalLabel">Thank you</h4>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="modalClose"></button>
                     </div>
                     <div class="modal-body">
-                        <h5>You have submitted your clock event</h5>
+                        <h5>You have submitted your<p id="crsEvent"> </p>event</h5>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="modalClose">Close</button>

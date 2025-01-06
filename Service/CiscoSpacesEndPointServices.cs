@@ -1,8 +1,6 @@
-﻿using EIR_9209_2.Models;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NuGet.Common;
 
 namespace EIR_9209_2.Service
 {

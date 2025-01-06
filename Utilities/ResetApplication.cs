@@ -1,9 +1,7 @@
 ﻿
 using EIR_9209_2.DataStore;
 using EIR_9209_2.Service;
-using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
-using static EIR_9209_2.Models.GeoMarker;
 
 namespace EIR_9209_2.Utilities
 {

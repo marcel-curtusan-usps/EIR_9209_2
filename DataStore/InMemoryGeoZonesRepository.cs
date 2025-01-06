@@ -1,15 +1,10 @@
 ﻿using EIR_9209_2.DataStore;
 using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.CodeAnalysis.Differencing;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NuGet.Protocol;
-using Org.BouncyCastle.Asn1.Pkcs;
 using System.Collections.Concurrent;
 using System.Globalization;
-using System.Linq;
 using System.Text.RegularExpressions;
 using static EIR_9209_2.DataStore.InMemoryCamerasRepository;
 
@@ -32,10 +27,10 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     private readonly ILogger<InMemoryGeoZonesRepository> _logger;
     private readonly IFileService _fileService;
     protected readonly IHubContext<HubServices> _hubServices;
-    private readonly string fileName = "Zone.json";
+    private readonly string fileName = "Zones.json";
     private readonly string fileNameDockDoor = "ZonesDockDoor.json";
     private readonly string fileNameMpeTarget = "MPETargets.json";
-    private readonly string fileNameKiosk = "KioskConfig.json";
+    private readonly string fileNameKiosk = "ZonesKiosk.json";
     public InMemoryGeoZonesRepository(ILogger<InMemoryGeoZonesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices, IInMemorySiteInfoRepository siteInfo)
     {
         _fileService = fileService;
@@ -71,13 +66,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
             else
             {
-                _logger.LogError($"Zone File {fileName} list was not saved...");
+                _logger.LogError("Zone File {FileName} list was not saved...", fileName);
                 return null;
             }
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            _logger.LogError(e, e.Message);
             return null;
         }
         finally
@@ -101,13 +96,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
             else
             {
-                _logger.LogError($"Zone File {fileName} list was not saved...");
+                _logger.LogError("Zone File {FileName} list was not saved...", fileName);
                 return null;
             }
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            _logger.LogError(e, e.Message);
             return null;
         }
         finally
@@ -149,13 +144,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
             else
             {
-                _logger.LogError($"Dockdoor Zone File {fileNameDockDoor} list was not saved...");
+                _logger.LogError("Dockdoor Zone File {FileNameDockDoor} list was not saved...", fileNameDockDoor);
                 return null;
             }
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            _logger.LogError(e, e.Message);
             return null;
         }
         finally
@@ -179,13 +174,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
             else
             {
-                _logger.LogError($"Dock door Zone File {fileNameDockDoor} list was not saved...");
+                _logger.LogError("Dock door Zone File {FileNameDockDoor} list was not saved...", fileNameDockDoor);
                 return null;
             }
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            _logger.LogError(e, e.Message);
             return null;
         }
         finally
@@ -262,7 +257,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            _logger.LogError(e, e.Message);
             return null;
         }
         finally
@@ -306,7 +301,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            _logger.LogError(e, e.Message);
             return null;
         }
     }
@@ -1567,15 +1562,15 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async Task<object> GetMPENameList()
+    public async Task<object?> GetMPENameList()
     {
         return await Task.Run(() => _MPENameList.Select(y => y).ToList()).ConfigureAwait(false);
     }
-    public async Task<object> GetDockDoorNameList()
+    public async Task<object?> GetDockDoorNameList()
     {
         return await Task.Run(() => _DockDoorList.Select(y => y).ToList()).ConfigureAwait(false);
     }
-    public async Task<object> GetMPEGroupList(string type)
+    public async Task<object?> GetMPEGroupList(string type)
     {
         return await Task.Run(() => _geoZoneList.Where(r => r.Value.Properties.Type.StartsWith(type) && !string.IsNullOrEmpty(r.Value.Properties.MpeGroup)).Select(y => y.Value.Properties.MpeGroup).ToList()).ConfigureAwait(false);
     }
@@ -2412,7 +2407,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             return false;
         }
     }
-    public async Task<GeoZoneKiosk?> AddKiosk(GeoZoneKiosk newgeoZone)
+    public async Task<GeoZoneKiosk> AddKiosk(GeoZoneKiosk newgeoZone)
     {
         bool saveToFile = false;
         try
@@ -2421,7 +2416,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             if (_geoZonekioskList.TryAdd(newgeoZone.Properties.Id, newgeoZone))
             {
                 saveToFile = true;
-                return await Task.FromResult(newgeoZone);
+                return newgeoZone;
             }
             else
             {
@@ -2442,7 +2437,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
         }
     }
-    public async Task<GeoZoneKiosk?> UpdateKiosk(KioskProperties updategeoZone)
+    public async Task<GeoZoneKiosk> UpdateKiosk(KioskProperties updategeoZone)
     {
         bool saveToFile = false;
         try
@@ -2458,9 +2453,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 {
                     currrentgeoZone.Properties.Number = updategeoZone.Number;
                 }
-
+                if (currrentgeoZone.Properties.DeviceId != updategeoZone.DeviceId)
+                {
+                    currrentgeoZone.Properties.DeviceId = updategeoZone.DeviceId;
+                }
                 saveToFile = true;
-                return await Task.FromResult(currrentgeoZone);
+                return currrentgeoZone;
             }
             else
             {
@@ -2550,11 +2548,11 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async Task<GeoZoneKiosk> GetKiosk(string id)
+    public async Task<GeoZoneKiosk?> GetKiosk(string id)
     {
         try
         {
-            return _geoZonekioskList.Where(r => r.Value.Properties.KioskId == id).Select(y => y.Value).FirstOrDefault();
+            return await Task.Run(() => _geoZonekioskList.Where(r => r.Value.Properties.KioskId == id).Select(y => y.Value).FirstOrDefault());
         }
         catch (Exception e)
         {
@@ -2562,7 +2560,41 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             return null;
         }
     }
+    public async Task<KioskDetails> CheckKioskZone(string id)
+    {
+        try
+        {
+            var kioskZone = await Task.Run(() => _geoZonekioskList
+             .Where(zone => zone.Value.Properties.DeviceId == id)
+             .Select(zone => zone.Value)
+             .FirstOrDefault());
 
- 
+            if (kioskZone != null)
+            {
+                return new KioskDetails
+                {
+                    IsFound = true,
+                    KioskName = kioskZone.Properties.Name,
+                    KioskNumber = kioskZone.Properties.Number,
+                    KioskId = kioskZone.Properties.KioskId
+                };
+            }
+            else
+            {
+                return new KioskDetails
+                {
+                    IsFound = false,
+                };
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return new KioskDetails
+            {
+                IsFound = false,
+            };
+        }
+    }
     #endregion
 }

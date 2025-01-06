@@ -1,22 +1,10 @@
 ﻿using EIR_9209_2.Models;
-using Humanizer;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Asn1.X509.Qualified;
-using Org.BouncyCastle.Bcpg.OpenPgp;
-using Org.BouncyCastle.Crypto;
-using PuppeteerSharp.Input;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
-using System.Globalization;
-using System.Text.RegularExpressions;
-using static NuGet.Packaging.PackagingConstants;
-using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using EIR_9209_2.DataStore;
 
 public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
 {
@@ -46,7 +34,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         {
             _logger.LogError(e.Message);
             return null;
-        } 
+        }
     }
     private async Task LoadDataFromFile()
     {
@@ -375,7 +363,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
 
                     }
                 }
-            
+
 
                 //if (empData.ContainsKey("ein") && !string.IsNullOrEmpty(empData["ein"].ToString()))
                 //{
@@ -478,7 +466,8 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             _logger.LogError(e.Message);
             return true;
         }
-        finally {
+        finally
+        {
             if (savetoFile)
             {
                 await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_empList.Values, Formatting.Indented));
@@ -486,13 +475,74 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         }
     }
 
+    public async Task<bool> UpdateEmployeeInfoFromEPAC(JObject scan)
+    {
+        bool savetoFile = false;
 
-
+        try
+        {
+            var transaction = scan["data"]?["Transactions"]?.FirstOrDefault();
+            if (transaction == null)
+            {
+                return false;
+            }
+            var transactionEin = transaction["cardholderdata"]?["ein"]?.ToString();
+            if (!string.IsNullOrEmpty(transactionEin))
+            {
+                if (_empList.ContainsKey(transactionEin) && _empList.TryGetValue(transactionEin, out EmployeeInfo currentEmp))
+                {
+                    if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["firstname"]?.ToString()) && currentEmp.FirstName != transaction["cardholderdata"]?["firstname"]?.ToString())
+                    {
+                        currentEmp.FirstName = transaction["cardholderdata"]?["firstname"]?.ToString();
+                        savetoFile = true;
+                    }
+                    if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["lastname"]?.ToString()) && currentEmp.LastName != transaction["cardholderdata"]?["lastname"]?.ToString())
+                    {
+                        currentEmp.LastName = transaction["cardholderdata"]?["lastname"]?.ToString();
+                        savetoFile = true;
+                    }
+                    if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["importField"]?.ToString()) && currentEmp.BleId != transaction["cardholderdata"]?["importField"]?.ToString())
+                    {
+                        currentEmp.BleId = transaction["cardholderdata"]?["importField"]?.ToString();
+                        savetoFile = true;
+                    }
+                    if (!string.IsNullOrEmpty(transaction["encodedID"]?.ToString()) && currentEmp.EncodedId !=transaction["encodedID"]?.ToString())
+                    {
+                        currentEmp.EncodedId = transaction["encodedID"]?.ToString();
+                        savetoFile = true;
+                    }
+                    if (!string.IsNullOrEmpty(transaction["cardholderid"]?.ToString()) && currentEmp.EncodedId != transaction["cardholderid"]?.ToString())
+                    {
+                        currentEmp.CardholderId = (int)transaction["cardholderid"];
+                        savetoFile = true;
+                    }
+                    if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["designationActivity"]?.ToString()) && currentEmp.BleId != transaction["cardholderdata"]?["designationActivity"]?.ToString())
+                    {
+                        currentEmp.BleId = transaction["cardholderdata"]?["designationActivity"]?.ToString();
+                        savetoFile = true;
+                    }
+                }
+            }
+                    return true;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return true;
+        }
+        finally
+        {
+            if (savetoFile)
+            {
+                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_empList.Values, Formatting.Indented));
+            }
+        }
+    }
     public async Task<object?> GetEmployeeByCode(string code)
     {
         try
         {
-            var empData =  _empList.Where(r => r.Value.EmployeeId == code || r.Value.EncodedId == code).Select(r => r.Value).FirstOrDefault();
+            var empData = _empList.Where(r => r.Value.EmployeeId == code || r.Value.EncodedId == code).Select(r => r.Value).FirstOrDefault();
             if (empData != null)
             {
                 return empData;
