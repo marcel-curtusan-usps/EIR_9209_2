@@ -418,6 +418,7 @@ async function loadRawRingsLogs(rawRingList) {
             return {
                 id: rawRing.sourceTranId,
                 tranDateTime: `${rawRing.tranInfo.tranDate} ${rawRing.tranInfo.tranTime}`,
+                tranTime: rawRing.tranInfo.tranTime,
                 tranCode: rawRing.tranInfo.tranCode,
                 operationId: rawRing.ringInfo.operationId
             };
@@ -501,8 +502,8 @@ function constructTacsColumns() {
     var column3 =
     {
         //first column is always the name
-        title: "Duration",
-        data: "tranCode",
+        title: "Duration (hours)",
+        data: null,
         width: '20%'
     };
     columns[0] = column0;
@@ -524,7 +525,6 @@ function createTacsDatatable(table) {
             bInfo: false,
             ordering: false, // Disable sorting for all columns
             destroy: true,
-            //scrollY: 250,
             scroller: true,
             language: {
                 zeroRecords: "No Data",
@@ -533,12 +533,37 @@ function createTacsDatatable(table) {
             order: [[]],
             aoColumns: constructTacsColumns(),
             scrollY: '30vh', // Set the height for vertical scrolling
-            scrollCollapse: true // Enable collapsing of the table when there are fewer rows
+            scrollCollapse: true, // Enable collapsing of the table when there are fewer rows
+            rowCallback: function (row, data, index) {
+                // Get the current entry's tranTime
+                const currentTranTime = parseFloat(data.tranTime);
+
+                // Check if this is the first row
+                if (index === 0) {
+                    // Set the duration to an empty string for the first row
+                    $('td:eq(3)', row).html('');
+                } else {
+                    // Get the previous row's data
+                    const previousRow = $('#' + table).DataTable().row(index - 1).data();
+
+                    if (previousRow) {
+                        // Get the previous entry's tranTime
+                        const previousTranTime = parseFloat(previousRow.tranTime);
+
+                        // Calculate the duration between the current and previous entry
+                        const duration = currentTranTime - previousTranTime;
+
+                        // Display the duration in the fourth column (index 3)
+                        $('td:eq(3)', row).html(duration.toFixed(2));
+                    }
+                }
+            }
         });
     } catch (e) {
         console.log("Error fetching machine info: ", e);
     }
 }
+
 //rule: display the profId in the format of first 3 letters of last name and the last 4 digits of the EIN
 async function formatProfId(data) {
     //data.EmployeeId
