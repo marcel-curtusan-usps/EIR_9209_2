@@ -1562,15 +1562,15 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
-    public async Task<object> GetMPENameList()
+    public async Task<object?> GetMPENameList()
     {
         return await Task.Run(() => _MPENameList.Select(y => y).ToList()).ConfigureAwait(false);
     }
-    public async Task<object> GetDockDoorNameList()
+    public async Task<object?> GetDockDoorNameList()
     {
         return await Task.Run(() => _DockDoorList.Select(y => y).ToList()).ConfigureAwait(false);
     }
-    public async Task<object> GetMPEGroupList(string type)
+    public async Task<object?> GetMPEGroupList(string type)
     {
         return await Task.Run(() => _geoZoneList.Where(r => r.Value.Properties.Type.StartsWith(type) && !string.IsNullOrEmpty(r.Value.Properties.MpeGroup)).Select(y => y.Value.Properties.MpeGroup).ToList()).ConfigureAwait(false);
     }
