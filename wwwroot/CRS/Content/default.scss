@@ -22,6 +22,7 @@ html, body {
     overflow: hidden; // Prevent scroll bars
     /*    margin: 0; // Add this line
     padding: 0; // Add this line*/
+    background-color: #11005c;
 }
 
 .main-content {
@@ -71,7 +72,7 @@ button {
 $component-width: 48vw;
 
 .component {
-    background-color: lightblue;
+    background-color: #bebdbd;
     border-radius: 10px;
     box-shadow: 2px 2px 2px 2px gray;
     //width: 49vw !important;
@@ -89,6 +90,8 @@ code {
 .kiosk-container{
     padding: 1vw;
 }
+
+
 
 /*--------------------------- Header ---------------------------*/
 
@@ -131,7 +134,7 @@ code {
 }
 
 .welcomeMessage {
-    color: navy;
+    color: white;
     font-size: 5vw;
 }
 
@@ -145,6 +148,7 @@ code {
 
 .please {
     font-size: 25px;
+    color: white;
 }
 
 /*.hideFromUser {
@@ -158,7 +162,7 @@ code {
     //display: flex;
     //justify-content: center;
     //align-items: center;
-    padding: 10px !important;
+    padding-left: 10px !important;
     margin-left: 6px;
     text-align: center;
     color: black !important;
@@ -250,6 +254,7 @@ $keypad-height: 31vh; //Sets for keypad
     box-shadow: 2px 2px 2px 2px gray;
     margin-left: 6px;
     margin-top: 6px;
+    background-color: white;
 }
 
 #keypad {

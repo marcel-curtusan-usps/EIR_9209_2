@@ -14,7 +14,7 @@ let currentUser = {};
 const errorTimeLimit = 2000; // 15 seconds
 let inactivityTimeout;
 const inactivityTimeLimit = 1500000; // should be 1500 seconds
-const modalTimeLimit = 1000; // 1 second
+const modalTimeout = 1000; // 1 second
 const tacsDataTable = "tacsdatatable";
 const maxRetries = 5;
 let TranCode = "";
@@ -212,7 +212,7 @@ $(function () {
           setTimeout(async function () {
             $("#confirmModal").modal("hide");
             await restEIN();
-          }, modalTimeout); // Adjusted the timeout to match the modal
+          }, modalTimeLimit); // Adjusted the timeout to match the modal
         } catch (error) {
           console.error("Error during confirm button submission:", error);
         }
@@ -595,7 +595,7 @@ function createTacsDatatable(table) {
             },
             order: [[]],
             aoColumns: constructTacsColumns(),
-            scrollY: '30vh', // Set the height for vertical scrolling
+            scrollY: '28vh', // Set the height for vertical scrolling
             scrollCollapse: true, // Enable collapsing of the table when there are fewer rows
             rowCallback: function (row, data, index) {
                 // Get the current entry's tranTime
@@ -948,10 +948,10 @@ function handleTopCodeClick(event) {
 
 // Function to handle modal timeout
 function startModalTimeout() {
-  modalTimeout = setTimeout(async () => {
+  modalTimeLimit = setTimeout(async () => {
     $("#confirmModal").modal("hide");
     await restEIN();
-  }, modalTimeLimit);
+  }, modalTimeout);
 }
 
 // Event listener for modal show event
