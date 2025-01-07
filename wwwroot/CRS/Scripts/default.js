@@ -489,11 +489,11 @@ async function loadRawRingsLogs(rawRingList) {
             };
         });
 
-    // Pass the new data to updateRawRingsDataTable
-    await updateRawRingsDataTable(newData, tacsDataTable);
-  } catch (e) {
-    console.error("Error:", e);
-  }
+        // Pass the new data to updateRawRingsDataTable
+        await updateRawRingsDataTable(newData, tacsDataTable);
+    } catch (e) {
+        console.error("Error:", e);
+    }
 }
 async function loadRawRingsDataTable(data, table) {
   if ($.fn.dataTable.isDataTable("#" + table)) {
@@ -503,38 +503,26 @@ async function loadRawRingsDataTable(data, table) {
       .draw();
   }
 }
-async function updateRawRingsDataTable(newdata, table) {
-  try {
-    return new Promise((resolve, reject) => {
-      let loadnew = true;
-      if ($.fn.dataTable.isDataTable("#" + table)) {
-        for (const element of newdata) {
-          $("#" + table)
-            .DataTable()
-            .rows(function (idx, data, node) {
-              if (data.id === element.id) {
-                loadnew = false;
-                $("#" + table)
-                  .DataTable()
-                  .row(node)
-                  .data(element)
-                  .draw()
-                  .invalidate();
-              }
-            });
+async function updateRawRingsDataTable(newData, table) {
+    try {
+        return new Promise((resolve, reject) => {
+            if ($.fn.dataTable.isDataTable("#" + table)) {
+                // Clear the existing data before adding new data
+                $("#" + table).DataTable().clear().draw();
 
-          if (loadnew) {
-            loadRawRingsDataTable([element], table);
-          }
-        }
-      }
-      resolve();
-      return false;
-    });
-  } catch (e) {
-    throw new Error(e.toString());
-  }
+                // Add the new data
+                $("#" + table).DataTable().rows.add(newData).draw();
+            } else {
+                // If the table is not initialized, initialize it with the new data
+                loadRawRingsDataTable(newData, table);
+            }
+            resolve();
+        });
+    } catch (e) {
+        throw new Error(e.toString());
+    }
 }
+
 function constructTacsColumns() {
 
     let columns = [];
@@ -638,6 +626,7 @@ function createTacsDatatable(table) {
         console.log("Error fetching machine info: ", e);
     }
 }
+
 
 //rule: display the profId in the format of first 3 letters of last name and the last 4 digits of the EIN
 async function formatProfId(data) {
