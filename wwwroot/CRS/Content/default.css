@@ -21,6 +21,7 @@ html, body {
   overflow: hidden;
   /*    margin: 0; // Add this line
   padding: 0; // Add this line*/
+  background-color: #11005c;
 }
 
 .main-content {
@@ -68,7 +69,7 @@ button {
 }
 
 .component {
-  background-color: lightblue;
+  background-color: #bebdbd;
   border-radius: 10px;
   box-shadow: 2px 2px 2px 2px gray;
 }
@@ -125,7 +126,7 @@ code {
 }
 
 .welcomeMessage {
-  color: navy;
+  color: white;
   font-size: 5vw;
 }
 
@@ -139,6 +140,7 @@ code {
 
 .please {
   font-size: 25px;
+  color: white;
 }
 
 /*.hideFromUser {
@@ -147,7 +149,7 @@ code {
 }*/
 /*--------------------------- Profile ---------------------------*/
 #profile {
-  padding: 10px !important;
+  padding-left: 10px !important;
   margin-left: 6px;
   text-align: center;
   color: black !important;
@@ -230,6 +232,7 @@ code {
   box-shadow: 2px 2px 2px 2px gray;
   margin-left: 6px;
   margin-top: 6px;
+  background-color: white;
 }
 
 #keypad {
