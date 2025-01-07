@@ -13,8 +13,8 @@ let errorTimeout;
 let currentUser = {};
 const errorTimeLimit = 2000; // 15 seconds
 let inactivityTimeout;
-const inactivityTimeLimit = 1500000; // 1500 seconds
-const modalTimeLimit = 2000; // 2 seconds
+const inactivityTimeLimit = 1500000; // should be 1500 seconds
+const modalTimeLimit = 1000; // 1 second
 const tacsDataTable = "tacsdatatable";
 const maxRetries = 5;
 let TranCode = "";
@@ -207,12 +207,12 @@ $(function () {
       .on("click", async () => {
         try {
           await confirmBtnSubmit();
-          $("p[id=crsEvent]").text(TranCode);
+          $("span[id=crsEvent]").text(TranCode);
           $("#confirmModal").modal("show");
           setTimeout(async function () {
             $("#confirmModal").modal("hide");
             await restEIN();
-          }, 3000); // Adjusted the timeout to ensure the modal is shown before hiding
+          }, modalTimeout); // Adjusted the timeout to match the modal
         } catch (error) {
           console.error("Error during confirm button submission:", error);
         }
@@ -614,7 +614,7 @@ function createTacsDatatable(table) {
                 const currentTranTime = parseFloat(data.tranTime);
 
                 // Check if this is the first row
-                if (index === 0) {
+                if ($('td:eq(1)', row).text() === "BT (010)") {
                     // Set the duration to an empty string for the first row
                     $('td:eq(3)', row).html('');
                 } else {
@@ -960,13 +960,13 @@ function handleTopCodeClick(event) {
 // Function to handle modal timeout
 function startModalTimeout() {
   modalTimeout = setTimeout(async () => {
-    $("#exampleModal").modal("hide");
+    $("#confirmModal").modal("hide");
     await restEIN();
   }, modalTimeLimit);
 }
 
 // Event listener for modal show event
-$("#exampleModal").on("shown.bs.modal", function () {
+$("#confirmModal").on("shown.bs.modal", function () {
   startModalTimeout();
 });
 
