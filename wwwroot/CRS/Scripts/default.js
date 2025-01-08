@@ -457,7 +457,11 @@ async function loadTopCodes(codesList) {
   try {
     const topCodeListDiv = $("div[id=topCodeList]");
     topCodeListDiv.empty(); // Clear any existing content
-    codesList.forEach((code) => {
+    
+    // Limit the displayed codes to 6
+    const limitedCodes = codesList.slice(0, 6);
+    
+    limitedCodes.forEach((code) => {
       const codeElement = $("<div>")
         .addClass("col-2")
         .append(
@@ -465,10 +469,10 @@ async function loadTopCodes(codesList) {
             .addClass("topCodeButton btn btn-light")
             .text(code)
             .attr("data-tranCode", "011")
-        ); // Add data-tranCode attribute
+        );
       topCodeListDiv.append(codeElement);
     });
-    // Add event listeners to top code buttons
+    
     document.querySelectorAll(".topCodeButton").forEach((button) => {
       button.addEventListener("click", handleTopCodeClick);
     });
@@ -538,7 +542,7 @@ function constructTacsColumns() {
         //first column is always the name
         title: "Event",
         data: "tranCode",
-        width: '20%',
+        width: '15%',
         mRender: function (data, type, full) {
             if (data === "010") {
                 return `BT (${data})`;
@@ -560,14 +564,14 @@ function constructTacsColumns() {
         //first column is always the name
         title: "Date & Time",
         data: "tranDateTime",
-        width: '40%'
+        width: '30%'
     };
     var column3 =
     {
         //first column is always the name
         title: "Duration (hours)",
         data: null,
-        width: '20%'
+        width: '30%'
     };
     columns[0] = column0;
     columns[1] = column1;
@@ -595,8 +599,6 @@ function createTacsDatatable(table) {
             },
             order: [[]],
             aoColumns: constructTacsColumns(),
-            scrollY: '28vh', // Set the height for vertical scrolling
-            scrollCollapse: true, // Enable collapsing of the table when there are fewer rows
             rowCallback: function (row, data, index) {
                 // Get the current entry's tranTime
                 const currentTranTime = parseFloat(data.tranTime);
