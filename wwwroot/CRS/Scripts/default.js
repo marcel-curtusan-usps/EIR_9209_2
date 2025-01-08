@@ -253,7 +253,7 @@ $(function () {
         console.log("Paste: " + isPasteString);
         if (isPasteString !== "") {
           $("span[id=errorBarcodeScan]").text("");
-          await loadEIN(isPasteString);
+         // await loadEIN(isPasteString);
         } else {
           $("span[id=errorBarcodeScan]").text("Invalid Scan");
           clearTimeout(errorTimeout);
@@ -261,23 +261,7 @@ $(function () {
             await restEIN();
           }, errorTimeLimit);
         }
-      },
-      onKeyDetect: async function (iKey, keyDetect) {
-        if (iKey === 13) {
-          console.log("Paste: " + keyDetect.key);
-          if (keyDetect.key !== "") {
-            $("span[id=errorBarcodeScan]").text("");
-            let scanValue = $("input[id=barcodeScan]").val();
-            await loadEIN(scanValue);
-          } else {
-            $("span[id=errorBarcodeScan]").text("Invalid Scan");
-            clearTimeout(errorTimeout);
-            errorTimeout = setTimeout(async () => {
-              await restEIN();
-            }, errorTimeLimit);
-          }
-        }
-      },
+      }
     });
   }
 });

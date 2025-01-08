@@ -1231,12 +1231,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             foreach (var mpe in mpeList)
             {
                 mpe.MpeId = string.Concat(mpe.MpeType, "-", mpe.MpeNumber.ToString().PadLeft(3, '0'));
-                DateTime CurrentRunStart = !string.IsNullOrEmpty(mpe.CurrentRunStart)
-                          ? DateTime.ParseExact(mpe.CurrentRunStart, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
-                          : DateTime.MinValue;
+                DateTime CurrentRunStart = (!string.IsNullOrEmpty(mpe.CurrentRunStart) && mpe.CurrentRunStart != "0")
+                    ? DateTime.ParseExact(mpe.CurrentRunStart, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
+                    : DateTime.MinValue;
+
                 DateTime CurrentRunEnd = (!string.IsNullOrEmpty(mpe.CurrentRunEnd) && mpe.CurrentRunEnd != "0")
-                 ? DateTime.ParseExact(mpe.CurrentRunEnd, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
-                 : await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
+                    ? DateTime.ParseExact(mpe.CurrentRunEnd, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
+                    : await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                 string mpe_id = string.Concat(mpe.MpeId, @"_", new DateTime(CurrentRunStart.Year, CurrentRunStart.Month, CurrentRunStart.Day, CurrentRunStart.Hour, CurrentRunStart.Minute, 0, 0).ToString(""));
 
                 int.TryParse(mpe.MpeNumber, out int MpeNum);
