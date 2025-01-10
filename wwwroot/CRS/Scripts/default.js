@@ -144,7 +144,7 @@ $(function () {
         if (scanValue !== "") {
            // Trim to 9 characters from the end if payLoadData starts with 4 zeros
             if (scanValue.startsWith("0000")) {
-                scanValue = scanValue.slice(-9);
+                scanValue = scanValue.slice(4, -1);
             }
             $('span[id=errorBarcodeScan]').text("");
             await loadEIN(scanValue);
@@ -237,7 +237,7 @@ $(function () {
           let scanValue = sCode;
           // Trim to 9 characters from the end if payLoadData starts with 4 zeros
           if (scanValue.startsWith("0000")) {
-            scanValue = scanValue.slice(-9);
+            scanValue = scanValue.slice(4, -1);
           }
           $("span[id=errorBarcodeScan]").text("");
           await loadEIN(scanValue);
