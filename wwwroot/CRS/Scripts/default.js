@@ -441,7 +441,11 @@ async function loadTopCodes(codesList) {
   try {
     const topCodeListDiv = $("div[id=topCodeList]");
     topCodeListDiv.empty(); // Clear any existing content
-    codesList.forEach((code) => {
+    
+    // Limit the displayed codes to 6
+    const limitedCodes = codesList.slice(0, 6);
+    
+    limitedCodes.forEach((code) => {
       const codeElement = $("<div>")
         .addClass("col-2")
         .append(
@@ -449,10 +453,10 @@ async function loadTopCodes(codesList) {
             .addClass("topCodeButton btn btn-light")
             .text(code)
             .attr("data-tranCode", "011")
-        ); // Add data-tranCode attribute
+        );
       topCodeListDiv.append(codeElement);
     });
-    // Add event listeners to top code buttons
+    
     document.querySelectorAll(".topCodeButton").forEach((button) => {
       button.addEventListener("click", handleTopCodeClick);
     });
@@ -522,7 +526,7 @@ function constructTacsColumns() {
         //first column is always the name
         title: "Event",
         data: "tranCode",
-        width: '20%',
+        width: '15%',
         mRender: function (data, type, full) {
             if (data === "010") {
                 return `BT (${data})`;
@@ -544,14 +548,14 @@ function constructTacsColumns() {
         //first column is always the name
         title: "Date & Time",
         data: "tranDateTime",
-        width: '40%'
+        width: '30%'
     };
     var column3 =
     {
         //first column is always the name
         title: "Duration (hours)",
         data: null,
-        width: '20%'
+        width: '30%'
     };
     columns[0] = column0;
     columns[1] = column1;
@@ -579,32 +583,46 @@ function createTacsDatatable(table) {
             },
             order: [[]],
             aoColumns: constructTacsColumns(),
-            scrollY: '28vh', // Set the height for vertical scrolling
-            scrollCollapse: true, // Enable collapsing of the table when there are fewer rows
             rowCallback: function (row, data, index) {
-                // Get the current entry's tranTime
-                const currentTranTime = parseFloat(data.tranTime);
+              const tableApi = this.api();
+              const totalRows = tableApi.data().count();
 
-                // Check if this is the first row
-                if ($('td:eq(1)', row).text() === "BT (010)") {
-                    // Set the duration to an empty string for the first row
-                    $('td:eq(3)', row).html('');
-                } else {
-                    // Get the previous row's data
-                    const previousRow = $('#' + table).DataTable().row(index - 1).data();
+              // Retrieve the text from the second column (index 1)
+              const secondColumnText = $('td:eq(1)', row).text().trim().toUpperCase();
 
-                    if (previousRow) {
-                        // Get the previous entry's tranTime
-                        const previousTranTime = parseFloat(previousRow.tranTime);
+              // Check if the second column contains "BT (010)"
+              if (secondColumnText === "BT (010)") {
+                  // Leave the duration column empty
+                  $('td:eq(3)', row).html('');
+              } else if (index < totalRows - 1) {
+                  // Get the next row's data (since data is reversed)
+                  const nextRowData = tableApi.row(index + 1).data();
 
-                        // Calculate the duration between the current and previous entry
-                        const duration = currentTranTime - previousTranTime;
+                  if (nextRowData) {
+                      // Parse tranTime values
+                      const nextTranTime = parseFloat(nextRowData.tranTime);
+                      const currentTranTime = parseFloat(data.tranTime);
 
-                        // Display the duration in the fourth column (index 3)
-                        $('td:eq(3)', row).html(duration.toFixed(2));
-                    }
-                }
-            }
+                      // Calculate duration: currentTranTime - nextTranTime
+                      const duration = currentTranTime - nextTranTime;
+
+                      // Check if duration is a valid number
+                      if (!isNaN(duration)) {
+                          // Display the duration with two decimal places
+                          $('td:eq(3)', row).html(duration.toFixed(2));
+                      } else {
+                          // If duration is not a number, leave it blank
+                          $('td:eq(3)', row).html('');
+                      }
+                  } else {
+                      // If next row data is not available, leave duration blank
+                      $('td:eq(3)', row).html('');
+                  }
+              } else {
+                  // For the last row, no next row exists, leave duration blank
+                  $('td:eq(3)', row).html('');
+              }
+          }
         });
     } catch (e) {
         console.log("Error fetching machine info: ", e);

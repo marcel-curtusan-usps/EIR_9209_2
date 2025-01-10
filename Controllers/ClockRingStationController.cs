@@ -17,49 +17,105 @@ namespace EIR_9209_2.Controllers
         private readonly IInMemoryTACSReports _tacs = tacs;
         private readonly IHubContext<HubServices> _hubContext = hubContext;
         private readonly ILogger<ClockRingStationController> _logger = logger;
+
         // GET: api/<ClockRingStationController>
+        // [HttpGet]
+        // [Route("GetByEIN")]
+        // public async Task<ActionResult> Get(string code)
+        // {
+        //     try
+        //     {
+        //         //handle bad requests
+        //         if (!ModelState.IsValid)
+        //         {
+        //             return BadRequest(ModelState);
+        //         }
+        //         if (!string.IsNullOrEmpty(code))
+        //         {
+        //             var employee = await _employees.GetEmployeeByCode(code);
+        //             var empRawRings = await _tacs.GetTACSRawRings(code);
+        //             var empTopOpnCode = await _tacs.GetTopOpnCodes(code);
+        //             if (employee != null)
+        //             {
+        //                 var empAndRawRings = new
+        //                 {
+        //                     Employee = employee,
+        //                     RawRings = empRawRings,
+        //                     TopOpnCodes = empTopOpnCode
+        //                 };
+        //                 return Ok(empAndRawRings);
+        //             }
+        //             else
+        //             {
+        //                 return StatusCode(404, new { Message = "Employee not found" });
+        //             }
+        //         }
+        //         else
+        //         {
+        //             return BadRequest("EncodedId or EmployeeId is required");
+        //         }
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         _logger.LogError(e.Message);
+        //         return BadRequest(new { Message = e.Message });
+        //     }
+        // }
+
+                // GET: api/<ClockRingStationController>
         [HttpGet]
-        [Route("GetByEIN")]
-        public async Task<ActionResult> Get(string code)
+[Route("GetByEIN")]
+public async Task<ActionResult> Get(string code)
+{
+    try
+    {
+        // Handle bad requests
+        if (!ModelState.IsValid)
         {
-            try
+            return BadRequest(ModelState);
+        }
+
+        if (!string.IsNullOrEmpty(code))
+        {
+            var employee = await _employees.GetEmployeeByCode(code);
+            var empRawRings = await _tacs.GetTACSRawRings(code);
+            var empTopOpnCode = await _tacs.GetTopOpnCodes(code);
+
+            if (employee != null)
             {
-                //handle bad requests
-                if (!ModelState.IsValid)
+                // Modify RawRings to include only the last 7 entries in reverse order
+                var limitedEmpRawRings = empRawRings
+                    .GroupBy(r => DateTime.Parse(r.TranInfo.TranDate).Date)
+                    .OrderByDescending(g => g.Key) // Start with the most recent date
+                    .SelectMany(g => g.Reverse())  // Reverse each group to have the latest entry first
+                    .Take(7)                        // Take the first 7 entries from the combined list
+                    .ToList();
+
+                var empAndRawRings = new
                 {
-                    return BadRequest(ModelState);
-                }
-                if (!string.IsNullOrEmpty(code))
-                {
-                    var employee = await _employees.GetEmployeeByCode(code);
-                    var empRawRings = await _tacs.GetTACSRawRings(code);
-                    var empTopOpnCode = await _tacs.GetTopOpnCodes(code);
-                    if (employee != null)
-                    {
-                        var empAndRawRings = new
-                        {
-                            Employee = employee,
-                            RawRings = empRawRings,
-                            TopOpnCodes = empTopOpnCode
-                        };
-                        return Ok(empAndRawRings);
-                    }
-                    else
-                    {
-                        return StatusCode(404, new { Message = "Employee not found" });
-                    }
-                }
-                else
-                {
-                    return BadRequest("EncodedId or EmployeeId is required");
-                }
+                    Employee = employee,
+                    RawRings = limitedEmpRawRings,
+                    TopOpnCodes = empTopOpnCode
+                };
+
+                return Ok(empAndRawRings);
             }
-            catch (Exception e)
+            else
             {
-                _logger.LogError(e.Message);
-                return BadRequest(new { Message = e.Message });
+                return StatusCode(404, new { Message = "Employee not found" });
             }
         }
+        else
+        {
+            return BadRequest("EncodedId or EmployeeId is required");
+        }
+    }
+    catch (Exception e)
+    {
+        _logger.LogError(e.Message);
+        return BadRequest(new { Message = e.Message });
+    }
+}
 
         // GET api/<ClockRingStationController>/5
         [HttpGet("{id}")]
