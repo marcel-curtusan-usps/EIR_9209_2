@@ -233,64 +233,93 @@ namespace EIR_9209_2.Controllers
                     var matchingProperty = appSettingsData.Properties().FirstOrDefault(p => p.Name.Equals(setting.Key, StringComparison.OrdinalIgnoreCase));
                     if (matchingProperty != null)
                     {
-                        // Handle the matching key
-                        var newValue = matchingProperty.Value.ToString().Trim();
-                        if (matchingProperty.Name.EndsWith("NassCode", StringComparison.OrdinalIgnoreCase))
-                        {
-                            var currentNassCodeValue = setting.Value;
-                            if (!string.IsNullOrEmpty(newValue) && currentNassCodeValue != newValue && (!newValue.StartsWith('-')))
-                            {
-                                setting.Value = newValue;
-
-                                if (await _resetApplication.Reset())
-                                {
-                                    if (await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
-                                    {
-                                        _logger.LogInformation($"{setting.Key} have been update {setting.Value}");
-                                        bool SetupResult = await _resetApplication.Setup();
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                setting.Value = "";
-
-                                if (await _resetApplication.Reset())
-                                {
-                                    if (await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
-                                    {
-                                        _logger.LogInformation($"{setting.Key} have been update {setting.Value}");
-                                    }
-                                }
-                            }
-                        }
-                        else if (matchingProperty.Name.EndsWith("ConnectionString", StringComparison.OrdinalIgnoreCase))
-                        {
-                            setting.Value = _encryptDecrypt.Encrypt(newValue);
-                            if (await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
-                            {
-                                _logger.LogInformation($"{setting.Key} drive have been update {setting.Value}");
-
-                            }
-                        }
-                        else
-                        {
-                            setting.Value = newValue;
-                            if (await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
-                            {
-                                _logger.LogInformation($"{setting.Key} have been update {setting.Value}");
-                            }
-                        }
-                        await _hubContext.Clients.Group("ApplicationConfiguration").SendAsync($"updateApplicationConfiguration", await GetConfigurationSetting(), cancellationToken: CancellationToken.None);
-                        return Ok();
+                        await UpdateSetting(setting, matchingProperty);
+                
                     }
                 }
-                return BadRequest();
+                return Ok(GetAppSetting());
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 return BadRequest(e.Message);
+            }
+        }
+        private async Task UpdateSetting(IConfigurationSection setting, JProperty matchingProperty)
+        {
+            var newValue = matchingProperty.Value.ToString().Trim();
+            if (matchingProperty.Name.EndsWith("ConnectionString", StringComparison.OrdinalIgnoreCase))
+            {
+                await UpdateConnectionString(setting, newValue);
+            }
+            else if (matchingProperty.Name.EndsWith("NassCode", StringComparison.OrdinalIgnoreCase))
+            {
+                await UpdateNassCode(setting, newValue);
+            }
+            else if (matchingProperty.Name.EndsWith("BaseDrive", StringComparison.OrdinalIgnoreCase))
+            {
+                await UpdateBaseDrive(setting, newValue);
+            }
+            else
+            {
+                await UpdateGeneralSetting(setting, newValue);
+            }
+        }
+        private async Task UpdateConnectionString(IConfigurationSection setting, string newValue)
+        {
+            setting.Value = _encryptDecrypt.Encrypt(newValue);
+            if (await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
+            {
+                _logger.LogInformation("{SettingKey} have been updated with the new value {SettingValue}", setting.Key, setting.Value);
+            }
+        }
+        private async Task UpdateNassCode(IConfigurationSection setting, string newValue)
+        {
+            var currentNassCodeValue = setting.Value;
+
+            if (!string.IsNullOrEmpty(newValue) && currentNassCodeValue != newValue && (!newValue.StartsWith('-')))
+            {
+                setting.Value = newValue;
+
+                if (await _resetApplication.GetNewSiteInfo(newValue))
+                {
+                    if (await _resetApplication.Reset() && await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
+                    {
+                        await _resetApplication.Setup();
+                        _logger.LogInformation("{SettingKey} updated to {NewValue}", setting.Key, newValue);
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Failed to retrieve new site info for {setting.Key}");
+                }
+            }
+            else
+            {
+                setting.Value = "";
+                if (await _resetApplication.Reset() && await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
+                {
+                    _logger.LogInformation("{SettingKey} updated to blank", setting.Key);
+                }
+            }
+        }
+
+        private async Task UpdateBaseDrive(IConfigurationSection setting, string newValue)
+        {
+            setting.Value = newValue;
+            if (await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
+            {
+                await _resetApplication.Setup();
+                _logger.LogInformation("{SettingKey} have been updated with the new value {SettingValue}", setting.Key, setting.Value);
+            }
+        }
+
+        private async Task UpdateGeneralSetting(IConfigurationSection setting, string newValue)
+        {
+            setting.Value = newValue;
+            if (await _application.Update(setting.Key, setting.Value, "ApplicationConfiguration"))
+            {
+                _logger.LogInformation("{SettingKey} have been updated with the new value {SettingValue}", setting.Key, setting.Value);
             }
         }
         /// <summary>
