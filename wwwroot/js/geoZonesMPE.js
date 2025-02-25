@@ -200,6 +200,27 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
         }
         enablezoneSubmit();
     });
+    //zone ExternalUrl Validation
+    if (!checkValue($('input[type=text][name=mpeExternalUrl]').val())) {
+        $('input[type=text][name=mpeExternalUrl]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=errormpeExternalUrl]').text("Please Enter URL");
+    }
+    else {
+        $('input[type=text][name=mpeExternalUrl]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=errormpeExternalUrl]').text("");
+    }
+    //Request ExternalUrl Keyup
+    $('input[type=text][name=mpeExternalUrl]').on("keyup", () => {
+        if (!checkValue($('input[type=text][name=mpeExternalUrl]').val())) {
+            $('input[type=text][name=mpeExternalUrl]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=errormpeExternalUrl]').text("");
+        }
+        else {
+            $('input[type=text][name=mpeExternalUrl]').css("border-color", "#2eb82e").removeClass('is-invalid').removeClass('is-valid');
+            $('span[id=errormpeExternalUrl]').text("");
+        }
+        enablezoneSubmit();
+    });
     //Zone Pay Location Validation
     if (!checkValue($('input[type=text][name=zone_paylocation]').val())) {
         $('input[type=text][name=zone_paylocation]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
@@ -500,6 +521,7 @@ async function loadMachineData(data, table) {
         $('span[name=mpeHRview]').empty();
         $('span[name=mpePerfomance]').empty();
         $('span[name=mpeSDO]').empty();
+        $('span[name=mpeExternalURL]').empty();
         $('div[id=machine_div]').attr("data-id", data.id);
         $('div[id=machine_div]').css('display', 'block');
         $('div[id=ctstabs_div]').css('display', 'block');
@@ -513,6 +535,12 @@ async function loadMachineData(data, table) {
         $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/Reports/MPEPerformance.html?MPEStatus=' + data.name, style: 'color:white;' }).html("MPE Synopsis").appendTo($('span[name=mpePerfomance]'));
         if (data.mpeGroup !== '') {
             $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPESDO/MPESDO.html?MPEGroupName=' + mpeData.mpeGroup, style: 'color:white;' }).html("SDO View").appendTo($('span[name=mpeSDO]'));
+        }
+        if (data.externalUrl !== '') {
+            $('div[id=div_externalurl]').css('display', '');
+            $("<a/>").attr({ target: "_blank", href: SiteURLconstructor(window.location) + '/MPE/externalurl.html?MPEExternalUrl=' + data.externalUrl, style: 'color:white;' }).html("External URL").appendTo($('span[name=mpeExternalURL]'));
+        } else {
+            $('div[id=div_externalurl]').css('display', 'none');
         }
         if (/machinetable/i.test(table)) {
             $('div[id=dps_div]').css('display', 'none');
@@ -933,6 +961,7 @@ async function Edit_Machine_Info(id) {
         $('input[id=machine_ip]').val(Data.mpeIpAddress);
         $('select[id=zone_Type]').val(Data.type);
         $('input[id=mpeRejectBins]').val(Data.rejectBins)
+        $('input[id=mpeExternalUrl]').val(Data.externalUrl)
         if (MPEwNUMBER !== "") {
             const mpedata = await $.ajax({
                 url: `${SiteURLconstructor(window.location)}/api/MPE/MPEStandard?Name=${MPEwNUMBER}`,
@@ -998,6 +1027,7 @@ async function Edit_Machine_Info(id) {
                     jsonObject.name = jsonObject.mpeName + "-" + jsonObject.mpeNumber.padStart(3, '0');
                 }
                 jsonObject.rejectBins = $('input[type=text][name=mpeRejectBins]').val();
+                jsonObject.externalUrl = $('input[type=text][name=mpeExternalUrl]').val();
                 jsonObject.floorId = $('input[type=text][name=machine_ip]').val();
                 jsonObject.mpeIpAddress = $('input[type=text][name=machine_ip]').val();
                 jsonObject.ldc = $('input[type=text][name=zone_ldc]').val();
@@ -1040,6 +1070,7 @@ async function Edit_Machine_Info(id) {
         $('select[id=mpe_group_select]').trigger('change');
         $('select[id=zone_Type]').trigger('change');
         $('input[id=mpeRejectBins]').trigger('keyup');
+        $('input[id=mpeExternalUrl]').trigger('keyup');
     } catch (error) {
         console.error("Error fetching machine info: ", error);
     }

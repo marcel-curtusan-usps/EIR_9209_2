@@ -50,6 +50,8 @@ namespace EIR_9209_2.Models
         public string Bins { get; set; } = "";
         [JsonProperty("rejectBins")]
         public string RejectBins { get; set; } = "";
+        [JsonProperty("externalUrl")]
+        public string ExternalUrl { get; set; } = "";
     }
 
     public class Geometry
