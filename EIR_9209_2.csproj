@@ -826,6 +826,9 @@
 	  <Content Update="wwwroot\MPE\Content\mpeView.scss">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
+	  <Content Update="wwwroot\MPE\externalurl.html">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="wwwroot\MPE\hourlyreport.html">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
@@ -837,6 +840,11 @@
 	  </Content>
 	  <Content Update="wwwroot\MPE\Scripts\mpeHourlyTable.js">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\MPE\Scripts\externalUrl.js">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 	  </Content>
 	  <Content Update="wwwroot\MPE\Scripts\mpeView.js">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

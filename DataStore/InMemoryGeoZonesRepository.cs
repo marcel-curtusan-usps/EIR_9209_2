@@ -248,6 +248,11 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     currentGeoZone.Properties.PayLocationColor = NewGeoZoneProperties.PayLocationColor;
                     saveToFile = true;
                 }
+                if (currentGeoZone.Properties.ExternalUrl != NewGeoZoneProperties.ExternalUrl)
+                {
+                    currentGeoZone.Properties.ExternalUrl = NewGeoZoneProperties.ExternalUrl;
+                    saveToFile = true;
+                }
                 return currentGeoZone;
             }
             else
