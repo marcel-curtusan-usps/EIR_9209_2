@@ -840,7 +840,7 @@ function padLeft(string, length, paddingCharacter) {
     return paddedString;
 }
 async function getlistofMPE() {
-    return new Promise((resolve, reject) => {
+
     $.ajax({
             url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?Type=MPE',
             contentType: 'application/json',
@@ -857,8 +857,6 @@ async function getlistofMPE() {
                     $.each(mpedata, function () {
                         $('<option/>').val(this).html(this).appendTo('#machine_zone_select_name');
                     })
-                    resolve();
-                    return true;
                 }
                 else {
                     $('select[id=machine_zone_select_name]').empty();
@@ -866,8 +864,7 @@ async function getlistofMPE() {
                     $('#machine_manual_row').css('display', 'block');
                     $('#machine_select_row').css('display', 'none');
                     $('select[id=machine_zone_select_name]').css('display', 'none');
-                    resolve();
-                    return false;
+
                 }
         
             },
@@ -884,7 +881,6 @@ async function getlistofMPE() {
                 console.log(complete);
                 return false;
             }
-        });
     });
 }
 async function getlistofMPEGroups() {
@@ -950,7 +946,7 @@ async function Edit_Machine_Info(id) {
         const leafletIds = await findMpeZoneLeafletIds(id);
         Data = geoZoneMPE._layers[leafletIds].feature.properties;
         $('#modalZoneHeader_ID').text('Edit MPE |' + Data.name);
-        await Promise.all([getlistofMPE(), getlistofMPEGroups()]).then(() => {
+        await Promise.all([await getlistofMPE(), getlistofMPEGroups()]).then(() => {
             $('select[id=machine_zone_select_name]').val(Data.name);
             $('select[id=mpe_group_select]').val(Data.mpeGroup);
         });
@@ -986,8 +982,8 @@ async function Edit_Machine_Info(id) {
                 }
             });
         }
-
-        if ($('select[id=machine_zone_select_name]').val() !== "") {
+        let trp = $('select[id=machine_zone_select_name]').val();
+        if ($('select[id=machine_zone_select_name]').val()) {
             $('#machine_manual_row').hide();
             $('#machine_select_row').show();
             $('select[id=machine_zone_select_name]').val(Data.name).trigger('change');
@@ -1015,7 +1011,7 @@ async function Edit_Machine_Info(id) {
                 let jsonObject = {};
                 $('button[id=machinesubmitBtn]').prop('disabled', true);
                 let tyrr = $('select[name=machine_zone_select_name] option:selected').val();
-                if ($('select[name=machine_zone_select_name] option:selected').val() !== "") {
+                if ($('select[name=machine_zone_select_name] option:selected').val()) {
                     let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split(/-(?=[^-]*$)/);
                     jsonObject.mpeName = selectedMachine[0];
                     jsonObject.mpeNumber =  selectedMachine[1];
