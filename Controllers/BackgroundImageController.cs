@@ -58,10 +58,9 @@ namespace EIR_9209_2.Controllers
         [Route("Add")]
         public async Task<IActionResult> UploadBackgroundImage(IFormCollection formData)
         {
-            bool saveOSL = false;
             try
             {
-                var file = formData.Files.First();
+                var file = formData.Files.FirstOrDefault();
                 var value = formData["Store"];
 
                 if (file == null || file.Length == 0)
@@ -73,61 +72,28 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest("No value provided");
                 }
+
                 JObject valueJson = JObject.Parse(value);
                 OSLImage? newImage = valueJson.ToObject<OSLImage>();
                 if (newImage != null)
                 {
                     newImage.coordinateSystemId = Guid.NewGuid().ToString();
                 }
-                // convert the file to a byte array to image
-                byte[] fileBytes;
-                string fileName = file.FileName;
 
-                using (var ms = new MemoryStream())
-                {
-                    file.CopyTo(ms);
-                    fileBytes = ms.ToArray();
-                    string imageBase64Data = Convert.ToBase64String(fileBytes);
-                    #if WINDOWS
-                                        using (Image image = Image.FromStream(ms))
-                                        {
-                                            // You can perform various operations on the image here
-                                            // For example, you can resize, crop, or apply filters to the image
-                                            // Once you're done with the image, you can save it or use it as needed
-                                            newImage.origoX = image.Width;
-                                            newImage.origoY = image.Height;
-                    
-                                            newImage.base64 = string.Concat("data:image/png;base64,", imageBase64Data);
-                                            newImage.fileName = fileName;
-                                            newImage.id = Guid.NewGuid().ToString();
-                                            newImage.widthMeter = newImage.origoX * newImage.metersPerPixelY;
-                                            newImage.heightMeter = newImage.origoY * newImage.metersPerPixelX;
-                                            //sent to the repository
-                                            saveOSL = true;
-                                        }
-                    #else
-                                        // Handle non-Windows platforms
-                                        if (newImage != null)
-                                        {
-                                            newImage.base64 = string.Concat("data:image/png;base64,", imageBase64Data);
-                                            newImage.fileName = fileName;
-                                            newImage.id = Guid.NewGuid().ToString();
-                                            saveOSL = true;
-                                        }
-                    #endif
+                bool saveOSL = await ProcessImage(file, newImage);
 
-                }
                 if (saveOSL)
                 {
                     if (newImage == null)
                     {
                         return BadRequest(new JObject { ["message"] = "Image data is invalid." });
                     }
+
                     var osl = await _backgroundImage.Add(newImage);
 
                     if (osl != null)
                     {
-                        await _hubContext.Clients.Group("OSL").SendAsync($"addOSL", osl);
+                        await _hubContext.Clients.Group("OSL").SendAsync("addOSL", osl);
                         return Ok(new JObject { ["message"] = "Image was uploaded successfully." });
                     }
                     else
@@ -139,8 +105,6 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest(new JObject { ["message"] = "Image was NOT uploaded." });
                 }
-
-
             }
             catch (Exception e)
             {
@@ -148,6 +112,38 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(e.Message);
             }
 
+        }
+        private async Task<bool> ProcessImage(IFormFile file, OSLImage? newImage)
+        {
+            try
+            {
+                using (var ms = new MemoryStream())
+                {
+                    await file.CopyToAsync(ms);
+                    byte[] fileBytes = ms.ToArray();
+                    string imageBase64Data = Convert.ToBase64String(fileBytes);
+
+
+                    using (Image image = Image.FromStream(ms))
+                    {
+                        newImage.origoX = image.Width;
+                        newImage.origoY = image.Height;
+                        newImage.base64 = $"data:image/png;base64,{imageBase64Data}";
+                        newImage.fileName = file.FileName;
+                        newImage.id = Guid.NewGuid().ToString();
+                        newImage.widthMeter = newImage.origoX * newImage.metersPerPixelY;
+                        newImage.heightMeter = newImage.origoY * newImage.metersPerPixelX;
+                    }
+
+
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return false;
+            }
         }
         /// <summary>
         /// Delete OSL Image.
