@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageRepository
 {
@@ -343,14 +342,14 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         bool saveToFile = false;
         try
         {
-            if (map.HasValues)
+            if (map != null && map.HasValues)
             {
-                OSLImage bkg = new OSLImage
+                OSLImage bkg = new()
                 {
                     source = "Cisco",
                     visible = true,
-                    heightMeter = ((JObject)map).ContainsKey("length") ? Convert.ToDouble(map["length"].ToString()) : 0.0,
-                    widthMeter = ((JObject)map).ContainsKey("width") ? Convert.ToDouble(map["width"].ToString()) : 0.0,
+                    heightMeter = ((JObject)map).ContainsKey("length") && map["length"] != null ? Convert.ToDouble(map["length"]!.ToString()) : 0.0,
+                    widthMeter = ((JObject)map).ContainsKey("width") && map["width"] != null ? Convert.ToDouble(map["width"]!.ToString()) : 0.0,
                     origoX = ((JObject)map).ContainsKey("width") ? Convert.ToDouble(map["width"].ToString()) : 0.0,
                     origoY = ((JObject)map).ContainsKey("length") ? Convert.ToDouble(map["length"].ToString()) : 0.0,
                     base64 = ((JObject)map).ContainsKey("imagePath") ? map["imagePath"].ToString() : "",

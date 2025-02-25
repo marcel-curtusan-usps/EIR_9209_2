@@ -1,3 +1,14 @@
 {
-    "iisexpress.appcmdPath": "C:\\Program Files\\IIS Express\\appcmd.exe"
+    "iis.configDir": "${workspaceFolder}\\.vs\\EIR_9209_2\\config",
+    "workbench.editor.defaultBinaryEditor": "default",
+    "workbench.editor.enablePreviewFromCodeNavigation": true,
+    "sonarlint.connectedMode.project": {
+        "connectionId": "sonar-usps",
+        "projectKey": "9209:fotf-EIR-9209-Connected-Facility"
+    },
+    "github-enterprise.uri": "https://github.usps.gov",
+    "cSpell.words": [
+        "origo",
+        "Sortplan"
+    ]
 }

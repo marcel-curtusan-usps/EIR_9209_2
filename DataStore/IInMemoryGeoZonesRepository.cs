@@ -1,6 +1,5 @@
 ﻿using EIR_9209_2.Models;
 using Newtonsoft.Json.Linq;
-using static EIR_9209_2.Service.MPEWatchEndPointServices;
 
 public interface IInMemoryGeoZonesRepository
 {
@@ -51,9 +50,10 @@ public interface IInMemoryGeoZonesRepository
     #endregion
     #region //CRS Kiosk
     Task<object> GetAllKiosk();
+    Task<KioskDetails> CheckKioskZone(string deviceId);
     Task<GeoZoneKiosk> AddKiosk(GeoZoneKiosk newZone);
     Task<GeoZoneKiosk> RemoveKiosk(string id);
-    Task<GeoZoneKiosk> UpdateKiosk(KioskProperties? updatedKioskZone);
+    Task<GeoZoneKiosk> UpdateKiosk(KioskProperties updatedKioskZone);
     Task<GeoZoneKiosk> GetKiosk(string id);
 
 

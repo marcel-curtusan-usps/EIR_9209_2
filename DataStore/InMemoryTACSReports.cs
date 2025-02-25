@@ -1,6 +1,5 @@
 ﻿using EIR_9209_2.Models;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
 
 namespace EIR_9209_2.DataStore
@@ -29,7 +28,7 @@ namespace EIR_9209_2.DataStore
         }
 
 
-   
+
         public void AddEmployeePayPeirods(List<TACSEmployeePayPeirod> employeePayPeirods)
         {
             foreach (TACSEmployeePayPeirod item in employeePayPeirods.Select(r => r).ToList())
@@ -45,35 +44,35 @@ namespace EIR_9209_2.DataStore
                 DateTime twoDaysAgo = DateTime.Now.AddDays(-2);
 
                 // Find all raw rings for the last 2 days that match the code
-                var rawRings = _tacsRawRings.Values
+                var rawRings = await Task.Run(() => _tacsRawRings.Values
                     .SelectMany(list => list) // Flatten the lists of RawRings
-                    .Where(r => r.EmpInfo.EmpId == code && DateTime.Parse(r.TranInfo.TranDate) >= twoDaysAgo)
-                    .ToList();
+                    .Where(r => r.EmpInfo.EmpId == code && r.TranInfo.TranDate != null && DateTime.Parse(r.TranInfo.TranDate) >= twoDaysAgo)
+                    .ToList());
 
                 return rawRings;
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return null;
+                return [];
             }
         }
-        public async Task<List<string?>> GetTopOpnCodes(string code)
+        public async Task<List<string>> GetTopOpnCodes(string code)
         {
             try
             {
-                return _topOpnCodes.Values
+                return await Task.Run(() => _topOpnCodes.Values
                     .SelectMany(list => list) // Flatten the lists of TopOpnCode
                     .Where(r => r.EmpId == code) // Filter by EmpId
                     .OrderByDescending(r => r.OperationIdCount) // Order by OperationIdCount in descending order
                     .Take(8) // Take the top 8
-                    .Select(r => r.OperationId) // Select the OperationId
-                    .ToList(); // Convert to a list
+                    .Select(r => r.OperationId!) // Select the OperationId and ensure it's non-nullable
+                    .ToList()); // Convert to a list
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return null;
+                return [];
             }
         }
         public async Task<bool?> AddTacsRawRings(RawRings rawRings)
@@ -82,12 +81,12 @@ namespace EIR_9209_2.DataStore
             string fileDate = "";
             try
             {
-                
+
                 if (rawRings == null)
                 {
-                    return null;
+                    return false;
                 }
-                string empId = rawRings.EmpInfo.EmpId;
+                string empId = rawRings.EmpInfo?.EmpId ?? throw new ArgumentNullException(nameof(rawRings.EmpInfo), "EmpInfo cannot be null");
                 DateTime currenttime = DateTime.Now;
                 rawRings.InputInfo.InputDate = currenttime.ToString("yyyy-MM-dd");
                 fileDate = rawRings.InputInfo.InputDate;
@@ -112,7 +111,7 @@ namespace EIR_9209_2.DataStore
                     saveToFile = true;
                     return true;
                 }
-               
+
             }
             catch (Exception e)
             {
@@ -123,7 +122,11 @@ namespace EIR_9209_2.DataStore
             {
                 if (saveToFile)
                 {
-                    await _fileService.WriteConfigurationFile($"{tacsRawRingsFileName}_{fileDate}.json", await GetTacsRawRingsByDate(fileDate));
+                    var rawRingsData = await GetTacsRawRingsByDate(fileDate);
+                    if (rawRingsData != null)
+                    {
+                        await _fileService.WriteConfigurationFile($"{tacsRawRingsFileName}_{fileDate}.json", rawRingsData);
+                    }
                 }
             }
         }
@@ -135,20 +138,20 @@ namespace EIR_9209_2.DataStore
                 DateTime targetDate = DateTime.Parse(fileDate);
 
                 // Find all raw rings that match the input date
-                var rawRings = _tacsRawRings.Values
+                var rawRings = await Task.Run(() => _tacsRawRings.Values
                     .SelectMany(list => list) // Flatten the lists of RawRings
-                    .Where(r => DateTime.Parse(r.InputInfo.InputDate) == targetDate) // Filter by InputDate
-                    .ToList();
+                    .Where(r => r.InputInfo.InputDate != null && DateTime.Parse(r.InputInfo.InputDate) == targetDate) // Filter by InputDate
+                    .ToList());
 
                 return JsonConvert.SerializeObject(rawRings, Formatting.Indented);
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return null;
+                return "";
             }
         }
-        private async Task AddTopOpnCode(string? empId, string? operationId)
+        private async Task AddTopOpnCode(string empId, string? operationId)
         {
             bool saveToFile = false;
             try
@@ -176,13 +179,13 @@ namespace EIR_9209_2.DataStore
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-             
+
             }
             finally
             {
                 if (saveToFile)
                 {
-                    await _fileService.WriteConfigurationFile(tacsTopOpnCodesFileName, JsonConvert.SerializeObject(_topOpnCodes.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(tacsTopOpnCodesFileName, JsonConvert.SerializeObject(_topOpnCodes, Formatting.Indented));
                 }
             }
         }
@@ -192,7 +195,7 @@ namespace EIR_9209_2.DataStore
             try
             {
                 // Read data from file
-            
+
                 var fileContent = await _fileService.ReadFile(tacsReportSummaryfileName);
                 if (!string.IsNullOrEmpty(fileContent))
                 {
@@ -253,13 +256,16 @@ namespace EIR_9209_2.DataStore
                         {
                             foreach (RawRings item in data.Select(r => r).ToList())
                             {
-                                if (_tacsRawRings.ContainsKey(item.EmpInfo.EmpId))
+                                if (item.EmpInfo != null && !string.IsNullOrEmpty(item.EmpInfo.EmpId) && _tacsRawRings.ContainsKey(item.EmpInfo.EmpId))
                                 {
                                     _tacsRawRings[item.EmpInfo.EmpId].Add(item);
                                 }
                                 else
                                 {
-                                    _tacsRawRings[item.EmpInfo.EmpId] = [item];
+                                    if (item.EmpInfo != null && !string.IsNullOrEmpty(item.EmpInfo.EmpId))
+                                    {
+                                        _tacsRawRings[item.EmpInfo.EmpId] = [item];
+                                    }
                                 }
                             }
                         }
@@ -293,22 +299,11 @@ namespace EIR_9209_2.DataStore
                 if (!string.IsNullOrEmpty(fileContent))
                 {
                     // Parse the file content to get the data. This depends on the format of your file.
-                    List<TopOpnCode>? data = JsonConvert.DeserializeObject<List<TopOpnCode>>(fileContent);
-
-                    // Insert the data into the MongoDB collection
-                    if (data != null && data.Count != 0)
+                    var topOpnCodesData = JsonConvert.DeserializeObject<ConcurrentDictionary<string, List<TopOpnCode>>>(fileContent) ?? new ConcurrentDictionary<string, List<TopOpnCode>>();
+                    _topOpnCodes.Clear();
+                    foreach (var kvp in topOpnCodesData)
                     {
-                        foreach (TopOpnCode item in data.Select(r => r).ToList())
-                        {
-                            if (_topOpnCodes.ContainsKey(item.EmpId))
-                            {
-                                _topOpnCodes[item.EmpId].Add(item);
-                            }
-                            else
-                            {
-                                _topOpnCodes[item.EmpId] = [item];
-                            }
-                        }
+                        _topOpnCodes.TryAdd(kvp.Key, kvp.Value);
                     }
                 }
             }
@@ -333,14 +328,17 @@ namespace EIR_9209_2.DataStore
         {
             try
             {
-                // ℎ𝑜𝑢𝑟𝑠 + (⌊(𝑚𝑖𝑛𝑢𝑡𝑒𝑠 × 60 + 𝑠𝑒𝑐𝑜𝑛𝑑𝑠) ÷ 36⌋) ÷ 100
-                int hours = currenttime.Hour;
-                int minutes = currenttime.Minute;
-                int seconds = currenttime.Second;
+                return await Task.Run(() =>
+                {
+                    // ℎ𝑜𝑢𝑟𝑠 + (⌊(𝑚𝑖𝑛𝑢𝑡𝑒𝑠 × 60 + 𝑠𝑒𝑐𝑜𝑛𝑑𝑠) ÷ 36⌋) ÷ 100
+                    int hours = currenttime.Hour;
+                    int minutes = currenttime.Minute;
+                    int seconds = currenttime.Second;
 
-                double postalTime = hours + Math.Floor((minutes * 60 + seconds) / 36.0) / 100;
+                    double postalTime = hours + Math.Floor((minutes * 60 + seconds) / 36.0) / 100;
 
-                return postalTime.ToString("F2");
+                    return postalTime.ToString("F2");
+                });
             }
             catch (Exception e)
             {
@@ -385,6 +383,6 @@ namespace EIR_9209_2.DataStore
             }
         }
 
-    
+
     }
 }

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 public class InMemoryConnectionRepository : IInMemoryConnectionRepository
 {

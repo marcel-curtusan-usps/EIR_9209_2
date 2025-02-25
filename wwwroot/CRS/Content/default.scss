@@ -22,6 +22,7 @@ html, body {
     overflow: hidden; // Prevent scroll bars
     /*    margin: 0; // Add this line
     padding: 0; // Add this line*/
+    background-color: #11005c;
 }
 
 .main-content {
@@ -50,7 +51,7 @@ html, body {
 button {
     border-radius: 10px;
     box-shadow: 2px 2px 2px gray;
-    font-weight: bold;
+    font-weight: 700 !important;
     border: none;
 }
 
@@ -71,7 +72,7 @@ button {
 $component-width: 48vw;
 
 .component {
-    background-color: lightblue;
+    background-color: #bebdbd;
     border-radius: 10px;
     box-shadow: 2px 2px 2px 2px gray;
     //width: 49vw !important;
@@ -89,6 +90,8 @@ code {
 .kiosk-container{
     padding: 1vw;
 }
+
+
 
 /*--------------------------- Header ---------------------------*/
 
@@ -131,7 +134,7 @@ code {
 }
 
 .welcomeMessage {
-    color: navy;
+    color: white;
     font-size: 5vw;
 }
 
@@ -145,6 +148,7 @@ code {
 
 .please {
     font-size: 25px;
+    color: white;
 }
 
 /*.hideFromUser {
@@ -155,30 +159,31 @@ code {
 /*--------------------------- Profile ---------------------------*/
 
 #profile {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    //background-color: white;
-    padding: 10px !important;
+    //display: flex;
+    //justify-content: center;
+    //align-items: center;
+    padding-left: 10px !important;
     margin-left: 6px;
     text-align: center;
-    color: navy;
+    color: black !important;
     overflow: hidden;
     //width: 40vw;
     height: 38vh;
 }
 
 .prof-id {
-    color: navy;
-    font-size: 6vw;
+    color: black;
+    font-size: 5rem;
     font-weight: bold;
-    justify-content: center;
     margin: 0;
+    margin-top: -15px !important;
+    margin-bottom: -10px;
 }
 
 #profileImg {
-    font-size: 5vw;
-    justify-content: center;
+    margin-top: -10px;
+    font-size: 8vw;
+    color:black;
 }
 
 /*------------------------TACSLog------------------------------*/
@@ -187,10 +192,14 @@ code {
     /*top right bottom left*/
     margin: 0px 0px 0px 0px !important;
     text-align: center;
-    color: navy;
     overflow: hidden;
     //width: 49vw;
     height: 38vh;
+    //padding-top: 7px;
+}
+
+#tacsdatatable{
+    height: 32vh !important;
 }
 
 #labels {
@@ -249,13 +258,14 @@ $keypad-height: 31vh; //Sets for keypad
     box-shadow: 2px 2px 2px 2px gray;
     margin-left: 6px;
     margin-top: 6px;
+    background-color: white;
 }
 
 #keypad {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(4, 1fr);
-    grid-gap: 8px;
+    grid-gap: 10px;
     align-items: center;
     //width: $component-width;
     height: $keypad-height;
@@ -266,20 +276,16 @@ $keypad-height: 31vh; //Sets for keypad
 #keypad button {
     //min-width: 80px;
     //width: calc($component-width/3.25);
-    width: 12vw;
+    width: 14.5vw;
     height: calc($keypad-height/5);
     padding: 0px;
-    font-size: max(2vw, 50px);
+    font-size: max(2vw, 40px);
     cursor: pointer;
     margin: 0px;
     justify-content: center;
     line-height: 1;
-}
-
-/*#keypad button:hover {
-        background-color: navy;*/ /* Navy on hover */
-/*color: white;
-    }*/
+    overflow: hidden;
+    }
 
 /* ------ Bottom Row styling ------ */
 
@@ -382,7 +388,7 @@ $keypad-height: 31vh; //Sets for keypad
 }
 
 #confirmBtn {
-    background-color: #00a408;
+    background-color: #00a408 !important;
     color: white !important;
     font-size: 2vw;
     height: 8vh;
@@ -395,25 +401,20 @@ $keypad-height: 31vh; //Sets for keypad
 
 /*--------------------------TopCodes----------------------------*/
 #topCodesContainer {
-    //display: flex;
-    //grid-template-columns: repeat(2, 1fr);
-    //grid-template-rows: repeat(2, 1fr);
-    //grid-gap: 1vw;
     justify-content: center;
     align-items: center;
     width: 99vw !important;
     height: 10vh;
-    /*    margin-right: 20px;
-    margin-top: 10px;
-    margin-bottom: 45px;*/
-    /*top right bottom left*/
+          /*top right bottom left*/
     margin: 10px 2px 0px 4px;
-    padding: 5px;
+    padding: .3vw 1vw 0vw 1vw;
 }
 
 #topOpnCodeLabel {
-    text-decoration: underline 5%;
-   
+    font-size:1vw;
+    background-color: white;
+    color: black;
+    box-shadow: 1px 1px 1px 1px grey;
 }
 
 .topCodeButton {
@@ -421,8 +422,9 @@ $keypad-height: 31vh; //Sets for keypad
     border: none;
     font-size: 2vw;
     line-height: 1;
-    height: 5vh;
+    height: 6vh;
     width: 100%;
+    font-weight: 700 !important;
 }
 
 .topCodesContainer button:hover {
@@ -438,15 +440,11 @@ $keypad-height: 31vh; //Sets for keypad
     bottom: 0;
     right: 0;
     width: 100% !important;
-    height: 5vh;
+    height: 4vh;
     background-color: #11005c;
     margin-top: 2px !important;
     position: fixed;
 }
-
-/*.left 
-    text-align: left;
-}*/
 
 #logo {
     border-radius: 0%;
@@ -463,3 +461,5 @@ $keypad-height: 31vh; //Sets for keypad
 #footerLabel {
     color: white;
 }
+
+

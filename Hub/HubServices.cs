@@ -4,10 +4,8 @@ using EIR_9209_2.Utilities;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Reflection;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Text.RegularExpressions;
 
 public class HubServices : Hub
 {
@@ -77,7 +75,7 @@ public class HubServices : Hub
         await base.OnConnectedAsync();
     }
 
-    public override async Task OnDisconnectedAsync(Exception exception)
+    public override async Task OnDisconnectedAsync(Exception? exception)
     {
         string userId = Context.ConnectionId;
         if (exception != null)
@@ -105,7 +103,7 @@ public class HubServices : Hub
             {
                 if (setting.Key.EndsWith("ConnectionString"))
                 {
-                    configurationValues.Add(setting.Key, _encryptDecrypt.Decrypt(setting.Value));
+                    configurationValues.Add(setting.Key, setting.Value != null ? _encryptDecrypt.Decrypt(setting.Value) : null);
                 }
                 else
                 {
@@ -132,11 +130,11 @@ public class HubServices : Hub
                 ["ApplicationDescription"] = _configuration["ApplicationConfiguration:ApplicationDescription"],
                 ["SiteName"] = siteInfo?.DisplayName,
                 ["TimeZoneAbbr"] = siteInfo?.TimeZoneAbbr,
-                ["Tours"] =JsonConvert.SerializeObject(siteInfo?.Tours, Formatting.Indented),
-                ["User"] = Context.User.Identity.IsAuthenticated ? await GetUserName(Context.User) : "CF Admin",
-                ["EmailAddress"] = Context.User.Identity.IsAuthenticated ? await GetUserEmail(Context.User) : "cf-sels_support@usps.gov",
-                ["Phone"] = Context.User.Identity.IsAuthenticated ? await GetUserPhone(Context.User) : "555-555-1234",
-                ["Role"] = Context.User.Identity.IsAuthenticated ? await GetUserRole(Context.User) : "Admin"
+                ["Tours"] = JsonConvert.SerializeObject(siteInfo?.Tours, Formatting.Indented),
+                ["User"] = Context.User?.Identity?.IsAuthenticated == true ? await GetUserName(Context.User) : "CF Admin",
+                ["EmailAddress"] = Context.User?.Identity?.IsAuthenticated == true ? await GetUserEmail(Context.User) : "cf-sels_support@usps.gov",
+                ["Phone"] = Context.User?.Identity?.IsAuthenticated == true ? await GetUserPhone(Context.User) : "555-555-1234",
+                ["Role"] = Context.User?.Identity?.IsAuthenticated == true ? await GetUserRole(Context.User) : "Admin"
             });
         }
         else
@@ -149,10 +147,10 @@ public class HubServices : Hub
                 ["SiteName"] = siteInfo?.DisplayName,
                 ["TimeZoneAbbr"] = siteInfo?.TimeZoneAbbr,
                 ["Tours"] = JsonConvert.SerializeObject(siteInfo?.Tours, Formatting.Indented),
-                ["User"] = Context.User.Identity.IsAuthenticated ? await GetUserName(Context.User) : "Operator",
-                ["EmailAddress"] = Context.User.Identity.IsAuthenticated ? await GetUserEmail(Context.User) : "",
-                ["Phone"] = Context.User.Identity.IsAuthenticated ? await GetUserPhone(Context.User) : "",
-                ["Role"] = Context.User.Identity.IsAuthenticated ? await GetUserRole(Context.User) : "Operator"
+                ["User"] = Context.User?.Identity?.IsAuthenticated == true ? await GetUserName(Context.User) : "Operator",
+                ["EmailAddress"] = Context.User?.Identity?.IsAuthenticated == true ? await GetUserEmail(Context.User) : "",
+                ["Phone"] = Context.User?.Identity?.IsAuthenticated == true ? await GetUserPhone(Context.User) : "",
+                ["Role"] = Context.User?.Identity?.IsAuthenticated == true ? await GetUserRole(Context.User) : "Operator"
             });
         }
     }
@@ -221,14 +219,18 @@ public class HubServices : Hub
             return Task.FromResult(Enumerable.Empty<string>());
         }
 
+        #if WINDOWS
         if (windowsPrincipal.Identity is not WindowsIdentity windowsIdentity)
         {
             return Task.FromResult(Enumerable.Empty<string>());
         }
 
-        var groups = windowsIdentity.Groups
+        var groups = windowsIdentity.Groups?
                                     .Select(g => g.Translate(typeof(NTAccount)).ToString().TrimStart(@"USA\".ToCharArray()))
-                                    .ToList();
+                                    .ToList() ?? new List<string>();
+        #else
+        var groups = new List<string>();
+        #endif
 
         return Task.FromResult<IEnumerable<string>>(groups);
     }

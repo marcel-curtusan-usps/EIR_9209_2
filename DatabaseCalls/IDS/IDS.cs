@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
-using System.Text.RegularExpressions;
 
 namespace EIR_9209_2.DatabaseCalls.IDS
 {
@@ -21,14 +20,23 @@ namespace EIR_9209_2.DatabaseCalls.IDS
         {
             try
             {
-                OracleConnectionString = _configuration[key: "ApplicationConfiguration:IdsConnectionString"];
+                OracleConnectionString = _configuration[key: "ApplicationConfiguration:IdsConnectionString"] ?? string.Empty;
                 if (!string.IsNullOrEmpty(OracleConnectionString))
                 {
                     if (((JObject)Request_data).ContainsKey("queryName"))
                     {
                         if (!string.IsNullOrEmpty(Request_data["queryName"]?.ToString()))
                         {
-                            string directory = Path.Combine(_configuration[key: "ApplicationConfiguration:OracleQueryDirectory"], "IDS");
+                            string oracleQueryDirectory = _configuration[key: "ApplicationConfiguration:OracleQueryDirectory"] ?? string.Empty;
+                            if (string.IsNullOrEmpty(oracleQueryDirectory))
+                            {
+                                return new JObject
+                                {
+                                    ["Error"] = "OracleQueryDirectory is not configured",
+                                    ["Code"] = "2"
+                                };
+                            }
+                            string directory = Path.Combine(oracleQueryDirectory, "IDS");
                             var fileName = $"{Request_data["queryName"]?.ToString()}.txt";
                             query = await _fileService.ReadFileFromRoot(fileName, directory);
                             if (!string.IsNullOrEmpty(query))
@@ -46,13 +54,13 @@ namespace EIR_9209_2.DatabaseCalls.IDS
                                             command.Parameters.Clear();
                                             command.BindByName = false;
                                     
-                                            foreach (KeyValuePair<string, JToken> property in (JObject)Request_data)
+                                            foreach (KeyValuePair<string, JToken?> property in (JObject)Request_data)
                                             {
                                                 if (property.Key != "queryName")
                                                 {
                                                     if (property.Key.Equals("datadayList", StringComparison.CurrentCultureIgnoreCase) || property.Key.Equals("rejectBins", StringComparison.CurrentCultureIgnoreCase))
                                                     {
-                                                        if (property.Value.Type == JTokenType.Array && property.Value is JArray array && array.All(item => item.Type == JTokenType.Integer))
+                                                        if (property.Value != null && property.Value.Type == JTokenType.Array && property.Value is JArray array && array.All(item => item.Type == JTokenType.Integer))
                                                         {
                                                             string intArrayString = string.Join(",", array.Select(item => item.ToString()));
                                                             command.CommandText = query = query.Replace($":{property.Key.ToUpper()}", intArrayString);

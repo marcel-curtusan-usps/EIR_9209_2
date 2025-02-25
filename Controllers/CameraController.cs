@@ -38,7 +38,12 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var cameraFromList = _cameras.GetCameraListByIp(value["properties"]["ip"].ToString()).Result;
+                var ipValue = value["properties"]?["ip"]?.ToString();
+                if (string.IsNullOrEmpty(ipValue))
+                {
+                    return BadRequest("IP value is missing or invalid.");
+                }
+                var cameraFromList = _cameras.GetCameraListByIp(ipValue).Result;
                 if (cameraFromList != null)
                 {
                     //convert the JObject to a Connection object
@@ -58,12 +63,12 @@ namespace EIR_9209_2.Controllers
                     //add the connection id
                     cameraMarker.Properties.Id = Guid.NewGuid().ToString();
                     cameraMarker.Properties.CreatedDate = DateTime.Now;
-                    var addCammera = _cameras.Add(cameraMarker).Result;
-                    if (addCammera != null)
+                    var addCamera = _cameras.Add(cameraMarker).Result;
+                    if (addCamera != null)
                     {
-                        await _hubContext.Clients.Group(addCammera.Properties.Type).SendAsync($"add{addCammera.Properties.Type}", addCammera);
+                        await _hubContext.Clients.Group(addCamera.Properties.Type).SendAsync($"add{addCamera.Properties.Type}", addCamera);
 
-                        return Ok(addCammera);
+                        return Ok(addCamera);
                     }
                     else
                     {
@@ -72,7 +77,8 @@ namespace EIR_9209_2.Controllers
                 }
                 else
                 {
-                    return new JObject { ["Message"] = $"Camera with IP:{value["Properties"]["IP"].ToString()} was not Found" };
+                    var ip = value["Properties"]?["IP"]?.ToString();
+                    return new JObject { ["Message"] = $"Camera with IP:{ip ?? "unknown"} was not Found" };
                 }
 
             }

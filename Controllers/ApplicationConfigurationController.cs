@@ -1,15 +1,11 @@
 ﻿using EIR_9209_2.DataStore;
-using EIR_9209_2.Models;
 using EIR_9209_2.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NuGet.Protocol;
-using System;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Text.RegularExpressions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -57,7 +53,7 @@ namespace EIR_9209_2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e, e.Message);
                 return BadRequest(e.Message);
             }
         }
@@ -82,7 +78,7 @@ namespace EIR_9209_2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e, e.Message);
                 return BadRequest(e.Message);
             }
         }
@@ -107,7 +103,7 @@ namespace EIR_9209_2.Controllers
             }
         }
 
-        private async Task<object> GetConfigurationRoleGroups()
+        private async Task<Dictionary<string, string?>> GetConfigurationRoleGroups()
         {
             try
             {
@@ -120,16 +116,16 @@ namespace EIR_9209_2.Controllers
                         userRoleValues.Add(setting.Key, setting.Value);
                     }
                 }
-                return userRoleValues;
+                return await Task.FromResult(userRoleValues);
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return null;
+                return [];
             }
         }
 
-        private async Task<object> GetConfigurationSetting()
+        private async Task<Dictionary<string, string?>> GetConfigurationSetting()
         {
             try
             {
@@ -141,7 +137,7 @@ namespace EIR_9209_2.Controllers
                     {
                         if (setting.Key.EndsWith("ConnectionString"))
                         {
-                            configurationValues.Add(setting.Key, _encryptDecrypt.Decrypt(setting.Value));
+                            configurationValues.Add(setting.Key, await Task.Run(() => _encryptDecrypt.Decrypt(setting.Value ?? string.Empty)));
                         }
                         else
                         {
@@ -150,12 +146,12 @@ namespace EIR_9209_2.Controllers
 
                     }
                 }
-                return configurationValues;
+                return await Task.FromResult(configurationValues);
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return null;
+                return [];
             }
         }
 
@@ -173,10 +169,10 @@ namespace EIR_9209_2.Controllers
                 }
                 else
                 {
-                    configurationValues.Add("User", this.User.Identity.IsAuthenticated ? await GetUserName(this.User) : "Operator");
-                    configurationValues.Add("Role", this.User.Identity.IsAuthenticated ? await GetUserRole(this.User) : "Operator");
-                    configurationValues.Add("Phone", this.User.Identity.IsAuthenticated ? await GetUserPhone(this.User) : "");
-                    configurationValues.Add("EmailAddress", this.User.Identity.IsAuthenticated ? await GetUserEmail(this.User) : "");
+                    configurationValues.Add("User", this.User?.Identity?.IsAuthenticated == true ? await GetUserName(this.User) : "Operator");
+                    configurationValues.Add("Role", this.User?.Identity?.IsAuthenticated == true ? await GetUserRole(this.User) : "Operator");
+                    configurationValues.Add("Phone", this.User?.Identity?.IsAuthenticated == true ? await GetUserPhone(this.User) : "");
+                    configurationValues.Add("EmailAddress", this.User?.Identity?.IsAuthenticated == true ? await GetUserEmail(this.User) : "");
                 }
                 configurationValues.Add("ApplicationVersion", Helper.GetCurrentVersion());
                 // Example: Retrieve a specific configuration section
@@ -200,7 +196,7 @@ namespace EIR_9209_2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e, e.Message);
                 return null;
             }
         }
@@ -208,7 +204,7 @@ namespace EIR_9209_2.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="appSettingsData">The application settings data to update</param>
         /// <returns></returns>
         // PUT api/<SiteConfigurationController>/5
         [HttpPost]
@@ -325,7 +321,7 @@ namespace EIR_9209_2.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="appUserRole"></param>
         /// <returns></returns>
         // PUT api/<SiteConfigurationController>/5
         [HttpPut]
@@ -436,16 +432,16 @@ namespace EIR_9209_2.Controllers
                 return Task.FromResult(Enumerable.Empty<string>());
             }
 
-            if (windowsPrincipal.Identity is not WindowsIdentity windowsIdentity)
+            if (OperatingSystem.IsWindows() && windowsPrincipal.Identity is WindowsIdentity windowsIdentity)
             {
-                return Task.FromResult(Enumerable.Empty<string>());
+                var groups = windowsIdentity.Groups?
+                                            .Select(g => OperatingSystem.IsWindows() ? g.Translate(typeof(NTAccount)).ToString().TrimStart(@"USA\".ToCharArray()) : g.Value)
+                                            .ToList() ?? new List<string>();
+
+                return Task.FromResult<IEnumerable<string>>(groups);
             }
 
-            var groups = windowsIdentity.Groups
-                                        .Select(g => g.Translate(typeof(NTAccount)).ToString().TrimStart(@"USA\".ToCharArray()))
-                                        .ToList();
-
-            return Task.FromResult<IEnumerable<string>>(groups);
+            return Task.FromResult(Enumerable.Empty<string>());
         }
     }
 }
