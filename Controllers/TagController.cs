@@ -1,4 +1,5 @@
 ﻿using EIR_9209_2.Models;
+using EIR_9209_2.DataStore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
@@ -10,9 +11,10 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TagController(IInMemoryTagsRepository tags, IHubContext<HubServices> hubContext) : ControllerBase
+    public class TagController(IInMemoryTagsRepository tags, IInMemoryEmployeesRepository employees, IHubContext<HubServices> hubContext) : ControllerBase
     {
         private readonly IInMemoryTagsRepository _tags = tags;
+        private readonly IInMemoryEmployeesRepository _emp = employees;
         private readonly IHubContext<HubServices> _hubContext = hubContext;
 
         // GET: api/<TagController>
@@ -41,7 +43,7 @@ namespace EIR_9209_2.Controllers
             {
                 return BadRequest(ModelState);
             }
-            return Ok(_tags.Get(tagId));
+            return Ok( await _tags.Get(tagId));
         }
 
         /// <summary>
@@ -76,7 +78,10 @@ namespace EIR_9209_2.Controllers
             }
             string searchValue = string.IsNullOrEmpty(value) ? "" : HttpUtility.UrlDecode(value).Replace("\"", "");
             var query = await _tags.SearchTag(searchValue);
-            return Ok(query);
+            var SearchReuslt = await _emp.SearchEmployee(searchValue);
+           
+            var finalReuslt = query.Concat(SearchReuslt).Distinct();
+            return Ok(finalReuslt);
         }
         //add new tag
         // POST api/<TagController>

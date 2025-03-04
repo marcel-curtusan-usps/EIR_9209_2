@@ -91,7 +91,7 @@ namespace EIR_9209_2.DataStore
 
         }
 
-        public object Get(string id)
+        public async Task<object> Get(string id)
         {
             if (_tagList.ContainsKey(id) && _tagList.TryGetValue(id, out GeoMarker tag))
             {

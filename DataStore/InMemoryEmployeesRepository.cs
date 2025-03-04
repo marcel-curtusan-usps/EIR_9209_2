@@ -1,4 +1,5 @@
 ﻿using EIR_9209_2.Models;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -22,6 +23,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
 
         // Load data from the first file into the first collection
         LoadDataFromFile().Wait();
+
 
     }
     public async Task<EmployeeInfo?> GetEmployeeByBLE(string id)
@@ -506,7 +508,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                         currentEmp.BleId = transaction["cardholderdata"]?["importField"]?.ToString();
                         savetoFile = true;
                     }
-                    if (!string.IsNullOrEmpty(transaction["encodedID"]?.ToString()) && currentEmp.EncodedId !=transaction["encodedID"]?.ToString())
+                    if (!string.IsNullOrEmpty(transaction["encodedID"]?.ToString()) && currentEmp.EncodedId != transaction["encodedID"]?.ToString())
                     {
                         currentEmp.EncodedId = transaction["encodedID"]?.ToString();
                         savetoFile = true;
@@ -523,7 +525,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                     }
                 }
             }
-                    return true;
+            return true;
         }
         catch (Exception e)
         {
@@ -564,6 +566,45 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         try
         {
             return _empList.Where(r => r.Value.EmployeeId == code || r.Value.EncodedId == code).Select(r => r.Value).FirstOrDefault();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+    }
+
+    public Task<List<JObject>> SearchEmployee(string searchValue)
+    {
+        try
+        {
+            var empQuery = _empList.Where(sl =>
+         Regex.IsMatch(sl.Value.EmployeeId, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+         || Regex.IsMatch(sl.Value.FirstName, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+         || Regex.IsMatch(sl.Value.FirstName, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+         || Regex.IsMatch(sl.Value.BleId, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+         || Regex.IsMatch(sl.Value.EncodedId, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+         || Regex.IsMatch(sl.Value.CardholderId.ToString(), "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+       ).Select(r => r.Value).ToList();
+
+            var empSearchReuslt = (from sr in empQuery
+                                   select new JObject
+                                   {
+                                       ["id"] = sr.CardholderId,
+                                       ["ein"] = sr.EmployeeId,
+                                       ["tagType"] = "Badge",
+                                       ["name"] = sr.FirstName,
+                                       ["encodedId"] = sr.EncodedId,
+                                       ["empFirstName"] = sr.FirstName,
+                                       ["empLastName"] = sr.LastName,
+                                       ["craftName"] = sr.Title,
+                                       ["payLocation"] = sr.PayLocation,
+                                       ["presence"] = sr.EmployeeStatus,
+                                       ["designationActivity"] = sr.DesActCode,
+                                       ["color"] = ""
+                                   }).ToList();
+            var finalReuslt = empSearchReuslt;
+            return Task.FromResult((List<JObject>)finalReuslt);
         }
         catch (Exception e)
         {

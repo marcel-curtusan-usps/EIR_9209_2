@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using EIR_9209_2.DataStore;
+using Newtonsoft.Json;
 namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
@@ -64,6 +65,7 @@ namespace EIR_9209_2.Controllers
                     if (transaction == null)
                     {
                         //log request
+                        _logger.LogInformation($"Scan Data {JsonConvert.SerializeObject(scan, Formatting.None)}");
                         return Ok();
                     }
                     var transactionareaid = transaction["areaid"]?.ToString();

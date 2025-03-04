@@ -9,7 +9,7 @@ public interface IInMemoryTagsRepository
     Task<object> UpdateTagUIInfo(JObject tagInfo);
     //void UpdateTagQPEInfo(List<Tags> tags, long responseTS);
     Task<bool> UpdateTagQPEInfo(List<Tags> tags, long responseTS, CancellationToken stoppingToken);
-    object Get(string id);
+    Task<object> Get(string id);
     List<GeoMarker> GetAll();
     List<GeoMarker> GetTagsType(string type);
     List<VehicleGeoMarker> GetAllPIV();

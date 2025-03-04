@@ -16,5 +16,6 @@ namespace EIR_9209_2.DataStore
         Task<EmployeeInfo?> GetEmployeeByEIN(string id);
         Task<object?> GetEmployeeByCode(string code);
         Task<List<string?>> GetDistinctEmployeeIdList();
+        Task<List<JObject>> SearchEmployee(string search);
     }
 }
