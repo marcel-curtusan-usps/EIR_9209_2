@@ -2,6 +2,7 @@
 using EIR_9209_2.DataStore;
 using EIR_9209_2.Service;
 using EIR_9209_2.Utilities;
+using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
@@ -34,7 +35,8 @@ public class Startup
         services.AddTransient<IUserService, UserService>();
         // Configure logging
         services.AddLogging();
-        services.AddAuthentication(IISDefaults.AuthenticationScheme); // Add Windows Authentication
+        services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
+        services.AddAuthorization();
         services.AddSingleton<IFilePathProvider, FilePathProvider>();
         services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<ILoggerService, LoggerService>();
@@ -78,7 +80,7 @@ public class Startup
                  .AllowAnyOrigin();
             });
         });
-   
+
         services.AddSingleton<HubServices>();
         // Add framework services.
         services.AddMvc(options =>
@@ -115,7 +117,7 @@ public class Startup
                 options.CustomSchemaIds(type => type.FullName);
                 options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
                 options.OperationFilter<GeneratePathParamsValidationFilter>();
-            });       
+            });
 
     }
 
@@ -145,7 +147,7 @@ public class Startup
                 c.SwaggerEndpoint($"/{applicationConfiguration["ApplicationName"]}{swaggerConfig["Endpoint"]}", $"{applicationConfiguration["ApplicationName"]} API's");
             }
         });
-        app.UseFileServer(); 
+        app.UseFileServer();
         app.UseDefaultFiles(); // Use the configured options
         app.UseStaticFiles(); // Serve static files
         app.UseEndpoints(endpoints =>

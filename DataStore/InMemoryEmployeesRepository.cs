@@ -24,8 +24,27 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         // Load data from the first file into the first collection
         LoadDataFromFile().Wait();
 
-
     }
+    public async Task<object> GetEmployeesList()
+    {
+        try
+        {
+            var temp = _empList.Where(r => r.Value.EmployeeId != null).Select(r => new
+            {
+                id = r.Value.EmployeeId,
+                name = r.Value.FirstName + " " + r.Value.LastName,
+                designationActivity = r.Value.DesActCode,
+                title = r.Value.Title,
+            }).ToList();
+            return temp;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return new List<EmployeeInfo>();
+        }
+    }
+
     public async Task<EmployeeInfo?> GetEmployeeByBLE(string id)
     {
         try
@@ -477,7 +496,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         }
     }
 
-    public async Task<bool> UpdateEmployeeInfoFromEPAC(JObject scan)
+    public void UpdateEmployeeInfoFromEPAC(JObject scan)
     {
         bool savetoFile = false;
 
@@ -486,57 +505,55 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             var transaction = scan["data"]?["Transactions"]?.FirstOrDefault();
             if (transaction == null)
             {
-                return false;
-            }
-            var transactionEin = transaction["cardholderdata"]?["ein"]?.ToString();
-            if (!string.IsNullOrEmpty(transactionEin))
-            {
-                if (_empList.ContainsKey(transactionEin) && _empList.TryGetValue(transactionEin, out EmployeeInfo currentEmp))
+
+                var transactionEin = transaction["cardholderdata"]?["ein"]?.ToString();
+                if (!string.IsNullOrEmpty(transactionEin))
                 {
-                    if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["firstname"]?.ToString()) && currentEmp.FirstName != transaction["cardholderdata"]?["firstname"]?.ToString())
+                    if (_empList.ContainsKey(transactionEin) && _empList.TryGetValue(transactionEin, out EmployeeInfo currentEmp))
                     {
-                        currentEmp.FirstName = transaction["cardholderdata"]?["firstname"]?.ToString();
-                        savetoFile = true;
-                    }
-                    if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["lastname"]?.ToString()) && currentEmp.LastName != transaction["cardholderdata"]?["lastname"]?.ToString())
-                    {
-                        currentEmp.LastName = transaction["cardholderdata"]?["lastname"]?.ToString();
-                        savetoFile = true;
-                    }
-                    if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["importField"]?.ToString()) && currentEmp.BleId != transaction["cardholderdata"]?["importField"]?.ToString())
-                    {
-                        currentEmp.BleId = transaction["cardholderdata"]?["importField"]?.ToString();
-                        savetoFile = true;
-                    }
-                    if (!string.IsNullOrEmpty(transaction["encodedID"]?.ToString()) && currentEmp.EncodedId != transaction["encodedID"]?.ToString())
-                    {
-                        currentEmp.EncodedId = transaction["encodedID"]?.ToString();
-                        savetoFile = true;
-                    }
-                    if (!string.IsNullOrEmpty(transaction["cardholderid"]?.ToString()) && currentEmp.EncodedId != transaction["cardholderid"]?.ToString())
-                    {
-                        currentEmp.CardholderId = (int)transaction["cardholderid"];
-                        savetoFile = true;
-                    }
-                    if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["designationActivity"]?.ToString()) && currentEmp.BleId != transaction["cardholderdata"]?["designationActivity"]?.ToString())
-                    {
-                        currentEmp.BleId = transaction["cardholderdata"]?["designationActivity"]?.ToString();
-                        savetoFile = true;
+                        if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["firstname"]?.ToString()) && currentEmp.FirstName != transaction["cardholderdata"]?["firstname"]?.ToString())
+                        {
+                            currentEmp.FirstName = transaction["cardholderdata"]?["firstname"]?.ToString();
+                            savetoFile = true;
+                        }
+                        if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["lastname"]?.ToString()) && currentEmp.LastName != transaction["cardholderdata"]?["lastname"]?.ToString())
+                        {
+                            currentEmp.LastName = transaction["cardholderdata"]?["lastname"]?.ToString();
+                            savetoFile = true;
+                        }
+                        if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["importField"]?.ToString()) && currentEmp.BleId != transaction["cardholderdata"]?["importField"]?.ToString())
+                        {
+                            currentEmp.BleId = transaction["cardholderdata"]?["importField"]?.ToString();
+                            savetoFile = true;
+                        }
+                        if (!string.IsNullOrEmpty(transaction["encodedID"]?.ToString()) && currentEmp.EncodedId != transaction["encodedID"]?.ToString())
+                        {
+                            currentEmp.EncodedId = transaction["encodedID"]?.ToString();
+                            savetoFile = true;
+                        }
+                        if (!string.IsNullOrEmpty(transaction["cardholderid"]?.ToString()) && currentEmp.EncodedId != transaction["cardholderid"]?.ToString())
+                        {
+                            currentEmp.CardholderId = (int)transaction["cardholderid"];
+                            savetoFile = true;
+                        }
+                        if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["designationActivity"]?.ToString()) && currentEmp.BleId != transaction["cardholderdata"]?["designationActivity"]?.ToString())
+                        {
+                            currentEmp.BleId = transaction["cardholderdata"]?["designationActivity"]?.ToString();
+                            savetoFile = true;
+                        }
                     }
                 }
             }
-            return true;
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            return true;
         }
         finally
         {
             if (savetoFile)
             {
-                await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_empList.Values, Formatting.Indented));
+                _ = Task.Run(() => _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_empList.Values, Formatting.Indented)));
             }
         }
     }

@@ -1,16 +1,15 @@
-﻿
-//side bar setup
+﻿//side bar setup
 let sidebar = L.control.sidebar({
-    autopan: false,       // whether to maintain the centered map point when opening the sidebar
-    closeButton: true,    // whether t add a close button to the panes
-    container: 'sidebar', // the DOM container or #ID of a predefined sidebar container that should be used
-    position: 'left',     // left or right
+  autopan: false, // whether to maintain the centered map point when opening the sidebar
+  closeButton: true, // whether t add a close button to the panes
+  container: 'sidebar', // the DOM container or #ID of a predefined sidebar container that should be used
+  position: 'left' // left or right
 });
 let mainfloorOverlays = L.layerGroup();
 
 let mainfloor = L.imageOverlay(null, [0, 0], { id: -1, zIndex: -1 }).addTo(mainfloorOverlays);
 let baseLayers = {
-    "Main Floor": mainfloor
+  'Main Floor': mainfloor
 };
 
 let overlayMaps = {};
@@ -20,74 +19,106 @@ let layersSelected = [mainfloor];
 //});
 //setup map
 let OSLmap = L.map('map', {
-    crs: L.CRS.Simple,
-    renderer: L.canvas({ padding: 0.5 }),
-    preferCanvas: true,
-    pmIgnore: false,
-    markerZoomAnimation: true,
-    minZoom: 0,
-    maxZoom: 18,
-    zoomControl: false,
-    measureControl: true,
-    tap: true,
-    layers: layersSelected
+  crs: L.CRS.Simple,
+  renderer: L.canvas({ padding: 0.5 }),
+  preferCanvas: true,
+  pmIgnore: false,
+  markerZoomAnimation: true,
+  minZoom: 0,
+  maxZoom: 18,
+  zoomControl: false,
+  measureControl: true,
+  tap: true,
+  layers: layersSelected
 });
 
-sidebar.on('content', function (ev) {
+sidebar
+  .on('content', function (ev) {
     sidebar.options.autopan = false;
-    $('div[id=machine_div]').attr("data-id", "");
+    $('div[id=machine_div]').attr('data-id', '');
     switch (ev.id) {
-        case 'autopan':
-            break;
-        case 'setting':
-            break;
-        case 'reports':
-            break;
-        case 'userprofile':
-            break;
-        case 'assetinventory':
-            break;
-        case 'vehicleinfo':
-            break;
-        case 'notificationsetup':
-            break;
-        case 'tripsnotificationinfo':
-            break;
-        default:
-            sidebar.options.autopan = false;
-            break;
+      case 'autopan':
+        break;
+      case 'setting':
+        break;
+      case 'reports':
+        break;
+      case 'userprofile':
+        break;
+      case 'assetinventory':
+        break;
+      case 'vehicleinfo':
+        break;
+      case 'notificationsetup':
+        break;
+      case 'tripsnotificationinfo':
+        break;
+      default:
+        sidebar.options.autopan = false;
+        break;
     }
-}).addTo(OSLmap);
+  })
+  .addTo(OSLmap);
 sidebar.on('closing', function (e) {
-    // e.id contains the id of the opened panel
-    $('div[id=machine_div]').attr("data-id","");
-})
+  // e.id contains the id of the opened panel
+  $('div[id=machine_div]').attr('data-id', '');
+});
 
 // Add Layer Popover - Proposed
-let layersControl = L.control.layers(baseLayers, overlayMaps, {
+let layersControl = L.control
+  .layers(baseLayers, overlayMaps, {
     sortLayers: true,
     sortFunction: function (layerA, layerB, nameA, nameB) {
-        if (/FLOOR/i.test(nameA)) {
-            if (/MAIN/i.test(nameA)) {
-                return -1;
-            }
-            else {
-                return nameA < nameB ? -1 : (nameB < nameA ? 1 : 0);
-            }
+      if (/FLOOR/i.test(nameA)) {
+        if (/MAIN/i.test(nameA)) {
+          return -1;
+        } else {
+          return nameA < nameB ? -1 : nameB < nameA ? 1 : 0;
         }
+      }
     },
     position: 'bottomright',
     collapsed: true,
     autoZIndex: false // Disable expand on hover
-}).addTo(OSLmap);
+  })
+  .addTo(OSLmap);
+// Function to handle baselayerchange event
+function onBaseLayerChange(e) {
+  baselayerid = e.layer.options.id;
+  geoZoneCube.clearLayers();
+  init_geoZoneCube(baselayerid);
+  geoZoneArea.clearLayers();
+  init_geoZoneArea(baselayerid);
+  geoZoneMPE.clearLayers();
+  init_geoZoneMPE(baselayerid);
+  geoZoneKiosk.clearLayers();
+  init_geoZoneKiosk(baselayerid);
+  geoZoneDockDoor.clearLayers();
+  init_geoZoneDockDoor(baselayerid);
+  markerCameras.clearLayers();
+  init_tagsCamera(baselayerid);
+  OSLmap.setView(e.layer.getBounds().getCenter(), 1.5);
+  console.log(`floorId: ${baselayerid}`);
+}
+// Add the event listener
+OSLmap.on('baselayerchange', onBaseLayerChange);
 
+//OSLmap.on("baselayerchange", function (e) {
+//  baselayerid = e.layer.options.id;
+//   geoZoneArea.clearLayers().then(() => init_geoZoneArea(baselayerid));
+//   geoZoneMPE.clearLayers().then(() => init_geoZoneMPE(baselayerid));
+//   geoZoneKiosk.clearLayers().then(() => init_geoZoneKiosk(baselayerid));
+//   geoZoneDockDoor.clearLayers().then(() => init_geoZoneDockDoor(baselayerid));
+//   markerCameras.clearLayers().then(() => init_tagsCamera(baselayerid));
+// console.log(`floorId: ${baselayerid}`);
+//});
 // Add onclick event listener
 layersControl.getContainer().onclick = function () {
-    if (layersControl._container.classList.contains('leaflet-control-layers-expanded')) {
-        layersControl._container.classList.remove('leaflet-control-layers-expanded');
-    } else {
-        layersControl._container.classList.add('leaflet-control-layers-expanded');
-    }
+  if (layersControl._container.classList.contains('leaflet-control-layers-expanded')) {
+    layersControl._container.classList.remove('leaflet-control-layers-expanded');
+  } else {
+    layersControl._container.classList.add('leaflet-control-layers-expanded');
+  }
 };
 //Add zoom button
 new L.Control.Zoom({ position: 'bottomright' }).addTo(OSLmap);
@@ -100,81 +131,108 @@ new L.Control.Zoom({ position: 'bottomright' }).addTo(OSLmap);
 //    }]
 //}).addTo(OSLmap);
 async function updateOSLattribution(data) {
-    return new Promise((resolve, reject) => {
-        OSLmap.attributionControl.setPrefix("USPS " + data.ApplicationName + " (" + data.ApplicationVersion + ") | " + data.name);
-        resolve();
-        return false;
-    });
+  return new Promise((resolve, reject) => {
+    OSLmap.attributionControl.setPrefix('USPS ' + data.ApplicationName + ' (' + data.ApplicationVersion + ') | ' + data.name);
+    resolve();
+    return false;
+  });
 }
 async function init_backgroundImages() {
-    try {
-        $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/BackgroundImage/GetAllImages',
-            contentType: 'application/json',
-            type: 'GET',
-            success: function (MapData) {
-                if (MapData.length > 0) {
-                    $.each(MapData, function (index, backgroundImages) {
-                        if (backgroundImages.source === "Cisco") {
-                            L.Util.extend(L.CRS.Simple, {
-                            	transformation: new L.Transformation(1,0,1,0)
-                            });
-                        }
-
-                        loadOslDatatable([backgroundImages],"osltable")
-                        if (!!backgroundImages) {
-                            //Promise.all([loadOslDatatable([this], "osltable")]);
-                            //set new image
-                            let trackingarea = L.polygon([[100, 150]], [[500, 5000]]);
-                            let img = new Image();
-                            //load Base64 image
-                            img.src = backgroundImages.base64;
-                            //create he bound of the image.
-                            let bounds = [[backgroundImages.yMeter, backgroundImages.xMeter], [backgroundImages.heightMeter + backgroundImages.yMeter, backgroundImages.widthMeter + backgroundImages.xMeter]];
-                            trackingarea = L.polygon(bounds, {});
-
-                            if (index === 0) {
-                                baselayerid = backgroundImages.coordinateSystemId;
-                                mainfloor.options.id = backgroundImages.coordinateSystemId;
-                                mainfloor.setUrl(img.src);
-                                mainfloor.setZIndex(index);
-                                mainfloor.setBounds(trackingarea.getBounds());
-                                //center image
-                                OSLmap.setView(trackingarea.getBounds().getCenter(), 1.5);
-                            }
-                            else if (!!this.backgroundImages) {
-                                layersControl.addBaseLayer(L.imageOverlay(img.src, trackingarea.getBounds(), { id: this.id, zindex: index }), this.backgroundImages.name);
-
-                            }
-                        }
-                    });
-
-
-                }
-                else {
-                    let trackingarea = L.polygon([[100, 150]], [[500, 5000]]);
-                    let img = new Image();
-                    img.src = "";
-                    mainfloor.setUrl(img.src);
-                    mainfloor.setBounds(trackingarea.getBounds());
-                    OSLmap.setView(trackingarea.getBounds().getCenter(), 1.5);
-                }
-            },
-            error: function (error) {
-                console.log(error);
-            },
-            faulure: function (fail) {
-                console.log(fail);
-            },
-            complete: function (complete) {
-                connection.invoke("JoinGroup", "BackgroundImage").catch(function (err) {
-                    return console.error(err.toString());
-                });
-
+  try {
+    $.ajax({
+      url: SiteURLconstructor(window.location) + '/api/BackgroundImage/GetAllImages',
+      contentType: 'application/json',
+      type: 'GET',
+      success: function (MapData) {
+        if (MapData.length > 0) {
+          // Sort MapData by index
+          MapData.sort((a, b) => a.index - b.index);
+          $.each(MapData, function (index, backgroundImages) {
+            if (backgroundImages.source === 'Cisco') {
+              L.Util.extend(L.CRS.Simple, {
+                transformation: new L.Transformation(1, 0, 1, 0)
+              });
             }
-        });
 
-    } catch (e) {
-        console.log(e)
-    }
+            loadOslDatatable([backgroundImages], 'osltable');
+            if (!!backgroundImages) {
+              //Promise.all([loadOslDatatable([this], "osltable")]);
+              //set new image
+              let trackingarea = L.polygon([[100, 150]], [[500, 5000]]);
+              let img = new Image();
+              //load Base64 image
+              img.src = backgroundImages.base64;
+              //create he bound of the image.
+              let bounds = [
+                [backgroundImages.yMeter, backgroundImages.xMeter],
+                [backgroundImages.heightMeter + backgroundImages.yMeter, backgroundImages.widthMeter + backgroundImages.xMeter]
+              ];
+              trackingarea = L.polygon(bounds, {});
+
+              // Temporarily remove the event listener
+              OSLmap.off('baselayerchange', onBaseLayerChange);
+
+              if (index === 0) {
+                baselayerid = backgroundImages.coordinateSystemId;
+                mainfloor.options.id = backgroundImages.coordinateSystemId;
+                mainfloor.setUrl(img.src);
+                mainfloor.setZIndex(index);
+                mainfloor.setBounds(trackingarea.getBounds());
+                // Remove the old base layer from the layersControl
+                layersControl.removeLayer(mainfloor);
+
+                // Add the updated base layer to the layersControl
+                layersControl.addBaseLayer(mainfloor, backgroundImages.name);
+                //center image
+                OSLmap.setView(trackingarea.getBounds().getCenter(), 1.5);
+
+                geoZoneCube.clearLayers();
+                init_geoZoneCube(baselayerid);
+                geoZoneArea.clearLayers();
+                init_geoZoneArea(baselayerid);
+                geoZoneMPE.clearLayers();
+                init_geoZoneMPE(baselayerid);
+                geoZoneKiosk.clearLayers();
+                init_geoZoneKiosk(baselayerid);
+                geoZoneDockDoor.clearLayers();
+                init_geoZoneDockDoor(baselayerid);
+                markerCameras.clearLayers();
+                init_tagsCamera(baselayerid);
+              } else if (index > 0) {
+                layersControl.addBaseLayer(
+                  L.imageOverlay(img.src, trackingarea.getBounds(), {
+                    id: this.id,
+                    zindex: index
+                  }),
+                  this.name
+                );
+              }
+              // Re-add the event listener
+              OSLmap.on('baselayerchange', onBaseLayerChange);
+            }
+          });
+        } else {
+          let trackingarea = L.polygon([[100, 150]], [[500, 5000]]);
+          let img = new Image();
+          img.src = '';
+          mainfloor.setUrl(img.src);
+          mainfloor.setBounds(trackingarea.getBounds());
+          OSLmap.setView(trackingarea.getBounds().getCenter(), 1.5);
+        }
+      },
+      error: function (error) {
+        console.log(error);
+      },
+      faulure: function (fail) {
+        console.log(fail);
+      },
+      complete: function (complete) {
+        connection.invoke('JoinGroup', 'BackgroundImage').catch(function (err) {
+          return console.error(err.toString());
+        });
+      }
+    });
+  } catch (e) {
+    console.log(e);
+  }
 }

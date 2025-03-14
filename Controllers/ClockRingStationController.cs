@@ -10,7 +10,7 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ClockRingStationController (ILogger<ClockRingStationController> logger, IInMemoryEmployeesRepository employees, IHubContext<HubServices> hubContext, IInMemoryTACSReports tacs) : ControllerBase
+    public class ClockRingStationController(ILogger<ClockRingStationController> logger, IInMemoryEmployeesRepository employees, IHubContext<HubServices> hubContext, IInMemoryTACSReports tacs) : ControllerBase
     {
 
         private readonly IInMemoryEmployeesRepository _employees = employees;
@@ -62,60 +62,60 @@ namespace EIR_9209_2.Controllers
         //     }
         // }
 
-                // GET: api/<ClockRingStationController>
+        // GET: api/<ClockRingStationController>
         [HttpGet]
-[Route("GetByEIN")]
-public async Task<ActionResult> Get(string code)
-{
-    try
-    {
-        // Handle bad requests
-        if (!ModelState.IsValid)
+        [Route("GetByEIN")]
+        public async Task<ActionResult> Get(string code)
         {
-            return BadRequest(ModelState);
-        }
-
-        if (!string.IsNullOrEmpty(code))
-        {
-            var employee = await _employees.GetEmployeeByCode(code);
-            var empRawRings = await _tacs.GetTACSRawRings(code);
-            var empTopOpnCode = await _tacs.GetTopOpnCodes(code);
-
-            if (employee != null)
+            try
             {
-                // Modify RawRings to include only the last 7 entries in reverse order
-                var limitedEmpRawRings = empRawRings
-                    .GroupBy(r => DateTime.Parse(r.TranInfo.TranDate).Date)
-                    .OrderByDescending(g => g.Key) // Start with the most recent date
-                    .SelectMany(g => g.Reverse())  // Reverse each group to have the latest entry first
-                    .Take(7)                        // Take the first 7 entries from the combined list
-                    .ToList();
-
-                var empAndRawRings = new
+                // Handle bad requests
+                if (!ModelState.IsValid)
                 {
-                    Employee = employee,
-                    RawRings = limitedEmpRawRings,
-                    TopOpnCodes = empTopOpnCode
-                };
+                    return BadRequest(ModelState);
+                }
 
-                return Ok(empAndRawRings);
+                if (!string.IsNullOrEmpty(code))
+                {
+                    var employee = await _employees.GetEmployeeByCode(code);
+                    var empRawRings = await _tacs.GetTACSRawRings(code);
+                    var empTopOpnCode = await _tacs.GetTopOpnCodes(code);
+
+                    if (employee != null)
+                    {
+                        // Modify RawRings to include only the last 7 entries in reverse order
+                        var limitedEmpRawRings = empRawRings
+                            .GroupBy(r => DateTime.Parse(r.TranInfo.TranDate).Date)
+                            .OrderByDescending(g => g.Key) // Start with the most recent date
+                            .SelectMany(g => g.Reverse())  // Reverse each group to have the latest entry first
+                            .Take(7)                        // Take the first 7 entries from the combined list
+                            .ToList();
+
+                        var empAndRawRings = new
+                        {
+                            Employee = employee,
+                            RawRings = limitedEmpRawRings,
+                            TopOpnCodes = empTopOpnCode
+                        };
+
+                        return Ok(empAndRawRings);
+                    }
+                    else
+                    {
+                        return StatusCode(404, new { Message = "Employee not found" });
+                    }
+                }
+                else
+                {
+                    return BadRequest("EncodedId or EmployeeId is required");
+                }
             }
-            else
+            catch (Exception e)
             {
-                return StatusCode(404, new { Message = "Employee not found" });
+                _logger.LogError(e.Message);
+                return BadRequest(new { Message = e.Message });
             }
         }
-        else
-        {
-            return BadRequest("EncodedId or EmployeeId is required");
-        }
-    }
-    catch (Exception e)
-    {
-        _logger.LogError(e.Message);
-        return BadRequest(new { Message = e.Message });
-    }
-}
 
         // GET api/<ClockRingStationController>/5
         [HttpGet("{id}")]
@@ -143,7 +143,7 @@ public async Task<ActionResult> Get(string code)
                     {
                         return BadRequest("CRS Event conversion failed");
                     }
-               
+
                     return Ok(await _tacs.AddTacsRawRings(rawRings));
                 }
                 else

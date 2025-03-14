@@ -10,7 +10,8 @@ public interface IInMemoryGeoZonesRepository
     Task<GeoZoneDockDoor> UpdateDockDoor(GeoZoneDockDoor geoZone);
     Task<GeoZone> UiUpdate(Properties geoZone);
     Task<object> Get(string id);
-    IEnumerable<GeoZone> GetAll();
+    Task<IEnumerable<GeoZone>> GetAll();
+
     Task<List<string>> GetZoneNameList(string type);
     bool ExistingAreaDwell(DateTime hour);
     List<AreaDwell> GetAreaDwell(DateTime hour);
@@ -24,7 +25,7 @@ public interface IInMemoryGeoZonesRepository
     void UpdateMPERunActivity(List<MPERunPerformance> mpe);
     Task<bool> LoadMPEPlan(JToken data, CancellationToken stoppingToken);
     Task LoadWebEORMPERun(JToken data);
-        //List<TagTimeline> GetTagTimelineList(string ein);
+    //List<TagTimeline> GetTagTimelineList(string ein);
     Task<object?> GetMPENameList();
     Task<object?> GetDockDoorNameList();
     Task<object?> GetMPEGroupList(string type);
@@ -33,6 +34,7 @@ public interface IInMemoryGeoZonesRepository
     Task<bool> ProcessSVDoorsData(JToken result, CancellationToken stoppingToken);
     Task<object> GetGeoZonebyType(string zoneType);
     Task<object> GetGeoZonebyName(string type, string name);
+    Task<object> GetGeoZonesTypeByFloorId(string floorId, string type);
     Task ProcessSVContainerData(JToken result);
     Task<bool> ResetGeoZoneList();
     Task<bool> SetupGeoZoneData();
@@ -57,5 +59,12 @@ public interface IInMemoryGeoZonesRepository
     Task<GeoZoneKiosk> GetKiosk(string id);
 
 
+    #endregion
+    #region //Cubes
+    Task<object> GetAllCube();
+    Task<GeoZoneCube> AddCube(GeoZoneCube newZone);
+    Task<GeoZoneCube> RemoveCube(string id);
+    Task<GeoZoneCube> UpdateCube(CubeProperties updatedCubeZone);
+    Task<GeoZoneCube> GetCube(string id);
     #endregion
 }

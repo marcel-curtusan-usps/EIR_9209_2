@@ -24,6 +24,7 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
         bool saveToFile = false;
         try
         {
+            backgroundImage.index = _backgroundImages.Values.Count() + 1;
 
             if (_backgroundImages.TryAdd(backgroundImage.id, backgroundImage))
             {
@@ -80,11 +81,6 @@ public class InMemoryBackgroundImageRepository : IInMemoryBackgroundImageReposit
     }
     public async Task<OSLImage?> Update(OSLImage backgroundImage)
     {
-        if (_backgroundImages.TryGetValue(backgroundImage.id, out OSLImage currentBackgroundImage) && _backgroundImages.TryUpdate(backgroundImage.id, backgroundImage, currentBackgroundImage))
-        {
-            await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_backgroundImages.Values, Formatting.Indented));
-        }
-
         bool saveToFile = false;
         try
         {

@@ -300,60 +300,61 @@ async function findMpeZoneLeafletIds(zoneId) {
         reject(new Error('No layer found with the given MPE Zone Id: ' + zoneId));
     });
 }
-async function init_geoZoneMPE() {
-        try {
-            //int mpe standard table 
-            creatMpeStandardDataTable(StandardTable);
-            for (var touri in tourlist) {
-                createTargetDataTable(TargetTable + tourlist[touri], tourlist[touri])
-            }
-            //load MPE Zones
-            const mpeZonedata = await $.ajax({
-                url: `${SiteURLconstructor(window.location)}/api/Zone/ZoneType?type=MPE`,
-                contentType: 'application/json',
-                type: 'GET',
-                success: function (data) {
-                    for (let i = 0; i < data.length; i++) {
-                        Promise.all([addMPEFeature(data[i])]);
-                    }
-                }
-            });           
-            $(document).on('change', '.leaflet-control-layers-selector', function (_e) {
-                let sp = this.nextElementSibling;
-                if (/^(MPE Zones)$/ig.test(sp.innerHTML.trim())) {
-                    if (this.checked) {
-                        connection.invoke("JoinGroup", "MPE").catch(function (err) {
-                            return console.error(err.toString());
-                        });
-                    }
-                    else {
-                        connection.invoke("LeaveGroup", "MPE").catch(function (err) {
-                            return console.error(err.toString());
-                        });
-                    }
-                }
-
-            });
-            connection.invoke("JoinGroup", "MPE").catch(function (err) {
-                return console.error(err.toString());
-            });
-            connection.invoke("JoinGroup", "MPETartgets").catch(function (err) {
-                return console.error(err.toString());
-            });
-            if (/^(Admin|Maintenance|OIE)/i.test(appData.Role)) {
-                $('button[name=machineinfoedit]').off().on('click', function () {
-                    /* close the sidebar */
-                    sidebar.close();
-                    var id = $(this).attr('id');
-                    if (checkValue(id)) {
-                        Promise.all([Edit_Machine_Info(id)]);
-                    }
-                });
-            }
+async function init_geoZoneMPE(floorId) {
+  try {
+    //int mpe standard table
+    creatMpeStandardDataTable(StandardTable);
+    for (var touri in tourlist) {
+      createTargetDataTable(TargetTable + tourlist[touri], tourlist[touri]);
+    }
+    //load MPE Zones
+    await $.ajax({
+      url: `${SiteURLconstructor(
+        window.location
+      )}/api/Zone/ZonesTypeByFloorId?floorId=${floorId}&type=MPE`,
+      contentType: "application/json",
+      type: "GET",
+      success: function (data) {
+        for (let i = 0; i < data.length; i++) {
+          Promise.all([addMPEFeature(data[i])]);
         }
-        catch (e) {
-            throw new Error(e.toString());
+      },
+    });
+    $(document).on("change", ".leaflet-control-layers-selector", function (_e) {
+      let sp = this.nextElementSibling;
+      if (/^(MPE Zones)$/gi.test(sp.innerHTML.trim())) {
+        if (this.checked) {
+          connection.invoke("JoinGroup", "MPE").catch(function (err) {
+            return console.error(err.toString());
+          });
+        } else {
+          connection.invoke("LeaveGroup", "MPE").catch(function (err) {
+            return console.error(err.toString());
+          });
         }
+      }
+    });
+    connection.invoke("JoinGroup", "MPE").catch(function (err) {
+      return console.error(err.toString());
+    });
+    connection.invoke("JoinGroup", "MPETartgets").catch(function (err) {
+      return console.error(err.toString());
+    });
+    if (/^(Admin|Maintenance|OIE)/i.test(appData.Role)) {
+      $("button[name=machineinfoedit]")
+        .off()
+        .on("click", function () {
+          /* close the sidebar */
+          sidebar.close();
+          var id = $(this).attr("id");
+          if (checkValue(id)) {
+            Promise.all([Edit_Machine_Info(id)]);
+          }
+        });
+    }
+  } catch (e) {
+    throw new Error(e.toString());
+  }
 }
 connection.on("addMPEzone", async (zoneDate) => {
     addMPEFeature(zoneDate);

@@ -51,55 +51,51 @@ async function findKioskZoneLeafletIds(zoneId) {
         reject(new Error('No layer found with the given MPE Zone Id: ' + zoneId));
     });
 }
-async function init_geoZoneKiosk() {
-
-        try {
-            //load Kiosk Zones
-            const KioskZonedata = await $.ajax({
-                url: `${SiteURLconstructor(window.location)}/api/Zone/ZoneType?type=Kiosk`,
-                contentType: 'application/json',
-                type: 'GET',
-                success: function (data) {
-                    for (let i = 0; i < data.length; i++) {
-                        Promise.all([addKioskFeature(data[i])]);
-                    }
-                }
-            });
-            $(document).on('change', '.leaflet-control-layers-selector', function (_e) {
-                let sp = this.nextElementSibling;
-                if (/^(Kiosk Zones)$/ig.test(sp.innerHTML.trim())) {
-                    if (this.checked) {
-                        connection.invoke("JoinGroup", "Kiosk").catch(function (err) {
-                            return console.error(err.toString());
-                        });
-                    }
-                    else {
-                        connection.invoke("LeaveGroup", "Kiosk").catch(function (err) {
-                            return console.error(err.toString());
-                        });
-                    }
-                }
-
-            });
-            connection.invoke("JoinGroup", "Kiosk").catch(function (err) {
-                return console.error(err.toString());
-            });
-            if (/^(admin)/i.test(appData.Role)) {
-                $('button[name=editcrsKiosk]').off().on('click', function () {
-               
-                    var id = $(this).attr('id');
-                    if (checkValue(id)) {
-                        
-                        Promise.all([EditCrsKioskInfo(id)]);
-                    }
-                });
-            }
-      
+async function init_geoZoneKiosk(floorId) {
+  try {
+    //load Kiosk Zones
+    const KioskZonedata = await $.ajax({
+      url: `${SiteURLconstructor(
+        window.location
+      )}/api/Zone/ZonesTypeByFloorId?floorId=${floorId}&type=Kiosk`,
+      contentType: "application/json",
+      type: "GET",
+      success: function (data) {
+        for (let i = 0; i < data.length; i++) {
+          Promise.all([addKioskFeature(data[i])]);
         }
-        catch (e) {
-            throw new Error(e.toString());
+      },
+    });
+    $(document).on("change", ".leaflet-control-layers-selector", function (_e) {
+      let sp = this.nextElementSibling;
+      if (/^(Kiosk Zones)$/gi.test(sp.innerHTML.trim())) {
+        if (this.checked) {
+          connection.invoke("JoinGroup", "Kiosk").catch(function (err) {
+            return console.error(err.toString());
+          });
+        } else {
+          connection.invoke("LeaveGroup", "Kiosk").catch(function (err) {
+            return console.error(err.toString());
+          });
         }
-
+      }
+    });
+    connection.invoke("JoinGroup", "Kiosk").catch(function (err) {
+      return console.error(err.toString());
+    });
+    if (/^(admin)/i.test(appData.Role)) {
+      $("button[name=editcrsKiosk]")
+        .off()
+        .on("click", function () {
+          var id = $(this).attr("id");
+          if (checkValue(id)) {
+            Promise.all([EditCrsKioskInfo(id)]);
+          }
+        });
+    }
+  } catch (e) {
+    throw new Error(e.toString());
+  }
 }
 connection.on("addKioskzone", async (zoneDate) => {
     addKioskFeature(zoneDate);

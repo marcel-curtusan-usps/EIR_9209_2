@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using EIR_9209_2.DataStore;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 namespace EIR_9209_2.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
+    [Route("api/[controller]")]
+
     public class EpacScansController(ILogger<EpacScansController> logger, IInMemoryGeoZonesRepository zones, IInMemoryEmployeesRepository employees, IHubContext<HubServices> hubContext, IInMemoryTACSReports tacs) : ControllerBase
     {
         private readonly IInMemoryEmployeesRepository _employees = employees;
@@ -61,6 +64,9 @@ namespace EIR_9209_2.Controllers
                     //     ]
                     //   }
                     // }
+                    _logger.LogInformation($"Scan Data {JsonConvert.SerializeObject(scan, Formatting.None)}");
+                    //update Employee Info
+                    _ = Task.Run(() => _employees.UpdateEmployeeInfoFromEPAC(scan)).ConfigureAwait(false);
                     var transaction = scan["data"]?["Transactions"]?.FirstOrDefault();
                     if (transaction == null)
                     {
@@ -80,8 +86,7 @@ namespace EIR_9209_2.Controllers
                         return Ok();
                         //return BadRequest("One or more required fields are missing or null.");
                     }
-                    //update Employee Info
-                    _ = Task.Run(async () => await _employees.UpdateEmployeeInfoFromEPAC(scan));
+
 
                     var kioskConfig = await _zones.CheckKioskZone(transactionDeviceId);
 

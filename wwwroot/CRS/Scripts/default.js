@@ -13,7 +13,7 @@ let errorTimeout;
 let currentUser = {};
 const errorTimeLimit = 2000; // 15 seconds
 let inactivityTimeout;
-const inactivityTimeLimit = 1500000; // should be 1500 seconds
+const inactivityTimeLimit = 1500; // should be 1500 seconds
 const modalTimeout = 1000; // 1 second
 const tacsDataTable = "tacsdatatable";
 const maxRetries = 5;
@@ -237,7 +237,7 @@ $(function () {
           let scanValue = sCode;
           // Trim to 9 characters from the end if payLoadData starts with 4 zeros
           if (scanValue.startsWith("0000")) {
-            scanValue = scanValue.slice(4, -1);
+            scanValue = scanValue.slice(3, -1);
           }
           $("span[id=errorBarcodeScan]").text("");
           await loadEIN(scanValue);

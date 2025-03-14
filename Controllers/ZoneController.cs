@@ -25,8 +25,19 @@ namespace EIR_9209_2.Controllers
             {
                 return await Task.FromResult(BadRequest(ModelState));
             }
-            return _zonesRepository.GetAll().Select(r => r.Properties);
+            return await _zonesRepository.GetAll();
         }
+        [HttpGet]
+        [Route("ZonesTypeByFloorId")]
+        public async Task<object> GetZonesTypeByFloorId(string floorId, string type)
+        {
+            if (!ModelState.IsValid)
+            {
+                return await Task.FromResult(BadRequest(ModelState));
+            }
+            return await _zonesRepository.GetGeoZonesTypeByFloorId(floorId, type);
+        }
+
 
         // GET api/<ZoneController>/5
         [HttpGet]
@@ -39,7 +50,7 @@ namespace EIR_9209_2.Controllers
             }
             return _zonesRepository.Get(id);
         }
-       
+
         [HttpGet]
         [Route("GetZoneNameList")]
         public async Task<object> GetByZoneNameList(string type)
@@ -80,6 +91,10 @@ namespace EIR_9209_2.Controllers
                 else if (zoneType == "Kiosk")
                 {
                     return await AddKioskZone(zone);
+                }
+                else if (zoneType == "Cube")
+                {
+                    return await AddCubeZone(zone);
                 }
                 else
                 {
@@ -135,7 +150,25 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(new { message = "Zone was not added" });
             }
         }
-
+        private async Task<ActionResult> AddCubeZone(JObject zone)
+        {
+            GeoZoneCube? newZone = zone?.ToObject<GeoZoneCube>();
+            if (newZone == null)
+            {
+                return BadRequest(new { message = "Invalid Kiosk zone data" });
+            }
+            newZone.Properties.Id = Guid.NewGuid().ToString();
+            var geoZone = await _zonesRepository.AddCube(newZone);
+            if (geoZone != null)
+            {
+                await _hubContext.Clients.Group(geoZone.Properties.Type).SendAsync($"add{geoZone.Properties.Type}zone", geoZone);
+                return Ok(geoZone);
+            }
+            else
+            {
+                return BadRequest(new { message = "Zone was not added" });
+            }
+        }
         private async Task<ActionResult> AddGenericZone(JObject zone)
         {
             GeoZone? newZone = zone?.ToObject<GeoZone>();
@@ -183,7 +216,7 @@ namespace EIR_9209_2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e,e.Message);
+                _logger.LogError(e, e.Message);
                 return BadRequest(e.Message);
             }
         }
@@ -263,6 +296,7 @@ namespace EIR_9209_2.Controllers
                 var geoZone = await _zonesRepository.Remove(id);
                 var dockDoorZone = await _zonesRepository.RemoveDockDoor(id);
                 var kioskZone = await _zonesRepository.RemoveKiosk(id);
+                var cubeZone = await _zonesRepository.RemoveCube(id);
                 if (dockDoorZone != null)
                 {
                     await _hubContext.Clients.Group(dockDoorZone.Properties.Type).SendAsync($"delete{dockDoorZone.Properties.Type}zone", dockDoorZone);
@@ -275,8 +309,13 @@ namespace EIR_9209_2.Controllers
                 }
                 else if (kioskZone != null)
                 {
-                    await _hubContext.Clients.Group(kioskZone.Properties.Type).SendAsync($"delete{kioskZone.Properties.Type}zone", geoZone);
+                    await _hubContext.Clients.Group(kioskZone.Properties.Type).SendAsync($"delete{kioskZone.Properties.Type}zone", kioskZone);
                     return Ok(kioskZone);
+                }
+                else if (cubeZone != null)
+                {
+                    await _hubContext.Clients.Group(cubeZone.Properties.Type).SendAsync($"delete{cubeZone.Properties.Type}zone", cubeZone);
+                    return Ok(cubeZone);
                 }
                 else
                 {

@@ -2,6 +2,7 @@
 {
     public class OSLImage
     {
+        public int index { get; set; } = 0;
         public double widthMeter { get; set; } = 0.0;
         public double xMeter { get; set; } = 0.0;
         public bool visible { get; set; }

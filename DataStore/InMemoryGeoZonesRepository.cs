@@ -10,9 +10,11 @@ using static EIR_9209_2.DataStore.InMemoryCamerasRepository;
 
 public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 {
+
     private readonly ConcurrentDictionary<string, GeoZone> _geoZoneList = new();
     private readonly ConcurrentDictionary<string, GeoZoneDockDoor> _geoZoneDockDoorList = new();
     private readonly ConcurrentDictionary<string, GeoZoneKiosk> _geoZonekioskList = new();
+    private readonly ConcurrentDictionary<string, GeoZoneCube> _geoZoneCubeList = new();
     private readonly ConcurrentDictionary<string, Dictionary<DateTime, MPESummary>> _mpeSummary = new();
     private readonly ConcurrentDictionary<DateTime, List<AreaDwell>> _QREAreaDwellResults = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPERunActivity = new();
@@ -31,6 +33,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     private readonly string fileNameDockDoor = "ZonesDockDoor.json";
     private readonly string fileNameMpeTarget = "MPETargets.json";
     private readonly string fileNameKiosk = "ZonesKiosk.json";
+    private readonly string fileNameCube = "ZonesCubes.json";
     public InMemoryGeoZonesRepository(ILogger<InMemoryGeoZonesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices, IInMemorySiteInfoRepository siteInfo)
     {
         _fileService = fileService;
@@ -46,6 +49,8 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         LoadMPETargetDataFromFile().Wait();
         // Load Kiosk Data from the first file into the first collection
         LoadKioskDataFromFile().Wait();
+        // Load Kiosk Data from the first file into the first collection
+        LoadCubesDataFromFile().Wait();
     }
 
 
@@ -89,7 +94,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         bool saveToFile = false;
         try
         {
-            if (_geoZoneList.TryRemove(geoZoneId, out GeoZone geoZone))
+            if (_geoZoneList.ContainsKey(geoZoneId) && _geoZoneList.TryRemove(geoZoneId, out GeoZone geoZone))
             {
                 saveToFile = true;
                 return await Task.FromResult(geoZone);
@@ -167,7 +172,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         bool saveToFile = false;
         try
         {
-            if (_geoZoneDockDoorList.TryRemove(geoZoneId, out GeoZoneDockDoor geoZone))
+            if (_geoZoneDockDoorList.ContainsKey(geoZoneId) && _geoZoneDockDoorList.TryRemove(geoZoneId, out GeoZoneDockDoor geoZone))
             {
                 saveToFile = true;
                 return await Task.FromResult(geoZone);
@@ -310,7 +315,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             return null;
         }
     }
-    public IEnumerable<GeoZone> GetAll() => _geoZoneList.Values;
+    public async Task<IEnumerable<GeoZone>> GetAll() => _geoZoneList.Values;
     public async Task<List<GeoZoneDockDoor>?> GetDockDoor()
     {
         return _geoZoneDockDoorList.Where(r => r.Value.Properties.Type == "DockDoor").Select(y => y.Value).ToList();
@@ -539,9 +544,10 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     {
                         item.Properties.MPERunPerformance = new();
                         _geoZoneList.TryAdd(item.Properties.Id, item);
-
-                        item.Properties.Type = GetZoneType(item.Properties.Name);
-
+                        if (string.IsNullOrEmpty(item.Properties.Type))
+                        {
+                            item.Properties.Type = GetZoneType(item.Properties.Name);
+                        }
                         if (item.Properties.Type == "MPE")
                         {
                             _MPENameList.Add(item.Properties.Name);
@@ -778,7 +784,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 int NextOperationId = 0;
                 DateTime NextRPGStartDtm = DateTime.MinValue;
                 var nextPlan = _MPERunActivity.Where(r => Regex.IsMatch(r.Key, "(" + mpe.MpeId + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                     .Where(u => u.Value.Type== "Plan" && u.Value.CurOperationId.ToString() != mpe.CurOperationId && u.Value.CurrentRunStart >= CurrentRunEnd).OrderBy(r => r.Value.CurrentRunStart).Select(y => y.Value).FirstOrDefault();
+                     .Where(u => u.Value.Type == "Plan" && u.Value.CurOperationId.ToString() != mpe.CurOperationId && u.Value.CurrentRunStart >= CurrentRunEnd).OrderBy(r => r.Value.CurrentRunStart).Select(y => y.Value).FirstOrDefault();
                 if (nextPlan != null)
                 {
                     NextOperationId = nextPlan.CurOperationId;
@@ -937,7 +943,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     {
                         foreach (DateTime hr in hourslist)
                         {
-                            var mpeWatchData = mpe.HourlyData.FirstOrDefault(item => item.Hour== hr);
+                            var mpeWatchData = mpe.HourlyData.FirstOrDefault(item => item.Hour == hr);
                             if (mpeWatchData != null)
                             {
                                 var hourlyData = geoZone.Properties.MPERunPerformance.HourlyData.FirstOrDefault(h => h.Hour == hr);
@@ -1112,7 +1118,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                             /// <param name="mpeName">The name of the MPE to process.</param>
                             /// <param name="geoZone">The GeoZone object to update.</param>
                             /// <param name="pushDBUpdate">Flag indicating whether to push updates to the database.</param>
-                         
+
                             if (hourslist != null)
                             {
                                 foreach (DateTime hr in hourslist)
@@ -1202,7 +1208,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
         finally
         {
-           
+
             _ = Task.Run(() => RunMPESummaryReport()).ConfigureAwait(false);
         }
     }
@@ -1620,6 +1626,52 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             return "";
         }
     }
+    /// <summary>
+    ///  Get GeoZones by FloorId and type
+    /// </summary>
+    /// <param name="floorId"></param>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    public Task<object> GetGeoZonesTypeByFloorId(string floorId, string type)
+    {
+        try
+        {
+
+            // Convert GeoZone list to JArray
+            JArray geoZones = JArray.FromObject(_geoZoneList.Values.Where(gz => gz.Properties.FloorId == floorId && gz.Properties.Type == type).ToList());
+            // Convert GeoZoneKiosk list to JArray
+            JArray geoZoneKiosk = JArray.FromObject(_geoZonekioskList.Values.Where(gz => gz.Properties.FloorId == floorId && gz.Properties.Type == type).ToList());
+            // Convert GeoZoneDockdoor list to JArray
+            JArray geoZoneDockdoor = JArray.FromObject(_geoZoneDockDoorList.Values.Where(gz => gz.Properties.FloorId == floorId && gz.Properties.Type == type).ToList());
+            // Convert GeoZoneCude list to JArray
+            JArray geoZoneCube = JArray.FromObject(_geoZoneCubeList.Values.Where(gz => gz.Properties.FloorId == floorId && gz.Properties.Type == type).ToList());
+            // Merge the two geoZoneCube into a single JArray
+            geoZones.Merge(geoZoneCube, new JsonMergeSettings
+            {
+                MergeArrayHandling = MergeArrayHandling.Concat,
+
+            });
+            // Merge the two geoZoneKiosk into a single JArray
+            geoZones.Merge(geoZoneKiosk, new JsonMergeSettings
+            {
+                MergeArrayHandling = MergeArrayHandling.Concat,
+
+            });
+            // Merge the two geoZoneDockdoor into a single JArray
+            geoZones.Merge(geoZoneDockdoor, new JsonMergeSettings
+            {
+                MergeArrayHandling = MergeArrayHandling.Concat,
+
+            });
+            return Task.FromResult((object)geoZones);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return null;
+        }
+    }
+
     #region
     /// <summary>
     /// dock door processing from SV Web
@@ -1793,7 +1845,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     }
     #endregion
 
-    public async Task ProcessSVContainerData(JToken result)
+    public Task ProcessSVContainerData(JToken result)
     {
         throw new NotImplementedException();
     }
@@ -1842,7 +1894,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
 
     }
-    public async Task<object> GetGeoZonebyName(string type, string name)
+    public Task<object> GetGeoZonebyName(string type, string name)
     {
         try
         {
@@ -1851,9 +1903,16 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             JArray geoZones = JArray.FromObject(_geoZoneList.Values.Where(gz => gz.Properties.Type == type && Regex.IsMatch(gz.Properties.Name, regexPattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).ToList());
             // Convert GeoZoneKiosk list to JArray
             JArray geoZoneKiosk = JArray.FromObject(_geoZonekioskList.Values.Where(gz => gz.Properties.Type == type && Regex.IsMatch(gz.Properties.Name, regexPattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).ToList());
-            // Convert GeoZoneKiosk list to JArray
+            // Convert GeoZoneDockdoor list to JArray
             JArray geoZoneDockdoor = JArray.FromObject(_geoZoneDockDoorList.Values.Where(gz => gz.Properties.Type == type && Regex.IsMatch(gz.Properties.Name, regexPattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).ToList());
+            // Convert GeoZoneCude list to JArray
+            JArray geoZoneCube = JArray.FromObject(_geoZoneCubeList.Values.Where(gz => gz.Properties.Type == type && Regex.IsMatch(gz.Properties.Name, regexPattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).ToList());
+            // Merge the two geoZoneCube into a single JArray
+            geoZones.Merge(geoZoneCube, new JsonMergeSettings
+            {
+                MergeArrayHandling = MergeArrayHandling.Concat,
 
+            });
             // Merge the two geoZoneKiosk into a single JArray
             geoZones.Merge(geoZoneKiosk, new JsonMergeSettings
             {
@@ -1866,7 +1925,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 MergeArrayHandling = MergeArrayHandling.Concat,
 
             });
-            return geoZones;
+            return Task.FromResult((object)geoZones);
         }
         catch (Exception e)
         {
@@ -1874,7 +1933,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             return null;
         }
     }
-    public async Task<object> GetGeoZonebyType(string zoneType)
+    public Task<object> GetGeoZonebyType(string zoneType)
     {
         try
         {
@@ -1882,22 +1941,29 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             JArray geoZones = JArray.FromObject(_geoZoneList.Values.Where(gz => gz.Properties.Type == zoneType).ToList());
             // Convert GeoZoneKiosk list to JArray
             JArray geoZoneKiosk = JArray.FromObject(_geoZonekioskList.Values.Where(gz => gz.Properties.Type == zoneType).ToList());
-            // Convert GeoZoneKiosk list to JArray
+            // Convert GeoZoneDockDoor list to JArray
             JArray geoZoneDockdoor = JArray.FromObject(_geoZoneDockDoorList.Values.Where(gz => gz.Properties.Type == zoneType).ToList());
+            // Convert GeoZoneCube list to JArray
+            JArray geoZoneCube = JArray.FromObject(_geoZoneCubeList.Values.Where(gz => gz.Properties.Type == zoneType).ToList());
+            // Merge the two geoZoneCube into a single JArray
+            geoZones.Merge(geoZoneCube, new JsonMergeSettings
+            {
+                MergeArrayHandling = MergeArrayHandling.Concat,
 
+            });
             // Merge the two geoZoneKiosk into a single JArray
             geoZones.Merge(geoZoneKiosk, new JsonMergeSettings
-                       {
-                           MergeArrayHandling = MergeArrayHandling.Concat,
+            {
+                MergeArrayHandling = MergeArrayHandling.Concat,
 
-                       });
+            });
             // Merge the two geoZoneDockdoor into a single JArray
             geoZones.Merge(geoZoneDockdoor, new JsonMergeSettings
             {
                 MergeArrayHandling = MergeArrayHandling.Concat,
 
             });
-            return geoZones;
+            return Task.FromResult((object)geoZones);
         }
         catch (Exception e)
         {
@@ -1911,6 +1977,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         try
         {
             _geoZoneList.Clear();
+            _geoZoneCubeList.Clear();
             _geoZoneDockDoorList.Clear();
             _geoZonekioskList.Clear();
             _mpeSummary.Clear();
@@ -1937,6 +2004,8 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             LoadDockDoorDataFromFile().Wait();
             // Load data from the first file into the first collection
             LoadKioskDataFromFile().Wait();
+            // Load data from the first file into the first collection
+            LoadCubesDataFromFile().Wait();
             return Task.FromResult(true);
         }
         catch (Exception e)
@@ -2338,7 +2407,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             {
                 return null;
             }
-         
+
         }
         catch (Exception e)
         {
@@ -2400,7 +2469,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     }
     #endregion
 
-    #region //Kiosk
+    #region Kiosk
     public async Task<object> GetAllKiosk()
     {
         try
@@ -2449,7 +2518,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         try
         {
 
-            if (_geoZonekioskList.ContainsKey(updategeoZone.Id) && _geoZonekioskList.TryGetValue(updategeoZone.Id, out GeoZoneKiosk  currrentgeoZone))
+            if (_geoZonekioskList.ContainsKey(updategeoZone.Id) && _geoZonekioskList.TryGetValue(updategeoZone.Id, out GeoZoneKiosk currrentgeoZone))
             {
                 if (currrentgeoZone.Properties.Name != updategeoZone.Name)
                 {
@@ -2600,6 +2669,168 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             {
                 IsFound = false,
             };
+        }
+    }
+    #endregion
+    #region Cude
+    public async Task<object> GetAllCube()
+    {
+        try
+        {
+            return _geoZoneCubeList.Select(y => y.Value).ToList().Select(r => r.Properties);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return false;
+        }
+    }
+
+    public async Task<GeoZoneCube?> AddCube(GeoZoneCube geoZoneCube)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (_geoZoneCubeList.TryAdd(geoZoneCube.Properties.Id, geoZoneCube))
+            {
+                saveToFile = true;
+                return await Task.FromResult(geoZoneCube);
+            }
+            else
+            {
+                _logger.LogError("Cube Zone File {FileName} list was not saved...", fileName);
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteConfigurationFile(fileNameCube, JsonConvert.SerializeObject(_geoZoneCubeList.Values, Formatting.Indented));
+            }
+        }
+    }
+
+    public async Task<GeoZoneCube?> RemoveCube(string geoZoneId)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (_geoZoneCubeList.TryRemove(geoZoneId, out GeoZoneCube geoZoneCube))
+            {
+                saveToFile = true;
+                return await Task.FromResult(geoZoneCube);
+            }
+            else
+            {
+                _logger.LogError("Cube Zone File {FileName} list was not saved...", fileName);
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteConfigurationFile(fileNameCube, JsonConvert.SerializeObject(_geoZoneCubeList.Values, Formatting.Indented));
+            }
+        }
+    }
+
+    public async Task<GeoZoneCube?> UpdateCube(CubeProperties newCubeProperties)
+    {
+        bool saveToFile = false;
+        try
+        {
+            if (_geoZoneCubeList.ContainsKey(newCubeProperties.Id) && _geoZoneCubeList.TryGetValue(newCubeProperties.Id, out GeoZoneCube? currentGeoZoneCube))
+            {
+                if (currentGeoZoneCube.Properties.Name != newCubeProperties.Name)
+                {
+                    currentGeoZoneCube.Properties.Name = newCubeProperties.Name;
+                    saveToFile = true;
+                }
+
+                return currentGeoZoneCube;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return null;
+        }
+        finally
+        {
+            if (saveToFile)
+            {
+                await _fileService.WriteConfigurationFile(fileNameCube, JsonConvert.SerializeObject(_geoZoneCubeList.Values, Formatting.Indented));
+            }
+        }
+    }
+
+    public async Task<GeoZoneCube?> GetCube(string id)
+    {
+        try
+        {
+            var geoZoneCube = _geoZoneCubeList.Where(r => r.Value.Properties.Id == id)
+                                              .Select(y => y.Value)
+                                              .FirstOrDefault();
+            return await Task.FromResult(geoZoneCube);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return null;
+        }
+    }
+    private async Task LoadCubesDataFromFile()
+    {
+        try
+        {
+            // Read data from file
+            var fileContent = await _fileService.ReadFile(fileNameCube);
+
+            // Parse the file content to get the data. This depends on the format of your file.
+            // Here's an example if your file was in JSON format and contained an array of T objects:
+            List<GeoZoneCube>? data = JsonConvert.DeserializeObject<List<GeoZoneCube>>(fileContent);
+
+            // Insert the data into the MongoDB collection
+            if (data?.Count > 0)
+            {
+                foreach (GeoZoneCube item in data.Select(r => r).ToList())
+                {
+                    _geoZoneCubeList.TryAdd(item.Properties.Id, item);
+                }
+
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            // Handle the FileNotFoundException here
+            _logger.LogError($"File not found: {ex.FileName}");
+            // You can choose to throw an exception or take any other appropriate action
+        }
+        catch (IOException ex)
+        {
+            // Handle errors when reading the file
+            _logger.LogError($"An error occurred when reading the file: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            // Handle errors when parsing the JSON
+            _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
         }
     }
     #endregion

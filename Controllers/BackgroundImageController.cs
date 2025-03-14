@@ -146,6 +146,37 @@ namespace EIR_9209_2.Controllers
             }
         }
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mpetype"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Update")]
+        public async Task<IActionResult> UpdateBackgroundImage([FromBody] OSLImage backgoundImageData)
+        {
+            try
+            {
+                //handle bad requests
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var updateMpeType = await _backgroundImage.Update(backgoundImageData);
+                if (updateMpeType == null)
+                {
+                    _logger.LogWarning("Failed to update MpeType with id: {Id}", backgoundImageData.name);
+                    return BadRequest(new { message = "OSL was not update " });
+                }
+                return Ok(updateMpeType);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error updating MpeType with id: {Id}", backgoundImageData.name);
+                return BadRequest(e.Message);
+            }
+        }
+
+        /// <summary>
         /// Delete OSL Image.
         /// </summary>
         /// <param name="id"></param>
@@ -170,7 +201,7 @@ namespace EIR_9209_2.Controllers
                 }
                 else
                 {
-                    return BadRequest(new JObject { ["message"] = "OSL was not Removes " });
+                    return BadRequest(new { message = "OSL was not Removes " });
                 }
 
             }

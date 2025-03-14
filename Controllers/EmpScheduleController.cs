@@ -61,5 +61,29 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(e.Message);
             }
         }
+        // GET: api/<EmpScheduleController>/Employees
+        /// <summary>
+        /// This provides a list of all employees
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("EmployeesList")]
+        public async Task<object> GetAllEmployees()
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return await Task.FromResult(BadRequest(ModelState));
+                }
+                return await _empsch.GetEmployeesList();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 }
