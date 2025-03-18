@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NuGet.Protocol;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Text.RegularExpressions;
@@ -41,7 +42,7 @@ namespace EIR_9209_2.DataStore
             LoadTagVehicleFromFile().Wait();
         }
 
-  
+
 
         public async Task Add(GeoMarker tag)
         {
@@ -126,7 +127,7 @@ namespace EIR_9209_2.DataStore
         {
             return _vehicleTagList.Values.Where(r => r.Properties.Type.StartsWith("Autonomous")).Select(y => y).ToList();
         }
-   
+
         private async Task LoadTagTimelineFromFile()
         {
             try
@@ -274,7 +275,7 @@ namespace EIR_9209_2.DataStore
                 {
                     savetoFile = true;
                 }
-               
+
             }
             catch (Exception e)
             {
@@ -299,7 +300,7 @@ namespace EIR_9209_2.DataStore
                 {
                     savetoFile = true;
                 }
-                
+
             }
             catch (Exception e)
             {
@@ -319,7 +320,7 @@ namespace EIR_9209_2.DataStore
             {
                 _QRETagTimelineResults.TryRemove(key, out var remove);
             });
-        }  
+        }
         public async void UpdateBadgeTransactionScan(JObject transaction)
         {
             bool savetoFile = false;
@@ -356,7 +357,7 @@ namespace EIR_9209_2.DataStore
             finally
             {
                 if (savetoFile)
-                { 
+                {
                     await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
             }
@@ -509,56 +510,56 @@ namespace EIR_9209_2.DataStore
             try
             {
 
-           
-            var badgeQuery = _tagList.Where(sl =>
-                Regex.IsMatch(sl.Value.Properties.Id, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-                || Regex.IsMatch(sl.Value.Properties.EIN, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-                || Regex.IsMatch(sl.Value.Properties.EncodedId, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-                || Regex.IsMatch(sl.Value.Properties.CraftName, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-                || Regex.IsMatch(sl.Value.Properties.EmpFirstName, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-                || Regex.IsMatch(sl.Value.Properties.EmpLastName, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-              ).Select(r => r.Value.Properties).ToList();
-            var badgeSearchReuslt = (from sr in badgeQuery
-                                     select new JObject
-                                     {
-                                         ["id"] = sr.Id,
-                                         ["ein"] = sr.EIN,
-                                         ["tagType"] = sr.TagType,
-                                         ["name"] = sr.Name,
-                                         ["encodedId"] = sr.EncodedId,
-                                         ["empFirstName"] = sr.EmpFirstName,
-                                         ["empLastName"] = sr.EmpLastName,
-                                         ["craftName"] = sr.CraftName,
-                                         ["presence"] = sr.isPosition,
-                                         ["payLocation"] = sr.PayLocation,
-                                         ["designationActivity"] = sr.DesignationActivity,
-                                         ["color"] = sr.Color
-                                     }).ToList();
-            
-            var vehicelQuery = _vehicleTagList.Where(sl =>
-           Regex.IsMatch(sl.Value.Properties.Id, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-           || Regex.IsMatch(sl.Value.Properties.Name, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-         ).Select(r => r.Value.Properties).ToList();
 
-            var vehicelSearchReuslt = (from sr in vehicelQuery
-                                       select new JObject
-                                       {
-                                           ["id"] = sr.Id,
-                                           ["ein"] = "",
-                                           ["tagType"] = sr.Type,
-                                           ["name"] = sr.Name,
-                                           ["encodedId"] = "",
-                                           ["empFirstName"] = sr.Name,
-                                           ["empLastName"] = "",
-                                           ["craftName"] = "",
-                                           ["payLocation"] = "",
-                                           ["presence"] = sr.isPosition,
-                                           ["designationActivity"] = "",
-                                           ["color"] = sr.Color
-                                       }).ToList();
+                var badgeQuery = _tagList.Where(sl =>
+                    Regex.IsMatch(sl.Value.Properties.Id, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+                    || Regex.IsMatch(sl.Value.Properties.EIN, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+                    || Regex.IsMatch(sl.Value.Properties.EncodedId, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+                    || Regex.IsMatch(sl.Value.Properties.CraftName, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+                    || Regex.IsMatch(sl.Value.Properties.EmpFirstName, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+                    || Regex.IsMatch(sl.Value.Properties.EmpLastName, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+                  ).Select(r => r.Value.Properties).ToList();
+                var badgeSearchReuslt = (from sr in badgeQuery
+                                         select new JObject
+                                         {
+                                             ["id"] = sr.Id,
+                                             ["ein"] = sr.EIN,
+                                             ["tagType"] = sr.TagType,
+                                             ["name"] = sr.Name,
+                                             ["encodedId"] = sr.EncodedId,
+                                             ["empFirstName"] = sr.EmpFirstName,
+                                             ["empLastName"] = sr.EmpLastName,
+                                             ["craftName"] = sr.CraftName,
+                                             ["presence"] = sr.isPosition,
+                                             ["payLocation"] = sr.PayLocation,
+                                             ["designationActivity"] = sr.DesignationActivity,
+                                             ["color"] = sr.Color
+                                         }).ToList();
 
-            var finalReuslt = badgeSearchReuslt.Concat(vehicelSearchReuslt);
-            return Task.FromResult((IEnumerable<JObject>)finalReuslt);
+                var vehicelQuery = _vehicleTagList.Where(sl =>
+               Regex.IsMatch(sl.Value.Properties.Id, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+               || Regex.IsMatch(sl.Value.Properties.Name, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
+             ).Select(r => r.Value.Properties).ToList();
+
+                var vehicelSearchReuslt = (from sr in vehicelQuery
+                                           select new JObject
+                                           {
+                                               ["id"] = sr.Id,
+                                               ["ein"] = "",
+                                               ["tagType"] = sr.Type,
+                                               ["name"] = sr.Name,
+                                               ["encodedId"] = "",
+                                               ["empFirstName"] = sr.Name,
+                                               ["empLastName"] = "",
+                                               ["craftName"] = "",
+                                               ["payLocation"] = "",
+                                               ["presence"] = sr.isPosition,
+                                               ["designationActivity"] = "",
+                                               ["color"] = sr.Color
+                                           }).ToList();
+
+                var finalReuslt = badgeSearchReuslt.Concat(vehicelSearchReuslt);
+                return Task.FromResult((IEnumerable<JObject>)finalReuslt);
             }
             catch (Exception e)
             {
@@ -643,7 +644,7 @@ namespace EIR_9209_2.DataStore
                         posAge = qtitem.ServerTS - qtitem.LocationTS;
                     }
                     visable = posAge >= 0 && posAge < 86400000 ? true : false;
-                   
+
                     if (VTagData != null)
                     {
                         VTagData.Geometry.Coordinates = positionLocation;
@@ -694,7 +695,7 @@ namespace EIR_9209_2.DataStore
                 }
                 if (qtitem.Location.Any())
                 {
-                  await  _hubServices.Clients.Group(VTagData?.Properties.Type).SendAsync($"update{VTagData?.Properties.Type}TagPosition", positionLocationVehicleMarkersUpdate(VTagData));
+                    await _hubServices.Clients.Group(VTagData?.Properties.Type).SendAsync($"update{VTagData?.Properties.Type}TagPosition", positionLocationVehicleMarkersUpdate(VTagData));
                 }
                 return await Task.FromResult(savetoFile);
 
@@ -704,7 +705,7 @@ namespace EIR_9209_2.DataStore
                 _logger.LogError(e.Message);
                 return await Task.FromResult(savetoFile);
             }
-           
+
         }
 
         private async Task<bool> ProcessQPEBadgeTag(Tags qtitem)
@@ -722,7 +723,7 @@ namespace EIR_9209_2.DataStore
                 {
                     daCode = await _dacode.Get(employeeInfo.DesActCode);
                 }
-               
+
                 lock (_tagList)
                 {
                     _tagList.TryGetValue(qtitem.TagId, out TagData);
@@ -755,7 +756,7 @@ namespace EIR_9209_2.DataStore
                         TagData.Geometry.Coordinates = positionLocation;
                         TagData.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
                         TagData.Properties.Visible = visable;
-                        TagData.Properties.EIN = employeeInfo != null ? employeeInfo.EmployeeId :"";
+                        TagData.Properties.EIN = employeeInfo != null ? employeeInfo.EmployeeId : "";
                         TagData.Properties.EmpFirstName = employeeInfo != null ? employeeInfo.FirstName : "";
                         TagData.Properties.EmpLastName = employeeInfo != null ? employeeInfo.LastName : "";
                         TagData.Properties.EncodedId = employeeInfo != null ? employeeInfo.EncodedId : "";
@@ -815,7 +816,7 @@ namespace EIR_9209_2.DataStore
                 }
                 if (qtitem.Location.Any())
                 {
-                   await  _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", positionLocationMarkersUpdate(TagData));
+                    await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", positionLocationMarkersUpdate(TagData));
                 }
                 return await Task.FromResult(savetoFile);
 
@@ -825,7 +826,7 @@ namespace EIR_9209_2.DataStore
                 _logger.LogError(e.Message);
                 return await Task.FromResult(savetoFile);
             }
-           
+
 
         }
         private GeoMarker positionLocationMarkersUpdate(GeoMarker marker)
@@ -1011,7 +1012,7 @@ namespace EIR_9209_2.DataStore
                                 TagData.Properties.Visible = true;
                                 updateGroup = true;
                             }
-                          
+
                             if (TagData.Geometry.Coordinates[0] != item.Properties.Coordinates[0] || TagData.Geometry.Coordinates[1] != item.Properties.Coordinates[1])
                             {
                                 TagData.Geometry.Coordinates = [item.Properties.Coordinates[0], item.Properties.Coordinates[1]];
@@ -1028,7 +1029,7 @@ namespace EIR_9209_2.DataStore
                             {
                                 Geometry = new MarkerGeometry
                                 {
-                                    Coordinates = [item.Properties.Coordinates[0], item.Properties.Coordinates[1]] 
+                                    Coordinates = [item.Properties.Coordinates[0], item.Properties.Coordinates[1]]
                                 },
                                 Properties = new Marker
                                 {
@@ -1037,7 +1038,7 @@ namespace EIR_9209_2.DataStore
                                     Visible = true,
                                     isPosition = true,
                                     CraftName = "BLE"
-                                    
+
                                 }
                             };
 
@@ -1088,7 +1089,7 @@ namespace EIR_9209_2.DataStore
                             return false;
                         }
                         GeoMarker? TagData = null;
-                 
+
                         JObject PositionGeoJson = new JObject
                         {
                             ["type"] = "Feature",
@@ -1188,7 +1189,7 @@ namespace EIR_9209_2.DataStore
                 if (savetoFile)
                 {
                     //save date to local file
-                 await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
+                    await _fileService.WriteConfigurationFile(fileName, JsonConvert.SerializeObject(_tagList.Values, Formatting.Indented));
                 }
 
             }

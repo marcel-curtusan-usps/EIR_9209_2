@@ -1,4 +1,4 @@
-﻿@import url("../../css/bootstrap-icons.css");
+@import url("../../css/bootstrap-icons.css");
 @import url("../../lib/bootstrap/dist/css/bootstrap.css");
 @import url("../../lib/bootstrap/dist/css/bootstrap.rtl.css");
 @import url("../../lib/bootstrap/dist/css/bootstrap-grid.css");
@@ -31,4 +31,4 @@ html, body {
   width: 644px !important;
   font-size: calc(0.1em + 2.6vw) !important;
   text-align: center !important;
-}
+}/*# sourceMappingURL=mpeView.css.map */

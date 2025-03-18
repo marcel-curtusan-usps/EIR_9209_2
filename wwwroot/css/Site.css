@@ -1,4 +1,4 @@
-﻿@import url("../lib/bootstrap/dist/css/bootstrap.css");
+@import url("../lib/bootstrap/dist/css/bootstrap.css");
 @import url("../lib/bootstrap/dist/css/bootstrap-grid.css");
 @import url("../lib/bootstrap/dist/css/bootstrap-reboot.css");
 @import url("../lib/bootstrap/dist/css/bootstrap-utilities.css");
@@ -6,15 +6,6 @@
 @import url("../lib/leaflet-sidebar-v2/css/leaflet-sidebar.min.css");
 @import url("../lib/geoman-io/dist/leaflet-geoman.css");
 @import url("../lib/leaflet-easybutton/src/easy-button.css");
-.leaflet-sidebar-tabs > li, .leaflet-sidebar-tabs > ul > li {
-  width: 100%;
-  height: 40px;
-  color: #eee;
-  font-size: 12pt;
-  overflow: hidden;
-  transition: all 80ms;
-}
-
 html, body {
   width: 100%;
   height: 100%;
@@ -214,7 +205,6 @@ tr.shown td.details-control {
   line-height: 1.1;
   padding: 2px 5px 1px;
   white-space: nowrap;
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
   background: rgba(255, 255, 255, 0.8);
   text-shadow: 1px 1px #fff;
@@ -284,7 +274,8 @@ tr.shown td.details-control {
   font-weight: bold;
   line-height: 1;
   text-align: center;
-  clip-path: circle(30% at 50% 50%);
+  -webkit-clip-path: circle(30% at 50% 50%);
+          clip-path: circle(30% at 50% 50%);
 }
 
 .leaflet-tooltip.persontag_supervisor {
@@ -296,7 +287,8 @@ tr.shown td.details-control {
   font-weight: bold;
   line-height: 1;
   text-align: center;
-  clip-path: polygon(50% 2.45%, 69.1% 28.73%, 100% 38.77%, 80.9% 65.05%, 80.9% 97.55%, 50% 81.3%, 19.1% 97.55%, 19.1% 65.05%, 0% 38.77%, 30.9% 28.73%);
+  -webkit-clip-path: polygon(50% 2.45%, 69.1% 28.73%, 100% 38.77%, 80.9% 65.05%, 80.9% 97.55%, 50% 81.3%, 19.1% 97.55%, 19.1% 65.05%, 0% 38.77%, 30.9% 28.73%);
+          clip-path: polygon(50% 2.45%, 69.1% 28.73%, 100% 38.77%, 80.9% 65.05%, 80.9% 97.55%, 50% 81.3%, 19.1% 97.55%, 19.1% 65.05%, 0% 38.77%, 30.9% 28.73%);
 }
 
 .leaflet-tooltip.persontag_maintenance {
@@ -307,7 +299,8 @@ tr.shown td.details-control {
   font-size: unset;
   font-weight: bold;
   text-align: center;
-  clip-path: polygon(50% 0%, 90% 50%, 50% 100%, 10% 50%);
+  -webkit-clip-path: polygon(50% 0%, 90% 50%, 50% 100%, 10% 50%);
+          clip-path: polygon(50% 0%, 90% 50%, 50% 100%, 10% 50%);
 }
 
 .leaflet-tooltip.persontag_custodial {
@@ -318,7 +311,8 @@ tr.shown td.details-control {
   font-size: unset;
   font-weight: bold;
   text-align: center;
-  clip-path: polygon(34.2% 0%, 67.4% 0%, 85.2% 23%, 48.4% 99.2%, 15.6% 24.2%);
+  -webkit-clip-path: polygon(34.2% 0%, 67.4% 0%, 85.2% 23%, 48.4% 99.2%, 15.6% 24.2%);
+          clip-path: polygon(34.2% 0%, 67.4% 0%, 85.2% 23%, 48.4% 99.2%, 15.6% 24.2%);
 }
 
 .leaflet-tooltip.persontag_pse {
@@ -329,7 +323,8 @@ tr.shown td.details-control {
   font-size: unset;
   font-weight: bold;
   text-align: center;
-  clip-path: polygon(70.71% 100%, 100% 70.71%, 100% 29.29%, 70.71% 0%, 29.29% 0%, 0% 29.29%, 0% 70.71%, 29.29% 100%);
+  -webkit-clip-path: polygon(70.71% 100%, 100% 70.71%, 100% 29.29%, 70.71% 0%, 29.29% 0%, 0% 29.29%, 0% 70.71%, 29.29% 100%);
+          clip-path: polygon(70.71% 100%, 100% 70.71%, 100% 29.29%, 70.71% 0%, 29.29% 0%, 0% 29.29%, 0% 70.71%, 29.29% 100%);
 }
 
 .leaflet-tooltip.persontag_inplantsupport {
@@ -340,7 +335,8 @@ tr.shown td.details-control {
   font-size: unset;
   font-weight: bold;
   text-align: center;
-  clip-path: polygon(evenodd, 37.5% 36%, 62.5% 36%, 75% 11%, 85.71% 36%, 75% 86%, 62.5% 86%, 62.5% 60.07%, 75% 50.57%, 57.92% 50.57%, 62.5% 60.07%, 62.5% 86%, 37.5% 86%, 37.5% 60.07%, 25% 50.57%, 42.08% 50.57%, 37.5% 60.07%, 37.5% 86%, 25% 86%, 14.29% 36%, 25.9% 11%);
+  -webkit-clip-path: polygon(evenodd, 37.5% 36%, 62.5% 36%, 75% 11%, 85.71% 36%, 75% 86%, 62.5% 86%, 62.5% 60.07%, 75% 50.57%, 57.92% 50.57%, 62.5% 60.07%, 62.5% 86%, 37.5% 86%, 37.5% 60.07%, 25% 50.57%, 42.08% 50.57%, 37.5% 60.07%, 37.5% 86%, 25% 86%, 14.29% 36%, 25.9% 11%);
+          clip-path: polygon(evenodd, 37.5% 36%, 62.5% 36%, 75% 11%, 85.71% 36%, 75% 86%, 62.5% 86%, 62.5% 60.07%, 75% 50.57%, 57.92% 50.57%, 62.5% 60.07%, 62.5% 86%, 37.5% 86%, 37.5% 60.07%, 25% 50.57%, 42.08% 50.57%, 37.5% 60.07%, 37.5% 86%, 25% 86%, 14.29% 36%, 25.9% 11%);
 }
 
 .leaflet-tooltip.persontag_unknown {
@@ -351,21 +347,24 @@ tr.shown td.details-control {
   font-size: unset;
   font-weight: bold;
   text-align: center;
-  clip-path: polygon(50% 2.45%, 100% 38.77%, 80.9% 97.55%, 19.1% 97.55%, 0% 38.77%);
+  -webkit-clip-path: polygon(50% 2.45%, 100% 38.77%, 80.9% 97.55%, 19.1% 97.55%, 0% 38.77%);
+          clip-path: polygon(50% 2.45%, 100% 38.77%, 80.9% 97.55%, 19.1% 97.55%, 0% 38.77%);
 }
 
 .leaflet-tooltip.persontag_otAuth {
   width: 20px;
   height: 20px;
   background-color: #3573b1;
-  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  -webkit-clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+          clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
 }
 
 .leaflet-tooltip.persontag_otNotAuth {
   width: 20px;
   height: 20px;
   background-color: #ff6500;
-  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  -webkit-clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+          clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
 }
 
 .leaflet-tooltip.locator {
@@ -794,7 +793,6 @@ td.thead-dark {
 
 .card {
   border-radius: 5px;
-  -webkit-box-shadow: 0 1px 20px 0 rgba(69, 90, 100, 0.08);
   box-shadow: 0 1px 20px 0 rgba(69, 90, 100, 0.08);
   border: 1px solid #dee2e6;
   margin-bottom: 15px;
@@ -925,7 +923,6 @@ p .smaller {
 .user-card-full .social-link li a {
   font-size: 20px;
   margin: 0 10px 0 0;
-  -webkit-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
 }
 
@@ -2162,9 +2159,7 @@ div.leaflet-control-layers {
 .modal-header1 {
   border-bottom: 0;
   display: flex;
-  -ms-flex-align: start;
   align-items: flex-start;
-  -ms-flex-pack: justify;
   justify-content: space-between;
   padding: 1rem 1rem;
 }
@@ -2178,7 +2173,6 @@ div.leaflet-control-layers {
 
 .modal-body1 {
   position: relative;
-  -ms-flex: 1 1 auto;
   flex: 1 1 auto;
   padding: 1rem 2rem;
 }
@@ -2186,11 +2180,8 @@ div.leaflet-control-layers {
 .modal-footer1 {
   border-top: 0;
   display: flex;
-  -ms-flex-wrap: wrap;
   flex-wrap: wrap;
-  -ms-flex-align: center;
   align-items: center;
-  -ms-flex-pack: end;
   justify-content: flex-end;
   padding: 0.75rem;
 }
@@ -2408,3 +2399,18 @@ tr.hide-table-padding td {
 .red-presence .bi-bullseye {
   color: white; /* Change icon color to white */
 }
+
+.fixed-tooltip {
+  max-width: 202px; /* Set a fixed width */
+  white-space: nowrap; /* Prevent text from wrapping */
+  font-size: 12px; /* Set a fixed font size */
+}
+
+.leaflet-sidebar-tabs > li, .leaflet-sidebar-tabs > ul > li {
+  width: 100%;
+  height: 40px;
+  color: #eee;
+  font-size: 12pt;
+  overflow: hidden;
+  transition: all 80ms;
+}/*# sourceMappingURL=Site.css.map */

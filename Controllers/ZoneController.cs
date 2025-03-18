@@ -209,6 +209,10 @@ namespace EIR_9209_2.Controllers
                 {
                     return await UpdateKioskZone(zone);
                 }
+                else if (zone.ContainsKey("type") && zone["type"]?.ToString() == "Cube")
+                {
+                    return await UpdateCubeZone(zone);
+                }
                 else
                 {
                     return await UpdateGenericZone(zone);
@@ -254,6 +258,25 @@ namespace EIR_9209_2.Controllers
             {
                 await _hubContext.Clients.Group(KioskZone.Properties.Type).SendAsync($"update{KioskZone.Properties.Type}zone", KioskZone);
                 return Ok(KioskZone);
+            }
+            else
+            {
+                return BadRequest(new JObject { ["message"] = "Dock door zone was not updated" });
+            }
+        }
+        private async Task<ActionResult> UpdateCubeZone(JObject zone)
+        {
+            CubeProperties? updatedCubeZone = zone?.ToObject<CubeProperties>();
+
+            if (updatedCubeZone == null)
+            {
+                return BadRequest(new { message = "Invalid Cube zone data" });
+            }
+            var cubeZone = await _zonesRepository.UpdateCube(updatedCubeZone);
+            if (cubeZone != null)
+            {
+                await _hubContext.Clients.Group(cubeZone.Properties.Type).SendAsync($"update{cubeZone.Properties.Type}zone", cubeZone);
+                return Ok(cubeZone);
             }
             else
             {

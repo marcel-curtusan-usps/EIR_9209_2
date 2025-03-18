@@ -7,9 +7,9 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EmpScheduleController(ILogger<EmpScheduleController> logger, IInMemoryEmployeesRepository empschRepository, IInMemoryEmployeesSchedule schedule) : ControllerBase
+    public class EmpScheduleController(ILogger<EmpScheduleController> logger, IInMemoryEmployeesRepository empRepository, IInMemoryEmployeesSchedule schedule) : ControllerBase
     {
-        private readonly IInMemoryEmployeesRepository _empsch = empschRepository;
+        private readonly IInMemoryEmployeesRepository _emp = empRepository;
         private readonly ILogger<EmpScheduleController> _logger = logger;
         private readonly IInMemoryEmployeesSchedule _schedule = schedule;
 
@@ -76,7 +76,30 @@ namespace EIR_9209_2.Controllers
                 {
                     return await Task.FromResult(BadRequest(ModelState));
                 }
-                return await _empsch.GetEmployeesList();
+                return await _emp.GetEmployeesList();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
+        // GET: api/<EmpScheduleController>/Employees
+        /// <summary>
+        /// This provides a list of all employees
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("EmployeesData")]
+        public async Task<object> GetEmployeeData(string ein)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return await Task.FromResult(BadRequest(ModelState));
+                }
+                return await _emp.GetEmployeeByEIN(ein);
             }
             catch (Exception e)
             {

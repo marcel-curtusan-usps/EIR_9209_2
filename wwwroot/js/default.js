@@ -1,6 +1,6 @@
 ﻿if (!String.prototype.supplant) {
-  String.prototype.supplant = function (o) {
-    return this.replace(/{([^{}]*)}/g, function (a, b) {
+  String.prototype.supplant = function(o) {
+    return this.replace(/{([^{}]*)}/g, function(a, b) {
       let r = o[b];
       return typeof r === 'string' || typeof r === 'number' ? r : a;
     });
@@ -43,8 +43,8 @@ async function start() {
 function initializeOSL() {
   // Load Application Info
   fetch('../api/ApplicationConfiguration/Configuration')
-    .then((response) => response.json())
-    .then((data) => {
+    .then(response => response.json())
+    .then(data => {
       appData = data;
       document.title = appData.name + ' (' + appData.siteId + ')';
       siteTours = appData.tours;
@@ -71,7 +71,7 @@ function initializeOSL() {
       init_TagSearch();
       $(`span[id="fotf-site-facility-name"]`).text(appData.name);
     })
-    .catch((error) => {
+    .catch(error => {
       console.error('Error:', error);
     });
 }
@@ -82,12 +82,12 @@ connection.onclose(async () => {
   await start();
 });
 
-connection.onreconnecting((error) => {
+connection.onreconnecting(error => {
   console.log('Reconnecting...', error);
   showConnectionStatus('Reconnecting...');
 });
 
-connection.onreconnected((connectionId) => {
+connection.onreconnected(connectionId => {
   console.log('Reconnected. Connection ID: ', connectionId);
   showConnectionStatus('Reconnected.');
 });
@@ -128,7 +128,7 @@ function SortByNumber(a, b) {
   return a - b;
 }
 function capitalize_Words(str) {
-  return str.replace(/\w\S*/g, function (txt) {
+  return str.replace(/\w\S*/g, function(txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
   });
 }
@@ -319,7 +319,7 @@ function insertSpaceBeforeCapitalLetters(str) {
     return str
       .replace(/(_|-)/g, ' ')
       .trim()
-      .replace(/\w\S*/g, function (str) {
+      .replace(/\w\S*/g, function(str) {
         return str.charAt(0).toUpperCase() + str.substr(1);
       })
       .replace(/([a-z])([A-Z])/g, '$1 $2')

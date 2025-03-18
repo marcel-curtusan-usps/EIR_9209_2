@@ -1,4 +1,4 @@
-﻿@import url("../../lib/bootstrap/dist/css/bootstrap.css");
+@import url("../../lib/bootstrap/dist/css/bootstrap.css");
 @import url("../../lib/bootstrap/dist/css/bootstrap.rtl.css");
 @import url("../../lib/bootstrap/dist/css/bootstrap-grid.css");
 @import url("../../lib/bootstrap/dist/css/bootstrap-reboot.css");
@@ -74,4 +74,4 @@ td.thead-dark {
   color: #fff;
   font-weight: bold;
   border-bottom: 1px solid #595959;
-}
+}/*# sourceMappingURL=mpePerformance.css.map */

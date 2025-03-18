@@ -2758,6 +2758,21 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     currentGeoZoneCube.Properties.Name = newCubeProperties.Name;
                     saveToFile = true;
                 }
+                if (currentGeoZoneCube.Properties.EIN != newCubeProperties.EIN)
+                {
+                    currentGeoZoneCube.Properties.EIN = newCubeProperties.EIN;
+                    saveToFile = true;
+                }
+                if (currentGeoZoneCube.Properties.Number != newCubeProperties.Number)
+                {
+                    currentGeoZoneCube.Properties.Number = newCubeProperties.Number;
+                    saveToFile = true;
+                }
+                if (currentGeoZoneCube.Properties.AssignTo != newCubeProperties.AssignTo)
+                {
+                    currentGeoZoneCube.Properties.AssignTo = newCubeProperties.AssignTo;
+                    saveToFile = true;
+                }
 
                 return currentGeoZoneCube;
             }

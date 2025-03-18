@@ -30,5 +30,20 @@ namespace EIR_9209_2.Utilities
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Logs");
             return filePath;
         }
+        /// <summary>
+        /// Converts the first letter of each word to uppercase and the rest to lowercase.
+        /// </summary>
+        /// <param name="input">The input string to convert.</param>
+        /// <returns>The input string with each word capitalized.</returns>
+        public static string ConvertToTitleCase(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return input;
+            }
+
+            return string.Join(" ", input.Split(' ').Select(word =>
+                char.ToUpper(word[0]) + word.Substring(1).ToLower()));
+        }
     }
 }

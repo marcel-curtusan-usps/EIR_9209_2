@@ -33,7 +33,7 @@ let OSLmap = L.map('map', {
 });
 
 sidebar
-  .on('content', function (ev) {
+  .on('content', function(ev) {
     sidebar.options.autopan = false;
     $('div[id=machine_div]').attr('data-id', '');
     switch (ev.id) {
@@ -59,7 +59,7 @@ sidebar
     }
   })
   .addTo(OSLmap);
-sidebar.on('closing', function (e) {
+sidebar.on('closing', function(e) {
   // e.id contains the id of the opened panel
   $('div[id=machine_div]').attr('data-id', '');
 });
@@ -68,7 +68,7 @@ sidebar.on('closing', function (e) {
 let layersControl = L.control
   .layers(baseLayers, overlayMaps, {
     sortLayers: true,
-    sortFunction: function (layerA, layerB, nameA, nameB) {
+    sortFunction: function(layerA, layerB, nameA, nameB) {
       if (/FLOOR/i.test(nameA)) {
         if (/MAIN/i.test(nameA)) {
           return -1;
@@ -83,10 +83,10 @@ let layersControl = L.control
   })
   .addTo(OSLmap);
 // Function to handle baselayerchange event
-function onBaseLayerChange(e) {
+async function onBaseLayerChange(e) {
   baselayerid = e.layer.options.id;
   geoZoneCube.clearLayers();
-  init_geoZoneCube(baselayerid);
+  await init_geoZoneCube(baselayerid);
   geoZoneArea.clearLayers();
   init_geoZoneArea(baselayerid);
   geoZoneMPE.clearLayers();
@@ -113,7 +113,7 @@ OSLmap.on('baselayerchange', onBaseLayerChange);
 // console.log(`floorId: ${baselayerid}`);
 //});
 // Add onclick event listener
-layersControl.getContainer().onclick = function () {
+layersControl.getContainer().onclick = function() {
   if (layersControl._container.classList.contains('leaflet-control-layers-expanded')) {
     layersControl._container.classList.remove('leaflet-control-layers-expanded');
   } else {
@@ -143,11 +143,11 @@ async function init_backgroundImages() {
       url: SiteURLconstructor(window.location) + '/api/BackgroundImage/GetAllImages',
       contentType: 'application/json',
       type: 'GET',
-      success: function (MapData) {
+      success: function(MapData) {
         if (MapData.length > 0) {
           // Sort MapData by index
           MapData.sort((a, b) => a.index - b.index);
-          $.each(MapData, function (index, backgroundImages) {
+          $.each(MapData, function(index, backgroundImages) {
             if (backgroundImages.source === 'Cisco') {
               L.Util.extend(L.CRS.Simple, {
                 transformation: new L.Transformation(1, 0, 1, 0)
@@ -163,10 +163,7 @@ async function init_backgroundImages() {
               //load Base64 image
               img.src = backgroundImages.base64;
               //create he bound of the image.
-              let bounds = [
-                [backgroundImages.yMeter, backgroundImages.xMeter],
-                [backgroundImages.heightMeter + backgroundImages.yMeter, backgroundImages.widthMeter + backgroundImages.xMeter]
-              ];
+              let bounds = [[backgroundImages.yMeter, backgroundImages.xMeter], [backgroundImages.heightMeter + backgroundImages.yMeter, backgroundImages.widthMeter + backgroundImages.xMeter]];
               trackingarea = L.polygon(bounds, {});
 
               // Temporarily remove the event listener
@@ -220,14 +217,14 @@ async function init_backgroundImages() {
           OSLmap.setView(trackingarea.getBounds().getCenter(), 1.5);
         }
       },
-      error: function (error) {
+      error: function(error) {
         console.log(error);
       },
-      faulure: function (fail) {
+      faulure: function(fail) {
         console.log(fail);
       },
-      complete: function (complete) {
-        connection.invoke('JoinGroup', 'BackgroundImage').catch(function (err) {
+      complete: function(complete) {
+        connection.invoke('JoinGroup', 'BackgroundImage').catch(function(err) {
           return console.error(err.toString());
         });
       }

@@ -1,4 +1,4 @@
-﻿@import url("../../lib/bootstrap/dist/css/bootstrap.css");
+@import url("../../lib/bootstrap/dist/css/bootstrap.css");
 @import url("../../lib/bootstrap/dist/css/bootstrap.rtl.css");
 @import url("../../lib/bootstrap/dist/css/bootstrap-grid.css");
 @import url("../../lib/bootstrap/dist/css/bootstrap-reboot.css");
@@ -21,4 +21,4 @@ body {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-}
+}/*# sourceMappingURL=mangeAssets.css.map */

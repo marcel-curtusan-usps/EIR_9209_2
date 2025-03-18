@@ -1,4 +1,4 @@
-﻿@import url("../../lib/bootstrap/dist/css/bootstrap.css");
+@import url("../../lib/bootstrap/dist/css/bootstrap.css");
 @import url("../../lib/bootstrap-datepicker/css/bootstrap-datepicker.css");
 @import url("../../css/bootstrap-icons.css");
 .dt-scroll-body table thead {
@@ -180,6 +180,10 @@ code {
   text-align: center;
   overflow: hidden;
   height: 38vh;
+}
+
+#tacsdatatable {
+  height: 32vh !important;
 }
 
 #labels {
@@ -421,4 +425,4 @@ code {
 
 #footerLabel {
   color: white;
-}
+}/*# sourceMappingURL=default.css.map */

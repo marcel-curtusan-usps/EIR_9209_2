@@ -7,14 +7,7 @@
 @import url('../lib/leaflet-sidebar-v2/css/leaflet-sidebar.min.css');
 @import url('../lib/geoman-io/dist/leaflet-geoman.css');
 @import url('../lib/leaflet-easybutton/src/easy-button.css');
-.leaflet-sidebar-tabs > li, .leaflet-sidebar-tabs > ul > li {
-    width: 100%;
-    height: 40px;
-    color: #eee;
-    font-size: 12pt;
-    overflow: hidden;
-    transition: all 80ms
-}
+
 html, body {
     width: 100%;
     height: 100%;
@@ -2386,4 +2379,18 @@ tr.hide-table-padding td {
 }
 .red-presence .bi-bullseye {
     color: white; /* Change icon color to white */
+}
+.fixed-tooltip {
+  max-width: 202px; /* Set a fixed width */
+  white-space: nowrap; /* Prevent text from wrapping */
+  font-size: 12px; /* Set a fixed font size */
+}
+
+.leaflet-sidebar-tabs > li, .leaflet-sidebar-tabs > ul > li {
+    width: 100%;
+    height: 40px;
+    color: #eee;
+    font-size: 12pt;
+    overflow: hidden;
+    transition: all 80ms
 }

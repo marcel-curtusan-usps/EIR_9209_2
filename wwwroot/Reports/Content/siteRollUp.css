@@ -1,4 +1,4 @@
-﻿@import url("../../lib/bootstrap/dist/css/bootstrap.css");
+@import url("../../lib/bootstrap/dist/css/bootstrap.css");
 @import url("../../lib/bootstrap/dist/css/bootstrap.rtl.css");
 @import url("../../lib/bootstrap/dist/css/bootstrap-grid.css");
 @import url("../../lib/bootstrap/dist/css/bootstrap-reboot.css");
@@ -26,4 +26,4 @@ html, body {
 
 .lineChartPerf {
   height: 260px;
-}
+}/*# sourceMappingURL=siteRollUp.css.map */

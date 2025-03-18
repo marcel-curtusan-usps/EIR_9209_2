@@ -6,15 +6,29 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
 using System.Data;
 using EIR_9209_2.DataStore;
-
+using EIR_9209_2.Utilities;
+/// <summary>
+/// This class is used to manage the employee information in memory.
+/// </summary>
 public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
 {
     private readonly ConcurrentDictionary<string, EmployeeInfo> _empList = new();
     private readonly IConfiguration _configuration;
     private readonly ILogger<InMemoryEmployeesRepository> _logger;
     private readonly IFileService _fileService;
+    /// <summary>
+    /// SignalR Hub context for sending messages to clients.
+    /// </summary>
     protected readonly IHubContext<HubServices> _hubServices;
     private readonly string fileName = "Employees.json";
+    /// <summary>
+    /// Constructor for InMemoryEmployeesRepository.
+    /// Initializes the repository with the provided logger, configuration, file service, and hub context.
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="configuration"></param>
+    /// <param name="fileService"></param>
+    /// <param name="hubServices"></param>
     public InMemoryEmployeesRepository(ILogger<InMemoryEmployeesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices)
     {
         _fileService = fileService;
@@ -32,9 +46,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             var temp = _empList.Where(r => r.Value.EmployeeId != null).Select(r => new
             {
                 id = r.Value.EmployeeId,
-                name = r.Value.FirstName + " " + r.Value.LastName,
-                designationActivity = r.Value.DesActCode,
-                title = r.Value.Title,
+                name = r.Value.FirstName + " " + r.Value.LastName
             }).ToList();
             return temp;
         }
@@ -45,11 +57,21 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         }
     }
 
-    public async Task<EmployeeInfo?> GetEmployeeByBLE(string id)
+    public Task<EmployeeInfo> GetEmployeeByBLE(string code)
     {
         try
         {
-            return _empList.Where(r => r.Value.BleId == id).Select(r => r.Value).FirstOrDefault();
+
+            var result = _empList.Where(r => r.Value.BleId == code).Select(r => r.Value).ToList().FirstOrDefault();
+            if (result != null)
+            {
+                return Task.FromResult(result);
+            }
+            else
+            {
+                return null;
+            }
+
         }
         catch (Exception e)
         {
@@ -215,11 +237,11 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                         }
                         if (fieldName == "lastName")
                         {
-                            employeeInfo.LastName = fieldValue;
+                            employeeInfo.LastName = Helper.ConvertToTitleCase(fieldValue);
                         }
                         if (fieldName == "firstName")
                         {
-                            employeeInfo.FirstName = fieldValue;
+                            employeeInfo.FirstName = Helper.ConvertToTitleCase(fieldValue);
                         }
                         if (fieldName == "employeeGroup")
                         {
@@ -334,14 +356,16 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                 {
                     if (_empList.ContainsKey(empData.Ein) && _empList.TryGetValue(empData.Ein, out EmployeeInfo currentEmp))
                     {
-                        if (currentEmp.FirstName != empData.FirstName)
+                        var firstName = Helper.ConvertToTitleCase(empData.FirstName);
+                        var lastName = Helper.ConvertToTitleCase(empData.LastName);
+                        if (currentEmp.FirstName != firstName)
                         {
-                            currentEmp.FirstName = empData.FirstName;
+                            currentEmp.FirstName = firstName;
                             savetoFile = true;
                         }
-                        if (currentEmp.LastName != empData.LastName)
+                        if (currentEmp.LastName != lastName)
                         {
-                            currentEmp.LastName = empData.LastName;
+                            currentEmp.LastName = lastName;
                             savetoFile = true;
                         }
                         if (currentEmp.PayLocation != empData.PayLocation)
@@ -511,14 +535,17 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                 {
                     if (_empList.ContainsKey(transactionEin) && _empList.TryGetValue(transactionEin, out EmployeeInfo currentEmp))
                     {
-                        if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["firstname"]?.ToString()) && currentEmp.FirstName != transaction["cardholderdata"]?["firstname"]?.ToString())
+                        var firstName = Helper.ConvertToTitleCase(transaction["cardholderdata"]?["firstname"]?.ToString());
+                        var lastName = Helper.ConvertToTitleCase(transaction["cardholderdata"]?["lastname"]?.ToString());
+
+                        if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["firstname"]?.ToString()) && currentEmp.FirstName != firstName)
                         {
-                            currentEmp.FirstName = transaction["cardholderdata"]?["firstname"]?.ToString();
+                            currentEmp.FirstName = firstName;
                             savetoFile = true;
                         }
-                        if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["lastname"]?.ToString()) && currentEmp.LastName != transaction["cardholderdata"]?["lastname"]?.ToString())
+                        if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["lastname"]?.ToString()) && currentEmp.LastName != lastName)
                         {
-                            currentEmp.LastName = transaction["cardholderdata"]?["lastname"]?.ToString();
+                            currentEmp.LastName = lastName;
                             savetoFile = true;
                         }
                         if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["importField"]?.ToString()) && currentEmp.BleId != transaction["cardholderdata"]?["importField"]?.ToString())
@@ -578,11 +605,26 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             return null;
         }
     }
-    public async Task<EmployeeInfo?> GetEmployeeByEIN(string code)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="code"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public Task<EmployeeInfo> GetEmployeeByEIN(string code)
     {
         try
         {
-            return _empList.Where(r => r.Value.EmployeeId == code || r.Value.EncodedId == code).Select(r => r.Value).FirstOrDefault();
+            if (_empList.ContainsKey(code))
+            {
+                var employee = _empList.Where(r => r.Value.EmployeeId == code || r.Value.EncodedId == code).Select(r => r.Value).ToList().FirstOrDefault();
+                return Task.FromResult(employee);
+            }
+            else
+            {
+                return null;
+            }
+
         }
         catch (Exception e)
         {

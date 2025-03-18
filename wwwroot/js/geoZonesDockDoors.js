@@ -1,5 +1,5 @@
 ﻿let geoZoneDockDoor = new L.GeoJSON(null, {
-  style: function (feature) {
+  style: function(feature) {
     let ZoneColor = GetDockDoorZoneColor(feature.properties);
     return {
       weight: 1,
@@ -10,7 +10,7 @@
       lastOpacity: 0.2
     };
   },
-  onEachFeature: function (feature, layer) {
+  onEachFeature: function(feature, layer) {
     layer.zoneId = feature.properties.id;
     //extract number from feature.properties.name and remove leading zeros
     let dockDoorNumber = parseInt(feature.properties.doorNumber.match(/\d+/g)[0], 10);
@@ -18,7 +18,7 @@
     if (feature.properties.tripDirectionInd !== '') {
       dockDoorNumber += '-' + feature.properties.tripDirectionInd;
     }
-    layer.on('click', function (e) {
+    layer.on('click', function(e) {
       if (e.sourceTarget.hasOwnProperty('_content')) {
         OSLmap.setView(e.sourceTarget._latlng, 4);
       } else {
@@ -36,7 +36,7 @@
       })
       .openTooltip();
   },
-  filter: function (feature, layer) {
+  filter: function(feature, layer) {
     return feature.properties.visible;
   }
 });
@@ -45,17 +45,17 @@
 let geoZoneDockDooroverlayLayer = L.layerGroup().addTo(OSLmap);
 layersControl.addOverlay(geoZoneDockDooroverlayLayer, 'Dock Door');
 geoZoneDockDoor.addTo(geoZoneDockDooroverlayLayer);
-connection.on('addDockDoorzone', async (zoneDate) => {
+connection.on('addDockDoorzone', async zoneDate => {
   addDockDoorFeature(zoneDate);
 });
-connection.on('deleteDockDoorzone', async (zoneDate) => {
+connection.on('deleteDockDoorzone', async zoneDate => {
   deleteDockDoorFeature(zoneDate);
 });
-connection.on('updateDockDoorzone', async (zoneDate) => {
+connection.on('updateDockDoorzone', async zoneDate => {
   Promise.all([updateDockDoorFeature(zoneDate)]);
 });
-connection.on('updateDockDoorTrip', async (data) => {
-  await findDockDoorZoneLeafletIds(data.zoneId).then((leafletIds) => {
+connection.on('updateDockDoorTrip', async data => {
+  await findDockDoorZoneLeafletIds(data.zoneId).then(leafletIds => {
     geoZoneDockDoor._layers[leafletIds].feature.properties.routeTrips = data;
     geoZoneDockDoor._layers[leafletIds].setStyle({
       weight: 1,
@@ -68,11 +68,9 @@ connection.on('updateDockDoorTrip', async (data) => {
 });
 async function addDockDoorFeature(data) {
   try {
-    await findDockDoorZoneLeafletIds(data.properties.id)
-      .then((leafletIds) => {})
-      .catch((error) => {
-        geoZoneDockDoor.addData(data);
-      });
+    await findDockDoorZoneLeafletIds(data.properties.id).then(leafletIds => {}).catch(error => {
+      geoZoneDockDoor.addData(data);
+    });
   } catch (e) {
     throw new Error(e.toString());
   }
@@ -80,16 +78,16 @@ async function addDockDoorFeature(data) {
 async function deleteDockDoorFeature(data) {
   try {
     await findDockDoorZoneLeafletIds(data.properties.id)
-      .then((leafletIds) => {
+      .then(leafletIds => {
         geoZoneDockDoor.removeLayer(leafletIds);
       })
-      .catch((error) => {});
+      .catch(error => {});
   } catch (e) {
     throw new Error(e.toString());
   }
 }
 async function updateDockDoorFeature(data) {
-  await findDockDoorZoneLeafletIds(data.id).then((leafletIds) => {
+  await findDockDoorZoneLeafletIds(data.id).then(leafletIds => {
     try {
       geoZoneDockDoor._layers[leafletIds].feature.properties = data;
       geoZoneDockDoor._layers[leafletIds].setStyle({
@@ -157,7 +155,7 @@ async function updateDockDoorFeature(data) {
 }
 async function findDockDoorZoneLeafletIds(zoneId) {
   return new Promise((resolve, reject) => {
-    geoZoneDockDoor.eachLayer(function (layer) {
+    geoZoneDockDoor.eachLayer(function(layer) {
       if (layer.zoneId === zoneId) {
         resolve(layer._leaflet_id);
         return false;
@@ -175,28 +173,28 @@ async function init_geoZoneDockDoor(floorId) {
       url: `${SiteURLconstructor(window.location)}/api/Zone/ZonesTypeByFloorId?floorId=${floorId}&type=DockDoor`,
       contentType: 'application/json',
       type: 'GET',
-      success: function (data) {
+      success: function(data) {
         for (let i = 0; i < data.length; i++) {
           Promise.all([addDockDoorFeature(data[i])]);
         }
       }
     });
 
-    $(document).on('change', '.leaflet-control-layers-selector', function (e) {
+    $(document).on('change', '.leaflet-control-layers-selector', function(e) {
       let sp = this.nextElementSibling;
       if (/^(Dock Door)/gi.test(sp.innerHTML.trim())) {
         if (this.checked) {
-          connection.invoke('JoinGroup', 'DockDoor').catch(function (err) {
+          connection.invoke('JoinGroup', 'DockDoor').catch(function(err) {
             return console.error(err.toString());
           });
         } else {
-          connection.invoke('LeaveGroup', 'DockDoor').catch(function (err) {
+          connection.invoke('LeaveGroup', 'DockDoor').catch(function(err) {
             return console.error(err.toString());
           });
         }
       }
     });
-    connection.invoke('JoinGroup', 'DockDoor').catch(function (err) {
+    connection.invoke('JoinGroup', 'DockDoor').catch(function(err) {
       return console.error(err.toString());
     });
   } catch (e) {
@@ -221,13 +219,10 @@ async function LoadDockDoorTable(data) {
     if (data.externalUrl) {
       $('<a/>').attr({ target: '_blank', href: data.externalUrl, style: 'color:white;' }).html('View').appendTo($('span[name=doorview]'));
     } else {
-      $('<a/>')
-        .attr({ target: '_blank', href: SiteURLconstructor(window.location) + '/Dockdoor/Dockdoor.aspx?DockDoor=' + data.doorNumber, style: 'color:white;' })
-        .html('View')
-        .appendTo($('span[name=doorview]'));
+      $('<a/>').attr({ target: '_blank', href: SiteURLconstructor(window.location) + '/Dockdoor/Dockdoor.aspx?DockDoor=' + data.doorNumber, style: 'color:white;' }).html('View').appendTo($('span[name=doorview]'));
     }
     let dataArray = [];
-    $.each(data, function (key) {
+    $.each(data, function(key) {
       let tabledataObject = {};
       if (data.hasOwnProperty('legSiteName')) {
         if (/^legSiteName$/i.test(key)) {
@@ -323,14 +318,9 @@ async function createDockdoorDataTable(table) {
   if ($.fn.dataTable.isDataTable('#' + table)) {
     // Check if DataTable has been previously created and therefore needs to be flushed
 
-    $('#' + table)
-      .DataTable()
-      .destroy(); // destroy the dataTableObject
+    $('#' + table).DataTable().destroy(); // destroy the dataTableObject
     // For new version use table.destroy();
-    $('#' + table)
-      .DataTable()
-      .clear()
-      .draw(); // Empty the DOM element which contained DataTable
+    $('#' + table).DataTable().clear().draw(); // Empty the DOM element which contained DataTable
     // The line above is needed if number of columns change in the Data
   }
   let arrayColums = {
@@ -340,7 +330,7 @@ async function createDockdoorDataTable(table) {
   };
   let columns = [];
   let tempc = {};
-  $.each(arrayColums, function (key) {
+  $.each(arrayColums, function(key) {
     tempc = {};
 
     if (/Name/i.test(key)) {
@@ -387,17 +377,14 @@ async function createDockdoorDataTable(table) {
         targets: '_all'
       }
     ],
-    rowCallback: function (row, data) {
+    rowCallback: function(row, data) {
       $(row).find('td:eq(0)').css('text-align', 'right');
     }
   });
 }
 async function loadDockdoorDatatable(data, table) {
   if ($.fn.dataTable.isDataTable('#' + table)) {
-    $('#' + table)
-      .DataTable()
-      .rows.add(data)
-      .draw();
+    $('#' + table).DataTable().rows.add(data).draw();
   }
 }
 async function updateDockdoorDataTable(newdata, table) {
@@ -405,23 +392,16 @@ async function updateDockdoorDataTable(newdata, table) {
     return new Promise((resolve, reject) => {
       let loadnew = true;
       if ($.fn.dataTable.isDataTable('#' + table)) {
-        $('#' + table)
-          .DataTable()
-          .rows(function (idx, data, node) {
-            loadnew = false;
-            if (newdata.length > 0) {
-              $.each(newdata, function () {
-                if (data.Name === this.Name) {
-                  $('#' + table)
-                    .DataTable()
-                    .row(node)
-                    .data(this)
-                    .draw()
-                    .invalidate();
-                }
-              });
-            }
-          });
+        $('#' + table).DataTable().rows(function(idx, data, node) {
+          loadnew = false;
+          if (newdata.length > 0) {
+            $.each(newdata, function() {
+              if (data.Name === this.Name) {
+                $('#' + table).DataTable().row(node).data(this).draw().invalidate();
+              }
+            });
+          }
+        });
         if (loadnew) {
           loadDockdoorDatatable(newdata, table);
         }
