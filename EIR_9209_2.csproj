@@ -13,8 +13,8 @@
     	<EnableDefaultContentItems>false</EnableDefaultContentItems>
     	<SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-		<AssemblyVersion>2.0.9.82</AssemblyVersion>
-		<FileVersion>2.0.9.82</FileVersion>
+		<AssemblyVersion>2.0.9.83</AssemblyVersion>
+		<FileVersion>2.0.9.83</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -64,18 +64,21 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="wwwroot\**\*.*">
+	<Content Include="wwwroot\**\*.*">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		  <Content Include="web.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-	  <Content Include="OracleQuery\**\*.*">
-		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
-		<Content Include="Configuration\*.*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      	</Content>
+	<Content Include="web.config">
+    	<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+       </Content>
+	<Content Include="OracleQuery\**\*.*">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	   </Content>
+	<Content Include="Configuration\*.*">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+       </Content>
+	<Content Include="appsettings.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
 	</ItemGroup>
 
 </Project>
