@@ -28,7 +28,7 @@ let OSLmap = L.map('map', {
   maxZoom: 18,
   zoomControl: false,
   measureControl: true,
-  tap: true,
+  tap: false,
   layers: layersSelected
 });
 
@@ -78,7 +78,7 @@ let layersControl = L.control
       }
     },
     position: 'bottomright',
-    collapsed: true,
+    collapsed: false,
     autoZIndex: false // Disable expand on hover
   })
   .addTo(OSLmap);
@@ -102,16 +102,6 @@ async function onBaseLayerChange(e) {
 }
 // Add the event listener
 OSLmap.on('baselayerchange', onBaseLayerChange);
-
-//OSLmap.on("baselayerchange", function (e) {
-//  baselayerid = e.layer.options.id;
-//   geoZoneArea.clearLayers().then(() => init_geoZoneArea(baselayerid));
-//   geoZoneMPE.clearLayers().then(() => init_geoZoneMPE(baselayerid));
-//   geoZoneKiosk.clearLayers().then(() => init_geoZoneKiosk(baselayerid));
-//   geoZoneDockDoor.clearLayers().then(() => init_geoZoneDockDoor(baselayerid));
-//   markerCameras.clearLayers().then(() => init_tagsCamera(baselayerid));
-// console.log(`floorId: ${baselayerid}`);
-//});
 // Add onclick event listener
 layersControl.getContainer().onclick = function() {
   if (layersControl._container.classList.contains('leaflet-control-layers-expanded')) {
@@ -136,6 +126,36 @@ async function updateOSLattribution(data) {
     resolve();
     return false;
   });
+}
+// Add Layer Control Button
+L.easyButton({
+  position: 'bottomright',
+  states: [
+    {
+      stateName: 'layer',
+      icon: '<div id="layersToggle" data-toggle="layerPopover"><i class="pi-iconLayer align-self-center" title="Layer Controls"></i></div>'
+    }
+  ]
+}).addTo(OSLmap);
+$('.leaflet-control-layers').addClass('layerPopover');
+$('.layerPopover').attr('id', 'layersContent');
+$('#layersContent').prepend('<div class="layersArrow"></div>');
+$('.leaflet-control-layers').hide();
+$('#layersToggle').on('click', function() {
+  //Toggle layer Popover
+  $('#layersContent').toggle();
+  // close the sidebar
+  sidebar.close();
+  // close other popover
+  $('[data-toggle=popover]').popover('hide');
+  $('#twentyfourmessage').popover('hide');
+});
+let layerCheckboxIds = [];
+function setLayerCheckboxId(thisCheckBox, innerHTML) {
+  let name = innerHTML.replace(/ /g, '');
+  thisCheckBox.id = name;
+  layerCheckboxIds.push(thisCheckBox.id);
+  return name;
 }
 async function init_backgroundImages() {
   try {
