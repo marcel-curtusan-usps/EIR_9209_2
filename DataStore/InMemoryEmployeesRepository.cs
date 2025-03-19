@@ -39,6 +39,10 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         LoadDataFromFile().Wait();
 
     }
+    /// <summary>
+    /// Get Employees List
+    /// </summary>
+    /// <returns></returns>
     public async Task<object> GetEmployeesList()
     {
         try
@@ -56,7 +60,11 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             return new List<EmployeeInfo>();
         }
     }
-
+    /// <summary>
+    /// Get Employee by BLEId
+    /// </summary>
+    /// <param name="code"></param>
+    /// <returns></returns>
     public Task<EmployeeInfo> GetEmployeeByBLE(string code)
     {
         try
@@ -203,7 +211,12 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             return Task.FromResult(true);
         }
     }
-
+    /// <summary>
+    /// Load HECSEmployees
+    /// </summary>
+    /// <param name="result"></param>
+    /// <param name="stoppingToken"></param>
+    /// <returns></returns>
     public async Task<bool> LoadHECSEmployees(Hces result, CancellationToken stoppingToken)
     {
         bool savetoFile = false;
@@ -337,7 +350,12 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             }
         }
     }
-
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="result"></param>
+    /// <param name="stoppingToken"></param>
+    /// <returns></returns>
     public async Task<bool> LoadSMSEmployeeInfo(List<SMSWrapperEmployeeInfo> result, CancellationToken stoppingToken)
     {
         bool savetoFile = false;
@@ -426,6 +444,10 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         }
     }
 
+    /// <summary>
+    /// Updates the employee information from the EPAC scan data.
+    /// </summary>
+    /// <param name="scan"></param>
     public void UpdateEmployeeInfoFromEPAC(ScanInfo scan)
     {
         bool savetoFile = false;
@@ -438,6 +460,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                 var cardholderData = transaction?.CardholderData;
                 if (!string.IsNullOrEmpty(cardholderData?.EIN))
                 {
+                    ///check if the employee exists in the list then update
                     if (_empList.ContainsKey(cardholderData?.EIN) && _empList.TryGetValue(cardholderData?.EIN, out EmployeeInfo? currentEmp))
                     {
                         var firstName = cardholderData?.FirstName != null ? Helper.ConvertToTitleCase(cardholderData.FirstName) : null;
@@ -477,6 +500,39 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                             currentEmp.CurrentStatus = cardholderData?.CurrentStatus;
                             savetoFile = true;
                         }
+                        if (currentEmp.Activation != cardholderData.Activation)
+                        {
+                            currentEmp.Activation = cardholderData.Activation;
+                            savetoFile = true;
+                        }
+                        if (currentEmp.Expiration != cardholderData.Expiration)
+                        {
+                            currentEmp.Expiration = cardholderData.Expiration;
+                            savetoFile = true;
+                        }
+                    }
+                    else
+                    {
+                        //add to the employee list
+                        if (_empList.TryAdd(cardholderData?.EIN, new EmployeeInfo
+                        {
+                            FirstName = cardholderData?.FirstName,
+                            LastName = cardholderData?.LastName,
+                            EmployeeId = cardholderData?.EIN,
+                            CurrentStatus = cardholderData?.CurrentStatus,
+                            Title = cardholderData?.Title,
+                            DesActCode = cardholderData?.DesignationActivity,
+                            BleId = cardholderData?.ImportField,
+                            EncodedId = transaction?.EncodedID,
+                            CardholderId = transaction?.CardholderID ?? 0,
+                            EmployeeStatus = cardholderData?.CurrentStatus,
+                            Activation = cardholderData.Activation,
+                            Expiration = cardholderData.Expiration,
+                        }))
+                        {
+
+                            savetoFile = true;
+                        }
                     }
                 }
             }
@@ -493,6 +549,11 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             }
         }
     }
+    /// <summary>
+    /// Get Employee by Code
+    /// </summary>
+    /// <param name="code"></param>
+    /// <returns></returns>
     public async Task<object?> GetEmployeeByCode(string code)
     {
         try
@@ -541,7 +602,11 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             return null;
         }
     }
-
+    /// <summary>
+    /// Search Employee by EmployeeId, FirstName, LastName, BLEId, EncodedId, CardholderId
+    /// </summary>
+    /// <param name="searchValue"></param>
+    /// <returns></returns>
     public Task<List<JObject>> SearchEmployee(string searchValue)
     {
         try
@@ -580,7 +645,10 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             return null;
         }
     }
-
+    /// <summary>
+    /// Get Distinct Employee Id List
+    /// </summary>
+    /// <returns></returns>
     public async Task<List<string?>> GetDistinctEmployeeIdList()
     {
         try

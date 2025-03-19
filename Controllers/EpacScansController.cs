@@ -66,8 +66,16 @@ namespace EIR_9209_2.Controllers
                     //   }
                     // }
                     _logger.LogInformation($"Scan Data {JsonConvert.SerializeObject(scan, Formatting.None)}");
+
                     //update Employee Info
-                    _ = Task.Run(() => _employees.UpdateEmployeeInfoFromEPAC(scan.ToObject<ScanInfo>())).ConfigureAwait(false);
+                    ScanInfo scanInfo = scan.ToObject<ScanInfo>();
+                    DateTime activationDate;
+                    DateTime expirationDate;
+                    DateTime.TryParse(scan["data"]["Transactions"][0]["cardholderdata"]["activation"]?.ToString(), out activationDate);
+                    DateTime.TryParse(scan["data"]["Transactions"][0]["cardholderdata"]["expiration"]?.ToString(), out expirationDate);
+                    scanInfo.Data.Transactions.FirstOrDefault().CardholderData.Activation = activationDate;
+                    scanInfo.Data.Transactions.FirstOrDefault().CardholderData.Expiration = expirationDate;
+                    _ = Task.Run(() => _employees.UpdateEmployeeInfoFromEPAC(scanInfo)).ConfigureAwait(false);
                     var transaction = scan["data"]?["Transactions"]?.FirstOrDefault();
                     if (transaction == null)
                     {
@@ -75,23 +83,17 @@ namespace EIR_9209_2.Controllers
                         _logger.LogInformation($"Scan Data {JsonConvert.SerializeObject(scan, Formatting.None)}");
                         return Ok();
                     }
-                    var transactionareaid = transaction["areaid"]?.ToString();
-                    var transactionCardholderId = transaction["cardholderid"]?.ToString();
-                    var transactionEncodedID = transaction["encodedID"]?.ToString();
-                    var transactionDeviceId = transaction["deviceid"]?.ToString();
-                    var transactionEin = transaction["cardholderdata"]?["ein"]?.ToString();
-                    var importField = transaction["cardholderdata"]?["importField"]?.ToString();
-
-                    if (string.IsNullOrEmpty(transactionEin) || string.IsNullOrEmpty(transactionDeviceId) || string.IsNullOrEmpty(transactionareaid))
+                    if (string.IsNullOrEmpty(scanInfo.Data.Transactions.FirstOrDefault().CardholderData.EIN)
+                    || string.IsNullOrEmpty(scanInfo.Data.Transactions.FirstOrDefault().DeviceID.ToString())
+                    || string.IsNullOrEmpty(scanInfo.Data.Transactions.FirstOrDefault().AreaID.ToString()))
                     {
                         return Ok();
                         //return BadRequest("One or more required fields are missing or null.");
                     }
 
+                    var kioskConfig = await _zones.CheckKioskZone(scanInfo.Data.Transactions.FirstOrDefault().DeviceID.ToString());
 
-                    var kioskConfig = await _zones.CheckKioskZone(transactionDeviceId);
-
-                    if (transactionDeviceId != null && kioskConfig.IsFound)
+                    if (scanInfo.Data.Transactions.FirstOrDefault().DeviceID.ToString() != null && kioskConfig.IsFound)
                     {
                         await _hubContext.Clients.Group("CRS").SendAsync("epacScan",
                          new
@@ -99,8 +101,8 @@ namespace EIR_9209_2.Controllers
                              kioskId = kioskConfig.KioskId,
                              kioskName = kioskConfig.KioskName,
                              kioskNumber = kioskConfig.KioskNumber,
-                             deviceId = transactionDeviceId,
-                             id = transactionEin
+                             deviceId = scanInfo.Data.Transactions.FirstOrDefault().DeviceID.ToString(),
+                             id = scanInfo.Data.Transactions.FirstOrDefault().CardholderData.EIN
                          },
                          CancellationToken.None);
                     }
