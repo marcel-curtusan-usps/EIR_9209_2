@@ -409,100 +409,6 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                     }
                 }
 
-
-                //if (empData.ContainsKey("ein") && !string.IsNullOrEmpty(empData["ein"].ToString()))
-                //{
-                //    TagData = _tagList.Where(r => r.Value.Properties.EIN == empData["ein"].ToString()).Select(y => y.Value).FirstOrDefault();
-                //}
-
-                //if (TagData != null && _tagList.TryGetValue(TagData.Properties.Id, out GeoMarker currentTag))
-                //{
-                //    //check if tag type is not null and update the tag type
-
-                //    currentTag.Properties.TagType = "Badge";
-                //    savetoFile = true;
-
-
-                //    //check EIN value is not null and update the EIN value
-                //    if (empData.ContainsKey("ein"))
-                //    {
-                //        if (!string.IsNullOrEmpty(empData["ein"].ToString()) && currentTag.Properties.EIN != empData["ein"].ToString())
-                //        {
-                //            currentTag.Properties.EIN = empData["ein"].ToString();
-
-                //            savetoFile = true;
-                //        }
-                //    }
-                //    //check FirstName value is not null and update the FirstName value
-                //    if (empData.ContainsKey("firstName"))
-                //    {
-                //        if (!Regex.IsMatch(currentTag.Properties.EmpFirstName, $"^{Regex.Escape(empData["firstName"].ToString())}$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                //        {
-                //            currentTag.Properties.EmpFirstName = empData["firstName"].ToString();
-                //            savetoFile = true;
-                //        }
-                //    }
-                //    //check LastName value is not null and update the LastName value
-                //    if (empData.ContainsKey("lastName"))
-                //    {
-                //        if (!Regex.IsMatch(currentTag.Properties.EmpLastName, $"^{Regex.Escape(empData["lastName"].ToString())}$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                //        {
-                //            currentTag.Properties.EmpLastName = empData["lastName"].ToString();
-                //            savetoFile = true;
-                //        }
-                //    }
-                //    //check title value is not null and update the title value
-                //    if (empData.ContainsKey("title"))
-                //    {
-                //        if (!Regex.IsMatch(currentTag.Properties.Title, $"^{Regex.Escape(empData["title"].ToString())}$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                //        {
-                //            currentTag.Properties.Title = empData["title"].ToString();
-                //            savetoFile = true;
-                //        }
-                //    }
-                //    //check encodedId value is not null and update the title value
-                //    if (empData.ContainsKey("encodedId"))
-                //    {
-                //        if (!string.IsNullOrEmpty(empData["encodedId"].ToString()) && currentTag.Properties.EncodedId != empData["encodedId"].ToString())
-                //        {
-                //            currentTag.Properties.EncodedId = empData["encodedId"].ToString();
-                //            savetoFile = true;
-                //        }
-                //    }
-
-                //    //check designationActivity value is not null and update the designationActivity value
-                //    if (empData.ContainsKey("designationActivity"))
-                //    {
-                //        if (!string.IsNullOrEmpty(empData["designationActivity"].ToString()) && currentTag.Properties.DesignationActivity != empData["designationActivity"].ToString())
-                //        {
-                //            if (string.IsNullOrEmpty(currentTag.Properties.DesignationActivity))
-                //            {
-                //                currentTag.Properties.DesignationActivity = empData["designationActivity"].ToString();
-                //                savetoFile = true;
-                //            }
-
-                //            var daCode = _dacode.Get(empData["designationActivity"].ToString());
-                //            if (daCode != null)
-                //            {
-                //                currentTag.Properties.CraftName = daCode.CraftType;
-                //                savetoFile = true;
-                //            }
-
-
-                //        }
-
-
-                //    }
-                //    //check paylocation value is not null and update the paylocation value
-                //    if (empData.ContainsKey("paylocation"))
-                //    {
-                //        if (!string.IsNullOrEmpty(empData["paylocation"].ToString()) && currentTag.Properties.EmpPayLocation != empData["paylocation"].ToString())
-                //        {
-                //            currentTag.Properties.EmpPayLocation = empData["paylocation"].ToString();
-                //            savetoFile = true;
-                //        }
-                //    }
-                //}
             }
             return true;
         }
@@ -520,52 +426,55 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         }
     }
 
-    public void UpdateEmployeeInfoFromEPAC(JObject scan)
+    public void UpdateEmployeeInfoFromEPAC(ScanInfo scan)
     {
         bool savetoFile = false;
 
         try
         {
-            var transaction = scan["data"]?["Transactions"]?.FirstOrDefault();
-            if (transaction == null)
+            if (scan.Data.Transactions != null)
             {
-
-                var transactionEin = transaction["cardholderdata"]?["ein"]?.ToString();
-                if (!string.IsNullOrEmpty(transactionEin))
+                var transaction = scan.Data.Transactions.FirstOrDefault();
+                var cardholderData = transaction?.CardholderData;
+                if (!string.IsNullOrEmpty(cardholderData?.EIN))
                 {
-                    if (_empList.ContainsKey(transactionEin) && _empList.TryGetValue(transactionEin, out EmployeeInfo currentEmp))
+                    if (_empList.ContainsKey(cardholderData?.EIN) && _empList.TryGetValue(cardholderData?.EIN, out EmployeeInfo? currentEmp))
                     {
-                        var firstName = Helper.ConvertToTitleCase(transaction["cardholderdata"]?["firstname"]?.ToString());
-                        var lastName = Helper.ConvertToTitleCase(transaction["cardholderdata"]?["lastname"]?.ToString());
-
-                        if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["firstname"]?.ToString()) && currentEmp.FirstName != firstName)
+                        var firstName = cardholderData?.FirstName != null ? Helper.ConvertToTitleCase(cardholderData.FirstName) : null;
+                        var lastName = cardholderData?.LastName != null ? Helper.ConvertToTitleCase(cardholderData.LastName) : null;
+                        if (currentEmp.FirstName != firstName)
                         {
                             currentEmp.FirstName = firstName;
                             savetoFile = true;
                         }
-                        if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["lastname"]?.ToString()) && currentEmp.LastName != lastName)
+                        if (currentEmp.LastName != lastName)
                         {
                             currentEmp.LastName = lastName;
                             savetoFile = true;
                         }
-                        if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["importField"]?.ToString()) && currentEmp.BleId != transaction["cardholderdata"]?["importField"]?.ToString())
+                        if (currentEmp.BleId != cardholderData?.ImportField)
                         {
-                            currentEmp.BleId = transaction["cardholderdata"]?["importField"]?.ToString();
+                            currentEmp.BleId = cardholderData?.ImportField;
                             savetoFile = true;
                         }
-                        if (!string.IsNullOrEmpty(transaction["encodedID"]?.ToString()) && currentEmp.EncodedId != transaction["encodedID"]?.ToString())
+                        if (currentEmp.EncodedId != transaction?.EncodedID)
                         {
-                            currentEmp.EncodedId = transaction["encodedID"]?.ToString();
+                            currentEmp.EncodedId = transaction?.EncodedID;
                             savetoFile = true;
                         }
-                        if (!string.IsNullOrEmpty(transaction["cardholderid"]?.ToString()) && currentEmp.EncodedId != transaction["cardholderid"]?.ToString())
+                        if (currentEmp.CardholderId != transaction?.CardholderID)
                         {
-                            currentEmp.CardholderId = (int)transaction["cardholderid"];
+                            currentEmp.CardholderId = transaction.CardholderID;
                             savetoFile = true;
                         }
-                        if (!string.IsNullOrEmpty(transaction["cardholderdata"]?["designationActivity"]?.ToString()) && currentEmp.BleId != transaction["cardholderdata"]?["designationActivity"]?.ToString())
+                        if (currentEmp.DesActCode != cardholderData?.DesignationActivity)
                         {
-                            currentEmp.BleId = transaction["cardholderdata"]?["designationActivity"]?.ToString();
+                            currentEmp.DesActCode = cardholderData?.DesignationActivity;
+                            savetoFile = true;
+                        }
+                        if (currentEmp.CurrentStatus != cardholderData?.CurrentStatus)
+                        {
+                            currentEmp.CurrentStatus = cardholderData?.CurrentStatus;
                             savetoFile = true;
                         }
                     }

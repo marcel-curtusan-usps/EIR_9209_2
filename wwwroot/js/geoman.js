@@ -469,7 +469,7 @@ function VaildateForm(FormType) {
       success: function(empdata) {
         if (empdata.length > 0) {
           //sort
-          empdata.sort();
+          empdata.sort((a, b) => a.name.localeCompare(b.name));
           $.each(empdata, function() {
             $('<option/>').val(this.id).html(this.name).appendTo('select[id=zone_select_name]');
           });

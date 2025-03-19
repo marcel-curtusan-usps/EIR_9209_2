@@ -1,4 +1,5 @@
 ﻿let cubeAssignInfoTable = 'cubeAssignInfoTable';
+let badgeScanTable = 'scanHistoryTable';
 
 //on close clear all inputs
 $('#Zone_Modal').on('hidden.bs.modal', function() {
@@ -61,6 +62,7 @@ async function findCubeLeafletIds(zoneId) {
 async function init_geoZoneCube(floorId) {
   try {
     await createCubeDataTable(cubeAssignInfoTable);
+    await createBadgeScanDatatable(badgeScanTable);
     await $.ajax({
       url: `${SiteURLconstructor(window.location)}/api/Zone/ZonesTypeByFloorId?floorId=${floorId}&type=Cube`,
       contentType: 'application/json',
@@ -93,6 +95,12 @@ async function init_geoZoneCube(floorId) {
         var id = $(this).attr('id');
         if (checkValue(id)) {
           Promise.all([EditCube(id)]);
+        }
+      });
+      $('button[name=fetchAssignData]').off().on('click', async function() {
+        var id = $(this).attr('id');
+        if (checkValue(id)) {
+          await fetchBadgeScanHistory(id);
         }
       });
     }
@@ -237,8 +245,10 @@ async function loadCubeInfo(data) {
     $('div[id=cubeAssignment_div]').css('display', 'block');
     $('div[id=cubeAssignment_div]').attr('data-id', data.id);
     $('button[name=editCube]').attr('id', data.id);
+    $('button[name=fetchAssignData]').attr('id', data.ein);
     if (/^(Admin|Maintenance|OIE)/i.test(appData.Role)) {
       $('button[name=editCube]').css('display', 'block');
+      $('button[name=fetchAssignData]').css('display', 'block');
     }
     let dataArray = await formatCubeData(data);
 
@@ -264,6 +274,189 @@ async function formatCubeData(data) {
   });
   return dataArray;
 }
+async function fetchBadgeScanHistory(id) {
+  try {
+    let scanList = await $.ajax({
+      url: `http://smsmonitor.usps.gov/SMSWrapper/api/LogViewer/ScanHistory?ein=${id}&fdbid=${siteInfo.financeNumber}&limit=10`,
+      type: 'GET',
+      dataType: 'json',
+      headers: {
+        Accept: '*/*' // Add this line
+      },
+      success: async function(data) {
+        if (data.length === 0) {
+          await loadBadgeScanLogs(scanList);
+          return;
+        }
+      },
+      error: function(error) {
+        console.log(error);
+      },
+      faulure: function(fail) {
+        console.log(fail);
+      }
+    });
+  } catch (e) {
+    console.error('Error fetching badge scan history:', e);
+  }
+}
+async function loadBadgeScanLogs(scanList) {
+  try {
+    // Create an array to hold the new data objects
+    let newData = scanList.map(rawRing => {
+      return {
+        id: rawRing.sourceTranId,
+        tranDateTime: `${rawRing.tranInfo.tranDate} ${rawRing.tranInfo.tranTime}`,
+        tranTime: rawRing.tranInfo.tranTime,
+        tranCode: rawRing.tranInfo.tranCode,
+        operationId: rawRing.ringInfo.operationId
+      };
+    });
+
+    // Pass the new data to updateRawRingsDataTable
+    await updateBadgeScanDataTable(newData, tacsDataTable);
+  } catch (e) {
+    console.error('Error:', e);
+  }
+}
+async function loadBadgeScanDataTable(data, table) {
+  if ($.fn.dataTable.isDataTable('#' + table)) {
+    $('#' + table).DataTable().rows.add(data).draw();
+  }
+}
+async function updateBadgeScanDataTable(newData, table) {
+  try {
+    return new Promise((resolve, reject) => {
+      if ($.fn.dataTable.isDataTable('#' + table)) {
+        // Clear the existing data before adding new data
+        $('#' + table).DataTable().clear().draw();
+
+        // Add the new data
+        $('#' + table).DataTable().rows.add(newData).draw();
+      } else {
+        // If the table is not initialized, initialize it with the new data
+        loadBadgeScanLogs(newData, table);
+      }
+      resolve();
+    });
+  } catch (e) {
+    throw new Error(e.toString());
+  }
+}
+
+function constructScans() {
+  let columns = [];
+  var column0 = {
+    //first column is always the name
+    title: 'OPN Code',
+    data: 'operationId',
+    width: '20%'
+  };
+  var column1 = {
+    //first column is always the name
+    title: 'Event',
+    data: 'tranCode',
+    width: '15%',
+    mRender: function(data, type, full) {
+      if (data === '010') {
+        return `BT (${data})`;
+      } else if (data === '012') {
+        return `OL (${data})`;
+      } else if (data === '013') {
+        return `IL (${data})`;
+      } else if (data === '014') {
+        return `ET (${data})`;
+      } else if (data === '011') {
+        return `MV (${data})`;
+      } else {
+        return data;
+      }
+    }
+  };
+  var column2 = {
+    //first column is always the name
+    title: 'Date & Time',
+    data: 'tranDateTime',
+    width: '30%'
+  };
+  var column3 = {
+    //first column is always the name
+    title: 'Duration (hours)',
+    data: null,
+    width: '30%'
+  };
+  columns[0] = column0;
+  columns[1] = column1;
+  columns[2] = column2;
+  columns[3] = column3;
+
+  return columns;
+}
+function createBadgeScanDatatable(table) {
+  try {
+    $('#' + table).DataTable({
+      dom: 'Bfrtip',
+      bFilter: false,
+      bdeferRender: true,
+      bpaging: false,
+      bPaginate: false,
+      autoWidth: false,
+      bInfo: false,
+      ordering: false,
+      destroy: true,
+      scroller: true,
+      language: {
+        zeroRecords: 'No Data',
+        emptyTable: 'No Badge Scan Log'
+      },
+      order: [[]],
+      aoColumns: constructScans(),
+      rowCallback: function(row, data, index) {
+        // Disable sorting for all columns
+        const tableApi = this.api();
+        const totalRows = tableApi.data().count();
+
+        // Retrieve the text from the second column (index 1)
+        const secondColumnText = $('td:eq(1)', row).text().trim().toUpperCase();
+
+        // Check if the second column contains "BT (010)"
+        if (secondColumnText === 'BT (010)') {
+          // Leave the duration column empty
+          $('td:eq(3)', row).html('');
+        } else if (index < totalRows - 1) {
+          // Get the next row's data (since data is reversed)
+          const nextRowData = tableApi.row(index + 1).data();
+
+          if (nextRowData) {
+            // Parse tranTime values
+            const nextTranTime = parseFloat(nextRowData.tranTime);
+            const currentTranTime = parseFloat(data.tranTime);
+
+            // Calculate duration: currentTranTime - nextTranTime
+            const duration = currentTranTime - nextTranTime;
+
+            // Check if duration is a valid number
+            if (!isNaN(duration)) {
+              // Display the duration with two decimal places
+              $('td:eq(3)', row).html(duration.toFixed(2));
+            } else {
+              // If duration is not a number, leave it blank
+              $('td:eq(3)', row).html('');
+            }
+          } else {
+            // If next row data is not available, leave duration blank
+            $('td:eq(3)', row).html('');
+          }
+        } else {
+          // For the last row, no next row exists, leave duration blank
+          $('td:eq(3)', row).html('');
+        }
+      }
+    });
+  } catch (e) {
+    console.log('Error fetching machine info: ', e);
+  }
+}
 async function EditCube(id) {
   try {
     /* close the sidebar */
@@ -279,8 +472,9 @@ async function EditCube(id) {
       type: 'GET',
       success: function(empdata) {
         if (empdata.length > 0) {
+          $('select[id=assignedEmp]').empty();
           //sort
-          empdata.sort();
+          empdata.sort((a, b) => a.name.localeCompare(b.name));
           $.each(empdata, function() {
             $('<option/>').val(this.id).html(this.name).appendTo('select[id=assignedEmp]');
           });

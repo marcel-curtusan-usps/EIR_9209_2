@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using EIR_9209_2.DataStore;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
+using EIR_9209_2.Models;
 namespace EIR_9209_2.Controllers
 {
     [Authorize]
@@ -66,7 +67,7 @@ namespace EIR_9209_2.Controllers
                     // }
                     _logger.LogInformation($"Scan Data {JsonConvert.SerializeObject(scan, Formatting.None)}");
                     //update Employee Info
-                    _ = Task.Run(() => _employees.UpdateEmployeeInfoFromEPAC(scan)).ConfigureAwait(false);
+                    _ = Task.Run(() => _employees.UpdateEmployeeInfoFromEPAC(scan.ToObject<ScanInfo>())).ConfigureAwait(false);
                     var transaction = scan["data"]?["Transactions"]?.FirstOrDefault();
                     if (transaction == null)
                     {

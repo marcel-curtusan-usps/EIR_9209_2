@@ -52,7 +52,7 @@ namespace EIR_9209_2.DataStore
         /// Updates employee information from EPAC.
         /// </summary>
         /// <param name="epac">The JObject containing EPAC information.</param>
-        void UpdateEmployeeInfoFromEPAC(JObject epac);
+        void UpdateEmployeeInfoFromEPAC(ScanInfo epac);
 
         /// <summary>
         /// Gets an employee by BLE ID.

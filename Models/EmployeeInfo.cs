@@ -4,6 +4,7 @@
     {
         public string? EmployeeId { get; set; } = "";
         public string? PayWeek { get; set; } = "";
+        public string? CurrentStatus { get; set; } = "";
         public string? PayLocation { get; set; } = "";
         public string? LastName { get; set; } = "";
         public string? FirstName { get; set; } = "";
@@ -18,6 +19,8 @@
         public string? EmployeeStatus { get; set; } = "";
         public string? BleId { get; set; } = "";
         public string? EncodedId { get; set; } = "";
+        public DateTime Activation { get; set; }
+        public DateTime Expiration { get; set; }
         public int CardholderId { get; set; } = 0;
     }
 }
