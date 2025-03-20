@@ -11,7 +11,7 @@ namespace EIR_9209_2.Service
         private readonly IInMemorySiteInfoRepository _siteInfo;
         private readonly IInMemoryEmployeesSchedule _schedules;
 
-        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryGeoZonesRepository zones, IInMemoryTagsRepository tags, IInMemoryEmployeesRepository emp, IInMemoryEmployeesSchedule schedule , IInMemorySiteInfoRepository siteInfo)
+        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryGeoZonesRepository zones, IInMemoryTagsRepository tags, IInMemoryEmployeesRepository emp, IInMemoryEmployeesSchedule schedule, IInMemorySiteInfoRepository siteInfo)
             : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
             _zones = zones;
@@ -29,7 +29,7 @@ namespace EIR_9209_2.Service
                 {
                     string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
                     IOAuth2AuthenticationService authService;
-                    authService = new OAuth2AuthenticationService(_logger, _httpClientFactory, new OAuth2AuthenticationServiceSettings(server, _endpointConfig.OAuthUrl, _endpointConfig.OAuthUserName, _endpointConfig.OAuthPassword, _endpointConfig.OAuthClientId, _endpointConfig.OutgoingApikey,_endpointConfig.AuthType), jsonSettings);
+                    authService = new OAuth2AuthenticationService(_logger, _httpClientFactory, new OAuth2AuthenticationServiceSettings(server, _endpointConfig.OAuthUrl, _endpointConfig.OAuthUserName, _endpointConfig.OAuthPassword, _endpointConfig.OAuthClientId, _endpointConfig.OutgoingApikey, _endpointConfig.AuthType), jsonSettings);
 
                     IQueryService queryService;
                     string FormatUrl = "";
@@ -61,7 +61,7 @@ namespace EIR_9209_2.Service
                                 if (currentHour == hour || pastHour == hour)
                                 {
                                     var currentvalue = _zones.GetAreaDwell(hour);
-                              
+
                                     var newValue = await queryService.GetTotalDwellTime(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
                                         TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
                                          TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
@@ -96,7 +96,7 @@ namespace EIR_9209_2.Service
                                 _zones.AddAreaDwell(hour, newValue);
 
                             }
-                    
+
                         }
                         _endpointConfig.Status = EWorkerServiceState.Idel;
                         var updateCon = _connection.Update(_endpointConfig).Result;
@@ -108,7 +108,7 @@ namespace EIR_9209_2.Service
                     }
                     if (_endpointConfig.MessageType.Equals("TAG_TIMELINE", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        FormatUrl = string.Format(_endpointConfig.Url,server);
+                        FormatUrl = string.Format(_endpointConfig.Url, server);
                         queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
 
                         var now = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
@@ -140,10 +140,10 @@ namespace EIR_9209_2.Service
                                         allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
                                     if (_endpointConfig.LogData)
                                     {
-                                        Task.Run(() => _loggerService.LogData(newValue.ToString(),
+                                        _ = Task.Run(() => _loggerService.LogData(newValue.ToString(),
                                         _endpointConfig.MessageType,
                                         _endpointConfig.Name,
-                                        FormatUrl), stoppingToken);
+                                        FormatUrl), stoppingToken).ConfigureAwait(false);
                                     }
                                     //add to the list
                                     _tags.UpdateTagTimeline(hour, newValue, currentvalue);
@@ -160,10 +160,10 @@ namespace EIR_9209_2.Service
 
                                 if (_endpointConfig.LogData)
                                 {
-                                    Task.Run(() => _loggerService.LogData(newValue.ToString(),
-                                    _endpointConfig.MessageType,
-                                    _endpointConfig.Name,
-                                    FormatUrl), stoppingToken);
+                                    _ = Task.Run(() => _loggerService.LogData(newValue.ToString(),
+                                      _endpointConfig.MessageType,
+                                      _endpointConfig.Name,
+                                      FormatUrl), stoppingToken).ConfigureAwait(false);
                                 }
                                 //add to the list
                                 _tags.AddTagTimeline(hour, newValue);
@@ -196,7 +196,7 @@ namespace EIR_9209_2.Service
                 //run summary report
                 if (_endpointConfig.MessageType == "AREA_AGGREGATION")
                 {
-                   _ = Task.Run(() => _zones.RunMPESummaryReport());
+                    _ = Task.Run(() => _zones.RunMPESummaryReport());
                 }
                 //run employee schedule report
                 if (_endpointConfig.MessageType == "TAG_TIMELINE")

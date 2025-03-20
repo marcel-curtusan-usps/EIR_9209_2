@@ -58,6 +58,10 @@ internal class QueryService : IQueryService
     {
         return await GetQueryResults<List<SMSWrapperEmployeeInfo>>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
     }
+    public async Task<JToken> GetSMSWrapperDBData(CancellationToken ct)
+    {
+        return await GetQueryResults<JToken>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
+    }
     public async Task<JToken> GetIVESData(CancellationToken ct)
     {
         return await GetQueryResults<dynamic>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
@@ -96,14 +100,14 @@ internal class QueryService : IQueryService
     {
         return await GetQueryResults<MpeWatchRequestId>(_fullUrl.AbsoluteUri, ct).ConfigureAwait(false);
     }
-    public Task<Hces> GetHCESData(CancellationToken stoppingToken, string fieldname,string fieldvalue, string appid)
+    public Task<Hces> GetHCESData(CancellationToken stoppingToken, string fieldname, string fieldvalue, string appid)
     {
-       var query = new ReportQueryHCESBuilder()
-            .WithAppId(appid)
-            .WithFilter(fieldname, fieldvalue)
-            .WithPageSize(5000)
-            .WithPageNumber(1)
-            .Build();
+        var query = new ReportQueryHCESBuilder()
+             .WithAppId(appid)
+             .WithFilter(fieldname, fieldvalue)
+             .WithPageSize(5000)
+             .WithPageNumber(1)
+             .Build();
 
         return GetPostQueryResults<Hces>(_fullUrl.AbsoluteUri, query, stoppingToken);
     }
@@ -314,7 +318,7 @@ internal class QueryService : IQueryService
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 byte[] responseBody = await response.Content.ReadAsByteArrayAsync();
-               string imageBase64 =  "data:image/jpeg;base64," + Convert.ToBase64String(responseBody);
+                string imageBase64 = "data:image/jpeg;base64," + Convert.ToBase64String(responseBody);
                 return imageBase64;
             }
             else

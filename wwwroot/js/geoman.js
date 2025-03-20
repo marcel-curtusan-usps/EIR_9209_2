@@ -471,7 +471,7 @@ function VaildateForm(FormType) {
           //sort
           empdata.sort((a, b) => a.name.localeCompare(b.name));
           $.each(empdata, function() {
-            $('<option/>').val(this.id).html(this.name).appendTo('select[id=zone_select_name]');
+            $('<option/>').val(this.id).html(capitalize_Words(this.name)).appendTo('select[id=zone_select_name]');
           });
         }
       },

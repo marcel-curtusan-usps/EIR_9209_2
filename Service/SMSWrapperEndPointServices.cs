@@ -26,20 +26,27 @@ namespace EIR_9209_2.Service
                     IQueryService queryService;
                     string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
                     string FormatUrl = "";
-
-                    if (_endpointConfig.MessageType.Equals("FDBIDEmployeeList", StringComparison.CurrentCultureIgnoreCase))
+                    if (_endpointConfig.MessageType.Equals("SMSWrapperDBCheck", StringComparison.CurrentCultureIgnoreCase))
                     {
                         FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType, siteinfo.FacilityId);
+                        queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
+                        var result = await queryService.GetSMSWrapperDBData(stoppingToken);
+
+                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        var updateCon = _connection.Update(_endpointConfig).Result;
+                        if (updateCon != null)
+                        {
+                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                        }
                     }
-                    if (_endpointConfig.MessageType.Equals("NASSCodeEmployeeList", StringComparison.CurrentCultureIgnoreCase))
+
+                    else if (_endpointConfig.MessageType.Equals("FDBIDEmployeeList", StringComparison.CurrentCultureIgnoreCase) && _endpointConfig.MessageType.Equals("NASSCodeEmployeeList", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType, siteinfo.SiteId);
-                    }
-                    if (!string.IsNullOrEmpty(FormatUrl))
-                    {
+                        FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType, siteinfo.FacilityId);
+
                         queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                         var result = await queryService.GetSMSWrapperData(stoppingToken);
-                        
+
                         _endpointConfig.Status = EWorkerServiceState.Idel;
                         var updateCon = _connection.Update(_endpointConfig).Result;
                         if (updateCon != null)
@@ -48,6 +55,10 @@ namespace EIR_9209_2.Service
                         }
                         // Process tag data in a separate thread
                         await ProcessEmployeeListData(result, stoppingToken);
+                    }
+                    else
+                    {
+                        _logger.LogError("Invalid Message Type: {MessageType}", _endpointConfig.MessageType);
                     }
                 }
             }

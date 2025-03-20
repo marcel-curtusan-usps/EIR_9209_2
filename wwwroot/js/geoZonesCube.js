@@ -476,7 +476,7 @@ async function EditCube(id) {
           //sort
           empdata.sort((a, b) => a.name.localeCompare(b.name));
           $.each(empdata, function() {
-            $('<option/>').val(this.id).html(this.name).appendTo('select[id=assignedEmp]');
+            $('<option/>').val(this.id).html(capitalize_Words(this.name)).appendTo('select[id=assignedEmp]');
           });
         }
       },

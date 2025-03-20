@@ -463,14 +463,14 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                     ///check if the employee exists in the list then update
                     if (_empList.ContainsKey(cardholderData?.EIN) && _empList.TryGetValue(cardholderData?.EIN, out EmployeeInfo? currentEmp))
                     {
-                        var firstName = cardholderData?.FirstName != null ? Helper.ConvertToTitleCase(cardholderData.FirstName) : null;
-                        var lastName = cardholderData?.LastName != null ? Helper.ConvertToTitleCase(cardholderData.LastName) : null;
-                        if (currentEmp.FirstName != firstName)
+                        var firstName = Helper.ConvertToTitleCase(cardholderData.FirstName);
+                        var lastName = Helper.ConvertToTitleCase(cardholderData.LastName);
+                        if (currentEmp.FirstName.Equals(firstName, StringComparison.CurrentCultureIgnoreCase))
                         {
                             currentEmp.FirstName = firstName;
                             savetoFile = true;
                         }
-                        if (currentEmp.LastName != lastName)
+                        if (currentEmp.LastName.Equals(lastName, StringComparison.CurrentCultureIgnoreCase))
                         {
                             currentEmp.LastName = lastName;
                             savetoFile = true;
@@ -490,11 +490,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                             currentEmp.CardholderId = transaction.CardholderID;
                             savetoFile = true;
                         }
-                        if (currentEmp.DesActCode != cardholderData?.DesignationActivity)
-                        {
-                            currentEmp.DesActCode = cardholderData?.DesignationActivity;
-                            savetoFile = true;
-                        }
+
                         if (currentEmp.CurrentStatus != cardholderData?.CurrentStatus)
                         {
                             currentEmp.CurrentStatus = cardholderData?.CurrentStatus;

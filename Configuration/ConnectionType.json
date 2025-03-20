@@ -190,6 +190,12 @@
         "Name": "NASSCodeEmployeeList",
         "Description": "List of badges by Site NASS code ",
         "BaseURL": "http://{0}/SMSWrapper/api/EmployeeList/{1}?nassCode={2}"
+      },
+      {
+        "Id": "774f6b76-c1c6-48f6-b28e-8929d4c76233",
+        "Name": "SMSWrapperDBCheck",
+        "Description": "Check SMS Wrapper DB Status",
+        "BaseURL": "http://{0}/SMSWrapper/api/MongoDBService/Status"
       }
     ]
   },
