@@ -181,7 +181,7 @@ async function EditCrsKioskInfo(id) {
             geoZoneKiosk._layers[leafletIds].properties = data.properties;
           });
           //update leaflet layer tooltip
-          geoZoneKiosk._layers[leafletIds].bindTooltip(`Kisok: ${data.properties.name} - ${data.properties.number}`, {
+          geoZoneKiosk._layers[leafletIds].bindTooltip(`${data.properties.name} - ${data.properties.number}`, {
             permanent: true,
             interactive: true,
             direction: 'center',
