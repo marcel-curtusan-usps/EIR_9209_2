@@ -13,6 +13,7 @@ using EIR_9209_2.Utilities;
 public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
 {
     private readonly ConcurrentDictionary<string, EmployeeInfo> _empList = new();
+    private readonly ConcurrentDictionary<string, List<ScanTransaction>> _empScanList = new();
     private readonly IConfiguration _configuration;
     private readonly ILogger<InMemoryEmployeesRepository> _logger;
     private readonly IFileService _fileService;
@@ -21,6 +22,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
     /// </summary>
     protected readonly IHubContext<HubServices> _hubServices;
     private readonly string fileName = "Employees.json";
+    private readonly string ePacsScanFileName = "EpacsScans";
     /// <summary>
     /// Constructor for InMemoryEmployeesRepository.
     /// Initializes the repository with the provided logger, configuration, file service, and hub context.
@@ -37,6 +39,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
 
         // Load data from the first file into the first collection
         LoadDataFromFile().Wait();
+        LoadEpacsDataFromFile().Wait();
 
     }
     /// <summary>
@@ -107,6 +110,66 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                         if (!string.IsNullOrEmpty(item.EmployeeId))
                         {
                             _empList.TryAdd(item.EmployeeId, item);
+                        }
+                    }
+                }
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            // Handle the FileNotFoundException here
+            _logger.LogError($"File not found: {ex.FileName}");
+            // You can choose to throw an exception or take any other appropriate action
+        }
+        catch (IOException ex)
+        {
+            // Handle errors when reading the file
+            _logger.LogError($"An error occurred when reading the file: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            // Handle errors when parsing the JSON
+            _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
+        }
+    }
+    private async Task LoadEpacsDataFromFile()
+    {
+        try
+        {
+            // Read data from file
+            // Get the current date
+            DateTime currentDate = DateTime.Now;
+
+            // Generate the list of dates for the last 5 days
+            List<string> lastFiveDays = Enumerable.Range(0, 5)
+                .Select(offset => currentDate.AddDays(-offset).ToString("yyyy-MM-dd"))
+                .ToList();
+            // Iterate over the last 5 days and load the corresponding files
+            foreach (var date in lastFiveDays)
+            {
+                string fileName = $"EpacsScans_{date}.json";
+                var fileContent = await _fileService.ReadFile(fileName);
+                if (!string.IsNullOrEmpty(fileContent))
+                {
+                    // Parse the file content to get the data. This depends on the format of your file.
+                    List<ScanTransaction>? data = JsonConvert.DeserializeObject<List<ScanTransaction>>(fileContent);
+
+                    // Insert the data into the MongoDB collection
+                    if (data != null && data.Count != 0)
+                    {
+                        foreach (ScanTransaction item in data.Select(r => r).ToList())
+                        {
+                            if (item.EIN != null && !string.IsNullOrEmpty(item.EIN) && _empScanList.ContainsKey(item.EIN))
+                            {
+                                _empScanList[item.EIN].Add(item);
+                            }
+                            else
+                            {
+                                if (item.EIN != null && !string.IsNullOrEmpty(item.EIN))
+                                {
+                                    _empScanList[item.EIN] = [item];
+                                }
+                            }
                         }
                     }
                 }
@@ -444,6 +507,68 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
         }
     }
 
+    private async Task AddEpacsScan(ScanInfo scan)
+    {
+        bool savetoFile = false;
+        DateTime fileDate = DateTime.MinValue;
+        try
+        {
+            var transaction = scan.Data.Transactions.FirstOrDefault();
+            fileDate = transaction?.TransactionDateTime.Date ?? DateTime.Now;
+            var cardholderData = transaction?.CardholderData;
+            ScanTransaction scanTransaction = new ScanTransaction
+            {
+
+                DeviceID = transaction.DeviceID,
+                EIN = cardholderData.EIN,
+                ScanDateTime = transaction.TransactionDateTime
+
+            };
+            if (_empScanList.ContainsKey(cardholderData.EIN))
+            {
+                _empScanList[cardholderData.EIN].Add(scanTransaction);
+                savetoFile = true;
+            }
+            else
+            {
+                _empScanList[cardholderData.EIN] = [scanTransaction];
+                savetoFile = true;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+        }
+        finally
+        {
+            if (savetoFile)
+            {
+                var EpacsScanData = await GetEpacsScanByDate(fileDate);
+                if (EpacsScanData != null)
+                {
+                    await _fileService.WriteConfigurationFile($"{ePacsScanFileName}_{fileDate.ToString("yyyy-MM-dd")}.json", EpacsScanData);
+                }
+            }
+        }
+    }
+    private async Task<string> GetEpacsScanByDate(DateTime fileDate)
+    {
+        try
+        {
+            // Find all raw rings that match the input date
+            var epacsScan = await Task.Run(() => _empScanList.Values
+                .SelectMany(list => list) // Flatten the lists of RawRings
+                .Where(r => r.ScanDateTime.Date == fileDate.Date)
+                .ToList());
+
+            return JsonConvert.SerializeObject(epacsScan, Formatting.Indented);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return "";
+        }
+    }
     /// <summary>
     /// Updates the employee information from the EPAC scan data.
     /// </summary>
@@ -454,6 +579,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
 
         try
         {
+            _ = Task.Run(() => AddEpacsScan(scan)).ConfigureAwait(false);
             if (scan.Data.Transactions != null)
             {
                 var transaction = scan.Data.Transactions.FirstOrDefault();

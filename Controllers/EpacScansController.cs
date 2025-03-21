@@ -75,7 +75,9 @@ namespace EIR_9209_2.Controllers
                     DateTime.TryParse(scan["data"]["Transactions"][0]["cardholderdata"]["expiration"]?.ToString(), out expirationDate);
                     scanInfo.Data.Transactions.FirstOrDefault().CardholderData.Activation = activationDate;
                     scanInfo.Data.Transactions.FirstOrDefault().CardholderData.Expiration = expirationDate;
-                    _ = Task.Run(() => _employees.UpdateEmployeeInfoFromEPAC(scanInfo)).ConfigureAwait(false);
+
+                    //update employee info from epac
+                    _ = Task.Run(() => { _employees.UpdateEmployeeInfoFromEPAC(scanInfo); _zones.updateEpacsScanInCube(scanInfo); }).ConfigureAwait(false);
                     var transaction = scan["data"]?["Transactions"]?.FirstOrDefault();
                     if (transaction == null)
                     {

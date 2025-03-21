@@ -1,4 +1,5 @@
-﻿using EIR_9209_2.DataStore;
+﻿using EIR_9209_2.Utilities.Extensions;
+using EIR_9209_2.DataStore;
 using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
@@ -2673,6 +2674,55 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     }
     #endregion
     #region Cude
+    /// <summary>
+    /// Update the cube list with the scan data.
+    /// </summary>
+    /// <param name="scan"></param>
+    public void updateEpacsScanInCube(ScanInfo scan)
+    {
+        try
+        {
+            // find assigned employeed and update the inZone flag to true.
+            string? zoneid = _geoZoneCubeList.Where(r => r.Value.Properties.EIN == scan.Data.Transactions[0].CardholderData.EIN).Select(y => y.Key).FirstOrDefault();
+
+            if (zoneid != null)
+            {
+                if (_geoZoneCubeList.ContainsKey(zoneid) && _geoZoneCubeList.TryGetValue(zoneid, out GeoZoneCube geoZoneCube))
+                {
+                    string deviceId = scan.Data.Transactions[0].DeviceID.ToString();
+                    string inBuildDevices = _configuration[key: "ApplicationConfiguration:BuildingInDeviceId"].ToString();
+                    string outBuildDevices = _configuration[key: "ApplicationConfiguration:BuildingOutDeviceId"].ToString();
+                    if (inBuildDevices.Contains(deviceId))
+                    {
+                        geoZoneCube.Properties.InZone = true;
+                    }
+                    if (outBuildDevices.Contains(deviceId))
+                    {
+                        geoZoneCube.Properties.InZone = false;
+                    }
+                    // count the number of inZone employees.
+                    _ = Task.Run(() => UpdateInZoneCount());
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+        }
+    }
+    private async Task UpdateInZoneCount()
+    {
+        try
+        {
+            int inZoneCount = _geoZoneCubeList.Values.Where(r => r.Properties.InZone == true).Count();
+            await _hubServices.Clients.Group("OSL").SendAsync($"updateInZoneCount", new { inZoneCount = inZoneCount });
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+        }
+    }
+
     public async Task<object> GetAllCube()
     {
         try

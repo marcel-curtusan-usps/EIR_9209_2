@@ -341,11 +341,11 @@ namespace EIR_9209_2.DataStore
                     TagData.Properties.BadgeScan.Add(new ScanTransaction
                     {
 
-                        controllerCaption = transaction["controllerCaption"].ToString(),
-                        deviceCaption = transaction["deviceCaption"].ToString(),
-                        scanDateTime = (DateTime)transaction["transactionOriginDateTime"],
-                        deviceTypeCaption = transaction["deviceTypeCaption"].ToString(),
-                        deviceID = transaction["deviceID"].ToString()
+                        ControllerCaption = transaction["controllerCaption"].ToString(),
+                        DeviceCaption = transaction["deviceCaption"].ToString(),
+                        ScanDateTime = (DateTime)transaction["transactionOriginDateTime"],
+                        DeviceTypeCaption = transaction["deviceTypeCaption"].ToString(),
+                        DeviceID = (int)transaction["deviceID"]
                     });
                     savetoFile = true;
                 }

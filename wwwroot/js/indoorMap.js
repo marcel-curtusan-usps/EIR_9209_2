@@ -31,6 +31,34 @@ let OSLmap = L.map('map', {
   tap: false,
   layers: layersSelected
 });
+var lastZoom;
+OSLmap.on('zoomend', function() {
+  var zoom = OSLmap.getZoom();
+
+  // Close tooltips if zoom level is between 1 and 4
+  if (zoom >= 0 && zoom <= 2) {
+    OSLmap.eachLayer(function(l) {
+      if (l.getTooltip) {
+        var toolTip = l.getTooltip();
+        if (toolTip) {
+          OSLmap.closeTooltip(toolTip);
+        }
+      }
+    });
+  }
+  // Add tooltips if zoom level is above 5
+  if (zoom >= 3) {
+    OSLmap.eachLayer(function(l) {
+      if (l.getTooltip) {
+        var toolTip = l.getTooltip();
+        if (toolTip) {
+          OSLmap.addLayer(toolTip);
+        }
+      }
+    });
+  }
+  lastZoom = zoom;
+});
 
 sidebar
   .on('content', function(ev) {

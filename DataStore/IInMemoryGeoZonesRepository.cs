@@ -61,6 +61,7 @@ public interface IInMemoryGeoZonesRepository
 
     #endregion
     #region //Cubes
+    void updateEpacsScanInCube(ScanInfo scan);
     Task<object> GetAllCube();
     Task<GeoZoneCube> AddCube(GeoZoneCube newZone);
     Task<GeoZoneCube> RemoveCube(string id);
