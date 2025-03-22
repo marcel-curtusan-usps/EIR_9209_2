@@ -12,32 +12,12 @@ let baselayerid = '';
 let siteInfo = {};
 let siteTours = {};
 let ianaTimeZone = '';
-let retryCount = 0;
-const maxRetries = 5;
-const connection = new signalR.HubConnectionBuilder()
-  .withUrl(SiteURLconstructor(window.location) + '/hubServics')
-  .withAutomaticReconnect([0, 2000, 10000, 30000]) // Exponential backoff intervals
-  .configureLogging(signalR.LogLevel.Information)
-  .withHubProtocol(new signalR.JsonHubProtocol())
-  .build();
 
 async function start() {
   try {
-    await connection.start();
-    console.log('SignalR Connected.');
-    retryCount = 0; // Reset retry count on successful connection
     initializeOSL();
   } catch (err) {
     console.log('Connection failed: ', err);
-    retryCount++;
-    if (retryCount <= maxRetries) {
-      const delay = Math.min(5000 * Math.pow(2, retryCount), 30000); // Exponential backoff with a cap
-      const jitter = Math.random() * 1000; // Add jitter
-      setTimeout(start, delay + jitter);
-    } else {
-      console.error('Max retries reached. Could not connect to SignalR.');
-      showConnectionStatus('Unable to connect. Please check your network.');
-    }
   }
 }
 function initializeOSL() {
@@ -71,26 +51,14 @@ function initializeOSL() {
       init_TagSearch();
       $(`span[id="fotf-site-facility-name"]`).text(appData.name);
     })
+    .then(async () => {
+      // Initialize signalR connection after setting up the application
+      await Promise.all([init_signalRConnection(appData)]);
+    })
     .catch(error => {
       console.error('Error:', error);
     });
 }
-
-connection.onclose(async () => {
-  console.log('Connection closed. Attempting to reconnect...');
-  showConnectionStatus('Connection lost. Attempting to reconnect...');
-  await start();
-});
-
-connection.onreconnecting(error => {
-  console.log('Reconnecting...', error);
-  showConnectionStatus('Reconnecting...');
-});
-
-connection.onreconnected(connectionId => {
-  console.log('Reconnected. Connection ID: ', connectionId);
-  showConnectionStatus('Reconnected.');
-});
 
 function showConnectionStatus(message) {
   const statusElement = document.getElementById('connection-status');

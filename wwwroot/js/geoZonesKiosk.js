@@ -76,9 +76,7 @@ async function init_geoZoneKiosk(floorId) {
         }
       }
     });
-    connection.invoke('JoinGroup', 'Kiosk').catch(function(err) {
-      return console.error(err.toString());
-    });
+    addGroupToList('Kiosk');
     if (/^(admin)/i.test(appData.Role)) {
       $('button[name=editcrsKiosk]').off().on('click', function() {
         var id = $(this).attr('id');

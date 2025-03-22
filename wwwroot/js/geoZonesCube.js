@@ -87,9 +87,7 @@ async function init_geoZoneCube(floorId) {
         }
       }
     });
-    connection.invoke('JoinGroup', 'Cube').catch(function(err) {
-      return console.error(err.toString());
-    });
+    addGroupToList('Cube');
     if (/^(admin)/i.test(appData.Role)) {
       $('button[name=editCube]').off().on('click', function() {
         var id = $(this).attr('id');

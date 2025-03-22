@@ -194,9 +194,7 @@ async function init_geoZoneDockDoor(floorId) {
         }
       }
     });
-    connection.invoke('JoinGroup', 'DockDoor').catch(function(err) {
-      return console.error(err.toString());
-    });
+    addGroupToList('DockDoor');
   } catch (e) {
     throw new Error(e.toString());
   }

@@ -334,12 +334,8 @@ async function init_geoZoneMPE(floorId) {
         }
       }
     });
-    connection.invoke("JoinGroup", "MPE").catch(function (err) {
-      return console.error(err.toString());
-    });
-    connection.invoke("JoinGroup", "MPETartgets").catch(function (err) {
-      return console.error(err.toString());
-    });
+    addGroupToList('MPE');
+    addGroupToList('MPETartgets');
     if (/^(Admin|Maintenance|OIE)/i.test(appData.Role)) {
       $("button[name=machineinfoedit]")
         .off()

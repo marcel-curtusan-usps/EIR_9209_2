@@ -52,9 +52,7 @@ async function init_osl() {
       sidebar.close();
       Add_OSL();
     });
-    connection.invoke('JoinGroup', 'OSL').catch(function(err) {
-      return console.error(err.toString());
-    });
+    addGroupToList('OSL');
   } catch (e) {
     console.log(e);
   }
@@ -66,7 +64,7 @@ connection.on('deleteOSL', async osldata => {
   deleteOSLFeature(osldata);
 });
 connection.on('updateinzonecount', async oslzonedata => {
-  console.log(oslzonedata);
+  $('div[id=staffingbutton]').text(oslzonedata.inZoneCount);
 });
 connection.on('updateOSL', async osldata => {});
 async function deleteOSLFeature(data) {

@@ -165,6 +165,62 @@ L.easyButton({
     }
   ]
 }).addTo(OSLmap);
+//Add Site Summary Button
+//createSiteSummaryDataTable('sitePerformanceData');
+L.easyButton({
+  position: 'topcenter',
+
+  states: [
+    {
+      icon: '<strong class="bi bi-bar-chart-steps"></strong>',
+      onClick: () => {
+        if (/^(localhost)/i.test(window.location.hostname)) {
+          window.open(window.location.origin + '/Reports/SiteRollup.aspx', '_blank');
+        } else {
+          window.open(window.location.origin + '/CF/Reports/SiteRollup.aspx', '_blank');
+        }
+      }
+    }
+  ]
+}).addTo(OSLmap);
+//Add staffing button
+var staffBtn = L.easyButton({
+  position: 'topcenter',
+  states: [
+    {
+      stateName: 'openstaffing',
+      icon: '<div class="row staffing-row">' + '<div class="col-sm-6 no-top-border">Schedule</div>' + '<div class="col-sm-6 no-top-border">WorkZone</div>' + '<div class="col-sm-6 no-bottom-border" id="schstaffingbutton" style="font-size:1.2vw">0</div>' + '<div class="col-sm-6 no-bottom-border" id="staffingbutton" style="font-size:1.2vw">0</div>' + '</div>',
+      onClick: function(control) {
+        Promise.all([showstaffdiv()]);
+        sidebar.open('reports');
+        control.state('closestaffing');
+        // $('div[id=schstaffingbutton]').text(tagsscheduled);
+      }
+    },
+    {
+      stateName: 'closestaffing',
+      icon: '<div class="row staffing-row">' + '<div class="col-sm-6 no-top-border">Schedule</div>' + '<div class="col-sm-6 no-top-border">WorkZone</div>' + '<div class="col-sm-6 no-bottom-border" id="schstaffingbutton" style="font-size:1.2vw">0</div>' + '<div class="col-sm-6 no-bottom-border" id="staffingbutton" style="font-size:1.2vw">0</div>' + '</div>',
+      onClick: function(control) {
+        Promise.all([hideTagdiv()]);
+        sidebar.close('reports');
+        control.state('openstaffing');
+        // $('div[id=schstaffingbutton]').text(tagsscheduled);
+      }
+    }
+  ]
+});
+async function hideTagdiv() {
+  $('div[id=div_taginfo]').css('display', 'none');
+}
+async function showstaffdiv() {
+  $('div[id=div_taginfo]').css('display', 'none');
+  $('div[id=div_userinfo]').css('display', '');
+  $('div[id=div_overtimeinfo]').css('display', '');
+  $('div[id=div_staffinfo]').css('display', '');
+}
+staffBtn.button.style.width = '150px';
+staffBtn.button.style.height = '70px';
+staffBtn.addTo(OSLmap);
 $('.leaflet-control-layers').addClass('layerPopover');
 $('.layerPopover').attr('id', 'layersContent');
 $('#layersContent').prepend('<div class="layersArrow"></div>');
@@ -272,9 +328,7 @@ async function init_backgroundImages() {
         console.log(fail);
       },
       complete: function(complete) {
-        connection.invoke('JoinGroup', 'BackgroundImage').catch(function(err) {
-          return console.error(err.toString());
-        });
+        addGroupToList('BackgroundImage');
       }
     });
   } catch (e) {
