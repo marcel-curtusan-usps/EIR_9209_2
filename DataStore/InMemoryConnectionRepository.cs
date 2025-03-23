@@ -293,7 +293,7 @@ public class InMemoryConnectionRepository : IInMemoryConnectionRepository
         return connectiontype;
     }
 
-    public IEnumerable<ConnectionType> GetTypeAll()
+    public async Task<IEnumerable<ConnectionType>> GetTypeAll()
     {
         return _connectionTypeList.Values;
     }

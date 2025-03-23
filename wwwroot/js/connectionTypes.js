@@ -68,7 +68,15 @@ async function init_connectiontType() {
     });
 
     createConnectiontypeDataTable(connectiontypetable);
-
+    //load Designation Activity to Craft Type
+    fetch('../api/ConnectionTypes/AllConnectionType')
+      .then(response => response.json())
+      .then(data => {
+        loadConnectiontypeDatatable(data, connectiontypetable);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
     addGroupToList('ConnectionTypes');
   } catch (e) {
     throw new Error(e.toString());

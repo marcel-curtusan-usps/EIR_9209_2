@@ -13,6 +13,41 @@ namespace EIR_9209_2.Controllers
     public class ConnectionTypesController(IInMemoryConnectionRepository connectiontypeRepository) : ControllerBase
     {
         private readonly IInMemoryConnectionRepository _connectiontypeRepository = connectiontypeRepository;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        // GET: api/<Connection>
+        [HttpGet]
+        [Route("AllConnectionType")]
+        public async Task<ActionResult> GetByAllConnectionType()
+        {
+            //handle bad requests
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            return Ok(await _connectiontypeRepository.GetTypeAll());
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        // GET api/<Connection>/5
+        [HttpGet]
+        [Route("ConnectionTypeById")]
+        public async Task<ActionResult> GetByConnectionTypeById(string id)
+        {
+            //handle bad requests
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            return Ok(await _connectiontypeRepository.GetType(id));
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -33,7 +68,7 @@ namespace EIR_9209_2.Controllers
             //add the connection id
             contype.Id = Guid.NewGuid().ToString();
             //add to the connection repository
-            ConnectionType loadedCon =await _connectiontypeRepository.AddType(contype);
+            ConnectionType loadedCon = await _connectiontypeRepository.AddType(contype);
             if (loadedCon != null)
             {
                 return Ok(loadedCon);
@@ -113,7 +148,7 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(ModelState);
             }
 
-            ConnectionType conToUpdate =await _connectiontypeRepository.GetType(id);
+            ConnectionType conToUpdate = await _connectiontypeRepository.GetType(id);
             if (conToUpdate != null)
             {
                 Messagetype msgtype = value.ToObject<Messagetype>();

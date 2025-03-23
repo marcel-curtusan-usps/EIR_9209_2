@@ -12,7 +12,7 @@ public interface IInMemoryConnectionRepository
     Task<ConnectionType> AddType(ConnectionType connection);
     Task<ConnectionType> RemoveType(string connectionId);
     Task<ConnectionType> GetType(string id);
-    IEnumerable<ConnectionType> GetTypeAll();
+    Task<IEnumerable<ConnectionType>> GetTypeAll();
     IEnumerable<ConnectionType> GetbyNameType(string type);
     Task<ConnectionType> UpdateType(ConnectionType connection);
     Task<Messagetype> AddSubType(string connectionId, Messagetype connection);
