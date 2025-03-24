@@ -72,7 +72,10 @@ async function init_connectiontType() {
     fetch('../api/ConnectionTypes/AllConnectionType')
       .then(response => response.json())
       .then(data => {
-        loadConnectiontypeDatatable(data, connectiontypetable);
+        if (data.length > 0) {
+          connectionTypeLoad(data);
+          updateConnectiontypeDataTable(data, connectiontypetable);
+        }
       })
       .catch(error => {
         console.error('Error:', error);
