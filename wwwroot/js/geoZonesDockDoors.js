@@ -194,7 +194,7 @@ async function init_geoZoneDockDoor(floorId) {
         }
       }
     });
-    addGroupToList('DockDoor');
+    await addGroupToList('DockDoor');
   } catch (e) {
     throw new Error(e.toString());
   }

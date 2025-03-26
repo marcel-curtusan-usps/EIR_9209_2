@@ -32,7 +32,7 @@ public class HubServices : Hub
         IInMemoryCamerasRepository cameraMarkers,
         IConfiguration configuration,
         IWebHostEnvironment env,
-        IEncryptDecrypt encryptDecrypt)    
+        IEncryptDecrypt encryptDecrypt)
     {
         _logger = logger;
         _backgroundImages = backgroundImages;
@@ -70,8 +70,8 @@ public class HubServices : Hub
     }
     public override async Task OnConnectedAsync()
     {
-        _logger.LogInformation($"Client connected: {Context.ConnectionId} UserName: {await GetUserName(Context.User)}, DateTime:{DateTime.Now.ToString()}" );
- 
+        _logger.LogInformation($"Client connected: {Context.ConnectionId} UserName: {await GetUserName(Context.User)}, DateTime:{DateTime.Now.ToString()}");
+
         await base.OnConnectedAsync();
     }
 
@@ -82,7 +82,7 @@ public class HubServices : Hub
         {
             _logger.LogError(exception.ToString());
         }
-       
+
         // await Groups.RemoveFromGroupAsync(userId, groupName);
 
         await base.OnDisconnectedAsync(exception);
@@ -219,7 +219,7 @@ public class HubServices : Hub
             return Task.FromResult(Enumerable.Empty<string>());
         }
 
-        #if WINDOWS
+#if WINDOWS
         if (windowsPrincipal.Identity is not WindowsIdentity windowsIdentity)
         {
             return Task.FromResult(Enumerable.Empty<string>());
@@ -228,67 +228,10 @@ public class HubServices : Hub
         var groups = windowsIdentity.Groups?
                                     .Select(g => g.Translate(typeof(NTAccount)).ToString().TrimStart(@"USA\".ToCharArray()))
                                     .ToList() ?? new List<string>();
-        #else
+#else
         var groups = new List<string>();
-        #endif
+#endif
 
         return Task.FromResult<IEnumerable<string>>(groups);
-    }
-    public async Task<IEnumerable<GeoMarker>> GetBadgeTags()
-    {
-        return await Task.Run(() => _tags.GetTagsType("Badge")).ConfigureAwait(false);
-    }
-    public async Task<IEnumerable<VehicleGeoMarker>> GetPIVTags()
-    {
-        return await Task.Run(() => _tags.GetAllPIV()).ConfigureAwait(false);
-    }
-    public async Task<IEnumerable<VehicleGeoMarker>> GetAGVTags()
-    {
-        return await Task.Run(() => _tags.GetAllAGV()).ConfigureAwait(false);
-    }
-    public async Task<IEnumerable<GeoMarker>> GetAccessPoints()
-    {
-        return await Task.Run(() => _tags.GetTagsType("AP")).ConfigureAwait(false);
-    }
-    public async Task<object> GetGeoZones(string zoneType)
-    {
-        return await _geoZones.GetGeoZonebyType(zoneType);
-    }
-    public async Task<MPERunPerformance> GetGeoZoneMPEData(string zoneName)
-    {
-        return await _geoZones.GetGeoZoneMPEPerformanceData(zoneName);
-    }
-    public async Task<List<TargetHourlyData>> GetMPETargets( string mpe)
-    {
-        return await _geoZones.GetMPETargets(mpe);
-    }
-    public async Task<IEnumerable<EmployeeInfo>> GetEmpSchedules()
-    {
-        return await Task.Run(_empSchedules.GetAll).ConfigureAwait(false);
-    }
-    public async Task<IEnumerable<CameraGeoMarker>> GetCameras()
-    {
-        return await Task.Run(_cameraMarkers.GetAll).ConfigureAwait(false);
-    }
-
-    // worker request for data of connection list
-    public async Task<IEnumerable<Connection>> GetConnectionList()
-    {
-        return await Task.Run(_connections.GetAll).ConfigureAwait(false);
-    }
-    // worker request for data of connectionType list
-    public async Task<IEnumerable<ConnectionType>> GetConnectionTypeList()
-    {
-        return await Task.Run(_connections.GetTypeAll).ConfigureAwait(false);
-    }
-    // worker request for data of connectionType list
-    public async Task<IEnumerable<DesignationActivityToCraftType>> GetDacodeToCraftTypeList()
-    {
-        return await Task.Run(_dacodes.GetAll).ConfigureAwait(false);
-    }
-    // client get all zones
-    public async Task<IEnumerable<GeoZone>> GetGeoZoneList()
-    {
-        return await Task.Run(_geoZones.GetAll).ConfigureAwait(false); 
     }
 }

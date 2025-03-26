@@ -52,7 +52,7 @@ async function findKioskZoneLeafletIds(zoneId) {
 async function init_geoZoneKiosk(floorId) {
   try {
     //load Kiosk Zones
-    const KioskZonedata = await $.ajax({
+    await $.ajax({
       url: `${SiteURLconstructor(window.location)}/api/Zone/ZonesTypeByFloorId?floorId=${floorId}&type=Kiosk`,
       contentType: 'application/json',
       type: 'GET',
@@ -76,7 +76,7 @@ async function init_geoZoneKiosk(floorId) {
         }
       }
     });
-    addGroupToList('Kiosk');
+    await addGroupToList('Kiosk');
     if (/^(admin)/i.test(appData.Role)) {
       $('button[name=editcrsKiosk]').off().on('click', function() {
         var id = $(this).attr('id');

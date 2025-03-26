@@ -806,32 +806,28 @@ async function Remove_Connection(data) {
 }
 async function init_connection() {
   try {
-    return new Promise((resolve, reject) => {
-      createConnectionDataTable(ConnectionListtable);
-      if (/^(Admin|OIE)/i.test(appData.Role)) {
-        $('button[name=connectionbtn]').css('display', 'block');
-        $('button[name=addconnection]').off().on('click', function() {
-          /* close the sidebar */
-          sidebar.close();
-          Promise.all([Add_Connection()]);
-        });
-      }
-      //loading connections
-      fetch('../api/Connections/AllConnection')
-        .then(response => response.json())
-        .then(data => {
-          if (data.length > 0) {
-            Promise.all([loadConnectionDatatable(data.sort(SortByConnectionName), ConnectionListtable)]);
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
+    createConnectionDataTable(ConnectionListtable);
+    if (/^(Admin|OIE)/i.test(appData.Role)) {
+      $('button[name=connectionbtn]').css('display', 'block');
+      $('button[name=addconnection]').off().on('click', function() {
+        /* close the sidebar */
+        sidebar.close();
+        Promise.all([Add_Connection()]);
+      });
+    }
+    //loading connections
+    fetch('../api/Connections/AllConnection')
+      .then(response => response.json())
+      .then(data => {
+        if (data.length > 0) {
+          Promise.all([loadConnectionDatatable(data.sort(SortByConnectionName), ConnectionListtable)]);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
 
-      addGroupToList('Connections');
-      resolve();
-      return false;
-    });
+    await addGroupToList('Connections');
   } catch (e) {
     throw new Error(e.toString());
   }

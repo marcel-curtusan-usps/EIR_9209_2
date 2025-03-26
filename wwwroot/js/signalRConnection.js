@@ -15,7 +15,7 @@ async function init_signalRConnection(data) {
       await Promise.all(
         listofGroups.map(async (group, index) => {
           try {
-            await connection.invoke('JoinGroup', group);
+            await JoinGroup(group);
             listofGroups.splice(index, 1); // Remove group from list
           } catch (err) {
             console.error(`Error joining group ${group}:`, err);
@@ -36,9 +36,17 @@ async function init_signalRConnection(data) {
     }
   }
 }
-function addGroupToList(group) {
-  if (!listofGroups.includes(group)) {
-    listofGroups.push(group);
+async function JoinGroup(_group) {
+  await connection.invoke('JoinGroup', _group);
+}
+async function addGroupToList(group) {
+  if (connection.state === signalR.HubConnectionState.Connected) {
+    await JoinGroup(group);
+  } else {
+    if (!listofGroups.includes(group)) {
+      listofGroups.push(group);
+      await JoinGroup(group);
+    }
   }
 }
 connection.onclose(async () => {

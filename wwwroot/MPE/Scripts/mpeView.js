@@ -137,7 +137,7 @@ function createMPEDataTable(table) {
     }
   });
 }
-function initializeMpeView() {
+async function initializeMpeView() {
   try {
     // Start the connection
     createMPEDataTable(MPETabel);
@@ -162,7 +162,7 @@ function initializeMpeView() {
         console.error('Error Fetching data for MPE ' + MPEName, err);
       });
 
-    addGroupToList('MPE');
+    await addGroupToList('MPE');
   } catch (err) {
     console.log('Connection failed: ', err);
   }

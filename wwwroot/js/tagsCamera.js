@@ -118,31 +118,26 @@ async function findCameraLeafletIds(markerId) {
   });
 }
 async function init_tagsCamera() {
-  return new Promise((resolve, reject) => {
-    try {
-      //load cameras
-      $(document).on('change', '.leaflet-control-layers-selector', function() {
-        let sp = this.nextElementSibling;
-        if (/^Cameras$/gi.test(sp.innerHTML.trim())) {
-          if (this.checked) {
-            connection.invoke('JoinGroup', 'Cameras').catch(function(err) {
-              return console.error(err.toString());
-            });
-          } else {
-            connection.invoke('LeaveGroup', 'Cameras').catch(function(err) {
-              return console.error(err.toString());
-            });
-          }
+  try {
+    //load cameras
+    $(document).on('change', '.leaflet-control-layers-selector', function() {
+      let sp = this.nextElementSibling;
+      if (/^Cameras$/gi.test(sp.innerHTML.trim())) {
+        if (this.checked) {
+          connection.invoke('JoinGroup', 'Cameras').catch(function(err) {
+            return console.error(err.toString());
+          });
+        } else {
+          connection.invoke('LeaveGroup', 'Cameras').catch(function(err) {
+            return console.error(err.toString());
+          });
         }
-      });
-      addGroupToList('Cameras');
-      resolve();
-      return false;
-    } catch (e) {
-      throw new Error(e.toString());
-      reject();
-    }
-  });
+      }
+    });
+    await addGroupToList('Cameras');
+  } catch (e) {
+    throw new Error(e.toString());
+  }
 }
 async function deleteCameraFeature(data) {
   try {

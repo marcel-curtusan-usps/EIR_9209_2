@@ -56,7 +56,7 @@ async function init_dacodetocraftType() {
       .catch(error => {
         console.error('Error:', error);
       });
-    addGroupToList('DacodeToCraftTypes');
+    await addGroupToList('DacodeToCraftTypes');
   } catch (e) {
     throw new Error(e.toString());
   }

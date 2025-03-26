@@ -42,25 +42,22 @@ connection.on('updateApplicationConfiguration', async data => {
   }
 });
 async function init_applicationConfiguration() {
-  return new Promise((resolve, reject) => {
-    try {
-      createAppSettingDataTable(AppTable);
-      fetch('../api/ApplicationConfiguration/Setting')
-        .then(response => response.json())
-        .then(data => {
-          loadAppSettingDatatable(formatSettingData(data), AppTable);
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
-      addGroupToList('ApplicationConfiguration');
-      resolve();
-      return false;
-    } catch (e) {
-      throw new Error(e.toString());
-      reject();
-    }
-  });
+  try {
+    createAppSettingDataTable(AppTable);
+    fetch('../api/ApplicationConfiguration/Setting')
+      .then(response => response.json())
+      .then(data => {
+        loadAppSettingDatatable(formatSettingData(data), AppTable);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    await addGroupToList('ApplicationConfiguration');
+    resolve();
+    return false;
+  } catch (e) {
+    throw new Error(e.toString());
+  }
 }
 //app setting
 function Edit_AppSetting_Value(Data) {

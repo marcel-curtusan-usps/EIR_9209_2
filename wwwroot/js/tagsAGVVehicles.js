@@ -87,43 +87,38 @@ async function findAGVLeafletIds(markerId) {
   });
 }
 async function init_tagsAGV() {
-  return new Promise((resolve, reject) => {
-    try {
-      //load PIV Tags
-      connection
-        .invoke('GetAGVTags')
-        .then(function(data) {
-          //add AGV markers to the layer
-          for (let i = 0; i < data.length; i++) {
-            Promise.all([addAGVFeature(data[i])]);
-          }
-        })
-        .catch(function(err) {
-          // handle error
-          console.error(err);
-        });
-      $(document).on('change', '.leaflet-control-layers-selector', function() {
-        let sp = this.nextElementSibling;
-        if (/^AGV Vehicles/gi.test(sp.innerHTML.trim())) {
-          if (this.checked) {
-            connection.invoke('JoinGroup', 'AutonomousVehicle').catch(function(err) {
-              return console.error(err.toString());
-            });
-          } else {
-            connection.invoke('LeaveGroup', 'AutonomousVehicle').catch(function(err) {
-              return console.error(err.toString());
-            });
-          }
+  try {
+    //load PIV Tags
+    connection
+      .invoke('GetAGVTags')
+      .then(function(data) {
+        //add AGV markers to the layer
+        for (let i = 0; i < data.length; i++) {
+          Promise.all([addAGVFeature(data[i])]);
         }
+      })
+      .catch(function(err) {
+        // handle error
+        console.error(err);
       });
-      addGroupToList('AutonomousVehicle');
-      resolve();
-      return false;
-    } catch (e) {
-      throw new Error(e.toString());
-      reject();
-    }
-  });
+    $(document).on('change', '.leaflet-control-layers-selector', function() {
+      let sp = this.nextElementSibling;
+      if (/^AGV Vehicles/gi.test(sp.innerHTML.trim())) {
+        if (this.checked) {
+          connection.invoke('JoinGroup', 'AutonomousVehicle').catch(function(err) {
+            return console.error(err.toString());
+          });
+        } else {
+          connection.invoke('LeaveGroup', 'AutonomousVehicle').catch(function(err) {
+            return console.error(err.toString());
+          });
+        }
+      }
+    });
+    await addGroupToList('AutonomousVehicle');
+  } catch (e) {
+    throw new Error(e.toString());
+  }
 }
 async function deleteAGVFeature(data, floorId) {
   try {

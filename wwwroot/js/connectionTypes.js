@@ -80,7 +80,7 @@ async function init_connectiontType() {
       .catch(error => {
         console.error('Error:', error);
       });
-    addGroupToList('ConnectionTypes');
+    await addGroupToList('ConnectionTypes');
   } catch (e) {
     throw new Error(e.toString());
   }

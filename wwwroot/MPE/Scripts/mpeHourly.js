@@ -66,7 +66,7 @@ async function mpeHourlyStart() {
 /**
  * Initializes the MPE hourly data by invoking various methods on the SignalR connection.
  */
-function initializeMpeHourly() {
+async function initializeMpeHourly() {
   try {
     // Start the connection
     $('button[id=mpeName]').text(MPEName);
@@ -131,8 +131,8 @@ function initializeMpeHourly() {
         console.error('Error Fetching data for MPE ' + MPEName, err);
       });
 
-    addGroupToList('MPE');
-    addGroupToList('MPETartgets');
+    await addGroupToList('MPE');
+    await addGroupToList('MPETartgets');
   } catch (err) {
     console.log('Connection failed: ', err);
   }

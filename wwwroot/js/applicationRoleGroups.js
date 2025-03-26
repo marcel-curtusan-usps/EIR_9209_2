@@ -42,27 +42,23 @@ connection.on('updateApplicationRoleGroups', async data => {
   }
 });
 async function init_applicationRoleGroups() {
-  return new Promise((resolve, reject) => {
-    try {
-      createAppRoleGroupsDataTable(AppRoleTable);
-      fetch('../api/ApplicationConfiguration/UserRole')
-        .then(response => response.json())
-        .then(data => {
-          loadAppRoleGroupsDatatable(formatRoledata(data), AppRoleTable);
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
+  try {
+    createAppRoleGroupsDataTable(AppRoleTable);
+    fetch('../api/ApplicationConfiguration/UserRole')
+      .then(response => response.json())
+      .then(data => {
+        loadAppRoleGroupsDatatable(formatRoledata(data), AppRoleTable);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
 
-      addGroupToList('ApplicationRoleGroups');
-      resolve();
-      return false;
-    } catch (e) {
-      throw new Error(e.toString());
-      reject();
-      return false;
-    }
-  });
+    await addGroupToList('ApplicationRoleGroups');
+    resolve();
+    return false;
+  } catch (e) {
+    throw new Error(e.toString());
+  }
 }
 //app RoleGroups
 function Edit_AppRoleGroupsValue(roleData) {

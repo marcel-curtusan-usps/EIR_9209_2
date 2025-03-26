@@ -87,7 +87,7 @@ async function init_geoZoneCube(floorId) {
         }
       }
     });
-    addGroupToList('Cube');
+    await addGroupToList('Cube');
     if (/^(admin)/i.test(appData.Role)) {
       $('button[name=editCube]').off().on('click', function() {
         var id = $(this).attr('id');

@@ -316,7 +316,49 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             return null;
         }
     }
-    public async Task<IEnumerable<GeoZone>> GetAll() => _geoZoneList.Values;
+    /// <summary>
+    /// Get all the GeoZone data
+    /// </summary>
+    /// <returns></returns>
+    public Task<object> GetAll()
+    {
+        try
+        {
+
+            // Convert GeoZone list to JArray
+            JArray geoZones = JArray.FromObject(_geoZoneList.Values.ToList());
+            // Convert GeoZoneKiosk list to JArray
+            JArray geoZoneKiosk = JArray.FromObject(_geoZonekioskList.Values.ToList());
+            // Convert GeoZoneDockdoor list to JArray
+            JArray geoZoneDockdoor = JArray.FromObject(_geoZoneDockDoorList.Values.ToList());
+            // Convert GeoZoneCude list to JArray
+            JArray geoZoneCube = JArray.FromObject(_geoZoneCubeList.Values.ToList());
+            // Merge the two geoZoneCube into a single JArray
+            geoZones.Merge(geoZoneCube, new JsonMergeSettings
+            {
+                MergeArrayHandling = MergeArrayHandling.Concat,
+
+            });
+            // Merge the two geoZoneKiosk into a single JArray
+            geoZones.Merge(geoZoneKiosk, new JsonMergeSettings
+            {
+                MergeArrayHandling = MergeArrayHandling.Concat,
+
+            });
+            // Merge the two geoZoneDockdoor into a single JArray
+            geoZones.Merge(geoZoneDockdoor, new JsonMergeSettings
+            {
+                MergeArrayHandling = MergeArrayHandling.Concat,
+
+            });
+            return Task.FromResult((object)geoZones);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return Task.FromResult<object>(new object());
+        }
+    }
     public async Task<List<GeoZoneDockDoor>?> GetDockDoor()
     {
         return _geoZoneDockDoorList.Where(r => r.Value.Properties.Type == "DockDoor").Select(y => y.Value).ToList();
@@ -721,7 +763,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             }
             else if (type.Equals("Bullpen", StringComparison.CurrentCultureIgnoreCase))
             {
-                return _DockDoorList;
+                return _BullpenList;
             }
             else
             {
@@ -1895,19 +1937,25 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
 
     }
+    /// <summary>
+    /// Get GeoZones by type and name
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="name"></param>
+    /// <returns></returns>
     public Task<object> GetGeoZonebyName(string type, string name)
     {
         try
         {
             var regexPattern = string.Concat("(", name, ")");
             // Convert GeoZone list to JArray
-            JArray geoZones = JArray.FromObject(_geoZoneList.Values.Where(gz => gz.Properties.Type == type && Regex.IsMatch(gz.Properties.Name, regexPattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).ToList());
+            JArray geoZones = JArray.FromObject(_geoZoneList.Values.Where(gz => gz.Properties.Type == type && gz.Properties.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase)).ToList());
             // Convert GeoZoneKiosk list to JArray
-            JArray geoZoneKiosk = JArray.FromObject(_geoZonekioskList.Values.Where(gz => gz.Properties.Type == type && Regex.IsMatch(gz.Properties.Name, regexPattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).ToList());
+            JArray geoZoneKiosk = JArray.FromObject(_geoZonekioskList.Values.Where(gz => gz.Properties.Type == type && gz.Properties.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase)).ToList());
             // Convert GeoZoneDockdoor list to JArray
-            JArray geoZoneDockdoor = JArray.FromObject(_geoZoneDockDoorList.Values.Where(gz => gz.Properties.Type == type && Regex.IsMatch(gz.Properties.Name, regexPattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).ToList());
+            JArray geoZoneDockdoor = JArray.FromObject(_geoZoneDockDoorList.Values.Where(gz => gz.Properties.Type == type && gz.Properties.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase)).ToList());
             // Convert GeoZoneCude list to JArray
-            JArray geoZoneCube = JArray.FromObject(_geoZoneCubeList.Values.Where(gz => gz.Properties.Type == type && Regex.IsMatch(gz.Properties.Name, regexPattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).ToList());
+            JArray geoZoneCube = JArray.FromObject(_geoZoneCubeList.Values.Where(gz => gz.Properties.Type == type && gz.Properties.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase)).ToList());
             // Merge the two geoZoneCube into a single JArray
             geoZones.Merge(geoZoneCube, new JsonMergeSettings
             {
@@ -1931,45 +1979,47 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            return null;
+            return Task.FromResult<object>(new object());
         }
     }
+    /// <summary>
+    /// Get GeoZones by type
+    /// </summary>
+    /// <param name="zoneType"></param>
+    /// <returns></returns>
     public Task<object> GetGeoZonebyType(string zoneType)
     {
         try
         {
             // Convert GeoZone list to JArray
-            JArray geoZones = JArray.FromObject(_geoZoneList.Values.Where(gz => gz.Properties.Type == zoneType).ToList());
+            JArray geoZones = JArray.FromObject(_geoZoneList.Values.Where(gz => gz.Properties.Type.Equals(zoneType, StringComparison.CurrentCultureIgnoreCase)).ToList());
             // Convert GeoZoneKiosk list to JArray
-            JArray geoZoneKiosk = JArray.FromObject(_geoZonekioskList.Values.Where(gz => gz.Properties.Type == zoneType).ToList());
+            JArray geoZoneKiosk = JArray.FromObject(_geoZonekioskList.Values.Where(gz => gz.Properties.Type.Equals(zoneType, StringComparison.CurrentCultureIgnoreCase)).ToList());
             // Convert GeoZoneDockDoor list to JArray
-            JArray geoZoneDockdoor = JArray.FromObject(_geoZoneDockDoorList.Values.Where(gz => gz.Properties.Type == zoneType).ToList());
+            JArray geoZoneDockdoor = JArray.FromObject(_geoZoneDockDoorList.Values.Where(gz => gz.Properties.Type.Equals(zoneType, StringComparison.CurrentCultureIgnoreCase)).ToList());
             // Convert GeoZoneCube list to JArray
-            JArray geoZoneCube = JArray.FromObject(_geoZoneCubeList.Values.Where(gz => gz.Properties.Type == zoneType).ToList());
+            JArray geoZoneCube = JArray.FromObject(_geoZoneCubeList.Values.Where(gz => gz.Properties.Type.Equals(zoneType, StringComparison.CurrentCultureIgnoreCase)).ToList());
             // Merge the two geoZoneCube into a single JArray
             geoZones.Merge(geoZoneCube, new JsonMergeSettings
             {
-                MergeArrayHandling = MergeArrayHandling.Concat,
-
+                MergeArrayHandling = MergeArrayHandling.Concat
             });
             // Merge the two geoZoneKiosk into a single JArray
             geoZones.Merge(geoZoneKiosk, new JsonMergeSettings
             {
-                MergeArrayHandling = MergeArrayHandling.Concat,
-
+                MergeArrayHandling = MergeArrayHandling.Concat
             });
             // Merge the two geoZoneDockdoor into a single JArray
             geoZones.Merge(geoZoneDockdoor, new JsonMergeSettings
             {
-                MergeArrayHandling = MergeArrayHandling.Concat,
-
+                MergeArrayHandling = MergeArrayHandling.Concat
             });
             return Task.FromResult((object)geoZones);
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            return null;
+            return Task.FromResult<object>(new object());
         }
     }
 
@@ -2689,9 +2739,13 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             {
                 if (_geoZoneCubeList.ContainsKey(zoneid) && _geoZoneCubeList.TryGetValue(zoneid, out GeoZoneCube geoZoneCube))
                 {
+                    geoZoneCube.Properties.ScanTime = scan.Data.Transactions[0].TransactionDateTime;
                     string deviceId = scan.Data.Transactions[0].DeviceID.ToString();
-                    string inBuildDevices = _configuration[key: "ApplicationConfiguration:BuildingInDeviceId"].ToString();
-                    string outBuildDevices = _configuration[key: "ApplicationConfiguration:BuildingOutDeviceId"].ToString();
+
+                    List<string> inBuildDevices = _geoZonekioskList.Where(r => r.Value.Properties.Name.Equals("ePACS-In", StringComparison.CurrentCultureIgnoreCase)).Select(r => r.Value.Properties.DeviceId).ToList();
+
+                    List<string> outBuildDevices = _geoZonekioskList.Where(r => r.Value.Properties.Name.Equals("ePACS-Out", StringComparison.CurrentCultureIgnoreCase)).Select(r => r.Value.Properties.DeviceId).ToList();
+
                     if (inBuildDevices.Contains(deviceId))
                     {
                         geoZoneCube.Properties.InZone = true;
@@ -2703,6 +2757,28 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     // count the number of inZone employees.
                     _ = Task.Run(() => UpdateInZoneCount());
                 }
+            }
+            else
+            {
+                bool updateCount = false;
+                // Update any _geoZoneCubeList InZone flag to false if zone scantime is greater than 8 hours
+                DateTime currentTime = DateTime.Now;
+                foreach (var cube in _geoZoneCubeList.Values)
+                {
+                    TimeSpan timeDifference = currentTime - cube.Properties.ScanTime;
+                    if (cube.Properties.InZone && timeDifference.TotalHours > 8)
+                    {
+
+                        cube.Properties.InZone = false;
+                        updateCount = true;
+                    }
+                }
+                if (updateCount)
+                {
+                    // count the number of inZone employees.
+                    _ = Task.Run(() => UpdateInZoneCount());
+                }
+
             }
         }
         catch (Exception e)

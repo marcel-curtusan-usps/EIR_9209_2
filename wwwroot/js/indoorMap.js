@@ -327,8 +327,8 @@ async function init_backgroundImages() {
       faulure: function(fail) {
         console.log(fail);
       },
-      complete: function(complete) {
-        addGroupToList('BackgroundImage');
+      complete: async function(complete) {
+        await addGroupToList('BackgroundImage');
       }
     });
   } catch (e) {

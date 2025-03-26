@@ -12,26 +12,21 @@ connection.on('updateSiteInformation', async data => {
   }
 });
 async function init_SiteInformation() {
-  return new Promise((resolve, reject) => {
-    try {
-      createSiteInfoDataTable(siteInfotable);
-      fetch('../api/SiteInformation/SiteInfo')
-        .then(response => response.json())
-        .then(data => {
-          loadSiteInfoDatatable(formatSiteInfodata(data), siteInfotable);
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
-      addGroupToList('GetSiteInfo');
-      addGroupToList('SiteInformation');
-      resolve();
-      return false;
-    } catch (e) {
-      console.log(e);
-      reject();
-    }
-  });
+  try {
+    createSiteInfoDataTable(siteInfotable);
+    fetch('../api/SiteInformation/SiteInfo')
+      .then(response => response.json())
+      .then(data => {
+        loadSiteInfoDatatable(formatSiteInfodata(data), siteInfotable);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    await addGroupToList('GetSiteInfo');
+    await addGroupToList('SiteInformation');
+  } catch (e) {
+    console.log(e);
+  }
 }
 function createSiteInfoDataTable(table) {
   let arrayColumns = {

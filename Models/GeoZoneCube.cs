@@ -29,9 +29,10 @@ namespace EIR_9209_2.Models
         public string EIN { get; set; } = "";
         [JsonProperty("assignTo")]
         public string AssignTo { get; set; } = "";
-
         [JsonProperty("inZone")]
         public bool InZone { get; set; }
+        [JsonProperty("scanTime")]
+        public DateTime ScanTime { get; set; }
     }
 }
 

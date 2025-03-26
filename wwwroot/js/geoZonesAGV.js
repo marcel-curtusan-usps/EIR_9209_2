@@ -84,7 +84,7 @@ async function init_geoZoneAGV() {
         }
       }
     });
-    addGroupToList('AGVLocation');
+    await addGroupToList('AGVLocation');
   } catch (e) {
     throw new Error(e.toString());
   }

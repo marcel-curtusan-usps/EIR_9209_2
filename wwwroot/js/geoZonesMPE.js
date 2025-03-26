@@ -334,8 +334,8 @@ async function init_geoZoneMPE(floorId) {
         }
       }
     });
-    addGroupToList('MPE');
-    addGroupToList('MPETartgets');
+    await addGroupToList('MPE');
+    await addGroupToList('MPETartgets');
     if (/^(Admin|Maintenance|OIE)/i.test(appData.Role)) {
       $("button[name=machineinfoedit]")
         .off()

@@ -52,44 +52,39 @@ async function findPIVLeafletIds(markerId) {
   });
 }
 async function init_tagsPIV() {
-  return new Promise((resolve, reject) => {
-    try {
-      //load PIV Tags
-      connection
-        .invoke('GetPIVTags')
-        .then(function(data) {
-          //add PIV markers to the layer
-          for (let i = 0; i < data.length; i++) {
-            Promise.all([addPIVFeatures(data[i])]);
-          }
-        })
-        .catch(function(err) {
-          // handle error
-          console.error(err);
-        });
-
-      $(document).on('change', '.leaflet-control-layers-selector', function() {
-        let sp = this.nextElementSibling;
-        if (/^PIV Vehicles$/gi.test(sp.innerHTML.trim())) {
-          if (this.checked) {
-            connection.invoke('JoinGroup', 'PIVVehicle').catch(function(err) {
-              return console.error(err.toString());
-            });
-          } else {
-            connection.invoke('LeaveGroup', 'PIVVehicle').catch(function(err) {
-              return console.error(err.toString());
-            });
-          }
+  try {
+    //load PIV Tags
+    connection
+      .invoke('GetPIVTags')
+      .then(function(data) {
+        //add PIV markers to the layer
+        for (let i = 0; i < data.length; i++) {
+          Promise.all([addPIVFeatures(data[i])]);
         }
+      })
+      .catch(function(err) {
+        // handle error
+        console.error(err);
       });
-      addGroupToList('PIVVehicle');
-      resolve();
-      return false;
-    } catch (e) {
-      throw new Error(e.toString());
-      reject();
-    }
-  });
+
+    $(document).on('change', '.leaflet-control-layers-selector', function() {
+      let sp = this.nextElementSibling;
+      if (/^PIV Vehicles$/gi.test(sp.innerHTML.trim())) {
+        if (this.checked) {
+          connection.invoke('JoinGroup', 'PIVVehicle').catch(function(err) {
+            return console.error(err.toString());
+          });
+        } else {
+          connection.invoke('LeaveGroup', 'PIVVehicle').catch(function(err) {
+            return console.error(err.toString());
+          });
+        }
+      }
+    });
+    await addGroupToList('PIVVehicle');
+  } catch (e) {
+    throw new Error(e.toString());
+  }
 }
 async function deletePIVFeature(data) {
   try {

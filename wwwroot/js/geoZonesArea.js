@@ -83,7 +83,7 @@ async function init_geoZoneArea(floorId) {
         }
       }
     });
-    addGroupToList('Area');
+    await addGroupToList('Area');
   } catch (e) {
     throw new Error(e.toString());
   }

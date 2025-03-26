@@ -250,7 +250,7 @@ async function init_geoZoneBin() {
         }
       }
     });
-    addGroupToList('Bin');
+    await addGroupToList('Bin');
   } catch (e) {
     throw new Error(e.toString());
   }
