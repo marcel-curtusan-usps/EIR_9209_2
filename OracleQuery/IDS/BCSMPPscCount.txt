@@ -10,7 +10,7 @@ SELECT
             NVL(SORTED, 0)+NVL(CONFIRMEDUAA, 0)
     END                                                   AS SORTED,
     NVL(REJECTED, 0)                                      AS REJECTED,
-    NVL(SORTED, 0)++NVL(REJECTED, 0)+NVL(CONFIRMEDUAA, 0) AS INDUCTED
+    NVL(SORTED, 0)+NVL(REJECTED, 0)+NVL(CONFIRMEDUAA, 0) AS INDUCTED
 FROM
     (
         SELECT
