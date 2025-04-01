@@ -146,6 +146,12 @@
         "Name": "SIPSPscCount",
         "Description": "IDS Pieces Count for SIPS",
         "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+      },
+      {
+        "Id": "0ae3ced7-c264-4667-b1c1-26ebdab7ba40",
+        "Name": "LCTSPscCount",
+        "Description": "IDS Pieces Count for LCTS",
+        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
       }
     ]
   },
