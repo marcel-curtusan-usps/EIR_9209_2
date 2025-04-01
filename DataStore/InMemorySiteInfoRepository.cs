@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Concurrent;
+using TimeZoneConverter;
 
 namespace EIR_9209_2.DataStore
 {
@@ -112,7 +113,9 @@ namespace EIR_9209_2.DataStore
                 {
                     throw new ArgumentException($"Invalid timezone identifier: {_siteInfo.Values.FirstOrDefault().TimeZoneAbbr}");
                 }
-                TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+                // Convert IANA to Windows time zone if necessary
+                string windowsTimeZoneId = TZConvert.IanaToWindows(timeZoneId);
+                TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId);
                 DateTime currentTimeInTimeZone = TimeZoneInfo.ConvertTime(currentTime, timeZone);
                 return currentTimeInTimeZone;
             }
