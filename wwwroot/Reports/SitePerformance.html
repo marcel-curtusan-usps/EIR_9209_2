@@ -1,11 +1,13 @@
 ﻿<!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8" />
     <title>CF Site Performance</title>
 
     <link href="Content/siteRollUp.css" rel="stylesheet" />
 </head>
+
 <body>
 
     <div>
@@ -18,7 +20,9 @@
                     <div class="card-body p-1">
                         <div class="row">
                             <div class="col-1">
-                                <select class="form-control form-inline" style="width: auto; vertical-align: baseline; margin: 15px; position: absolute; bottom: 0px;" id="ddlTourSelect">
+                                <select class="form-control form-inline"
+                                    style="width: auto; vertical-align: baseline; margin: 15px; position: absolute; bottom: 0px;"
+                                    id="ddlTourSelect">
                                     <option value=""></option>
                                 </select>
                             </div>
@@ -53,7 +57,8 @@
                             </div>
                         </div>
                         <div class="table-responsive" id="div_sitePackagesPerformanceData" style="padding-right: 36px;">
-                            <table class="table table-sm table-hover mb-0 border-bottom" id="sitePackagesPerformanceData">
+                            <table class="table table-sm table-hover mb-0 border-bottom"
+                                id="sitePackagesPerformanceData">
                                 <thead class="table-dark">
                                 </thead>
                                 <tbody></tbody>
@@ -81,7 +86,8 @@
                             </div>
                         </div>
                         <div class="table-responsive" id="div_siteLettersPerformanceData" style="padding-right: 36px;">
-                            <table class="table table-sm table-hover mb-0 border-bottom" id="siteLettersPerformanceData">
+                            <table class="table table-sm table-hover mb-0 border-bottom"
+                                id="siteLettersPerformanceData">
                                 <thead class="table-dark">
                                 </thead>
                                 <tbody></tbody>
@@ -124,15 +130,18 @@
         </div>
     </div>
     <script src="../lib/jquery/jquery.min.js"></script>
-    <script src="../lib/chart.js/dist/chart.umd.js"></script>
-    <script src="../lib/luxon/src/luxon.js"></script>
-    <script src="../lib/chartjs-adapter-luxon/dist/chartjs-adapter-luxon.umd.min.js"></script>
-    <script src="../lib/chartjs-plugin-datalabels/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="../lib/luxon/luxon.min.js"></script>
+    <script src="../lib/chartjs/chart.umd.min.js"></script>
+    <script src="../lib/chartjs-plugin-datalabels/chartjs-plugin-datalabels.min.js"></script>
+    <script src="../lib/chartjs-adapter-luxon/chartjs-adapter-luxon.umd.min.js"></script>
     <script src="../lib/bootstrap/dist/js/bootstrap.js"></script>
     <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
     <script src="../lib/datatables.net/datatables.js"></script>
     <script src="Scripts/siteRollUp.js"></script>
     <script src="Scripts/siteRollUpLineChart.js"></script>
     <script src="Scripts/siteRollUpTable.js"></script>
+    <script src="Scripts/signalRConnection.js"></script>
 </body>
+
 </html>

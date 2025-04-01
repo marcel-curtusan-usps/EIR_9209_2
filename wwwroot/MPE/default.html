@@ -1,10 +1,12 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <link href="Content/mpeView.css" rel="stylesheet" />
     <title>MPE</title>
 </head>
+
 <body>
     <div class="card w-100" style="padding: 0px;">
         <div class="card-header">
@@ -18,27 +20,34 @@
                         <label class="control-label float-end" style="font-size: 3rem;" id="opn_text">Operation:</label>
                     </div>
                     <div class="col-1" style="padding: 0rem;">
-                        <label class="control-label float-start" style="font-size: 3rem; font-weight: bolder;" id="opn"></label>
+                        <label class="control-label float-start" style="font-size: 3rem; font-weight: bolder;"
+                            id="opn"></label>
                     </div>
                     <div class="col-3 text-center" style="padding: 0rem;">
-                        <label class="control-label float-end" style="font-size: 3rem; display:none" id="countdownText">Complete In:</label>
+                        <label class="control-label float-end" style="font-size: 3rem; display:none"
+                            id="countdownText">Complete In:</label>
                     </div>
                     <div class="col-2" style="padding: 0rem;">
-                        <label class="control-label float-start" style="font-size: 3rem; font-weight: bolder;" id="countdown"></label>
+                        <label class="control-label float-start" style="font-size: 3rem; font-weight: bolder;"
+                            id="countdown"></label>
                     </div>
                 </div>
                 <div class="row justify-content-md-center">
                     <div class="col-5" style="padding: 0rem;">
-                        <label class="control-label float-end" style="font-size: 2rem;" id="nextopntext">Next Operation:</label>
+                        <label class="control-label float-end" style="font-size: 2rem;" id="nextopntext">Next
+                            Operation:</label>
                     </div>
                     <div class="col-1" style="padding: 0rem;">
-                        <label class="control-label float-start" style="font-size: 2rem; font-weight: bolder;" id="nextopn"></label>
+                        <label class="control-label float-start" style="font-size: 2rem; font-weight: bolder;"
+                            id="nextopn"></label>
                     </div>
                     <div class="col-3 text-center" style="padding: 0rem;">
-                        <label class="control-label float-end" style="font-size: 2rem; display:none" id="nextstartText">Next OP Start Time:</label>
+                        <label class="control-label float-end" style="font-size: 2rem; display:none"
+                            id="nextstartText">Next OP Start Time:</label>
                     </div>
                     <div class="col-2" style="padding: 0rem;">
-                        <label class="control-label float-start" style="font-size: 2rem; font-weight: bolder;" id="nextstart"></label>
+                        <label class="control-label float-start" style="font-size: 2rem; font-weight: bolder;"
+                            id="nextstart"></label>
                     </div>
                 </div>
             </div>
@@ -57,10 +66,12 @@
 
                 <div class="row justify-content-md-center">
                     <div class="col" style="padding: 0rem;">
-                        <label class="control-label float-end" style="font-size: 3rem;" id="mpe_status_txt">Machine Status:</label>
+                        <label class="control-label float-end" style="font-size: 3rem;" id="mpe_status_txt">Machine
+                            Status:</label>
                     </div>
                     <div class="col text-lg-center" style="padding: 0rem;">
-                        <label class="control-label " style="font-size: 3rem; font-weight: bolder;" id="mpe_status"></label>
+                        <label class="control-label " style="font-size: 3rem; font-weight: bolder;"
+                            id="mpe_status"></label>
                     </div>
                 </div>
             </div>
@@ -73,5 +84,7 @@
     <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
     <script src="../lib/datatables.net/dataTables.min.js"></script>
     <script src="Scripts/mpeView.js"></script>
+    <script src="Scripts/signalRConnection.js"></script>
 </body>
+
 </html>

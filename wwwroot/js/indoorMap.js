@@ -175,9 +175,9 @@ L.easyButton({
       icon: '<strong class="bi bi-bar-chart-steps"></strong>',
       onClick: () => {
         if (/^(localhost)/i.test(window.location.hostname)) {
-          window.open(window.location.origin + '/Reports/SiteRollup.aspx', '_blank');
+          window.open(window.location.origin + '/Reports/SitePerformance.html', '_blank');
         } else {
-          window.open(window.location.origin + '/CF/Reports/SiteRollup.aspx', '_blank');
+          window.open(window.location.origin + '/CF/SitePerformance.html', '_blank');
         }
       }
     }

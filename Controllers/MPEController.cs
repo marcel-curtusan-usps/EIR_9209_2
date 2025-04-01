@@ -18,7 +18,7 @@ namespace EIR_9209_2.Controllers
         {
             return new string[] { "value1", "value2" };
         }
- 
+
         [HttpGet]
         [Route("MPEGroups")]
         public async Task<object> GetByMPEGroupList(string type)
@@ -49,6 +49,25 @@ namespace EIR_9209_2.Controllers
                     return await Task.FromResult(BadRequest(ModelState));
                 }
                 return Ok(await _zonesRepository.GetMPEGroupList(name));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+
+        }
+        [HttpGet]
+        [Route("MPEPerformanceData")]
+        public async Task<object> GetByMPEPerformanceDataByZoneName(string name)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                return Ok(await _zonesRepository.GetGeoZoneMPEPerformanceData(name));
             }
             catch (Exception e)
             {

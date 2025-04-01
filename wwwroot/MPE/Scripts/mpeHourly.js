@@ -11,17 +11,9 @@ let mpeTartgets = {};
 let mpeRunData = {};
 let tourDates = null;
 let colHourcount = 0;
-let retryCount = 0;
 let currentTime = null;
 let currentTour = null;
 
-const maxRetries = 5;
-const mpeHourlyConnection = new signalR.HubConnectionBuilder()
-  .withUrl(SiteURLconstructor(window.location) + '/hubServics')
-  .withAutomaticReconnect([0, 2000, 10000, 30000]) // Exponential backoff intervals
-  .configureLogging(signalR.LogLevel.Information)
-  .withHubProtocol(new signalR.JsonHubProtocol())
-  .build();
 /**
 * Extracts a URL parameter by name from the current window location.
 * @param {string} name - The name of the URL parameter to extract.
@@ -38,6 +30,7 @@ $(function() {
   TourNumber = parseInt($.urlParam('TourNumber'), 10);
   DateProvided = $.urlParam('Date');
   setHeight();
+  $(document).prop('title', ' MPE Hourly Report' + ' (' + MPEName + ')');
   $('span[id=headerIdSpan]').text(MPEName + ' Machine Performance');
 });
 
@@ -46,41 +39,17 @@ $(function() {
  */
 async function mpeHourlyStart() {
   try {
-    await mpeHourlyConnection.start();
-    console.log('SignalR Connected.');
-    retryCount = 0; // Reset retry count on successful connection
-    initializeMpeHourly();
-  } catch (err) {
-    console.log('Connection failed: ', err);
-    retryCount++;
-    if (retryCount <= maxRetries) {
-      const delay = Math.min(5000 * Math.pow(2, retryCount), 30000); // Exponential backoff with a cap
-      const jitter = Math.random() * 1000; // Add jitter
-      setTimeout(mpeHourlyStart, delay + jitter);
-    } else {
-      console.error('Max retries reached. Could not connect to SignalR.');
-      showConnectionStatus('Unable to connect. Please check your network.');
-    }
-  }
-}
-/**
- * Initializes the MPE hourly data by invoking various methods on the SignalR connection.
- */
-async function initializeMpeHourly() {
-  try {
-    // Start the connection
-    $('button[id=mpeName]').text(MPEName);
-    mpeHourlyConnection
-      .invoke('GetApplicationInfo')
-      .then(function(data) {
-        appData = JSON.parse(data);
-        //if data is not null
+    // Load Application Info
+    await fetch('../api/ApplicationConfiguration/Configuration')
+      .then(response => response.json())
+      .then(data => {
+        appData = data;
         if (appData != null) {
           siteInfo = appData;
-          siteTours = JSON.parse(appData.Tours);
+          siteTours = appData.tours;
           // Use the mapping function to get the correct IANA time zone
           ianaTimeZone = getIANATimeZone(getPostalTimeZone(appData.TimeZoneAbbr));
-          if (DateProvided != '') {
+          if (DateProvided !== '') {
             currentTime = luxon.DateTime.fromFormat(DateProvided, 'yyyy-MM-dd');
           } else {
             currentTime = luxon.DateTime.local().setZone(ianaTimeZone);
@@ -98,22 +67,55 @@ async function initializeMpeHourly() {
           }
         }
       })
-      .catch(function(err) {
-        console.error('Error loading application info: ', err);
-      });
-    mpeHourlyConnection
-      .invoke('GetMPETargets', MPEName)
-      .then(mpeTargetsData => {
-        if (mpeTargetsData) {
-          mpeTartgets = mpeTargetsData;
-        }
+      .then(async () => {
+        init_signalRConnection(appData).then(async () => {
+          connection.on('updateMPEzoneRunPerformance', async data => {
+            if (data.mpeId === MPEName) {
+              mpeRunData = data;
+              createLoadMPEHourData(getTour(), mpeTartgets, mpeRunData);
+              createLoadMPERejectHourData(getTour(), mpeTartgets, mpeRunData);
+            }
+          });
+          connection.on('updateMPEzoneTartgets', async data => {
+            if (data[0].mpeId === MPEName) {
+              mpeTartgets = data;
+              createLoadMPEHourData(getTour(), mpeTartgets, mpeRunData);
+              createLoadMPERejectHourData(getTour(), mpeTartgets, mpeRunData);
+            }
+          });
+          await addGroupToList('MPE');
+          await addGroupToList('MPETartgets');
+        });
       })
       .then(() => {
-        mpeHourlyConnection
-          .invoke('GetGeoZoneMPEData', MPEName)
-          .then(mpeData => {
-            if (mpeData) {
-              mpeRunData = mpeData;
+        initializeMpeHourly();
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  } catch (err) {
+    console.log('Connection failed: ', err);
+  }
+}
+/**
+ * Initializes the MPE hourly data by invoking various methods on the SignalR connection.
+ */
+async function initializeMpeHourly() {
+  try {
+    // Start the connection
+    $('button[id=mpeName]').text(MPEName);
+
+    fetch(`../api/MPETragets/MPETargets?Name=${MPEName}`)
+      .then(response => response.json())
+      .then(data => {
+        mpeTartgets = data;
+      })
+      .then(async () => {
+        await fetch(`../api/MPE/MPEPerformanceData?name=${MPEName}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data) {
+              mpeRunData = data;
               if (TourNumber > 0) {
                 createLoadMPEHourData(TourNumber, mpeTartgets, mpeRunData);
                 createLoadMPERejectHourData(TourNumber, mpeTartgets, mpeRunData);
@@ -123,45 +125,15 @@ async function initializeMpeHourly() {
               }
             }
           })
-          .catch(function(err) {
-            console.error('Error Fetching data for MPE ' + MPEName, err);
+          .catch(error => {
+            console.error('Error:', error);
           });
       })
-      .catch(function(err) {
-        console.error('Error Fetching data for MPE ' + MPEName, err);
+      .catch(error => {
+        console.error('Error:', error);
       });
-
-    await addGroupToList('MPE');
-    await addGroupToList('MPETartgets');
   } catch (err) {
     console.log('Connection failed: ', err);
-  }
-}
-mpeHourlyConnection.onclose(async () => {
-  console.log('Connection closed. Attempting to reconnect...');
-  showConnectionStatus('Connection lost. Attempting to reconnect...');
-  await start();
-});
-
-mpeHourlyConnection.onreconnecting(error => {
-  console.log('Reconnecting...', error);
-  showConnectionStatus('Reconnecting...');
-});
-
-mpeHourlyConnection.onreconnected(connectionId => {
-  console.log('Reconnected. Connection ID: ', connectionId);
-  showConnectionStatus('Reconnected.');
-});
-
-/**
- * Displays the connection status message to the user.
- * @param {string} message - The message to display.
- */
-function showConnectionStatus(message) {
-  const statusElement = document.getElementById('connection-status');
-  if (statusElement) {
-    statusElement.textContent = message;
-    statusElement.style.display = 'block';
   }
 }
 
@@ -195,8 +167,8 @@ function getTourHours(tournumber) {
   }
 }
 function getTourDates(tournumber) {
-  if (tournumber == 1) {
-    if (DateProvided != '') {
+  if (tournumber === 1) {
+    if (DateProvided !== '') {
       let currentTimetmp = currentTime;
       currentTimetmp = currentTimetmp.plus({ days: 1 });
       tourDates = currentTime.month + '/' + currentTime.day + ' ' + siteTours.tour1Start + ' - ' + currentTimetmp.month + '/' + currentTimetmp.day + ' ' + siteTours.tour2Start;

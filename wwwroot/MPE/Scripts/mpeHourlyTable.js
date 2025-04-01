@@ -1,20 +1,7 @@
 ﻿let MPEDataTableList = [];
 const MPEHourlyTabel = "mpeHourlytable";
 const MPERejectTabel = "mpeRejecttable";
-mpeHourlyConnection.on("updateMPEzoneRunPerformance", async (data) => {
-    if (data.mpeId === MPEName) {
-        mpeRunData = data;
-        createLoadMPEHourData(getTour(), mpeTartgets, mpeRunData);
-        createLoadMPERejectHourData(getTour(), mpeTartgets, mpeRunData);
-    }
-});
-mpeHourlyConnection.on("updateMPEzoneTartgets", async (data) => {
-    if (data[0].mpeId === MPEName) {
-        mpeTartgets = data;
-        createLoadMPEHourData(getTour(), mpeTartgets, mpeRunData);
-        createLoadMPERejectHourData(getTour(), mpeTartgets, mpeRunData);
-    }
-});
+
 function constructTourHoursMpeColumns(tourNumber) {
     let columns = [];
     let tourhours = getTourHours(tourNumber);

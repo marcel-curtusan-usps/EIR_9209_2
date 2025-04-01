@@ -4,70 +4,53 @@ let siteInfo = {};
 let ianaTimeZone = '';
 let CurrentTripMin = 0;
 let MPEName = '';
-let retryCount = 0;
 let timer;
 const MPETabel = 'mpeStatustable';
-const maxRetries = 5;
-const mpeViewConnection = new signalR.HubConnectionBuilder()
-  .withUrl(SiteURLconstructor(window.location) + '/hubServics')
-  .withAutomaticReconnect([0, 2000, 10000, 30000]) // Exponential backoff intervals
-  .configureLogging(signalR.LogLevel.Information)
-  .withHubProtocol(new signalR.JsonHubProtocol())
-  .build();
 
-mpeViewConnection.on('updateMPEzoneRunPerformance', async data => {
-  if (data.mpeId === MPEName) {
-    Promise.all([buildDataTable(data)]);
-  }
-});
 $.urlParam = function(name) {
   let results = new RegExp('[?&]' + name + '=([^&#]*)', 'i').exec(window.location.search);
-  MPEName = results !== null ? results[1] || 0 : '';
-  return MPEName;
+  return results !== null ? results[1] || 0 : '';
 };
 $(function() {
-  setHeight();
-  document.title = $.urlParam('mpeStatus');
+  MPEName = $.urlParam('mpeStatus');
+  document.title = MPEName;
   RequestDate = getUrlParameter('Date');
-  $(document).prop('title', ' Machine View' + ' (' + MPEName + ')');
-  $.ajax({
-    url: SiteURLconstructor(window.location) + '/api/SiteInformation/SiteInfo',
-    type: 'GET',
-    success: function(data) {
-      //if data is not null
-      if (data != null) {
-        siteInfo = data;
-        // Use the mapping function to get the correct IANA time zone
-        ianaTimeZone = getIANATimeZone(getPostalTimeZone(data.timeZoneAbbr));
-        localdateTime = luxon.DateTime.local().setZone(ianaTimeZone).setZone('system', { keepLocalTime: true });
-      }
-    },
-    error: function(error) {
-      console.log(error);
-    },
-    failure: function(fail) {
-      console.log(fail);
-    }
-  });
+  $(document).prop('title', ' MPE View' + ' (' + MPEName + ')');
+  setHeight();
 });
 
-async function mpeViewSignalRstart() {
+async function mpeViewStart() {
   try {
-    await mpeViewConnection.start();
-    console.log('SignalR Connected.');
-    retryCount = 0; // Reset retry count on successful connection
-    initializeMpeView();
+    await fetch('../api/ApplicationConfiguration/Configuration')
+      .then(response => response.json())
+      .then(data => {
+        appData = data;
+        if (appData != null) {
+          siteInfo = appData;
+          siteInfo = data;
+          // Use the mapping function to get the correct IANA time zone
+          ianaTimeZone = getIANATimeZone(getPostalTimeZone(data.timeZoneAbbr));
+          localdateTime = luxon.DateTime.local().setZone(ianaTimeZone).setZone('system', { keepLocalTime: true });
+        }
+      })
+      .then(async () => {
+        init_signalRConnection(appData).then(async () => {
+          connection.on('updateMPEzoneRunPerformance', async data => {
+            if (data.mpeId === MPEName) {
+              Promise.all([buildDataTable(data)]);
+            }
+          });
+          await addGroupToList('MPE');
+        });
+      })
+      .then(() => {
+        initializeMpeView();
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
   } catch (err) {
     console.log('Connection failed: ', err);
-    retryCount++;
-    if (retryCount <= maxRetries) {
-      const delay = Math.min(5000 * Math.pow(2, retryCount), 30000); // Exponential backoff with a cap
-      const jitter = Math.random() * 1000; // Add jitter
-      setTimeout(mpeViewSignalRstart, delay + jitter);
-    } else {
-      console.error('Max retries reached. Could not connect to SignalR.');
-      showConnectionStatus('Unable to connect. Please check your network.');
-    }
   }
 }
 function createMPEDataTable(table) {
@@ -141,60 +124,25 @@ async function initializeMpeView() {
   try {
     // Start the connection
     createMPEDataTable(MPETabel);
-    mpeViewConnection
-      .invoke('GetApplicationInfo')
-      .then(function(data) {
-        appData = JSON.parse(data);
-      })
-      .catch(function(err) {
-        console.error('Error loading application info: ', err);
-      });
-    mpeViewConnection
-      .invoke('GetGeoZoneMPEData', MPEName)
-      .then(function(mpeData) {
-        $('label[id=mpeName]').text(mpeData.mpeId);
-        $('label[id=opn]').html('&nbsp;' + mpeData.curOperationId);
-        $('label[id=sortplan_name_text]').text(mpeData.curSortplan);
-        $('label[id=mpe_status]').text(MPEStatus(mpeData));
-        Promise.all([buildDataTable(mpeData)]);
-      })
-      .catch(function(err) {
-        console.error('Error Fetching data for MPE ' + MPEName, err);
-      });
 
-    await addGroupToList('MPE');
+    await fetch(`../api/MPE/MPEPerformanceData?name=${MPEName}`)
+      .then(response => response.json())
+      .then(mpeData => {
+        if (mpeData) {
+          $('label[id=mpeName]').text(mpeData.mpeId);
+          $('label[id=opn]').html('&nbsp;' + mpeData.curOperationId);
+          $('label[id=sortplan_name_text]').text(mpeData.curSortplan);
+          $('label[id=mpe_status]').text(MPEStatus(mpeData));
+          Promise.all([buildDataTable(mpeData)]);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
   } catch (err) {
     console.log('Connection failed: ', err);
   }
 }
-mpeViewConnection.onclose(async () => {
-  console.log('Connection closed. Attempting to reconnect...');
-  showConnectionStatus('Connection lost. Attempting to reconnect...');
-  await start();
-});
-
-mpeViewConnection.onreconnecting(error => {
-  console.log('Reconnecting...', error);
-  showConnectionStatus('Reconnecting...');
-});
-
-mpeViewConnection.onreconnected(connectionId => {
-  console.log('Reconnected. Connection ID: ', connectionId);
-  showConnectionStatus('Reconnected.');
-});
-
-mpeViewConnection.on('updateMPEView' + MPEName, async data => {
-  await findMpeZoneLeafletIds(data.zoneId).then(leafletIds => {
-    geoZoneMPE._layers[leafletIds].feature.properties.mpeRunPerformance = data;
-    geoZoneMPE._layers[leafletIds].setStyle({
-      weight: 1,
-      opacity: 1,
-      fillOpacity: 0.2,
-      fillColor: GetMacineBackground(data),
-      lastOpacity: 0.2
-    });
-  });
-});
 async function buildDataTable(data) {
   let dataArray = [];
   $.each(data, function(key) {
@@ -510,4 +458,4 @@ function updateMpeDataTable(ldata, table) {
     }
   }
 }
-mpeViewSignalRstart();
+mpeViewStart();
