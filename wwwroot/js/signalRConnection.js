@@ -18,20 +18,20 @@ async function init_signalRConnection(data) {
             await JoinGroup(group);
             listofGroups.splice(index, 1); // Remove group from list
           } catch (err) {
-            console.error(`Error joining group ${group}:`, err);
+            console.info(`Error joining group ${group}:`, err);
           }
         })
       );
     });
-    console.log('SignalR connection established.');
+    console.info('SignalR connection established.');
     retryCount = 0; // Reset retry count on successful connection
   } catch (err) {
-    console.error('Error starting SignalR connection:', err);
+    console.info('Error starting SignalR connection:', err);
     retryCount++;
     if (retryCount < maxRetries) {
       setTimeout(init_signalRConnection, 2000); // Retry after 2 seconds
     } else {
-      console.error('Max retries reached. Could not connect to SignalR.');
+      console.info('Max retries reached. Could not connect to SignalR.');
       showConnectionStatus('Unable to connect. Please check your network.');
     }
   }
@@ -45,23 +45,22 @@ async function addGroupToList(group) {
   } else {
     if (!listofGroups.includes(group)) {
       listofGroups.push(group);
-      await JoinGroup(group);
     }
   }
 }
 connection.onclose(async () => {
-  console.log('Connection closed. Attempting to reconnect...');
+  console.info('Connection closed. Attempting to reconnect...');
   showConnectionStatus('Connection lost. Attempting to reconnect...');
   await start();
 });
 
 connection.onreconnecting(error => {
-  console.log('Reconnecting...', error);
+  console.info('Reconnecting...', error);
   showConnectionStatus('Reconnecting...');
 });
 
 connection.onreconnected(connectionId => {
-  console.log('Reconnected. Connection ID: ', connectionId);
+  console.info('Reconnected. Connection ID: ', connectionId);
   showConnectionStatus('Reconnected.');
 });
 function SiteURLconstructor(winLoc) {

@@ -54,8 +54,6 @@ async function init_applicationRoleGroups() {
       });
 
     await addGroupToList('ApplicationRoleGroups');
-    resolve();
-    return false;
   } catch (e) {
     throw new Error(e.toString());
   }

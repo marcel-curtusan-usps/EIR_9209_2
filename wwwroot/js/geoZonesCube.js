@@ -36,7 +36,7 @@ let geoZoneCube = new L.GeoJSON(null, {
         opacity: 1,
         className: 'fixed-tooltip location '
       })
-      .openTooltip();
+      .closeTooltip();
   },
   filter: function(feature, layer) {
     return feature.properties.visible;

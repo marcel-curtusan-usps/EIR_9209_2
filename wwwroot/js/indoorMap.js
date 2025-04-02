@@ -126,7 +126,7 @@ async function onBaseLayerChange(e) {
   markerCameras.clearLayers();
   init_tagsCamera(baselayerid);
   OSLmap.setView(e.layer.getBounds().getCenter(), 1.5);
-  console.log(`floorId: ${baselayerid}`);
+  console.info(`floorId: ${baselayerid}`);
 }
 // Add the event listener
 OSLmap.on('baselayerchange', onBaseLayerChange);
@@ -149,11 +149,7 @@ new L.Control.Zoom({ position: 'bottomright' }).addTo(OSLmap);
 //    }]
 //}).addTo(OSLmap);
 async function updateOSLattribution(data) {
-  return new Promise((resolve, reject) => {
-    OSLmap.attributionControl.setPrefix('USPS ' + data.ApplicationName + ' (' + data.ApplicationVersion + ') | ' + data.name);
-    resolve();
-    return false;
-  });
+  OSLmap.attributionControl.setPrefix('USPS ' + data.ApplicationName + ' (' + data.ApplicationVersion + ') | ' + data.name);
 }
 // Add Layer Control Button
 L.easyButton({
@@ -322,16 +318,16 @@ async function init_backgroundImages() {
         }
       },
       error: function(error) {
-        console.log(error);
+        console.info(error);
       },
       faulure: function(fail) {
-        console.log(fail);
+        console.info(fail);
       },
       complete: async function(complete) {
         await addGroupToList('BackgroundImage');
       }
     });
   } catch (e) {
-    console.log(e);
+    console.info(e);
   }
 }

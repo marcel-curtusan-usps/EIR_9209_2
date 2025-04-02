@@ -1,36 +1,21 @@
-﻿if (!String.prototype.supplant) {
-  String.prototype.supplant = function(o) {
-    return this.replace(/{([^{}]*)}/g, function(a, b) {
-      let r = o[b];
-      return typeof r === 'string' || typeof r === 'number' ? r : a;
-    });
-  };
-}
-let DateTime = luxon.DateTime;
+﻿let DateTime = luxon.DateTime;
 let appData = {};
 let baselayerid = '';
 let siteInfo = {};
 let siteTours = {};
 let ianaTimeZone = '';
 
-async function start() {
-  try {
-    initializeOSL();
-  } catch (err) {
-    console.log('Connection failed: ', err);
-  }
-}
-function initializeOSL() {
+async function initializeOSL() {
   // Load Application Info
-  fetch('../api/ApplicationConfiguration/Configuration')
+  await fetch('../api/ApplicationConfiguration/Configuration')
     .then(response => response.json())
     .then(data => {
       appData = data;
       document.title = appData.name + ' (' + appData.siteId + ')';
       siteTours = appData.tours;
-      Promise.all([setUserProfile()]);
       ianaTimeZone = getIANATimeZone(getPostalTimeZone(appData.timeZoneAbbr));
-      Promise.all([updateOSLattribution(appData)]);
+      setUserProfile();
+      updateOSLattribution(appData);
       if (/^(Admin|OIE)/i.test(appData.Role)) {
         init_geoman_editing();
         sidebar.addPanel({
@@ -38,9 +23,9 @@ function initializeOSL() {
           tab: '<span class="iconCenter"><i class="pi-iconGearFill"></i></span>',
           position: 'bottom'
         });
-        Promise.all([init_applicationConfiguration()]);
-        Promise.all([init_applicationRoleGroups()]);
-        Promise.all([init_SiteInformation()]);
+        init_applicationConfiguration();
+        init_applicationRoleGroups();
+        init_SiteInformation();
         init_connectiontType();
         init_emailList();
         init_dacodetocraftType();
@@ -53,10 +38,10 @@ function initializeOSL() {
     })
     .then(async () => {
       // Initialize signalR connection after setting up the application
-      await Promise.all([init_signalRConnection(appData)]);
+      await init_signalRConnection(appData);
     })
     .catch(error => {
-      console.error('Error:', error);
+      console.info('Error:', error);
     });
 }
 
@@ -68,7 +53,7 @@ function showConnectionStatus(message) {
   }
 }
 // Start the connection.
-start();
+initializeOSL();
 async function setUserProfile() {
   if (!$.isEmptyObject(appData)) {
     var userid = appData.User;
@@ -217,6 +202,7 @@ function IPAddress_validator(value) {
   }
   return value;
 }
+// Function to validate a GeoJSON object
 function isValidGeoJSON(data) {
   if (!data || typeof data !== 'object') return false;
   if (!data.type || typeof data.type !== 'string') return false;
@@ -236,6 +222,7 @@ function isValidGeoJSON(data) {
 
   return true;
 }
+// Function to validate a GeoJSON geometry object
 function isValidGeoJSONGeometry(geometry) {
   if (!geometry.type || typeof geometry.type !== 'string') return false;
   if (!Array.isArray(geometry.coordinates)) return false;
@@ -293,6 +280,6 @@ function insertSpaceBeforeCapitalLetters(str) {
       .replace(/([a-z])([A-Z])/g, '$1 $2')
       .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
   } catch (e) {
-    console.error('Error: ', e);
+    console.info('Error: ', e);
   }
 }

@@ -53,8 +53,6 @@ async function init_applicationConfiguration() {
         console.error('Error:', error);
       });
     await addGroupToList('ApplicationConfiguration');
-    resolve();
-    return false;
   } catch (e) {
     throw new Error(e.toString());
   }
