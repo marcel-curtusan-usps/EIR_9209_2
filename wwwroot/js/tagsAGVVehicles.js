@@ -89,18 +89,18 @@ async function findAGVLeafletIds(markerId) {
 async function init_tagsAGV() {
   try {
     //load PIV Tags
-    connection
-      .invoke('GetAGVTags')
-      .then(function(data) {
-        //add AGV markers to the layer
-        for (let i = 0; i < data.length; i++) {
-          Promise.all([addAGVFeature(data[i])]);
-        }
-      })
-      .catch(function(err) {
-        // handle error
-        console.error(err);
-      });
+    // connection
+    //   .invoke('GetAGVTags')
+    //   .then(function(data) {
+    //     //add AGV markers to the layer
+    //     for (let i = 0; i < data.length; i++) {
+    //       Promise.all([addAGVFeature(data[i])]);
+    //     }
+    //   })
+    //   .catch(function(err) {
+    //     // handle error
+    //     console.error(err);
+    //   });
     $(document).on('change', '.leaflet-control-layers-selector', function() {
       let sp = this.nextElementSibling;
       if (/^AGV Vehicles/gi.test(sp.innerHTML.trim())) {

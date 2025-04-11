@@ -24,7 +24,23 @@ let tagsPIVVehicles = new L.GeoJSON(null, {
     layer.markerId = feature.properties.id;
     let VisiblefillOpacity = feature.properties.visible ? '' : 'tooltip-hidden';
     let obstructedState = '';
-    layer.on('click', function(e) {});
+    layer.on('click', function(e) {
+      //makea ajax call to get the employee details
+      $.ajax({
+        url: SiteURLconstructor(window.location) + '/api/Tag/GetTagByTagId?tagId=' + feature.properties.id,
+        type: 'GET',
+        success: function(data) {
+          sidebar.open('vehicleinfo');
+        },
+        error: function(error) {
+          console.log(error);
+        },
+        faulure: function(fail) {
+          console.log(fail);
+        },
+        complete: function(complete) {}
+      });
+    });
     layer
       .bindTooltip(feature.properties.name.replace(/[^0-9.]/g, '').replace(/^0+/, ''), {
         permanent: true,
@@ -54,18 +70,18 @@ async function findPIVLeafletIds(markerId) {
 async function init_tagsPIV() {
   try {
     //load PIV Tags
-    connection
-      .invoke('GetPIVTags')
-      .then(function(data) {
-        //add PIV markers to the layer
-        for (let i = 0; i < data.length; i++) {
-          Promise.all([addPIVFeatures(data[i])]);
-        }
-      })
-      .catch(function(err) {
-        // handle error
-        console.error(err);
-      });
+    // connection
+    //   .invoke('GetPIVTags')
+    //   .then(function(data) {
+    //     //add PIV markers to the layer
+    //     for (let i = 0; i < data.length; i++) {
+    //       Promise.all([addPIVFeatures(data[i])]);
+    //     }
+    //   })
+    //   .catch(function(err) {
+    //     // handle error
+    //     console.error(err);
+    //   });
 
     $(document).on('change', '.leaflet-control-layers-selector', function() {
       let sp = this.nextElementSibling;

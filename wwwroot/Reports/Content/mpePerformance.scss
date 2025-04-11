@@ -1,20 +1,20 @@
-﻿@import url('../../lib/bootstrap/dist/css/bootstrap.css');
-@import url('../../lib/bootstrap/dist/css/bootstrap.rtl.css');
-@import url('../../lib/bootstrap/dist/css/bootstrap-grid.css');
-@import url('../../lib/bootstrap/dist/css/bootstrap-reboot.css');
-@import url('../../lib/bootstrap/dist/css/bootstrap-utilities.css');
+﻿@import url('../../lib/bootstrap/css/bootstrap.min.css');
 @import url('../../lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css');
 @import url('../../css/bootstrap-icons.css');
-html, body {
+
+html,
+body {
     min-height: 100%;
     width: 100%;
     height: 100%;
     margin: 0;
 }
+
 * {
     margin: 0;
     padding: 0;
 }
+
 .runVSplan {
     width: 100%;
     padding: 20px;
@@ -23,21 +23,23 @@ html, body {
     background: white;
 }
 
-#mpePerformanceData  {
-        table-layout:fixed;
+#mpePerformanceData {
+    table-layout: fixed;
 }
 
-.modsdate{
-    justify-content:flex-end;
-    padding-right:5rem;
+.modsdate {
+    justify-content: flex-end;
+    padding-right: 5rem;
 }
 
-.modtext{
-    font-weight:bold;
+.modtext {
+    font-weight: bold;
 }
-.lineChartPerf{
-    height:240px;
+
+.lineChartPerf {
+    height: 240px;
 }
+
 .box {
     border: 1px solid #ccc;
     background-color: #f5f5f5;
@@ -46,17 +48,21 @@ html, body {
     height: 216px;
     text-align: center;
 }
+
 .box-title {
     font-weight: bold;
     font-size: 18px;
     margin-bottom: 10px;
 }
+
 .detail-title {
     font-weight: bold;
 }
+
 .detail-value {
     margin-top: 5px;
 }
+
 /* table.table thead.thead-dark {
     background-color: #343a40;
     color: #fff;

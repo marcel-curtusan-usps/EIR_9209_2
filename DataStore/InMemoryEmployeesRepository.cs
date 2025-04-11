@@ -72,22 +72,21 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
     {
         try
         {
-
-            var result = _empList.Where(r => r.Value.BleId == code).Select(r => r.Value).ToList().FirstOrDefault();
-            if (result != null)
+            if (_empList != null && !_empList.IsEmpty)
             {
+                var result = _empList.Values
+                    .FirstOrDefault(r => r.BleId?.Trim().Equals(code.Trim(), StringComparison.CurrentCultureIgnoreCase) == true);
+
                 return Task.FromResult(result);
             }
-            else
-            {
-                return null;
-            }
 
+            _logger.LogInformation($"BLE ID {code} not found in the employee list.");
+            return Task.FromResult<EmployeeInfo?>(null);
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
-            return null;
+            _logger.LogError($"Error finding BLE ID {code}: {e.Message}");
+            return Task.FromResult<EmployeeInfo?>(null);
         }
     }
     private async Task LoadDataFromFile()
@@ -313,11 +312,11 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                         }
                         if (fieldName == "lastName")
                         {
-                            employeeInfo.LastName = Helper.ConvertToTitleCase(fieldValue);
+                            employeeInfo.LastName = string.IsNullOrEmpty(fieldValue) ? "" : Helper.ConvertToTitleCase(fieldValue);
                         }
                         if (fieldName == "firstName")
                         {
-                            employeeInfo.FirstName = Helper.ConvertToTitleCase(fieldValue);
+                            employeeInfo.FirstName = string.IsNullOrEmpty(fieldValue) ? "" : Helper.ConvertToTitleCase(fieldValue);
                         }
                         if (fieldName == "employeeGroup")
                         {
@@ -437,8 +436,8 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                 {
                     if (_empList.ContainsKey(empData.Ein) && _empList.TryGetValue(empData.Ein, out EmployeeInfo currentEmp))
                     {
-                        var firstName = Helper.ConvertToTitleCase(empData.FirstName);
-                        var lastName = Helper.ConvertToTitleCase(empData.LastName);
+                        var firstName = string.IsNullOrEmpty(empData.FirstName) ? "" : Helper.ConvertToTitleCase(empData.FirstName);
+                        var lastName = string.IsNullOrEmpty(empData.LastName) ? "" : Helper.ConvertToTitleCase(empData.LastName);
                         if (currentEmp.FirstName != firstName)
                         {
                             currentEmp.FirstName = firstName;
@@ -587,10 +586,10 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                 if (!string.IsNullOrEmpty(cardholderData?.EIN))
                 {
                     ///check if the employee exists in the list then update
-                    if (_empList.ContainsKey(cardholderData?.EIN) && _empList.TryGetValue(cardholderData?.EIN, out EmployeeInfo? currentEmp))
+                    if (_empList.ContainsKey(cardholderData.EIN) && _empList.TryGetValue(cardholderData.EIN, out EmployeeInfo? currentEmp))
                     {
-                        var firstName = Helper.ConvertToTitleCase(cardholderData.FirstName);
-                        var lastName = Helper.ConvertToTitleCase(cardholderData.LastName);
+                        var firstName = string.IsNullOrEmpty(cardholderData.FirstName) ? "" : Helper.ConvertToTitleCase(cardholderData.FirstName);
+                        var lastName = string.IsNullOrEmpty(cardholderData.FirstName) ? "" : Helper.ConvertToTitleCase(cardholderData.LastName);
                         if (currentEmp.FirstName.Equals(firstName, StringComparison.CurrentCultureIgnoreCase))
                         {
                             currentEmp.FirstName = firstName;
@@ -601,9 +600,9 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                             currentEmp.LastName = lastName;
                             savetoFile = true;
                         }
-                        if (currentEmp.BleId != cardholderData?.ImportField)
+                        if (currentEmp.BleId != cardholderData.ImportField)
                         {
-                            currentEmp.BleId = cardholderData?.ImportField;
+                            currentEmp.BleId = cardholderData.ImportField;
                             savetoFile = true;
                         }
                         if (currentEmp.EncodedId != transaction?.EncodedID)

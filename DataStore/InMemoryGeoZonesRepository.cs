@@ -483,21 +483,12 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         try
         {
             string hourFormat = Dateandhour.ToString("yyyy-MM-ddTHH:mm:ss");
-            string hour = Dateandhour.ToString("yyyy-MM-dd HH:mm");
             var standardPiecseFeed = 0;
             var standardStaffHrs = 0;
-            //MPEActiveRun AR = AppParameters.MPEStandard.Values
-            //       .Where(x => x.MpeId == mpe.MpeId && x.Hourlydata.Any(y => y.Hour == hour))
-            //       .Select(x => x)
-            //       .FirstOrDefault();
-            //if (AR != null)
-            //{
-            //    standardPiecseFeed = AR.Hourlydata.Where(r => r.Hour == hour).FirstOrDefault()?.Count ?? 0;
-            //    standardStaffHrs = AR.Hourlydata.Where(r => r.Hour == hour).FirstOrDefault()?.StaffCount ?? 0;
-            //}
-            var piecesCountThisHour = mpe.HourlyData.Where(r => r.Hour == Dateandhour).FirstOrDefault()?.Count;
-            var piecesSortedThisHour = mpe.HourlyData.Where(r => r.Hour == Dateandhour).FirstOrDefault()?.Sorted;
-            var piecesRejectedThisHour = mpe.HourlyData.Where(r => r.Hour == Dateandhour).FirstOrDefault()?.Rejected;
+
+            var piecesCountThisHour = mpe.HourlyData.FirstOrDefault(r => r.Hour == Dateandhour)?.Count;
+            var piecesSortedThisHour = mpe.HourlyData.FirstOrDefault(r => r.Hour == Dateandhour)?.Sorted;
+            var piecesRejectedThisHour = mpe.HourlyData.FirstOrDefault(r => r.Hour == Dateandhour)?.Rejected;
             var actualYieldcal = 0.0;
             var laborHrs = new Dictionary<string, double>();
             var laborCounts = new Dictionary<string, int>();
@@ -512,30 +503,63 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             var supervisorPresent = 0;
             var otherPresent = 0;
             var piecesForYield = piecesSortedThisHour != 0 ? piecesSortedThisHour : piecesCountThisHour;
-            var entriesThisArea = _QREAreaDwellResults.ContainsKey(Dateandhour) ? _QREAreaDwellResults[Dateandhour].Where(r => r.AreaName.Equals(area)) : null; //_QREAreaDwellResults(Dateandhour);
-            if (entriesThisArea != null)
-            {
-                //if where pieces Sorted is available the calculate the actual yield using the sorted pieces
 
-                var clerkAndMailHandlerCountThisHour = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds) / (1000 * 60 * 60);
-                actualYieldcal = piecesForYield != null && clerkAndMailHandlerCountThisHour > 0 ? piecesForYield.Value / clerkAndMailHandlerCountThisHour : 0.0;
-                if (mpe.HourlyData.Where(r => r.Hour == Dateandhour).Select(y => y.Count).Any())
+            if (_QREAreaDwellResults.TryGetValue(Dateandhour, out var dwellResults))
+            {
+                var entriesThisArea = dwellResults.Where(r => r.AreaName.Equals(area));
+                if (entriesThisArea != null)
                 {
-                    actualYieldcal = mpe.HourlyData.Where(r => r.Hour == Dateandhour).Select(y => y.Count).First() / (entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds) / (1000 * 60 * 60));
+                    var clerkAndMailHandlerCountThisHour = entriesThisArea
+                        .Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
+                        .Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds) / (1000 * 60 * 60);
+
+                    actualYieldcal = piecesForYield != null && clerkAndMailHandlerCountThisHour > 0
+                        ? piecesForYield.Value / clerkAndMailHandlerCountThisHour
+                        : 0.0;
+
+                    if (mpe.HourlyData.Where(r => r.Hour == Dateandhour).Select(y => y.Count).Any())
+                    {
+                        actualYieldcal = mpe.HourlyData
+                            .Where(r => r.Hour == Dateandhour)
+                            .Select(y => y.Count)
+                            .First() /
+                            (entriesThisArea
+                                .Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
+                                .Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds) / (1000 * 60 * 60));
+                    }
+
+                    laborHrs = entriesThisArea.GroupBy(e => e.Type)
+                        .ToDictionary(g => g.Key, g => g.Sum(e => e.DwellTimeDurationInArea.TotalMilliseconds));
+                    laborCounts = entriesThisArea.GroupBy(e => e.Type)
+                        .ToDictionary(g => g.Key, g => g.Count());
+                    clerkDwellTime = entriesThisArea
+                        .Where(e => Regex.IsMatch(e.Type, "^(clerk)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
+                        .Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+                    maintDwellTime = entriesThisArea
+                        .Where(e => Regex.IsMatch(e.Type, "^(maintenance)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
+                        .Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+                    mhDwellTime = entriesThisArea
+                        .Where(e => Regex.IsMatch(e.Type, "^(mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
+                        .Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+                    supervisorDwellTime = entriesThisArea
+                        .Where(e => Regex.IsMatch(e.Type, "^(supervisor)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
+                        .Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+                    otherDwellTime = entriesThisArea
+                        .Where(e => !Regex.IsMatch(e.Type, "^(clerk|supervisor|mail handler|maintenance)", RegexOptions.IgnoreCase))
+                        .Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+                    clerkPresent = entriesThisArea
+                        .Count(e => Regex.IsMatch(e.Type, "^(clerk)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)));
+                    mhPresent = entriesThisArea
+                        .Count(e => Regex.IsMatch(e.Type, "^(mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)));
+                    maintPresent = entriesThisArea
+                        .Count(e => Regex.IsMatch(e.Type, "^(maintenance)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)));
+                    supervisorPresent = entriesThisArea
+                        .Count(e => Regex.IsMatch(e.Type, "^(supervisor)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)));
+                    otherPresent = entriesThisArea
+                        .Count(e => !Regex.IsMatch(e.Type, "^(clerk|supervisor|mail handler|maintenance)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)));
                 }
-                laborHrs = entriesThisArea.GroupBy(e => e.Type).ToDictionary(g => g.Key, g => g.Sum(e => e.DwellTimeDurationInArea.TotalMilliseconds));
-                laborCounts = entriesThisArea.GroupBy(e => e.Type).ToDictionary(g => g.Key, g => g.Count());
-                clerkDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
-                maintDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(maintenance)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
-                mhDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
-                supervisorDwellTime = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(supervisor)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
-                otherDwellTime = entriesThisArea.Where(e => !Regex.IsMatch(e.Type, "^(clerk|supervisor|mail handler|maintenance)", RegexOptions.IgnoreCase)).Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
-                clerkPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(clerk)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Count();
-                mhPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Count();
-                maintPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(maintenance)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Count();
-                supervisorPresent = entriesThisArea.Where(e => Regex.IsMatch(e.Type, "^(supervisor)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Count();
-                otherPresent = entriesThisArea.Where(e => !Regex.IsMatch(e.Type, "^(clerk|supervisor|mail handler|maintenance)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))).Count();
             }
+
             var r = new MPESummary
             {
                 laborHrs = laborHrs,
@@ -564,7 +588,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            _logger.LogError("An error occurred: {Message}", e.Message);
             return null;
         }
     }

@@ -4,12 +4,27 @@ using NuGet.Protocol;
 
 namespace EIR_9209_2.Service
 {
+    /// <summary>
+    /// This class is responsible for fetching data from the QPE endpoint and processing it.
+    /// </summary>
     public class QPEEndPointServices : BaseEndpointService
     {
         private readonly IInMemoryTagsRepository _tags;
         private readonly IInMemoryGeoZonesRepository _zones;
         private readonly IInMemoryBackgroundImageRepository _backgroundImage;
-
+        /// <summary>
+        /// This class is responsible for fetching data from the QPE endpoint and processing it.
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="httpClientFactory"></param>
+        /// <param name="endpointConfig"></param>
+        /// <param name="configuration"></param>
+        /// <param name="hubContext"></param>
+        /// <param name="connection"></param>
+        /// <param name="loggerService"></param>
+        /// <param name="tags"></param>
+        /// <param name="zones"></param>
+        /// <param name="backgroundImage"></param>
         public QPEEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryTagsRepository tags, IInMemoryGeoZonesRepository zones, IInMemoryBackgroundImageRepository backgroundImage)
             : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
@@ -17,7 +32,11 @@ namespace EIR_9209_2.Service
             _zones = zones;
             _backgroundImage = backgroundImage;
         }
-
+        /// <summary>
+        /// Fetches data from the endpoint based on the message type specified in the configuration.
+        /// </summary>
+        /// <param name="stoppingToken"></param>
+        /// <returns></returns>
         protected override async Task FetchDataFromEndpoint(CancellationToken stoppingToken)
         {
             try
@@ -26,7 +45,7 @@ namespace EIR_9209_2.Service
                 string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
                 string formatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType);
                 queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(formatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
-              
+
                 if (_endpointConfig.MessageType.Equals("getTagData", StringComparison.CurrentCultureIgnoreCase))
                 {
                     // Process tag data in a separate thread
@@ -34,10 +53,10 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.LogData)
                     {
                         // Start a new thread to handle the logging
-                        Task.Run(() => _loggerService.LogData(result.ToJson(),
+                        await _loggerService.LogData(result.ToJson(),
                             _endpointConfig.MessageType,
                             _endpointConfig.Name,
-                            formatUrl), stoppingToken);
+                            formatUrl);
                     }
                     _endpointConfig.Status = EWorkerServiceState.Idel;
                     var updateCon = _connection.Update(_endpointConfig).Result;
@@ -54,10 +73,10 @@ namespace EIR_9209_2.Service
                     // Start a new thread to handle the logging
                     if (_endpointConfig.LogData)
                     {
-                        Task.Run(() => _loggerService.LogData(result.ToJson(),
+                        await _loggerService.LogData(result.ToJson(),
                         _endpointConfig.MessageType,
                         _endpointConfig.Name,
-                        formatUrl), stoppingToken);
+                        formatUrl);
                     }
                     _endpointConfig.Status = EWorkerServiceState.Idel;
                     var updateCon = _connection.Update(_endpointConfig).Result;
@@ -100,7 +119,7 @@ namespace EIR_9209_2.Service
             {
                 if (result?.Tags != null)
                 {
-                  await _tags.UpdateTagQPEInfo(result.Tags, result.ResponseTS, stoppingToken);
+                    await _tags.UpdateTagQPEInfo(result.Tags, result.ResponseTS, stoppingToken);
                 }
             }
             catch (Exception e)

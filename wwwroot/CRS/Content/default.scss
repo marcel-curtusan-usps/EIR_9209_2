@@ -1,4 +1,4 @@
-﻿@import url('../../lib/bootstrap/dist/css/bootstrap.css');
+﻿@import url('../../lib/bootstrap/css/bootstrap.min.css');
 @import url('../../lib/bootstrap-datepicker/css/bootstrap-datepicker.css');
 @import url('../../css/bootstrap-icons.css');
 
@@ -6,6 +6,7 @@
 .dt-scroll-body table thead {
     display: none;
 }
+
 a {
     font-weight: 500;
     color: #646cff;
@@ -16,7 +17,8 @@ a:hover {
     color: var(--buttonHoverColor);
 }
 
-html, body {
+html,
+body {
     height: 100%;
     width: 100%;
     overflow: hidden; // Prevent scroll bars
@@ -87,7 +89,7 @@ code {
     background-color: var(--primaryColor) !important;
 }
 
-.kiosk-container{
+.kiosk-container {
     padding: 1vw;
 }
 
@@ -143,7 +145,8 @@ code {
 }
 
 .welcomeCenter button:hover {
-    background-color: #e2e2e2; /* Darker grey on hover */
+    background-color: #e2e2e2;
+    /* Darker grey on hover */
 }
 
 .please {
@@ -183,7 +186,7 @@ code {
 #profileImg {
     margin-top: -10px;
     font-size: 8vw;
-    color:black;
+    color: black;
 }
 
 /*------------------------TACSLog------------------------------*/
@@ -198,7 +201,7 @@ code {
     //padding-top: 7px;
 }
 
-#tacsdatatable{
+#tacsdatatable {
     height: 32vh !important;
 }
 
@@ -253,7 +256,7 @@ $keypad-height: 31vh; //Sets for keypad
     //width: $component-width;
     padding: 10px;
     font-size: 4vh;
-    font-weight:bolder;
+    font-weight: bolder;
     border-radius: 10px;
     box-shadow: 2px 2px 2px 2px gray;
     margin-left: 6px;
@@ -285,7 +288,7 @@ $keypad-height: 31vh; //Sets for keypad
     justify-content: center;
     line-height: 1;
     overflow: hidden;
-    }
+}
 
 /* ------ Bottom Row styling ------ */
 
@@ -335,7 +338,8 @@ $keypad-height: 31vh; //Sets for keypad
     font-size: 2vw;
     //height: calc(var(--button-container-height)/5.5);
     height: 100%;
-    width: 100% /* Adjust button width based on container width */
+    width: 100%
+        /* Adjust button width based on container width */
 }
 
 #bt {
@@ -362,7 +366,8 @@ $keypad-height: 31vh; //Sets for keypad
 
 #mvBtn {
     grid-row: 3;
-    grid-column: 2 / 4; /* Span across columns 2 and 3 */
+    grid-column: 2 / 4;
+    /* Span across columns 2 and 3 */
 }
 
 #cancel-container {
@@ -378,11 +383,14 @@ $keypad-height: 31vh; //Sets for keypad
 }
 
 #cancelBtn:hover {
-    background-color: #a90000 !important; /* Dark red on hover */
+    background-color: #a90000 !important;
+    /* Dark red on hover */
 }
 
-.confirm-container { /* Add a new container for the Confirm button */
-    grid-area: 4 / 2 / 5 / 5; /* Span across columns 3 and 4 */
+.confirm-container {
+    /* Add a new container for the Confirm button */
+    grid-area: 4 / 2 / 5 / 5;
+    /* Span across columns 3 and 4 */
     /*    display: flex;
     justify-content: flex-end;*/
 }
@@ -396,7 +404,8 @@ $keypad-height: 31vh; //Sets for keypad
 }
 
 #confirmBtn:hover {
-    background-color: #02750c !important; /* Dark green on hover */
+    background-color: #02750c !important;
+    /* Dark green on hover */
 }
 
 /*--------------------------TopCodes----------------------------*/
@@ -405,13 +414,13 @@ $keypad-height: 31vh; //Sets for keypad
     align-items: center;
     width: 99vw !important;
     height: 10vh;
-          /*top right bottom left*/
+    /*top right bottom left*/
     margin: 10px 2px 0px 4px;
     padding: .3vw 1vw 0vw 1vw;
 }
 
 #topOpnCodeLabel {
-    font-size:1vw;
+    font-size: 1vw;
     background-color: white;
     color: black;
     box-shadow: 1px 1px 1px 1px grey;
@@ -428,7 +437,8 @@ $keypad-height: 31vh; //Sets for keypad
 }
 
 .topCodesContainer button:hover {
-    background-color: navy; /* Navy on hover */
+    background-color: navy;
+    /* Navy on hover */
     color: white;
 }
 
@@ -461,5 +471,3 @@ $keypad-height: 31vh; //Sets for keypad
 #footerLabel {
     color: white;
 }
-
-

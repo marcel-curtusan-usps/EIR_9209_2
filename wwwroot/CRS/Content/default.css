@@ -1,4 +1,4 @@
-@import url("../../lib/bootstrap/dist/css/bootstrap.css");
+@import url("../../lib/bootstrap/css/bootstrap.min.css");
 @import url("../../lib/bootstrap-datepicker/css/bootstrap-datepicker.css");
 @import url("../../css/bootstrap-icons.css");
 .dt-scroll-body table thead {
@@ -15,7 +15,8 @@ a:hover {
   color: var(--buttonHoverColor);
 }
 
-html, body {
+html,
+body {
   height: 100%;
   width: 100%;
   overflow: hidden;
@@ -135,7 +136,8 @@ code {
 }
 
 .welcomeCenter button:hover {
-  background-color: #e2e2e2; /* Darker grey on hover */
+  background-color: #e2e2e2;
+  /* Darker grey on hover */
 }
 
 .please {
@@ -327,7 +329,8 @@ code {
 
 #mvBtn {
   grid-row: 3;
-  grid-column: 2/4; /* Span across columns 2 and 3 */
+  grid-column: 2/4;
+  /* Span across columns 2 and 3 */
 }
 
 #cancel-container {
@@ -343,11 +346,14 @@ code {
 }
 
 #cancelBtn:hover {
-  background-color: #a90000 !important; /* Dark red on hover */
+  background-color: #a90000 !important;
+  /* Dark red on hover */
 }
 
-.confirm-container { /* Add a new container for the Confirm button */
-  grid-area: 4/2/5/5; /* Span across columns 3 and 4 */
+.confirm-container {
+  /* Add a new container for the Confirm button */
+  grid-area: 4/2/5/5;
+  /* Span across columns 3 and 4 */
   /*    display: flex;
   justify-content: flex-end;*/
 }
@@ -361,7 +367,8 @@ code {
 }
 
 #confirmBtn:hover {
-  background-color: #02750c !important; /* Dark green on hover */
+  background-color: #02750c !important;
+  /* Dark green on hover */
 }
 
 /*--------------------------TopCodes----------------------------*/
@@ -393,7 +400,8 @@ code {
 }
 
 .topCodesContainer button:hover {
-  background-color: navy; /* Navy on hover */
+  background-color: navy;
+  /* Navy on hover */
   color: white;
 }
 

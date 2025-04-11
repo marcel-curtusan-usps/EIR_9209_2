@@ -1,11 +1,9 @@
-﻿@import url('../../lib/bootstrap/dist/css/bootstrap.css');
-@import url('../../lib/bootstrap/dist/css/bootstrap.rtl.css');
-@import url('../../lib/bootstrap/dist/css/bootstrap-grid.css');
-@import url('../../lib/bootstrap/dist/css/bootstrap-reboot.css');
-@import url('../../lib/bootstrap/dist/css/bootstrap-utilities.css');
+﻿@import url('../../lib/bootstrap/css/bootstrap.min.css');
 @import url('../../lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css');
 @import url('../../css/bootstrap-icons.css');
-html, body {
+
+html,
+body {
     min-height: 100%;
     width: 100%;
     height: 100%;
@@ -13,20 +11,26 @@ html, body {
 }
 
 @media print {
-    .schedtbl tr, .schedtbl .tr {
+
+    .schedtbl tr,
+    .schedtbl .tr {
         page-break-inside: avoid !important;
     }
 }
+
 .dt-scroll-sizing {
     height: 0 !important;
     overflow: hidden !important;
 }
+
 .dt-scroll-body table thead {
     display: none;
 }
+
 .dt-scroll-headInner table thead {
     text-align: center;
 }
+
 .schedtbl table.daydetail tr:first-child td:first-child {
     border-right: 1px solid black;
 }
@@ -73,6 +77,7 @@ div.otgreen {
 .schedtbl img {
     border: none 0px #ffffff;
 }
+
 /*
 .schedtbl table {
     table-layout: fixed;
@@ -157,7 +162,7 @@ div.otgreen {
 }
 
 .work {
-    background-color: rgb(204,255,204);
+    background-color: rgb(204, 255, 204);
     vertical-align: top;
 }
 
@@ -168,6 +173,7 @@ div.otgreen {
 .selshr {
     background-color: #7c9299 !important;
 }
+
 /*
  .schedtbl>thead ,
  .schedtbl tr {

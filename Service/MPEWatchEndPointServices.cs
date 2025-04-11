@@ -5,26 +5,46 @@ using Newtonsoft.Json.Linq;
 
 namespace EIR_9209_2.Service
 {
+
+    /// <summary>
+    /// This class is responsible for fetching data from the MPEWatch endpoint and processing it.
+    /// It inherits from the BaseEndpointService class and implements the FetchDataFromEndpoint method.
+    /// </summary>
     public class MPEWatchEndPointServices : BaseEndpointService
     {
         private readonly IInMemoryGeoZonesRepository _geoZones;
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MPEWatchEndPointServices"/> class.
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="httpClientFactory"></param>
+        /// <param name="endpointConfig"></param>
+        /// <param name="configuration"></param>
+        /// <param name="hubContext"></param>
+        /// <param name="connection"></param>
+        /// <param name="loggerService"></param>
+        /// <param name="geozone"></param>
         public MPEWatchEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryGeoZonesRepository geozone)
             : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
             _geoZones = geozone;
         }
+        /// <summary>
+        /// Fetches data from the endpoint and processes it.
+        /// </summary>
+        /// <param name="stoppingToken"></param>
+        /// <returns></returns>
         protected override async Task FetchDataFromEndpoint(CancellationToken stoppingToken)
         {
             try
             {
                 IQueryService queryService;
-                
+
                 var MpeWatchSetting = _configuration.GetSection("MpeWatch");
                 var MpeWatchSettingRequestId = MpeWatchSetting.GetSection("RequestId");
                 _ = int.TryParse(MpeWatchSettingRequestId.Value, out int MpeWatchId);
 
-                string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname: _endpointConfig.IpAddress;
+                string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
                 string start_time = string.Concat(DateTime.Now.AddHours(-_endpointConfig.HoursBack).ToString("MM/dd/yyyy_"), "00:00:00");
                 string end_time = string.Concat(DateTime.Now.AddHours(_endpointConfig.HoursForward).ToString("MM/dd/yyyy_"), "23:59:59");
                 if (MpeWatchId == 0)
@@ -38,9 +58,9 @@ namespace EIR_9209_2.Service
                     if (reqiestId != null)
                     {
                         int RequestId = 0;
-                        int.TryParse(reqiestId.id , out RequestId);
+                        int.TryParse(reqiestId.id, out RequestId);
                         MpeWatchId = RequestId;
-                        MpeWatchSettingRequestId.Value = reqiestId.id;
+                        _configuration["MpeWatch:RequestId"] = RequestId.ToString();
                     }
                 }
 
@@ -57,10 +77,10 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.LogData)
                     {
                         // Start a new thread to handle the logging
-                       _ = Task.Run(() => _loggerService.LogData(result,
-                            _endpointConfig.MessageType,
-                            _endpointConfig.Name,
-                            FormatUrl), stoppingToken);
+                        _ = Task.Run(() => _loggerService.LogData(result,
+                             _endpointConfig.MessageType,
+                             _endpointConfig.Name,
+                             FormatUrl), stoppingToken);
                     }
                     _endpointConfig.Status = EWorkerServiceState.Idel;
                     var updateCon = _connection.Update(_endpointConfig).Result;
@@ -149,7 +169,7 @@ namespace EIR_9209_2.Service
                     var data = result.SelectToken("data");
                     if (data != null)
                     {
-                       /// await Task.Run(() => _geoZones.LoadMPEPlan(data), stoppingToken).ConfigureAwait(false);
+                        /// await Task.Run(() => _geoZones.LoadMPEPlan(data), stoppingToken).ConfigureAwait(false);
                     }
                 }
             }
@@ -296,7 +316,7 @@ namespace EIR_9209_2.Service
         }
     }
 
-    internal class MPEWatchRunPerformanceConverter :  JsonConverter<MPERunPerformance>
+    internal class MPEWatchRunPerformanceConverter : JsonConverter<MPERunPerformance>
     {
         public override MPERunPerformance ReadJson(JsonReader reader, Type objectType, MPERunPerformance existingValue, bool hasExistingValue, JsonSerializer serializer)
         {

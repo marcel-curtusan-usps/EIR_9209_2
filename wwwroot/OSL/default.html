@@ -1268,7 +1268,7 @@
 						aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<div class="row mr-0 ml-0" id="personform" style="display: none">
+					<div class="row mr-0 ml-0 hidden" id="personform">
 						<div class="row mr-0 ml-0">
 							<div class="form-group col-3">
 								<label for="empFirstName" class="control-label">First Name</label>
@@ -1318,27 +1318,29 @@
 						</div>
 					</div>
 					<div class="row mr-0 ml-0">
-						<div class="form-group col-3">
-							<label for="tag_id" class="control-label">Tag BLE MAC</label>
-							<input id="tag_id" type="text" class="form-control" name="tag_id" disabled="disabled" />
-							<span id="error_tag_id" class="text-danger"></span>
-						</div>
-						<div class="form-group col-3">
-							<label for="tag_name" class="control-label">TAG Name</label>
-							<input id="tag_name" type="text" class="form-control" name="tag_name" />
-							<span id="error_tag_name" class="text-danger"></span>
-						</div>
-						<div class="form-group col-3">
-							<label for="tagType_select" class="control-label">Type</label>
-							<select id="tagType_select" title="Tag Type" class="form-control" name="tagType_select">
-								<option value=""></option>
-								<option value="PIVVehicle">Vehicle</option>
-								<option value="Locator">Locater</option>
-								<option value="HVI">High Value Item</option>
-								<option value="Badge">Person</option>
-								<option value="AutonomousVehicle">Autonomous Vehicle</option>
-							</select>
-							<span id="error_tagType_select" class="text-danger"></span>
+						<div class="row">
+							<div class="form-group col-3">
+								<label for="tag_id" class="control-label">Tag BLE MAC</label>
+								<input id="tag_id" type="text" class="form-control" name="tag_id" disabled="disabled" />
+								<span id="error_tag_id" class="text-danger"></span>
+							</div>
+							<div class="form-group col-3">
+								<label for="tag_name" class="control-label">TAG Name</label>
+								<input id="tag_name" type="text" class="form-control" name="tag_name" />
+								<span id="error_tag_name" class="text-danger"></span>
+							</div>
+							<div class="form-group col-3">
+								<label for="tagType_select" class="control-label">Type</label>
+								<select id="tagType_select" title="Tag Type" class="form-control" name="tagType_select">
+									<option value=""></option>
+									<option value="PIVVehicle">Vehicle</option>
+									<option value="Locator">Locater</option>
+									<option value="HVI">High Value Item</option>
+									<option value="Badge">Person</option>
+									<option value="AutonomousVehicle">Autonomous Vehicle</option>
+								</select>
+								<span id="error_tagType_select" class="text-danger"></span>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -3644,6 +3646,8 @@
 		</div>
 	</div>
 	<script src="../lib/jquery/jquery.js"></script>
+	<script src="../lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<script src="../lib/bootstrap-icons/bootstrap-icons.js"></script>
 	<script src="../lib/jquery-validation/jquery.validate.js"></script>
 	<script src="../lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
 	<script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
@@ -3652,8 +3656,7 @@
 	<script src="../lib/datatables.net-buttons/js/datatables.buttons.min.js"></script>
 	<script src="../lib/datatables.net-responsive/datatables.responsive.min.js"></script>
 	<script src="../lib/datatables.net-select/datatables.select.min.js"></script>
-	<script src="../lib/bootstrap/dist/js/bootstrap.js"></script>
-	<script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+
 	<script src="../lib/luxon/luxon.min.js"></script>
 	<script src="../lib/chartjs/chart.umd.min.js"></script>
 	<script src="../lib/chartjs-adapter-luxon/chartjs-adapter-luxon.umd.min.js"></script>

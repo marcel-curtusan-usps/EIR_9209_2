@@ -1,10 +1,6 @@
-@import url("../../css/bootstrap-icons.css");
-@import url("../../lib/bootstrap/dist/css/bootstrap.css");
-@import url("../../lib/bootstrap/dist/css/bootstrap.rtl.css");
-@import url("../../lib/bootstrap/dist/css/bootstrap-grid.css");
-@import url("../../lib/bootstrap/dist/css/bootstrap-reboot.css");
-@import url("../../lib/bootstrap/dist/css/bootstrap-utilities.css");
+@import url("../../lib/bootstrap/css/bootstrap.min.css");
 @import url("../../lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css");
+@import url("../../css/bootstrap-icons.css");
 body {
   font-family: Arial, sans-serif;
 }
@@ -18,7 +14,8 @@ body {
 }
 
 .custom-btn-height {
-  height: 5rem !important; /* 2 times the default button height */
+  height: 5rem !important;
+  /* 2 times the default button height */
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;

@@ -131,20 +131,7 @@ async function init_tags() {
   try {
     createStaffingDataTable('staffingtable');
     createTagDataTable('tagInfotable');
-
-    //load Person Tags
-    connection
-      .invoke('GetBadgeTags')
-      .then(function(data) {
-        //add PIV markers to the layer
-        for (let i = 0; i < data.length; i++) {
-          Promise.all([addFeature(data[i])]);
-        }
-      })
-      .catch(function(err) {
-        // handle error
-        console.error(err);
-      });
+    await addGroupToList('Badge');
     $(document).on('change', '.leaflet-control-layers-selector', function() {
       let sp = this.nextElementSibling;
       if (/^badges$/gi.test(sp.innerHTML.trim())) {
@@ -159,7 +146,6 @@ async function init_tags() {
         }
       }
     });
-    await addGroupToList('Badge');
   } catch (e) {
     throw new Error(e.toString());
   }

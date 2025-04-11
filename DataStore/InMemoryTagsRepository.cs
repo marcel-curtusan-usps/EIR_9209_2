@@ -20,18 +20,24 @@ namespace EIR_9209_2.DataStore
         private readonly ConcurrentDictionary<DateTime, List<TagTimeline>> _QRETagTimelineResults = new();
         private readonly ILogger<InMemoryTagsRepository> _logger;
         protected readonly IHubContext<HubServices> _hubServices;
-        private readonly IConfiguration _configuration;
         private readonly IFileService _fileService;
         private readonly IInMemoryDacodeRepository _dacode;
         private readonly IInMemoryEmployeesRepository _emp;
         private readonly string fileName = "Tags.json";
         private readonly string vehicleFileName = "VehicelTags.json";
         private readonly string fileTagTimeline = "TagTimeline.json";
-        public InMemoryTagsRepository(ILogger<InMemoryTagsRepository> logger, IHubContext<HubServices> hubServices, IConfiguration configuration, IInMemoryDacodeRepository dacode, IFileService fileService, IInMemoryEmployeesRepository emp)
+        /// <summary>
+        ///  Constructor for InMemoryTagsRepository
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="hubServices"></param>
+        /// <param name="dacode"></param>
+        /// <param name="fileService"></param>
+        /// <param name="emp"></param>
+        public InMemoryTagsRepository(ILogger<InMemoryTagsRepository> logger, IHubContext<HubServices> hubServices, IInMemoryDacodeRepository dacode, IFileService fileService, IInMemoryEmployeesRepository emp)
         {
             _fileService = fileService;
             _logger = logger;
-            _configuration = configuration;
             _hubServices = hubServices;
             _dacode = dacode;
             _emp = emp;
@@ -43,7 +49,11 @@ namespace EIR_9209_2.DataStore
         }
 
 
-
+        /// <summary>
+        /// Adds a new tag to the repository and notifies the clients in the specified group.
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns></returns>
         public async Task Add(GeoMarker tag)
         {
             bool saveToFile = false;
@@ -67,6 +77,11 @@ namespace EIR_9209_2.DataStore
                 }
             }
         }
+        /// <summary>
+        /// Delete a tag to the repository and notifies the clients in the specified group.
+        /// </summary>
+        /// <param name="connectionId"></param>
+        /// <returns></returns>
         public async Task Delete(string connectionId)
         {
             bool saveToFile = false;
@@ -91,7 +106,11 @@ namespace EIR_9209_2.DataStore
             }
 
         }
-
+        /// <summary>
+        /// Get a tag by its ID from the repository.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<object> Get(string id)
         {
             if (_tagList.ContainsKey(id) && _tagList.TryGetValue(id, out GeoMarker tag))
@@ -107,27 +126,52 @@ namespace EIR_9209_2.DataStore
                 return new JObject { ["Message"] = "Tag not Found" };
             }
         }
+        /// <summary>
+        /// Get a tag by its Type from the repository.
+        /// </summary>
+        /// <param name="tagType"></param>
+        /// <returns></returns>
         public List<string> GetTagByType(string tagType)
         {
             return _tagList.Values.Where(r => r.Properties.TagType == tagType).Select(y => y.Properties.Name).ToList();
         }
+        /// <summary>
+        /// Get all tags from the repository.
+        /// </summary>
+        /// <returns></returns>
         public List<GeoMarker> GetAll()
         {
             return _tagList.Values.Where(r => r.Properties.Visible).Select(y => y).ToList();
         }
+        /// <summary>
+        /// Get all tags from the repository by type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public List<GeoMarker> GetTagsType(string type)
         {
             return _tagList.Values.Where(r => r.Properties.TagType == type).Select(y => y).ToList();
         }
+        /// <summary>
+        /// Get all vehicle tags from the repository.
+        /// </summary>
+        /// <returns></returns>
         public List<VehicleGeoMarker> GetAllPIV()
         {
             return _vehicleTagList.Values.Where(r => r.Properties.Type.StartsWith("Vehicle")).Select(y => y).ToList();
         }
+        /// <summary>
+        /// Get all AGV tags from the repository.
+        /// </summary>
+        /// <returns></returns>
         public List<VehicleGeoMarker> GetAllAGV()
         {
             return _vehicleTagList.Values.Where(r => r.Properties.Type.StartsWith("Autonomous")).Select(y => y).ToList();
         }
-
+        /// <summary>
+        /// Load tag timeline data from a file.
+        /// </summary>
+        /// <returns></returns>
         private async Task LoadTagTimelineFromFile()
         {
             try
@@ -168,6 +212,10 @@ namespace EIR_9209_2.DataStore
                 _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
             }
         }
+        /// <summary>
+        /// Load vehicle tags from a file.
+        /// </summary>
+        /// <returns></returns>
         private async Task LoadTagVehicleFromFile()
         {
             try
@@ -207,6 +255,10 @@ namespace EIR_9209_2.DataStore
                 _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
             }
         }
+        /// <summary>
+        /// Load data from a file into the repository.
+        /// </summary>
+        /// <returns></returns>
         private async Task LoadDataFromFile()
         {
             try
@@ -257,6 +309,11 @@ namespace EIR_9209_2.DataStore
                 _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
             }
         }
+        /// <summary>
+        /// Check if a tag timeline exists for the given hour.
+        /// </summary>
+        /// <param name="hour"></param>
+        /// <returns></returns>
         public bool ExistingTagTimeline(DateTime hour)
         {
             return _QRETagTimelineResults.ContainsKey(hour);
@@ -717,7 +774,7 @@ namespace EIR_9209_2.DataStore
                 long posAge = -1;
                 bool visable = false;
                 List<double> positionLocation = [0, 0];
-                EmployeeInfo? employeeInfo = await _emp.GetEmployeeByBLE(qtitem.TagId);
+                EmployeeInfo employeeInfo = await _emp.GetEmployeeByBLE(qtitem.TagId);
                 DesignationActivityToCraftType? daCode = null;
                 if (employeeInfo != null)
                 {
