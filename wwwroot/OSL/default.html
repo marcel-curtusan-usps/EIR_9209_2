@@ -5,8 +5,6 @@
 	<title></title>
 	<meta charset="utf-8" />
 	<link href="../css/Site.css" rel="stylesheet" />
-	<link href="../css/bootstrap-icons.min.css" rel="stylesheet" />
-
 </head>
 
 <body>
@@ -133,13 +131,13 @@
 						<div class="col-4">
 							<label for="connection_name" class="control-label">Connection Name</label>
 							<select id="connection_name" class="form-control pb-1" title="Connection Names"
-									name="connection_name">
+								name="connection_name">
 							</select>
 							<span id="error_connection_name" class="text-danger"></span>
 							<div class="col">
 								<label class="control-label" for="message_type">Message Type</label>
 								<select id="message_type" class="form-control pb-1" titel="Message Type"
-										name="message_type">
+									name="message_type">
 								</select>
 								<span id="option-container" style="visibility: hidden; position: absolute;"></span>
 								<span id="error_message_type" class="text-danger"></span>
@@ -150,7 +148,7 @@
 							<div class="custom-control custom-switch">
 								<div class="custom-control custom-switch">
 									<input id="active_connection" type="checkbox" class="custom-control-input"
-										   name="active_connection" />
+										name="active_connection" />
 									<label class="custom-control-label" for="active_connection">
 										Active
 										Connection
@@ -158,7 +156,7 @@
 								</div>
 								<div class="custom-control custom-switch">
 									<input id="hour_range" type="checkbox" class="custom-control-input"
-										   name="hour_range" />
+										name="hour_range" />
 									<label class="custom-control-label" for="hour_range">Hour Range</label>
 								</div>
 								<div class="custom-control custom-switch">
@@ -171,7 +169,7 @@
 							<label class="control-label">Connection Type</label>
 							<div class="custom-control custom-switch">
 								<input id="api_connection" type="radio" class="custom-control-input"
-									   name="connectionType" />
+									name="connectionType" />
 								<label class="custom-control-label" for="api_connection">API</label>
 							</div>
 							<!--<div class="custom-control custom-switch">
@@ -199,21 +197,21 @@
 							<div class="custom-control custom-switch">
 								<div class="custom-control custom-switch">
 									<input id="bearerToken" type="checkbox" class="custom-control-input"
-										   name="authType" />
+										name="authType" />
 									<label class="custom-control-label" for="bearerToken">Bearer Token</label>
 								</div>
 							</div>
 							<div class="custom-control custom-switch">
 								<div class="custom-control custom-switch">
 									<input id="basicAuth" type="checkbox" class="custom-control-input"
-										   name="authType" />
+										name="authType" />
 									<label class="custom-control-label" for="basicAuth">Basic Auth</label>
 								</div>
 							</div>
 							<div class="custom-control custom-switch">
 								<div class="custom-control custom-switch">
 									<input id="idRequest" type="checkbox" class="custom-control-input"
-										   name="authType" />
+										name="authType" />
 									<label class="custom-control-label" for="idRequest">Id Request</label>
 								</div>
 							</div>
@@ -222,170 +220,171 @@
 							<label class="control-label">Database Connection</label>
 							<div class="custom-control custom-switch">
 								<div class="custom-control custom-switch">
-									<input id="dbConn" type="checkbox" class="custom-control-input"
-										   name="dbType" />
+									<input id="dbConn" type="checkbox" class="custom-control-input" name="dbType" />
 									<label class="custom-control-label" for="dbConn">Connection String</label>
 								</div>
 							</div>
 						</div>
 
+					</div>
+					<div class="row mb-3" id="serveripmenu">
+						<div class="form-group col-4">
+							<label for="hostname" class="control-label">Host Name</label>
+							<input id="hostname" type="text" class="form-control" name="hostname" />
+							<span id="error_hostname" class="text-danger"></span>
 						</div>
-						<div class="row mb-3" id="serveripmenu">
-							<div class="form-group col-4">
-								<label for="hostname" class="control-label">Host Name</label>
-								<input id="hostname" type="text" class="form-control" name="hostname" />
-								<span id="error_hostname" class="text-danger"></span>
-							</div>
-							<div class="form-group col-4">
-								<label for="ip_address" class="control-label">IP Address</label>
-								<input id="ip_address" type="text" class="form-control" name="ip_address" />
-								<span id="error_ip_address" class="text-danger"></span>
-							</div>
-							<div class="form-group col-2">
-								<label for="port_number" class="control-label">Port Number</label>
-								<input id="port_number" type="text" class="form-control" name="port_number" />
-								<span id="error_port_number" class="text-danger"></span>
-							</div>
+						<div class="form-group col-4">
+							<label for="ip_address" class="control-label">IP Address</label>
+							<input id="ip_address" type="text" class="form-control" name="ip_address" />
+							<span id="error_ip_address" class="text-danger"></span>
 						</div>
-						<div class="row mb-3" id="endpointurl">
-							<div class="form-group col">
-								<label for="url" class="control-label">URL</label>
-								<input id="url" type="text" class="form-control" name="url" />
-								<span id="error_url" class="text-danger"></span>
-							</div>
+						<div class="form-group col-2">
+							<label for="port_number" class="control-label">Port Number</label>
+							<input id="port_number" type="text" class="form-control" name="port_number" />
+							<span id="error_port_number" class="text-danger"></span>
 						</div>
-						<div class="row mb-3" id="DBConnection" style="display: none">
-							<div class="form-group col">
-								<div class="pb-1">
-									<label for="connstring" class="control-label">
-										Database Connection String
-									</label>
-									<button class="btn btn-primary btn-sm border-0" id="lockBtn">
-										<i class="bi bi-lock"></i>
-									</button>
-									<button class="btn btn-primary btn-sm border-0" id="unlockBtn" style="display: none">
-										<i class="bi bi-unlock"></i>
-									</button>
-								</div>
-								<div>
-									<input id="connstring" type="text" class="form-control" name="connstring" />
-									<span id="error_connstring" class="text-danger"></span>
-								</div>
-							</div>
+					</div>
+					<div class="row mb-3" id="endpointurl">
+						<div class="form-group col">
+							<label for="url" class="control-label">URL</label>
+							<input id="url" type="text" class="form-control" name="url" />
+							<span id="error_url" class="text-danger"></span>
 						</div>
-						<div class="row mb-3" id="CiscoSpacesmenu" style="display: none">
-							<div class="form-group col-8">
-								<label for="ciscoSpaceMapId" class="control-label">Map Id</label>
-								<input id="ciscoSpaceMapId" type="text" class="form-control" name="ciscoSpaceMapId" />
-								<span id="error_ciscoSpaceMapId" class="text-danger"></span>
+					</div>
+					<div class="row mb-3" id="DBConnection" style="display: none">
+						<div class="form-group col">
+							<div class="pb-1">
+								<label for="connstring" class="control-label">
+									Database Connection String
+								</label>
+								<button class="btn btn-primary btn-sm border-0" id="lockBtn">
+									<i class="bi bi-lock"></i>
+								</button>
+								<button class="btn btn-primary btn-sm border-0" id="unlockBtn" style="display: none">
+									<i class="bi bi-unlock"></i>
+								</button>
 							</div>
-							<div class="form-group col-4">
-								<label for="ciscoSpacetenantId" class="control-label">Tenant Id</label>
-								<input id="ciscoSpacetenantId" type="text" class="form-control" name="ciscoSpacetenantId" />
-								<span id="error_ciscoSpacetenantId" class="text-danger"></span>
-							</div>
-						</div>
-						<div class="row mb-3" id="BearerTokenmenu" style="display: none">
-							<div class="form-group col-12">
-								<label for="bearerToken" class="control-label">Bearer Token</label>
-								<input id="bearerToken" type="text" class="form-control" name="bearerToken" />
-								<span id="error_bearerToken" class="text-danger"></span>
-							</div>
-						</div>
-						<div class="row mb-3" id="IdRequest" style="display: none">
-							<div class="form-group col-12">
-								<label for="idrequesturl" class="control-label">Id Request URL</label>
-								<input id="idrequesturl" type="text" class="form-control" name="idrequesturl" />
-								<span id="error_idrequesturl" class="text-danger"></span>
-							</div>
-						</div>
-						<div class="row mb-3" id="OAuthmenu" style="display: none">
-							<div class="form-group col-12" id="divtokenurl">
-								<label for="tokenurl" class="control-label">Token URL</label>
-								<input id="tokenurl" type="text" class="form-control" name="tokenurl" />
-								<span id="error_tokenurl" class="text-danger"></span>
-							</div>
-							<div class="form-group col-4">
-								<label for="tokenusername" class="control-label">UserName</label>
-								<input id="tokenusername" type="text" class="form-control" name="tokenusername" />
-								<span id="error_tokenusername" class="text-danger"></span>
-							</div>
-							<div class="form-group col-4">
-								<label for="tokenpassword" class="control-label">Password</label>
-								<input id="tokenpassword" type="text" class="form-control" name="tokenpassword" />
-								<span id="error_tokenpassword" class="text-danger"></span>
-							</div>
-							<div class="form-group col-4">
-								<label for="tokenclientId" class="control-label">Client Id</label>
-								<input id="tokenclientId" type="text" class="form-control" name="tokenclientId" />
-								<span id="error_tokenclientId" class="text-danger"></span>
-							</div>
-						</div>
-						<div class="row hours_range_row" style="display: none">
-							<div class="col-6">
-								<div class="d-flex justify-content-center my-2">
-									<div class="w-100">
-										<label form="hoursback_range" class="control-label" for="hoursback_range">
-											Hours
-											Backwards: <span class="font-weight-bold text-primary ml-2 hoursbackvalue"></span>
-										</label>
-										<input type="range" title="Hours Backwards" class="custom-range w-100"
-											   id="hoursback_range" min="0" max="336" value="0" />
-									</div>
-								</div>
-							</div>
-
-							<div class="col-6">
-								<div class="d-flex justify-content-center my-2">
-									<div class="w-100">
-										<label class="control-label" for="hoursforward_range">
-											Hours Forward: <span class="font-weight-bold text-primary ml-2 hoursforwardvalue"></span>
-										</label>
-										<input type="range" title="Hours Forward" class="custom-range w-100"
-											   id="hoursforward_range" min="0" max="336" value="0" />
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="row mb-3">
-
-							<div class="form-group col-4">
-								<label for="data_retrieve" class="control-label">Retrieve Occurrences</label>
-								<select id="data_retrieve" class="form-control pb-1" name="data_retrieve">
-									<option value=""></option>
-									<option value="0">Listener</option>
-									<option value="250">250 Millisecond</option>
-									<option value="500">500 Millisecond</option>
-									<option value="1000">1 Second</option>
-									<option value="3000">3 Second</option>
-									<option value="5000">5 Second</option>
-									<option value="30000">30 Second</option>
-									<option value="60000">1 Minute</option>
-									<option value="180000">3 Minute</option>
-									<option value="300000">5 Minute</option>
-									<option value="900000">15 Minute</option>
-									<option value="1200000">20 Minute</option>
-									<option value="1500000">25 Minute</option>
-									<option value="1800000">30 Minute</option>
-									<option value="3600000">1 Hour</option>
-									<option value="86400000">1 Day</option>
-								</select>
-								<span id="error_data_retrieve" class="text-danger"></span>
-							</div>
-							<div class="form-group col-4">
-								<label for="connectionTimeout" class="control-label">Timeout</label>
-								<select id="connectionTimeout" class="form-control pb-1" name="connectionTimeout">
-									<option value=""></option>
-									<option value="30000">30 Second</option>
-									<option value="60000">1 Minute</option>
-									<option value="180000">3 Minute</option>
-									<option value="300000">5 Minute</option>
-									<option value="900000">15 Minute</option>
-								</select>
-								<span id="error_connectionTimeout" class="text-danger"></span>
+							<div>
+								<input id="connstring" type="text" class="form-control" name="connstring" />
+								<span id="error_connstring" class="text-danger"></span>
 							</div>
 						</div>
 					</div>
+					<div class="row mb-3" id="CiscoSpacesmenu" style="display: none">
+						<div class="form-group col-8">
+							<label for="ciscoSpaceMapId" class="control-label">Map Id</label>
+							<input id="ciscoSpaceMapId" type="text" class="form-control" name="ciscoSpaceMapId" />
+							<span id="error_ciscoSpaceMapId" class="text-danger"></span>
+						</div>
+						<div class="form-group col-4">
+							<label for="ciscoSpacetenantId" class="control-label">Tenant Id</label>
+							<input id="ciscoSpacetenantId" type="text" class="form-control" name="ciscoSpacetenantId" />
+							<span id="error_ciscoSpacetenantId" class="text-danger"></span>
+						</div>
+					</div>
+					<div class="row mb-3" id="BearerTokenmenu" style="display: none">
+						<div class="form-group col-12">
+							<label for="bearerToken" class="control-label">Bearer Token</label>
+							<input id="bearerToken" type="text" class="form-control" name="bearerToken" />
+							<span id="error_bearerToken" class="text-danger"></span>
+						</div>
+					</div>
+					<div class="row mb-3" id="IdRequest" style="display: none">
+						<div class="form-group col-12">
+							<label for="idrequesturl" class="control-label">Id Request URL</label>
+							<input id="idrequesturl" type="text" class="form-control" name="idrequesturl" />
+							<span id="error_idrequesturl" class="text-danger"></span>
+						</div>
+					</div>
+					<div class="row mb-3" id="OAuthmenu" style="display: none">
+						<div class="form-group col-12" id="divtokenurl">
+							<label for="tokenurl" class="control-label">Token URL</label>
+							<input id="tokenurl" type="text" class="form-control" name="tokenurl" />
+							<span id="error_tokenurl" class="text-danger"></span>
+						</div>
+						<div class="form-group col-4">
+							<label for="tokenusername" class="control-label">UserName</label>
+							<input id="tokenusername" type="text" class="form-control" name="tokenusername" />
+							<span id="error_tokenusername" class="text-danger"></span>
+						</div>
+						<div class="form-group col-4">
+							<label for="tokenpassword" class="control-label">Password</label>
+							<input id="tokenpassword" type="text" class="form-control" name="tokenpassword" />
+							<span id="error_tokenpassword" class="text-danger"></span>
+						</div>
+						<div class="form-group col-4">
+							<label for="tokenclientId" class="control-label">Client Id</label>
+							<input id="tokenclientId" type="text" class="form-control" name="tokenclientId" />
+							<span id="error_tokenclientId" class="text-danger"></span>
+						</div>
+					</div>
+					<div class="row hours_range_row" style="display: none">
+						<div class="col-6">
+							<div class="d-flex justify-content-center my-2">
+								<div class="w-100">
+									<label form="hoursback_range" class="control-label" for="hoursback_range">
+										Hours
+										Backwards: <span
+											class="font-weight-bold text-primary ml-2 hoursbackvalue"></span>
+									</label>
+									<input type="range" title="Hours Backwards" class="custom-range w-100"
+										id="hoursback_range" min="0" max="336" value="0" />
+								</div>
+							</div>
+						</div>
+
+						<div class="col-6">
+							<div class="d-flex justify-content-center my-2">
+								<div class="w-100">
+									<label class="control-label" for="hoursforward_range">
+										Hours Forward: <span
+											class="font-weight-bold text-primary ml-2 hoursforwardvalue"></span>
+									</label>
+									<input type="range" title="Hours Forward" class="custom-range w-100"
+										id="hoursforward_range" min="0" max="336" value="0" />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row mb-3">
+
+						<div class="form-group col-4">
+							<label for="data_retrieve" class="control-label">Retrieve Occurrences</label>
+							<select id="data_retrieve" class="form-control pb-1" name="data_retrieve">
+								<option value=""></option>
+								<option value="0">Listener</option>
+								<option value="250">250 Millisecond</option>
+								<option value="500">500 Millisecond</option>
+								<option value="1000">1 Second</option>
+								<option value="3000">3 Second</option>
+								<option value="5000">5 Second</option>
+								<option value="30000">30 Second</option>
+								<option value="60000">1 Minute</option>
+								<option value="180000">3 Minute</option>
+								<option value="300000">5 Minute</option>
+								<option value="900000">15 Minute</option>
+								<option value="1200000">20 Minute</option>
+								<option value="1500000">25 Minute</option>
+								<option value="1800000">30 Minute</option>
+								<option value="3600000">1 Hour</option>
+								<option value="86400000">1 Day</option>
+							</select>
+							<span id="error_data_retrieve" class="text-danger"></span>
+						</div>
+						<div class="form-group col-4">
+							<label for="connectionTimeout" class="control-label">Timeout</label>
+							<select id="connectionTimeout" class="form-control pb-1" name="connectionTimeout">
+								<option value=""></option>
+								<option value="30000">30 Second</option>
+								<option value="60000">1 Minute</option>
+								<option value="180000">3 Minute</option>
+								<option value="300000">5 Minute</option>
+								<option value="900000">15 Minute</option>
+							</select>
+							<span id="error_connectionTimeout" class="text-danger"></span>
+						</div>
+					</div>
+				</div>
 				<div class="modal-footer">
 					<button class="btn btn-outline-secondary float-right" type="button" data-bs-dismiss="modal"
 						aria-label="Close">Close</button>
@@ -3681,7 +3680,6 @@
 	</div>
 	<script src="../lib/jquery/jquery.js"></script>
 	<script src="../lib/bootstrap/js/bootstrap.bundle.min.js"></script>
-	<script src="../lib/bootstrap-icons/bootstrap-icons.js"></script>
 	<script src="../lib/jquery-validation/jquery.validate.js"></script>
 	<script src="../lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
 	<script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>

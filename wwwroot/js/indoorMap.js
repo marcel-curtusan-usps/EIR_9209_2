@@ -40,7 +40,7 @@ OSLmap.on('zoomend', function() {
     OSLmap.eachLayer(function(l) {
       if (l.getTooltip) {
         var toolTip = l.getTooltip();
-        if (toolTip) {
+        if (toolTip && toolTip.options && toolTip.options.className && toolTip.options.className.startsWith('location')) {
           OSLmap.closeTooltip(toolTip);
         }
       }

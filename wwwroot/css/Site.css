@@ -1,4 +1,5 @@
 @import url("../lib/bootstrap/css/bootstrap.css");
+@import url("../lib/bootstrap-icons/font/bootstrap-icons.min.css");
 @import url("../lib/leaflet/leaflet.min.css");
 @import url("../lib/leaflet-sidebar-v2/css/leaflet-sidebar.min.css");
 @import url("../lib/geoman-io/dist/leaflet-geoman.css");

@@ -13,48 +13,25 @@
     {
       "library": "leaflet-easybutton@2.4.0",
       "destination": "wwwroot/lib/leaflet-easybutton/",
-      "files": [
-        "src/easy-button.js",
-        "src/easy-button.css"
-      ]
+      "files": ["src/easy-button.js", "src/easy-button.css"]
     },
     {
       "provider": "cdnjs",
       "library": "luxon@3.4.4",
       "destination": "wwwroot/lib/luxon/",
-      "files": [
-        "luxon.min.js.map",
-        "luxon.js",
-        "luxon.js.map",
-        "luxon.min.js"
-      ]
+      "files": ["luxon.min.js.map", "luxon.js", "luxon.js.map", "luxon.min.js"]
     },
     {
       "provider": "cdnjs",
       "library": "Chart.js@4.4.1",
       "destination": "wwwroot/lib/chartjs/",
-      "files": [
-        "chart.cjs.map",
-        "chart.js",
-        "chart.js.map",
-        "chart.min.js",
-        "chart.umd.js",
-        "chart.umd.js.map",
-        "chart.umd.min.js",
-        "helpers.cjs.map",
-        "helpers.js",
-        "helpers.js.map",
-        "helpers.min.js"
-      ]
+      "files": ["chart.cjs.map", "chart.js", "chart.js.map", "chart.min.js", "chart.umd.js", "chart.umd.js.map", "chart.umd.min.js", "helpers.cjs.map", "helpers.js", "helpers.js.map", "helpers.min.js"]
     },
     {
       "provider": "cdnjs",
       "library": "chartjs-adapter-luxon@1.3.1",
       "destination": "wwwroot/lib/chartjs-adapter-luxon/",
-      "files": [
-        "chartjs-adapter-luxon.umd.js",
-        "chartjs-adapter-luxon.umd.min.js"
-      ]
+      "files": ["chartjs-adapter-luxon.umd.js", "chartjs-adapter-luxon.umd.min.js"]
     },
     {
       "provider": "cdnjs",
@@ -65,34 +42,17 @@
       "provider": "cdnjs",
       "library": "bootstrap-datepicker@1.10.0",
       "destination": "wwwroot/lib/bootstrap-datepicker/",
-      "files": [
-        "js/bootstrap-datepicker.min.js",
-        "js/bootstrap-datepicker.js",
-        "locales/bootstrap-datepicker.en-US.min.js",
-        "css/bootstrap-datepicker.css",
-        "css/bootstrap-datepicker.css.map",
-        "css/bootstrap-datepicker.min.css"
-      ]
+      "files": ["js/bootstrap-datepicker.min.js", "js/bootstrap-datepicker.js", "locales/bootstrap-datepicker.en-US.min.js", "css/bootstrap-datepicker.css", "css/bootstrap-datepicker.css.map", "css/bootstrap-datepicker.min.css"]
     },
     {
       "library": "@microsoft/signalr@8.0.7",
       "destination": "wwwroot/lib/microsoft/signalr/",
-      "files": [
-        "dist/browser/signalr.js",
-        "dist/browser/signalr.js.map",
-        "dist/browser/signalr.min.js",
-        "dist/browser/signalr.min.js.map"
-      ]
+      "files": ["dist/browser/signalr.js", "dist/browser/signalr.js.map", "dist/browser/signalr.min.js", "dist/browser/signalr.min.js.map"]
     },
     {
       "library": "@microsoft/signalr-protocol-msgpack@8.0.7",
       "destination": "wwwroot/lib/microsoft/signalr-protocol-msgpack/",
-      "files": [
-        "dist/browser/signalr-protocol-msgpack.js",
-        "dist/browser/signalr-protocol-msgpack.js.map",
-        "dist/browser/signalr-protocol-msgpack.min.js",
-        "dist/browser/signalr-protocol-msgpack.min.js.map"
-      ]
+      "files": ["dist/browser/signalr-protocol-msgpack.js", "dist/browser/signalr-protocol-msgpack.js.map", "dist/browser/signalr-protocol-msgpack.min.js", "dist/browser/signalr-protocol-msgpack.min.js.map"]
     },
     {
       "provider": "cdnjs",
@@ -107,10 +67,7 @@
       "provider": "cdnjs",
       "library": "datatables.net@2.1.8",
       "destination": "wwwroot/lib/datatables.net/",
-      "files": [
-        "dataTables.min.js",
-        "dataTables.js"
-      ]
+      "files": ["dataTables.min.js", "dataTables.js"]
     },
     {
       "provider": "cdnjs",
@@ -140,7 +97,12 @@
     {
       "provider": "cdnjs",
       "library": "bootstrap@5.3.3",
-      "destination": "wwwroot\\lib\\bootstrap"
+      "destination": "wwwroot/lib/bootstrap"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "bootstrap-icons@1.11.3",
+      "destination": "wwwroot/lib/bootstrap-icons"
     }
   ]
 }
