@@ -1,8 +1,9 @@
-﻿using EIR_9209_2.Service;
+﻿using EIR_9209_2.Models;
+using EIR_9209_2.Service;
+using EIR_9209_2.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
-
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -11,12 +12,13 @@ namespace EIR_9209_2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class Connections(ILogger<Connections> logger, IInMemoryConnectionRepository connectionRepository, IHubContext<HubServices> hubContext, Worker worker) : ControllerBase
+    public class Connections(ILogger<Connections> logger, IInMemoryConnectionRepository connectionRepository, IHubContext<HubServices> hubContext, Worker worker, IEncryptDecrypt encryptDecrypt) : ControllerBase
     {
         private readonly IInMemoryConnectionRepository _connectionRepository = connectionRepository;
         private readonly IHubContext<HubServices> _hubContext = hubContext;
         private readonly Worker _worker = worker;
         private readonly ILogger<Connections> _logger = logger;
+        private readonly IEncryptDecrypt _encryptDecrypt = encryptDecrypt;
 
         /// <summary>
         /// 
@@ -52,6 +54,32 @@ namespace EIR_9209_2.Controllers
             return Ok(await _connectionRepository.Get(id));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetUnlockString")]
+        public async Task<object> GetUnlockString(string id)
+        {
+            try
+            {
+                //handle bad requests
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var unlockConnString = _encryptDecrypt.Decrypt(id ?? string.Empty);
+                return Ok(unlockConnString.ToString());
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
+
         // POST api/<Connection>
         /// <summary>
         /// 
@@ -78,6 +106,11 @@ namespace EIR_9209_2.Controllers
                 //add the connection id
                 connection.Id = Guid.NewGuid().ToString();
                 connection.CreatedDate = DateTime.Now;
+                //encryt connection string
+                if (connection.ConnectionString != null)
+                { 
+                    connection.ConnectionString = _encryptDecrypt.Encrypt(connection.ConnectionString);
+                }
                 //add to the connection repository
                 var addCon = await _connectionRepository.Add(connection);
                 if (addCon != null)
@@ -121,6 +154,13 @@ namespace EIR_9209_2.Controllers
                     return BadRequest(ModelState);
                 }
                 var connectionToUpdate = value.ToObject<Connection>();
+                Connection upconn = await _connectionRepository.Get(connectionToUpdate.Id);
+                //encryt connection string
+                if (connectionToUpdate != null && connectionToUpdate.ConnectionString != null && upconn.ConnectionString != connectionToUpdate.ConnectionString)
+                {
+                    connectionToUpdate.ConnectionString = _encryptDecrypt.Encrypt(connectionToUpdate.ConnectionString);
+                }
+
                 if (connectionToUpdate != null && await _worker.UpdateEndpoint(connectionToUpdate))
                 {
                     return Ok();

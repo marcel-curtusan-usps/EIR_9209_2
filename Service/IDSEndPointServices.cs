@@ -47,7 +47,8 @@ namespace EIR_9209_2.Service
                 JObject data = new JObject
                 {
                     ["datadayList"] = new JArray(datadayList),
-                    ["queryName"] = _endpointConfig.MessageType
+                    ["queryName"] = _endpointConfig.MessageType,
+                    ["idsConnectionString"] = _endpointConfig.ConnectionString
                 };
                 if (_endpointConfig.MessageType.Equals("SIPSPscCount", StringComparison.CurrentCultureIgnoreCase))
                 {
