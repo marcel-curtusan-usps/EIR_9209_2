@@ -1,10 +1,12 @@
 ﻿<!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8" />
     <title>STAR Report</title>
     <link href="Content/empSchedule.css" rel="stylesheet" />
 </head>
+
 <body>
 
     <div>
@@ -29,7 +31,8 @@
             <div class="row gx-4">
                 <div class="col">
                     <div class="tab-content">
-                        <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                        <div class="tab-pane fade show active" id="overview" role="tabpanel"
+                            aria-labelledby="overview-tab">
                             <div class="d-flex align-items-cetner justify-content-between small mb-1">
                                 <div class="col p-0">
                                     <div class="card mb-2">
@@ -37,8 +40,14 @@
                                             <strong>Data Source:</strong>
                                             <br>
                                             <table cellspacing="1" cellpadding="1">
-                                                <tr><td class="tacshr" width="10px"> &nbsp; </td><td> &nbsp; TACS</td></tr>
-                                                <tr><td class="selshr" width="10px"> &nbsp; </td><td> &nbsp; SELS</td></tr>
+                                                <tr>
+                                                    <td class="tacshr" width="10px"> &nbsp; </td>
+                                                    <td> &nbsp; TACS</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="selshr" width="10px"> &nbsp; </td>
+                                                    <td> &nbsp; SELS</td>
+                                                </tr>
                                             </table>
                                             <section class="container">
                                                 <div class="form-group col-3">
@@ -52,7 +61,10 @@
                                         </div>
                                         <div class="card-body p-1">
                                             <div class="table-responsive">
-                                                <table class="table schedtbl table-striped table-bordered table-sm table-hover mb-0" style="border: 1px solid black; table-layout: fixed;" id="empScheduleData">
+                                                <table
+                                                    class="table schedtbl table-striped table-bordered table-sm table-hover mb-0"
+                                                    style="border: 1px solid black; table-layout: fixed;"
+                                                    id="empScheduleData">
                                                     <thead class="table-dark">
                                                     </thead>
                                                     <tbody></tbody>
@@ -74,12 +86,12 @@
     <script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
     <script src="../lib/microsoft/signalr-protocol-msgpack/dist/browser/signalr-protocol-msgpack.min.js"></script>
     <script src="../lib/luxon/luxon.min.js"></script>
-    <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
-    <script src="../lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="../lib/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="../lib/datatables.net/datatables.js"></script>
     <script src="../lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
     <script src="../lib/bootstrap-datepicker/locales/bootstrap-datepicker.en-US.min.js"></script>
     <script src="Scripts/empSchedule.js"></script>
     <script src="Scripts/empScheduleTable.js"></script>
 </body>
+
 </html>

@@ -107,14 +107,11 @@ let overlayCameraLayer = L.layerGroup().addTo(OSLmap);
 layersControl.addOverlay(overlayCameraLayer, 'Cameras');
 markerCameras.addTo(overlayCameraLayer);
 async function findCameraLeafletIds(markerId) {
-  return new Promise((resolve, reject) => {
-    markerCameras.eachLayer(function(layer) {
-      if (layer.markerId === markerId) {
-        resolve(layer._leaflet_id);
-        return false;
-      }
-    });
-    reject(new Error('No layer found with the given markerId'));
+  markerCameras.eachLayer(function(layer) {
+    if (layer.markerId === markerId) {
+      resolve(layer._leaflet_id);
+      return false;
+    }
   });
 }
 async function init_tagsCamera() {

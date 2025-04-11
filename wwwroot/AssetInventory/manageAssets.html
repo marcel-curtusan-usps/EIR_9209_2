@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link href="../css/bootstrap-icons.min.css" rel="stylesheet" />
 
 </head>
+
 <body>
     <div class="container-fluid">
 
@@ -30,10 +32,12 @@
                                                 <p class="card-text fs-3" id="totalInvetory"></p>
                                             </div>
                                             <div class="col">
-                                                <button type="button" class="btn btn-success float-end" id="addInventorybtn">Add Inventory</button>
+                                                <button type="button" class="btn btn-success float-end"
+                                                    id="addInventorybtn">Add Inventory</button>
                                             </div>
                                             <div class="col">
-                                                <button type="button" class="btn btn-success float-end" id="addInventoryCategorybtn">Add Category</button>
+                                                <button type="button" class="btn btn-success float-end"
+                                                    id="addInventoryCategorybtn">Add Category</button>
                                             </div>
                                         </div>
                                     </div>
@@ -54,7 +58,8 @@
                     <div class="card-body p-0">
                         <div class="tab-content p-0">
                             <div class="table-container">
-                                <table id="assetsListTable" class="table table-striped table-bordered" style="width:100%">
+                                <table id="assetsListTable" class="table table-striped table-bordered"
+                                    style="width:100%">
                                     <thead class="table-dark">
                                     </thead>
                                     <tbody>
@@ -67,14 +72,16 @@
             </card-navigation>
         </div>
         <!-- Modal Section -->
-        <div class="modal fade" id="RemoveInventoryModal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;" aria-labelledby="RemoveConfirmationModal_Label">
+        <div class="modal fade" id="RemoveInventoryModal" tabindex="-1" role="dialog" data-backdrop="static"
+            style="z-index: 12000;" aria-labelledby="RemoveConfirmationModal_Label">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content bg-white">
                     <div class="modal-header">
                         <div class="col">
                             <h4 class="modal-title" id="removeInventoryModalId"><span aria-hidden="true"></span></h4>
                         </div>
-                        <button class="col-1 btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button class="col-1 btn-close" type="button" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="row">
@@ -85,21 +92,24 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-outline-secondary float-left" type="button" data-bs-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-left" type="button"
+                            data-bs-dismiss="modal">Close</button>
                         <div class="col text-center"><span class="text-info " id="error_removeInventory"></span></div>
                         <button class=" btn btn-primary float-right" type="button" id="removeInventory">Remove</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="inTakeInventoryModal" tabindex="-1" aria-labelledby="inTakeInventoryModal" aria-hidden="true">
+        <div class="modal fade" id="inTakeInventoryModal" tabindex="-1" aria-labelledby="inTakeInventoryModal"
+            aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <div class="col-11">
                             <h5 class="modal-title" id="inTakeInventoryLabel"></h5>
                         </div>
-                        <button class="col-1 btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button class="col-1 btn-close" type="button" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <form id="assetForm">
@@ -142,9 +152,11 @@
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-outline-secondary float-start" type="button" data-bs-dismiss="modal">Close</button>
+                        <button class="btn btn-outline-secondary float-start" type="button"
+                            data-bs-dismiss="modal">Close</button>
                         <div class="col text-center"><span class="text-info" id="error_inTakeInventory"></span></div>
-                        <button class=" btn btn-primary float-end" type="button" id="inTakeInventorysubmit">Save</button>
+                        <button class=" btn btn-primary float-end" type="button"
+                            id="inTakeInventorysubmit">Save</button>
                     </div>
                 </div>
             </div>
@@ -156,7 +168,8 @@
     <script src="../lib/datatables.net/datatables.js"></script>
     <script src="../lib/datatables.net-responsive/datatables.responsive.js"></script>
     <script src="../lib/datatables.net-buttons/js/datatables.buttons.js"></script>
-    <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script src="../lib/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="Scripts/mangeAssets.js"></script>
 </body>
+
 </html>

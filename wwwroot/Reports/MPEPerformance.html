@@ -1,11 +1,12 @@
 ﻿<!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8" />
     <title>MPE Performance</title>
     <link href="Content/mpePerformance.css" rel="stylesheet" />
-    <link href="../css/bootstrap-icons.min.css" rel="stylesheet" />
 </head>
+
 <body>
 
     <div>
@@ -43,7 +44,9 @@
                                     <div class="me-3">
                                         <h5>Operation / Sortplan </h5>
                                     </div>
-                                    <div class="me-3"><h5 id="operation_number"></h5></div>
+                                    <div class="me-3">
+                                        <h5 id="operation_number"></h5>
+                                    </div>
                                     <div class="me-3"></div>
                                 </div>
                             </div>
@@ -56,7 +59,9 @@
                                     <div class="me-3">
                                         <h5>Total Volume</h5>
                                     </div>
-                                    <div class="me-3"><h5 id="machine_volume_number"></h5></div>
+                                    <div class="me-3">
+                                        <h5 id="machine_volume_number"></h5>
+                                    </div>
                                     <div class="me-3"></div>
 
                                 </div>
@@ -70,7 +75,9 @@
                                     <div class="me-3">
                                         <h5>Throughput</h5>
                                     </div>
-                                    <div class="me-3"><h5 id="machine_throughput_number"></h5></div>
+                                    <div class="me-3">
+                                        <h5 id="machine_throughput_number"></h5>
+                                    </div>
                                     <div class="me-3"></div>
                                 </div>
                             </div>
@@ -89,7 +96,8 @@
                                         <form class="row">
                                             <div class="col-2">
                                                 <div class="input-group date" id="datepickerdiv">
-                                                    <input type="text" class="form-control" data-provide id="datepicker" />
+                                                    <input type="text" class="form-control" data-provide
+                                                        id="datepicker" />
                                                     <span class="input-group-append">
                                                         <span class="input-group-text bg-light d-block">
                                                             <i class="bi bi-calendar"></i>
@@ -104,7 +112,8 @@
                                 </div>
                                 <div class="card-body p-0">
                                     <div class="tab-content">
-                                        <div role="tabpanel" aria-labelledby="overview-tab" class="tab-pane fade show active">
+                                        <div role="tabpanel" aria-labelledby="overview-tab"
+                                            class="tab-pane fade show active">
                                             <div class="row gx-4">
                                                 <div class="col-2">
                                                     <div class="box">
@@ -147,8 +156,12 @@
                                                             <label class="form-check-label" for="showStandardCheckbox" id="label">Toggle MPE Standard</label>
                                                         </div>-->
                                                         <div class="form-check form-switch me-3">
-                                                            <input class="form-check-input" type="checkbox" id="yStaffingHrsCountToggle" onchange="toggleYAxis('lineperfChart','yStaffingHrs')">
-                                                            <label class="form-check-label" for="yStaffingHrsCountToggle">Staffing Hours vs Count</label>
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="yStaffingHrsCountToggle"
+                                                                onchange="toggleYAxis('lineperfChart','yStaffingHrs')">
+                                                            <label class="form-check-label"
+                                                                for="yStaffingHrsCountToggle">Staffing Hours vs
+                                                                Count</label>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -169,7 +182,8 @@
                         </card-navigation>
                     </div>
                     <div class="tab-content" id="TabContent">
-                        <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                        <div class="tab-pane fade show active" id="overview" role="tabpanel"
+                            aria-labelledby="overview-tab">
                             <div class="d-flex align-items-cetner justify-content-between small mb-1">
                                 <div class="col p-0">
                                     <div class="card mb-4">
@@ -178,7 +192,8 @@
                                         </div>
                                         <div class="card-body p-1">
                                             <div class="table-responsive" style="padding-right: 15px;">
-                                                <table class="table table-sm table-hover mb-0 border-bottom" id="mpePerformanceData">
+                                                <table class="table table-sm table-hover mb-0 border-bottom"
+                                                    id="mpePerformanceData">
                                                     <thead class="table-dark">
                                                     </thead>
                                                     <tbody></tbody>
@@ -203,8 +218,7 @@
     <script src="../lib/chartjs/chart.umd.min.js"></script>
     <script src="../lib/chartjs-plugin-datalabels/chartjs-plugin-datalabels.min.js"></script>
     <script src="../lib/chartjs-adapter-luxon/chartjs-adapter-luxon.umd.min.js"></script>
-    <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
-    <script src="../lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="../lib/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="../lib/datatables.net/datatables.js"></script>
     <script src="../lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
     <script src="../lib/bootstrap-datepicker/locales/bootstrap-datepicker.en-US.min.js"></script>
@@ -213,4 +227,5 @@
     <script src="Scripts/mpePerformance.js"></script>
     <script src="Scripts/mpePerformanceTable.js"></script>
 </body>
+
 </html>

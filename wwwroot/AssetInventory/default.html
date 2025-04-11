@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link href="Content/inventory.css" rel="stylesheet" />
     <script src="../lib/qrcodejs/qrcode.js"></script>
 </head>
+
 <body>
     <div class="container-fluid">
 
@@ -23,7 +25,8 @@
                             <div class="col-sm-4">
                                 <div class="card border-primary">
                                     <div class="card-body p-0">
-                                        <button type="button" class="btn btn-success w-100 custom-btn-height" id="checkinbtn">Check In</button>
+                                        <button type="button" class="btn btn-success w-100 custom-btn-height"
+                                            id="checkinbtn">Check In</button>
                                     </div>
                                 </div>
                             </div>
@@ -32,7 +35,9 @@
                                     <div class="card-body p-0">
                                         <div class="row m-0">
                                             <div class="col p-0">
-                                                <button type="button" class="btn btn-warning w-100 custom-btn-height" id="checkoutbtn">Check Out  <p class="card-text fs-3" id="outCount"></p></button>
+                                                <button type="button" class="btn btn-warning w-100 custom-btn-height"
+                                                    id="checkoutbtn">Check Out <p class="card-text fs-3" id="outCount">
+                                                    </p></button>
                                             </div>
                                         </div>
                                     </div>
@@ -47,7 +52,9 @@
                                                 <p class="card-text fs-3" id="totalInvetory"></p>
                                             </div>
                                             <div class="col p-0">
-                                                <a target="_blank" href="/AssetInventory/manageAssets.html" class="btn btn-primary w-100 custom-btn-height" id="inventorybtn">Inventory</a>
+                                                <a target="_blank" href="/AssetInventory/manageAssets.html"
+                                                    class="btn btn-primary w-100 custom-btn-height"
+                                                    id="inventorybtn">Inventory</a>
                                             </div>
                                         </div>
                                     </div>
@@ -56,9 +63,9 @@
                         </div>
                     </div>
                 </div>
-                </card-navigation>
+            </card-navigation>
         </div>
-     
+
     </div>
     <!-- DataTable Section -->
     <div class="col">
@@ -83,7 +90,8 @@
         </card-navigation>
     </div>
     <!-- Modal Section -->
-    <div class="modal fade" id="checkInOutAssetModal" tabindex="-1" aria-labelledby="assetModalLabel" aria-hidden="true">
+    <div class="modal fade" id="checkInOutAssetModal" tabindex="-1" aria-labelledby="assetModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -111,7 +119,8 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-outline-secondary float-start" type="button" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-outline-secondary float-start" type="button"
+                        data-bs-dismiss="modal">Close</button>
                     <div class="col text-center"><span class="text-info" id="error_assetSubmit"></span></div>
                     <button class=" btn btn-primary float-end" type="button" id="assetSubmit">Save</button>
                 </div>
@@ -124,7 +133,8 @@
     <script src="../lib/datatables.net/datatables.js"></script>
     <script src="../lib/datatables.net-responsive/datatables.responsive.js"></script>
     <script src="../lib/datatables.net-buttons/js/datatables.buttons.js"></script>
-    <script src="../lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script src="../lib/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="Scripts/default.js"></script>
 </body>
+
 </html>

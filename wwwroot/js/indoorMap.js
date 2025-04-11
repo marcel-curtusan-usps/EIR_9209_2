@@ -14,10 +14,6 @@ let baseLayers = {
 
 let overlayMaps = {};
 let layersSelected = [mainfloor];
-//var CRSPixel = L.Util.extend(L.CRS.Simple, {
-//	transformation: new L.Transformation(1,0,1,0)
-//});
-//setup map
 let OSLmap = L.map('map', {
   crs: L.CRS.Simple,
   renderer: L.canvas({ padding: 0.5 }),
@@ -59,7 +55,6 @@ OSLmap.on('zoomend', function() {
   }
   lastZoom = zoom;
 });
-
 sidebar
   .on('content', function(ev) {
     sidebar.options.autopan = false;
@@ -87,6 +82,7 @@ sidebar
     }
   })
   .addTo(OSLmap);
+L.control.mousePosition().addTo(OSLmap);
 sidebar.on('closing', function(e) {
   // e.id contains the id of the opened panel
   $('div[id=machine_div]').attr('data-id', '');
@@ -130,14 +126,7 @@ async function onBaseLayerChange(e) {
 }
 // Add the event listener
 OSLmap.on('baselayerchange', onBaseLayerChange);
-// Add onclick event listener
-layersControl.getContainer().onclick = function() {
-  if (layersControl._container.classList.contains('leaflet-control-layers-expanded')) {
-    layersControl._container.classList.remove('leaflet-control-layers-expanded');
-  } else {
-    layersControl._container.classList.add('leaflet-control-layers-expanded');
-  }
-};
+
 //Add zoom button
 new L.Control.Zoom({ position: 'bottomright' }).addTo(OSLmap);
 //add View Ports
@@ -216,6 +205,13 @@ async function showstaffdiv() {
 staffBtn.button.style.width = '150px';
 staffBtn.button.style.height = '70px';
 staffBtn.addTo(OSLmap);
+
+//Hide sidebar
+$('[role=tablist]').click(function(e) {
+  $('[data-toggle=popover]').popover('hide');
+  $('#twentyfourmessage').popover('hide');
+  $('#layersContent').hide();
+});
 $('.leaflet-control-layers').addClass('layerPopover');
 $('.layerPopover').attr('id', 'layersContent');
 $('#layersContent').prepend('<div class="layersArrow"></div>');
@@ -227,7 +223,6 @@ $('#layersToggle').on('click', function() {
   sidebar.close();
   // close other popover
   $('[data-toggle=popover]').popover('hide');
-  $('#twentyfourmessage').popover('hide');
 });
 let layerCheckboxIds = [];
 function setLayerCheckboxId(thisCheckBox, innerHTML) {
@@ -236,6 +231,9 @@ function setLayerCheckboxId(thisCheckBox, innerHTML) {
   layerCheckboxIds.push(thisCheckBox.id);
   return name;
 }
+$(function() {
+  $('[data-toggle="tooltip"]').tooltip();
+});
 async function init_backgroundImages() {
   try {
     $.ajax({
