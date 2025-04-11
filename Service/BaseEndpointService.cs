@@ -71,7 +71,9 @@ namespace EIR_9209_2.Service
             _endpointConfig.HoursBack = updateCon.HoursBack;
             _endpointConfig.HoursForward = updateCon.HoursForward;
             _endpointConfig.ActiveConnection = updateCon.ActiveConnection;
+            _endpointConfig.DbType = updateCon.DbType;
             _endpointConfig.Url = updateCon.Url;
+            _endpointConfig.ConnectionString = updateCon.ConnectionString;
             _endpointConfig.OAuthUrl = updateCon.OAuthUrl;
             _endpointConfig.OAuthClientId = updateCon.OAuthClientId;
             _endpointConfig.OAuthPassword = updateCon.OAuthPassword;

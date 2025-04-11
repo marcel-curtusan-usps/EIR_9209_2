@@ -45,6 +45,8 @@ public class Connection
     public bool WsConnection { get; set; } = false;
     public bool ApiConnection { get; set; } = false;
     public string Url { get; set; } = "";
+    public string DbType { get; set; } = "";
+    public string ConnectionString { get; set; } = "";
     public string AuthType { get; set; } = "";
     public string OAuthUrl { get; set; } = "";
     public string OAuthUserName { get; set; } = "";

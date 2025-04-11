@@ -20,7 +20,7 @@ namespace EIR_9209_2.DatabaseCalls.IDS
         {
             try
             {
-                OracleConnectionString = _configuration[key: "ApplicationConfiguration:IdsConnectionString"] ?? string.Empty;
+                OracleConnectionString = _encryptDecrypt.Decrypt(Request_data["idsConnectionString"].ToString());
                 if (!string.IsNullOrEmpty(OracleConnectionString))
                 {
                     if (((JObject)Request_data).ContainsKey("queryName"))
@@ -41,7 +41,7 @@ namespace EIR_9209_2.DatabaseCalls.IDS
                             query = await _fileService.ReadFileFromRoot(fileName, directory);
                             if (!string.IsNullOrEmpty(query))
                             {
-                                using (OracleConnection connection = new OracleConnection(_encryptDecrypt.Decrypt(OracleConnectionString)))
+                                using (OracleConnection connection = new OracleConnection(OracleConnectionString))
                                 {
                                     using (OracleCommand command = new OracleCommand(query, connection))
                                     {
