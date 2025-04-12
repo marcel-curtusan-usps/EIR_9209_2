@@ -1,7 +1,7 @@
 @import url("../lib/bootstrap/css/bootstrap.css");
-@import url("../lib/bootstrap-icons/font/bootstrap-icons.min.css");
-@import url("../lib/leaflet/leaflet.min.css");
-@import url("../lib/leaflet-sidebar-v2/css/leaflet-sidebar.min.css");
+@import url("../lib/bootstrap-icons/font/bootstrap-icons.css");
+@import url("../lib/leaflet/leaflet.css");
+@import url("../lib/leaflet-sidebar-v2/css/leaflet-sidebar.css");
 @import url("../lib/geoman-io/dist/leaflet-geoman.css");
 @import url("../lib/leaflet-easybutton/src/easy-button.css");
 @import url("../lib/leaflet-control-topcenter/leaflet-control-topcenter.css");
@@ -2018,25 +2018,6 @@ div.leaflet-touch div.leaflet-bar {
   padding-bottom: 10px;
 }
 
-/* Layer popover styling */
-div.leaflet-control-layers {
-  transition: all 1s;
-}
-
-.leaflet-control-layers-expanded {
-  border: 1px solid #333366 !important;
-  border-radius: 0 !important;
-  background-color: #f7f7f7;
-  padding: 7px 14px;
-}
-
-.layerPopover {
-  position: absolute;
-  bottom: 6px;
-  right: 47px;
-  width: 190px;
-}
-
 /* Increase checkbox size for touch accessibility*/
 .layerPopover .leaflet-control-layers-selector {
   margin-top: 0;
@@ -2465,6 +2446,15 @@ div.leaflet-control-layers {
   padding-top: 3px;
   flex-direction: row-reverse;
   justify-content: space-between;
+}
+
+.leaflet-container .leaflet-control-mouseposition {
+  background-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 5px #bbb;
+  padding: 0 5px;
+  margin: 0;
+  color: #333;
+  font: 11px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;
 }
 
 /* END Leaflet Override - Bottom Right Buttons *//*# sourceMappingURL=Site.css.map */
