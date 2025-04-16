@@ -131,7 +131,7 @@ async function init_tags() {
   try {
     createStaffingDataTable('staffingtable');
     createTagDataTable('tagInfotable');
-    await addGroupToList('Badge');
+
     $(document).on('change', '.leaflet-control-layers-selector', function() {
       let sp = this.nextElementSibling;
       if (/^badges$/gi.test(sp.innerHTML.trim())) {
@@ -146,6 +146,9 @@ async function init_tags() {
         }
       }
     });
+    if (appData.User !== 'USA\\PMCCUser') {
+      await addGroupToList('Badge');
+    }
   } catch (e) {
     throw new Error(e.toString());
   }
@@ -493,8 +496,12 @@ async function tagEditInfo(tagId) {
     $.ajax({
       url: SiteURLconstructor(window.location) + '/api/Tag/GetTagByTagId?tagid=' + id,
       type: 'GET',
-      success: function(data) {
-        Promise.all([EditUserInfo(data.properties)]);
+      success: async function(data) {
+        if ('Message' in data) {
+          //
+        } else {
+          await EditUserInfo(data.properties);
+        }
       },
       error: function(error) {
         console.log(error);

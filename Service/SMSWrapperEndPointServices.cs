@@ -1,6 +1,8 @@
 ﻿using EIR_9209_2.DataStore;
 using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
+using NuGet.Protocol;
 
 namespace EIR_9209_2.Service
 {
@@ -69,6 +71,11 @@ namespace EIR_9209_2.Service
                         {
                             await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
                         }
+                        // Start a new thread to handle the logging
+                        _ = Task.Run(() => _loggerService.LogData(JsonConvert.SerializeObject(result, Formatting.Indented).ToJToken(),
+                             _endpointConfig.MessageType,
+                             _endpointConfig.Name,
+                             FormatUrl), stoppingToken);
                         // Process tag data in a separate thread
                         await ProcessEmployeeListData(result, stoppingToken);
                     }
@@ -85,6 +92,11 @@ namespace EIR_9209_2.Service
                         {
                             await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
                         }
+                        // Start a new thread to handle the logging
+                        _ = Task.Run(() => _loggerService.LogData(JsonConvert.SerializeObject(result, Formatting.Indented).ToJToken(),
+                             _endpointConfig.MessageType,
+                             _endpointConfig.Name,
+                             FormatUrl), stoppingToken);
                         // Process tag data in a separate thread
                         await ProcessEmployeeListData(result, stoppingToken);
                     }

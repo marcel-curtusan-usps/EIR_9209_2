@@ -2,6 +2,8 @@
 using EIR_9209_2.DataStore;
 using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
+using NuGet.Protocol;
 
 namespace EIR_9209_2.Service
 {
@@ -26,7 +28,7 @@ namespace EIR_9209_2.Service
                 {
                     string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
                     IOAuth2AuthenticationService authService;
-                    authService = new OAuth2AuthenticationService(_logger, _httpClientFactory, new OAuth2AuthenticationServiceSettings(server, "", _endpointConfig.OAuthUserName, _endpointConfig.OAuthPassword, _endpointConfig.OAuthClientId,"", _endpointConfig.AuthType), jsonSettings);
+                    authService = new OAuth2AuthenticationService(_logger, _httpClientFactory, new OAuth2AuthenticationServiceSettings(server, "", _endpointConfig.OAuthUserName, _endpointConfig.OAuthPassword, _endpointConfig.OAuthClientId, "", _endpointConfig.AuthType), jsonSettings);
 
                     IQueryService queryService;
                     string FormatUrl = string.Format(_endpointConfig.Url, server);
@@ -44,9 +46,14 @@ namespace EIR_9209_2.Service
                         {
                             await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
                         }
+                        // Start a new thread to handle the logging
+                        _ = Task.Run(() => _loggerService.LogData(JsonConvert.SerializeObject(result, Formatting.Indented).ToJToken(),
+                             _endpointConfig.MessageType,
+                             _endpointConfig.Name,
+                             FormatUrl), stoppingToken);
                         await ProcessEmployeeInfoData(result, stoppingToken);
                     }
-                    
+
                 }
             }
             catch (Exception ex)
@@ -67,7 +74,7 @@ namespace EIR_9209_2.Service
             {
                 if (result is not null)
                 {
-                   await _emp.LoadHECSEmployees(result, stoppingToken);
+                    await _emp.LoadHECSEmployees(result, stoppingToken);
                 }
             }
             catch (Exception e)

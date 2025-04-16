@@ -83,17 +83,13 @@ async function init_tagsPIV() {
     //     console.error(err);
     //   });
 
-    $(document).on('change', '.leaflet-control-layers-selector', function() {
+    $(document).on('change', '.leaflet-control-layers-selector', async function() {
       let sp = this.nextElementSibling;
       if (/^PIV Vehicles$/gi.test(sp.innerHTML.trim())) {
         if (this.checked) {
-          connection.invoke('JoinGroup', 'PIVVehicle').catch(function(err) {
-            return console.error(err.toString());
-          });
+          await addGroupToList('PIVVehicle');
         } else {
-          connection.invoke('LeaveGroup', 'PIVVehicle').catch(function(err) {
-            return console.error(err.toString());
-          });
+          await removeFromGroupList('PIVVehicle');
         }
       }
     });

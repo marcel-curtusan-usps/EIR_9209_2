@@ -43,7 +43,7 @@ namespace EIR_9209_2.Controllers
             {
                 return BadRequest(ModelState);
             }
-            return Ok( await _tags.Get(tagId));
+            return Ok(await _tags.Get(tagId));
         }
 
         /// <summary>
@@ -77,11 +77,9 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(ModelState);
             }
             string searchValue = string.IsNullOrEmpty(value) ? "" : HttpUtility.UrlDecode(value).Replace("\"", "");
-            var query = await _tags.SearchTag(searchValue);
+
             var SearchReuslt = await _emp.SearchEmployee(searchValue);
-           
-            var finalReuslt = query.Concat(SearchReuslt).Distinct();
-            return Ok(finalReuslt);
+            return Ok(SearchReuslt);
         }
         //add new tag
         // POST api/<TagController>

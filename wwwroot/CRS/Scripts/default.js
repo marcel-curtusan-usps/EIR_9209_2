@@ -317,7 +317,7 @@ async function confirmBtnSubmit() {
   };
 
   //create tacs event
-  fetch(`../api/ClockRingStation/AddRawRings`, {
+  await fetch(`../api/ClockRingStation/AddRawRings`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json-patch+json'

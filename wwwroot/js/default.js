@@ -45,7 +45,6 @@ async function initializeOSL() {
       init_tags();
       init_tagsPIV();
       init_tagsAGV();
-      init_tagsCamera();
       $(`span[id="fotf-site-facility-name"]`).text(appData.name);
     })
     .then(async () => {

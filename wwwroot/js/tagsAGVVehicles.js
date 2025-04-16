@@ -101,17 +101,13 @@ async function init_tagsAGV() {
     //     // handle error
     //     console.error(err);
     //   });
-    $(document).on('change', '.leaflet-control-layers-selector', function() {
+    $(document).on('change', '.leaflet-control-layers-selector', async function() {
       let sp = this.nextElementSibling;
       if (/^AGV Vehicles/gi.test(sp.innerHTML.trim())) {
         if (this.checked) {
-          connection.invoke('JoinGroup', 'AutonomousVehicle').catch(function(err) {
-            return console.error(err.toString());
-          });
+          await addGroupToList('AutonomousVehicle');
         } else {
-          connection.invoke('LeaveGroup', 'AutonomousVehicle').catch(function(err) {
-            return console.error(err.toString());
-          });
+          await removeFromGroupList('AutonomousVehicle');
         }
       }
     });

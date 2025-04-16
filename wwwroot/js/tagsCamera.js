@@ -1,17 +1,19 @@
-﻿$('#Camera_Modal').on('hidden.bs.modal', function() {
+﻿$('#Camera_Modal').on('hidden.bs.modal', async function() {
   $(this).find('input[type=text],textarea,select').css({ 'border-color': '#D3D3D3' }).val('').prop('disabled', false).end().find('input[type=radio]').prop('disabled', false).prop('checked', false).change().end().find('span[class=text-info]').css('border-color', '#FF0000').val('').text('').end().find('input[type=checkbox]').prop('checked', false).change().end();
 
   //stop the startTimer when closing the modal
 
   clearInterval(timer);
-  connection.invoke('LeaveGroup', 'CamerasStill').catch(function(err) {
-    return console.error(err.toString());
-  });
+  await removeFromGroupList('CamerasStill');
+  // connection.invoke('LeaveGroup', 'CamerasStill').catch(function(err) {
+  //   return console.error(err.toString());
+  // });
 });
-$('#Camera_Modal').on('shown.bs.modal', function() {
-  connection.invoke('JoinGroup', 'CamerasStill').catch(function(err) {
-    return console.error(err.toString());
-  });
+$('#Camera_Modal').on('shown.bs.modal', async function() {
+  await addGroupToList('CamerasStill');
+  // connection.invoke('JoinGroup', 'CamerasStill').catch(function(err) {
+  //   return console.error(err.toString());
+  // });
 });
 connection.on('addCameras', async data => {
   Promise.all([addCameraFeature(data)]);
@@ -106,28 +108,43 @@ let markerCameras = new L.GeoJSON(null, {
 let overlayCameraLayer = L.layerGroup().addTo(OSLmap);
 layersControl.addOverlay(overlayCameraLayer, 'Cameras');
 markerCameras.addTo(overlayCameraLayer);
+// add to the map and layers control
 async function findCameraLeafletIds(markerId) {
-  markerCameras.eachLayer(function(layer) {
-    if (layer.markerId === markerId) {
-      resolve(layer._leaflet_id);
-      return false;
-    }
+  return new Promise((resolve, reject) => {
+    markerCameras.eachLayer(function(layer) {
+      if (layer.markerId === markerId) {
+        resolve(layer._leaflet_id);
+        return false;
+      }
+    });
+    reject(new Error('No layer found with the given markerId'));
   });
 }
 async function init_tagsCamera() {
   try {
+    //loading connections
+    await fetch('../api/Camera')
+      .then(response => response.json())
+      .then(data => {
+        if (data.length > 0) {
+          data.forEach(function(item) {
+            if (item.properties.visible) {
+              addCameraFeature(item);
+            }
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
     //load cameras
-    $(document).on('change', '.leaflet-control-layers-selector', function() {
+    $(document).on('change', '.leaflet-control-layers-selector', async function() {
       let sp = this.nextElementSibling;
       if (/^Cameras$/gi.test(sp.innerHTML.trim())) {
         if (this.checked) {
-          connection.invoke('JoinGroup', 'Cameras').catch(function(err) {
-            return console.error(err.toString());
-          });
+          await addGroupToList('Cameras');
         } else {
-          connection.invoke('LeaveGroup', 'Cameras').catch(function(err) {
-            return console.error(err.toString());
-          });
+          await removeFromGroupList('Cameras');
         }
       }
     });
@@ -143,7 +160,9 @@ async function deleteCameraFeature(data) {
         //remove from markerCameras
         markerCameras.removeLayer(leafletIds);
       })
-      .catch(error => {});
+      .catch(error => {
+        console.log(error);
+      });
   } catch (e) {
     throw new Error(e.toString());
   }

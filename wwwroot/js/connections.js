@@ -399,12 +399,12 @@ $('#API_Connection_Modal').on('shown.bs.modal', function() {
     })
   );
   if (
-      $("input[type=checkbox][id='dbConn']").on('change', () => {
-        if ($('input[type=checkbox][id=dbConn]').is(':checked')) {
-          ondbConnConnection();
-        } else {
-          offdbConnConnection();
-        }
+    $("input[type=checkbox][id='dbConn']").on('change', () => {
+      if ($('input[type=checkbox][id=dbConn]').is(':checked')) {
+        ondbConnConnection();
+      } else {
+        offdbConnConnection();
+      }
     })
   );
 
@@ -456,7 +456,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function() {
       }
     }
   });
-  $("input[type='checkbox'][name='dbType']").on('change', function () {
+  $("input[type='checkbox'][name='dbType']").on('change', function() {
     const checkboxes = document.querySelectorAll('input[type="checkbox"][name="dbType"]');
     checkboxes.forEach(cb => {
       if (cb !== this) {
@@ -472,7 +472,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function() {
       }
     } else {
       if (this.id === 'dbConn') {
-         offdbConnConnection();
+        offdbConnConnection();
       }
     }
   });
@@ -637,119 +637,119 @@ async function Add_Connection() {
   }
 }
 async function Edit_Connection(data) {
-    if (appData.SiteName === 'No Site Configured') {
-        $('#SiteNotConfiguredModal').modal('show');
+  if (appData.SiteName === 'No Site Configured') {
+    $('#SiteNotConfiguredModal').modal('show');
+  } else {
+    $('#modalHeader_ID').text('Edit Connection');
+    $('input[type=checkbox][id=active_connection]').prop('checked', data.activeConnection);
+    $('input[type=checkbox][name=logdata]').prop('checked', data.logData);
+    if (checkValue(data.ipAddress)) {
+      $('input[type=text][id=ip_address]').val(data.ipAddress).trigger('keyup');
+    }
+    if (checkValue(data.hostname)) {
+      $('input[type=text][id=hostname]').val(data.hostname).trigger('keyup');
+    }
+    $('input[type=text][id=port_number]').val(data.port);
+    $('input[type=text][id=url]').val(data.url);
+    filtermessage_type(data.name, data.messageType);
+    $('select[name=connectionTimeout]').val(data.millisecondsTimeout);
+    $('select[name=data_retrieve]').val(data.millisecondsInterval);
+    $('input[type=radio]').prop('disabled', true);
+
+    if (/^(CiscoSpaces)/i.test(data.name)) {
+      $('input[type=text][name=ciscoSpaceMapId]').val(data.mapId);
+      $('input[type=text][name=ciscoSpacetenantId]').val(data.tenantId);
+      $('div[id="CiscoSpacesmenu"]').css('display', '');
+    }
+
+    if (/^(idRequest)/i.test(data.authType)) {
+      $('input[type=checkbox][id=idRequest]').prop('checked', true);
+      $('input[type=text][name=idrequesturl]').prop('disabled', false).val(data.oAuthUrl);
+      onidRequestConnection();
+    }
+    if (/^(oAuth2)/i.test(data.authType)) {
+      $('input[type=checkbox][id=oAuth2]').prop('checked', true);
+      $('input[type=text][name=tokenurl]').prop('disabled', false).val(data.oAuthUrl);
+      $('input[type=text][name=tokenusername]').prop('disabled', false).val(data.oAuthUserName);
+      $('input[type=text][name=tokenpassword]').prop('disabled', false).val(data.oAuthPassword);
+      $('input[type=text][name=tokenclientId]').prop('disabled', false).val(data.oAuthClientId);
+      onOAuthConnection();
+    }
+    if (/^(bearerToken)/i.test(data.authType)) {
+      $('input[type=checkbox][id=bearerToken]').prop('checked', true);
+      $('input[type=text][name=bearerToken]').prop('disabled', false).val(data.outgoingApikey);
+      onBearerConnection();
+    }
+    if (/^(basicAuth)/i.test(data.authType)) {
+      $('input[type=checkbox][id=basicAuth]').prop('checked', true);
+      $('input[type=text][name=tokenusername]').prop('disabled', false).val(data.oAuthUserName);
+      $('input[type=text][name=tokenpassword]').prop('disabled', false).val(data.oAuthPassword);
+      $('input[type=text][name=tokenclientId]').prop('disabled', false).val(data.oAuthClientId);
+      onBasicAuthConnection();
+    }
+    if (/^(dbConn)/i.test(data.dbType)) {
+      $('input[type=checkbox][id=dbConn]').prop('checked', true);
+      $('input[type=text][name=connstring]').prop('disabled', false).val(data.connectionString);
+      $('#unlockBtn').css('display', 'none');
+      $('#lockBtn').css('display', '');
+      ondbConnConnection();
+    }
+    if (data.apiConnection) {
+      $('input[type=radio][id=api_connection]').prop('checked', data.apiConnection);
+      onAPIConnection();
+    }
+    if (data.udpConnection) {
+      $('input[type=radio][id=udp_connection]').prop('checked', data.udpConnection);
+      onudptcpipConnection();
+    }
+    if (data.tcpIpConnection) {
+      $('input[type=radio][id=tcpip_connection]').prop('checked', data.tcpIpConnection);
+      onudptcpipConnection();
+    }
+    if (data.wsConnection) {
+      $('input[type=radio][id=ws_connection]').prop('checked', data.wsConnection);
+    }
+    connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
+    if (data.hoursBack > 0 || data.hoursForward > 0) {
+      $('.hoursbackvalue').html($.isNumeric(data.hoursBack) ? parseInt(data.hoursBack, 10) : 0);
+      $('input[id=hoursback_range]').val($.isNumeric(data.hoursBack) ? parseInt(data.hoursBack, 10) : 0);
+      $('.hours_range_row').css('display', '');
+      $('.hoursforwardvalue').html($.isNumeric(data.hoursForward) ? parseInt(data.hoursForward, 10) : 0);
+      $('input[id=hoursforward_range]').val($.isNumeric(data.hoursForward) ? parseInt(data.hoursForward, 10) : 0);
+      $('.hours_range_row').css('display', '');
+      $('input[type=checkbox][id=hour_range]').prop('checked', true);
     } else {
-        $('#modalHeader_ID').text('Edit Connection');
-        $('input[type=checkbox][id=active_connection]').prop('checked', data.activeConnection);
-        $('input[type=checkbox][name=logdata]').prop('checked', data.logData);
-        if (checkValue(data.ipAddress)) {
-            $('input[type=text][id=ip_address]').val(data.ipAddress).trigger('keyup');
-        }
-        if (checkValue(data.hostname)) {
-            $('input[type=text][id=hostname]').val(data.hostname).trigger('keyup');
-        }
-        $('input[type=text][id=port_number]').val(data.port);
-        $('input[type=text][id=url]').val(data.url);
-        filtermessage_type(data.name, data.messageType);
-        $('select[name=connectionTimeout]').val(data.millisecondsTimeout);
-        $('select[name=data_retrieve]').val(data.millisecondsInterval);
-        $('input[type=radio]').prop('disabled', true);
-
-        if (/^(CiscoSpaces)/i.test(data.name)) {
-            $('input[type=text][name=ciscoSpaceMapId]').val(data.mapId);
-            $('input[type=text][name=ciscoSpacetenantId]').val(data.tenantId);
-            $('div[id="CiscoSpacesmenu"]').css('display', '');
-        }
-
-        if (/^(idRequest)/i.test(data.authType)) {
-            $('input[type=checkbox][id=idRequest]').prop('checked', true);
-            $('input[type=text][name=idrequesturl]').prop('disabled', false).val(data.oAuthUrl);
-            onidRequestConnection();
-        }
-        if (/^(oAuth2)/i.test(data.authType)) {
-            $('input[type=checkbox][id=oAuth2]').prop('checked', true);
-            $('input[type=text][name=tokenurl]').prop('disabled', false).val(data.oAuthUrl);
-            $('input[type=text][name=tokenusername]').prop('disabled', false).val(data.oAuthUserName);
-            $('input[type=text][name=tokenpassword]').prop('disabled', false).val(data.oAuthPassword);
-            $('input[type=text][name=tokenclientId]').prop('disabled', false).val(data.oAuthClientId);
-            onOAuthConnection();
-        }
-        if (/^(bearerToken)/i.test(data.authType)) {
-            $('input[type=checkbox][id=bearerToken]').prop('checked', true);
-            $('input[type=text][name=bearerToken]').prop('disabled', false).val(data.outgoingApikey);
-            onBearerConnection();
-        }
-        if (/^(basicAuth)/i.test(data.authType)) {
-            $('input[type=checkbox][id=basicAuth]').prop('checked', true);
-            $('input[type=text][name=tokenusername]').prop('disabled', false).val(data.oAuthUserName);
-            $('input[type=text][name=tokenpassword]').prop('disabled', false).val(data.oAuthPassword);
-            $('input[type=text][name=tokenclientId]').prop('disabled', false).val(data.oAuthClientId);
-            onBasicAuthConnection();
-        }
-        if (/^(dbConn)/i.test(data.dbType)) {
-            $('input[type=checkbox][id=dbConn]').prop('checked', true);
-            $('input[type=text][name=connstring]').prop('disabled', false).val(data.connectionString);
-            $('#unlockBtn').css('display', 'none');
-            $('#lockBtn').css('display', '');
-            ondbConnConnection();
-        }
-        if (data.apiConnection) {
-            $('input[type=radio][id=api_connection]').prop('checked', data.apiConnection);
-            onAPIConnection();
-        }
-        if (data.udpConnection) {
-            $('input[type=radio][id=udp_connection]').prop('checked', data.udpConnection);
-            onudptcpipConnection();
-        }
-        if (data.tcpIpConnection) {
-            $('input[type=radio][id=tcpip_connection]').prop('checked', data.tcpIpConnection);
-            onudptcpipConnection();
-        }
-        if (data.wsConnection) {
-            $('input[type=radio][id=ws_connection]').prop('checked', data.wsConnection);
-        }
-        connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
-        if (data.hoursBack > 0 || data.hoursForward > 0) {
-            $('.hoursbackvalue').html($.isNumeric(data.hoursBack) ? parseInt(data.hoursBack, 10) : 0);
-            $('input[id=hoursback_range]').val($.isNumeric(data.hoursBack) ? parseInt(data.hoursBack, 10) : 0);
-            $('.hours_range_row').css('display', '');
-            $('.hoursforwardvalue').html($.isNumeric(data.hoursForward) ? parseInt(data.hoursForward, 10) : 0);
-            $('input[id=hoursforward_range]').val($.isNumeric(data.hoursForward) ? parseInt(data.hoursForward, 10) : 0);
-            $('.hours_range_row').css('display', '');
-            $('input[type=checkbox][id=hour_range]').prop('checked', true);
-        } else {
-            $('.hoursbackvalue').html($.isNumeric(data.hoursBack) ? parseInt(data.hoursBack, 10) : 0);
-            $('input[id=hoursback_range]').val($.isNumeric(data.hoursBack) ? parseInt(data.hoursBack, 10) : 0);
-            $('.hours_range_row').css('display', 'none');
-            $('.hoursforwardvalue').html($.isNumeric(data.hoursForward) ? parseInt(data.hoursForward, 10) : 0);
-            $('input[id=hoursforward_range]').val($.isNumeric(data.hoursForward) ? parseInt(data.hoursForward, 10) : 0);
-            $('.hours_range_row').css('display', 'none');
-            $('input[type=checkbox][id=hour_range]').prop('checked', false);
-        }
-        $('button[id=lockBtn]').off().on('click', function () {
-            $('#unlockBtn').css('display', '');
-            $('#lockBtn').css('display', 'none');
-            $.ajax({
-                url: SiteURLconstructor(window.location) + '/api/Connections/GetUnlockString?id=' + encodeURIComponent(data.connectionString),
-                type: 'GET',
-                success: function (cstrdata) {
-                    $('#connstring').val(cstrdata);
-                },
-                error: function (error) {
-                    console.log(error);
-                },
-                faulure: function (fail) {
-                    console.log(fail);
-                },
-                complete: function (complete) { }
-            });
-        });
-        $('button[id=unlockBtn]').off().on('click', function () {
-            $('#unlockBtn').css('display', 'none');
-            $('#lockBtn').css('display', '');
-            $('#connstring').val(data.connectionString);
-        });
+      $('.hoursbackvalue').html($.isNumeric(data.hoursBack) ? parseInt(data.hoursBack, 10) : 0);
+      $('input[id=hoursback_range]').val($.isNumeric(data.hoursBack) ? parseInt(data.hoursBack, 10) : 0);
+      $('.hours_range_row').css('display', 'none');
+      $('.hoursforwardvalue').html($.isNumeric(data.hoursForward) ? parseInt(data.hoursForward, 10) : 0);
+      $('input[id=hoursforward_range]').val($.isNumeric(data.hoursForward) ? parseInt(data.hoursForward, 10) : 0);
+      $('.hours_range_row').css('display', 'none');
+      $('input[type=checkbox][id=hour_range]').prop('checked', false);
+    }
+    $('button[id=lockBtn]').off().on('click', function() {
+      $('#unlockBtn').css('display', '');
+      $('#lockBtn').css('display', 'none');
+      $.ajax({
+        url: SiteURLconstructor(window.location) + '/api/Connections/GetUnlockString?id=' + encodeURIComponent(data.connectionString),
+        type: 'GET',
+        success: function(cstrdata) {
+          $('#connstring').val(cstrdata);
+        },
+        error: function(error) {
+          console.log(error);
+        },
+        faulure: function(fail) {
+          console.log(fail);
+        },
+        complete: function(complete) {}
+      });
+    });
+    $('button[id=unlockBtn]').off().on('click', function() {
+      $('#unlockBtn').css('display', 'none');
+      $('#lockBtn').css('display', '');
+      $('#connstring').val(data.connectionString);
+    });
     $('button[id=apisubmitBtn]').prop('disabled', true);
     $('button[id=apisubmitBtn]').off().on('click', function() {
       try {
@@ -899,7 +899,7 @@ async function init_connection() {
       });
     }
     //loading connections
-    fetch('../api/Connections/AllConnection')
+    await fetch('../api/Connections/AllConnection')
       .then(response => response.json())
       .then(data => {
         if (data.length > 0) {
@@ -1130,7 +1130,7 @@ function enabletcpipudpSubmit() {
   }
 }
 function enableaipSubmit() {
-  if ($('select[name=connection_name]').hasClass('is-valid') && $('select[name=message_type]').hasClass('is-valid') && $('input[type=text][name=url]').hasClass('is-valid') && ($('input[type=text][name=hostname]').hasClass('is-valid') && $('input[type=text][name=connstring]').hasClass('is-valid') || $('input[type=text][name=ip_address]').hasClass('is-valid')) && $('select[name=data_retrieve]').hasClass('is-valid') && $('select[name=connectionTimeout]').hasClass('is-valid')) {
+  if ($('select[name=connection_name]').hasClass('is-valid') && $('select[name=message_type]').hasClass('is-valid') && $('input[type=text][name=url]').hasClass('is-valid') && (($('input[type=text][name=hostname]').hasClass('is-valid') && $('input[type=text][name=connstring]').hasClass('is-valid')) || $('input[type=text][name=ip_address]').hasClass('is-valid')) && $('select[name=data_retrieve]').hasClass('is-valid') && $('select[name=connectionTimeout]').hasClass('is-valid')) {
     $('button[id=apisubmitBtn]').prop('disabled', false);
   } else {
     $('button[id=apisubmitBtn]').prop('disabled', true);
@@ -1242,20 +1242,20 @@ function offidRequestConnection() {
 }
 
 function ondbConnConnection() {
-    $('div[id="DBConnection"]').css('display', '');
-    if (!checkValue($('input[type=text][name=connstring]').val())) {
-        $('input[type=text][name=connstring]').css({ 'border-color': '#FF0000' }).removeClass('is-valid').addClass('is-invalid');
-        $('span[id=error_connstring]').text('Please Enter Database Connection String');
-    } else {
-        $('input[type=text][name=connstring]').css('border-color', '#2eb82e').removeClass('is-invalid').addClass('is-valid');
-        $('span[id=error_connstring]').text('');
-    }
-    enableaipSubmit();
+  $('div[id="DBConnection"]').css('display', '');
+  if (!checkValue($('input[type=text][name=connstring]').val())) {
+    $('input[type=text][name=connstring]').css({ 'border-color': '#FF0000' }).removeClass('is-valid').addClass('is-invalid');
+    $('span[id=error_connstring]').text('Please Enter Database Connection String');
+  } else {
+    $('input[type=text][name=connstring]').css('border-color', '#2eb82e').removeClass('is-invalid').addClass('is-valid');
+    $('span[id=error_connstring]').text('');
+  }
+  enableaipSubmit();
 }
 function offdbConnConnection() {
-    $('div[id="DBConnection"]').css('display', 'none');
-    $('#unlockBtn').css('display', 'none');
-    $('#lockBtn').css('display', '');
+  $('div[id="DBConnection"]').css('display', 'none');
+  $('#unlockBtn').css('display', 'none');
+  $('#lockBtn').css('display', '');
 }
 
 function onOAuthConnection() {

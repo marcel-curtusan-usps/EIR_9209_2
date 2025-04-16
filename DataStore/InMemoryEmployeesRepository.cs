@@ -468,27 +468,36 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                             currentEmp.EncodedId = empData.EncodedId;
                             savetoFile = true;
                         }
+                        if (currentEmp.DesActCode != empData.DesignationActivity)
+                        {
+                            currentEmp.DesActCode = empData.DesignationActivity;
+                            savetoFile = true;
+                        }
+                        if (currentEmp.Title != empData.Title)
+                        {
+                            currentEmp.Title = empData.Title;
+                            savetoFile = true;
+                        }
+                    }
+                    else
+                    {
+                        if (_empList.TryAdd(empData.Ein, new EmployeeInfo
+                        {
+                            FirstName = empData.FirstName,
+                            LastName = empData.LastName,
+                            EmployeeId = empData.Ein,
+                            PayLocation = empData.PayLocation,
+                            Title = empData.Title,
+                            DesActCode = empData.DesignationActivity,
+                            BleId = empData.TagId,
+                            EncodedId = empData.EncodedId,
+                        }))
+                        {
+                            savetoFile = true;
+
+                        }
                     }
                 }
-                else
-                {
-                    if (_empList.TryAdd(empData.Ein, new EmployeeInfo
-                    {
-                        FirstName = empData.FirstName,
-                        LastName = empData.LastName,
-                        EmployeeId = empData.Ein,
-                        PayLocation = empData.PayLocation,
-                        Title = empData.Title,
-                        DesActCode = empData.DesignationActivity,
-                        BleId = empData.TagId,
-                        EncodedId = empData.EncodedId,
-                    }))
-                    {
-                        savetoFile = true;
-
-                    }
-                }
-
             }
             return true;
         }
@@ -732,38 +741,66 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
     {
         try
         {
-            var empQuery = _empList.Where(sl =>
-         Regex.IsMatch(sl.Value.EmployeeId, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-         || Regex.IsMatch(sl.Value.FirstName, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-         || Regex.IsMatch(sl.Value.FirstName, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-         || Regex.IsMatch(sl.Value.BleId, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-         || Regex.IsMatch(sl.Value.EncodedId, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-         || Regex.IsMatch(sl.Value.CardholderId.ToString(), "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-       ).Select(r => r.Value).ToList();
+            if (string.IsNullOrWhiteSpace(searchValue))
+            {
+                _logger.LogWarning("Search value is null or empty.");
+                return Task.FromResult(new List<JObject>());
+            }
 
-            var empSearchReuslt = (from sr in empQuery
-                                   select new JObject
-                                   {
-                                       ["id"] = sr.CardholderId,
-                                       ["ein"] = sr.EmployeeId,
-                                       ["tagType"] = "Badge",
-                                       ["name"] = sr.FirstName,
-                                       ["encodedId"] = sr.EncodedId,
-                                       ["empFirstName"] = sr.FirstName,
-                                       ["empLastName"] = sr.LastName,
-                                       ["craftName"] = sr.Title,
-                                       ["payLocation"] = sr.PayLocation,
-                                       ["presence"] = sr.EmployeeStatus,
-                                       ["designationActivity"] = sr.DesActCode,
-                                       ["color"] = ""
-                                   }).ToList();
-            var finalReuslt = empSearchReuslt;
-            return Task.FromResult((List<JObject>)finalReuslt);
+            var trimmedSearchValue = searchValue.Trim();
+            var regexPattern = Regex.Escape(trimmedSearchValue); // Escape special characters in the search value
+            var regexTimeout = TimeSpan.FromMilliseconds(10); // Set a timeout for regex operations
+
+            var empQuery = _empList.Where(sl =>
+                sl.Value != null &&
+                (
+                    IsMatchWithTimeout(sl.Value.Title ?? "", regexPattern, regexTimeout) ||
+                    IsMatchWithTimeout(sl.Value.EmployeeId ?? "", regexPattern, regexTimeout) ||
+                    IsMatchWithTimeout(sl.Value.FirstName ?? "", regexPattern, regexTimeout) ||
+                    IsMatchWithTimeout(sl.Value.LastName ?? "", regexPattern, regexTimeout) ||
+                    IsMatchWithTimeout(sl.Value.BleId ?? "", regexPattern, regexTimeout) ||
+                    IsMatchWithTimeout(sl.Value.EncodedId ?? "", regexPattern, regexTimeout) ||
+                    IsMatchWithTimeout(sl.Value.CardholderId.ToString(), regexPattern, regexTimeout)
+                )
+            ).Select(r => r.Value).ToList();
+
+            var empSearchResult = empQuery.Select(sr => new JObject
+            {
+                ["id"] = sr.CardholderId,
+                ["tagid"] = sr.BleId,
+                ["ein"] = sr.EmployeeId,
+                ["tagType"] = "Badge",
+                ["name"] = sr.FirstName,
+                ["encodedId"] = sr.EncodedId,
+                ["empFirstName"] = sr.FirstName,
+                ["empLastName"] = sr.LastName,
+                ["craftName"] = sr.Title,
+                ["payLocation"] = sr.PayLocation,
+                ["presence"] = sr.EmployeeStatus,
+                ["designationActivity"] = sr.DesActCode,
+                ["color"] = ""
+            }).ToList();
+
+            return Task.FromResult(empSearchResult);
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
-            return null;
+            _logger.LogError($"Error in SearchEmployee: {e.Message}");
+            return Task.FromResult(new List<JObject>());
+        }
+    }
+    /// Helper method for regex matching with timeout
+    private bool IsMatchWithTimeout(string input, string pattern, TimeSpan timeout)
+    {
+        try
+        {
+            return Regex.IsMatch(input, pattern, RegexOptions.IgnoreCase, timeout);
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            // Log timeout exception if needed
+            _logger.LogWarning($"Regex match timed out for input: {input}");
+            return false;
         }
     }
     /// <summary>

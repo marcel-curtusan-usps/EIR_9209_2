@@ -131,9 +131,30 @@ namespace EIR_9209_2.DataStore
         /// </summary>
         /// <param name="tagType"></param>
         /// <returns></returns>
-        public List<string> GetTagByType(string tagType)
+        public Task<object> GetTagByType(string tagType)
         {
-            return _tagList.Values.Where(r => r.Properties.TagType == tagType).Select(y => y.Properties.Name).ToList();
+            try
+            {
+
+                // Convert emp tags list to JArray
+                JArray empTags = JArray.FromObject(_tagList.Values.Where(r => r.Properties.TagType == tagType).Select(y => y.Properties.Name).ToList());
+                // Convert vehicleTags list to JArray
+                JArray vehicleTags = JArray.FromObject(_vehicleTagList.Values.Where(r => r.Properties.Type == tagType).Select(y => y.Properties.Name).ToList());
+
+                // Merge the two tags into a single JArray
+                empTags.Merge(vehicleTags, new JsonMergeSettings
+                {
+                    MergeArrayHandling = MergeArrayHandling.Concat,
+
+                });
+
+                return Task.FromResult((object)empTags);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return Task.FromResult<object>(new object());
+            }
         }
         /// <summary>
         /// Get all tags from the repository.
@@ -143,31 +164,7 @@ namespace EIR_9209_2.DataStore
         {
             return _tagList.Values.Where(r => r.Properties.Visible).Select(y => y).ToList();
         }
-        /// <summary>
-        /// Get all tags from the repository by type.
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public List<GeoMarker> GetTagsType(string type)
-        {
-            return _tagList.Values.Where(r => r.Properties.TagType == type).Select(y => y).ToList();
-        }
-        /// <summary>
-        /// Get all vehicle tags from the repository.
-        /// </summary>
-        /// <returns></returns>
-        public List<VehicleGeoMarker> GetAllPIV()
-        {
-            return _vehicleTagList.Values.Where(r => r.Properties.Type.StartsWith("Vehicle")).Select(y => y).ToList();
-        }
-        /// <summary>
-        /// Get all AGV tags from the repository.
-        /// </summary>
-        /// <returns></returns>
-        public List<VehicleGeoMarker> GetAllAGV()
-        {
-            return _vehicleTagList.Values.Where(r => r.Properties.Type.StartsWith("Autonomous")).Select(y => y).ToList();
-        }
+
         /// <summary>
         /// Load tag timeline data from a file.
         /// </summary>

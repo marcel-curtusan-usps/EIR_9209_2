@@ -39,6 +39,9 @@ async function init_signalRConnection(data) {
 async function JoinGroup(_group) {
   await connection.invoke('JoinGroup', _group);
 }
+async function LeaveGroup(_group) {
+  await connection.invoke('LeaveGroup', _group);
+}
 async function addGroupToList(group) {
   if (connection.state === signalR.HubConnectionState.Connected) {
     await JoinGroup(group);
@@ -46,6 +49,11 @@ async function addGroupToList(group) {
     if (!listofGroups.includes(group)) {
       listofGroups.push(group);
     }
+  }
+}
+async function removeFromGroupList(group) {
+  if (connection.state === signalR.HubConnectionState.Connected) {
+    await LeaveGroup(group);
   }
 }
 connection.onclose(async () => {
