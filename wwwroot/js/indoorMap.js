@@ -1,4 +1,5 @@
-﻿//side bar setup
+﻿let baselayerid = '';
+//side bar setup
 let sidebar = L.control.sidebar({
   autopan: false, // whether to maintain the centered map point when opening the sidebar
   closeButton: true, // whether t add a close button to the panes
@@ -122,7 +123,7 @@ async function onBaseLayerChange(e) {
   markerCameras.clearLayers();
   init_tagsCamera(baselayerid);
   OSLmap.setView(e.layer.getBounds().getCenter(), 1.5);
-  console.info(`floorId: ${baselayerid}`);
+  //console.info(`floorId: ${baselayerid}`);
 }
 // Add the event listener
 OSLmap.on('baselayerchange', onBaseLayerChange);

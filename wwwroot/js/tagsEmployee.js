@@ -212,7 +212,7 @@ function getBadgeMarkerType(type) {
     } else if (/^maintenance/gi.test(type)) {
       return 'bi-suit-diamond-fill text-success h6 ';
     } else if (/^(LABORER CUSTODIAL|CUSTODIAN|CUTODIAN|Custodian|Custodian)/gi.test(type)) {
-      return 'bi-cart-fill h6';
+      return 'bi-vector-pen h6';
     } else if (/inplantsupport/gi.test(type)) {
       return 'bi-person-fill-gear text-success h6 ';
     } else if (/^(clerk|mailhandler|mha|mail|pse)/gi.test(type)) {
@@ -523,7 +523,7 @@ async function EditUserInfo(properties) {
   // Close the sidebar
   sidebar.close();
   // Populate the input fields with the feature properties
-  if (/Badge/gi.test(properties.tagType)) {
+  if (/Badge/gi.test(properties.type)) {
     $('#personform').css('display', 'block');
   }
   $('input[id=employeeEIN]').val(properties.eIN);
@@ -533,7 +533,7 @@ async function EditUserInfo(properties) {
   $('input[id=paylocation]').val(properties.empPayLocation);
   $('input[id=tagDACode]').val(properties.designationActivity);
   $('input[id=tag_name]').val(properties.name);
-  $('select[id=tagType_select]').val(properties.tagType);
+  $('select[id=tagType_select]').val(properties.type);
   if (!/^(Clerk|Supervisor|Maintenance|Mail Handler|Custodial)$/gi.test(properties.craftName)) {
     $('select[id=tagCraftName_select]').val('');
   } else {
@@ -553,7 +553,7 @@ async function EditUserInfo(properties) {
       let updatedProperties = {};
       updatedProperties.tagId = $('input[name=tag_id]').val();
       updatedProperties.name = $('input[name=tag_name]').val();
-      updatedProperties.tagType = $('select[name=tagType_select] option:selected').val();
+      updatedProperties.type = $('select[name=tagType_select] option:selected').val();
 
       if (/Badge/gi.test($('select[id=tagType_select]').val())) {
         updatedProperties.ein = $('input[name=employeeEIN]').val();

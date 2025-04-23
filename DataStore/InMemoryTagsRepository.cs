@@ -13,6 +13,9 @@ using static EIR_9209_2.Service.CiscoSpacesEndPointServices;
 
 namespace EIR_9209_2.DataStore
 {
+    /// <summary>
+    /// InMemoryTagsRepository class implements IInMemoryTagsRepository interface
+    /// </summary>
     public class InMemoryTagsRepository : IInMemoryTagsRepository
     {
         private readonly ConcurrentDictionary<string, GeoMarker> _tagList = new();
@@ -61,7 +64,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (_tagList.TryAdd(tag.Properties.Id, tag))
                 {
-                    await _hubServices.Clients.Group(tag.Properties.TagType).SendAsync($"add{tag.Properties.TagType}TagInfo", tag);
+                    await _hubServices.Clients.Group(tag.Properties.Type).SendAsync($"add{tag.Properties.Type}TagInfo", tag);
                     saveToFile = true;
                 }
             }
@@ -89,7 +92,7 @@ namespace EIR_9209_2.DataStore
             {
                 if (_tagList.TryRemove(connectionId, out GeoMarker? tag))
                 {
-                    await _hubServices.Clients.Group(tag.Properties.TagType).SendAsync($"delete{tag.Properties.TagType}TagInfo", tag);
+                    await _hubServices.Clients.Group(tag.Properties.Type).SendAsync($"delete{tag.Properties.Type}TagInfo", tag);
                     saveToFile = true;
                 }
             }
@@ -137,7 +140,7 @@ namespace EIR_9209_2.DataStore
             {
 
                 // Convert emp tags list to JArray
-                JArray empTags = JArray.FromObject(_tagList.Values.Where(r => r.Properties.TagType == tagType).Select(y => y.Properties.Name).ToList());
+                JArray empTags = JArray.FromObject(_tagList.Values.Where(r => r.Properties.Type == tagType).Select(y => y.Properties.Name).ToList());
                 // Convert vehicleTags list to JArray
                 JArray vehicleTags = JArray.FromObject(_vehicleTagList.Values.Where(r => r.Properties.Type == tagType).Select(y => y.Properties.Name).ToList());
 
@@ -279,9 +282,9 @@ namespace EIR_9209_2.DataStore
                             item.Properties.posAge = 0;
                             item.Properties.Zones = [];
                             item.Properties.ZonesNames = "";
-                            if (string.IsNullOrEmpty(item.Properties.TagType) || item.Properties.TagType == "Person")
+                            if (string.IsNullOrEmpty(item.Properties.Type) || item.Properties.Type == "Person")
                             {
-                                item.Properties.TagType = "Badge";
+                                item.Properties.Type = "Badge";
                             }
 
                             _tagList.TryAdd(item.Properties.Id, item);
@@ -495,18 +498,18 @@ namespace EIR_9209_2.DataStore
                             TagData.Properties.EmpPayLocation = tagInfo["empPayLocation"].ToString();
                             savetoFile = true;
                         }
-                        if (tagInfo.ContainsKey("tagType"))
+                        if (tagInfo.ContainsKey("type"))
                         {
-                            string newTagType = tagInfo["tagType"].ToString();
+                            string newTagType = tagInfo["type"].ToString();
                             if (newTagType.Contains("vehicle", StringComparison.OrdinalIgnoreCase))
                             {
                                 // Remove from _tagList and add to _vehicleTagList
                                 if (_tagList.TryRemove(tagInfo["tagId"].ToString(), out TagData))
                                 {
-                                    await _hubServices.Clients.Group(TagData.Properties.TagType).SendAsync($"delete{TagData.Properties.TagType}TagInfo", TagData);
+                                    await _hubServices.Clients.Group(TagData.Properties.Type).SendAsync($"delete{TagData.Properties.Type}TagInfo", TagData);
                                     var serializedTagData = JsonConvert.SerializeObject(TagData);
                                     var vehicleTagData = JsonConvert.DeserializeObject<VehicleGeoMarker>(serializedTagData);
-                                    vehicleTagData.Properties.Type = tagInfo["tagType"].ToString();
+                                    vehicleTagData.Properties.Type = tagInfo["type"].ToString();
 
                                     _vehicleTagList.TryAdd(tagInfo["tagId"].ToString(), vehicleTagData);
                                     savetoFile = true;
@@ -514,7 +517,7 @@ namespace EIR_9209_2.DataStore
                             }
                             else
                             {
-                                TagData.Properties.TagType = newTagType;
+                                TagData.Properties.Type = newTagType;
                                 savetoFile = true;
                             }
                         }
@@ -530,7 +533,7 @@ namespace EIR_9209_2.DataStore
                             }
                         }
 
-                        await _hubServices.Clients.Group(TagData.Properties.TagType).SendAsync($"update{TagData.Properties.TagType}TagInfo", TagData);
+                        await _hubServices.Clients.Group(TagData.Properties.Type).SendAsync($"update{TagData.Properties.Type}TagInfo", TagData);
 
                         return Task.FromResult(TagData);
                     }
@@ -559,66 +562,93 @@ namespace EIR_9209_2.DataStore
                 }
             }
         }
-        public Task<IEnumerable<JObject>> SearchTag(string searchValue)
+        public Task<List<JObject>> SearchTag(string searchValue)
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(searchValue))
+                {
+                    _logger.LogWarning("Search value is null or empty.");
+                    return Task.FromResult(new List<JObject>());
+                }
+                var trimmedSearchValue = searchValue.Trim();
+                var regexPattern = Regex.Escape(trimmedSearchValue); // Escape special characters in the search value
+                var regexTimeout = TimeSpan.FromMilliseconds(10); // Set a timeout for regex operations
+                var tagQuery = _tagList.Where(sl =>
+                       sl.Value != null &&
+                       (
+                           IsMatchWithTimeout(sl.Value.Properties.Id ?? "", regexPattern, regexTimeout) ||
+                           IsMatchWithTimeout(sl.Value.Properties.EIN ?? "", regexPattern, regexTimeout) ||
+                           IsMatchWithTimeout(sl.Value.Properties.Name ?? "", regexPattern, regexTimeout) ||
+                            IsMatchWithTimeout(sl.Value.Properties.EncodedId ?? "", regexPattern, regexTimeout) ||
+                            IsMatchWithTimeout(sl.Value.Properties.CraftName ?? "", regexPattern, regexTimeout) ||
+                            IsMatchWithTimeout(sl.Value.Properties.EmpFirstName ?? "", regexPattern, regexTimeout) ||
+                            IsMatchWithTimeout(sl.Value.Properties.EmpLastName ?? "", regexPattern, regexTimeout)
+                       )
+                   ).Select(r => r.Value).ToList();
 
-
-                var badgeQuery = _tagList.Where(sl =>
-                    Regex.IsMatch(sl.Value.Properties.Id, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-                    || Regex.IsMatch(sl.Value.Properties.EIN, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-                    || Regex.IsMatch(sl.Value.Properties.EncodedId, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-                    || Regex.IsMatch(sl.Value.Properties.CraftName, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-                    || Regex.IsMatch(sl.Value.Properties.EmpFirstName, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-                    || Regex.IsMatch(sl.Value.Properties.EmpLastName, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-                  ).Select(r => r.Value.Properties).ToList();
-                var badgeSearchReuslt = (from sr in badgeQuery
+                var badgeSearchReuslt = (from sr in tagQuery
                                          select new JObject
                                          {
-                                             ["id"] = sr.Id,
-                                             ["ein"] = sr.EIN,
-                                             ["tagType"] = sr.TagType,
-                                             ["name"] = sr.Name,
-                                             ["encodedId"] = sr.EncodedId,
-                                             ["empFirstName"] = sr.EmpFirstName,
-                                             ["empLastName"] = sr.EmpLastName,
-                                             ["craftName"] = sr.CraftName,
-                                             ["presence"] = sr.isPosition,
-                                             ["payLocation"] = sr.PayLocation,
-                                             ["designationActivity"] = sr.DesignationActivity,
-                                             ["color"] = sr.Color
+                                             ["id"] = sr.Properties.Id,
+                                             ["tagid"] = sr.Properties.Id,
+                                             ["ein"] = sr.Properties.EIN,
+                                             ["type"] = sr.Properties.Type,
+                                             ["name"] = sr.Properties.Name,
+                                             ["encodedId"] = sr.Properties.EncodedId,
+                                             ["empFirstName"] = sr.Properties.EmpFirstName,
+                                             ["empLastName"] = sr.Properties.EmpLastName,
+                                             ["craftName"] = sr.Properties.CraftName,
+                                             ["payLocation"] = sr.Properties.EmpPayLocation,
+                                             ["presence"] = sr.Properties.isPosition,
+                                             ["designationActivity"] = sr.Properties.DesignationActivity,
+                                             ["color"] = sr.Properties.Color
                                          }).ToList();
-
                 var vehicelQuery = _vehicleTagList.Where(sl =>
-               Regex.IsMatch(sl.Value.Properties.Id, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-               || Regex.IsMatch(sl.Value.Properties.Name, "(" + searchValue + ")", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10))
-             ).Select(r => r.Value.Properties).ToList();
-
+                             sl.Value != null &&
+                             (
+                                 IsMatchWithTimeout(sl.Value.Properties.Id ?? "", regexPattern, regexTimeout) ||
+                                 IsMatchWithTimeout(sl.Value.Properties.Name ?? "", regexPattern, regexTimeout)
+                             )
+                         ).Select(r => r.Value).ToList();
                 var vehicelSearchReuslt = (from sr in vehicelQuery
                                            select new JObject
                                            {
-                                               ["id"] = sr.Id,
+                                               ["id"] = sr.Properties.Id,
+                                               ["tagid"] = sr.Properties.Id,
                                                ["ein"] = "",
-                                               ["tagType"] = sr.Type,
-                                               ["name"] = sr.Name,
+                                               ["type"] = sr.Properties.Type,
+                                               ["name"] = sr.Properties.Name,
                                                ["encodedId"] = "",
-                                               ["empFirstName"] = sr.Name,
+                                               ["empFirstName"] = sr.Properties.Name,
                                                ["empLastName"] = "",
-                                               ["craftName"] = "",
+                                               ["craftName"] = sr.Properties.Type,
                                                ["payLocation"] = "",
-                                               ["presence"] = sr.isPosition,
+                                               ["presence"] = sr.Properties.isPosition,
                                                ["designationActivity"] = "",
-                                               ["color"] = sr.Color
+                                               ["color"] = sr.Properties.Color
                                            }).ToList();
 
                 var finalReuslt = badgeSearchReuslt.Concat(vehicelSearchReuslt);
-                return Task.FromResult((IEnumerable<JObject>)finalReuslt);
+                return Task.FromResult(finalReuslt.ToList());
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return null;
+                return Task.FromResult(new List<JObject>());
+            }
+        }
+        private bool IsMatchWithTimeout(string input, string pattern, TimeSpan timeout)
+        {
+            try
+            {
+                return Regex.IsMatch(input, pattern, RegexOptions.IgnoreCase, timeout);
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                // Log timeout exception if needed
+                _logger.LogWarning($"Regex match timed out for input: {input}");
+                return false;
             }
         }
         public async Task<bool> UpdateTagQPEInfo(List<Tags> tags, long responseTS, CancellationToken stoppingToken)
@@ -818,9 +848,9 @@ namespace EIR_9209_2.DataStore
                         TagData.Properties.DesignationActivity = employeeInfo != null ? employeeInfo.DesActCode : "";
                         TagData.Properties.CraftName = daCode != null ? daCode.CraftType : "";
 
-                        if (string.IsNullOrEmpty(TagData.Properties.TagType))
+                        if (string.IsNullOrEmpty(TagData.Properties.Type))
                         {
-                            TagData.Properties.TagType = "Badge";
+                            TagData.Properties.Type = "Badge";
                             savetoFile = true;
                         }
                         if (!string.IsNullOrEmpty(qtitem.TagName))
@@ -847,7 +877,7 @@ namespace EIR_9209_2.DataStore
                                 LocationMovementStatus = qtitem.LocationMovementStatus,
                                 ServerTS = qtitem.ServerTS,
                                 PositionTS = qtitem.LocationTS,
-                                TagType = "Badge",
+                                Type = "Badge",
                                 Visible = visable,
                                 isPosition = visable,
                                 EIN = employeeInfo != null ? employeeInfo.EmployeeId : "",
@@ -870,7 +900,7 @@ namespace EIR_9209_2.DataStore
                 }
                 if (qtitem.Location.Any())
                 {
-                    await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", positionLocationMarkersUpdate(TagData));
+                    await _hubServices.Clients.Group(TagData?.Properties.Type).SendAsync($"update{TagData?.Properties.Type}TagPosition", positionLocationMarkersUpdate(TagData));
                 }
                 return await Task.FromResult(savetoFile);
 
@@ -989,7 +1019,7 @@ namespace EIR_9209_2.DataStore
                             }
                             if (updateGroup)
                             {
-                                await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", positionLocationMarkersUpdate(TagData));
+                                await _hubServices.Clients.Group(TagData?.Properties.Type).SendAsync($"update{TagData?.Properties.Type}TagPosition", positionLocationMarkersUpdate(TagData));
                             }
                         }
                         else
@@ -1003,7 +1033,7 @@ namespace EIR_9209_2.DataStore
                                 Properties = new Marker
                                 {
                                     Id = item.Properties.MacAddress,
-                                    TagType = "Badge",
+                                    Type = "Badge",
                                     Visible = true,
                                     isPosition = true,
                                     CraftName = "WifiDevice"
@@ -1013,7 +1043,7 @@ namespace EIR_9209_2.DataStore
                             if (_tagList.TryAdd(item.Properties.MacAddress, newBLE))
                             {
                                 savetoFile = true;
-                                await _hubServices.Clients.Group(newBLE?.Properties.TagType).SendAsync($"update{newBLE?.Properties.TagType}TagPosition", positionLocationMarkersUpdate(newBLE));
+                                await _hubServices.Clients.Group(newBLE?.Properties.Type).SendAsync($"update{newBLE?.Properties.Type}TagPosition", positionLocationMarkersUpdate(newBLE));
                             }
 
                         }
@@ -1074,7 +1104,7 @@ namespace EIR_9209_2.DataStore
                             }
                             if (updateGroup)
                             {
-                                await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}TagPosition", positionLocationMarkersUpdate(TagData));
+                                await _hubServices.Clients.Group(TagData?.Properties.Type).SendAsync($"update{TagData?.Properties.Type}TagPosition", positionLocationMarkersUpdate(TagData));
                             }
                         }
                         else
@@ -1088,7 +1118,7 @@ namespace EIR_9209_2.DataStore
                                 Properties = new Marker
                                 {
                                     Id = item.Properties.MacAddress,
-                                    TagType = "Badge",
+                                    Type = "Badge",
                                     Visible = true,
                                     isPosition = true,
                                     CraftName = "BLE"
@@ -1099,7 +1129,7 @@ namespace EIR_9209_2.DataStore
                             if (_tagList.TryAdd(item.Properties.MacAddress, newBLE))
                             {
                                 savetoFile = true;
-                                await _hubServices.Clients.Group(newBLE?.Properties.TagType).SendAsync($"update{newBLE?.Properties.TagType}TagPosition", positionLocationMarkersUpdate(newBLE));
+                                await _hubServices.Clients.Group(newBLE?.Properties.Type).SendAsync($"update{newBLE?.Properties.Type}TagPosition", positionLocationMarkersUpdate(newBLE));
                             }
 
                         }
@@ -1183,9 +1213,9 @@ namespace EIR_9209_2.DataStore
                                 TagData.Properties.CraftName = item["make"].ToString();
                                 savetoFile = true;
                             }
-                            if (TagData.Properties.TagType != item["level"].ToString())
+                            if (TagData.Properties.Type != item["level"].ToString())
                             {
-                                TagData.Properties.TagType = item["level"].ToString();
+                                TagData.Properties.Type = item["level"].ToString();
                                 savetoFile = true;
                             }
                             if (TagData.Properties.EmpFirstName != item["model"].ToString())
@@ -1201,7 +1231,7 @@ namespace EIR_9209_2.DataStore
                             if (TagData.Geometry.Coordinates[0] != (double)item["x"] || TagData.Geometry.Coordinates[1] != (double)item["y"])
                             {
                                 TagData.Geometry.Coordinates = new List<double> { (double)item["x"], (double)item["y"] };
-                                await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}Position", PositionGeoJson);
+                                await _hubServices.Clients.Group(TagData?.Properties.Type).SendAsync($"update{TagData?.Properties.Type}Position", PositionGeoJson);
                             }
 
                         }
@@ -1218,7 +1248,7 @@ namespace EIR_9209_2.DataStore
                                 {
                                     Id = item["macAddress"].ToString(),
                                     Name = item["name"].ToString(),
-                                    TagType = item["level"].ToString(),
+                                    Type = item["level"].ToString(),
                                     EmpFirstName = item["model"].ToString(),
                                     EmpLastName = item["ipAddress"].ToString(),
                                     Visible = true
@@ -1226,7 +1256,7 @@ namespace EIR_9209_2.DataStore
                             };
                             if (_tagList.TryAdd(item["macAddress"].ToString(), TagData))
                             {
-                                await _hubServices.Clients.Group(TagData?.Properties.TagType).SendAsync($"update{TagData?.Properties.TagType}Position", PositionGeoJson);
+                                await _hubServices.Clients.Group(TagData?.Properties.Type).SendAsync($"update{TagData?.Properties.Type}Position", PositionGeoJson);
                                 savetoFile = true;
                             }
                         }

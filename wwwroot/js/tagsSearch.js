@@ -59,8 +59,8 @@ async function setLayerTooltip(tagid) {
       //loop trough tagid list
       tagid.forEach(function(item) {
         $.map(OSLmap._layers, function(layer, i) {
-          if (layer.hasOwnProperty('feature') && layer.feature.properties.hasOwnProperty('tagType')) {
-            if (/(badge)|(Vehicle$)/i.test(layer.feature.properties.tagType)) {
+          if (layer.hasOwnProperty('feature') && layer.feature.properties.hasOwnProperty('type')) {
+            if (/(badge)|(Vehicle$)/i.test(layer.feature.properties.type)) {
               if (item.tagid === layer.feature.properties.id) {
                 if (layer.hasOwnProperty('_tooltip') && layer._tooltip.hasOwnProperty('_container')) {
                   if (!layer._tooltip._container.classList.contains('searchflash')) {
@@ -202,8 +202,8 @@ function removeTagSearchDataTable(ldata, table) {
 async function moveToTagLocation(id) {
   try {
     $.map(OSLmap._layers, function(layer, i) {
-      if (layer.hasOwnProperty('feature') && layer.feature.properties.hasOwnProperty('tagType')) {
-        if (/(badge)|(Vehicle$)/i.test(layer.feature.properties.tagType)) {
+      if (layer.hasOwnProperty('feature') && layer.feature.properties.hasOwnProperty('type')) {
+        if (/(badge)|(Vehicle$)/i.test(layer.feature.properties.type)) {
           if (id === layer.feature.properties.id) {
             OSLmap.setView(layer._latlng, 5);
           }

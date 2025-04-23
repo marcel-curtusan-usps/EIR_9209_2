@@ -44,7 +44,7 @@ let geoZoneCube = new L.GeoJSON(null, {
 });
 
 // add to the map and layers control
-let geoZoneCubeoverlayLayer = L.layerGroup().addTo(OSLmap);
+let geoZoneCubeoverlayLayer = L.layerGroup();
 layersControl.addOverlay(geoZoneCubeoverlayLayer, 'Cube Zones');
 geoZoneCube.addTo(geoZoneCubeoverlayLayer);
 

@@ -36,26 +36,7 @@ let tagsAGVVehicles = new L.GeoJSON(null, {
     let obstructedState = '';
     layer.on('click', function(e) {
       //makea ajax call to get the employee details
-      $.ajax({
-        url: SiteURLconstructor(window.location) + '/api/Tag/GetTagByTagId?tagId=' + feature.properties.id,
-        type: 'GET',
-        success: function(data) {
-          //$('button[name="tagEdit"]').attr('data-id', feature.properties.id);
-          //Promise.all([hidestafftables()]);
-          //$('div[id=div_taginfo]').css('display', '');
-          //data.properties.posAge = feature.properties.posAge;
-          //data.properties.locationMovementStatus = feature.properties.locationMovementStatus;
-          //updateTagDataTable(formattagdata(data.properties), "tagInfotable");
-          sidebar.open('vehicleinfo');
-        },
-        error: function(error) {
-          console.log(error);
-        },
-        faulure: function(fail) {
-          console.log(fail);
-        },
-        complete: function(complete) {}
-      });
+      loadAgvTagData(feature.properties);
     });
     //how do replace using regex
     if (feature.properties.name) {
@@ -88,19 +69,7 @@ async function findAGVLeafletIds(markerId) {
 }
 async function init_tagsAGV() {
   try {
-    //load PIV Tags
-    // connection
-    //   .invoke('GetAGVTags')
-    //   .then(function(data) {
-    //     //add AGV markers to the layer
-    //     for (let i = 0; i < data.length; i++) {
-    //       Promise.all([addAGVFeature(data[i])]);
-    //     }
-    //   })
-    //   .catch(function(err) {
-    //     // handle error
-    //     console.error(err);
-    //   });
+    createAGVDataTable('vehicleInfoTable');
     $(document).on('change', '.leaflet-control-layers-selector', async function() {
       let sp = this.nextElementSibling;
       if (/^AGV Vehicles/gi.test(sp.innerHTML.trim())) {
@@ -112,6 +81,16 @@ async function init_tagsAGV() {
       }
     });
     await addGroupToList('AutonomousVehicle');
+    if (/^(Admin|Maintenance|OIE)/i.test(appData.Role)) {
+      $('button[id=vehicleinfoedit]').off().on('click', function() {
+        /* close the sidebar */
+        sidebar.close();
+        var id = $(this).attr('data-id');
+        if (checkValue(id)) {
+          Promise.all([tagEditInfo(id)]);
+        }
+      });
+    }
   } catch (e) {
     throw new Error(e.toString());
   }
@@ -174,8 +153,154 @@ async function updateFeature(data) {
           .openTooltip();
       })
       .catch(error => {
-        //
+        console.info('Error:', error);
       });
+  } catch (e) {
+    throw new Error(e.toString());
+  }
+}
+async function loadAgvTagData(tagdata) {
+  try {
+    if (/^(Admin|Maintenance|OIE)/i.test(appData.Role)) {
+      $('button[id=vehicleInfoTable]').css('display', 'block');
+      $('button[id="vehicleinfoedit"]').attr('data-id', tagdata.id);
+    }
+    if (/tagedit/gi.test(this.name)) {
+      Promise.all([tagEditInfo(rowData.tagid)]);
+    }
+    let dataArray = [];
+    $.each(tagdata, function(key) {
+      let tabledataObject = {};
+      if (tagdata.hasOwnProperty('name')) {
+        if (/^name$/i.test(key)) {
+          tabledataObject = { order: 1, Name: 'Name', Value: tagdata.name };
+          dataArray.push(tabledataObject);
+        }
+      }
+      if (tagdata.hasOwnProperty('id')) {
+        if (/^id$/i.test(key)) {
+          tabledataObject = { order: 2, Name: 'Tag Id', Value: tagdata.id };
+          dataArray.push(tabledataObject);
+        }
+      }
+    });
+    await updateAGVDataTable(dataArray, 'vehicleInfoTable');
+    sidebar.open('vehicleinfo');
+    // await $.ajax({
+    //   url: SiteURLconstructor(window.location) + '/api/Tag/GetTagByTagId?tagId=' + tagdata.id,
+    //   type: 'GET',
+    //   success: function(data) {
+    //     Promise.all([hidestafftables()]);
+    //     //$('div[id=div_taginfo]').css('display', '');
+    //     //data.properties.posAge = feature.properties.posAge;
+    //     //data.properties.locationMovementStatus = feature.properties.locationMovementStatus;
+    //     //updateTagDataTable(formattagdata(data.properties), "tagInfotable");
+    //     sidebar.open('vehicleinfo');
+    //   },
+    //   error: function(error) {
+    //     console.log(error);
+    //   },
+    //   faulure: function(fail) {
+    //     console.log(fail);
+    //   },
+    //   complete: function(complete) {}
+    // });
+  } catch (error) {
+    console.info('Error loading AGV tag data:', error);
+    throw new Error(error.toString());
+  }
+}
+async function createAGVDataTable(table) {
+  if ($.fn.dataTable.isDataTable('#' + table)) {
+    // Check if DataTable has been previously created and therefore needs to be flushed
+
+    $('#' + table).DataTable().destroy(); // destroy the dataTableObject
+    // For new version use table.destroy();
+    $('#' + table).DataTable().clear().draw(); // Empty the DOM element which contained DataTable
+    // The line above is needed if number of columns change in the Data
+  }
+  let arrayColums = {
+    order: '',
+    Name: '',
+    Value: ''
+  };
+  let columns = [];
+  let tempc = {};
+  $.each(arrayColums, function(key) {
+    tempc = {};
+
+    if (/Name/i.test(key)) {
+      tempc = {
+        title: 'Name',
+        mDataProp: key,
+        width: '25%',
+        className: 'display'
+      };
+    } else if (/Value/i.test(key)) {
+      tempc = {
+        title: 'Value',
+        mDataProp: key,
+        width: '75%'
+      };
+    } else {
+      tempc = {
+        title: capitalize_Words(key.replace(/\_/, ' ')),
+        mDataProp: key
+      };
+    }
+    columns.push(tempc);
+  });
+  $('#' + table).DataTable({
+    dom: 'Bfrtip',
+    bFilter: false,
+    bdeferRender: true,
+    bpaging: false,
+    bPaginate: false,
+    autoWidth: false,
+    bInfo: false,
+    destroy: true,
+    language: {
+      zeroRecords: 'No Data'
+    },
+    aoColumns: columns,
+    columnDefs: [
+      {
+        visible: false,
+        targets: 0
+      },
+      {
+        orderable: false, // Disable sorting on all columns
+        targets: '_all'
+      }
+    ],
+    rowCallback: function(row, data) {
+      $(row).find('td:eq(0)').css('text-align', 'right');
+    }
+  });
+}
+async function loadAGVDatatable(data, table) {
+  if ($.fn.dataTable.isDataTable('#' + table)) {
+    $('#' + table).DataTable().rows.add(data).draw();
+  }
+}
+async function updateAGVDataTable(newdata, table) {
+  try {
+    let loadnew = true;
+    if ($.fn.dataTable.isDataTable('#' + table)) {
+      $('#' + table).DataTable().rows(function(idx, data, node) {
+        loadnew = false;
+        if (newdata.length > 0) {
+          $.each(newdata, function() {
+            if (data.Name === this.Name) {
+              $('#' + table).DataTable().row(node).data(this).draw().invalidate();
+            }
+          });
+        }
+      });
+      if (loadnew) {
+        loadAGVDatatable(newdata, table);
+      }
+    }
   } catch (e) {
     throw new Error(e.toString());
   }

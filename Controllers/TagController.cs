@@ -77,9 +77,11 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(ModelState);
             }
             string searchValue = string.IsNullOrEmpty(value) ? "" : HttpUtility.UrlDecode(value).Replace("\"", "");
+            var tagsSeach = await _tags.SearchTag(searchValue);
+            var empSeach = await _emp.SearchEmployee(searchValue);
 
-            var SearchReuslt = await _emp.SearchEmployee(searchValue);
-            return Ok(SearchReuslt);
+            var finalReuslt = tagsSeach.Concat(empSeach).Distinct();
+            return Ok(finalReuslt);
         }
         //add new tag
         // POST api/<TagController>

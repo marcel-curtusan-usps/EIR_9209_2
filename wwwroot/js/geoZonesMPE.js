@@ -320,18 +320,10 @@ async function init_geoZoneMPE(floorId) {
         }
       },
     });
-    $(document).on("change", ".leaflet-control-layers-selector", function (_e) {
-      let sp = this.nextElementSibling;
-      if (/^(MPE Zones)$/gi.test(sp.innerHTML.trim())) {
-        if (this.checked) {
-          connection.invoke("JoinGroup", "MPE").catch(function (err) {
-            return console.error(err.toString());
-          });
-        } else {
-          connection.invoke("LeaveGroup", "MPE").catch(function (err) {
-            return console.error(err.toString());
-          });
-        }
+    $(document).on("change", ".leaflet-control-layers-selector", async function (_e) {
+      let sp = this.nextElementSibling.innerHTML.trim();
+      if (/^(MPE Zones)$/gi.test(sp)) {
+              await handleGroupChange(this.checked, sp);
       }
     });
     await addGroupToList('MPE');
@@ -1417,120 +1409,6 @@ function getTourHours(tournumber) {
     }
     return tourhours;
 }
-//                        $('input[id=mpestandard_btn]').off().on('click', function () {
-
-//                            //Edit MPE Testing
-//                            $('.mpestandard_row_div').each(function () {
-//                                let mpestandard_row = $(this);
-//                                let OPN_text = mpestandard_row.find('.OPN_txt').val();
-//                                let starttime_txt = mpestandard_row.find('.starttime_txt').val();
-//                                let endtime_txt = mpestandard_row.find('.endtime_txt').val();
-//                                let setuptime_txt = mpestandard_row.find('.setuptime_txt').val();
-//                                let teardowntime_txt = mpestandard_row.find('.teardowntime_txt').val();
-//                                let changeovertime_txt = mpestandard_row.find('.changeovertime_txt').val();
-//                                let name_txt = mpestandard_row.find('.name_txt').val();
-//                                let psc_hr_txt = mpestandard_row.find('.psc_hr_txt').val();
-//                                let staff_hr_txt = mpestandard_row.find('.staff_hr_txt').val();
-//                                let rowvalue = {
-//                                    GUID: guid_txt,
-//                                    MPE: MPEwNUMBER,
-//                                    OPN: OPN_text,
-//                                    StartTime: starttime_txt,
-//                                    EndTime: endtime_txt,
-//                                    SetupTimeDuration: setuptime_txt,
-//                                    ChangeoverTimeDuration: changeovertime_txt,
-//                                    PulldownTime: teardowntime_txt,
-//                                    Name: name_txt,
-//                                    PcsFeedHours: psc_hr_txt,
-//                                    StaffHours: staff_hr_txt
-//                                };
-
-//                                console.log(rowvalue);
-//                            });
-//                        });
-//                        //submit button for MPEENGStandard
-//                        $('button[id=machinesubmitBtn]').off().on('click', function () {
-//                            try {
-//                                let jsonObject = {};
-//                                $('button[id=machinesubmitBtn]').prop('disabled', true);
-//                                if (!$('select[name=machine_zone_select_name] option:selected').val() === "" || $('select[name=machine_zone_select_name] option:selected').val() !== '**Machine Not Listed') {
-//                                    let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
-//                                    jsonObject.MpeName = machineName = selectedMachine[0];
-//                                    jsonObject.MpeNumber = machineNumber = selectedMachine[1];
-//                                    if ($('select[name=zonePayLocationColor] option:selected').val() !== Data.Name) {
-//                                        jsonObject["name"] = $('select[name=machine_zone_select_name] option:selected').val();
-//                                    }
-//                                }
-//                                else {
-//                                    jsonObject.MpeName = $('input[type=text][name=machine_name]').val();
-//                                    jsonObject.MpeNumber = $('input[type=text][name=machine_number]').val();
-//                                    let name = $('input[type=text][name=machine_name]').val() + "-" + $('input[type=text][name=machine_number]').val();
-//                                    if (name !== Data.Name) {
-//                                        jsonObject.Name = $('select[name=machine_zone_select_name] option:selected').val();
-//                                    }
-//                                }
-//                                if (Data.floorId !== baselayerid) {
-//                                    jsonObjec.FloorId = $('input[type=text][name=machine_ip]').val();
-//                                }
-//                                if ($('input[type=text][name=machine_ip]').val() !== Data.MPE_IP) {
-//                                    jsonObject.MpeIpAddress = $('input[type=text][name=machine_ip]').val();
-//                                }
-//                                if ($('input[type=text][name=zone_ldc]').val() !== Data.Zone_LDC) {
-//                                    jsonObject.LDC = $('input[type=text][name=zone_ldc]').val();
-//                                }
-//                                if ($('input[type=text][name=zone_paylocation]').val() !== Data.Zone_PayLocation) {
-//                                    jsonObject.PayLocation = $('input[type=text][name=zone_paylocation]').val();
-//                                }
-//                                if ($('select[name=zonePayLocationColor] option:selected').val() !== Data.zonePayLocationColor) {
-//                                    jsonObject.PayLocationColor = $('select[name=zonePayLocationColor] option:selected').val();
-//                                }
-//                                if ($('select[name=zone_Type] option:selected').val() !== Data.type) {
-//                                    jsonObject.Type = $('select[name=zone_Type] option:selected').val();
-//                                }
-//                                /*Assign values for Group Name*/
-//                                if ($('select[name=mpe_group_select] option:selected').val() !== Data.mpeGroup) {
-//                                    jsonObject.MpeGroup = $('select[name=mpe_group_select] option:selected').val();
-//                                }
-
-//                                if (!$.isEmptyObject(jsonObject)) {
-//                                    jsonObject["id"] = Data.id;
-
-//                                    $.ajax({
-//                                        url: SiteURLconstructor(window.location) + '/api/Zone/Update',
-//                                        contentType: 'application/json',
-//                                        data: JSON.stringify(jsonObject),
-//                                        type: 'POST',
-//                                        success: function (response) {
-//                                            $('span[id=error_machinesubmitBtn]').text("" + jsonObject.Name + " Zone has been Updated.");
-//                                            setTimeout(function () { $("#Zone_Modal").modal('hide'); }, 1500);
-//                                        },
-//                                        error: function (error) {
-
-//                                            console.log(error);
-//                                        },
-//                                        faulure: function (fail) {
-//                                            console.log(fail);
-//                                        },
-//                                        complete: function (complete) {
-//                                        }
-//                                    });
-//                                }
-//                            } catch (e) {
-//                                $('span[id=error_machinesubmitBtn]').text(e);
-//                            }
-//                        });
-//                        $('#Zone_Modal').modal('show');
-//                    }
-//                    else {
-//                        $('label[id=error_machinesubmitBtn]').text("Invalid Zone ID");
-//                        $('#Zone_Modal').modal('show');
-//                    }
-//                });
-//        }
-//    } catch (e) {
-//        throw new Error(e.toString());
-//    }
-//} 
 function createTargetDataTable(table, tour) {
     try {
         $('#' + table).DataTable({

@@ -35,7 +35,7 @@ public interface IInMemoryTagsRepository
     void UpdateTagDesignationActivity(DesignationActivityToCraftType updatedDacode);
 
     /// <summary>Searches for tags based on a search value.</summary>
-    Task<IEnumerable<JObject>> SearchTag(string searchValue);
+    Task<List<JObject>> SearchTag(string searchValue);
 
     /// <summary>Gets a tag by its type.</summary>
     Task<object> GetTagByType(string tagType);

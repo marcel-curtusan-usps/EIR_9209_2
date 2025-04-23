@@ -34,7 +34,7 @@
 });
 
 // add to the map and layers control
-let geoZoneKioskoverlayLayer = L.layerGroup().addTo(OSLmap);
+let geoZoneKioskoverlayLayer = L.layerGroup();
 layersControl.addOverlay(geoZoneKioskoverlayLayer, 'Kiosk Zones');
 geoZoneKiosk.addTo(geoZoneKioskoverlayLayer);
 

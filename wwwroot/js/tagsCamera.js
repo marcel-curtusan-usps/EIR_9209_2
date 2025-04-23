@@ -105,9 +105,10 @@ let markerCameras = new L.GeoJSON(null, {
   }
 });
 // add to the map and layers control
-let overlayCameraLayer = L.layerGroup().addTo(OSLmap);
+let overlayCameraLayer = L.layerGroup();
 layersControl.addOverlay(overlayCameraLayer, 'Cameras');
 markerCameras.addTo(overlayCameraLayer);
+
 // add to the map and layers control
 async function findCameraLeafletIds(markerId) {
   return new Promise((resolve, reject) => {
@@ -122,33 +123,34 @@ async function findCameraLeafletIds(markerId) {
 }
 async function init_tagsCamera() {
   try {
-    //loading connections
-    await fetch('../api/Camera')
-      .then(response => response.json())
-      .then(data => {
-        if (data.length > 0) {
-          data.forEach(function(item) {
-            if (item.properties.visible) {
-              addCameraFeature(item);
-            }
-          });
+    if (/PMCCUser$/.test(appData.User)) {
+      //loading connections
+      await fetch('../api/Camera')
+        .then(response => response.json())
+        .then(data => {
+          if (data.length > 0) {
+            data.forEach(function(item) {
+              if (item.properties.visible) {
+                addCameraFeature(item);
+              }
+            });
+          }
+        })
+        .catch(error => {
+          console.info('Error:', error);
+        });
+      //load cameras
+      $(document).on('change', '.leaflet-control-layers-selector', async function() {
+        let sp = this.nextElementSibling.innerHTML.trim();
+        if (/^Cameras$/gi.test(sp)) {
+          await handleGroupChange(this.checked, sp);
         }
-      })
-      .catch(error => {
-        console.error('Error:', error);
       });
-    //load cameras
-    $(document).on('change', '.leaflet-control-layers-selector', async function() {
-      let sp = this.nextElementSibling;
-      if (/^Cameras$/gi.test(sp.innerHTML.trim())) {
-        if (this.checked) {
-          await addGroupToList('Cameras');
-        } else {
-          await removeFromGroupList('Cameras');
-        }
-      }
-    });
-    await addGroupToList('Cameras');
+
+      await addGroupToList('Cameras');
+    } else {
+      console.info('Camera feature is not available for this user.');
+    }
   } catch (e) {
     throw new Error(e.toString());
   }
@@ -161,7 +163,7 @@ async function deleteCameraFeature(data) {
         markerCameras.removeLayer(leafletIds);
       })
       .catch(error => {
-        console.log(error);
+        console.info('Error:', error);
       });
   } catch (e) {
     throw new Error(e.toString());
@@ -184,7 +186,7 @@ async function updateCameraFeature(data) {
         markerCameras._layers[leafletIds].feature.properties = data.properties;
       })
       .catch(error => {
-        //
+        console.info('Error:', error);
       });
   } catch (e) {
     throw new Error(e.toString());
@@ -197,13 +199,13 @@ async function updateCameraStillFeature(data) {
       .then(leafletIds => {
         markerCameras._layers[leafletIds].feature.properties.base64Image = data.properties.base64Image;
         if ($('#Camera_Modal').hasClass('show') && $('div[id=Camera_Modal]').attr('data-id') === data.properties.id) {
-          camera_modal_body = $('div[id=camera_modalbody]');
+          let camera_modal_body = $('div[id=camera_modalbody]');
           camera_modal_body.empty();
           camera_modal_body.append(ImageLayout.supplant(formatImageLayout(data.properties.base64Image)));
         }
       })
       .catch(error => {
-        //
+        console.info('Error:', error);
       });
   } catch (e) {
     throw new Error(e.toString());
@@ -222,8 +224,7 @@ var webCameraViewData = null;
 function LoadWeb_CameraImage(Data, id, direction, image) {
   try {
     $('#cameramodalHeader').text('View Web Camera');
-    //$('#cameradescription').text(Data.DESCRIPTION);
-    camera_modal_body = $('div[id=camera_modalbody]');
+    let camera_modal_body = $('div[id=camera_modalbody]');
     camera_modal_body.empty();
     camera_modal_body.append(ImageLayout.supplant(formatImageLayout(image)));
     $('div[id=Camera_Modal]').attr('data-id', id);

@@ -51,6 +51,13 @@ async function addGroupToList(group) {
     }
   }
 }
+async function handleGroupChange(isChecked, groupName) {
+  if (isChecked) {
+    await addGroupToList(groupName);
+  } else {
+    await removeFromGroupList(groupName);
+  }
+}
 async function removeFromGroupList(group) {
   if (connection.state === signalR.HubConnectionState.Connected) {
     await LeaveGroup(group);

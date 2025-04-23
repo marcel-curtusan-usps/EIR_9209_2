@@ -769,7 +769,7 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
                 ["id"] = sr.CardholderId,
                 ["tagid"] = sr.BleId,
                 ["ein"] = sr.EmployeeId,
-                ["tagType"] = "Badge",
+                ["yype"] = "Badge",
                 ["name"] = sr.FirstName,
                 ["encodedId"] = sr.EncodedId,
                 ["empFirstName"] = sr.FirstName,

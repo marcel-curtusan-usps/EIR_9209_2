@@ -8,7 +8,7 @@
 }
 let DateTime = luxon.DateTime;
 let appData = {};
-let baselayerid = '';
+
 let siteInfo = {};
 let siteTours = {};
 let ianaTimeZone = '';

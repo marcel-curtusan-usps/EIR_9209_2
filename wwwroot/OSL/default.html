@@ -1301,7 +1301,7 @@
 						aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<div class="row mr-0 ml-0 hidden" id="personform">
+					<div class="row mr-0 ml-0" style="display:none" id="personform">
 						<div class="row mr-0 ml-0">
 							<div class="form-group col-3">
 								<label for="empFirstName" class="control-label">First Name</label>
@@ -2315,30 +2315,6 @@
 						</div>
 					</div>
 
-					<div id="agvlocation_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none;">
-						<div class="card-header pl-1 border-bottom">
-							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
-								AGV Location Info
-								<span class="d-flex justify-content-between">
-									<span class="btn btn-secondary border-0 badge-info badge" name="locationid"></span>
-								</span>
-								<button type="button"
-									class="btn btn-secondary border-0 badge-info badge agvlocationinfoedit"
-									name="agvlocationinfoedit" style="display: none" data-id="0" data-toggle="tooltip"
-									data-container="body" data-placement="top">Edit</button>
-
-							</h6>
-						</div>
-						<div id="div_location_mission">
-							<div class="table-responsive">
-								<table aria-describedby="" class="table table-sm table-hover mb-0 border-bottom"
-									id="locationinmissiontable">
-									<thead class="table-dark"></thead>
-									<tbody></tbody>
-								</table>
-							</div>
-						</div>
-					</div>
 
 					<div id="dockdoor_div" data-id="" style="display: none;">
 						<div class="card bg-white mt-2 pb-1">
@@ -3001,10 +2977,50 @@
 					<div id="div_Vehicle" class="container-fluid">
 						<div class="card w-100">
 							<div class="card-header pl-1">
-								<h6 class="sectionHeader ml-1 mb-1">Vehicle Details and Status</h6>
+								<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Vehicle
+									Details and Status
+									<button type="button"
+										class="btn btn-secondary border-0 badge-info badge vehicleinfoedit invisable"
+										id="vehicleinfoedit" data-id="0" data-toggle="tooltip" data-container="body"
+										data-placement="top">Edit</button>
+								</h6>
 							</div>
-							<div class="card-body">
-								<div class="table-responsive fixedHeader variableHeight">
+							<div class="card-body pb-0" id="div_vehicleInfo">
+								<div class="table-responsive">
+									<table class="table table-sm table-hover mb-0 border-bottom" id="vehicleInfoTable">
+										<thead class="table-dark"></thead>
+										<tbody></tbody>
+									</table>
+								</div>
+							</div>
+							<div class="card-body pb-0" style="display: none;" id="agvlocation_div" data-id="">
+								<div class="card-header pl-1 border-bottom">
+									<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
+										AGV Location Info
+										<span class="d-flex justify-content-between">
+											<span class="btn btn-secondary border-0 badge-info badge"
+												name="locationid"></span>
+										</span>
+										<button type="button"
+											class="btn btn-secondary border-0 badge-info badge agvlocationinfoedit"
+											name="agvlocationinfoedit" style="display: none" data-id="0"
+											data-toggle="tooltip" data-container="body"
+											data-placement="top">Edit</button>
+
+									</h6>
+								</div>
+								<div id="div_location_mission">
+									<div class="table-responsive">
+										<table aria-describedby="" class="table table-sm table-hover mb-0 border-bottom"
+											id="locationinmissiontable">
+											<thead class="table-dark"></thead>
+											<tbody></tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+
+							<!-- <div class="table-responsive fixedHeader variableHeight">
 									<table aria-describedby=""
 										class="table table-sm table-hover table-condensed mb-1 border-bottom"
 										id="vehicletable">
@@ -3019,8 +3035,7 @@
 										</thead>
 										<tbody></tbody>
 									</table>
-								</div>
-							</div>
+								</div> -->
 						</div>
 					</div>
 				</div>

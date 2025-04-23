@@ -34,8 +34,8 @@ namespace EIR_9209_2.Models
             public DateTime PositionTS_txt { get; set; } = DateTime.MinValue;
             [JsonProperty("positionTS")]
             public long PositionTS { get; set; } = 0;
-            [JsonProperty("tagType")]
-            public string TagType { get; set; } = "";
+            [JsonProperty("type")]
+            public string Type { get; set; } = "";
             [JsonProperty("tagUpdate")]
             public bool TagUpdate { get; set; }
             [JsonProperty("serverTS_txt")]
@@ -69,7 +69,7 @@ namespace EIR_9209_2.Models
                 get => _empFirstName;
                 set => _empFirstName = ConvertToTitleCase(value);
             }
-          
+
             private string _empLastName = "";
             [JsonProperty("empLastName")]
             public string EmpLastName
@@ -77,7 +77,7 @@ namespace EIR_9209_2.Models
                 get => _empLastName;
                 set => _empLastName = ConvertToTitleCase(value);
             }
-            
+
             private string _title = "";
             [JsonProperty("Title")]
             public string Title
