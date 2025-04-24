@@ -108,6 +108,10 @@
     "CraftType": "Maintenance"
   },
   {
+    "DesignationActivity": "167",
+    "CraftType": "Maintenance"
+  },
+  {
     "DesignationActivity": "135",
     "CraftType": "TRACTOR TRAILER OPERATOR"
   },
@@ -228,11 +232,11 @@
     "CraftType": "Clerk"
   },
   {
-    "DesignationActivity": "166",
+    "DesignationActivity": "753",
     "CraftType": "Maintenance"
   },
   {
-    "DesignationActivity": "753",
+    "DesignationActivity": "166",
     "CraftType": "Maintenance"
   },
   {

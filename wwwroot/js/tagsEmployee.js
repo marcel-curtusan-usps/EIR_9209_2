@@ -212,7 +212,7 @@ function getBadgeMarkerType(type) {
     } else if (/^maintenance/gi.test(type)) {
       return 'bi-suit-diamond-fill text-success h6 ';
     } else if (/^(LABORER CUSTODIAL|CUSTODIAN|CUTODIAN|Custodian|Custodian)/gi.test(type)) {
-      return 'bi-vector-pen h6';
+      return 'bi-shield-fill-plus text-purple h6';
     } else if (/inplantsupport/gi.test(type)) {
       return 'bi-person-fill-gear text-success h6 ';
     } else if (/^(clerk|mailhandler|mha|mail|pse)/gi.test(type)) {
@@ -224,7 +224,7 @@ function getBadgeMarkerType(type) {
     } else if (type.length === 0) {
       return 'bi-pentagon-fill text-secondary h6  ';
     } else {
-      return 'bi-exclamation-circle-fill text-secondary h6';
+      return 'bi-compass-fill text-cyan h6';
     }
   } catch (e) {
     return ' bi-exclamation-circle-fill text-danger h6';

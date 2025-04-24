@@ -2457,4 +2457,11 @@ div.leaflet-control-layers {
   font: 11px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;
 }
 
-/* END Leaflet Override - Bottom Right Buttons *//*# sourceMappingURL=Site.css.map */
+/* END Leaflet Override - Bottom Right Buttons */
+.text-purple {
+  color: purple !important;
+}
+
+.text-cyan {
+  color: cyan !important;
+}/*# sourceMappingURL=Site.css.map */
