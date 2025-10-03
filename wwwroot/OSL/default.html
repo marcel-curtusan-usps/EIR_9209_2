@@ -163,6 +163,10 @@
 									<input id="logdata" type="checkbox" class="custom-control-input" name="logdata" />
 									<label class="custom-control-label" for="logdata">Log Data Retrieved</label>
 								</div>
+								<div class="custom-control custom-switch">
+									<input id="webhook" type="checkbox" class="custom-control-input" name="webhook" />
+									<label class="custom-control-label" for="webhook">Webhook</label>
+								</div>
 							</div>
 						</div>
 						<div class="col">
@@ -318,6 +322,23 @@
 							<span id="error_tokenclientId" class="text-danger"></span>
 						</div>
 					</div>
+						<div class="row mb-3" id="webHookmenu" style="display: none">
+							<div class="form-group col-12" id="divwebhookurl">
+								<label for="webhookUrl" class="control-label">Webhook URL</label>
+								<input id="webhookUrl" type="text" class="form-control" name="webhookUrl" />
+								<span id="error_webhookUrl" class="text-danger"></span>
+							</div>
+							<div class="form-group col-4">
+								<label for="webhookusername" class="control-label">UserName</label>
+								<input id="webhookusername" type="text" class="form-control" name="webhookusername" />
+								<span id="error_webhookusername" class="text-danger"></span>
+							</div>
+							<div class="form-group col-4">
+								<label for="webhookpassword" class="control-label">Password</label>
+								<input id="webhookpassword" type="text" class="form-control" name="webhookpassword" />
+								<span id="error_webhookpassword" class="text-danger"></span>
+							</div>
+						</div>
 					<div class="row hours_range_row" style="display: none">
 						<div class="col-6">
 							<div class="d-flex justify-content-center my-2">

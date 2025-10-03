@@ -123,7 +123,7 @@ async function findCameraLeafletIds(markerId) {
 }
 async function init_tagsCamera() {
   try {
-    if (/PMCCUser$/.test(appData.User)) {
+    if (!/PMCCUser$/.test(appData.User)) {
       //loading connections
       await fetch('../api/Camera')
         .then(response => response.json())

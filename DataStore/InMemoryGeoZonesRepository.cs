@@ -8,9 +8,12 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using static EIR_9209_2.DataStore.InMemoryCamerasRepository;
-
+/// <summary>
+/// InMemoryGeoZonesRepository is responsible for managing geo zones in memory.
+/// </summary>
 public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
 {
+    // Lock for RunMPESummaryReport
 
     private readonly ConcurrentDictionary<string, GeoZone> _geoZoneList = new();
     private readonly ConcurrentDictionary<string, GeoZoneDockDoor> _geoZoneDockDoorList = new();
@@ -18,9 +21,11 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     private readonly ConcurrentDictionary<string, GeoZoneCube> _geoZoneCubeList = new();
     private readonly ConcurrentDictionary<string, Dictionary<DateTime, MPESummary>> _mpeSummary = new();
     private readonly ConcurrentDictionary<DateTime, List<AreaDwell>> _QREAreaDwellResults = new();
+    private readonly ConcurrentDictionary<DateTime, List<ReportContentItems>> _QREReportContentResults = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPERunActivity = new();
     private readonly ConcurrentDictionary<string, MPEActiveRun> _MPEStandard = new();
     private readonly ConcurrentDictionary<string, TargetHourlyData> _MPETargets = new();
+    private readonly ConcurrentDictionary<string, ReportResponse> _QREReportRequests = new();
     private readonly List<string> _MPENameList = [];
     private readonly List<string> _DockDoorList = [];
     private readonly List<string> _BullpenList = [];
@@ -30,18 +35,31 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     private readonly ILogger<InMemoryGeoZonesRepository> _logger;
     private readonly IFileService _fileService;
     protected readonly IHubContext<HubServices> _hubServices;
+    private readonly IInMemoryEmployeesRepository _employeesRepository;
     private readonly string fileName = "Zones.json";
+    private readonly string fileNameReportsRequest = "ReportRequests.json";
     private readonly string fileNameDockDoor = "ZonesDockDoor.json";
     private readonly string fileNameMpeTarget = "MPETargets.json";
     private readonly string fileNameKiosk = "ZonesKiosk.json";
     private readonly string fileNameCube = "ZonesCubes.json";
-    public InMemoryGeoZonesRepository(ILogger<InMemoryGeoZonesRepository> logger, IConfiguration configuration, IFileService fileService, IHubContext<HubServices> hubServices, IInMemorySiteInfoRepository siteInfo)
+    /// <summary>
+    /// Constructor for InMemoryGeoZonesRepository
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="configuration"></param>
+    /// <param name="fileService"></param>
+    /// <param name="hubServices"></param>
+    /// <param name="siteInfo"></param>
+    /// <param name="employeesRepository"></param>
+    public InMemoryGeoZonesRepository(ILogger<InMemoryGeoZonesRepository> logger, IConfiguration configuration,
+    IFileService fileService, IHubContext<HubServices> hubServices, IInMemorySiteInfoRepository siteInfo, IInMemoryEmployeesRepository employeesRepository)
     {
         _fileService = fileService;
         _logger = logger;
         _configuration = configuration;
         _hubServices = hubServices;
         _siteInfo = siteInfo;
+        _employeesRepository = employeesRepository;
         // Load data from the first file into the first collection
         LoadDataFromFile().Wait();
         // Load data from the first file into the first collection
@@ -52,6 +70,8 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         LoadKioskDataFromFile().Wait();
         // Load Kiosk Data from the first file into the first collection
         LoadCubesDataFromFile().Wait();
+        // Load data from the first file into the first collection
+        LoadReportsRequestDataFromFile().Wait();
     }
 
 
@@ -385,11 +405,10 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     public bool ExistingAreaDwell(DateTime hour)
     {
         return _QREAreaDwellResults.ContainsKey(hour);
-
     }
     public List<AreaDwell> GetAreaDwell(DateTime hour)
     {
-        return _QREAreaDwellResults[hour];
+        return _QREAreaDwellResults.TryGetValue(hour, out List<AreaDwell>? value) ? value : [];
     }
     public void UpdateAreaDwell(DateTime hour, List<AreaDwell> newValue, List<AreaDwell> currentvalue)
     {
@@ -437,33 +456,218 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             //}
         }
     }
-    public async void RunMPESummaryReport()
+    /// <summary>
+    ///     Add a report response for the given hour
+    /// </summary>
+    /// <param name="reportResponse"></param>
+    public Task AddReportResponse(ReportResponse reportResponse)
+    {
+        bool savetoFile = false;
+        try
+        {
+            if (!_QREReportRequests.ContainsKey(reportResponse.ResourceId))
+            {
+                _QREReportRequests.TryAdd(reportResponse.ResourceId, reportResponse);
+                savetoFile = true;
+                return Task.FromResult(true);
+            }
+            return Task.FromResult(false);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Error updating Report Request {e.Message}");
+            return Task.FromResult(false);
+        }
+        finally
+        {
+            if (savetoFile)
+            {
+                _fileService.WriteConfigurationFile(fileNameReportsRequest, JsonConvert.SerializeObject(_QREReportRequests.Values, Formatting.Indented));
+            }
+        }
+    }
+    /// <summary>
+    /// Update report response for the given report ID and state
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="state"></param>
+    public Task UpdateReportResponse(string reportId, string state)
+    {
+        bool savetoFile = false;
+        try
+        {
+            if (_QREReportRequests.ContainsKey(reportId))
+            {
+                _QREReportRequests[reportId].State = state;
+                savetoFile = true;
+                return Task.FromResult(true);
+
+            }
+            return Task.FromResult(false);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Error updating Report Request {e.Message}");
+            return Task.FromResult(false);
+        }
+        finally
+        {
+            if (savetoFile)
+            {
+                _fileService.WriteConfigurationFile(fileNameReportsRequest, JsonConvert.SerializeObject(_QREReportRequests.Values, Formatting.Indented));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Remove a report response for the given hour
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <returns></returns>
+    public Task RemoveReportResponse(string reportId)
+    {
+        bool savetoFile = false;
+        try
+        {
+            if (_QREReportRequests.ContainsKey(reportId))
+            {
+                _QREReportRequests.TryRemove(reportId, out _);
+                savetoFile = true;
+                return Task.FromResult(true);
+            }
+            else
+            {
+                _logger.LogError($"Report Response {reportId} not found in the repository.");
+                return Task.FromResult(false);
+            }
+
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Error updating Report Request {e.Message}");
+            return Task.FromResult(false);
+        }
+        finally
+        {
+            if (savetoFile)
+            {
+                _fileService.WriteConfigurationFile(fileNameReportsRequest, JsonConvert.SerializeObject(_QREReportRequests.Values, Formatting.Indented));
+            }
+        }
+    }
+    /// <summary>
+    /// Checks if a report list exists for the given hour.
+    /// </summary>
+    /// <param name="hour"></param>
+    /// <returns></returns>
+    public Task<bool> ExistingReportInList(DateTime hour)
     {
         try
         {
-            List<string> areasList = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE").Select(item => item.Value.Properties.Name).Distinct().ToList();
-            if (areasList.Any())
+            return Task.FromResult(_QREReportRequests.Any(r => r.Value.DateTimeRequestFor == hour));
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Error checking existing report list {e.Message}");
+            return Task.FromResult(false);
+        }
+    }
+
+    /// <summary>
+    ///     Get report responses for the given hour
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public async Task<List<ReportResponse>> GetReportList(CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (!cancellationToken.IsCancellationRequested && _QREReportRequests.Count > 0)
             {
-                foreach (var area in areasList)
+                return await Task.Run(() => _QREReportRequests.Select(r => r.Value).ToList(), cancellationToken);
+            }
+            else
+            {
+                return [];
+            }
+
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Error getting Report list {e.Message}");
+            throw new Exception("Error getting Report list", e);
+        }
+    }
+
+    /// <summary>
+    /// Adds a report content item to the repository.
+    /// </summary>
+    /// <param name="hour"></param>
+    /// <param name="contentItem"></param>
+    /// <returns></returns>
+    public async Task<bool> AddReportContentItem(DateTime hour, List<ReportContentItems> contentItem)
+    {
+
+        try
+        {
+            foreach (var item in contentItem)
+            {
+                item.Type = await _employeesRepository.GetEmployeeType(item.IntegrationKey);
+            }
+
+            if (_QREReportContentResults.TryAdd(hour, contentItem))
+            {
+                return true;
+            }
+            return false;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Error adding Report Content Item {e.Message}");
+            return false;
+        }
+    }
+    private static readonly object _mpeSummaryReportLock = new object();
+    private static bool _mpeSummaryReportRunning = false;
+
+    public async void RunMPESummaryReport()
+    {
+        // Only allow one execution at a time; skip if already running
+        if (Monitor.TryEnter(_mpeSummaryReportLock))
+        {
+            try
+            {
+                if (_mpeSummaryReportRunning)
                 {
-                    var mpe = _geoZoneList.Where(r => r.Value.Properties.Name == area && r.Value.Properties.Type == "MPE").Select(y => y.Value.Properties).FirstOrDefault();
-                    if (mpe != null)
+                    return; // Another task is already running this method
+                }
+                _mpeSummaryReportRunning = true;
+
+                List<string> areasList = _geoZoneList.Where(r => r.Value.Properties.Type == "MPE").Select(item => item.Value.Properties.Name).Distinct().ToList();
+                if (areasList.Any())
+                {
+                    foreach (var area in areasList)
                     {
-                        List<DateTime>? hoursInMpeDateTime = mpe.MPERunPerformance?.HourlyData.Select(x => x.Hour).ToList();
-                        if (!_mpeSummary.ContainsKey(area))
+                        var mpe = _geoZoneList.Where(r => r.Value.Properties.Name == area && r.Value.Properties.Type == "MPE").Select(y => y.Value.Properties).FirstOrDefault();
+                        if (mpe != null)
                         {
-                            _mpeSummary.TryAdd(area, new Dictionary<DateTime, MPESummary>());
-                        }
-                        if (hoursInMpeDateTime != null)
-                        {
-                            foreach (var hour in hoursInMpeDateTime)
+                            List<DateTime>? hoursInMpeDateTime = mpe.MPERunPerformance?.HourlyData.Select(x => x.Hour).ToList();
+                            if (!_mpeSummary.ContainsKey(area))
                             {
-                                var hourlySummaryForHourAndArea = await GetHourlySummaryForHourAndArea(area, hour, mpe.MPERunPerformance);
-                                if (hourlySummaryForHourAndArea != null)
+                                _mpeSummary.TryAdd(area, new Dictionary<DateTime, MPESummary>());
+                            }
+                            if (hoursInMpeDateTime != null)
+                            {
+                                foreach (var hour in hoursInMpeDateTime)
                                 {
-                                    lock (_mpeSummary[area])
+                                    var hourlySummaryForHourAndArea = await GetHourlySummaryForHourAndArea(area, hour, mpe.MPERunPerformance);
+                                    if (hourlySummaryForHourAndArea != null)
                                     {
-                                        _mpeSummary[area][hour] = hourlySummaryForHourAndArea;
+                                        lock (_mpeSummary[area])
+                                        {
+                                            _mpeSummary[area][hour] = hourlySummaryForHourAndArea;
+                                        }
                                     }
                                 }
                             }
@@ -471,11 +675,17 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                     }
                 }
             }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error running MPE Summary Report");
+            }
+            finally
+            {
+                _mpeSummaryReportRunning = false;
+                System.Threading.Monitor.Exit(_mpeSummaryReportLock);
+            }
         }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Error running MPE Summary Report");
-        }
+        // else: skip execution if lock is not acquired
     }
 
     private Task<MPESummary>? GetHourlySummaryForHourAndArea(string area, DateTime Dateandhour, MPERunPerformance mpe)
@@ -504,14 +714,15 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
             var otherPresent = 0;
             var piecesForYield = piecesSortedThisHour != 0 ? piecesSortedThisHour : piecesCountThisHour;
 
-            if (_QREAreaDwellResults.TryGetValue(Dateandhour, out var dwellResults))
+            if (_QREReportContentResults.TryGetValue(Dateandhour, out var dwellResults))
             {
-                var entriesThisArea = dwellResults.Where(r => r.AreaName.Equals(area));
-                if (entriesThisArea != null)
+                // Materialize to list to avoid 'Collection was modified' exception
+                var entriesThisArea = dwellResults.Where(r => r.AreaLabel.Text.ToLower().Contains(area.ToLower())).ToList();
+                if (entriesThisArea.Count > 0)
                 {
                     var clerkAndMailHandlerCountThisHour = entriesThisArea
                         .Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                        .Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds) / (1000 * 60 * 60);
+                        .Sum(g => g.Duration.TotalMilliseconds) / (1000 * 60 * 60);
 
                     actualYieldcal = piecesForYield != null && clerkAndMailHandlerCountThisHour > 0
                         ? piecesForYield.Value / clerkAndMailHandlerCountThisHour
@@ -525,28 +736,28 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                             .First() /
                             (entriesThisArea
                                 .Where(e => Regex.IsMatch(e.Type, "^(clerk|mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                                .Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds) / (1000 * 60 * 60));
+                                .Sum(g => g.Duration.TotalMilliseconds) / (1000 * 60 * 60));
                     }
 
                     laborHrs = entriesThisArea.GroupBy(e => e.Type)
-                        .ToDictionary(g => g.Key, g => g.Sum(e => e.DwellTimeDurationInArea.TotalMilliseconds));
+                        .ToDictionary(g => g.Key, g => g.Sum(e => e.Duration.TotalMilliseconds));
                     laborCounts = entriesThisArea.GroupBy(e => e.Type)
                         .ToDictionary(g => g.Key, g => g.Count());
                     clerkDwellTime = entriesThisArea
                         .Where(e => Regex.IsMatch(e.Type, "^(clerk)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                        .Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+                        .Sum(g => g.Duration.TotalMilliseconds);
                     maintDwellTime = entriesThisArea
                         .Where(e => Regex.IsMatch(e.Type, "^(maintenance)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                        .Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+                        .Sum(g => g.Duration.TotalMilliseconds);
                     mhDwellTime = entriesThisArea
                         .Where(e => Regex.IsMatch(e.Type, "^(mail handler)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                        .Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+                        .Sum(g => g.Duration.TotalMilliseconds);
                     supervisorDwellTime = entriesThisArea
                         .Where(e => Regex.IsMatch(e.Type, "^(supervisor)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)))
-                        .Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+                        .Sum(g => g.Duration.TotalMilliseconds);
                     otherDwellTime = entriesThisArea
                         .Where(e => !Regex.IsMatch(e.Type, "^(clerk|supervisor|mail handler|maintenance)", RegexOptions.IgnoreCase))
-                        .Sum(g => g.DwellTimeDurationInArea.TotalMilliseconds);
+                        .Sum(g => g.Duration.TotalMilliseconds);
                     clerkPresent = entriesThisArea
                         .Count(e => Regex.IsMatch(e.Type, "^(clerk)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(10)));
                     mhPresent = entriesThisArea
@@ -593,6 +804,44 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         }
     }
 
+    private async Task LoadReportsRequestDataFromFile()
+    {
+        try
+        {
+            // Read data from file
+            var fileContent = await _fileService.ReadFile(fileNameReportsRequest);
+            if (!string.IsNullOrEmpty(fileContent))
+            {
+                // Parse the file content to get the data. This depends on the format of your file.
+                List<ReportResponse>? data = JsonConvert.DeserializeObject<List<ReportResponse>>(fileContent);
+
+                // Insert the data into the MongoDB collection
+                if (data?.Count > 0)
+                {
+                    foreach (ReportResponse item in data.Select(r => r).ToList())
+                    {
+                        _QREReportRequests.TryAdd(item.ResourceId, item);
+                    }
+                }
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            // Handle the FileNotFoundException here
+            _logger.LogError($"File not found: {ex.FileName}");
+            // You can choose to throw an exception or take any other appropriate action
+        }
+        catch (IOException ex)
+        {
+            // Handle errors when reading the file
+            _logger.LogError($"An error occurred when reading the file: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            // Handle errors when parsing the JSON
+            _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
+        }
+    }
     private async Task LoadDataFromFile()
     {
         try

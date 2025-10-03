@@ -4,6 +4,9 @@ using Newtonsoft.Json.Serialization;
 
 namespace EIR_9209_2.Service
 {
+    /// <summary>
+    /// Base class for endpoint services that provides common functionality for managing endpoints.
+    /// </summary>
     public abstract class BaseEndpointService : IDisposable
     {
         protected readonly ILogger<BaseEndpointService> _logger;
@@ -28,7 +31,7 @@ namespace EIR_9209_2.Service
             _loggerService = loggerService;
         }
 
-        public void Start()
+        public Task<bool> Start()
         {
             if (_task == null || _task.IsCompleted)
             {
@@ -44,58 +47,86 @@ namespace EIR_9209_2.Service
                     _endpointConfig.Status = EWorkerServiceState.InActive;
                     _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig).ConfigureAwait(false);
                 }
+                return Task.FromResult(true); // Service started successfully
             }
+            return Task.FromResult(false); // Service could not be started
         }
-
-        public void Stop(bool restart = false)
+        /// <summary>
+        ///     Stops the endpoint service.
+        /// </summary>
+        /// <param name="restart"></param>
+        /// <returns></returns>
+        public async Task Stop(bool restart = false)
         {
-            if (_task != null && !_task.IsCompleted)
+            _cancellationTokenSource.Cancel();
+            if (_task != null)
             {
-                _cancellationTokenSource.Cancel();
-                _task.ContinueWith(t =>
+                await _task.ContinueWith(async t =>
                 {
                     if (restart)
                     {
-                        Start();
+                        await Start();
                     }
                 });
             }
-        }
-
-        public async Task Update(Connection updateCon)
-        {
-            Stop(restart: false);
-            _endpointConfig.MillisecondsInterval = updateCon.MillisecondsInterval;
-            _endpointConfig.Hostname = updateCon.Hostname;
-            _endpointConfig.IpAddress = updateCon.IpAddress;
-            _endpointConfig.HoursBack = updateCon.HoursBack;
-            _endpointConfig.HoursForward = updateCon.HoursForward;
-            _endpointConfig.ActiveConnection = updateCon.ActiveConnection;
-            _endpointConfig.DbType = updateCon.DbType;
-            _endpointConfig.Url = updateCon.Url;
-            _endpointConfig.ConnectionString = updateCon.ConnectionString;
-            _endpointConfig.OAuthUrl = updateCon.OAuthUrl;
-            _endpointConfig.OAuthClientId = updateCon.OAuthClientId;
-            _endpointConfig.OAuthPassword = updateCon.OAuthPassword;
-            _endpointConfig.OAuthUserName = updateCon.OAuthUserName;
-            _endpointConfig.TenantId = updateCon.TenantId;
-            _endpointConfig.MapId = updateCon.MapId;
-            _endpointConfig.OutgoingApikey = updateCon.OutgoingApikey;
-            _endpointConfig.MillisecondsTimeout = updateCon.MillisecondsTimeout;
-            _endpointConfig.LogData = updateCon.LogData;
-            _endpointConfig.ApiConnected = false;
-
-            if (updateCon.ActiveConnection)
+            else if (restart)
             {
-                Start();
-                _endpointConfig.Status = EWorkerServiceState.Running;
-                await _connection.Update(_endpointConfig).ConfigureAwait(false);
+                await Start();
             }
-            else
+        }
+        /// <summary>
+        /// Removes the endpoint service.
+        /// </summary>
+        /// <param name="updateCon"></param>
+        /// <returns></returns>
+        public async Task<bool> Update(Connection updateCon)
+        {
+            try
             {
-                _endpointConfig.Status = EWorkerServiceState.InActive;
-                await _connection.Update(_endpointConfig).ConfigureAwait(false);
-                await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, CancellationToken.None).ConfigureAwait(false);
+                await Stop(restart: false);
+                _endpointConfig.MillisecondsInterval = updateCon.MillisecondsInterval;
+                _endpointConfig.Hostname = updateCon.Hostname;
+                _endpointConfig.IpAddress = updateCon.IpAddress;
+                _endpointConfig.HoursBack = updateCon.HoursBack;
+                _endpointConfig.HoursForward = updateCon.HoursForward;
+                _endpointConfig.ActiveConnection = updateCon.ActiveConnection;
+                _endpointConfig.DbType = updateCon.DbType;
+                _endpointConfig.Url = updateCon.Url;
+                _endpointConfig.ConnectionString = updateCon.ConnectionString;
+                _endpointConfig.OAuthUrl = updateCon.OAuthUrl;
+                _endpointConfig.OAuthClientId = updateCon.OAuthClientId;
+                _endpointConfig.OAuthPassword = updateCon.OAuthPassword;
+                _endpointConfig.OAuthUserName = updateCon.OAuthUserName;
+                _endpointConfig.TenantId = updateCon.TenantId;
+                _endpointConfig.MapId = updateCon.MapId;
+                _endpointConfig.OutgoingApikey = updateCon.OutgoingApikey;
+                _endpointConfig.MillisecondsTimeout = updateCon.MillisecondsTimeout;
+                _endpointConfig.LogData = updateCon.LogData;
+                _endpointConfig.ApiConnected = false;
+                _endpointConfig.WebhookConnection = updateCon.WebhookConnection;
+                _endpointConfig.WebhookUrl = updateCon.WebhookUrl;
+                _endpointConfig.WebhookUserName = updateCon.WebhookUserName;
+                _endpointConfig.WebhookPassword = updateCon.WebhookPassword;
+
+
+                if (updateCon.ActiveConnection)
+                {
+                    await Start();
+                    _endpointConfig.Status = EWorkerServiceState.Running;
+                    await _connection.Update(_endpointConfig);
+                    return true; // Successfully updated the connection
+                }
+                else
+                {
+                    _endpointConfig.Status = EWorkerServiceState.InActive;
+                    await _connection.Update(_endpointConfig);
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, CancellationToken.None);
+                    return false;
+                }
+            }
+            catch (System.Exception)
+            {
+                return false;
             }
         }
 
@@ -126,16 +157,27 @@ namespace EIR_9209_2.Service
                 _endpointConfig.Status = EWorkerServiceState.Stopped;
                 _endpointConfig.ApiConnected = false;
                 // Notify clients about the stopped status without terminating the connection
-                await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig,CancellationToken.None).ConfigureAwait(false);
+                await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, CancellationToken.None).ConfigureAwait(false);
             }
             finally
             {
                 _timer?.Dispose();
             }
         }
-
+        /// <summary>
+        /// Fetches data from the endpoint.
+        /// </summary>
+        /// <param name="stoppingToken"></param>
+        /// <returns></returns>
         protected abstract Task FetchDataFromEndpoint(CancellationToken stoppingToken);
-
+        internal static string BuildUrl(string template, Dictionary<string, string> parameters)
+        {
+            foreach (var kvp in parameters)
+            {
+                template = template.Replace($"{{{kvp.Key}}}", kvp.Value);
+            }
+            return template;
+        }
         internal static JsonSerializerSettings jsonSettings = new()
         {
             Error = (sender, args) =>
@@ -151,12 +193,16 @@ namespace EIR_9209_2.Service
             Formatting = Formatting.Indented
 
         };
-        public void Dispose()
+        /// <summary>
+        /// Disposes the resources used by the endpoint service.
+        /// </summary>
+        public async void Dispose()
         {
-            _cancellationTokenSource.Cancel();
-            _task?.Wait();
-            _cancellationTokenSource.Dispose();
+            // Cleanup resources
+            await Stop();
             _timer?.Dispose();
+            _cancellationTokenSource?.Dispose();
+            _task = null;
         }
     }
 }

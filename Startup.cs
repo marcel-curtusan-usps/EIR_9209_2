@@ -58,8 +58,10 @@ public class Startup
         services.AddSingleton<IIDS, IDS>();
         services.AddSingleton<ScreenshotService>();
         services.AddSingleton<EmailService>();
+        //API Service Worker and IWorker
         services.AddSingleton<Worker>();
-        services.AddHostedService(p => p.GetRequiredService<Worker>());
+        services.AddSingleton<IWorker>(provider => provider.GetRequiredService<Worker>());
+        services.AddHostedService(provider => provider.GetRequiredService<Worker>());
         services.AddHttpClient();
         //add SignalR to the services
         services.AddSignalR(options =>
@@ -161,7 +163,6 @@ public class Startup
         }
         else
         {
-            //TODO: Enable production exception handling (https://docs.microsoft.com/en-us/aspnet/core/fundamentals/error-handling)
             app.UseExceptionHandler("/Error");
             app.UseHsts();
         }
@@ -181,5 +182,8 @@ public class Startup
         app.ApplicationServices.GetRequiredService<IInMemoryCamerasRepository>();
         app.ApplicationServices.GetRequiredService<IInMemoryInventoryRepository>();
         app.ApplicationServices.GetRequiredService<IIDS>();
+        // start the MessageProcessingWorker after MpeClientInfo initialization
+        var ServiceWorker = app.ApplicationServices.GetRequiredService<Worker>();
+        ServiceWorker.SignalWorkerReady();
     }
 }

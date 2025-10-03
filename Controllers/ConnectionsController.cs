@@ -10,13 +10,21 @@ using Newtonsoft.Json.Linq;
 
 namespace EIR_9209_2.Controllers
 {
+    /// <summary>
+    /// Controller for managing connections.
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="connectionRepository"></param>
+    /// <param name="hubContext"></param>
+    /// <param name="worker"></param>
+    /// <param name="encryptDecrypt"></param>
     [Route("api/[controller]")]
     [ApiController]
-    public class Connections(ILogger<Connections> logger, IInMemoryConnectionRepository connectionRepository, IHubContext<HubServices> hubContext, Worker worker, IEncryptDecrypt encryptDecrypt) : ControllerBase
+    public class Connections(ILogger<Connections> logger, IInMemoryConnectionRepository connectionRepository, IHubContext<HubServices> hubContext, IWorker worker, IEncryptDecrypt encryptDecrypt) : ControllerBase
     {
         private readonly IInMemoryConnectionRepository _connectionRepository = connectionRepository;
         private readonly IHubContext<HubServices> _hubContext = hubContext;
-        private readonly Worker _worker = worker;
+        private readonly IWorker _worker = worker;
         private readonly ILogger<Connections> _logger = logger;
         private readonly IEncryptDecrypt _encryptDecrypt = encryptDecrypt;
 
@@ -116,7 +124,7 @@ namespace EIR_9209_2.Controllers
                 if (addCon != null)
                 {
                     //add the connection to the worker
-                    if (_worker.AddEndpoint(addCon))
+                    if (await _worker.AddEndpoint(addCon))
                     {
                         return Ok(addCon);
                     }
@@ -198,7 +206,7 @@ namespace EIR_9209_2.Controllers
                 if (await _worker.UpdateEndpoint(connection))
                 {
                     var conn = await _connectionRepository.Remove(id);
-                    if (conn != null && _worker.RemoveEndpoint(connection))
+                    if (conn != null && await _worker.RemoveEndpoint(connection))
                     {
                         await _hubContext.Clients.Group("Connections").SendAsync("DeleteConnection", id);
                     }

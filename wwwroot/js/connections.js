@@ -142,7 +142,47 @@ $('#API_Connection_Modal').on('shown.bs.modal', function() {
       enableaipSubmit();
     }
   });
-  $('input[type=text][name=hostname], input[type=text][name=ip_address]').on('keyup change', checkAndDisableInputs);
+  // Validate Host Name or IP Address: at least one required
+  function validateHostOrIp() {
+    const ipVal = $('input[type=text][name=ip_address]').val().trim();
+    const hostnameVal = $('input[type=text][name=hostname]').val().trim();
+
+    if (!ipVal && !hostnameVal) {
+      // Both empty: show error on both
+      $('input[type=text][name=hostname]').css('border-color', '#FF0000').removeClass('is-valid').addClass('is-invalid');
+      $('span[id=error_hostname]').text('Please enter Host Name or IP Address!');
+      $('input[type=text][name=ip_address]').css('border-color', '#FF0000').removeClass('is-valid').addClass('is-invalid');
+      $('span[id=error_ip_address]').text('Please enter Host Name or IP Address!');
+      return false;
+    } else {
+      // At least one is filled: clear errors
+      if (hostnameVal) {
+        $('input[type=text][name=hostname]').css('border-color', '#2eb82e').removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_hostname]').text('');
+      } else {
+        $('input[type=text][name=hostname]').css('border-color', '#D3D3D3').removeClass('is-valid is-invalid');
+        $('span[id=error_hostname]').text('');
+      }
+      if (ipVal) {
+        if (IPAddress_validator(ipVal) === 'Invalid IP Address') {
+          $('input[type=text][name=ip_address]').css('border-color', '#FF0000').removeClass('is-valid').addClass('is-invalid');
+          $('span[id=error_ip_address]').text('Please Enter Valid IP Address!');
+        } else {
+          $('input[type=text][name=ip_address]').css('border-color', '#2eb82e').removeClass('is-invalid').addClass('is-valid');
+          $('span[id=error_ip_address]').text('');
+        }
+      } else {
+        $('input[type=text][name=ip_address]').css('border-color', '#D3D3D3').removeClass('is-valid is-invalid');
+        $('span[id=error_ip_address]').text('');
+      }
+      return true;
+    }
+  }
+
+  $('input[type=text][name=hostname], input[type=text][name=ip_address]').on('keyup change', function() {
+    validateHostOrIp();
+    checkAndDisableInputs();
+  });
 
   //Hostname Keyup
   $('input[type=text][name=hostname]').on('keyup', () => {
@@ -150,31 +190,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function() {
     if (!checkValue($('input[type=text][name=hostname]').val())) {
       $('input[type=text][name=hostname]').css('border-color', '#D3D3D3').removeClass('is-valid').removeClass('is-valid');
       $('span[id=error_hostname]').text('');
-    } else {
-      $('input[type=text][name=hostname]').css('border-color', '#2eb82e').removeClass('is-invalid').addClass('is-valid');
-      $('span[id=error_hostname]').text('');
-    }
-    if (/^(udp|tcp)/i.test(connTypeRadio)) {
-      enabletcpipudpSubmit();
-    } else if (/^(api)/i.test(connTypeRadio)) {
-      enableaipSubmit();
-    }
-  });
-
-  //IP Address Keyup
-  $('input[type=text][name=ip_address]').on('keyup', function() {
-    checkAndDisableInputs();
-    if (IPAddress_validator($('input[type=text][name=ip_address]').val()) === 'Invalid IP Address') {
-      $('input[type=text][name=ip_address]').css('border-color', '#FF0000');
-      $('span[id=error_ip_address]').text('Please Enter Valid IP Address!');
-    } else {
-      $('input[type=text][name=ip_address]').css({ 'border-color': '#2eb82e' }).removeClass('is-invalid').addClass('is-valid');
-      $('span[id=error_ip_address]').text('');
-    }
-    if (/^(udp|tcp)/i.test(connTypeRadio)) {
-      enabletcpipudpSubmit();
-    } else if (/^(api)/i.test(connTypeRadio)) {
-      enableaipSubmit();
+  // Remove old Hostname and IP Address Keyup handlers (now handled above)
     }
   });
 
@@ -325,6 +341,42 @@ $('#API_Connection_Modal').on('shown.bs.modal', function() {
     connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
     if (/^(api)/i.test(connTypeRadio)) {
       onAPIConnection();
+    }
+  });
+  //webhook
+  $('input[type=checkbox][name=webhook]').on('change', () => {
+    if ($('input[type=checkbox][id=webhook]').is(':checked')) {
+      onWebhookConnection();
+    }
+    else {
+      offWebhookConnection();
+    }
+  });
+  $('input[type=text][name=webhookUrl]').on('keyup', () => {
+    if (!checkValue($('input[type=text][name=webhookUrl]').val())) {
+      $('input[type=text][name=webhookUrl]').css({ 'border-color': '#FF0000' }).removeClass('is-valid').addClass('is-invalid');
+      $('span[id=error_webhookUrl]').text('Please Enter Webhook URL');
+    } else {
+      $('input[type=text][name=webhookUrl]').css('border-color', '#2eb82e').removeClass('is-invalid').addClass('is-valid');
+      $('span[id=error_webhookUrl]').text('');
+    }
+  });
+  $('input[type=text][name=webhookusername]').on('keyup', () => {
+    if (!checkValue($('input[type=text][name=webhookusername]').val())) {
+      $('input[type=text][name=webhookusername]').css({ 'border-color': '#FF0000' }).removeClass('is-valid').addClass('is-invalid');
+      $('span[id=error_webhookusername]').text('Please Enter Webhook Username');
+    } else {
+      $('input[type=text][name=webhookusername]').css('border-color', '#2eb82e').removeClass('is-invalid').addClass('is-valid');
+      $('span[id=error_webhookusername]').text('');
+    }
+  });
+  $('input[type=text][name=webhookpassword]').on('keyup', () => {
+    if (!checkValue($('input[type=text][name=webhookpassword]').val())) {
+      $('input[type=text][name=webhookpassword]').css({ 'border-color': '#FF0000' }).removeClass('is-valid').addClass('is-invalid');
+      $('span[id=error_webhookpassword]').text('Please Enter Webhook Password');
+    } else {
+      $('input[type=text][name=webhookpassword]').css('border-color', '#2eb82e').removeClass('is-invalid').addClass('is-valid');
+      $('span[id=error_webhookpassword]').text('');
     }
   });
   //radio check
@@ -562,7 +614,8 @@ async function Add_Connection() {
           ConnectionString: $('input[type=text][name=connstring]').val(),
           MessageType: $('select[name=message_type] option:selected').val(),
           OAuthUrl: $('input[type=text][name=tokenurl]').val(),
-          LogData: $('input[type=checkbox][name=logdata]').is(':checked')
+          LogData: $('input[type=checkbox][name=logdata]').is(':checked'),
+          WebhookConnection: $('input[type=checkbox][name=webhook]').is(':checked'),
           //CreatedByUsername: User.UserId,
           // NassCode: User.Facility_NASS_Code
         };
@@ -581,6 +634,13 @@ async function Add_Connection() {
           jsonObject.OAuthUserName = $('input[type=text][name=tokenusername]').val();
           jsonObject.OAuthPassword = $('input[type=text][name=tokenpassword]').val();
           jsonObject.OAuthClientId = $('input[type=text][name=tokenclientId]').val();
+        }
+        //check if the Webhook is checked
+        if ($('input[type=checkbox][id=webhook]').is(':checked')) {
+          jsonObject.AuthType = 'webhook';
+          jsonObject.WebhookUrl = $('input[type=text][name=webhookUrl]').val();
+          jsonObject.WebhookUserName = $('input[type=text][name=webhookusername]').val();
+          jsonObject.WebhookPassword = $('input[type=text][name=webhookpassword]').val();
         }
         //check if the Bearer Token is checked
         if ($('input[type=checkbox][id=bearerToken]').is(':checked')) {
@@ -642,16 +702,23 @@ async function Edit_Connection(data) {
   } else {
     $('#modalHeader_ID').text('Edit Connection');
     $('input[type=checkbox][id=active_connection]').prop('checked', data.activeConnection);
-    $('input[type=checkbox][name=logdata]').prop('checked', data.logData);
+    $('input[type=checkbox][name=logdata]').prop('checked', data.logData); 
+    $('input[type=checkbox][id=webhook]').prop('checked', data.webhookConnection);
     if (checkValue(data.ipAddress)) {
       $('input[type=text][id=ip_address]').val(data.ipAddress).trigger('keyup');
     }
     if (checkValue(data.hostname)) {
       $('input[type=text][id=hostname]').val(data.hostname).trigger('keyup');
     }
+    if (data.webhookConnection) {
+      $('input[type=text][id=webhookUrl]').val(data.webhookUrl).trigger('keyup');
+      $('input[type=text][id=webhookusername]').val(data.webhookUserName).trigger('keyup');
+      $('input[type=text][id=webhookpassword]').val(data.webhookPassword).trigger('keyup');
+      onWebhookConnection();
+    }
     $('input[type=text][id=port_number]').val(data.port);
     $('input[type=text][id=url]').val(data.url);
-    filtermessage_type(data.name, data.messageType);
+   await filtermessage_type(data.name, data.messageType);
     $('select[name=connectionTimeout]').val(data.millisecondsTimeout);
     $('select[name=data_retrieve]').val(data.millisecondsInterval);
     $('input[type=radio]').prop('disabled', true);
@@ -668,6 +735,7 @@ async function Edit_Connection(data) {
       onidRequestConnection();
     }
     if (/^(oAuth2)/i.test(data.authType)) {
+     
       $('input[type=checkbox][id=oAuth2]').prop('checked', true);
       $('input[type=text][name=tokenurl]').prop('disabled', false).val(data.oAuthUrl);
       $('input[type=text][name=tokenusername]').prop('disabled', false).val(data.oAuthUserName);
@@ -771,6 +839,7 @@ async function Edit_Connection(data) {
           url: $('input[type=text][name=url]').val(),
           messageType: $('select[name=message_type] option:selected').val(),
           logData: $('input[type=checkbox][name=logdata]').is(':checked'),
+          webhookConnection: $('input[type=checkbox][name=webhook]').is(':checked'),
           //CreatedByUsername: User.UserId,
           //lastupdateByUsername: User.UserId,
           id: data.id
@@ -809,6 +878,13 @@ async function Edit_Connection(data) {
           jsonObject.oAuthUserName = $('input[type=text][name=tokenusername]').val();
           jsonObject.oAuthPassword = $('input[type=text][name=tokenpassword]').val();
           jsonObject.oAuthClientId = $('input[type=text][name=tokenclientId]').val();
+        }
+        //check if the Webhook is checked
+        if ($('input[type=checkbox][id=webhook]').is(':checked')) {
+      
+          jsonObject.WebhookUrl = $('input[type=text][name=webhookUrl]').val();
+          jsonObject.WebhookUserName = $('input[type=text][name=webhookusername]').val();
+          jsonObject.WebhookPassword = $('input[type=text][name=webhookpassword]').val();
         }
 
         if (!$.isEmptyObject(jsonObject)) {
@@ -1130,7 +1206,17 @@ function enabletcpipudpSubmit() {
   }
 }
 function enableaipSubmit() {
-  if ($('select[name=connection_name]').hasClass('is-valid') && $('select[name=message_type]').hasClass('is-valid') && $('input[type=text][name=url]').hasClass('is-valid') && (($('input[type=text][name=hostname]').hasClass('is-valid') && $('input[type=text][name=connstring]').hasClass('is-valid')) || $('input[type=text][name=ip_address]').hasClass('is-valid')) && $('select[name=data_retrieve]').hasClass('is-valid') && $('select[name=connectionTimeout]').hasClass('is-valid')) {
+  if (
+    $('select[name=connection_name]').hasClass('is-valid') &&
+    $('select[name=message_type]').hasClass('is-valid') &&
+    $('input[type=text][name=url]').hasClass('is-valid') &&
+    (
+      $('input[type=text][name=hostname]').hasClass('is-valid') ||
+      $('input[type=text][name=ip_address]').hasClass('is-valid')
+    ) &&
+    $('select[name=data_retrieve]').hasClass('is-valid') &&
+    $('select[name=connectionTimeout]').hasClass('is-valid')
+  ) {
     $('button[id=apisubmitBtn]').prop('disabled', false);
   } else {
     $('button[id=apisubmitBtn]').prop('disabled', true);
@@ -1142,6 +1228,7 @@ function enableMessagetype() {
     $('span[id=error_message_type]').text('Select Connection Name First');
   } else {
     if (checkValue($('select[name=message_type] option:selected').val())) {
+      checkAndDisableInputs
       $('select[name=message_type]').css('border-color', '#FF0000').removeClass('is-valid').addClass('is-invalid');
       $('span[id=error_message_type]').text('Select Message Type');
     } else {
@@ -1150,7 +1237,7 @@ function enableMessagetype() {
     }
   }
 }
-function filtermessage_type(name, type) {
+async function filtermessage_type(name, type) {
   let conectionName = !!name ? name : $('#connection_name').find('option:selected').val();
   $('#message_type').children().appendTo('#option-container');
   let toMove = $('#option-container').children("[data-messagetype='" + conectionName + "']");
@@ -1166,12 +1253,14 @@ function filtermessage_type(name, type) {
   }
   if (!!type) {
     $('select[id=message_type]').val(type);
+    $('select[name=message_type]').trigger('change');
     $('select[id=message_type]').prop('disabled', true);
   } else {
     if (type === '') {
       $('select[id=message_type]').val('blank');
     } else {
       $('select[id=message_type]').val(type);
+      $('select[name=message_type]').trigger('change');
     }
 
     $('select[id=message_type]').prop('disabled', false);
@@ -1257,11 +1346,37 @@ function offdbConnConnection() {
   $('#unlockBtn').css('display', 'none');
   $('#lockBtn').css('display', '');
 }
-
+function onWebhookConnection() {
+  $('div[id="webHookmenu"]').css('display', '');
+  $('div[id="divwebhookurl"]').css('display', '');
+  $('input[type=text][name=webhookUrl]').prop('disabled', false).css('display', 'block');
+  if (!checkValue($('input[type=text][name=webhookUrl]').val())) {
+    $('input[type=text][name=webhookUrl]').css({ 'border-color': '#FF0000' }).removeClass('is-valid').addClass('is-invalid');
+    $('span[id=error_webhookUrl]').text('Please Enter Webhook URL');
+  } else {
+    $('input[type=text][name=webhookUrl]').css('border-color', '#2eb82e').removeClass('is-invalid').addClass('is-valid');
+    $('span[id=error_webhookUrl]').text('');
+  }
+  if (!checkValue($('input[type=text][name=webhookusername]').val())) {
+    $('input[type=text][name=webhookusername]').css({ 'border-color': '#FF0000' }).removeClass('is-valid').addClass('is-invalid');
+    $('span[id=error_webhookusername]').text('Please Enter UserName');
+  } else {
+    $('input[type=text][name=webhookusername]').css('border-color', '#2eb82e').removeClass('is-invalid').addClass('is-valid');
+    $('span[id=error_webhookusername]').text('');
+  }
+  if (!checkValue($('input[type=text][name=webhookpassword]').val())) {
+    $('input[type=text][name=webhookpassword]').css({ 'border-color': '#FF0000' }).removeClass('is-valid').addClass('is-invalid');
+    $('span[id=error_webhookpassword]').text('Please Enter Password');
+  } else {
+    $('input[type=text][name=webhookpassword]').css('border-color', '#2eb82e').removeClass('is-invalid').addClass('is-valid');
+    $('span[id=error_webhookpassword]').text('');
+  }
+  
+}
 function onOAuthConnection() {
   $('div[id="OAuthmenu"]').css('display', '');
   $('div[id="divtokenurl"]').css('display', '');
-  $('input[type=text][name=tokenurl]').prop('disabled', false).css('display', 'block').val('');
+  $('input[type=text][name=tokenurl]').prop('disabled', false).css('display', 'block');
   if (!checkValue($('input[type=text][name=tokenurl]').val())) {
     $('input[type=text][name=tokenurl]').css({ 'border-color': '#FF0000' }).removeClass('is-valid').addClass('is-invalid');
     $('span[id=error_tokenurl]').text('Please Enter Token URL');
@@ -1297,6 +1412,12 @@ function offOAuthConnection() {
   $('input[type=text][name=tokenusername]').prop('disabled', false).val('');
   $('input[type=text][name=tokenpassword]').prop('disabled', false).val('');
   $('input[type=text][name=tokenclientId]').prop('disabled', false).val('');
+}
+function offWebhookConnection() {
+  $('div[id="webHookmenu"]').css('display', 'none');
+  $('input[type=text][name=webhookUrl]').prop('disabled', false).val('');
+  $('input[type=text][name=webhookusername]').prop('disabled', false).val('');
+  $('input[type=text][name=webhookpassword]').prop('disabled', false).val('');
 }
 function onBasicAuthConnection() {
   $('div[id="OAuthmenu"]').css('display', '');

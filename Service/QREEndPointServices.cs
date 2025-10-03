@@ -1,5 +1,6 @@
 ﻿using EIR_9209_2.DataStore;
 using Microsoft.AspNetCore.SignalR;
+using EIR_9209_2.Models;
 
 namespace EIR_9209_2.Service
 {
@@ -34,7 +35,7 @@ namespace EIR_9209_2.Service
                     IQueryService queryService;
                     string FormatUrl = "";
                     //process tag data
-                    if (_endpointConfig.MessageType.Equals("AREA_AGGREGATION", StringComparison.CurrentCultureIgnoreCase))
+                    if (_endpointConfig.MessageType.Equals("TAG_AGGREGATION", StringComparison.CurrentCultureIgnoreCase))
                     {
                         FormatUrl = string.Format(_endpointConfig.Url, server);
                         queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
@@ -56,41 +57,76 @@ namespace EIR_9209_2.Service
 
                         for (var hour = endingHour; startingHour <= hour; hour = hour.AddHours(-1))
                         {
+                            List<AreaDwell> newValue = new List<AreaDwell>();
                             if (_zones.ExistingAreaDwell(hour))
                             {
                                 if (currentHour == hour || pastHour == hour)
                                 {
                                     var currentvalue = _zones.GetAreaDwell(hour);
 
-                                    var newValue = await queryService.GetTotalDwellTime(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
-                                        TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
-                                         TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
-                                        allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
+                                    _logger.LogInformation("Calling GetTotalDwellTime with parameters: hour={Hour}, nextHour={NextHour}, MinTimeOnArea={MinTimeOnArea}, TimeStep={TimeStep}, ActivationTime={ActivationTime}, DeactivationTime={DeactivationTime}, DisappearTime={DisappearTime}, allAreaIds.Count={AllAreaIdsCount}, areasBatchCount={AreasBatchCount}",
+                                        hour, hour.AddHours(1), MinTimeOnArea, TimeStep, ActivationTime, DeactivationTime, DisappearTime, allAreaIds == null ? -1 : allAreaIds.Count, areasBatchCount);
+                                    if (allAreaIds == null)
+                                    {
+                                        _logger.LogWarning("allAreaIds is null before calling GetTotalDwellTime for hour {Hour}", hour);
+                                    }
+                                    else if (allAreaIds.Count == 0)
+                                    {
+                                        _logger.LogWarning("allAreaIds is empty before calling GetTotalDwellTime for hour {Hour}", hour);
+                                    }
+
+                                    newValue = await queryService.GetTotalDwellTime(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
+                                             TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
+                                              TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
+                                             allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
+
+                                    if (newValue == null)
+                                    {
+                                        _logger.LogWarning("GetTotalDwellTime returned null for hour {Hour}. Skipping logging and UpdateAreaDwell.", hour);
+                                        continue;
+                                    }
+
                                     if (_endpointConfig.LogData)
                                     {
-                                        Task.Run(() => _loggerService.LogData(newValue.ToString(),
-                                        _endpointConfig.MessageType,
-                                        _endpointConfig.Name,
-                                        FormatUrl), stoppingToken);
+                                        _ = Task.Run(() => _loggerService.LogData(newValue.ToString(),
+                                         _endpointConfig.MessageType,
+                                         _endpointConfig.Name,
+                                         FormatUrl), stoppingToken);
                                     }
                                     //add to the list
                                     _zones.UpdateAreaDwell(hour, newValue, currentvalue);
-
                                 }
                             }
                             else
                             {
-                                var newValue = await queryService.GetTotalDwellTime(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
-                                        TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
-                                         TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
-                                         allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
+                                _logger.LogInformation("Calling GetTotalDwellTime with parameters: hour={Hour}, nextHour={NextHour}, MinTimeOnArea={MinTimeOnArea}, TimeStep={TimeStep}, ActivationTime={ActivationTime}, DeactivationTime={DeactivationTime}, DisappearTime={DisappearTime}, allAreaIds.Count={AllAreaIdsCount}, areasBatchCount={AreasBatchCount}",
+                                    hour, hour.AddHours(1), MinTimeOnArea, TimeStep, ActivationTime, DeactivationTime, DisappearTime, allAreaIds == null ? -1 : allAreaIds.Count, areasBatchCount);
+                                if (allAreaIds == null)
+                                {
+                                    _logger.LogWarning("allAreaIds is null before calling GetTotalDwellTime for hour {Hour}", hour);
+                                }
+                                else if (allAreaIds.Count == 0)
+                                {
+                                    _logger.LogWarning("allAreaIds is empty before calling GetTotalDwellTime for hour {Hour}", hour);
+                                }
+
+                                newValue = await queryService.GetTotalDwellTime(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
+                                          TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
+                                           TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime),
+                                           allAreaIds, areasBatchCount, stoppingToken).ConfigureAwait(false);
+
+                                if (newValue == null)
+                                {
+                                    _logger.LogWarning("GetTotalDwellTime returned null for hour {Hour}. Skipping logging and AddAreaDwell.", hour);
+                                    continue;
+                                }
 
                                 if (_endpointConfig.LogData)
                                 {
-                                    Task.Run(() => _loggerService.LogData(newValue.ToString(),
-                                    _endpointConfig.MessageType,
-                                    _endpointConfig.Name,
-                                    FormatUrl), stoppingToken);
+                                    _ = Task.Run(() => _loggerService.LogData(newValue.ToString(),
+                                     _endpointConfig.MessageType,
+                                     _endpointConfig.Name,
+                                     FormatUrl), stoppingToken);
                                 }
                                 //add to the list
                                 _zones.AddAreaDwell(hour, newValue);
@@ -178,6 +214,134 @@ namespace EIR_9209_2.Service
                             await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
                         }
                     }
+                    if (_endpointConfig.MessageType.Equals("Report_Generation", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        FormatUrl = string.Format(_endpointConfig.Url, server);
+                        queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
+
+                        var now = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
+                        var endingHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
+                        var startingHour = endingHour.AddHours(-1 * _endpointConfig.HoursBack);
+                        var currentHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
+                        var pastHour = currentHour.AddHours(-1);
+
+                        var allAreaOriginIds = await queryService.GetAreasOriginIdAsync(stoppingToken);
+                        var allBadgeIds = await queryService.GetBadgeListAsync(stoppingToken);
+                        int areasBatchCount = 20;
+                        _ = int.TryParse(_configuration[key: "ApplicationConfiguration:QREMinTimeOnArea"], out int MinTimeOnArea); //get the value from appsettings.json
+                        _ = int.TryParse(_configuration[key: "ApplicationConfiguration:QRETimeStep"], out int TimeStep); //get the value from appsettings.json
+                        _ = int.TryParse(_configuration[key: "ApplicationConfiguration:QREActivationTime"], out int ActivationTime); //get the value from appsettings.json
+                        _ = int.TryParse(_configuration[key: "ApplicationConfiguration:QREDeactivationTime"], out int DeactivationTime); //get the value from appsettings.json
+                        _ = int.TryParse(_configuration[key: "ApplicationConfiguration:QREDisappearTime"], out int DisappearTime); //get the value from appsettings.json
+                        List<string> eventTypes = new List<string> { "AREA" };
+                        for (var hour = endingHour; startingHour <= hour; hour = hour.AddHours(-1))
+                        {
+                            ReportResponse reportResponse = null!;
+                            if (await _zones.ExistingReportInList(hour))
+                            {
+                                if (currentHour == hour || pastHour == hour)
+                                {
+                                    reportResponse = await queryService.CreateReportDwellTime(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
+                                                                      TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
+                                                                       TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime), allBadgeIds,
+                                                                       allAreaOriginIds, areasBatchCount, eventTypes, _endpointConfig.WebhookUrl, _endpointConfig.WebhookUserName, _endpointConfig.WebhookPassword, stoppingToken).ConfigureAwait(false);
+
+
+                                    if (_endpointConfig.LogData)
+                                    {
+                                        _ = Task.Run(() => _loggerService.LogData(reportResponse.ToString(),
+                                         _endpointConfig.MessageType,
+                                         _endpointConfig.Name,
+                                         FormatUrl), stoppingToken);
+                                    }
+                                    if (reportResponse == null)
+                                    {
+                                        _logger.LogWarning("GetTotalDwellTime returned null for hour {Hour}. Skipping logging and UpdateAreaDwell.", hour);
+                                        continue;
+                                    }
+                                    reportResponse.DateTimeRequestFor = hour;
+                                    reportResponse.DateTimeRange = pastHour.ToString("yyyyMMdd_HH:mm") + "_" + currentHour.ToString("yyyyMMdd_HH:mm");
+                                    //add to the list
+                                    await _zones.AddReportResponse(reportResponse);
+                                }
+
+                            }
+                            else
+                            {
+                                reportResponse = await queryService.CreateReportDwellTime(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
+                                                                       TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
+                                                                        TimeSpan.FromSeconds(DeactivationTime), TimeSpan.FromSeconds(DisappearTime), allBadgeIds,
+                                                                        allAreaOriginIds, areasBatchCount, eventTypes, _endpointConfig.WebhookUrl, _endpointConfig.WebhookUserName, _endpointConfig.WebhookPassword, stoppingToken).ConfigureAwait(false);
+
+
+                                if (_endpointConfig.LogData)
+                                {
+                                    _ = Task.Run(() => _loggerService.LogData(reportResponse.ToString(),
+                                     _endpointConfig.MessageType,
+                                     _endpointConfig.Name,
+                                     FormatUrl), stoppingToken);
+                                }
+                                if (reportResponse == null)
+                                {
+                                    _logger.LogWarning("GetTotalDwellTime returned null for hour {Hour}. Skipping logging and UpdateAreaDwell.", hour);
+                                    continue;
+                                }
+                                reportResponse.DateTimeRequestFor = hour;
+                                reportResponse.DateTimeRange = pastHour.ToString("yyyyMMdd_HH:mm") + "_" + currentHour.ToString("yyyyMMdd_HH:mm");
+                                //add to the list
+                                await _zones.AddReportResponse(reportResponse);
+                            }
+                        }
+                    }
+
+                    //download reports data
+                    if (_endpointConfig.MessageType.Equals("Report_Content", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        FormatUrl = BuildUrl(_endpointConfig.Url, new Dictionary<string, string> { { "ServerIpOrHostName", server } });
+                        queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
+
+
+                        var allReports = await _zones.GetReportList(stoppingToken).ConfigureAwait(false);
+                        List<ReportResponse> reportList = allReports.Where(r => r.State != "Downloaded").ToList();
+                        if (reportList != null && reportList.Count > 0)
+                        {
+                            for (int i = 0; i < reportList.Count; i++)
+                            {
+                                try
+                                {
+                                    var report = reportList[i];
+                                    List<ReportContentItems> reportContentItems = await queryService.DownloadReportDwellTime(report.ResourceId, stoppingToken).ConfigureAwait(false);
+
+
+                                    if (_endpointConfig.LogData)
+                                    {
+                                        _ = Task.Run(() => _loggerService.LogData(reportContentItems.ToString(),
+                                         _endpointConfig.MessageType,
+                                         _endpointConfig.Name,
+                                         FormatUrl), stoppingToken);
+                                    }
+                                    if (reportContentItems == null)
+                                    {
+                                        _logger.LogWarning("No data found for TotalDwellTime report with ResourceId {ResourceId}. Skipping logging and UpdateAreaDwell.", report.ResourceId);
+                                        continue;
+                                    }
+
+                                    await _zones.UpdateReportResponse(report.ResourceId, "Downloaded");
+                                    await _zones.AddReportContentItem(report.DateTimeRequestFor, reportContentItems);
+                                }
+                                catch (System.Exception)
+                                {
+
+                                    continue;
+                                }
+                            }
+                        }
+
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("OAuthUrl is not set for endpoint {EndpointId}. Skipping data fetch.", _endpointConfig.Id);
                 }
             }
             catch (Exception ex)
@@ -194,7 +358,12 @@ namespace EIR_9209_2.Service
             finally
             {
                 //run summary report
-                if (_endpointConfig.MessageType == "AREA_AGGREGATION")
+                if (_endpointConfig.MessageType == "TAG_AGGREGATION")
+                {
+                    _ = Task.Run(() => _zones.RunMPESummaryReport());
+                }
+                //run summary report
+                if (_endpointConfig.MessageType == "Report_Content")
                 {
                     _ = Task.Run(() => _zones.RunMPESummaryReport());
                 }

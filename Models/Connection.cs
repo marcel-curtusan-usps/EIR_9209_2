@@ -52,7 +52,32 @@ public class Connection
     public string OAuthUserName { get; set; } = "";
     public string OAuthPassword { get; set; } = "";
     public string OAuthClientId { get; set; } = "";
+    /// <summary>
+    /// The timeout in milliseconds for the connection.
+    /// </summary>
     public int MillisecondsTimeout { get; set; } = 60000;
-    public string? MapId { get; set; } = "";
-    public string? TenantId { get; set; } = "";
+    /// <summary>
+    /// The ID for the map connection.
+    /// </summary>
+    public string MapId { get; set; } = "";
+    /// <summary>
+    /// The tenant ID for the connection.
+    /// </summary>
+    public string TenantId { get; set; } = "";
+    /// <summary>
+    /// Indicates if the connection is a webhook connection.
+    /// </summary>
+    public bool WebhookConnection { get; set; } = false;
+    /// <summary>
+    /// The URL for the webhook connection.
+    /// </summary>
+    public string WebhookUrl { get; set; } = "";
+    /// <summary>
+    /// The username for the webhook connection, if required.
+    /// </summary>
+    public string WebhookUserName { get; set; } = "";
+    /// <summary>
+    /// The password for the webhook connection, if required.
+    /// </summary>
+    public string WebhookPassword { get; set; } = "";
 }

@@ -6,7 +6,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
-
+using EIR_9209_2.QueryServices;
 
 internal class QueryService : IQueryService
 {
@@ -117,37 +117,104 @@ internal class QueryService : IQueryService
         var areas = await GetQueryResults<IEnumerable<QREArea>>(new Uri(_baseQueryUrlWithPort, GetAreasUrlPath).AbsoluteUri, ct);
         return areas.Select(a => (a.Id, a.Name)).ToList();
     }
+    public async Task<List<(string areaId, int originId)>> GetAreasOriginIdAsync(CancellationToken ct)
+    {
+        string GetAreasUrlPath = "api/usps/area/list";
+        var areas = await GetQueryResults<IEnumerable<QREArea>>(new Uri(_baseQueryUrlWithPort, GetAreasUrlPath).AbsoluteUri, ct);
+        return areas.Select(a => (a.Id, a.OriginId)).ToList();
+    }
+    public async Task<List<(string employeeId, string tagId)>> GetBadgeListAsync(CancellationToken ct)
+    {
+        string GetAreasUrlPath = "api/usps/badge/list";
+        var areas = await GetQueryResults<IEnumerable<QreBadgeInfo>>(new Uri(_baseQueryUrlWithPort, GetAreasUrlPath).AbsoluteUri, ct);
+        return areas.Select(a => (a.EmployeeId, a.TagId)).ToList();
+    }
 
     public async Task<List<AreaDwell>> GetTotalDwellTime(DateTime startTime, DateTime endTime, TimeSpan minEmployeeTimeInArea,
     TimeSpan TimeStep, TimeSpan ActivationTime, TimeSpan DeactivationTime, TimeSpan DisappearTime, List<(string areaId, string areaName)> allAreaIds, int areaBatchCount, CancellationToken ct)
     {
-        var queries = BreakUpAreasIntoBatches()
-              .Select(areasBatch => new ReportQueryBuilder()
-              .WithQueryType(ESelsReportQueryType.TotalDwellTimeByPersonByOperationalArea)
-              .WithStartLocalTime(startTime)
-              .WithEndLocalTime(endTime)
-              .WithMinTimeOnArea(minEmployeeTimeInArea)
-              .WithTimeStep(TimeStep)
-              .WithActivationTime(ActivationTime)
-              .WithDeactivationTime(DeactivationTime)
-              .WithDisappearTime(DisappearTime)
-              .WithAreaIds(areasBatch.Select(a => a.areaId).ToList())
-              .Build()
-              );
-
-        var queryTasks = queries.Select(query => GetPostQueryResults<List<TagDwellTimeInAreaQueryResult>>(_fullUrl.AbsoluteUri, query, ct));
-        var queryResults = (await Task.WhenAll(queryTasks).ConfigureAwait(false))
-            .SelectMany(x => x)
-            .Where(r => !r.User.Equals("Empty Time"))
-            .ToList();
-
-        var result = TransformQueryResults(queryResults);
-
-        return result;
-
-        IEnumerable<List<(string areaId, string areaName)>> BreakUpAreasIntoBatches()
+        try
         {
-            return Enumerable.Range(0, (allAreaIds.Count + areaBatchCount - 1) / areaBatchCount).Select(i => allAreaIds.Skip(i * areaBatchCount).Take(areaBatchCount).ToList());
+
+            var queries = BreakUpAreasIntoBatches()
+                  .Select(areasBatch => new ReportQueryBuilder()
+                  .WithQueryType(ESelsReportQueryType.TotalDwellTimeByPersonByOperationalArea)
+                  .WithStartLocalTime(startTime)
+                  .WithEndLocalTime(endTime)
+                  .WithMinTimeOnArea(minEmployeeTimeInArea)
+                  .WithTimeStep(TimeStep)
+                  .WithActivationTime(ActivationTime)
+                  .WithDeactivationTime(DeactivationTime)
+                  .WithDisappearTime(DisappearTime)
+                  .WithAreaIds(areasBatch.Select(a => a.areaId).ToList())
+                  .Build()
+                  );
+
+            var queryTasks = queries.Select(query => GetPostQueryResults<List<TagDwellTimeInAreaQueryResult>>(_fullUrl.AbsoluteUri, query, ct));
+            var queryResults = (await Task.WhenAll(queryTasks).ConfigureAwait(false))
+                .SelectMany(x => x)
+                .Where(r => !r.User.Equals("Empty Time"))
+                .ToList();
+
+            var result = TransformQueryResults(queryResults);
+
+            return result;
+
+            IEnumerable<List<(string areaId, string areaName)>> BreakUpAreasIntoBatches()
+            {
+                return Enumerable.Range(0, (allAreaIds.Count + areaBatchCount - 1) / areaBatchCount).Select(i => allAreaIds.Skip(i * areaBatchCount).Take(areaBatchCount).ToList());
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error validating area IDs for dwell time query.");
+            throw;
+        }
+    }
+    public async Task<ReportResponse> CreateReportDwellTime(DateTime startTime, DateTime endTime, TimeSpan minEmployeeTimeInArea,
+    TimeSpan TimeStep, TimeSpan ActivationTime, TimeSpan DeactivationTime, TimeSpan DisappearTime, List<(string employeeId, string tagId)> allBadgeIds, List<(string areaId, int originId)> allAreaIds, int areaBatchCount, List<string> eventTypes, string webhookUrl, string webhookUserName, string webhookPassword, CancellationToken ct)
+    {
+        try
+        {
+
+            var queries = new ReportQueryBatchProcessCreationBuilder()
+                  .WithStartLocalTime(startTime)
+                  .WithEndLocalTime(endTime)
+                  .WithMinTimeOnArea(minEmployeeTimeInArea)
+                  .WithTimeStep(TimeStep)
+                  .WithActivationTime(ActivationTime)
+                  .WithDeactivationTime(DeactivationTime)
+                  .WithDisappearTime(DisappearTime)
+                  .WithIntegrationKeys(allBadgeIds.Select(b => b.employeeId).ToList())
+                  .WithAreaIds(allAreaIds.Select(a => a.originId).ToList())
+                  .WithEvents(eventTypes)
+                  .WithWebHookUrl(webhookUrl, webhookUserName, webhookPassword)
+                  .Build();
+                  queries.Name = "CF_DwellTimeReport_" + startTime.ToString("yyyyMMdd_HH:mm") + "_" + endTime.ToString("HH:mm");
+
+            var queryTasks = await GetPostQueryResults<ReportResponse>(_fullUrl.AbsoluteUri, queries, ct);
+
+
+            return queryTasks;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error validating area IDs for dwell time query.");
+            throw;
+        }
+    }
+    public async Task<List<ReportContentItems>> DownloadReportDwellTime(string reportId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var queryUrl = _fullUrl.AbsoluteUri + $"/{reportId}/raw";
+
+            return await GetQueryResults<List<ReportContentItems>>(queryUrl, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error downloading report dwell time.");
+            throw;
         }
     }
 
@@ -253,7 +320,9 @@ internal class QueryService : IQueryService
             {
                 await _authService.AddAuthHeader(request, ct);
             }
-            request.Content = new StringContent(JsonConvert.SerializeObject(query, _jsonSettings), Encoding.UTF8, "application/json");
+           // JObject contentbody = JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(query, _jsonSettings));
+           // _logger.LogError(JsonConvert.SerializeObject(query, _jsonSettings));
+           request.Content = new StringContent(JsonConvert.SerializeObject(query, _jsonSettings), Encoding.UTF8, "application/json");
             using var response = await client.SendAsync(request, ct);
 
             response.EnsureSuccessStatusCode();
@@ -394,6 +463,12 @@ internal class QueryService : IQueryService
             }).ToList();
 
     }
-
-
+    internal static string BuildUrl(string template, Dictionary<string, string> parameters)
+    {
+        foreach (var kvp in parameters)
+        {
+            template = template.Replace($"{{{kvp.Key}}}", kvp.Value);
+        }
+        return template;
+    }
 }

@@ -69,6 +69,13 @@ namespace EIR_9209_2.DataStore
         Task<EmployeeInfo> GetEmployeeByEIN(string id);
 
         /// <summary>
+        /// Gets the type of an employee by ID.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<string> GetEmployeeType(string id);
+        
+        /// <summary>
         /// Gets an employee by code.
         /// </summary>
         /// <param name="code">The code of the employee.</param>

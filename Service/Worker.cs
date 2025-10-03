@@ -5,29 +5,61 @@ using System.Collections.Concurrent;
 
 namespace EIR_9209_2.Service
 {
-    public class Worker : BackgroundService
+    /// <summary>
+    /// Worker class that manages various endpoint services.
+    /// It runs in the background and handles the lifecycle of endpoint services.
+    /// </summary>
+    /// <summary>
+    /// Worker class that manages the lifecycle and operations of endpoint services in the background.
+    /// </summary>
+    public class Worker : BackgroundService, IWorker
     {
+        // Logger for diagnostic and operational messages
         private readonly ILogger<Worker> _logger;
+        // Factory for creating HttpClient instances
         private readonly IHttpClientFactory _httpClientFactory;
+        // SignalR hub context for real-time communication
         private readonly IHubContext<HubServices> _hubServices;
+        // Logger factory for creating loggers for endpoint services
         private readonly ILoggerFactory _loggerFactory;
-        private readonly IInMemoryConnectionRepository _connections;
-        private readonly IInMemoryGeoZonesRepository _geoZones;
-        private readonly IInMemoryTagsRepository _tags;
-        private readonly IInMemoryEmailRepository _email;
-        private readonly IInMemorySiteInfoRepository _siteInfo;
-        private readonly IInMemoryEmployeesRepository _employees;
-        private readonly IInMemoryEmployeesSchedule _schedule;
-        private readonly IInMemoryCamerasRepository _cameras;
-        private readonly IConfiguration _configuration;
-        private readonly IInMemoryBackgroundImageRepository _backgroundImage;
-        private readonly ILoggerService _loggerService;
-        private readonly IIDS _ids;
+        // Repository for managing connection data in memory
+        private IInMemoryConnectionRepository _connections = null!;
+        // Repository for geo zones
+        private readonly IInMemoryGeoZonesRepository _geoZones = null!;
+        // Repository for tags
+        private readonly IInMemoryTagsRepository _tags = null!;
+        // Repository for email data
+        private readonly IInMemoryEmailRepository _email = null!;
+        // Repository for site information
+        private readonly IInMemorySiteInfoRepository _siteInfo = null!;
+        // Repository for employee data
+        private readonly IInMemoryEmployeesRepository _employees = null!;
+        // Repository for employee schedules
+        private readonly IInMemoryEmployeesSchedule _schedule = null!;
+        // Repository for camera data
+        private readonly IInMemoryCamerasRepository _cameras = null!;
+        // Application configuration
+        private readonly IConfiguration _configuration = null!;
+        // Repository for background images
+        private readonly IInMemoryBackgroundImageRepository _backgroundImage = null!;
+        // Service for logging custom events
+        private readonly ILoggerService _loggerService = null!;
+        // IDS service for intrusion detection
+        private readonly IIDS _ids = null!;
+        // Service provider for dependency injection scopes
+        private readonly IServiceProvider _serviceProvider = null!;
+        // Thread-safe dictionary to manage endpoint services by ID
         private readonly ConcurrentDictionary<string, BaseEndpointService> _endPointServices = new();
+        // Task completion source to signal when services are ready
+        private readonly TaskCompletionSource<bool> _servicesReady = new();
 
-        public Worker(ILogger<Worker> logger, ILoggerFactory loggerFactory,
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Worker"/> class with all required dependencies.
+        /// </summary>
+        public Worker(
+            ILogger<Worker> logger,
+            ILoggerFactory loggerFactory,
             IHttpClientFactory httpClientFactory,
-            IInMemoryConnectionRepository connections,
             IHubContext<HubServices> hubServices,
             IInMemoryGeoZonesRepository geoZones,
             IInMemoryTagsRepository tags,
@@ -35,10 +67,12 @@ namespace EIR_9209_2.Service
             IInMemorySiteInfoRepository siteInfo,
             IInMemoryEmployeesRepository employees,
             IInMemoryCamerasRepository cameras,
-            IConfiguration configuration, 
+            IConfiguration configuration,
             IInMemoryBackgroundImageRepository backgroundImage,
             ILoggerService loggerService,
-            IIDS ids, IInMemoryEmployeesSchedule schedule)
+            IIDS ids,
+            IInMemoryEmployeesSchedule schedule,
+            IServiceProvider serviceProvider)
         {
             _logger = logger;
             _hubServices = hubServices;
@@ -47,7 +81,6 @@ namespace EIR_9209_2.Service
             _tags = tags;
             _cameras = cameras;
             _httpClientFactory = httpClientFactory;
-            _connections = connections;
             _configuration = configuration;
             _email = email;
             _siteInfo = siteInfo;
@@ -56,28 +89,61 @@ namespace EIR_9209_2.Service
             _loggerService = loggerService;
             _ids = ids;
             _schedule = schedule;
+            _serviceProvider = serviceProvider;
+        }
+        /// <summary>
+        /// Signals that the worker information is ready by setting the result of the associated task.
+        /// </summary>
+        public void SignalWorkerReady()
+        {
+            _servicesReady.TrySetResult(true);
         }
 
+        /// <summary>
+        /// Initializes the worker and signals that services are ready.
+        /// </summary>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-            await Task.Delay(2000, stoppingToken);
-            foreach (var endpoint in await _connections.GetAll())
+            try
             {
-                AddEndpoint(endpoint);
+                await _servicesReady.Task; // Wait for Services to be ready
+                while (!stoppingToken.IsCancellationRequested)
+                {
+                    // Create a new DI scope for each iteration
+                    using var innerScope = _serviceProvider.CreateScope();
+                    _connections = innerScope.ServiceProvider.GetRequiredService<IInMemoryConnectionRepository>();
+                    _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                    await Task.Delay(2000, stoppingToken);
+                    // Add all endpoints from the repository
+                    foreach (var endpoint in await _connections.GetAll())
+                    {
+                        await AddEndpoint(endpoint);
+                    }
+                    // Wait indefinitely until cancellation is requested
+                    await Task.Delay(Timeout.Infinite, stoppingToken);
+                }
             }
-
-            await Task.Delay(Timeout.Infinite, stoppingToken);
+            catch (TaskCanceledException)
+            {
+                _logger.LogInformation("Worker task was canceled (application is shutting down).");
+            }
         }
 
-        public bool AddEndpoint(Connection endpointConfig)
+        /// <summary>
+        /// Adds and starts a new endpoint service based on the provided configuration.
+        /// </summary>
+        /// <param name="endpointConfig">The configuration for the endpoint to add.</param>
+        /// <returns>True if the endpoint was added and started; otherwise, false.</returns>
+        public async Task<bool> AddEndpoint(Connection endpointConfig)
         {
+            // Check if the endpoint already exists
             if (_endPointServices.ContainsKey(endpointConfig.Id))
             {
                 _logger.LogWarning("Endpoint {Id} already exists.", endpointConfig.Id);
                 return false;
             }
             BaseEndpointService endpointService;
+            // Select the correct endpoint service implementation based on the endpoint name
             switch (endpointConfig.Name)
             {
                 case "QPE":
@@ -116,33 +182,43 @@ namespace EIR_9209_2.Service
                 default:
                     _logger.LogWarning("Unknown endpoint {Name}", endpointConfig.Name);
                     return false;
-
             }
+            // Add the endpoint service to the dictionary and start it
             _endPointServices[endpointConfig.Id] = endpointService;
-            endpointService.Start();
+            await endpointService.Start();
             _logger.LogInformation("Started endpoint {Id}.", endpointConfig.Id);
             return true;
         }
 
-        public bool RemoveEndpoint(Connection endpointConfig)
+        /// <summary>
+        /// Removes and stops an endpoint service by its configuration.
+        /// </summary>
+        /// <param name="endpointConfig">The configuration of the endpoint to remove.</param>
+        /// <returns>True if the endpoint was found and removed; otherwise, false.</returns>
+        public Task<bool> RemoveEndpoint(Connection endpointConfig)
         {
             if (_endPointServices.TryRemove(endpointConfig.Id, out var endpointService))
             {
+                // Optionally, call a Stop method on endpointService if available
                 _logger.LogInformation("Stopped and removed endpoint {Id}.", endpointConfig.Id);
-                return true;
+                return Task.FromResult(true);
             }
             else
             {
-                _logger.LogWarning("Endpoint {I} not found.", endpointConfig.Id);
-                return false;
+                _logger.LogWarning("Endpoint {Id} not found.", endpointConfig.Id);
+                return Task.FromResult(false);
             }
         }
+        /// <summary>
+        /// Updates the configuration of an existing endpoint service.
+        /// </summary>
+        /// <param name="updateConfig">The new configuration for the endpoint.</param>
+        /// <returns>True if the endpoint was found and updated; otherwise, false.</returns>
         public async Task<bool> UpdateEndpoint(Connection updateConfig)
         {
             if (_endPointServices.TryGetValue(updateConfig.Id, out var endpointService))
             {
-             await endpointService.Update(updateConfig);
-
+                await endpointService.Update(updateConfig);
                 _logger.LogInformation("Updated Configuration for endpoint {Id}", updateConfig.Id);
                 return true;
             }
@@ -152,10 +228,15 @@ namespace EIR_9209_2.Service
                 return false;
             }
         }
+        /// <summary>
+        /// Deactivates all endpoints by updating their status and removing them from the active services.
+        /// </summary>
+        /// <returns>True if all endpoints were deactivated successfully; otherwise, false.</returns>
         public async Task<bool> DeactivateAllEndpoints()
         {
             try
             {
+                // Iterate through all endpoints and deactivate each one
                 foreach (var endpoint in await _connections.GetAll())
                 {
                     if (_endPointServices.TryGetValue(endpoint.Id, out var endpointService))
@@ -163,8 +244,8 @@ namespace EIR_9209_2.Service
                         endpoint.ActiveConnection = false;
                         if (await UpdateEndpoint(endpoint))
                         {
-                            RemoveEndpoint(endpoint);
-                        } 
+                            await RemoveEndpoint(endpoint);
+                        }
                     }
                 }
                 return true;

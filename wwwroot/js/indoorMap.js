@@ -205,7 +205,7 @@ async function showstaffdiv() {
 }
 staffBtn.button.style.width = '150px';
 staffBtn.button.style.height = '70px';
-staffBtn.addTo(OSLmap);
+//staffBtn.addTo(OSLmap);
 
 //Hide sidebar
 $('[role=tablist]').click(function(e) {

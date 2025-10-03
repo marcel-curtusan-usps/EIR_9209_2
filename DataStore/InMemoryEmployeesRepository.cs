@@ -7,6 +7,7 @@ using System.Collections.Concurrent;
 using System.Data;
 using EIR_9209_2.DataStore;
 using EIR_9209_2.Utilities;
+using System.Security.Cryptography.Pkcs;
 /// <summary>
 /// This class is used to manage the employee information in memory.
 /// </summary>
@@ -23,6 +24,33 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
     protected readonly IHubContext<HubServices> _hubServices;
     private readonly string fileName = "Employees.json";
     private readonly string ePacsScanFileName = "EpacsScans";
+
+
+    // Dictionary of desactcode to job title
+    private static readonly Dictionary<string, string> _desActCodeToJobTitle = new()
+    {
+        { "067", "supervisor" },
+        { "068", "supervisor" },
+        { "090", "supervisor" },
+        { "110", "clerk" },
+        { "120", "mail handler" },
+        { "166", "custodial" },
+        { "167", "maintenance" },
+        { "168", "maintenance" },
+        { "169", "maintenance" },
+        { "188", "expeditor" },
+        { "232", "clerk" },
+        { "410", "clerk" },
+        { "820", "mail handler" },
+        { "880", "clerk" },
+        { "893", "mail handler" },
+        { "90",  "supervisor" },
+        { "918", "clerk" },
+        { "928", "plant manager" },
+        { "951", "maintenance manager" }
+    };
+
+
     /// <summary>
     /// Constructor for InMemoryEmployeesRepository.
     /// Initializes the repository with the provided logger, configuration, file service, and hub context.
@@ -705,6 +733,46 @@ public class InMemoryEmployeesRepository : IInMemoryEmployeesRepository
             return null;
         }
     }
+
+
+
+    public async Task<string> GetEmployeeType(string id)
+    {
+        try
+        {
+            if (_empList.ContainsKey(id))
+            {
+                var employeeDaCode = _empList[id].DesActCode;
+                if (!string.IsNullOrEmpty(employeeDaCode))
+                {
+                    // Extract the first two characters of the DA code
+                   
+                        
+                        // Check if the prefix exists in the dictionary
+                        if (_desActCodeToJobTitle.TryGetValue(employeeDaCode, out var jobTitle))
+                        {
+                            return jobTitle;
+                        }
+                        else
+                        {
+                            return "";
+                        }
+                    
+                }
+               return "";
+            }
+            else
+            {
+                return "";
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return "";
+        }
+    }
+
     /// <summary>
     /// 
     /// </summary>

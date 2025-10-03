@@ -163,7 +163,7 @@
       {
         "Id": "8e0de261-e6d4-4272-a0ae-54237ff13006",
         "Name": "AREA_AGGREGATION",
-        "Description": "QRE Tag Dwell Time",
+        "Description": "QRE Area Dwell Time",
         "BaseURL": "http://{0}:8083/api/usps/report/generate"
       },
       {
@@ -171,6 +171,24 @@
         "Name": "TAG_TIMELINE",
         "Description": "QRE Tag Timeline",
         "BaseURL": "http://{0}:8083/api/usps/report/generate"
+      },
+      {
+        "Id": "e8e50aee-c2a7-4d95-8d44-951eb02df071",
+        "Name": "TAG_AGGREGATION",
+        "Description": "QRE Tag Dwell Time",
+        "BaseURL": "http://{0}:8083/api/usps/report/generate"
+      },
+      {
+        "Id": "0a59cbda-0811-4634-a074-5a3fcdc295db",
+        "Name": "Report_Generation",
+        "Description": "Report Generation",
+        "BaseURL": " http://{0}:7280/api/stats/report"
+      },
+      {
+        "Id": "40f877d9-b9bc-4294-bef9-0059b919a579",
+        "Name": "Report_Content",
+        "Description": "Report Content Items",
+        "BaseURL": "http://{ServerIpOrHostName}:7280/api/stats/report"
       }
     ]
   },
