@@ -13,8 +13,8 @@
     	<EnableDefaultContentItems>false</EnableDefaultContentItems>
     	<SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-		<AssemblyVersion>2.0.9.97</AssemblyVersion>
-		<FileVersion>2.0.9.97</FileVersion>
+		<AssemblyVersion>2.0.9.98</AssemblyVersion>
+		<FileVersion>2.0.9.98</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -37,6 +37,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="8.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="8.0.8" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.5" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

@@ -1,4 +1,4 @@
-﻿-- SIPS mpe_type='SDUS'
+-- SIPS mpe_type='SDUS'
 --     and MPE_SERIAL_NUM like '%PSS%'
 -- SIPS REJECTED POCKETNUM=201
 SELECT

@@ -3,7 +3,7 @@ using EIR_9209_2.DataStore;
 using EIR_9209_2.Service;
 using EIR_9209_2.Utilities;
 using Microsoft.AspNetCore.Authentication.Negotiate;
-using Microsoft.AspNetCore.Server.IISIntegration;
+using Newtonsoft.Json;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -63,16 +63,32 @@ public class Startup
         services.AddSingleton<IWorker>(provider => provider.GetRequiredService<Worker>());
         services.AddHostedService(provider => provider.GetRequiredService<Worker>());
         services.AddHttpClient();
+        // Configure controllers to use Newtonsoft.Json with camelCase and remove System.Text.Json formatters
+        services.AddControllers(options =>
+            {
+                // Ensure System.Text.Json formatters are removed so Newtonsoft is the sole JSON formatter
+                options.InputFormatters.RemoveType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonInputFormatter>();
+                options.OutputFormatters.RemoveType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonOutputFormatter>();
+            })
+            .AddNewtonsoftJson(opts =>
+            {
+                // Use CamelCase for property names
+                opts.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                opts.SerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
+                opts.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                opts.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            })
+            .AddXmlSerializerFormatters();
         //add SignalR to the services
         services.AddSignalR(options =>
             {
                 options.MaximumReceiveMessageSize = 100_000;
                 options.MaximumParallelInvocationsPerClient = 5;
-            })
-            .AddJsonProtocol(options =>
-            {
-                options.PayloadSerializerOptions.PropertyNameCaseInsensitive = true;
-            }).AddMessagePackProtocol();
+            }).AddNewtonsoftJsonProtocol(options =>
+         {
+             options.PayloadSerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+             options.PayloadSerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
+         });
         services.AddCors(o =>
         {
             o.AddPolicy("Everything", p =>
@@ -84,16 +100,7 @@ public class Startup
         });
 
         services.AddSingleton<HubServices>();
-        // Add framework services.
-        services.AddMvc(options =>
-            {
-                options.InputFormatters.RemoveType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonInputFormatter>();
-                options.OutputFormatters.RemoveType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonOutputFormatter>();
-            }).AddNewtonsoftJson(opts =>
-            {
-                opts.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                opts.SerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
-            }).AddXmlSerializerFormatters();
+       
         services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
@@ -112,7 +119,6 @@ public class Startup
                     }
 
                 });
-                // using System.Reflection;
                 var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
                 options.UseInlineDefinitionsForEnums();

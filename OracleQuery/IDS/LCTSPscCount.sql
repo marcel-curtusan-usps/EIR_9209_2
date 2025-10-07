@@ -1,6 +1,6 @@
-﻿-- SIPS mpe_type='SDUS'
---     and MPE_SERIAL_NUM like '%PSS%'
--- SIPS REJECTED POCKETNUM=201
+-- LCTS Rejected = PROC_ACTION='Rejected'
+-- the rest 'Sorted'
+-- 'Inducted' = 'Sorted' + 'Inducted'
 SELECT
     MPE_NAME,
     HR
@@ -18,18 +18,16 @@ FROM
         FROM
             (
                 SELECT /*+ PARALLEL(A, 16)*/
-                    L.MPE_NAME                              AS MPE_NAME,
-                    (
-                        CASE
-                            WHEN A.POCKETNUM NOT IN (:REJECTBINS) THEN
-                                'Sorted'
-                            ELSE
-                                'Rejected'
-                        END)                                AS RESULT,
+                    L.MPE_NAME AS MPE_NAME,
+                    CASE
+                        WHEN upper(PROC_ACTION)='REJECTED' THEN 'Rejected'
+                        ELSE 'Sorted' 
+                    END AS RESULT,
+                    --'Inducted' AS RESULT,
                     TO_CHAR(A.DATA_DATE, 'yyyy-mm-dd hh24') AS HR,
                     COUNT(*)                                AS COUNT
                 FROM
-                    DCSDBA.APPSMP   A,
+                    DCSDBA.UNIT_LOAD_TRANSACTION A,
                     DCSDBA.MPE_LIST L
                 WHERE
                     A.MPE_ID IN (
@@ -38,23 +36,21 @@ FROM
                         FROM
                             DCSDBA.MPE_LIST
                         WHERE
-                            MPE_TYPE IN ('SIPS')
+                            MPE_TYPE IN ('LCTS')
                     )
                     AND A.DATA_DAY in (:DATADAYLIST)
                     AND A.MPE_ID = L.MPE_ID
-                GROUP BY
+                    AND A.CONTAINER_TYPE = 'Tray'
+                    GROUP BY
                     L.MPE_NAME,
-                    (
-                        CASE
-                            WHEN A.POCKETNUM NOT IN (:REJECTBINS) THEN
-                                'Sorted'
-                            ELSE
-                                'Rejected'
-                        END),
+                    CASE
+                        WHEN upper(PROC_ACTION)='REJECTED' THEN 'Rejected'
+                        ELSE 'Sorted' 
+                    END,
                     TO_CHAR(A.DATA_DATE, 'yyyy-mm-dd hh24')
                 ORDER BY
                     HR
-            )S
+                    )S
         GROUP BY
             MPE_NAME,
             HR,
@@ -63,10 +59,7 @@ FROM
             MPE_NAME,
             HR,
             RESULT
-    ) PIVOT ( MIN(TOTAL) FOR (RESULT) IN ('Sorted' AS SORTED,
-    'Rejected' AS REJECTED,
-    'Inducted' AS INDUCTED,
-    'PreScanned' AS PRESCANNED) )
+            ) PIVOT ( MIN(TOTAL) FOR (RESULT) IN ('Sorted' AS SORTED, 'Rejected' AS REJECTED) )
 ORDER BY
     MPE_NAME,
     HOUR

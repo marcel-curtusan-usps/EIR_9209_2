@@ -58,7 +58,7 @@ namespace EIR_9209_2.DataStore
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e, e.Message);
                 return null;
             }
             finally
@@ -87,7 +87,7 @@ namespace EIR_9209_2.DataStore
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e, e.Message);
                 return null;
             }
             finally
@@ -109,7 +109,7 @@ namespace EIR_9209_2.DataStore
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e, e.Message);
             }
         }
         private string CameraMarkersOutPutdata(List<CameraGeoMarker> cameraMarkers)
@@ -124,7 +124,7 @@ namespace EIR_9209_2.DataStore
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e, e.Message);
                 return "";
             }
         }
@@ -139,10 +139,21 @@ namespace EIR_9209_2.DataStore
                 return new JObject { ["Message"] = "Tag not Found" };
             }
         }
+        /// <summary>
+        /// Retrieves all camera geo markers from the repository.
+        /// </summary>
+        /// <returns></returns> <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public List<CameraGeoMarker> GetAll()
         {
             return _cameraMarkers.Values.Select(y => y).ToList();
         }
+        /// <summary>
+        /// Retrieves all camera properties from the repository.
+        /// </summary>
+        /// <returns></returns>
         public List<Cameras> GetCameraListAll()
         {
             return _cameraList.Values.OrderBy(y => y.Description).Select(y => y).ToList();
@@ -355,7 +366,12 @@ namespace EIR_9209_2.DataStore
                 }
             }
         }
-
+        /// <summary>
+        /// Loads camera still images into the repository.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task LoadCameraStills(byte[] result, string id)
         {
             try
@@ -381,7 +397,7 @@ namespace EIR_9209_2.DataStore
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e, e.Message);
             }
         }
 

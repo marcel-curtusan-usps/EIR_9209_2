@@ -64,8 +64,8 @@ async function init_geoZoneArea(floorId) {
       contentType: 'application/json',
       type: 'GET',
       success: function(data) {
-        for (let i = 0; i < data.length; i++) {
-          Promise.all([addAreaFeature(data[i])]);
+        for (const item of data) {
+          Promise.all([addAreaFeature(item)]);
         }
       }
     });

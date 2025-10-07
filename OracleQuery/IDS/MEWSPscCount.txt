@@ -1,4 +1,4 @@
-﻿-- SIPS mpe_type='SDUS'
+-- SIPS mpe_type='SDUS'
 --     and MPE_SERIAL_NUM like '%PSS%'
 -- SIPS REJECTED POCKETNUM=201
 SELECT
@@ -38,7 +38,7 @@ FROM
                         FROM
                             DCSDBA.MPE_LIST
                         WHERE
-                            MPE_TYPE IN ('SIPS')
+                            MPE_TYPE IN ('MEWS')
                     )
                     AND A.DATA_DAY in (:DATADAYLIST)
                     AND A.MPE_ID = L.MPE_ID

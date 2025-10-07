@@ -64,7 +64,7 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(ModelState);
             }
             //convert the JObject to a Connection object
-            ConnectionType contype = value.ToObject<ConnectionType>();
+            ConnectionType contype = value?.ToObject<ConnectionType>();
             //add the connection id
             contype.Id = Guid.NewGuid().ToString();
             //add to the connection repository

@@ -1,6 +1,8 @@
-﻿-- SIPS mpe_type='SDUS'
---     and MPE_SERIAL_NUM like '%PSS%'
--- SIPS REJECTED POCKETNUM=201
+-- Update: 03/01/2024
+-- Sorted is matching WebEOR
+-- Rejected is Rejected + Phantom Rejects
+-- Inducted is Fed + Phantom Rejects
+-- No way to exclude Phantom Rejects for now 
 SELECT
     MPE_NAME,
     HR
@@ -17,41 +19,41 @@ FROM
             SUM(S.COUNT) AS "TOTAL"
         FROM
             (
-                SELECT /*+ PARALLEL(A, 16)*/
-                    L.MPE_NAME                              AS MPE_NAME,
+                SELECT /*+ PARALLEL(F, 16)*/
+                    L.MPE_NAME,
                     (
                         CASE
-                            WHEN A.POCKETNUM NOT IN (:REJECTBINS) THEN
+                            WHEN F.SORTINFO IN (1, 2, 3) THEN
                                 'Sorted'
                             ELSE
                                 'Rejected'
-                        END)                                AS RESULT,
-                    TO_CHAR(A.DATA_DATE, 'yyyy-mm-dd hh24') AS HR,
+                        END)AS                                RESULT,
+                    TO_CHAR(F.DATA_DATE, 'yyyy-mm-dd hh24') AS HR,
                     COUNT(*)                                AS COUNT
                 FROM
-                    DCSDBA.APPSMP   A,
+                    DCSDBA.FSMMP    F,
                     DCSDBA.MPE_LIST L
                 WHERE
-                    A.MPE_ID IN (
+                    F.MPE_ID IN (
                         SELECT
                             MPE_ID
                         FROM
                             DCSDBA.MPE_LIST
                         WHERE
-                            MPE_TYPE IN ('SIPS')
+                            MPE_TYPE IN ('AFSM100')
                     )
-                    AND A.DATA_DAY in (:DATADAYLIST)
-                    AND A.MPE_ID = L.MPE_ID
+                    AND F.DATA_DAY in (:DATADAYLIST)
+                    AND F.MPE_ID = L.MPE_ID
                 GROUP BY
                     L.MPE_NAME,
                     (
                         CASE
-                            WHEN A.POCKETNUM NOT IN (:REJECTBINS) THEN
+                            WHEN F.SORTINFO IN (1, 2, 3) THEN
                                 'Sorted'
                             ELSE
                                 'Rejected'
                         END),
-                    TO_CHAR(A.DATA_DATE, 'yyyy-mm-dd hh24')
+                    TO_CHAR(F.DATA_DATE, 'yyyy-mm-dd hh24')
                 ORDER BY
                     HR
             )S
@@ -64,9 +66,7 @@ FROM
             HR,
             RESULT
     ) PIVOT ( MIN(TOTAL) FOR (RESULT) IN ('Sorted' AS SORTED,
-    'Rejected' AS REJECTED,
-    'Inducted' AS INDUCTED,
-    'PreScanned' AS PRESCANNED) )
+    'Rejected' AS REJECTED) )
 ORDER BY
     MPE_NAME,
     HOUR

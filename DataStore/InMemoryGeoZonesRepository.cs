@@ -343,9 +343,9 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     public Task<object> GetAll()
     {
         try
-        {
+        { 
 
-            // Convert GeoZone list to JArray
+             // Convert GeoZone list to JArray
             JArray geoZones = JArray.FromObject(_geoZoneList.Values.ToList());
             // Convert GeoZoneKiosk list to JArray
             JArray geoZoneKiosk = JArray.FromObject(_geoZonekioskList.Values.ToList());
@@ -371,7 +371,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 MergeArrayHandling = MergeArrayHandling.Concat,
 
             });
-            return Task.FromResult((object)geoZones);
+             return Task.FromResult((object)geoZones);
         }
         catch (Exception e)
         {
@@ -1948,43 +1948,28 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     /// <param name="floorId"></param>
     /// <param name="type"></param>
     /// <returns></returns>
-    public Task<object> GetGeoZonesTypeByFloorId(string floorId, string type)
+    public async Task<object> GetGeoZonesTypeByFloorId(string floorId, string type)
     {
         try
         {
-
-            // Convert GeoZone list to JArray
-            JArray geoZones = JArray.FromObject(_geoZoneList.Values.Where(gz => gz.Properties.FloorId == floorId && gz.Properties.Type == type).ToList());
-            // Convert GeoZoneKiosk list to JArray
-            JArray geoZoneKiosk = JArray.FromObject(_geoZonekioskList.Values.Where(gz => gz.Properties.FloorId == floorId && gz.Properties.Type == type).ToList());
-            // Convert GeoZoneDockdoor list to JArray
-            JArray geoZoneDockdoor = JArray.FromObject(_geoZoneDockDoorList.Values.Where(gz => gz.Properties.FloorId == floorId && gz.Properties.Type == type).ToList());
-            // Convert GeoZoneCude list to JArray
-            JArray geoZoneCube = JArray.FromObject(_geoZoneCubeList.Values.Where(gz => gz.Properties.FloorId == floorId && gz.Properties.Type == type).ToList());
-            // Merge the two geoZoneCube into a single JArray
-            geoZones.Merge(geoZoneCube, new JsonMergeSettings
+            switch (type)
             {
-                MergeArrayHandling = MergeArrayHandling.Concat,
-
-            });
-            // Merge the two geoZoneKiosk into a single JArray
-            geoZones.Merge(geoZoneKiosk, new JsonMergeSettings
-            {
-                MergeArrayHandling = MergeArrayHandling.Concat,
-
-            });
-            // Merge the two geoZoneDockdoor into a single JArray
-            geoZones.Merge(geoZoneDockdoor, new JsonMergeSettings
-            {
-                MergeArrayHandling = MergeArrayHandling.Concat,
-
-            });
-            return Task.FromResult((object)geoZones);
+                case "DockDoor":
+                    return await Task.FromResult((object)_geoZoneDockDoorList.Values.Where(gz => gz.Properties.FloorId == floorId && gz.Properties.Type == type).ToList().Cast<GeoZoneDockDoor>());
+                case "Cube":
+                    return await Task.FromResult((object)_geoZoneCubeList.Values.Where(gz => gz.Properties.FloorId == floorId && gz.Properties.Type == type).ToList().Cast<GeoZoneCube>());
+                case "Kiosk":
+                    return await Task.FromResult((object)_geoZonekioskList.Values.Where(gz => gz.Properties.FloorId == floorId && gz.Properties.Type == type).ToList().Cast<GeoZoneKiosk>());
+                case "MPE":
+                    return await Task.FromResult((object)_geoZoneList.Values.Where(gz => gz.Properties.FloorId == floorId && gz.Properties.Type == type).ToList().Cast<GeoZone>());
+                default:
+                    return await Task.FromResult((object)_geoZoneList.Values.Where(gz => gz.Properties.FloorId == floorId && gz.Properties.Type == type).ToList().Cast<GeoZone>());
+            }
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            return null;
+            return new object[] { };
         }
     }
 

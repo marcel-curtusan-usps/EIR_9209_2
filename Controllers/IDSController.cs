@@ -47,7 +47,7 @@ namespace EIR_9209_2.Controllers
                 };
                 if (data.HasValues && data.Type == JTokenType.Object)
                 {
-                    JToken result = await _ids.GetOracleIDSData(data);
+                    var (status, result) = await _ids.GetOracleIDSData(data);
                     if (result.HasValues)
                     {
                         _ = Task.Run(() => _geoZones.ProcessIDSData(result, CancellationToken.None)).ConfigureAwait(false);

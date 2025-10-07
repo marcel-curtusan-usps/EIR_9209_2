@@ -8,10 +8,10 @@ namespace EIR_9209_2.Service
 {
     internal class IDSEndPointServices : BaseEndpointService
     {
-        private readonly IInMemoryGeoZonesRepository _geoZones; 
+        private readonly IInMemoryGeoZonesRepository _geoZones;
         private readonly IIDS _ids;
         private readonly IInMemorySiteInfoRepository _siteInfo;
-        public IDSEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryGeoZonesRepository geozone, IIDS ids, IInMemorySiteInfoRepository siteInfo)
+        public IDSEndPointServices(ILogger<IDSEndPointServices> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryGeoZonesRepository geozone, IIDS ids, IInMemorySiteInfoRepository siteInfo)
                 : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
             _geoZones = geozone;
@@ -35,10 +35,10 @@ namespace EIR_9209_2.Service
                     datadayStart = GetJulianDateDay(currentTime.AddDays(-1));
                 }
                 int datadayEnd = GetJulianDateDay(currentTime);
-           
+
                 if (datadayStart < datadayEnd)
                 {
-                    datadayList = Enumerable.Range(datadayStart, datadayEnd-datadayStart+1).ToList();
+                    datadayList = Enumerable.Range(datadayStart, datadayEnd - datadayStart + 1).ToList();
                 }
                 else
                 {
@@ -50,31 +50,24 @@ namespace EIR_9209_2.Service
                     ["queryName"] = _endpointConfig.MessageType,
                     ["idsConnectionString"] = _endpointConfig.ConnectionString
                 };
-                if (_endpointConfig.MessageType.Equals("SIPSPscCount", StringComparison.CurrentCultureIgnoreCase))
+                var geoZones = await _geoZones.GetGeoZonebyName("MPE", "SIPS|ADUS|SDUS,MEWS");
+                var geoZonesArray = geoZones as JArray;
+                var rejectBins = geoZonesArray?.Where(gz => gz["properties"]["rejectBins"].ToString() != "").Select(gz => gz["properties"]["rejectBins"]).FirstOrDefault()?.ToString();
+                if (rejectBins != null && rejectBins != "")
                 {
-                    var geoZones = await _geoZones.GetGeoZonebyName("MPE", "SIPS|ADUS|SDUS");
-                    var geoZonesArray = geoZones as JArray;
-                    var rejectBins = geoZonesArray?.Where(gz => gz["properties"]["rejectBins"].ToString() != "").Select(gz => gz["properties"]["rejectBins"]).FirstOrDefault()?.ToString();
-                    if (rejectBins != null && rejectBins != "")
-                    {
-                        var rejectBinNumbers = rejectBins.Split(',').Select(int.Parse);
-                        HashSet<int> uniqueRejectBins = new HashSet<int>(rejectBinList);
+                    var rejectBinNumbers = rejectBins.Split(',').Select(int.Parse);
+                    HashSet<int> uniqueRejectBins = new HashSet<int>(rejectBinList);
 
-                        foreach (var bin in rejectBinNumbers)
-                        {
-                            if (uniqueRejectBins.Add(bin))
-                            {
-                                rejectBinList.Add(bin);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        rejectBinList.Add(49); // Default value if no rejectBins found
-                    }
-                    data["rejectBins"] = new JArray(rejectBinList);
+                    var newBins = rejectBinNumbers.Where(bin => uniqueRejectBins.Add(bin));
+                    rejectBinList.AddRange(newBins);
                 }
-                JToken result = await _ids.GetOracleIDSData(data);
+                else
+                {
+                    rejectBinList.Add(1); // Default value if no rejectBins found
+                }
+                data["rejectBins"] = new JArray(rejectBinList);
+
+                var (status, result) = await _ids.GetOracleIDSData(data);
                 if (_endpointConfig.LogData)
                 {
                     // Start a new thread to handle the logging
@@ -87,7 +80,7 @@ namespace EIR_9209_2.Service
                 {
                     if (result is JObject resultObject && resultObject.ContainsKey("Error"))
                     {
-                        _logger.LogError($"Error fetching data from IDS{result}");
+                        _logger.LogError("Error fetching data from IDS {Result}", result);
 
                         _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
                         var updateCon = _connection.Update(_endpointConfig).Result;
@@ -98,7 +91,7 @@ namespace EIR_9209_2.Service
                     }
                     else
                     {
-                        _logger.LogInformation($"Fetched data from IDS");
+                        _logger.LogInformation("Fetched data from IDS {@Data}", status?.ToString());
 
                         _endpointConfig.Status = EWorkerServiceState.Idel;
                         var updateCon = _connection.Update(_endpointConfig).Result;
@@ -108,11 +101,11 @@ namespace EIR_9209_2.Service
                         }
                         await ProcessIDSdata(result, stoppingToken);
                     }
-               
+
                 }
                 else
                 {
-                    _logger.LogError($"Error fetching data from IDS{result}");                   
+                    _logger.LogError("Error fetching data from IDS {Result}", result);
                 }
             }
 
@@ -131,7 +124,7 @@ namespace EIR_9209_2.Service
 
         private async Task ProcessIDSdata(JToken result, CancellationToken stoppingToken)
         {
-           await _geoZones.ProcessIDSData(result, stoppingToken);
+            await _geoZones.ProcessIDSData(result, stoppingToken);
         }
         private int GetJulianDateDay(DateTime datadayTime)
         {

@@ -4,6 +4,9 @@ using EIR_9209_2.Models;
 
 namespace EIR_9209_2.Service
 {
+    /// <summary>
+    /// Service for handling QRE endpoint operations.
+    /// </summary>
     public class QREEndPointServices : BaseEndpointService
     {
         private readonly IInMemoryGeoZonesRepository _zones;
@@ -11,8 +14,22 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryEmployeesRepository _emp;
         private readonly IInMemorySiteInfoRepository _siteInfo;
         private readonly IInMemoryEmployeesSchedule _schedules;
-
-        public QREEndPointServices(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryGeoZonesRepository zones, IInMemoryTagsRepository tags, IInMemoryEmployeesRepository emp, IInMemoryEmployeesSchedule schedule, IInMemorySiteInfoRepository siteInfo)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QREEndPointServices"/> class.
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="httpClientFactory"></param>
+        /// <param name="endpointConfig"></param>
+        /// <param name="configuration"></param>
+        /// <param name="hubContext"></param>
+        /// <param name="connection"></param>
+        /// <param name="loggerService"></param>
+        /// <param name="zones"></param>
+        /// <param name="tags"></param>
+        /// <param name="emp"></param>
+        /// <param name="schedule"></param>
+        /// <param name="siteInfo"></param>
+        public QREEndPointServices(ILogger<QREEndPointServices> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryGeoZonesRepository zones, IInMemoryTagsRepository tags, IInMemoryEmployeesRepository emp, IInMemoryEmployeesSchedule schedule, IInMemorySiteInfoRepository siteInfo)
             : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
             _zones = zones;
@@ -21,7 +38,11 @@ namespace EIR_9209_2.Service
             _schedules = schedule;
             _siteInfo = siteInfo;
         }
-
+        /// <summary>
+        /// Fetches data from the QRE endpoint. 
+        /// </summary>
+        /// <param name="stoppingToken"></param>
+        /// <returns></returns>
         protected override async Task FetchDataFromEndpoint(CancellationToken stoppingToken)
         {
             try
@@ -307,8 +328,13 @@ namespace EIR_9209_2.Service
                         {
                             for (int i = 0; i < reportList.Count; i++)
                             {
+                                if (stoppingToken.IsCancellationRequested)
+                                {
+                                    return;
+                                }
                                 try
                                 {
+
                                     var report = reportList[i];
                                     List<ReportContentItems> reportContentItems = await queryService.DownloadReportDwellTime(report.ResourceId, stoppingToken).ConfigureAwait(false);
 

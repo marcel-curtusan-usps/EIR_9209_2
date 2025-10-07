@@ -152,6 +152,18 @@
         "Name": "LCTSPscCount",
         "Description": "IDS Pieces Count for LCTS",
         "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+      },
+      {
+        "Id": "156f605e-497b-48e9-a0b3-327027d43094",
+        "Name": "EquipStatus",
+        "Description": "IDS Equipment Connection Status",
+        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+      },
+      {
+        "Id": "2b394591-970c-4c70-9a2a-a1d96e4dc8fa",
+        "Name": "SDUSPscCount",
+        "Description": "SDUS and ADUS",
+        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
       }
     ]
   },

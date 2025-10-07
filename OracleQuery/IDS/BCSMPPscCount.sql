@@ -1,0 +1,76 @@
+-- Update: 02/23/2024 CIOSS Sorted excludes 'ParsUaa'
+SELECT
+    MPE_NAME,
+    HR
+    ||':00'                                               AS HOUR,
+    CASE
+        WHEN MPE_NAME LIKE 'CIOSS%' THEN
+            NVL(SORTED, 0)
+        ELSE
+            NVL(SORTED, 0)+NVL(CONFIRMEDUAA, 0)
+    END                                                   AS SORTED,
+    NVL(REJECTED, 0)                                      AS REJECTED,
+    NVL(SORTED, 0)+NVL(REJECTED, 0)+NVL(CONFIRMEDUAA, 0) AS INDUCTED
+FROM
+    (
+        SELECT
+            S.MPE_NAME,
+            S.HR,
+            S.RESULT,
+            SUM(S.COUNT) AS TOTAL
+        FROM
+            (
+                SELECT /*+ PARALLEL(B, 16)*/
+                    L.MPE_NAME,
+                    CASE
+                        WHEN B.SORTDECISION IN( 'Bcs11', 'Bcs9', 'Bcs5', 'Pics11', 'Pics9', 'Pics5', 'Ocr11Ad', 'Ocr9Ad', 'Ocr5Ad', 'FsuResultNotAvail', 'FsuWaste', 'Certified') THEN
+                            'Sorted'
+                        WHEN B.SORTDECISION IN('ParsUaa') THEN
+                            'ConfirmedUAA'
+                        ELSE
+                            'Rejected'
+                    END                                     AS RESULT,
+                    TO_CHAR(B.DATA_DATE, 'yyyy-mm-dd hh24') AS HR,
+                    COUNT(*)                                AS COUNT
+                FROM
+                    DCSDBA.BCSMP    B,
+                    DCSDBA.MPE_LIST L
+                WHERE
+                    B.MPE_ID IN (
+                        SELECT
+                            MPE_ID
+                        FROM
+                            DCSDBA.MPE_LIST
+                        WHERE
+                            MPE_TYPE IN ('DBCS', 'CIOSS', 'DIOSS')
+                    )
+                    AND B.DATA_DAY in (:DATADAYLIST)
+                    AND B.MPE_ID = L.MPE_ID
+                GROUP BY
+                    L.MPE_NAME,
+                    CASE
+                        WHEN B.SORTDECISION IN( 'Bcs11', 'Bcs9', 'Bcs5', 'Pics11', 'Pics9', 'Pics5', 'Ocr11Ad', 'Ocr9Ad', 'Ocr5Ad', 'FsuResultNotAvail', 'FsuWaste', 'Certified') THEN
+                            'Sorted'
+                        WHEN B.SORTDECISION IN('ParsUaa') THEN
+                            'ConfirmedUAA'
+                        ELSE
+                            'Rejected'
+                    END,
+                    TO_CHAR(B.DATA_DATE, 'yyyy-mm-dd hh24')
+                ORDER BY
+                    HR
+            )S
+        GROUP BY
+            MPE_NAME,
+            HR,
+            RESULT
+        ORDER BY
+            MPE_NAME,
+            HR,
+            RESULT
+    ) PIVOT ( MIN(TOTAL) FOR (RESULT) IN ('Sorted' AS SORTED,
+    'Rejected' AS REJECTED,
+    'ConfirmedUAA' AS CONFIRMEDUAA) )
+ORDER BY
+    MPE_NAME,
+    HOUR

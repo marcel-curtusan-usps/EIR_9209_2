@@ -411,9 +411,9 @@ connection.on("updateMPEzoneTartgets", async (data) => {
         }
     }
 });
-connection.on("updateMPEzoneRunPerformance", async (data) => {
+connection.on("updatempezonerunperformance", async (data) => {
 
-    await findMpeZoneLeafletIds(data.zoneId)
+    await findMpeZoneLeafletIds(data.id)
         .then(leafletIds => {
             geoZoneMPE._layers[leafletIds].feature.properties.mpeRunPerformance = data;
             geoZoneMPE._layers[leafletIds].setStyle({
@@ -425,7 +425,7 @@ connection.on("updateMPEzoneRunPerformance", async (data) => {
             });
             // Check if the sidebar with ID 'home' is open
             if ($('#home').hasClass('active')) {
-                if ($('div[id=machine_div]').attr("data-id") === data.zoneId) {
+                if ($('div[id=machine_div]').attr("data-id") === data.id) {
                     Promise.all([loadMachineData(geoZoneMPE._layers[leafletIds].feature.properties, MPETable)]);
                 }
             }
