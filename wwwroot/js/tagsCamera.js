@@ -1,4 +1,4 @@
-﻿$('#Camera_Modal').on('hidden.bs.modal', async function() {
+﻿$('#Camera_Modal').on('hidden.bs.modal', async function () {
   $(this).find('input[type=text],textarea,select').css({ 'border-color': '#D3D3D3' }).val('').prop('disabled', false).end().find('input[type=radio]').prop('disabled', false).prop('checked', false).change().end().find('span[class=text-info]').css('border-color', '#FF0000').val('').text('').end().find('input[type=checkbox]').prop('checked', false).change().end();
 
   //stop the startTimer when closing the modal
@@ -9,7 +9,7 @@
   //   return console.error(err.toString());
   // });
 });
-$('#Camera_Modal').on('shown.bs.modal', async function() {
+$('#Camera_Modal').on('shown.bs.modal', async function () {
   await addGroupToList('CamerasStill');
   // connection.invoke('JoinGroup', 'CamerasStill').catch(function(err) {
   //   return console.error(err.toString());
@@ -32,7 +32,7 @@ let defaultTime = 90;
 let count = 0;
 let timer;
 function startTimer() {
-  timer = setInterval(function() {
+  timer = setInterval(function () {
     let newcount = count * 1 - 1;
     count = newcount;
     $('#counter').html(count);
@@ -42,14 +42,14 @@ function startTimer() {
       $('#timeOutView').show();
       $('div[id=Camera_Modal]').attr('data-id', '0');
       $('div[id=camera_modalbody]').empty();
-      connection.invoke('LeaveGroup', 'CamerasStill').catch(function(err) {
+      connection.invoke('LeaveGroup', 'CamerasStill').catch(function (err) {
         return console.error(err.toString());
       });
     }
   }, 1000);
 }
 let markerCameras = new L.GeoJSON(null, {
-  pointToLayer: function(feature, latlng) {
+  pointToLayer: function (feature, latlng) {
     if (feature.properties.cameraDirection) {
       //camera cone for markers with a cameraDirection set
       let icon = L.divIcon({
@@ -79,9 +79,9 @@ let markerCameras = new L.GeoJSON(null, {
       });
     }
   },
-  onEachFeature: function(feature, layer) {
+  onEachFeature: function (feature, layer) {
     layer.markerId = feature.properties.id;
-    layer.on('click', function(e) {
+    layer.on('click', function (e) {
       $('#timeOutView').hide();
       $('#countDownView').show();
       clearInterval(timer);
@@ -100,7 +100,7 @@ let markerCameras = new L.GeoJSON(null, {
       })
       .openTooltip();
   },
-  filter: function(feature, layer) {
+  filter: function (feature, layer) {
     return feature.properties.visible;
   }
 });
@@ -112,7 +112,7 @@ markerCameras.addTo(overlayCameraLayer);
 // add to the map and layers control
 async function findCameraLeafletIds(markerId) {
   return new Promise((resolve, reject) => {
-    markerCameras.eachLayer(function(layer) {
+    markerCameras.eachLayer(function (layer) {
       if (layer.markerId === markerId) {
         resolve(layer._leaflet_id);
         return false;
@@ -123,13 +123,13 @@ async function findCameraLeafletIds(markerId) {
 }
 async function init_tagsCamera() {
   try {
-    if (!/PMCCUser$/.test(appData.User)) {
+    if (!/PMCCUser$/ig.test(appData.User)) {
       //loading connections
       await fetch('../api/Camera')
         .then(response => response.json())
         .then(data => {
           if (data.length > 0) {
-            data.forEach(function(item) {
+            data.forEach(function (item) {
               if (item.properties.visible) {
                 addCameraFeature(item);
               }
@@ -140,9 +140,9 @@ async function init_tagsCamera() {
           console.info('Error:', error);
         });
       //load cameras
-      $(document).on('change', '.leaflet-control-layers-selector', async function() {
+      $(document).on('change', '.leaflet-control-layers-selector', async function () {
         let sp = this.nextElementSibling.innerHTML.trim();
-        if (/^Cameras$/gi.test(sp)) {
+        if (/^Cameras$/ig.test(sp)) {
           await handleGroupChange(this.checked, sp);
         }
       });
@@ -171,7 +171,7 @@ async function deleteCameraFeature(data) {
 }
 async function addCameraFeature(data) {
   try {
-    await findCameraLeafletIds(data.properties.id).then(leafletIds => {}).catch(error => {
+    await findCameraLeafletIds(data.properties.id).then(leafletIds => { }).catch(error => {
       markerCameras.addData(data);
     });
   } catch (e) {

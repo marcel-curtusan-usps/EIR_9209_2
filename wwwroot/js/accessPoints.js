@@ -110,7 +110,7 @@ async function init_accessPoints() {
 
     $(document).on('change', '.leaflet-control-layers-selector', function() {
       let sp = this.nextElementSibling;
-      if (/^(AP)$/gi.test(sp.innerHTML.trim())) {
+      if (/^(AP)$/ig.test(sp.innerHTML.trim())) {
         if (this.checked) {
           connection.invoke('JoinGroup', 'AP').catch(function(err) {
             return console.error(err.toString());
@@ -188,18 +188,18 @@ async function UpdateAPposition(leafletId, lat, lag) {
 }
 function getmarkerType(type) {
   try {
-    if (/^supervisor/gi.test(type)) {
+    if (/^supervisor/ig.test(type)) {
       return 'persontag_supervisor ';
-    } else if (/^maintenance/gi.test(type)) {
+    } else if (/^maintenance/ig.test(type)) {
       return 'persontag_maintenance ';
-    } else if (/^(LABORER CUSTODIAL|CUSTODIAN|CUTODIAN|Custodian|Custodian)/gi.test(type)) {
+    } else if (/^(LABORER CUSTODIAL|CUSTODIAN|CUTODIAN|Custodian|Custodian)/ig.test(type)) {
       return 'persontag_custodial ';
-    } else if (/inplantsupport/gi.test(type)) {
+    } else if (/inplantsupport/ig.test(type)) {
       //else if (/pse/ig.test(type)) {
       //    return 'persontag_pse ';
       //}
       return 'persontag_inplantsupport ';
-    } else if (/^(clerk|mailhandler|mha|mail|pse)/gi.test(type)) {
+    } else if (/^(clerk|mailhandler|mha|mail|pse)/ig.test(type)) {
       return 'persontag ';
     } else if (type.length === 0) {
       return 'persontag_unknown ';

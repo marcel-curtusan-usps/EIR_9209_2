@@ -72,7 +72,7 @@ async function init_tagsAGV() {
     createAGVDataTable('vehicleInfoTable');
     $(document).on('change', '.leaflet-control-layers-selector', async function() {
       let sp = this.nextElementSibling;
-      if (/^AGV Vehicles/gi.test(sp.innerHTML.trim())) {
+      if (/^AGV Vehicles/ig.test(sp.innerHTML.trim())) {
         if (this.checked) {
           await addGroupToList('AutonomousVehicle');
         } else {
@@ -165,7 +165,7 @@ async function loadAgvTagData(tagdata) {
       $('button[id=vehicleInfoTable]').css('display', 'block');
       $('button[id="vehicleinfoedit"]').attr('data-id', tagdata.id);
     }
-    if (/tagedit/gi.test(this.name)) {
+    if (/tagedit/ig.test(this.name)) {
       Promise.all([tagEditInfo(rowData.tagid)]);
     }
     let dataArray = [];

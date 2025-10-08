@@ -64,7 +64,7 @@ async function init_geoZoneKiosk(floorId) {
     });
     $(document).on('change', '.leaflet-control-layers-selector', function(_e) {
       let sp = this.nextElementSibling;
-      if (/^(Kiosk Zones)$/gi.test(sp.innerHTML.trim())) {
+      if (/^(Kiosk Zones)$/ig.test(sp.innerHTML.trim())) {
         if (this.checked) {
           connection.invoke('JoinGroup', 'Kiosk').catch(function(err) {
             return console.error(err.toString());

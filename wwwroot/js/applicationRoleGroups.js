@@ -194,7 +194,7 @@ function createAppRoleGroupsDataTable(table) {
     let td = $(this);
     let table = $(td).closest('table');
     let row = $(table).DataTable().row(td.closest('tr'));
-    if (/editappsetting/gi.test(this.name)) {
+    if (/editappsetting/ig.test(this.name)) {
       Edit_AppRoleGroupsValue(row.data());
     }
   });

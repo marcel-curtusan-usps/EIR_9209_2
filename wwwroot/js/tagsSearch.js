@@ -165,10 +165,10 @@ async function createTagSearchDataTable(table) {
     let table = $(td).closest('table');
     let row = $(table).DataTable().row(td.closest('tr'));
     let rowData = row.data();
-    if (/tagedit/gi.test(this.name)) {
+    if (/tagedit/ig.test(this.name)) {
       Promise.all([tagEditInfo(rowData.tagid)]);
     }
-    if (/tagnav/gi.test(this.name)) {
+    if (/tagnav/ig.test(this.name)) {
       Promise.all([moveToTagLocation(rowData.tagid)]);
     }
   });

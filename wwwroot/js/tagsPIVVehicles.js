@@ -85,7 +85,7 @@ async function init_tagsPIV() {
 
     $(document).on('change', '.leaflet-control-layers-selector', async function() {
       let sp = this.nextElementSibling;
-      if (/^PIV Vehicles$/gi.test(sp.innerHTML.trim())) {
+      if (/^PIV Vehicles$/ig.test(sp.innerHTML.trim())) {
         if (this.checked) {
           await addGroupToList('PIVVehicle');
         } else {

@@ -344,9 +344,9 @@ function VaildateEstComplete(estComplet, type) {
       //return est.toFormat("yyyy-MM-dd HH:mm:ss");
       return est.toFormat('HH:mm MM/dd');
     } else {
-      if (/Plan/gi.test(type)) {
+      if (/Plan/ig.test(type)) {
         return type + ' Not Available';
-      } else if (/Actual/gi.test(type)) {
+      } else if (/Actual/ig.test(type)) {
         return type + ' Not Available';
       } else {
         return 'Not Available';

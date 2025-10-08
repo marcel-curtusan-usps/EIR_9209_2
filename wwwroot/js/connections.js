@@ -1139,10 +1139,10 @@ function createConnectionDataTable(table) {
     let td = $(this);
     let table = $(td).closest('table');
     let row = $(table).DataTable().row(td.closest('tr'));
-    if (/connectionedit/gi.test(this.name)) {
+    if (/connectionedit/ig.test(this.name)) {
       sidebar.close();
       Promise.all([Edit_Connection(row.data())]);
-    } else if (/connectiondelete/gi.test(this.name)) {
+    } else if (/connectiondelete/ig.test(this.name)) {
       sidebar.close();
       Promise.all([Remove_Connection(row.data())]);
     }

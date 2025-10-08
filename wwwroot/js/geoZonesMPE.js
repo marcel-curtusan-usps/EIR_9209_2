@@ -322,7 +322,7 @@ async function init_geoZoneMPE(floorId) {
     });
     $(document).on("change", ".leaflet-control-layers-selector", async function (_e) {
       let sp = this.nextElementSibling.innerHTML.trim();
-      if (/^(MPE Zones)$/gi.test(sp)) {
+      if (/^(MPE Zones)$/ig.test(sp)) {
               await handleGroupChange(this.checked, sp);
       }
     });

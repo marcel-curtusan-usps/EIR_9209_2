@@ -238,7 +238,7 @@ async function init_geoZoneBin() {
     });
     $(document).on('change', '.leaflet-control-layers-selector', function(e) {
       let sp = this.nextElementSibling;
-      if (/^(Bin Zones)/gi.test(sp.innerHTML.trim())) {
+      if (/^(Bin Zones)/ig.test(sp.innerHTML.trim())) {
         if (this.checked) {
           connection.invoke('JoinGroup', 'Bin').catch(function(err) {
             return console.error(err.toString());

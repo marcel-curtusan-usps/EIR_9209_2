@@ -71,7 +71,7 @@ async function init_geoZoneArea(floorId) {
     });
     $(document).on('change', '.leaflet-control-layers-selector', function(e) {
       let sp = this.nextElementSibling;
-      if (/^(Area Zones)$/gi.test(sp.innerHTML.trim())) {
+      if (/^(Area Zones)$/ig.test(sp.innerHTML.trim())) {
         if (this.checked) {
           connection.invoke('JoinGroup', 'Area').catch(function(err) {
             return console.error(err.toString());

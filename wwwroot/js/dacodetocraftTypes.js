@@ -132,10 +132,10 @@ async function createDacodetocrafttypeDataTable(table) {
         let table = $(td).closest('table');
         let row = $(table).DataTable().row(td.closest('tr'));
         //let rowData = row.data();
-        if (/editdacodetocrafttype/gi.test(this.name)) {
+        if (/editdacodetocrafttype/ig.test(this.name)) {
           Promise.all([Edit_Dacodetocrafttype(row.data())]);
         }
-        if (/deletedacodetocrafttype/gi.test(this.name)) {
+        if (/deletedacodetocrafttype/ig.test(this.name)) {
           //Delete_Dacodetocrafttype(row.data());
           Promise.all([Delete_Dacodetocrafttype(row.data())]);
         }

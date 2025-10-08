@@ -324,10 +324,10 @@ function createOslDataTable(table) {
     let td = $(this);
     let table = $(td).closest('table');
     let row = $(table).DataTable().row(td.closest('tr'));
-    if (/oslDelete/gi.test(this.name)) {
+    if (/oslDelete/ig.test(this.name)) {
       Remove_OSL(row.data());
     }
-    if (/oslEdit/gi.test(this.name)) {
+    if (/oslEdit/ig.test(this.name)) {
       Edit_OSL(row.data());
     }
   });

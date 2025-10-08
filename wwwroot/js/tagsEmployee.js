@@ -20,7 +20,7 @@ $('#UserTag_Modal').on('shown.bs.modal', function() {
     } else {
       $('#error_tagType_select').text('');
 
-      if (/Badge/gi.test($(this).val())) {
+      if (/Badge/ig.test($(this).val())) {
         //display the person form
         $('#personform').css('display', 'block');
       } else {
@@ -134,7 +134,7 @@ async function init_tags() {
 
     $(document).on('change', '.leaflet-control-layers-selector', function() {
       let sp = this.nextElementSibling;
-      if (/^badges$/gi.test(sp.innerHTML.trim())) {
+      if (/^badges$/ig.test(sp.innerHTML.trim())) {
         if (this.checked) {
           connection.invoke('JoinGroup', 'Badge').catch(function(err) {
             return console.error(err.toString());
@@ -207,19 +207,19 @@ async function positionUpdate(leafletId, lat, lag) {
 }
 function getBadgeMarkerType(type) {
   try {
-    if (/^supervisor/gi.test(type)) {
+    if (/^supervisor/ig.test(type)) {
       return 'bi-star-fill text-warning h6 ';
-    } else if (/^maintenance/gi.test(type)) {
+    } else if (/^maintenance/ig.test(type)) {
       return 'bi-suit-diamond-fill text-success h6 ';
-    } else if (/^(LABORER CUSTODIAL|CUSTODIAN|CUTODIAN|Custodian|Custodian)/gi.test(type)) {
+    } else if (/^(LABORER CUSTODIAL|CUSTODIAN|CUTODIAN|Custodian|Custodian)/ig.test(type)) {
       return 'bi-shield-fill-plus text-purple h6';
-    } else if (/inplantsupport/gi.test(type)) {
+    } else if (/inplantsupport/ig.test(type)) {
       return 'bi-person-fill-gear text-success h6 ';
-    } else if (/^(clerk|mailhandler|mha|mail|pse)/gi.test(type)) {
+    } else if (/^(clerk|mailhandler|mha|mail|pse)/ig.test(type)) {
       return 'bi-circle-fill text-primary h6 ';
-    } else if (/^(BLE)$/gi.test(type)) {
+    } else if (/^(BLE)$/ig.test(type)) {
       return 'bi-hexagon-fill h6 ';
-    } else if (/^(WifiDevice)$/gi.test(type)) {
+    } else if (/^(WifiDevice)$/ig.test(type)) {
       return 'bi-compass-fill text-info h6 ';
     } else if (type.length === 0) {
       return 'bi-pentagon-fill text-secondary h6  ';
@@ -432,7 +432,7 @@ function formattagdata(result) {
         KEY_NAME: '',
         VALUE: ''
       };
-      if (/^(Admin|Maintenance|OIE)/i.test(appData.Role) && !$.isPlainObject(result[key]) && /^(empFirstName|empLastName)/gi.test(key)) {
+      if (/^(Admin|Maintenance|OIE)/i.test(appData.Role) && !$.isPlainObject(result[key]) && /^(empFirstName|empLastName)/ig.test(key)) {
         switch (key) {
           case 'empFirstName':
             temp['INDEX'] = 0;
@@ -449,7 +449,7 @@ function formattagdata(result) {
         reformatdata.push(temp);
       }
 
-      if (!$.isPlainObject(result[key]) && /^(id|ein|encodedID|craftName|tourNumber|daysOff|floorId|posAge|locationMovementStatus|payLocation|title|designationActivity)/gi.test(key)) {
+      if (!$.isPlainObject(result[key]) && /^(id|ein|encodedID|craftName|tourNumber|daysOff|floorId|posAge|locationMovementStatus|payLocation|title|designationActivity)/ig.test(key)) {
         switch (key) {
           case 'craftName':
             temp['INDEX'] = 2;
@@ -523,7 +523,7 @@ async function EditUserInfo(properties) {
   // Close the sidebar
   sidebar.close();
   // Populate the input fields with the feature properties
-  if (/Badge/gi.test(properties.type)) {
+  if (/Badge/ig.test(properties.type)) {
     $('#personform').css('display', 'block');
   }
   $('input[id=employeeEIN]').val(properties.eIN);
@@ -534,7 +534,7 @@ async function EditUserInfo(properties) {
   $('input[id=tagDACode]').val(properties.designationActivity);
   $('input[id=tag_name]').val(properties.name);
   $('select[id=tagType_select]').val(properties.type);
-  if (!/^(Clerk|Supervisor|Maintenance|Mail Handler|Custodial)$/gi.test(properties.craftName)) {
+  if (!/^(Clerk|Supervisor|Maintenance|Mail Handler|Custodial)$/ig.test(properties.craftName)) {
     $('select[id=tagCraftName_select]').val('');
   } else {
     $('select[id=tagCraftName_select]').val(capitalize_Words(properties.craftName));
@@ -555,7 +555,7 @@ async function EditUserInfo(properties) {
       updatedProperties.name = $('input[name=tag_name]').val();
       updatedProperties.type = $('select[name=tagType_select] option:selected').val();
 
-      if (/Badge/gi.test($('select[id=tagType_select]').val())) {
+      if (/Badge/ig.test($('select[id=tagType_select]').val())) {
         updatedProperties.ein = $('input[name=employeeEIN]').val();
         updatedProperties.empFirstName = $('input[name=empFirstName]').val();
         updatedProperties.empLastName = $('input[name=empLastName]').val();

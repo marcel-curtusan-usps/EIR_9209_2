@@ -75,7 +75,7 @@ async function init_geoZoneCube(floorId) {
     });
     $(document).on('change', '.leaflet-control-layers-selector', function(e) {
       let sp = this.nextElementSibling;
-      if (/^(Cube Zones)$/gi.test(sp.innerHTML.trim())) {
+      if (/^(Cube Zones)$/ig.test(sp.innerHTML.trim())) {
         if (this.checked) {
           connection.invoke('JoinGroup', 'Cube').catch(function(err) {
             return console.error(err.toString());

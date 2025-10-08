@@ -72,7 +72,7 @@ async function init_geoZoneAGV() {
     });
     $(document).on('change', '.leaflet-control-layers-selector', function(e) {
       let sp = this.nextElementSibling;
-      if (/^(AGV Location)/gi.test(sp.innerHTML.trim())) {
+      if (/^(AGV Location)/ig.test(sp.innerHTML.trim())) {
         if (this.checked) {
           connection.invoke('JoinGroup', 'AGVLocation').catch(function(err) {
             return console.error(err.toString());

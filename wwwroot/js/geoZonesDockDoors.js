@@ -182,7 +182,7 @@ async function init_geoZoneDockDoor(floorId) {
 
     $(document).on('change', '.leaflet-control-layers-selector', function(e) {
       let sp = this.nextElementSibling;
-      if (/^(Dock Door)/gi.test(sp.innerHTML.trim())) {
+      if (/^(Dock Door)/ig.test(sp.innerHTML.trim())) {
         if (this.checked) {
           connection.invoke('JoinGroup', 'DockDoor').catch(function(err) {
             return console.error(err.toString());

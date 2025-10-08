@@ -180,13 +180,13 @@ async function createConnectiontypeDataTable(table) {
       let table = $(td).closest('table');
       let row = $(table).DataTable().row(td.closest('tr'));
       let rowData = row.data();
-      if (/editconnectiontype/gi.test(this.name)) {
+      if (/editconnectiontype/ig.test(this.name)) {
         Promise.all([Edit_Connectiontype(row.data())]);
       }
-      if (/deleteconnectiontype/gi.test(this.name)) {
+      if (/deleteconnectiontype/ig.test(this.name)) {
         Promise.all([Delete_Connectiontype(row.data())]);
       }
-      if (/addconnectionsubtype/gi.test(this.name)) {
+      if (/addconnectionsubtype/ig.test(this.name)) {
         Promise.all([Add_ConnectionSubtype(rowData)]);
       }
     });
@@ -398,10 +398,10 @@ async function createConnectiontypeSubtable(parentid, table, row_data) {
       let table = $(td).closest('table');
       let row = $(table).DataTable().row(td.closest('tr'));
       let parentid = $(this).data('id');
-      if (/editconnectionsubtype/gi.test(this.name)) {
+      if (/editconnectionsubtype/ig.test(this.name)) {
         Promise.all([Edit_ConnectionSubtype(row.data(), parentid)]);
       }
-      if (/deleteconnectionsubtype/gi.test(this.name)) {
+      if (/deleteconnectionsubtype/ig.test(this.name)) {
         Promise.all([Delete_ConnectionSubtype(row.data(), parentid)]);
       }
     });
