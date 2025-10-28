@@ -322,23 +322,23 @@
 							<span id="error_tokenclientId" class="text-danger"></span>
 						</div>
 					</div>
-						<div class="row mb-3" id="webHookmenu" style="display: none">
-							<div class="form-group col-12" id="divwebhookurl">
-								<label for="webhookUrl" class="control-label">Webhook URL</label>
-								<input id="webhookUrl" type="text" class="form-control" name="webhookUrl" />
-								<span id="error_webhookUrl" class="text-danger"></span>
-							</div>
-							<div class="form-group col-4">
-								<label for="webhookusername" class="control-label">UserName</label>
-								<input id="webhookusername" type="text" class="form-control" name="webhookusername" />
-								<span id="error_webhookusername" class="text-danger"></span>
-							</div>
-							<div class="form-group col-4">
-								<label for="webhookpassword" class="control-label">Password</label>
-								<input id="webhookpassword" type="text" class="form-control" name="webhookpassword" />
-								<span id="error_webhookpassword" class="text-danger"></span>
-							</div>
+					<div class="row mb-3" id="webHookmenu" style="display: none">
+						<div class="form-group col-12" id="divwebhookurl">
+							<label for="webhookUrl" class="control-label">Webhook URL</label>
+							<input id="webhookUrl" type="text" class="form-control" name="webhookUrl" />
+							<span id="error_webhookUrl" class="text-danger"></span>
 						</div>
+						<div class="form-group col-4">
+							<label for="webhookusername" class="control-label">UserName</label>
+							<input id="webhookusername" type="text" class="form-control" name="webhookusername" />
+							<span id="error_webhookusername" class="text-danger"></span>
+						</div>
+						<div class="form-group col-4">
+							<label for="webhookpassword" class="control-label">Password</label>
+							<input id="webhookpassword" type="text" class="form-control" name="webhookpassword" />
+							<span id="error_webhookpassword" class="text-danger"></span>
+						</div>
+					</div>
 					<div class="row hours_range_row" style="display: none">
 						<div class="col-6">
 							<div class="d-flex justify-content-center my-2">
@@ -1458,37 +1458,35 @@
 							<span id="error_machine_zone_name" class="text-danger"></span>
 						</div>
 						<div id="machine_manual_row" style="display:none">
-							<div class="row">
-								<div class="form-group col-md-4">
-									<label for="machine_name" class="control-label">Name</label>
-									<input id="machine_name" type="text" class="form-control" name="machine_name" />
-									<span id="error_machine_name" class="text-danger"></span>
-								</div>
-								<div class="form-group col-sm-4">
-									<label for="machine_number" class="control-label">Number</label>
-									<input id="machine_number" type="text" class="form-control" name="machine_number" />
-									<span id="error_machine_number" class="text-danger"></span>
-								</div>
-							</div>
 							<div class="form-group col-md-4">
-								<label for="mpe_group_select" class="control-label">Group</label>
-								<select id="mpe_group_select" title="Select Group Name" class="form-control pb-1"
-									name="mpe_group_select">
-								</select>
+								<label for="machine_name" class="control-label">Name</label>
+								<input id="machine_name" type="text" class="form-control" name="machine_name" />
+								<span id="error_machine_name" class="text-danger"></span>
 							</div>
-							<div id="mpegroupname_div" class="form-group col-md-4">
-								<label for="mpegroupname" class="control-label">Enter New Group Name</label>
-								<input id="mpegroupname" title="New Group Name" type="text" class="form-control"
-									name="mpegroupname" placeholder="Ex. Parcels North" />
-								<span id="error_mpegroupname" class="text-danger"></span>
+							<div class="form-group col-sm-4">
+								<label for="machine_number" class="control-label">Number</label>
+								<input id="machine_number" type="text" class="form-control" name="machine_number" />
+								<span id="error_machine_number" class="text-danger"></span>
 							</div>
 						</div>
-					</div>
-					<div class="row">
 						<div class="form-group col-md-4">
 							<label for="mpeRejectBins" class="control-label">Reject Bins</label>
 							<input id="mpeRejectBins" type="text" class="form-control" name="mpeRejectBins" />
 							<span id="errormpeRejectBins" class="text-danger"></span>
+						</div>
+					</div>
+					<div class="row" style="display: none;">
+						<div class="form-group col-md-4">
+							<label for="mpe_group_select" class="control-label">Group</label>
+							<select id="mpe_group_select" title="Select Group Name" class="form-control pb-1"
+								name="mpe_group_select">
+							</select>
+						</div>
+						<div id="mpegroupname_div" class="form-group col-md-4">
+							<label for="mpegroupname" class="control-label">Enter New Group Name</label>
+							<input id="mpegroupname" title="New Group Name" type="text" class="form-control"
+								name="mpegroupname" placeholder="Ex. Parcels North" />
+							<span id="error_mpegroupname" class="text-danger"></span>
 						</div>
 						<div class="form-group col-sm-2">
 							<label for="zone_ldc" class="control-label">Zone LDC</label>
@@ -1527,7 +1525,7 @@
 							<span id="error_zonePayLocationColor" class="text-danger"></span>
 						</div>
 					</div>
-					<div class="row pb-1">
+					<div class="row pb-1" style="display: none;">
 						<div class="form-group col-sm-8">
 							<label for="mpeExternalUrl" class="control-label">External URL</label>
 							<input id="mpeExternalUrl" type="text" class="form-control" name="mpeExternalUrl" />
@@ -1542,7 +1540,7 @@
 						</div>
 						<div class="card-body pb-0">
 							<div class="table-responsive">
-								<table aria-describedby=""
+								<table aria-describedby="Mpe Standard Operational"
 									class="table table-striped table-sm table-hover mb-0 border-bottom"
 									id="mpestandardtable">
 									<thead class="table-dark">
@@ -1551,60 +1549,6 @@
 								</table>
 							</div>
 						</div>
-						<!--<div id="mpestandard_row_template" class="hidden">
-
-            <div class="row flex">
-                <div class="col-4">
-                    <label class="control-label">Name</label>
-                    <input class="form-control name_txt" id="" type="text" placeholder="Run Name" />
-                </div>
-                <div class="col-2">
-                    <label class="control-label">OPN</label>
-                    <input class="form-control GUID_txt" id="" type="hidden" />
-                    <input class="form-control OPN_txt" id="" type="text" placeholder="000" />
-                </div>
-                <div class="col-2">
-                    <label class="control-label">Start Time</label>
-                    <input class="form-control starttime_txt 24hr_txt" id="" type="text" placeholder="00:00" />
-                </div>
-                <div class="col-2">
-                    <label class="control-label">End Time</label>
-                    <input class="form-control endtime_txt 24hr_txt" id="" type="text" placeholder="00:00" />
-                </div>
-                <div class="col-2">
-                    <label class="control-label">&nbsp;</label>
-                    <input type="button" class="btn btn-outline-danger float-right d-inline mpestandard_btn_delete" style="margin-top: 20px;" id="" value="Delete" />
-                    <input type="button" class="btn btn-outline-success float-right d-inline mpestandard_btn_save" style="margin-top: 20px; margin-right: 10px;" id="" value="Save" />
-                </div>
-            </div>
-            <div class="row flex">
-                <div class="col-2">
-                    <label class="control-label">Setup (min)</label>
-                    <input class="form-control setuptime_txt number_txt" id="" type="text" placeholder="00" />
-                </div>
-                <div class="col-2">
-                    <label class="control-label">Tear Down (min)</label>
-                    <input class="form-control teardowntime_txt number_txt" id="" type="text" placeholder="00" />
-                </div>
-                <div class="col-2">
-                    <label class="control-label">Changeover (min)</label>
-                    <input class="form-control changeovertime_txt number_txt" id="" type="text" placeholder="00" />
-                </div>
-                <div class="col-2">
-                    <label class="control-label">Pcs/Hr</label>
-                    <input class="form-control psc_hr_txt number_txt" id="" type="text" placeholder="00" />
-                </div>
-                <div class="col-2">
-                    <label class="control-label">Staffing Per Hour</label>
-                    <input class="form-control staff_hr_txt number_txt" id="" type="text" placeholder="00" />
-                </div>
-
-
-            </div>
-        </div>
-
-        <div class="form-group" id="mpestandard_div">
-        </div>-->
 					</div>
 					<div class="row" id="mpeTargets_row">
 						<div class="card">

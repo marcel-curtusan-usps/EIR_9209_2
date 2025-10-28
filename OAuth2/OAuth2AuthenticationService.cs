@@ -1,5 +1,6 @@
 ﻿using EIR_9209_2.Service;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Text;
 
 public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDisposable
@@ -7,14 +8,25 @@ public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDispos
     private readonly IHttpClientFactory _httpClient;
     private readonly OAuth2AuthenticationServiceSettings _authSettings;
     private readonly JsonSerializerSettings _jsonSettings;
-    protected readonly ILogger<BaseEndpointService> _logger;
+    /// <summary>
+    /// Logger service used for logging within the OAuth2AuthenticationService.
+    /// </summary>
+    protected readonly ILoggerService _logger;
 
-    private string _accessToken;
+    private string _accessToken = null!;
     private DateTime _refreshTokenUtcTime;
     private bool disposedValue;
     private readonly SemaphoreSlim _semaphore = new(1);
-
-    public OAuth2AuthenticationService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClient, OAuth2AuthenticationServiceSettings oAuth2AuthenticationServiceSettings, JsonSerializerSettings jsonSettings)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="httpClient"></param>
+    /// <param name="oAuth2AuthenticationServiceSettings"></param>
+    /// <param name="jsonSettings"></param> <summary>
+    /// 
+    /// </summary>
+    public OAuth2AuthenticationService(ILoggerService logger, IHttpClientFactory httpClient, OAuth2AuthenticationServiceSettings oAuth2AuthenticationServiceSettings, JsonSerializerSettings jsonSettings)
     {
         _httpClient = httpClient;
         _authSettings = oAuth2AuthenticationServiceSettings;
@@ -22,20 +34,25 @@ public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDispos
         _logger = logger;
 
     }
-
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="ct"></param>
+    /// <returns></returns> <summary>
     public async Task AddAuthHeader(HttpRequestMessage request, CancellationToken ct)
     {
         bool acquiredLock = false;
         try
         {
-            await _semaphore.WaitAsync();
+            await _semaphore.WaitAsync(ct);
             acquiredLock = true;
 
             await AddAuthHeaderCore(request, ct);
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            await _logger.LogData(JToken.FromObject(e.Message), "Error", _authSettings.AuthType, _authSettings.TokenUrl);
         }
         finally
         {
@@ -65,7 +82,7 @@ public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDispos
         }
 
     }
-    private async Task GetAccessTokenAsync(CancellationToken ct)
+    private async Task GetAccessTokenAsync()
     {
         try
         {
@@ -78,29 +95,32 @@ public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDispos
                     { "client_id", _authSettings.ClientId }
         });
 
-            var postResponse = await client.PostAsync(string.Format(_authSettings.TokenUrl,_authSettings.Serever), content);
+            var postResponse = await client.PostAsync(string.Format(_authSettings.TokenUrl, _authSettings.Serever), content);
             postResponse.EnsureSuccessStatusCode();
 
             var responseBody = await postResponse.Content.ReadAsStringAsync();
-            var json = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseBody, _jsonSettings);
+            var json = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseBody, _jsonSettings) ?? throw new InvalidOperationException("Failed to deserialize token response to JSON dictionary.");
             _accessToken = GetJsonKeyValue("access_token", json);
             _refreshTokenUtcTime = DateTime.UtcNow + TimeSpan.FromSeconds(int.Parse(GetJsonKeyValue("expires_in", json))) - TimeSpan.FromSeconds(10);
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            await _logger.LogData(JToken.FromObject(e.Message), "Error", _authSettings.AuthType, _authSettings.TokenUrl);
         }
     }
     private async Task AuthenticateAsync(CancellationToken ct)
     {
         if (DateTime.UtcNow > _refreshTokenUtcTime)
         {
-            await GetAccessTokenAsync(ct);
+            await GetAccessTokenAsync();
         }
-        //todo also refresh
     }
-    private string GetJsonKeyValue(string keyName, Dictionary<string, string> json)
+    private static string GetJsonKeyValue(string keyName, Dictionary<string, string> json)
     {
+        if (json == null)
+        {
+            throw new ArgumentNullException(nameof(json), "JSON dictionary cannot be null");
+        }
         if (!json.ContainsKey(keyName))
         {
             throw new InvalidOperationException($"Token [{keyName}] not found in response");
@@ -112,22 +132,27 @@ public class OAuth2AuthenticationService : IOAuth2AuthenticationService, IDispos
 
         return json[keyName];
     }
+    /// <summary>
+    /// Disposes the resources used by the OAuth2AuthenticationService.
+    /// </summary>
+    /// <param name="disposing"></param>
     protected virtual void Dispose(bool disposing)
     {
         if (!disposedValue)
         {
             if (disposing)
             {
-                // TODO: dispose managed state (managed objects)
+                // Dispose managed state (managed objects)
+                _semaphore.Dispose();
             }
 
-            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-            // TODO: set large fields to null
             disposedValue = true;
             _semaphore.Release();
         }
     }
-
+    /// <summary>
+    /// Disposes the resources used by the OAuth2AuthenticationService.
+    /// </summary>
     public void Dispose()
     {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method

@@ -196,7 +196,7 @@ namespace EIR_9209_2.Controllers
                     targetHourlyData.MpeName = item.MpeName;
                     targetHourlyData.MpeNumber = item.MpeNumber;
                     targetHourlyData.MpeId = $"{item.MpeName}-{item.MpeNumber.ToString().PadLeft(3, '0')}";
-                    targetHourlyData.Id = $"{item.MpeName}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.Hour}";
+                    targetHourlyData.Id = $"{item.MpeName}-{item.MpeNumber.ToString().PadLeft(3, '0')}{item.Hour.ToString().PadLeft(5, '0')}";
                     targetHourlyData.TargetHour = item.Hour.ToString().PadLeft(5, '0');
                     targetHourlyData.HourlyTargetVol = item.TargetVolume;
                     targetHourlyData.HourlyRejectRatePercent = item.TargetReject;

@@ -1300,7 +1300,7 @@ $('.targetTour').off().on('click', function () {
             console.log(fail);
         },
         complete: function (complete) {
-            console.log(complete);
+            //console.log(complete);
         }
     });
     addMPETargets(tourhours.length);           
@@ -1465,7 +1465,7 @@ function createTargetDataTable(table, tour) {
                     // Handle the save button click event
                     $('#targetHoursubmitBtn').off('click').on('click', function () {
                         let jsonObject = {
-                            "id": $('input[id=zone_id]').val(),
+                            "id": mpeName + "-" + mpeNumber.padStart(3, '0') + $('input[name="hourlyTargetVol"]').val(),
                             "mpeName": mpeName,
                             "mpeNumber": mpeNumber,
                             "targetHour": headerText,
@@ -1536,7 +1536,7 @@ function createTargetDataTable(table, tour) {
                             // Handle the save button click event
                             $('#targetHoursubmitBtn').off('click').on('click', function () {
                                 let jsonObject = {
-                                    "id": $('input[id=zone_id]').val(),
+                                    "id": mpeName + "-" + mpeNumber.padStart(3, '0') + $('input[name="hourlyTargetVol"]').val(),
                                     "mpeName": mpeName,
                                     "mpeNumber": mpeNumber,
                                     "targetHour": headerText,

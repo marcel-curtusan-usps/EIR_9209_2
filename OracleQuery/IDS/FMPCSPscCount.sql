@@ -1,129 +1,98 @@
--- Update: Exclude ULX phantom
--- Update: Separate ULX Rejected/Indfail/Missing
-SELECT
-    MPE_NAME,
-    HR
-    ||':00'                                                         AS HOUR,
-    NVL(SORTED, 0)                                                  AS SORTED,
-    NVL(REJECTED, 0)                                                AS REJECTED,
-    NVL(SORTED, 0)+NVL(REJECTED, 0)+NVL(MISSING, 0)+NVL(INDFAIL, 0) AS INDUCTED
-FROM
-    (
-        SELECT
-            S.MPE_NAME,
-            S.HR,
-            S.RESULT,
-            SUM(S.COUNT) AS TOTAL
-        FROM
-            (
-                SELECT
-                    M.MPE_NAME,
-                    CASE M.RESULT
-                        WHEN 'Normal' THEN
-                            REPLACE(M.RESULT, 'Normal', 'Sorted')
-                        WHEN 'Processed' THEN
-                            REPLACE(M.RESULT, 'Processed', 'Sorted')
-                        WHEN 'Missent' THEN
-                            REPLACE(M.RESULT, 'Missent', 'Rejected')
-                        ELSE
-                            M.RESULT -- For all other values, leave unchanged
-                    END        AS RESULT,
-                    M.HR,
-                    M.COUNT
-                FROM
-                    (
-                        SELECT /*+ PARALLEL(F, 8)*/
-                            L.MPE_NAME,
-                            F.RESULT,
-                            TO_CHAR(F.DATA_DATE, 'yyyy-mm-dd hh24') AS HR,
-                            COUNT(*)                                AS COUNT
-                        FROM
-                            DCSDBA.FMPCSMP               F,
-                            DCSDBA.MPE_LIST              L
-                        WHERE
-                            F.MPE_ID IN (
-                                SELECT
-                                    MPE_ID
-                                FROM
-                                    DCSDBA.MPE_LIST
-                                WHERE
-                                    SOFTWARE_VERSION LIKE 'FMPCS%'
-                            )
-                            AND F.DATA_DAY in (:DATADAYLIST)
-                            AND F.MPE_ID = L.MPE_ID
-                        GROUP BY
-                            L.MPE_NAME,
-                            F.RESULT,
-                            TO_CHAR(F.DATA_DATE, 'yyyy-mm-dd hh24')
-                        UNION
-                        ALL
-                        SELECT /*+ PARALLEL(U, 5)*/
-                            L.MPE_NAME,
-                            CASE
-                                WHEN U.PROC_ACTION_REASON = 'Processed' THEN
-                                    'Sorted'
-                                WHEN U.RT_DESTNAME IS NULL THEN
-                                    'IndFail'
-                                WHEN U.ULX_MESSAGE NOT LIKE '%RunoutNum%' THEN
-                                    'Missing'
-                                ELSE
-                                    'Rejected'
-                            END                                     AS Result,
-                            TO_CHAR(U.DATA_DATE, 'yyyy-mm-dd hh24') AS HR,
-                            COUNT(*)
-                        FROM
-                            DCSDBA.UNIT_LOAD_TRANSACTION U,
-                            DCSDBA.MPE_LIST              L
-                        WHERE
-                            U.MPE_ID IN (
-                                SELECT
-                                    MPE_ID
-                                FROM
-                                    DCSDBA.MPE_LIST
-                                WHERE
-                                    SOFTWARE_VERSION LIKE 'FMPCS%'
-                            )
-                            --AND U.DATA_DATE>= TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24
-                            --AND U.DATA_DATE< TRUNC(SYSDATE, 'HH') -(:STARTHOUR-1)/24 +(:ENDHOUR)/24
-                            AND U.DATA_DAY in (:DATADAYLIST)
-                            --AND (
-                            --    (:DATADAYSTART <= :DATADAYEND) AND U.DATA_DAY >= :DATADAYSTART AND U.DATA_DAY <= :DATADAYEND
-                            --    OR
-                            --    (:DATADAYSTART > :DATADAYEND) AND (U.DATA_DAY >= :DATADAYSTART OR U.DATA_DAY <= :DATADAYEND)
-                            --)
-                            AND U.MPE_ID = L.MPE_ID
-                            AND TO_NUMBER(RT_OPERATIONNUM) != 0
-                        GROUP BY
-                            L.MPE_NAME,
-                            CASE
-                                WHEN U.PROC_ACTION_REASON = 'Processed' THEN
-                                    'Sorted'
-                                WHEN U.RT_DESTNAME IS NULL THEN
-                                    'IndFail'
-                                WHEN U.ULX_MESSAGE NOT LIKE '%RunoutNum%' THEN
-                                    'Missing'
-                                ELSE
-                                    'Rejected'
-                            END,
-                            TO_CHAR(U.DATA_DATE, 'yyyy-mm-dd hh24')
-                        ORDER BY
-                            HR
-                    )M                            
-                ORDER BY
-                    M.HR
-            )S
-        GROUP BY
-            MPE_NAME,
-            HR,
-            RESULT
-        ORDER BY
-            MPE_NAME,
-            HR,
-            RESULT
-    ) PIVOT ( MIN(TOTAL) FOR (RESULT) IN ('Sorted' AS SORTED,
-    'Rejected' AS REJECTED,
-    'Missing' AS MISSING,
-    'IndFail' AS INDFAIL) )
-ORDER BY
-    MPE_NAME,
-    HOUR
+-- Simplified: unify FMPCSMP and UNIT_LOAD_TRANSACTION sources,
+-- normalize result labels, aggregate with conditional sums, and compute INDUCTED
+with mpe_hsus as (
+   select mpe_id,
+          mpe_name
+     from dcsdba.mpe_list
+    where regexp_like ( mpe_type,
+                        '^(HSUS|HSTS)' )
+),fm as (
+   select /*+ PARALLEL(f, 8) */ l.mpe_name,
+          to_char(
+             f.data_date,
+             'yyyy-mm-dd hh24'
+          ) as hr,
+          case f.result
+             when 'Normal'    then
+                'Sorted'
+             when 'Processed' then
+                'Sorted'
+             when 'Missent'   then
+                'Rejected'
+             else
+                f.result
+          end as result_label
+     from dcsdba.fmpcsmp f
+     join mpe_hsus l
+   on f.mpe_id = l.mpe_id
+      and regexp_like ( trim(f.data_day),
+                        '^[0-9]+$' )
+      and f.data_day in ( :datadaylist )
+),ulx as (
+   select /*+ PARALLEL(u, 5) */ l.mpe_name,
+          to_char(
+             u.data_date,
+             'yyyy-mm-dd hh24'
+          ) as hr,
+          case
+             when u.proc_action_reason = 'Processed' then
+                'Sorted'
+             else
+                'Rejected'
+          end as result_label
+     from dcsdba.unit_load_transaction u
+     join mpe_hsus l
+   on u.mpe_id = l.mpe_id
+        -- filter by inclusive date range using bind parameters
+      and u.data_day in ( :datadaylist ) -- include the hour of the end date if desired; adjust as needed
+      and regexp_like ( u.rt_operationnum,
+                        '^[0-9]+$' )
+      and to_number(trim(u.rt_operationnum)) != 0
+),all_events as (
+   select *
+     from fm
+   union all
+   select *
+     from ulx
+)
+select mpe_name,
+       hr || ':00' as hour,
+       nvl(
+          sum(
+             case
+                when result_label = 'Sorted' then
+                   1
+                else
+                   0
+             end
+          ),
+          0
+       ) as sorted,
+       nvl(
+          sum(
+             case
+                when result_label = 'Rejected' then
+                   1
+                else
+                   0
+             end
+          ),
+          0
+       ) as rejected,
+       nvl(
+          sum(
+             case
+                when result_label in('Sorted',
+                                     'Rejected',
+                                     'IndFail') then
+                   1
+                else
+                   0
+             end
+          ),
+          0
+       ) as inducted
+  from all_events
+ group by mpe_name,
+          hr
+ order by mpe_name

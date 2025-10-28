@@ -13,8 +13,8 @@
     	<EnableDefaultContentItems>false</EnableDefaultContentItems>
     	<SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-		<AssemblyVersion>2.0.9.98</AssemblyVersion>
-		<FileVersion>2.0.9.98</FileVersion>
+		<AssemblyVersion>2.0.9.99</AssemblyVersion>
+		<FileVersion>2.0.9.99</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

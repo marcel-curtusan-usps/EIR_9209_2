@@ -80,8 +80,7 @@ namespace EIR_9209_2.Service
                 {
                     if (result is JObject resultObject && resultObject.ContainsKey("Error"))
                     {
-                        _logger.LogError("Error fetching data from IDS {Result}", result);
-
+                        await _loggerService.LogData(JToken.FromObject(result), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
                         _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
                         var updateCon = _connection.Update(_endpointConfig).Result;
                         if (updateCon != null)
@@ -91,8 +90,7 @@ namespace EIR_9209_2.Service
                     }
                     else
                     {
-                        _logger.LogInformation("Fetched data from IDS {@Data}", status?.ToString());
-
+                        await _loggerService.LogData(JToken.FromObject(result), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
                         _endpointConfig.Status = EWorkerServiceState.Idel;
                         var updateCon = _connection.Update(_endpointConfig).Result;
                         if (updateCon != null)
@@ -105,13 +103,13 @@ namespace EIR_9209_2.Service
                 }
                 else
                 {
-                    _logger.LogError("Error fetching data from IDS {Result}", result);
+                    await _loggerService.LogData(JToken.FromObject(result), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
                 }
             }
 
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                await _loggerService.LogData(JToken.FromObject(ex.Message), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
                 _endpointConfig.ApiConnected = false;
                 _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
                 var updateCon = _connection.Update(_endpointConfig).Result;

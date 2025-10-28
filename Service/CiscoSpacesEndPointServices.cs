@@ -22,7 +22,7 @@ namespace EIR_9209_2.Service
             {
                 string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
                 IOAuth2AuthenticationService authService;
-                authService = new OAuth2AuthenticationService(_logger, _httpClientFactory, new OAuth2AuthenticationServiceSettings(server,"", "", "", "", _endpointConfig.OutgoingApikey,_endpointConfig.AuthType), jsonSettings);
+                authService = new OAuth2AuthenticationService(_loggerService, _httpClientFactory, new OAuth2AuthenticationServiceSettings(server, "", "", "", "", _endpointConfig.OutgoingApikey, _endpointConfig.AuthType), jsonSettings);
 
                 IQueryService queryService;
                 //process tag data
@@ -30,27 +30,27 @@ namespace EIR_9209_2.Service
                 if (_endpointConfig.MessageType.Equals("CLIENT", StringComparison.CurrentCultureIgnoreCase))
                 {
                     FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType, _endpointConfig.MapId, _endpointConfig.TenantId);
-                    queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
+                    queryService = new QueryService(_loggerService, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                     var result = await queryService.GetCiscoSpacesData(stoppingToken);
 
                     // Process CLIENT data in a separate thread
                     await ProcessClients(result, stoppingToken);
-                 
+
                 }
                 if (_endpointConfig.MessageType.Equals("BLE_TAG", StringComparison.CurrentCultureIgnoreCase))
                 {
                     FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType, _endpointConfig.MapId, _endpointConfig.TenantId);
-                    queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
+                    queryService = new QueryService(_loggerService, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                     var result = await queryService.GetCiscoSpacesData(stoppingToken);
 
                     // Process tag data in a separate thread
                     await ProcessBLE(result, stoppingToken);
-                  
+
                 }
                 if (_endpointConfig.MessageType.Equals("FLOOR", StringComparison.CurrentCultureIgnoreCase))
                 {
                     FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MapId);
-                    queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
+                    queryService = new QueryService(_loggerService, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
 
                     var result = await queryService.GetCiscoSpacesData(stoppingToken);
                     if (((JObject)result).ContainsKey("locationHierarchy"))
@@ -83,7 +83,7 @@ namespace EIR_9209_2.Service
                             var imageResult = await queryService.GetMapImageAsync(imageUrl, stoppingToken);
                             image.Add(imageResult);
                         }
-                       
+
                         if (((JObject)result).ContainsKey("maps"))
                         {
                             var map = result["maps"];
@@ -91,7 +91,7 @@ namespace EIR_9209_2.Service
                             map[0]["id"] = networkId.FirstOrDefault();
                             await ProcessBackground(map[0], stoppingToken);
                         }
-                      
+
                     }
                     if (((JObject)result).ContainsKey("accessPoints"))
                     {
@@ -102,7 +102,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                await _loggerService.LogData(JToken.FromObject(ex.Message), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
                 _endpointConfig.ApiConnected = false;
                 _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
                 var updateCon = _connection.Update(_endpointConfig).Result;
@@ -117,12 +117,15 @@ namespace EIR_9209_2.Service
         {
             try
             {
-                List<BLE_TAG> tags = result.SelectToken("features").ToObject<List<BLE_TAG>>();
+                var featuresToken = result?.SelectToken("features");
+                List<BLE_TAG> tags = featuresToken != null
+                    ? featuresToken.ToObject<List<BLE_TAG>>() ?? new List<BLE_TAG>()
+                    : new List<BLE_TAG>();
                 await _tags.UpdateTagCiscoSpacesClientInfo(tags, stoppingToken);
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error processing QPE tag data");
+                await _loggerService.LogData(JToken.FromObject(e.Message), "Error", "ProcessClients", "");
             }
         }
 
@@ -135,7 +138,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error processing QPE tag data");
+                await _loggerService.LogData(JToken.FromObject(e.Message), "Error", "ProcessBLE", "");
             }
         }
 
@@ -147,7 +150,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error processing QPE tag data");
+                await _loggerService.LogData(JToken.FromObject(e.Message), "Error", "ProcessBackground", "");
             }
         }
 
@@ -155,11 +158,11 @@ namespace EIR_9209_2.Service
         {
             try
             {
-               await _tags.UpdateTagCiscoSpacesAPInfo(jToken, stoppingToken);
+                await _tags.UpdateTagCiscoSpacesAPInfo(jToken, stoppingToken);
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error processing QPE tag data");
+                await _loggerService.LogData(JToken.FromObject(e.Message), "Error", "ProcessAccessPoints", "");
             }
         }
 

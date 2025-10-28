@@ -2,6 +2,7 @@
 using EIR_9209_2.DataStore;
 using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json.Linq;
 
 namespace EIR_9209_2.Service
 {
@@ -26,11 +27,11 @@ namespace EIR_9209_2.Service
                 {
                     string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
                     IOAuth2AuthenticationService authService;
-                    authService = new OAuth2AuthenticationService(_logger, _httpClientFactory, new OAuth2AuthenticationServiceSettings(server, "", _endpointConfig.OAuthUserName, _endpointConfig.OAuthPassword, _endpointConfig.OAuthClientId,"", _endpointConfig.AuthType), jsonSettings);
+                    authService = new OAuth2AuthenticationService(_loggerService, _httpClientFactory, new OAuth2AuthenticationServiceSettings(server, "", _endpointConfig.OAuthUserName, _endpointConfig.OAuthPassword, _endpointConfig.OAuthClientId,"", _endpointConfig.AuthType), jsonSettings);
 
                     IQueryService queryService;
                     string FormatUrl = string.Format(_endpointConfig.Url, server);
-                    queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings,
+                    queryService = new QueryService(_loggerService, _httpClientFactory, authService, jsonSettings,
                         new QueryServiceSettings(new Uri(FormatUrl),
                         new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)
                         ));
@@ -51,7 +52,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                await _loggerService.LogData(JToken.FromObject(ex.Message), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
                 _endpointConfig.ApiConnected = false;
                 _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
                 var updateCon = _connection.Update(_endpointConfig).Result;
@@ -72,7 +73,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                await _loggerService.LogData(JToken.FromObject(e.Message), "Error", "ProcessEmployeeInfoData", _endpointConfig.Url);
             }
         }
     }

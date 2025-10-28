@@ -19,7 +19,11 @@ namespace EIR_9209_2.Service
             _schedules = empSchedules;
 
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stoppingToken"></param>
+        /// <returns></returns>
         protected override async Task FetchDataFromEndpoint(CancellationToken stoppingToken)
         {
             try
@@ -31,7 +35,7 @@ namespace EIR_9209_2.Service
                     var now = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                     string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
                     string FormatUrl = string.Format(_endpointConfig.Url, server, siteinfo.FinanceNumber, now.ToString("yyyyMMdd"));
-                    queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(
+                    queryService = new QueryService(_loggerService, _httpClientFactory, jsonSettings, new QueryServiceSettings(
                         new Uri(FormatUrl),
                         new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)
                     ));
@@ -61,7 +65,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                await _loggerService.LogData(JToken.FromObject(ex.Message), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
                 _endpointConfig.ApiConnected = false;
                 _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
                 var updateCon = _connection.Update(_endpointConfig).Result;
@@ -74,7 +78,7 @@ namespace EIR_9209_2.Service
             {
                 if (_endpointConfig.MessageType == "getEmpSchedule")
                 {
-                  _schedules.RunEmpScheduleReport();
+                    _schedules.RunEmpScheduleReport();
                 }
             }
         }
@@ -89,7 +93,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                await _loggerService.LogData(JToken.FromObject(e.Message), "Error", "ProcessEmployeeInfoData", _endpointConfig.Url);
             }
         }
         private async Task ProcessEmpScheduleData(JToken result, CancellationToken stoppingToken)
@@ -98,12 +102,12 @@ namespace EIR_9209_2.Service
             {
                 if (result is not null && ((JObject)result).ContainsKey("DATA"))
                 {
-                    await Task.Run(() => _schedules.LoadEmpSchedule(result), stoppingToken).ConfigureAwait(false); 
+                    await Task.Run(() => _schedules.LoadEmpSchedule(result), stoppingToken).ConfigureAwait(false);
                 }
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                await _loggerService.LogData(JToken.FromObject(e.Message), "Error", "ProcessEmpScheduleData", _endpointConfig.Url);
             }
         }
 

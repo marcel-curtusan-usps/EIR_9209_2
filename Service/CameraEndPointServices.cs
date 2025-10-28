@@ -36,7 +36,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                await _loggerService.LogData(JToken.FromObject(ex.Message), "Error", _endpointConfig.MessageType, _endpointConfig.Url);
                 _endpointConfig.ApiConnected = false;
                 _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
                 var updateCon = _connection.Update(_endpointConfig).Result;
@@ -53,12 +53,13 @@ namespace EIR_9209_2.Service
             SiteInformation siteinfo = await _siteInfo.GetSiteInfo();
             if (siteinfo == null)
             {
-                _logger.LogWarning("Site information not available for camera list fetch");
+                await _loggerService.LogData(JToken.FromObject("Site information not available for camera list fetch"), "Warning", _endpointConfig.MessageType, _endpointConfig.Url);
                 return;
             }
 
             string FormatUrl = string.Format(_endpointConfig.Url, server, siteinfo.FdbId);
-            var queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
+            var queryService = new QueryService(_loggerService, _httpClientFactory, jsonSettings,
+            new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
 
             var cresult = await queryService.GetCameraData(stoppingToken);
             _endpointConfig.Status = EWorkerServiceState.Idel;
@@ -79,7 +80,7 @@ namespace EIR_9209_2.Service
                 // stop if cancellation requested
                 if (stoppingToken.IsCancellationRequested)
                 {
-                    _logger.LogInformation("Cancellation requested - stopping camera stills fetch loop.");
+                    await _loggerService.LogData(JToken.FromObject("Cancellation requested - stopping camera stills fetch loop."), "Information", _endpointConfig.MessageType, _endpointConfig.Url);
                     break;
                 }
 
@@ -105,24 +106,24 @@ namespace EIR_9209_2.Service
                 }
                 catch (OperationCanceledException oce)
                 {
-                    _logger.LogInformation(oce, "Camera stills fetch cancelled for camera {CameraId}", cameraId);
+                    await _loggerService.LogData(JToken.FromObject("Camera stills fetch cancelled for camera " + cameraId), "Information", _endpointConfig.MessageType, FormatUrl);
                     break; // stop processing further cameras when cancellation requested
                 }
                 catch (HttpRequestException hre)
                 {
                     // network / connection issues - log and continue to next camera
-                    _logger.LogWarning(hre, "HttpRequestException while fetching stills for camera {CameraId} from {Url}", cameraId, FormatUrl);
+                    await _loggerService.LogData(JToken.FromObject(hre.Message), "Warning", _endpointConfig.MessageType, FormatUrl);
                     await _camera.Delete(cameraId);
                 }
                 catch (System.Net.Sockets.SocketException se)
                 {
                     // lower-level socket errors - log and continue
-                    _logger.LogWarning(se, "SocketException while fetching stills for camera {CameraId} from {Url}", cameraId, FormatUrl);
+                    await _loggerService.LogData(JToken.FromObject(se.Message), "Warning", _endpointConfig.MessageType, FormatUrl);
                 }
                 catch (Exception e)
                 {
                     // unexpected errors - log and continue
-                    _logger.LogError(e, "Unexpected error fetching camera stills for camera {CameraId} from {Url}", cameraId, FormatUrl);
+                    await _loggerService.LogData(JToken.FromObject(e.Message), "Error", _endpointConfig.MessageType, FormatUrl);
                 }
             }
         }
@@ -130,7 +131,7 @@ namespace EIR_9209_2.Service
         {
             if (result is null)
             {
-                _logger.LogWarning("ProcessCameraData called with null result");
+                await _loggerService.LogData(JToken.FromObject("ProcessCameraData called with null result"), "Warning", _endpointConfig.MessageType, _endpointConfig.Url);
                 return;
             }
 
@@ -165,15 +166,15 @@ namespace EIR_9209_2.Service
                 }
                 else
                 {
-                    _logger.LogInformation("No camera data to load after processing result");
+                    await _loggerService.LogData(JToken.FromObject("No camera data to load after processing result"), "Information", _endpointConfig.MessageType, _endpointConfig.Url);
                 }
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error processing camera data");
+                await _loggerService.LogData(JToken.FromObject(e.Message), "Error", _endpointConfig.MessageType, _endpointConfig.Url);
             }
         }
-   
+
         public class BICAMCameras
         {
             [JsonProperty("LOCALE_KEY")]

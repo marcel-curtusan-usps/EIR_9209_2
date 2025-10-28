@@ -2,7 +2,7 @@
 using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
-using NuGet.Protocol;
+using Newtonsoft.Json.Linq;
 
 namespace EIR_9209_2.Service
 {
@@ -49,7 +49,7 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.MessageType.Equals("SMSWrapperDBCheck", StringComparison.CurrentCultureIgnoreCase))
                     {
                         FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType, siteinfo.FacilityId);
-                        queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
+                        queryService = new QueryService(_loggerService, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                         _endpointConfig.Status = EWorkerServiceState.Idel;
                         var updateCon = _connection.Update(_endpointConfig).Result;
                         if (updateCon != null)
@@ -62,7 +62,7 @@ namespace EIR_9209_2.Service
                     {
                         FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType, siteinfo.SiteId);
 
-                        queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
+                        queryService = new QueryService(_loggerService, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                         var result = await queryService.GetSMSWrapperData(stoppingToken);
 
                         _endpointConfig.Status = EWorkerServiceState.Idel;
@@ -72,7 +72,7 @@ namespace EIR_9209_2.Service
                             await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
                         }
                         // Start a new thread to handle the logging
-                        _ = Task.Run(() => _loggerService.LogData(JsonConvert.SerializeObject(result, Formatting.Indented).ToJToken(),
+                        _ = Task.Run(() => _loggerService.LogData(JToken.Parse(JsonConvert.SerializeObject(result, Formatting.Indented)),
                              _endpointConfig.MessageType,
                              _endpointConfig.Name,
                              FormatUrl), stoppingToken);
@@ -83,7 +83,7 @@ namespace EIR_9209_2.Service
                     {
                         FormatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType, siteinfo.FacilityId);
 
-                        queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
+                        queryService = new QueryService(_loggerService, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
                         var result = await queryService.GetSMSWrapperData(stoppingToken);
 
                         _endpointConfig.Status = EWorkerServiceState.Idel;
@@ -93,7 +93,7 @@ namespace EIR_9209_2.Service
                             await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
                         }
                         // Start a new thread to handle the logging
-                        _ = Task.Run(() => _loggerService.LogData(JsonConvert.SerializeObject(result, Formatting.Indented).ToJToken(),
+                        _ = Task.Run(() => _loggerService.LogData(JToken.Parse(JsonConvert.SerializeObject(result, Formatting.Indented)),
                              _endpointConfig.MessageType,
                              _endpointConfig.Name,
                              FormatUrl), stoppingToken);
@@ -102,13 +102,13 @@ namespace EIR_9209_2.Service
                     }
                     else
                     {
-                        _logger.LogError("Invalid Message Type: {MessageType}", _endpointConfig.MessageType);
+                        await _loggerService.LogData(JToken.FromObject("Invalid Message Type"), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
                     }
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                await _loggerService.LogData(JToken.FromObject(ex.Message), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
                 _endpointConfig.ApiConnected = false;
                 _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
                 var updateCon = _connection.Update(_endpointConfig).Result;
@@ -131,7 +131,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                await _loggerService.LogData(JToken.FromObject(e.Message), "Error", "ProcessEmployeeListData", _endpointConfig.Url);
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json.Linq;
 
 namespace EIR_9209_2.Service
 {
@@ -63,7 +64,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                await _loggerService.LogData(JToken.FromObject(ex.Message), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
                 _endpointConfig.ApiConnected = false;
                 _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
                 var updateCon = _connection.Update(_endpointConfig).Result;

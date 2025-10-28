@@ -1,6 +1,6 @@
 ﻿using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
-using NuGet.Protocol;
+using Newtonsoft.Json.Linq;
 
 namespace EIR_9209_2.Service
 {
@@ -44,7 +44,7 @@ namespace EIR_9209_2.Service
                 IQueryService queryService;
                 string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
                 string formatUrl = string.Format(_endpointConfig.Url, server, _endpointConfig.MessageType);
-                queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(formatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
+                queryService = new QueryService(_loggerService, _httpClientFactory, jsonSettings, new QueryServiceSettings(new Uri(formatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
 
                 if (_endpointConfig.MessageType.Equals("getTagData", StringComparison.CurrentCultureIgnoreCase))
                 {
@@ -53,7 +53,7 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.LogData)
                     {
                         // Start a new thread to handle the logging
-                        await _loggerService.LogData(result.ToJson(),
+                        await _loggerService.LogData(JToken.FromObject(result),
                             _endpointConfig.MessageType,
                             _endpointConfig.Name,
                             formatUrl);
@@ -73,7 +73,7 @@ namespace EIR_9209_2.Service
                     // Start a new thread to handle the logging
                     if (_endpointConfig.LogData)
                     {
-                        await _loggerService.LogData(result.ToJson(),
+                        await _loggerService.LogData(JToken.FromObject(result),
                         _endpointConfig.MessageType,
                         _endpointConfig.Name,
                         formatUrl);
@@ -89,7 +89,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                await _loggerService.LogData(JToken.FromObject(ex.Message), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
                 _endpointConfig.ApiConnected = false;
                 _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
                 var updateCon = await _connection.Update(_endpointConfig).ConfigureAwait(false);
@@ -109,7 +109,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error processing QPE tag data");
+                await _loggerService.LogData(JToken.FromObject(e.Message), "Error", "ProcessQPEProjectInfo", _endpointConfig.Url);
             }
         }
 
@@ -124,7 +124,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error processing QPE tag data");
+                await _loggerService.LogData(JToken.FromObject(e.Message), "Error", "ProcessQPETagData", _endpointConfig.Url);
             }
         }
     }

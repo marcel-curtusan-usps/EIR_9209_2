@@ -7,7 +7,10 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using EIR_9209_2.QueryServices;
-
+namespace EIR_9209_2.Service;
+/// <summary>
+/// QueryService provides methods to interact with various data endpoints.
+/// </summary>
 internal class QueryService : IQueryService
 {
     private readonly IHttpClientFactory _httpClient;
@@ -16,9 +19,16 @@ internal class QueryService : IQueryService
     private readonly Uri _baseQueryUrlWithPort;
     private readonly Uri _fullUrl;
     private readonly TimeSpan _timeout; // Add Timeout field
-    protected readonly ILogger<BaseEndpointService> _logger;
+    private readonly ILoggerService _logger;
 
-    public QueryService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClient, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
+    /// <summary>
+    /// Initializes a new instance of the QueryService class.
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="httpClient"></param>
+    /// <param name="jsonSettings"></param>
+    /// <param name="settings"></param>
+    public QueryService(ILoggerService logger, IHttpClientFactory httpClient, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
     {
         _logger = logger;
         _httpClient = httpClient;
@@ -26,8 +36,15 @@ internal class QueryService : IQueryService
         _fullUrl = new Uri(settings.FullUrl);
         _timeout = settings.Timeout; // Initialize Timeout field
     }
-
-    public QueryService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClient, IOAuth2AuthenticationService authService, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
+    /// <summary>
+    /// Initializes a new instance of the QueryService class with authentication.
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="httpClient"></param>
+    /// <param name="authService"></param>
+    /// <param name="jsonSettings"></param>
+    /// <param name="settings"></param>
+    public QueryService(ILoggerService logger, IHttpClientFactory httpClient, IOAuth2AuthenticationService authService, JsonSerializerSettings jsonSettings, QueryServiceSettings settings)
     {
         _logger = logger;
         _httpClient = httpClient;
@@ -167,7 +184,7 @@ internal class QueryService : IQueryService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error validating area IDs for dwell time query.");
+            await _logger.LogData(JToken.FromObject("Site information not available for camera list fetch"), "Warning", "", _fullUrl.ToString());
             throw;
         }
     }
@@ -190,7 +207,7 @@ internal class QueryService : IQueryService
                   .WithEvents(eventTypes)
                   .WithWebHookUrl(webhookUrl, webhookUserName, webhookPassword)
                   .Build();
-                  queries.Name = "CF_DwellTimeReport_" + startTime.ToString("yyyyMMdd_HH:mm") + "_" + endTime.ToString("HH:mm");
+            queries.Name = "CF_DwellTimeReport_" + startTime.ToString("yyyyMMdd_HH:mm") + "_" + endTime.ToString("HH:mm");
 
             var queryTasks = await GetPostQueryResults<ReportResponse>(_fullUrl.AbsoluteUri, queries, ct);
 
@@ -199,7 +216,7 @@ internal class QueryService : IQueryService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error validating area IDs for dwell time query.");
+            await _logger.LogData(JToken.FromObject("Site information not available for camera list fetch"), "Warning", "", _fullUrl.ToString());
             throw;
         }
     }
@@ -213,7 +230,7 @@ internal class QueryService : IQueryService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error downloading report dwell time.");
+            await _logger.LogData(JToken.FromObject("Error downloading report dwell time" + ex.Message), "Error", "", _fullUrl.ToString());
             throw;
         }
     }
@@ -280,31 +297,27 @@ internal class QueryService : IQueryService
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogInformation(queryUrl);
-            _logger.LogError(ex.Message);
-            throw new Exception("An error occurred while sending the HTTP request.", ex);
+            await _logger.LogData(JToken.FromObject("Error sending HTTP request: " + ex.Message), "Error", "", _fullUrl.ToString());
+            throw new HttpRequestException("An error occurred while sending the HTTP request.", ex);
         }
         catch (JsonException ex)
         {
-            _logger.LogInformation(queryUrl);
-            _logger.LogError(ex.Message);
-            throw new Exception("An error occurred while deserializing the response body.", ex);
+            await _logger.LogData(JToken.FromObject("Error deserializing response body: " + ex.Message), "Error", "", _fullUrl.ToString());
+            throw new InvalidOperationException("An error occurred while deserializing the response body.", ex);
         }
         catch (TaskCanceledException ex) when (ex.CancellationToken == ct)
         {
-            _logger.LogInformation(queryUrl);
-            _logger.LogError("The request was canceled due to a timeout.");
+            await _logger.LogData(JToken.FromObject("The request was canceled due to a timeout."), "Error", "", _fullUrl.ToString());
             throw new Exception("The request was canceled due to a timeout.", ex);
         }
         catch (OperationCanceledException ex)
         {
-            _logger.LogError(ex.Message);
+            await _logger.LogData(JToken.FromObject(ex.Message), "Error", "", _fullUrl.ToString());
             throw new Exception("An error occurred while connection.", ex);
         }
         catch (Exception e)
         {
-            _logger.LogInformation(queryUrl);
-            _logger.LogError(e.Message);
+            await _logger.LogData(JToken.FromObject(e.Message), "Error", "", _fullUrl.ToString());
             throw new Exception("An error occurred while connection.", e);
         }
     }
@@ -320,9 +333,9 @@ internal class QueryService : IQueryService
             {
                 await _authService.AddAuthHeader(request, ct);
             }
-           // JObject contentbody = JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(query, _jsonSettings));
-           // _logger.LogError(JsonConvert.SerializeObject(query, _jsonSettings));
-           request.Content = new StringContent(JsonConvert.SerializeObject(query, _jsonSettings), Encoding.UTF8, "application/json");
+            // JObject contentbody = JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(query, _jsonSettings));
+            // _logger.LogError(JsonConvert.SerializeObject(query, _jsonSettings));
+            request.Content = new StringContent(JsonConvert.SerializeObject(query, _jsonSettings), Encoding.UTF8, "application/json");
             using var response = await client.SendAsync(request, ct);
 
             response.EnsureSuccessStatusCode();
@@ -334,37 +347,33 @@ internal class QueryService : IQueryService
             }
             else
             {
-                _logger.LogError($"Error Code:{response.StatusCode} for {queryUrl}");
+                await _logger.LogData(JToken.FromObject($"Error Code:{response.StatusCode} for {queryUrl}"), "Error", "", _fullUrl.ToString());
                 throw new Exception($"The response code is {response.StatusCode}.");
             }
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogInformation(queryUrl);
-            _logger.LogError(ex.Message);
+            await _logger.LogData(JToken.FromObject(ex.Message), "Error", "", _fullUrl.ToString());
             throw new Exception("An error occurred while sending the HTTP request.", ex);
         }
         catch (JsonException ex)
         {
-            _logger.LogInformation(queryUrl);
-            _logger.LogError(ex.Message);
+            await _logger.LogData(JToken.FromObject(queryUrl), "Error", ex.Message, _fullUrl.ToString());
             throw new Exception("An error occurred while deserializing the response body.", ex);
         }
         catch (TaskCanceledException ex) when (ex.CancellationToken == ct)
         {
-            _logger.LogInformation(queryUrl);
-            _logger.LogError("The request was canceled due to a timeout.");
+            await _logger.LogData(JToken.FromObject("The request was canceled due to a timeout."), "Error", "", _fullUrl.ToString());
             throw new Exception("The request was canceled due to a timeout.", ex);
         }
         catch (OperationCanceledException ex)
         {
-            _logger.LogError(ex.Message);
+            await _logger.LogData(JToken.FromObject(ex.Message), "Error", "", _fullUrl.ToString());
             throw new Exception("An error occurred while connection.", ex);
         }
         catch (Exception e)
         {
-            _logger.LogInformation(queryUrl);
-            _logger.LogError(e.Message);
+            await _logger.LogData(JToken.FromObject(queryUrl), "Error", e.Message, _fullUrl.ToString());
             throw new Exception("An error occurred while connection.", e);
         }
     }
@@ -397,31 +406,27 @@ internal class QueryService : IQueryService
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogInformation(queryUrl);
-            _logger.LogError(ex.Message);
+            await _logger.LogData(JToken.FromObject(queryUrl), "Error", ex.Message, _fullUrl.ToString());
             throw new Exception("An error occurred while sending the HTTP request.", ex);
         }
         catch (JsonException ex)
         {
-            _logger.LogInformation(queryUrl);
-            _logger.LogError(ex.Message);
+            await _logger.LogData(JToken.FromObject(queryUrl), "Error", ex.Message, _fullUrl.ToString());
             throw new Exception("An error occurred while deserializing the response body.", ex);
         }
         catch (TaskCanceledException ex) when (ex.CancellationToken == ct)
         {
-            _logger.LogInformation(queryUrl);
-            _logger.LogError("The request was canceled due to a timeout.");
+            await _logger.LogData(JToken.FromObject(queryUrl), "Error", "The request was canceled due to a timeout.", _fullUrl.ToString());
             throw new Exception("The request was canceled due to a timeout.", ex);
         }
         catch (OperationCanceledException ex)
         {
-            _logger.LogError(ex.Message);
+            await _logger.LogData(JToken.FromObject(ex.Message), "Error", "", _fullUrl.ToString());
             throw new Exception("An error occurred while connection.", ex);
         }
         catch (Exception e)
         {
-            _logger.LogInformation(queryUrl);
-            _logger.LogError(e.Message);
+            await _logger.LogData(JToken.FromObject(queryUrl), "Error", e.Message, _fullUrl.ToString());
             throw new Exception("An error occurred while connection.", e);
         }
     }

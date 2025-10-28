@@ -1,6 +1,7 @@
 ﻿using EIR_9209_2.DataStore;
 using Microsoft.AspNetCore.SignalR;
 using EIR_9209_2.Models;
+using Newtonsoft.Json.Linq;
 
 namespace EIR_9209_2.Service
 {
@@ -51,7 +52,7 @@ namespace EIR_9209_2.Service
                 {
                     string server = string.IsNullOrEmpty(_endpointConfig.IpAddress) ? _endpointConfig.Hostname : _endpointConfig.IpAddress;
                     IOAuth2AuthenticationService authService;
-                    authService = new OAuth2AuthenticationService(_logger, _httpClientFactory, new OAuth2AuthenticationServiceSettings(server, _endpointConfig.OAuthUrl, _endpointConfig.OAuthUserName, _endpointConfig.OAuthPassword, _endpointConfig.OAuthClientId, _endpointConfig.OutgoingApikey, _endpointConfig.AuthType), jsonSettings);
+                    authService = new OAuth2AuthenticationService(_loggerService, _httpClientFactory, new OAuth2AuthenticationServiceSettings(server, _endpointConfig.OAuthUrl, _endpointConfig.OAuthUserName, _endpointConfig.OAuthPassword, _endpointConfig.OAuthClientId, _endpointConfig.OutgoingApikey, _endpointConfig.AuthType), jsonSettings);
 
                     IQueryService queryService;
                     string FormatUrl = "";
@@ -59,7 +60,7 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.MessageType.Equals("TAG_AGGREGATION", StringComparison.CurrentCultureIgnoreCase))
                     {
                         FormatUrl = string.Format(_endpointConfig.Url, server);
-                        queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
+                        queryService = new QueryService(_loggerService, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
 
                         var now = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                         var endingHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
@@ -85,16 +86,18 @@ namespace EIR_9209_2.Service
                                 {
                                     var currentvalue = _zones.GetAreaDwell(hour);
 
-                                    _logger.LogInformation("Calling GetTotalDwellTime with parameters: hour={Hour}, nextHour={NextHour}, MinTimeOnArea={MinTimeOnArea}, TimeStep={TimeStep}, ActivationTime={ActivationTime}, DeactivationTime={DeactivationTime}, DisappearTime={DisappearTime}, allAreaIds.Count={AllAreaIdsCount}, areasBatchCount={AreasBatchCount}",
-                                        hour, hour.AddHours(1), MinTimeOnArea, TimeStep, ActivationTime, DeactivationTime, DisappearTime, allAreaIds == null ? -1 : allAreaIds.Count, areasBatchCount);
-                                    if (allAreaIds == null)
-                                    {
-                                        _logger.LogWarning("allAreaIds is null before calling GetTotalDwellTime for hour {Hour}", hour);
-                                    }
-                                    else if (allAreaIds.Count == 0)
-                                    {
-                                        _logger.LogWarning("allAreaIds is empty before calling GetTotalDwellTime for hour {Hour}", hour);
-                                    }
+                                    // _logger.LogInformation("Calling GetTotalDwellTime with parameters: hour={Hour}, nextHour={NextHour}, MinTimeOnArea={MinTimeOnArea}, TimeStep={TimeStep}, ActivationTime={ActivationTime}, DeactivationTime={DeactivationTime}, DisappearTime={DisappearTime}, allAreaIds.Count={AllAreaIdsCount}, areasBatchCount={AreasBatchCount}",
+                                    //     hour, hour.AddHours(1), MinTimeOnArea, TimeStep, ActivationTime, DeactivationTime, DisappearTime, allAreaIds == null ? -1 : allAreaIds.Count, areasBatchCount);
+
+                                    //     _loggerService.LogData(JToken.FromObject($"Calling GetTotalDwellTime with parameters: hour={hour}, nextHour={hour.AddHours(1)}, MinTimeOnArea={MinTimeOnArea}, TimeStep={TimeStep}, ActivationTime={ActivationTime}, DeactivationTime={DeactivationTime}, DisappearTime={DisappearTime}, allAreaIds.Count={allAreaIds == null ? -1 : allAreaIds.Count}, areasBatchCount={areasBatchCount}"), "Info", "FetchDataFromEndpoint", FormatUrl);
+                                    // if (allAreaIds == null)
+                                    // {
+                                    //     _logger.LogWarning("allAreaIds is null before calling GetTotalDwellTime for hour {Hour}", hour);
+                                    // }
+                                    // else if (allAreaIds.Count == 0)
+                                    // {
+                                    //     _logger.LogWarning("allAreaIds is empty before calling GetTotalDwellTime for hour {Hour}", hour);
+                                    // }
 
                                     newValue = await queryService.GetTotalDwellTime(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
                                              TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
@@ -103,7 +106,7 @@ namespace EIR_9209_2.Service
 
                                     if (newValue == null)
                                     {
-                                        _logger.LogWarning("GetTotalDwellTime returned null for hour {Hour}. Skipping logging and UpdateAreaDwell.", hour);
+                                       // _logger.LogWarning("GetTotalDwellTime returned null for hour {Hour}. Skipping logging and UpdateAreaDwell.", hour);
                                         continue;
                                     }
 
@@ -120,16 +123,16 @@ namespace EIR_9209_2.Service
                             }
                             else
                             {
-                                _logger.LogInformation("Calling GetTotalDwellTime with parameters: hour={Hour}, nextHour={NextHour}, MinTimeOnArea={MinTimeOnArea}, TimeStep={TimeStep}, ActivationTime={ActivationTime}, DeactivationTime={DeactivationTime}, DisappearTime={DisappearTime}, allAreaIds.Count={AllAreaIdsCount}, areasBatchCount={AreasBatchCount}",
-                                    hour, hour.AddHours(1), MinTimeOnArea, TimeStep, ActivationTime, DeactivationTime, DisappearTime, allAreaIds == null ? -1 : allAreaIds.Count, areasBatchCount);
-                                if (allAreaIds == null)
-                                {
-                                    _logger.LogWarning("allAreaIds is null before calling GetTotalDwellTime for hour {Hour}", hour);
-                                }
-                                else if (allAreaIds.Count == 0)
-                                {
-                                    _logger.LogWarning("allAreaIds is empty before calling GetTotalDwellTime for hour {Hour}", hour);
-                                }
+                                // _logger.LogInformation("Calling GetTotalDwellTime with parameters: hour={Hour}, nextHour={NextHour}, MinTimeOnArea={MinTimeOnArea}, TimeStep={TimeStep}, ActivationTime={ActivationTime}, DeactivationTime={DeactivationTime}, DisappearTime={DisappearTime}, allAreaIds.Count={AllAreaIdsCount}, areasBatchCount={AreasBatchCount}",
+                                //     hour, hour.AddHours(1), MinTimeOnArea, TimeStep, ActivationTime, DeactivationTime, DisappearTime, allAreaIds == null ? -1 : allAreaIds.Count, areasBatchCount);
+                                // if (allAreaIds == null)
+                                // {
+                                //     _logger.LogWarning("allAreaIds is null before calling GetTotalDwellTime for hour {Hour}", hour);
+                                // }
+                                // else if (allAreaIds.Count == 0)
+                                // {
+                                //     _logger.LogWarning("allAreaIds is empty before calling GetTotalDwellTime for hour {Hour}", hour);
+                                // }
 
                                 newValue = await queryService.GetTotalDwellTime(hour, hour.AddHours(1), TimeSpan.FromSeconds(MinTimeOnArea),
                                           TimeSpan.FromSeconds(TimeStep), TimeSpan.FromSeconds(ActivationTime),
@@ -138,7 +141,7 @@ namespace EIR_9209_2.Service
 
                                 if (newValue == null)
                                 {
-                                    _logger.LogWarning("GetTotalDwellTime returned null for hour {Hour}. Skipping logging and AddAreaDwell.", hour);
+                                    //_logger.LogWarning("GetTotalDwellTime returned null for hour {Hour}. Skipping logging and AddAreaDwell.", hour);
                                     continue;
                                 }
 
@@ -166,7 +169,7 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.MessageType.Equals("TAG_TIMELINE", StringComparison.CurrentCultureIgnoreCase))
                     {
                         FormatUrl = string.Format(_endpointConfig.Url, server);
-                        queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
+                        queryService = new QueryService(_loggerService, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
 
                         var now = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                         var endingHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
@@ -238,7 +241,7 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.MessageType.Equals("Report_Generation", StringComparison.CurrentCultureIgnoreCase))
                     {
                         FormatUrl = string.Format(_endpointConfig.Url, server);
-                        queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
+                        queryService = new QueryService(_loggerService, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
 
                         var now = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                         var endingHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Local);
@@ -277,7 +280,7 @@ namespace EIR_9209_2.Service
                                     }
                                     if (reportResponse == null)
                                     {
-                                        _logger.LogWarning("GetTotalDwellTime returned null for hour {Hour}. Skipping logging and UpdateAreaDwell.", hour);
+                                       await _loggerService.LogData(JToken.FromObject($"GetTotalDwellTime returned null for hour {hour}. Skipping logging and UpdateAreaDwell."), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
                                         continue;
                                     }
                                     reportResponse.DateTimeRequestFor = hour;
@@ -304,7 +307,7 @@ namespace EIR_9209_2.Service
                                 }
                                 if (reportResponse == null)
                                 {
-                                    _logger.LogWarning("GetTotalDwellTime returned null for hour {Hour}. Skipping logging and UpdateAreaDwell.", hour);
+                                    await _loggerService.LogData(JToken.FromObject($"GetTotalDwellTime returned null for hour {hour}. Skipping logging and UpdateAreaDwell."), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
                                     continue;
                                 }
                                 reportResponse.DateTimeRequestFor = hour;
@@ -319,7 +322,7 @@ namespace EIR_9209_2.Service
                     if (_endpointConfig.MessageType.Equals("Report_Content", StringComparison.CurrentCultureIgnoreCase))
                     {
                         FormatUrl = BuildUrl(_endpointConfig.Url, new Dictionary<string, string> { { "ServerIpOrHostName", server } });
-                        queryService = new QueryService(_logger, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
+                        queryService = new QueryService(_loggerService, _httpClientFactory, authService, jsonSettings, new QueryServiceSettings(new Uri(FormatUrl), new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)));
 
 
                         var allReports = await _zones.GetReportList(stoppingToken).ConfigureAwait(false);
@@ -348,7 +351,7 @@ namespace EIR_9209_2.Service
                                     }
                                     if (reportContentItems == null)
                                     {
-                                        _logger.LogWarning("No data found for TotalDwellTime report with ResourceId {ResourceId}. Skipping logging and UpdateAreaDwell.", report.ResourceId);
+                                        await _loggerService.LogData(JToken.FromObject($"No data found for TotalDwellTime report with ResourceId {report.ResourceId}. Skipping logging and UpdateAreaDwell."), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
                                         continue;
                                     }
 
@@ -367,12 +370,14 @@ namespace EIR_9209_2.Service
                 }
                 else
                 {
-                    _logger.LogWarning("OAuthUrl is not set for endpoint {EndpointId}. Skipping data fetch.", _endpointConfig.Id);
+                    _loggerService.LogData(JToken.FromObject($"OAuthUrl is not set for endpoint {_endpointConfig.Id}. Skipping data fetch."), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
+                    _endpointConfig.ApiConnected = false;
+                    _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                await _loggerService.LogData(JToken.FromObject(ex.Message), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
                 _endpointConfig.ApiConnected = false;
                 _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
                 var updateCon = _connection.Update(_endpointConfig).Result;

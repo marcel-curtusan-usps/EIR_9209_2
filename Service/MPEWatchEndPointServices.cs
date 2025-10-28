@@ -50,7 +50,7 @@ namespace EIR_9209_2.Service
                 if (MpeWatchId == 0)
                 {
                     string url = string.Format(_endpointConfig.OAuthUrl, server, "", "", start_time, end_time);
-                    queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(
+                    queryService = new QueryService(_loggerService, _httpClientFactory, jsonSettings, new QueryServiceSettings(
                         new Uri(url),
                         new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)
                     ));
@@ -66,7 +66,7 @@ namespace EIR_9209_2.Service
 
                 string FormatUrl = string.Format(_endpointConfig.Url, server, MpeWatchId, _endpointConfig.MessageType, start_time, end_time);
 
-                queryService = new QueryService(_logger, _httpClientFactory, jsonSettings, new QueryServiceSettings(
+                queryService = new QueryService(_loggerService, _httpClientFactory, jsonSettings, new QueryServiceSettings(
                         new Uri(FormatUrl),
                         new TimeSpan(0, 0, 0, 0, _endpointConfig.MillisecondsTimeout)
                     ));
@@ -132,7 +132,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching data from {Url}", _endpointConfig.Url);
+                await _loggerService.LogData(JToken.FromObject(ex.Message), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
                 _endpointConfig.ApiConnected = false;
                 _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
                 var updateCon = _connection.Update(_endpointConfig).Result;
@@ -157,7 +157,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                await _loggerService.LogData(JToken.FromObject(e.Message), "Error", "ProcessMPEWatchRpgPlanData", _endpointConfig.Url);
             }
         }
         private async Task ProcessMPEWatchDPSRunData(JToken result, CancellationToken stoppingToken)
@@ -175,7 +175,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                await _loggerService.LogData(JToken.FromObject(e.Message), "Error", "ProcessMPEWatchRpgPlanData", _endpointConfig.Url);
             }
         }
 
@@ -205,7 +205,7 @@ namespace EIR_9209_2.Service
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                await _loggerService.LogData(JToken.FromObject(e.Message), "Error", "ProcessMPEWatchRunPerfData", _endpointConfig.Url);
             }
         }
         public class MPEWatchRunPerformance

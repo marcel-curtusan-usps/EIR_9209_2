@@ -1,4 +1,6 @@
-﻿public interface IFilePathProvider
+﻿
+
+public interface IFilePathProvider
 {
     Task<string> GetConfigurationDirectory();
     Task<string> GetLogDirectory();

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
 namespace EIR_9209_2.Service
@@ -9,7 +10,6 @@ namespace EIR_9209_2.Service
     /// </summary>
     public abstract class BaseEndpointService : IDisposable
     {
-        protected readonly ILogger<BaseEndpointService> _logger;
         protected readonly IHttpClientFactory _httpClientFactory;
         protected readonly IConfiguration _configuration;
         protected readonly IHubContext<HubServices> _hubContext;
@@ -22,7 +22,6 @@ namespace EIR_9209_2.Service
 
         protected BaseEndpointService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService)
         {
-            _logger = logger;
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _hubContext = hubContext;
@@ -151,9 +150,9 @@ namespace EIR_9209_2.Service
                     //await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, CancellationToken.None).ConfigureAwait(false);
                 }
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                _logger.LogInformation("Stopping data collection for {Url}", _endpointConfig.Url);
+                await _loggerService.LogData(new JObject { ["message"] = $"Stopping data collection for {_endpointConfig.Url}" }, "Error", ex.Message, _endpointConfig.Url);
                 _endpointConfig.Status = EWorkerServiceState.Stopped;
                 _endpointConfig.ApiConnected = false;
                 // Notify clients about the stopped status without terminating the connection
