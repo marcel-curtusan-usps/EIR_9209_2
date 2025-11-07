@@ -27,7 +27,7 @@ with mpe_hsus as (
    on f.mpe_id = l.mpe_id
       and regexp_like ( trim(f.data_day),
                         '^[0-9]+$' )
-      and f.data_day in ( :datadaylist )
+      and f.data_day in ( :DATADAYLIST )
 ),ulx as (
    select /*+ PARALLEL(u, 5) */ l.mpe_name,
           to_char(
@@ -44,7 +44,7 @@ with mpe_hsus as (
      join mpe_hsus l
    on u.mpe_id = l.mpe_id
         -- filter by inclusive date range using bind parameters
-      and u.data_day in ( :datadaylist ) -- include the hour of the end date if desired; adjust as needed
+      and u.data_day in ( :DATADAYLIST ) -- include the hour of the end date if desired; adjust as needed
       and regexp_like ( u.rt_operationnum,
                         '^[0-9]+$' )
       and to_number(trim(u.rt_operationnum)) != 0
