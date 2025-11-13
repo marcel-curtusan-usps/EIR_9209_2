@@ -1411,30 +1411,29 @@
 			</div>
 		</div>
 	</div>
-	<div class="modal fade" id="Zone_Modal" tabindex="-1" role="dialog" data-backdrop="static"
-		aria-labelledby="Zone_Modal_Label" aria-hidden="true">
-		<div class="modal-dialog modal-xl" role="document">
+	<div class="modal fade" id="Zone_Modal" tabindex="-1" data-backdrop="static" aria-labelledby="Zone_Modal_Label"
+		aria-hidden="true">
+		<div class="modal-dialog modal-lg">
 			<div class="modal-content bg-white">
 				<div class="modal-header">
 					<div class="col-11">
-						<h4 class="modal-title" id="modalZoneHeader_ID"><span aria-hidden="true"></span></h4>
+						<h4 class="modal-title" id="modalZoneHeader_ID"><span aria-hidden="true">*</span></h4>
 					</div>
 					<button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
 					<div class="row">
-						<div class="form-group col-md-4">
+						<div class="form-group col-6">
 							<label for="zone_id" class="control-label">Zone ID</label>
 							<input id="zone_id" type="text" class="form-control" name="zone_id"
 								disabled="disabled" /><span id="error_zone_id" class="text-danger"></span>
 						</div>
-						<div class="form-group col-md-4">
+						<div class="form-group col-3">
 							<label for="machine_ip" class="control-label">IP Address</label>
 							<input id="machine_ip" type="text" class="form-control" name="machine_ip"
 								disabled="disabled" /><span id="error_machine_ip" class="text-danger"></span>
-
 						</div>
-						<div class="form-group col-md-4">
+						<div class="form-group col-3">
 							<label for="zone_Type" class="control-label">Zone Type</label>
 							<select id="zone_Type" title="Zone Type" class="form-control" name="zone_Type">
 								<option value="">None</option>
@@ -1449,7 +1448,7 @@
 						</div>
 					</div>
 					<div class="row">
-						<div class="form-group col-md-4" id="machine_select_row">
+						<div class="form-group col-md-4 d-none" id="machine_select_row">
 							<label for="machine_zone_select_name" class="control-label">Name</label>
 							<select id="machine_zone_select_name" title="Zone Select Name" class="form-control"
 								name="machine_zone_select_name">
@@ -1457,22 +1456,29 @@
 							</select>
 							<span id="error_machine_zone_name" class="text-danger"></span>
 						</div>
-						<div id="machine_manual_row" style="display:none">
-							<div class="form-group col-md-4">
+						<div class="col-6 d-flex d-none" id="machine_manual_row" >
+							<div class="col-6">
 								<label for="machine_name" class="control-label">Name</label>
-								<input id="machine_name" type="text" class="form-control" name="machine_name" />
+								<input id="machine_name" type="text" class="form-control is-valid" name="machine_name"
+									data-error-id="error_machine_name" style="border-color: rgb(46, 184, 46);">
 								<span id="error_machine_name" class="text-danger"></span>
 							</div>
-							<div class="form-group col-sm-4">
+							<div class="col-6 ml-2">
 								<label for="machine_number" class="control-label">Number</label>
-								<input id="machine_number" type="text" class="form-control" name="machine_number" />
+								<input id="machine_number" type="text" class="form-control is-valid" name="machine_number"
+									data-error-id="error_machine_number" style="border-color: rgb(46, 184, 46);">
 								<span id="error_machine_number" class="text-danger"></span>
 							</div>
 						</div>
-						<div class="form-group col-md-4">
+						<div class="form-group col-md-2">
 							<label for="mpeRejectBins" class="control-label">Reject Bins</label>
 							<input id="mpeRejectBins" type="text" class="form-control" name="mpeRejectBins" />
 							<span id="errormpeRejectBins" class="text-danger"></span>
+						</div>
+						<div class="form-group col-md-2">
+							<label for="mpeReworkBins" class="control-label">Rework Bins</label>
+							<input id="mpeReworkBins" type="text" class="form-control" name="mpeReworkBins" />
+							<span id="errormpeReworkBins" class="text-danger"></span>
 						</div>
 					</div>
 					<div class="row" style="display: none;">
@@ -1525,66 +1531,69 @@
 							<span id="error_zonePayLocationColor" class="text-danger"></span>
 						</div>
 					</div>
-					<div class="row pb-1" style="display: none;">
+					<div class="row" style="display: none;">
 						<div class="form-group col-sm-8">
 							<label for="mpeExternalUrl" class="control-label">External URL</label>
 							<input id="mpeExternalUrl" type="text" class="form-control" name="mpeExternalUrl" />
 							<span id="errormpeExternalUrl" class="text-danger"></span>
 						</div>
 					</div>
-					<div class="row" id="mpeStandards_row" style="padding: 15px; display: none;">
-						<div class="form-group col-12">
-							<h4 id="mpestandard_h2" class="d-inline">MPE Standard </h4>
-							<input type="button" class="btn btn-outline-success float-right d-inline"
-								id="mpestandard_btn" value="Add" />
-						</div>
-						<div class="card-body pb-0">
-							<div class="table-responsive">
-								<table aria-describedby="Mpe Standard Operational"
-									class="table table-striped table-sm table-hover mb-0 border-bottom"
-									id="mpestandardtable">
-									<thead class="table-dark">
-									</thead>
-									<tbody></tbody>
-								</table>
+					<div class="row mt-2 d-none" id="mpeStandards_row">
+						<div class="card d-flex">
+							<div class="card-header">
+								<h4 id=" mpestandard_h2" class="d-inline">MPE Standard </h4>
+								<button type="button" class="btn btn-sm btn-outline-success float-right d-inline"
+									id="mpestandard_btn" title="Add MPE Standard"> Add </button>
 							</div>
-						</div>
-					</div>
-					<div class="row" id="mpeTargets_row">
-						<div class="card">
-							<div class="form-group col-12">
-								<h4 id="mpestandard_h2" class="d-inline">MPE Hourly Targets </h4>
-							</div>
-							<div class="card-body pb-2">
+							<div class="card-body pb-0">
 								<div class="table-responsive">
-									<table aria-describedby=""
-										class="table table-striped table-sm table-hover mb-0 border-bottom w-auto"
-										id="mpetargettable1">
-										<thead class="table-dark">
-										</thead>
+									<table aria-describedby="Mpe Standard Operational" class="table table-striped table-sm table-hover mb-0 border-bottom" id="mpestandardtable">
+										<thead class="table-dark"></thead>
 										<tbody></tbody>
 									</table>
 								</div>
 							</div>
-							<div class="card-body pb-2">
+						</div>
+					</div>
+					<div class="row mt-1" id="mpeTargets_row">
+						<div class="card d-flex">
+							<div class="card-header">
+								<h4 id="mpetarget_h2" class="d-inline">MPE Hourly Targets </h4>
+							</div>
+
+							<div class="card-body pb-0">
 								<div class="table-responsive">
-									<table aria-describedby=""
+									<table aria-describedby="mpetargettable1"
 										class="table table-striped table-sm table-hover mb-0 border-bottom w-auto"
-										id="mpetargettable2">
+										id="mpetargettable1">
 										<thead class="table-dark">
 										</thead>
-										<tbody></tbody>
+										<tbody>
+										</tbody>
 									</table>
 								</div>
 							</div>
 							<div class="card-body pb-0">
 								<div class="table-responsive">
-									<table aria-describedby=""
+									<table aria-describedby="mpetargettable2"
+										class="table table-striped table-sm table-hover mb-0 border-bottom w-auto"
+										id="mpetargettable2">
+										<thead class="table-dark">
+										</thead>
+										<tbody>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="card-body pb-0">
+								<div class="table-responsive">
+									<table aria-describedby="mpetargettable3"
 										class="table table-striped table-sm table-hover mb-0 border-bottom w-auto"
 										id="mpetargettable3">
 										<thead class="table-dark">
 										</thead>
-										<tbody></tbody>
+										<tbody>
+										</tbody>
 									</table>
 								</div>
 							</div>
@@ -1601,14 +1610,12 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="DockDoorZone_Modal" tabindex="-1" role="dialog" data-backdrop="static"
+	<div class="modal fade" id="DockDoorZone_Modal" tabindex="-1" data-backdrop="static"
 		aria-labelledby="Zone_Modal_Label">
-		<div class="modal-dialog modal-xl">
+		<div class="modal-dialog modal-lg">
 			<div class="modal-content bg-white">
 				<div class="modal-header">
-					<div class="col-11">
-						<h4 class="modal-title" id="modalDockDoorZoneHeader_ID"><span aria-hidden="true"></span></h4>
-					</div>
+					<h4 class="modal-title" id="modalDockDoorZoneHeader_ID"><span aria-hidden="true">*</span></h4>
 					<button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">

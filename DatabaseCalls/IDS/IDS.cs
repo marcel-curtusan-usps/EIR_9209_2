@@ -144,7 +144,8 @@ namespace EIR_9209_2.DatabaseCalls.IDS
                 await connection.OpenAsync();
                 using var command = connection.CreateCommand();
                 command.CommandText = queryText;
-                command.BindByName = false;
+                // Use named binds so we can add OracleParameter instances instead of text-replacing
+                command.BindByName = true;
 
                 // Build parameters from SQL parameter names and request data
                 foreach (var pname in parameters)
@@ -159,19 +160,66 @@ namespace EIR_9209_2.DatabaseCalls.IDS
                                 parametersUsed[property.Key] = property.Value ?? JValue.CreateNull();
                             }
 
-                            if (property.Value != null && property.Value.Type == JTokenType.Array && property.Value is JArray array && array.All(item => item.Type == JTokenType.Integer))
+                            // For arrays, convert to comma-separated string and bind as Varchar2
+                            if (property.Value != null && property.Value.Type == JTokenType.Array && property.Value is JArray arr)
                             {
-                                string intArrayString = string.Join(",", array.Select(item => item.ToString()));
-                                command.CommandText = queryText = queryText.Replace($":{property.Key.ToUpper()}", intArrayString);
+                                string csv = string.Join(",", arr.Select(item => item.ToString()));
+                                var paramName = NormalizeKey(property.Key);
+                                var oracleParam = new OracleParameter(paramName, OracleDbType.Varchar2)
+                                {
+                                    Direction = ParameterDirection.Input,
+                                    Value = csv
+                                };
+                                // If parameter already exists, replace it
+                                if (command.Parameters.Contains(paramName)) command.Parameters.Remove(paramName);
+                                command.Parameters.Add(oracleParam);
                             }
                             else if (property.Value != null && property.Value.Type == JTokenType.String)
                             {
-                                command.CommandText = queryText = queryText.Replace($":{property.Key.ToUpper()}", property.Value.ToString());
+                                var paramName = NormalizeKey(property.Key);
+                                var oracleParam = new OracleParameter(paramName, OracleDbType.Varchar2)
+                                {
+                                    Direction = ParameterDirection.Input,
+                                    Value = property.Value.ToString()
+                                };
+                                if (command.Parameters.Contains(paramName)) command.Parameters.Remove(paramName);
+                                command.Parameters.Add(oracleParam);
                             }
                             else if (property.Value != null && (property.Value.Type == JTokenType.Integer || property.Value.Type == JTokenType.Float || property.Value.Type == JTokenType.Boolean))
                             {
-                                // inline simple scalar types
-                                command.CommandText = queryText = queryText.Replace($":{property.Key.ToUpper()}", property.Value.ToString());
+                                var paramName = NormalizeKey(property.Key);
+                                OracleParameter oracleParam;
+                                if (property.Value.Type == JTokenType.Integer)
+                                {
+                                    // Bind integers as Int32
+                                    oracleParam = new OracleParameter(paramName, OracleDbType.Int32)
+                                    {
+                                        Direction = ParameterDirection.Input,
+                                        Value = property.Value.ToObject<int>()
+                                    };
+                                }
+                                else if (property.Value.Type == JTokenType.Float)
+                                {
+                                    // Bind floats/decimals as Decimal
+                                    oracleParam = new OracleParameter(paramName, OracleDbType.Decimal)
+                                    {
+                                        Direction = ParameterDirection.Input,
+                                        Value = property.Value.ToObject<decimal>()
+                                    };
+                                }
+                                else // boolean
+                                {
+                                    // Oracle has no BOOLEAN type for SQL parameters; map to Int16 (0/1)
+                                    var boolVal = property.Value.ToObject<bool>() ? (short)1 : (short)0;
+                                    oracleParam = new OracleParameter(paramName, OracleDbType.Int16)
+                                    {
+                                        Direction = ParameterDirection.Input,
+                                        Value = boolVal
+                                    };
+                                }
+
+                                if (command.Parameters.Contains(paramName)) command.Parameters.Remove(paramName);
+                                command.Parameters.Add(oracleParam);
                             }
                         }
                     }

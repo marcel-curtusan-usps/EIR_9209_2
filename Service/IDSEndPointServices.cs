@@ -24,6 +24,7 @@ namespace EIR_9209_2.Service
             {
                 List<int> datadayList = [];
                 List<int> rejectBinList = [];
+                List<int> reworkBinList = [];
                 DateTime currentTime = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                 int datadayStart = 0;
                 if (_endpointConfig.LasttimeApiConnected.Year == 1 || (DateTime.Now - _endpointConfig.LasttimeApiConnected).TotalHours > 24)
@@ -65,8 +66,23 @@ namespace EIR_9209_2.Service
                 {
                     rejectBinList.Add(1); // Default value if no rejectBins found
                 }
+                // reworkBins handled below
                 data["rejectBins"] = new JArray(rejectBinList);
+                var reworkBins = geoZonesArray?.Where(gz => gz["properties"]["reworkBins"].ToString() != "").Select(gz => gz["properties"]["reworkBins"]).FirstOrDefault()?.ToString();
+                if (reworkBins != null && reworkBins != "")
+                {
+                    var reworkBinNumbers = reworkBins.Split(',').Select(int.Parse);
+                    HashSet<int> uniqueReworkBins = new HashSet<int>(reworkBinList);
 
+                    var newBins = reworkBinNumbers.Where(bin => uniqueReworkBins.Add(bin));
+                    reworkBinList.AddRange(newBins);
+                }
+                else
+                {
+                    reworkBinList.Add(1); // Default value if no reworkBins found
+                }
+                data["rejectBins"] = new JArray(rejectBinList);
+                data["reworkBins"] = new JArray(reworkBinList);
                 var (status, result) = await _ids.GetOracleIDSData(data);
                 if (_endpointConfig.LogData)
                 {

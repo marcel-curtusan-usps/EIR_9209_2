@@ -44,7 +44,9 @@ FROM
                         WHERE
                             MPE_TYPE IN ('DBCS', 'CIOSS', 'DIOSS')
                     )
-                    AND B.DATA_DAY in (:DATADAYLIST)
+                    -- Accept a comma-separated bind string in :DATADAYLIST (e.g. '20231101,20231102').
+                    -- Use INSTR to match CSV values to avoid implicit numeric conversion errors (ORA-01722).
+                    AND instr(','||:DATADAYLIST||',', ','||trim(B.DATA_DAY)||',') > 0
                     AND B.MPE_ID = L.MPE_ID
                 GROUP BY
                     L.MPE_NAME,

@@ -1,5 +1,3 @@
--- Simplified: unify FMPCSMP and UNIT_LOAD_TRANSACTION sources,
--- normalize result labels, aggregate with conditional sums, and compute INDUCTED
 with mpe_hsus as (
    select mpe_id,
           mpe_name
@@ -27,7 +25,14 @@ with mpe_hsus as (
    on f.mpe_id = l.mpe_id
       and regexp_like ( trim(f.data_day),
                         '^[0-9]+$' )
-      and f.data_day in ( :DATADAYLIST )
+   and instr(
+   ','
+   || :DATADAYLIST
+   || ',',
+      ','
+      || trim(f.data_day)
+      || ','
+   ) > 0
 ),ulx as (
    select /*+ PARALLEL(u, 5) */ l.mpe_name,
           to_char(
@@ -43,11 +48,16 @@ with mpe_hsus as (
      from dcsdba.unit_load_transaction u
      join mpe_hsus l
    on u.mpe_id = l.mpe_id
-        -- filter by inclusive date range using bind parameters
-      and u.data_day in ( :DATADAYLIST ) -- include the hour of the end date if desired; adjust as needed
-      and regexp_like ( u.rt_operationnum,
+      and regexp_like ( trim(u.data_day),
                         '^[0-9]+$' )
-      and to_number(trim(u.rt_operationnum)) != 0
+   and instr(
+   ','
+   || :DATADAYLIST
+   || ',',
+      ','
+      || trim(u.data_day)
+      || ','
+   ) > 0
 ),all_events as (
    select *
      from fm

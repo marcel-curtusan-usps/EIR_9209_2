@@ -50,198 +50,68 @@ $('#Zone_Modal').on('hidden.bs.modal', function () {
 $('#Zone_Modal').on('shown.bs.modal', function () {
     $('span[id=error_machinesubmitBtn]').text("");
     $('button[id=machinesubmitBtn]').prop('disabled', true);
-    //Request Type Keyup
-    $('input[type=text][name=machine_name]').on("keyup", () => {
-        if (!checkValue($('input[type=text][name=machine_name]').val())) {
-            $('input[type=text][name=machine_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_machine_name]').text("Please Enter Machine Name");
-        }
-        else {
-            $('input[type=text][name=machine_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_machine_name]').text("");
+
+    // helper: set validation state for an element and associated error span
+    function setState(selector, isValid, errorMsg, invalidColor = '#FF0000', validColor = '#2eb82e', neutralColor) {
+        const el = $(selector);
+        const span = $("span[id=" + el.attr('data-error-id') + "]");
+        // if element is disabled, show neutral state and skip validation text
+        if (el.prop('disabled') || el.attr('disabled') === 'disabled') {
+            if (neutralColor) {
+                el.css('border-color', neutralColor).removeClass('is-invalid is-valid');
+            } else {
+                el.css('border-color', '#D3D3D3').removeClass('is-invalid is-valid');
+            }
+            span.text('');
+            return;
         }
 
-        enablezoneSubmit();
-    });
-    //check zone type
-    $('select[name=zone_Type]').on("change", () => {
-        if ($('select[name=zone_Type]').val() === "") {
-            $('select[name=zone_Type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_zone_Type]').text("Pleas select a Zone");
+        if (isValid) {
+            if (neutralColor) {
+                el.css('border-color', neutralColor).removeClass('is-invalid is-valid');
+            } else {
+                el.css('border-color', validColor).removeClass('is-invalid').addClass('is-valid');
+            }
+            span.text("");
+        } else {
+            el.css('border-color', invalidColor).removeClass('is-valid').addClass('is-invalid');
+            span.text(errorMsg || "");
         }
-        else {
-            $('select[name=zone_Type]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_zone_Type]').text("");
-        }
-        enablezoneSubmit();
-    });
-    //machine_zone_select_name
-    $('select[id=machine_zone_select_name]').on("change", () => {
-        if ($('select[name=machine_zone_select_name] option:selected').val() === "") {
-            $('select[name=machine_zone_select_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_machine_zone_name]').text("Pleas select a MPE Name");
-        }
-        else {
-            $('select[name=machine_zone_select_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_machine_zone_name]').text("");
-        }
-        enablezoneSubmit();
-    });
-    if ($('select[name=zone_Type]').val() === "") {
-        $('select[name=zone_Type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-        $('span[id=error_zone_Type]').text("Pleas select a Zone");
-    }
-    else {
-        $('select[name=zone_Type]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-        $('span[id=error_zone_Type]').text("");
     }
 
-    //Connection name Validation
-    if (!checkValue($('input[type=text][name=machine_name]').val())) {
-        $('input[type=text][name=machine_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-        $('span[id=error_machine_name]').text("Please Enter Machine Name");
+    // convenience bindings: selector, validation function, error message, optional neutral color
+    function bindValidation(selector, validator, errorMsg, neutralColor, explicitErrorId) {
+        const el = $(selector);
+        const errorId = explicitErrorId || ('error_' + (el.attr('name') || el.attr('id')));
+        el.attr('data-error-id', errorId);
+        el.off('.zonemodal');
+        el.on('keyup.zonemodal change.zonemodal', function () {
+            // skip validation if disabled
+            if ($(this).prop('disabled') || $(this).attr('disabled') === 'disabled') {
+                setState(selector, true, '', undefined, undefined, '#D3D3D3');
+                enablezoneSubmit();
+                return;
+            }
+            const ok = validator($(this).val());
+            setState(selector, ok, ok ? '' : errorMsg, undefined, undefined, neutralColor);
+            enablezoneSubmit();
+        });
+        // initial state
+        setState(selector, validator(el.val()), errorMsg, undefined, undefined, neutralColor);
     }
-    else {
-        $('input[type=text][name=machine_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-        $('span[id=error_machine_name]').text("");
-    }
-    //Request Type Keyup
-    $('input[type=text][name=machine_number]').on("keyup", () => {
-        if (!checkValue($('input[type=text][name=machine_number]').val())) {
-            $('input[type=text][name=machine_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_machine_number]').text("Please Enter Number");
-        }
-        else {
-            $('input[type=text][name=machine_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_machine_number]').text("");
-        }
 
-        enablezoneSubmit();
-    });
-    //ipaddress 
-    $('input[type=text][name=machine_ip]').on("keyup", () => {
-        if (IPAddress_validator($('input[type=text][name=machine_ip]').val()) === 'Invalid IP Address') {
-            $('input[type=text][name=machine_ip]').css("border-color", "#FF0000");
-            $('span[id=error_machine_ip]').text("Please Enter Valid IP Address!");
-        }
-        else {
-            $('input[type=text][name=machine_ip]').css({ "border-color": "#2eb82e" }).removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_machine_ip]').text("");
-        }
-
-        enablezoneSubmit();
-    });
-    $('select[name=zonePayLocationColor]').on("change", () => {
-        if ($('select[name=zonePayLocationColor]').val() === "") {
-            $('span[id=error_zonePayLocationColor]').text("Pleas select a Color");
-            $('select[name=zonePayLocationColor]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-        }
-        else {
-            $('span[id=error_zonePayLocationColor]').text("");
-            $('select[name=zonePayLocationColor]').css({ "border-color": "#2eb82e" }).removeClass('is-invalid').addClass('is-valid');
-        }
-        enablezoneSubmit();
-    });
-    if ($('select[name=zonePayLocationColor]').val() === "") {
-        $('select[name=zonePayLocationColor]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-        $('span[id=error_zonePayLocationColor]').text("Please Enter select color");
-    }
-    else {
-        $('select[name=zonePayLocationColor]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-        $('span[id=error_zonePayLocationColor]').text("");
-    }
-    //Request Type Validation
-    if (!checkValue($('input[type=text][name=machine_number]').val())) {
-        $('input[type=text][name=machine_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-        $('span[id=error_machine_number]').text("Please Enter Number");
-    }
-    else {
-        $('input[type=text][name=machine_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-        $('span[id=error_machine_number]').text("");
-    }
-    //zone LDC Validation
-    if (checkValue($('input[type=text][name=zone_ldc]').val())) {
-        $('input[type=text][name=zone_ldc]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-        $('span[id=errorzone_ldc]').text("");
-    }
-    else {
-        $('input[type=text][name=zone_ldc]').css("border-color", "#D3D3D3").removeClass('is-invalid').removeClass('is-valid');
-        $('span[id=errorzone_ldc]').text("");
-    }
-    //Request zone LDC Keyup
-    $('input[type=text][name=zone_ldc]').on("keyup", () => {
-        if (checkValue($('input[type=text][name=zone_ldc]').val())) {
-            $('input[type=text][name=zone_ldc]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=errorzone_ldc]').text("");
-        }
-        else {
-            $('input[type=text][name=zone_ldc]').css("border-color", "#D3D3D3").removeClass('is-invalid').removeClass('is-valid');
-            $('span[id=errorzone_ldc]').text("");
-        }
-    });
-    //zone RejectBins Validation
-    if (!checkValue($('input[type=text][name=mpeRejectBins]').val())) {
-        $('input[type=text][name=mpeRejectBins]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-        $('span[id=errormpeRejectBins]').text("");
-    }
-    else {
-        $('input[type=text][name=mpeRejectBins]').css("border-color", "#2eb82e").removeClass('is-invalid').removeClass('is-valid');
-        $('span[id=errormpeRejectBins]').text("");
-    }
-    //Request RejectBins Keyup
-    $('input[type=text][name=mpeRejectBins]').on("keyup", () => {
-        if (!checkValue($('input[type=text][name=mpeRejectBins]').val())) {
-            $('input[type=text][name=mpeRejectBins]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=errormpeRejectBins]').text("");
-        }
-        else {
-            $('input[type=text][name=mpeRejectBins]').css("border-color", "#2eb82e").removeClass('is-invalid').removeClass('is-valid');
-            $('span[id=errormpeRejectBins]').text("");
-        }
-        enablezoneSubmit();
-    });
-    //zone ExternalUrl Validation
-    if (!checkValue($('input[type=text][name=mpeExternalUrl]').val())) {
-        $('input[type=text][name=mpeExternalUrl]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-        $('span[id=errormpeExternalUrl]').text("Please Enter URL");
-    }
-    else {
-        $('input[type=text][name=mpeExternalUrl]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-        $('span[id=errormpeExternalUrl]').text("");
-    }
-    //Request ExternalUrl Keyup
-    $('input[type=text][name=mpeExternalUrl]').on("keyup", () => {
-        if (!checkValue($('input[type=text][name=mpeExternalUrl]').val())) {
-            $('input[type=text][name=mpeExternalUrl]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=errormpeExternalUrl]').text("");
-        }
-        else {
-            $('input[type=text][name=mpeExternalUrl]').css("border-color", "#2eb82e").removeClass('is-invalid').removeClass('is-valid');
-            $('span[id=errormpeExternalUrl]').text("");
-        }
-        enablezoneSubmit();
-    });
-    //Zone Pay Location Validation
-    if (!checkValue($('input[type=text][name=zone_paylocation]').val())) {
-        $('input[type=text][name=zone_paylocation]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-        $('span[id=errorzone_paylocation]').text("Please Enter Pay Location");
-    }
-    else {
-        $('input[type=text][name=zone_paylocation]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-        $('span[id=errorzone_paylocation]').text("");
-    }
-    //Request zone LDC Keyup
-    $('input[type=text][name=zone_paylocation]').on("keyup", () => {
-        if (!checkValue($('input[type=text][name=zone_paylocation]').val())) {
-            $('input[type=text][name=zone_paylocation]').css("border-color", "#FF0000").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=errorzone_paylocation]').text("");
-        }
-        else {
-            $('input[type=text][name=zone_paylocation]').css("border-color", "#2eb82e").removeClass('is-invalid').removeClass('is-valid');
-            $('span[id=errorzone_paylocation]').text("");
-        }
-        enablezoneSubmit();
-    });
+    // bind common fields
+    bindValidation('input[type=text][name=machine_name]', v => checkValue(v), 'Please Enter Machine Name');
+    bindValidation('select[name=zone_Type]', v => v !== '', 'Please select a Zone');
+    bindValidation('select[id=machine_zone_select_name]', v => v !== '', 'Please select a MPE Name', undefined, 'error_machine_zone_name');
+    bindValidation('input[type=text][name=machine_number]', v => checkValue(v), 'Please Enter Number');
+    bindValidation('input[type=text][name=machine_ip]', v => IPAddress_validator(v) !== 'Invalid IP Address', 'Please Enter Valid IP Address!');
+    bindValidation('select[name=zonePayLocationColor]', v => v !== '', 'Please select a Color');
+    bindValidation('input[type=text][name=zone_ldc]', v => !v || checkValue(v), '');
+    bindValidation('input[type=text][name=mpeRejectBins]', v => checkValue(v), '');
+    bindValidation('input[type=text][name=mpeReworkBins]', v => checkValue(v), '');
+    bindValidation('input[type=text][name=mpeExternalUrl]', v => checkValue(v), 'Please Enter URL');
+    bindValidation('input[type=text][name=zone_paylocation]', v => checkValue(v), 'Please Enter Pay Location');
 });
 
 let isMPEZoneRemoved = false;
@@ -467,6 +337,14 @@ function enablezoneSubmit() {
     else if ($('div[id="machine_manual_row"]').is(":visible") &&
         $('input[type=text][name=machine_name]').hasClass('is-valid') &&
         $('input[type=text][name=machine_number]').hasClass('is-valid')) {
+        $('button[id=machinesubmitBtn]').prop('disabled', false);
+    }
+    else if ($('input[type=text][name=mpeRejectBins]').hasClass('is-valid') )
+    {
+        $('button[id=machinesubmitBtn]').prop('disabled', false);
+    }
+    else if ($('input[type=text][name=mpeReworkBins]').hasClass('is-valid'))
+    {
         $('button[id=machinesubmitBtn]').prop('disabled', false);
     }
     else {
@@ -922,8 +800,8 @@ async function getlistofMPEGroups() {
 async function Edit_Machine_Info(id) {
 
     $('button[id=machinesubmitBtn]').prop('disabled', true);
-    $('#machine_manual_row').css('display', 'none');
-    $('#machine_select_row').css('display', 'block');
+    $('#machine_manual_row').addClass('d-none').attr('aria-hidden', 'true');
+    $('#machine_select_row').removeClass('d-none').attr('aria-hidden', 'false');
 
 
     if (!geoZoneMPE.hasOwnProperty("_layers")) return;
@@ -946,6 +824,7 @@ async function Edit_Machine_Info(id) {
         $('input[id=machine_ip]').val(Data.mpeIpAddress);
         $('select[id=zone_Type]').val(Data.type);
         $('input[id=mpeRejectBins]').val(Data.rejectBins)
+        $('input[id=mpeReworkBins]').val(Data.reworkBins)
         $('input[id=mpeExternalUrl]').val(Data.externalUrl)
         if (MPEwNUMBER !== "") {
             const mpedata = await $.ajax({
@@ -973,8 +852,8 @@ async function Edit_Machine_Info(id) {
         }
         let trp = $('select[id=machine_zone_select_name]').val();
         if ($('select[id=machine_zone_select_name]').val()) {
-            $('#machine_manual_row').hide();
-            $('#machine_select_row').show();
+            $('#machine_manual_row').addClass('d-none').attr('aria-hidden', 'true');
+            $('#machine_select_row').removeClass('d-none').attr('aria-hidden', 'false');
             $('select[id=machine_zone_select_name]').val(Data.name).trigger('change');
         } else {
             if (Data.mpeName === "") {
@@ -986,8 +865,8 @@ async function Edit_Machine_Info(id) {
                 $('input[id=machine_name]').val(Data.mpeName);
                 $('input[id=machine_number]').val(Data.mpeNumber);
             }
-            $('#machine_manual_row').show();
-            $('#machine_select_row').hide();
+            $('#machine_manual_row').removeClass('d-none').attr('aria-hidden', 'false');
+            $('#machine_select_row').addClass('d-none').attr('aria-hidden', 'true');
         }
         const $machineZoneSelect = $('select[id=machine_zone_select_name]');
         $machineZoneSelect.on("change", function () {
@@ -1012,6 +891,7 @@ async function Edit_Machine_Info(id) {
                     jsonObject.name = jsonObject.mpeName + "-" + jsonObject.mpeNumber.padStart(3, '0');
                 }
                 jsonObject.rejectBins = $('input[type=text][name=mpeRejectBins]').val();
+                jsonObject.reworkBins = $('input[type=text][name=mpeReworkBins]').val();
                 jsonObject.externalUrl = $('input[type=text][name=mpeExternalUrl]').val();
                 jsonObject.floorId = $('input[type=text][name=machine_ip]').val();
                 jsonObject.mpeIpAddress = $('input[type=text][name=machine_ip]').val();
@@ -1055,6 +935,7 @@ async function Edit_Machine_Info(id) {
         $('select[id=mpe_group_select]').trigger('change');
         $('select[id=zone_Type]').trigger('change');
         $('input[id=mpeRejectBins]').trigger('keyup');
+        $('input[id=mpeReworkBins]').trigger('keyup');
         $('input[id=mpeExternalUrl]').trigger('keyup');
     } catch (error) {
         console.error("Error fetching machine info: ", error);

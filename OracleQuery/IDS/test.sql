@@ -3,7 +3,7 @@ with mpe_hsus as (
           mpe_name
      from dcsdba.mpe_list
     where regexp_like ( mpe_type,
-                        '^(HSUS)' )
+                        '^(HSUS|HSTS)' )
 ),fm as (
    select /*+ PARALLEL(f, 8) */ l.mpe_name,
           to_char(
@@ -32,9 +32,36 @@ with mpe_hsus as (
    || trim(f.data_day)
    || ','
 ) > 0
+),ulx as (
+   select /*+ PARALLEL(u, 5) */ l.mpe_name,
+          to_char(
+             u.data_date,
+             'yyyy-mm-dd hh24'
+          ) as hr,
+          case
+             when u.proc_action_reason = 'Processed' then
+                'Sorted'
+             else
+                'Rejected'
+          end as result_label
+     from dcsdba.unit_load_transaction u
+     join mpe_hsus l
+   on u.mpe_id = l.mpe_id
+         and regexp_like ( trim(u.data_day), '^[0-9]+$' )
+          and instr(
+   ','
+   || :DATADAYLIST
+   || ',',
+   ','
+   || trim(u.data_day)
+   || ','
+) > 0
 ),all_events as (
    select *
      from fm
+   union all
+   select *
+     from ulx
 ) select mpe_name,
        hr || ':00' as hour,
        nvl(

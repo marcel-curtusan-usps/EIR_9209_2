@@ -3,83 +3,71 @@
 -- EPPS INDUCTED = Total - No Induction#
 --          = Count(*) - INDUCTNUMBER = 0
 -- 11/27/2024 Reject by Inventory_Map REJ, Rework, Manual label bin
-SELECT
-    MPE_NAME,
-    HR
-    ||':00'                         AS HOUR,
-    NVL(SORTED, 0)                  AS SORTED,
-    NVL(REJECTED, 0)                AS REJECTED,
-    NVL(SORTED, 0)+NVL(REJECTED, 0) AS INDUCTED
-FROM
-    (
-        SELECT
-            S.MPE_NAME,
-            S.HR,
-            S.RESULT,
-            SUM(S.COUNT) AS "TOTAL"
-        FROM
-            (
-                SELECT /*+ PARALLEL(A, 32)*/
-                    L.MPE_NAME,
-                    (
-                        CASE
-                            WHEN L.MPE_TYPE='EPPS' AND A.INDUCTNUMBER = 0 THEN
-                                'PreScanned'
-                            WHEN L.MPE_TYPE='APPS' AND A.INDUCTNUMBER = 0 THEN
-                                'PreScanned'
-                            WHEN UPPER(I.DEST_DISPLAY_TEXT) LIKE '%REJ%' OR UPPER(I.DEST_DISPLAY_TEXT) LIKE '%REWORK%' OR UPPER(I.DEST_DISPLAY_TEXT) LIKE '%MANUAL%' OR I.DEST_DISPLAY_TEXT IS NULL THEN
-                                'Rejected'
-                            ELSE
-                                'Sorted'
-                        END)AS                                RESULT,
-                    TO_CHAR(A.DATA_DATE, 'yyyy-mm-dd hh24') AS HR,
-                    COUNT(*)                                AS COUNT
-                FROM
-                    DCSDBA.APPSMP        A,
-                    DCSDBA.MPE_LIST      L,
-                    DCSDBA.INVENTORY_MAP I
-                WHERE
-                    A.DATA_DAY in (:DATADAYLIST)
-                    AND A.MPE_ID IN (
-                        SELECT
-                            MPE_ID
-                        FROM
-                            DCSDBA.MPE_LIST
-                        WHERE
-                            MPE_TYPE IN ('APPS', 'EPPS')
-                    )
-                    AND A.MPE_ID = L.MPE_ID
-                    AND A.SORTPLAN_ID = I.SORTPLAN_ID
-                    AND A.POCKETNUM = I.POCKET_NUM
-                GROUP BY
-                    L.MPE_NAME,
-                    (
-                        CASE
-                            WHEN L.MPE_TYPE='EPPS' AND A.INDUCTNUMBER = 0 THEN
-                                'PreScanned'
-                            WHEN L.MPE_TYPE='APPS' AND A.INDUCTNUMBER = 0 THEN
-                                'PreScanned'
-                            WHEN UPPER(I.DEST_DISPLAY_TEXT) LIKE '%REJ%' OR UPPER(I.DEST_DISPLAY_TEXT) LIKE '%REWORK%' OR UPPER(I.DEST_DISPLAY_TEXT) LIKE '%MANUAL%' OR I.DEST_DISPLAY_TEXT IS NULL THEN
-                                'Rejected'
-                            ELSE
-                                'Sorted'
-                        END),
-                    TO_CHAR(A.DATA_DATE, 'yyyy-mm-dd hh24')
-                ORDER BY
-                    HR
-            )S
-        GROUP BY
-            MPE_NAME,
-            HR,
-            RESULT
-        ORDER BY
-            MPE_NAME,
-            HR,
-            RESULT
-    ) PIVOT ( MIN(TOTAL) FOR (RESULT) IN ('Sorted' AS SORTED,
-    'Rejected' AS REJECTED,
-    'Inducted' AS INDUCTED,
-    'PreScanned' AS PRESCANNED) )
-ORDER BY
-    MPE_NAME,
-    HOUR
+with mpe_apps as (
+   select mpe_id, mpe_name, mpe_type
+     from dcsdba.mpe_list
+     where regexp_like (mpe_type,'^(APPS|EPPS|SPBSTS|APBS)')
+), apps as (
+   select /*+ PARALLEL(a, 32) */ l.mpe_name,
+          to_char(a.data_date, 'yyyy-mm-dd hh24') as hr,
+          case
+             when a.inductnumber = 0 then 'PreScanned'
+             when upper(i.dest_display_text) like '%REJ%'
+               or upper(i.dest_display_text) like '%REWORK%'
+               or upper(i.dest_display_text) like '%MANUAL%'
+               or i.dest_display_text is null then 'Rejected'
+             else 'Sorted'
+          end as result_label
+     from dcsdba.appsmp a
+     join mpe_apps l
+       on a.mpe_id = l.mpe_id
+     join dcsdba.inventory_map i
+       on a.sortplan_id = i.sortplan_id
+      and a.pocketnum = i.pocket_num
+    where instr(','||:DATADAYLIST||',', ','||trim(a.data_day)||',') > 0
+), apbs as (
+   select /*+ PARALLEL(a, 32) */ l.mpe_name,
+          to_char(a.data_date, 'yyyy-mm-dd hh24') as hr,
+          case
+           when instr(','||:REWORKBINS||',', ','||trim(a.pocketnum)||',') > 0 then 'Reworked'
+           when  instr(','||:REJECTBINS||',', ','||trim(a.pocketnum)||',') > 0 then 'Rejected'
+           else 'Sorted'
+          end as result_label
+     from dcsdba.appsmp a
+     join mpe_apps l
+       on a.mpe_id = l.mpe_id
+    where instr(','||:DATADAYLIST||',', ','||trim(a.data_day)||',') > 0
+), epps as (
+   select /*+ PARALLEL(a, 32) */ l.mpe_name,
+          to_char(a.data_date, 'yyyy-mm-dd hh24') as hr,
+          case
+             when a.inductnumber = 0 then 'PreScanned'
+             when upper(i.dest_display_text) like '%REJ%'
+               or upper(i.dest_display_text) like '%REWORK%'
+               or upper(i.dest_display_text) like '%MANUAL%'
+               or i.dest_display_text is null then 'Rejected'
+             else 'Sorted'
+          end as result_label
+     from dcsdba.appsmp a
+     join mpe_apps l
+       on a.mpe_id = l.mpe_id
+     join dcsdba.inventory_map i
+       on a.sortplan_id = i.sortplan_id
+      and a.pocketnum = i.pocket_num
+    where instr(','||:DATADAYLIST||',', ','||trim(a.data_day)||',') > 0
+), all_events as (
+   select * from apps
+   union all
+   select * from epps
+   union all
+   select * from apbs
+
+)
+select mpe_name,
+       hr || ':00' as hour,
+       nvl(sum(case when result_label = 'Sorted' then 1 else 0 end),0) as sorted,
+       nvl(sum(case when result_label = 'Rejected' then 1 else 0 end),0) as rejected,
+       nvl(sum(case when result_label in ('Sorted','Rejected','PreScanned','Reworked') then 1 else 0 end),0) as inducted
+  from all_events
+ group by mpe_name, hr
+ order by mpe_name, hr

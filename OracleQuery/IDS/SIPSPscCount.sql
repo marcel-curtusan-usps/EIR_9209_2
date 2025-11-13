@@ -40,7 +40,9 @@ FROM
                         WHERE
                             MPE_TYPE IN ('SIPS')
                     )
-                    AND A.DATA_DAY in (:DATADAYLIST)
+                    -- Accept a comma-separated bind string in :DATADAYLIST (e.g. '20231101,20231102').
+                    -- Use INSTR to match CSV values to avoid implicit numeric conversion errors (ORA-01722).
+                    AND instr(','||:DATADAYLIST||',', ','||trim(A.DATA_DAY)||',') > 0
                     AND A.MPE_ID = L.MPE_ID
                 GROUP BY
                     L.MPE_NAME,

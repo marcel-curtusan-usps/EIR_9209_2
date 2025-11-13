@@ -116,7 +116,10 @@ public class Properties
     /// Bin identifiers for rejected items.
     /// </summary>
     public string RejectBins { get; set; } = "";
-
+    /// <summary>
+    /// Bin identifiers for rejected items.
+    /// </summary>
+    public string ReworkBins { get; set; } = "";
     /// <summary>
     /// External URL related to the zone.
     /// </summary>
