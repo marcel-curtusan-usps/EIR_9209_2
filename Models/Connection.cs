@@ -1,6 +1,8 @@
 ﻿
 using Newtonsoft.Json;
-
+/// <summary>
+/// Represents a connection configuration for various types of connections such as API, TCP/IP, UDP, WebSocket, Database, and Webhook.
+/// </summary> 
 public class Connection
 {
     [JsonIgnore]

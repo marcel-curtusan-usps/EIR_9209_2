@@ -2,18 +2,13 @@
   $(this).find('input[type=text],textarea,select').css({ 'border-color': '#D3D3D3' }).val('').prop('disabled', false).end().find('input[type=radio]').prop('disabled', false).prop('checked', false).change().end().find('span[class=text-info]').css('border-color', '#FF0000').val('').text('').end().find('input[type=checkbox]').prop('checked', false).change().end();
 
   //stop the startTimer when closing the modal
-
-  clearInterval(timer);
-  await removeFromGroupList('CamerasStill');
-  // connection.invoke('LeaveGroup', 'CamerasStill').catch(function(err) {
-  //   return console.error(err.toString());
-  // });
+  if (timer) {
+    clearInterval(timer);
+    await removeFromGroupList('CamerasStill');
+  }
 });
 $('#Camera_Modal').on('shown.bs.modal', async function () {
   await addGroupToList('CamerasStill');
-  // connection.invoke('JoinGroup', 'CamerasStill').catch(function(err) {
-  //   return console.error(err.toString());
-  // });
 });
 connection.on('addCameras', async data => {
   Promise.all([addCameraFeature(data)]);
@@ -32,20 +27,29 @@ let defaultTime = 90;
 let count = 0;
 let timer;
 function startTimer() {
+  // ensure we don't have multiple intervals running
+  if (timer) {
+    clearInterval(timer);
+  }
   timer = setInterval(function () {
-    let newcount = count * 1 - 1;
-    count = newcount;
-    $('#counter').html(count);
-    if (count <= 0) {
-      $('#counter').html('0');
-      $('#countDownView').hide();
-      $('#timeOutView').show();
-      $('div[id=Camera_Modal]').attr('data-id', '0');
-      $('div[id=camera_modalbody]').empty();
-      connection.invoke('LeaveGroup', 'CamerasStill').catch(function (err) {
-        return console.error(err.toString());
-      });
-    }
+    (async () => {
+      try {
+        count = count - 1;
+        if (count <= 0) {
+          count = 0;
+          $('#counter').html('0');
+          clearInterval(timer);
+          $('#countDownView').hide();
+          $('#timeOutView').show();
+          $('div[id=Camera_Modal]').attr('data-id', '0');
+          await handleGroupChange(false, 'CamerasStill');
+        } else {
+          $('#counter').html(count);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    })();
   }, 1000);
 }
 let markerCameras = new L.GeoJSON(null, {
@@ -89,7 +93,7 @@ let markerCameras = new L.GeoJSON(null, {
       $('#counter').html(count);
       setTimeout(startTimer, 300);
 
-      LoadWeb_CameraImage(feature.properties.cameraData, feature.properties.id, feature.properties.cameraDirection, feature.properties.base64Image);
+      LoadWeb_CameraImage(feature.properties);
     });
     layer
       .bindTooltip('', {
@@ -121,11 +125,11 @@ async function findCameraLeafletIds(markerId) {
     reject(new Error('No layer found with the given markerId'));
   });
 }
-async function init_tagsCamera() {
+async function init_tagsCamera(floorId) {
   try {
     if (!/PMCCUser$/ig.test(appData.User)) {
       //loading connections
-      await fetch('../api/Camera')
+      await fetchData(`${await SiteURLconstructor(globalThis.location)}/api/Camera/CameraByFloorId?floorId=${floorId}&type=Cameras`)
         .then(response => response.json())
         .then(data => {
           if (data.length > 0) {
@@ -146,8 +150,6 @@ async function init_tagsCamera() {
           await handleGroupChange(this.checked, sp);
         }
       });
-
-      await addGroupToList('Cameras');
     } else {
       console.info('Camera feature is not available for this user.');
     }
@@ -194,14 +196,14 @@ async function updateCameraFeature(data) {
 }
 async function updateCameraStillFeature(data) {
   try {
-    let Camera = data;
-    await findCameraLeafletIds(Camera.properties.id)
+    await findCameraLeafletIds(data.properties.id)
       .then(leafletIds => {
         markerCameras._layers[leafletIds].feature.properties.base64Image = data.properties.base64Image;
         if ($('#Camera_Modal').hasClass('show') && $('div[id=Camera_Modal]').attr('data-id') === data.properties.id) {
           let camera_modal_body = $('div[id=camera_modalbody]');
           camera_modal_body.empty();
           camera_modal_body.append(ImageLayout.supplant(formatImageLayout(data.properties.base64Image)));
+          LoadCameraInfo(data.properties, data.properties.id);
         }
       })
       .catch(error => {
@@ -212,7 +214,7 @@ async function updateCameraStillFeature(data) {
   }
 }
 
-let ImageLayout = '<div class="row">{image}</div>';
+let ImageLayout = '{image}';
 function formatImageLayout(img) {
   let newimg = new Image();
   newimg.src = img;
@@ -221,17 +223,18 @@ function formatImageLayout(img) {
   });
 }
 var webCameraViewData = null;
-function LoadWeb_CameraImage(Data, id, direction, image) {
+function LoadWeb_CameraImage(Data) {
   try {
+    LoadCameraInfo(Data, Data.id);
     $('#cameramodalHeader').text('View Web Camera');
     let camera_modal_body = $('div[id=camera_modalbody]');
     camera_modal_body.empty();
-    camera_modal_body.append(ImageLayout.supplant(formatImageLayout(image)));
-    $('div[id=Camera_Modal]').attr('data-id', id);
+    camera_modal_body.append(ImageLayout.supplant(formatImageLayout(Data.base64Image)));
+    $('div[id=Camera_Modal]').attr('data-id', Data.id);
     $('#Camera_Modal').modal('show');
 
-    if (direction) {
-      document.getElementById('cameraViewDirectionArrow').style.transform = 'rotate(' + direction + 'deg)';
+    if (Data.cameraDirection) {
+      document.getElementById('cameraViewDirectionArrow').style.transform = 'rotate(' + Data.cameraDirection + 'deg)';
       document.getElementById('cameraViewDirectionArrow').style.display = 'block';
       document.getElementById('cameraViewDirectionNotice').style.display = 'none';
     } else {
@@ -240,6 +243,21 @@ function LoadWeb_CameraImage(Data, id, direction, image) {
     }
 
     sidebar.close('');
+  } catch (e) {
+    $('#error_camera').text(e);
+  }
+}
+function LoadCameraInfo(Data, id) {
+  try {
+    let cameraInfobody = $('div[id=camera_Infobody]');
+    cameraInfobody.empty();
+    let infoTable = '<table class="table table-bordered"><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>';
+    infoTable += '<tr><td scope="row">Camera Name</td><td>' + Data.cameraName + '</td></tr>';
+    infoTable += '<tr><td scope="row">Description</td><td>' + Data.description + '</td></tr>';
+    infoTable += '<tr><td scope="row">IP Address</td><td>' + Data.ip + '</td></tr>';
+    infoTable += '<tr><td scope="row">Type</td><td>' + Data.type + '</td></tr>';
+    infoTable += '</tbody></table>';
+    cameraInfobody.append(infoTable);
   } catch (e) {
     $('#error_camera').text(e);
   }

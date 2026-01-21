@@ -7,6 +7,15 @@ using Newtonsoft.Json.Linq;
 
 namespace EIR_9209_2.Controllers
 {
+    /// <summary>
+    /// Camera Controller
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="cameras"></param>
+    /// <param name="hubContext"></param> <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="Camera"></typeparam>
     [Route("api/[controller]")]
     [ApiController]
     public class Camera(ILogger<Camera> logger, IInMemoryCamerasRepository cameras, IHubContext<HubServices> hubContext) : ControllerBase
@@ -14,19 +23,65 @@ namespace EIR_9209_2.Controllers
         private readonly IInMemoryCamerasRepository _cameras = cameras;
         private readonly IHubContext<HubServices> _hubContext = hubContext;
         private readonly ILogger<Camera> _logger = logger;
-        // GET: api/<TagController>
+        
+
+        /// <summary>
+        /// Get list of Cameras
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        public object Get()
+        [Route("List")]
+        public async Task<object> GetAllCamerasTags()
         {
-            //handle bad requests
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                //handle bad requests
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                return Ok(await _cameras.GetAll());
             }
-            return Ok(_cameras.GetAll());
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+          
         }
-        //add new camera
-        // POST api/<Camera>
+        [HttpGet]
+        [Route("CameraByFloorId")]
+        public async Task<object> GetCameraByFloorId(string floorId, string type)
+        {
+            try
+            {
+                //handle bad requests
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var (found, cameras) = await _cameras.GetCameraByFloorId(floorId, type);
+                if (found)
+                {
+                    return Ok(cameras);
+                }
+                else
+                {
+                    return NotFound($"No cameras found for FloorId: {floorId} and Type: {type}");
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
+        
+        /// <summary>
+        ///  Adds a new camera based on the provided JSON object.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("Add")]
         public async Task<object> Post([FromBody] JObject value)
@@ -43,12 +98,12 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest("IP value is missing or invalid.");
                 }
-                var cameraFromList = _cameras.GetCameraListByIp(ipValue).Result;
+                var cameraFromList = await _cameras.GetCameraListByIp(ipValue);
                 if (cameraFromList != null)
                 {
                     //convert the JObject to a Connection object
                     CameraGeoMarker cameraMarker = value.ToObject<CameraGeoMarker>();
-                    cameraMarker.Properties.Id = cameraFromList.AuthKey;
+
                     cameraMarker.Properties.ModelNum = cameraFromList.ModelNum;
                     cameraMarker.Properties.FacilityPhysAddrTxt = cameraFromList.FacilityPhysAddrTxt;
                     cameraMarker.Properties.GeoProcRegionNm = cameraFromList.GeoProcRegionNm;
@@ -63,7 +118,7 @@ namespace EIR_9209_2.Controllers
                     //add the connection id
                     cameraMarker.Properties.Id = Guid.NewGuid().ToString();
                     cameraMarker.Properties.CreatedDate = DateTime.Now;
-                    var addCamera = _cameras.Add(cameraMarker).Result;
+                    var addCamera = await _cameras.Add(cameraMarker);
                     if (addCamera != null)
                     {
                         await _hubContext.Clients.Group(addCamera.Properties.Type).SendAsync($"add{addCamera.Properties.Type}", addCamera);
@@ -119,7 +174,7 @@ namespace EIR_9209_2.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetList")]
-        public object GetCameraList()
+        public async Task<object> GetCameraList()
         {
             try
             {
@@ -136,8 +191,11 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(e.Message);
             }
         }
-
-        // DELETE api/<Camera>/5
+        /// <summary>
+        ///  Deletes a camera by its ID.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete]
         [Route("Delete")]
         public async Task<object> Delete(string id)
@@ -147,9 +205,9 @@ namespace EIR_9209_2.Controllers
                 //handle bad requests
                 if (!ModelState.IsValid)
                 {
-                    BadRequest(ModelState);
+                    return BadRequest(ModelState);
                 }
-                var removeCamera = _cameras.Delete(id).Result;
+                var removeCamera = await _cameras.Delete(id);
                 if (removeCamera != null)
                 {
                     await _hubContext.Clients.Group(removeCamera.Properties.Type).SendAsync($"delete{removeCamera.Properties.Type}", removeCamera);

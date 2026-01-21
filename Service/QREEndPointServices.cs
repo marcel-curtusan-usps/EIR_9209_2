@@ -158,7 +158,7 @@ namespace EIR_9209_2.Service
                             }
 
                         }
-                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        _endpointConfig.Status = EWorkerServiceState.Idle;
                         var updateCon = _connection.Update(_endpointConfig).Result;
                         if (updateCon != null)
                         {
@@ -231,7 +231,7 @@ namespace EIR_9209_2.Service
                             }
                             _ = Task.Run(() => _schedules.RunEmpScheduleReport());
                         }
-                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        _endpointConfig.Status = EWorkerServiceState.Idle;
                         var updateCon = _connection.Update(_endpointConfig).Result;
                         if (updateCon != null)
                         {

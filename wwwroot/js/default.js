@@ -41,7 +41,7 @@ async function initializeOSL() {
       init_connection();
       init_backgroundImages();
       init_osl();
-      init_TagSearch();
+      init_tagsSearch();
       init_tags();
       init_tagsPIV();
       init_tagsAGV();
@@ -96,16 +96,7 @@ function capitalize_Words(str) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
   });
 }
-function SiteURLconstructor(winLoc) {
-  let pathname = winLoc.pathname;
-  let match = pathname.match(/^\/([^\/]*)/);
-  let urlPath = match[1];
-  if (/^(CF)/i.test(urlPath)) {
-    return winLoc.origin + '/' + urlPath;
-  } else {
-    return winLoc.origin;
-  }
-}
+
 function hideSidebarLayerDivs() {
   $('div[id=agvlocation_div]').css('display', 'none');
   $('div[id=crsKiosk_div]').css('display', 'none');
@@ -292,5 +283,60 @@ function insertSpaceBeforeCapitalLetters(str) {
       .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
   } catch (e) {
     console.info('Error: ', e);
+  }
+}
+async function fetchData(url, init) {
+  try {
+    const options = { method: 'GET', ...(init || {}) };
+    const response = await fetch(url, options);
+
+    return safeResponseJson(response);
+  } catch (error) {
+    // Abort errors are expected when callers cancel requests; don't spam the log
+    if (error?.name === 'AbortError') {
+      return null;
+    }
+    console.info('Error fetching data:', error);
+    return null;
+  }
+}
+async function postAddData(url, formData) {
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+    return safeResponseJson(response);
+  } catch (error) {
+    console.info('Error adding data:', error);
+    return null;
+  }
+}
+// Safe JSON parser for responses: checks Content-Type and returns parsed JSON or fallback on failure
+async function safeResponseJson(response, fallback = null) {
+  if (!response) return fallback;
+  try {
+    const contentType = response?.headers?.get?.('content-type') || '';
+    const isJson = contentType.toLowerCase().includes('application/json') || contentType.toLowerCase().includes('+json');
+    if (isJson) {
+      try {
+        return response;
+      } catch (e) {
+        console.debug('safeResponseJson: response had JSON content-type but failed to parse', e);
+        return fallback;
+      }
+    }
+    // Try to parse text as JSON for non-JSON content-type responses (defensive)
+    try {
+      const txt = await response.text();
+      return fallback;
+    } catch (e) {
+      console.debug('safeResponseJson: response is not JSON, returning fallback. Preview:', e);
+      return fallback;
+    }
+  } catch (e) {
+    console.debug('safeResponseJson: unexpected error', e);
+    return fallback;
   }
 }

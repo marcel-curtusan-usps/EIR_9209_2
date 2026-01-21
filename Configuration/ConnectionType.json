@@ -194,13 +194,13 @@
         "Id": "0a59cbda-0811-4634-a074-5a3fcdc295db",
         "Name": "Report_Generation",
         "Description": "Report Generation",
-        "BaseURL": " http://{0}:7280/api/stats/report"
+        "BaseURL": " http://{0}/api/stats/report"
       },
       {
         "Id": "40f877d9-b9bc-4294-bef9-0059b919a579",
         "Name": "Report_Content",
         "Description": "Report Content Items",
-        "BaseURL": "http://{ServerIpOrHostName}:7280/api/stats/report"
+        "BaseURL": "http://{ServerIpOrHostName}/api/usps/report/generate"
       }
     ]
   },
@@ -313,13 +313,13 @@
         "Id": "7bec51cd-a7ca-45ad-b135-5b8421abfc64",
         "Name": "getCameraStills",
         "Description": "Camera Pictures",
-        "BaseURL": "http://{0}/axis-cgi/jpg/image.cgi?resolution=1280x720"
+        "BaseURL": "http://{ServerIpOrHostName}/axis-cgi/jpg/image.cgi?resolution=1280x720"
       },
       {
         "Id": "a3944e1b-3f07-495f-97b1-3d85438625d9",
         "Name": "Cameras",
         "Description": "Camera List",
-        "BaseURL": "http://{0}:9214/CFC/index2.cfc?method=getOneSite&fdb_id={1}"
+        "BaseURL": "https://{ServerIpOrHostName}/CFC/index2.cfc?method=getOneSite&fdb_id={SiteFDBID}"
       }
     ]
   },

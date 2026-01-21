@@ -82,7 +82,7 @@ namespace EIR_9209_2.Service
                              _endpointConfig.Name,
                              FormatUrl), stoppingToken);
                     }
-                    _endpointConfig.Status = EWorkerServiceState.Idel;
+                    _endpointConfig.Status = EWorkerServiceState.Idle;
                     var updateCon = _connection.Update(_endpointConfig).Result;
                     if (updateCon != null)
                     {
@@ -101,7 +101,7 @@ namespace EIR_9209_2.Service
                             _endpointConfig.Name,
                             FormatUrl), stoppingToken);
                     }
-                    _endpointConfig.Status = EWorkerServiceState.Idel;
+                    _endpointConfig.Status = EWorkerServiceState.Idle;
                     var updateCon = _connection.Update(_endpointConfig).Result;
                     if (updateCon != null)
                     {
@@ -120,7 +120,7 @@ namespace EIR_9209_2.Service
                             _endpointConfig.Name,
                             FormatUrl), stoppingToken);
                     }
-                    _endpointConfig.Status = EWorkerServiceState.Idel;
+                    _endpointConfig.Status = EWorkerServiceState.Idle;
                     var updateCon = _connection.Update(_endpointConfig).Result;
                     if (updateCon != null)
                     {

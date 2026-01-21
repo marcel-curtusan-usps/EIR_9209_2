@@ -43,7 +43,7 @@ namespace EIR_9209_2.Service
 
                     if (_endpointConfig.MessageType.Equals("getEmpInfo", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        _endpointConfig.Status = EWorkerServiceState.Idle;
                         var updateCon = _connection.Update(_endpointConfig).Result;
                         if (updateCon != null)
                         {
@@ -53,7 +53,7 @@ namespace EIR_9209_2.Service
                     }
                     if (_endpointConfig.MessageType.Equals("getEmpSchedule", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        _endpointConfig.Status = EWorkerServiceState.Idle;
                         var updateCon = _connection.Update(_endpointConfig).Result;
                         if (updateCon != null)
                         {

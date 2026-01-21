@@ -2,7 +2,7 @@ let retryCount = 0;
 const maxRetries = 5;
 let listofGroups = [];
 const connection = new signalR.HubConnectionBuilder()
-  .withUrl(SiteURLconstructor(window.location) + '/hubServics')
+  .withUrl(`${SiteURLconstructor(globalThis.location)}/hubServics`)
   .withAutomaticReconnect([0, 2000, 10000, 30000]) // Exponential backoff intervals
   .configureLogging(signalR.LogLevel.Information)
   .withHubProtocol(new signalR.JsonHubProtocol())

@@ -9,37 +9,48 @@ using System.Reflection;
 
 namespace EIR_9209_2.DataStore
 {
+    /// <summary>
+    /// In-memory repository for managing camera geo markers and camera information.
+    /// </summary>
     public class InMemoryCamerasRepository : IInMemoryCamerasRepository
     {
         private readonly ConcurrentDictionary<string, CameraGeoMarker> _cameraMarkers = new();
         private readonly ConcurrentDictionary<string, Cameras> _cameraList = new();
         private readonly ILogger<InMemoryCamerasRepository> _logger;
         protected readonly IHubContext<HubServices> _hubServices;
-        private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _hostEnvironment;
         private readonly IFileService _fileService;
         private readonly string fileName = "Cameras.json";
         private readonly string cameraInfofileName = "CameraInfo.json";
-        private readonly string imgFilePath = "";
-        private readonly byte[] noimageresult = Array.Empty<byte>();
-        public InMemoryCamerasRepository(ILogger<InMemoryCamerasRepository> logger, IHubContext<HubServices> hubServices, IConfiguration configuration, IFileService fileService, IWebHostEnvironment hostEnvironment)
+
+        private readonly byte[] noimageresult;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="hubServices"></param>
+        /// <param name="fileService"></param>
+        /// <param name="hostEnvironment"></param>
+        public InMemoryCamerasRepository(ILogger<InMemoryCamerasRepository> logger, IHubContext<HubServices> hubServices, IFileService fileService, IWebHostEnvironment hostEnvironment)
         {
             _fileService = fileService;
             _logger = logger;
-            _configuration = configuration;
             _hubServices = hubServices;
             _hostEnvironment = hostEnvironment;
             //No Image
-            imgFilePath = Path.Combine(_hostEnvironment.WebRootPath, "css\\images", "NoImageFeed.jpg");
-            noimageresult = File.ReadAllBytes(imgFilePath);
+            noimageresult = File.ReadAllBytes(Path.Combine(_hostEnvironment.WebRootPath, "css\\images", "NoImageFeed.jpg"));
             // Load data from the first file into the first collection
             LoadDataFromFile().Wait();
             LoadCameraInfoListDataFromFile().Wait();
 
         }
 
-
-        public async Task<CameraGeoMarker>? Add(CameraGeoMarker camera)
+        /// <summary>
+        ///  Adds a new camera geo marker to the repository.
+        /// </summary>
+        /// <param name="camera"></param>
+        /// <returns></returns>
+        public async Task<CameraGeoMarker?> Add(CameraGeoMarker camera)
         {
             bool saveToFile = false;
             try
@@ -69,7 +80,12 @@ namespace EIR_9209_2.DataStore
                 }
             }
         }
-        public async Task<CameraGeoMarker>? Delete(string cameraId)
+        /// <summary>
+        /// Deletes a camera geo marker by its unique identifier.
+        /// </summary>
+        /// <param name="cameraId"></param>
+        /// <returns></returns>
+        public async Task<CameraGeoMarker?> Delete(string cameraId)
         {
             bool saveToFile = false;
             try
@@ -98,6 +114,11 @@ namespace EIR_9209_2.DataStore
                 }
             }
         }
+        /// <summary>
+        /// Updates an existing camera geo marker in the repository.
+        /// </summary>
+        /// <param name="camera"></param>
+        /// <returns></returns>
         public async Task Update(CameraGeoMarker camera)
         {
             try
@@ -112,6 +133,11 @@ namespace EIR_9209_2.DataStore
                 _logger.LogError(e, e.Message);
             }
         }
+        /// <summary>
+        /// Serializes a list of camera geo markers to a JSON string, excluding the Base64Image property.
+        /// </summary>
+        /// <param name="cameraMarkers"></param>
+        /// <returns></returns>
         private string CameraMarkersOutPutdata(List<CameraGeoMarker> cameraMarkers)
         {
             try
@@ -128,6 +154,11 @@ namespace EIR_9209_2.DataStore
                 return "";
             }
         }
+        /// <summary>
+        ///  Retrieves a camera object by its unique identifier.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public object Get(string id)
         {
             if (_cameraMarkers.ContainsKey(id) && _cameraMarkers.TryGetValue(id, out CameraGeoMarker camera))
@@ -146,9 +177,28 @@ namespace EIR_9209_2.DataStore
         /// 
         /// </summary>
         /// <returns></returns>
-        public List<CameraGeoMarker> GetAll()
+        public async Task<List<CameraGeoMarker>> GetAll()
         {
             return _cameraMarkers.Values.Select(y => y).ToList();
+        }
+        /// <summary>
+        ///  Retrieves cameras by floor ID and type.
+        /// </summary>
+        /// <param name="floorId"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public async Task<(bool, object?)> GetCameraByFloorId(string floorId, string type)
+        {
+            try
+            {
+                var cameras = _cameraMarkers.Values.Where(c => c.Properties.FloorId == floorId && c.Properties.Type.Equals(type, StringComparison.OrdinalIgnoreCase)).Select(y => y).ToList();
+                return (true, cameras);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return (false, null);
+            }
         }
         /// <summary>
         /// Retrieves all camera properties from the repository.
@@ -173,9 +223,9 @@ namespace EIR_9209_2.DataStore
                     // Insert the data into the MongoDB collection
                     if (data?.Count > 0)
                     {
-                        foreach (Cameras item in data.Select(r => r).ToList())
+                        foreach (Cameras item in data.Where(r => !string.IsNullOrEmpty(r.IP)))
                         {
-                            if (!_cameraList.ContainsKey(item.IP) && !string.IsNullOrEmpty(item.IP))
+                            if (!_cameraList.ContainsKey(item.IP))
                             {
                                 _cameraList.TryAdd(item.IP, item);
                             }
@@ -214,7 +264,7 @@ namespace EIR_9209_2.DataStore
                     // Insert the data into the MongoDB collection
                     if (data?.Count > 0)
                     {
-                        foreach (CameraGeoMarker item in data.Select(r => r).ToList())
+                        foreach (CameraGeoMarker item in data)
                         {
                             item.Properties.Base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(noimageresult);
                             _cameraMarkers.TryAdd(item.Properties.Id, item);
@@ -239,8 +289,12 @@ namespace EIR_9209_2.DataStore
                 _logger.LogError($"An error occurred when parsing the JSON: {ex.Message}");
             }
         }
-
-        public async Task<Cameras>? AddCameraInfo(Cameras camera)
+        /// <summary>
+        /// Adds camera information to the repository.
+        /// </summary>
+        /// <param name="camera"></param>
+        /// <returns></returns>
+        public async Task<Cameras?> AddCameraInfo(Cameras camera)
         {
             bool saveToFile = false;
             try
@@ -258,7 +312,7 @@ namespace EIR_9209_2.DataStore
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError($"{e.Message}");
                 return null;
             }
             finally
@@ -269,8 +323,12 @@ namespace EIR_9209_2.DataStore
                 }
             }
         }
-
-        public async Task<Cameras>? UpdateCameraInfo(Cameras camera)
+        /// <summary>
+        /// Updates camera information in the repository.
+        /// </summary>
+        /// <param name="camera"></param>
+        /// <returns></returns>
+        public async Task<Cameras> UpdateCameraInfo(Cameras camera)
         {
             bool saveToFile = false;
             try
@@ -299,7 +357,11 @@ namespace EIR_9209_2.DataStore
                 }
             }
         }
-
+        /// <summary>
+        /// Deletes camera information by its unique identifier.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<Cameras> DeleteCameraInfo(string id)
         {
             bool saveToFile = false;
@@ -329,28 +391,39 @@ namespace EIR_9209_2.DataStore
                 }
             }
         }
-
+        /// <summary>
+        /// Loads a list of camera information into the repository.
+        /// </summary>
+        /// <param name="cameraList"></param>
+        /// <returns></returns>
         public async Task LoadCameraData(List<Cameras> cameraList)
         {
             bool saveToFile = false;
             try
             {
-                foreach (var camera in cameraList)
+                foreach (var camera in cameraList.Where(camera => !string.IsNullOrEmpty(camera.CameraName)))
                 {
-                    if (!string.IsNullOrEmpty(camera.CameraName))
+                    //update geo marker if exists
+                    var exists = _cameraMarkers.Where(cm => cm.Value.Properties.CameraName == camera.CameraName || cm.Value.Properties.IP == camera.IP).Select(cm => cm.Key).FirstOrDefault();
+                    if (exists != null && _cameraMarkers.TryGetValue(exists, out CameraGeoMarker? cmaker))
                     {
-
-
-                        if (_cameraList.ContainsKey(camera.IP) && _cameraList.TryGetValue(camera.IP, out Cameras cl) && _cameraList.TryUpdate(camera.IP, camera, cl))
-                        {
-                            saveToFile = true;
-                        }
-                        else
-                        {
-                            _cameraList.TryAdd(camera.IP, camera);
-                            saveToFile = true;
-
-                        }
+                        cmaker.Properties.CameraName = camera.CameraName;
+                        cmaker.Properties.Description = camera.Description;
+                        cmaker.Properties.IP = camera.IP;
+                        cmaker.Properties.CameraId = camera.CameraId;
+                        cmaker.Properties.Reachable = camera.Reachable;
+                        _cameraMarkers.TryUpdate(exists, cmaker, cmaker);
+                        await _hubServices.Clients.Group(cmaker.Properties.Type).SendAsync($"update{cmaker.Properties.Type}", cmaker);
+                    }
+                    var cameraListexists = _cameraList.Where(cm => cm.Value.CameraName == camera.CameraName || cm.Value.IP == camera.IP).Select(cm => cm.Key).FirstOrDefault();
+                    if (cameraListexists != null && _cameraList.TryGetValue(cameraListexists, out Cameras? cl) && _cameraList.TryUpdate(cameraListexists, camera, cl))
+                    {
+                        saveToFile = true;
+                    }
+                    else
+                    {
+                        _cameraList.TryAdd(camera.IP, camera);
+                        saveToFile = true;
                     }
                 }
             }
@@ -376,22 +449,24 @@ namespace EIR_9209_2.DataStore
         {
             try
             {
-                string newImage = "";
-                if (result.Length == 0)
-                {
-                    newImage = "data:image/jpeg;base64," + Convert.ToBase64String(noimageresult);
-                }
-                else
-                {
-                    newImage = "data:image/jpeg;base64," + Convert.ToBase64String(result);
-                }
+
                 if (_cameraMarkers.ContainsKey(id) && _cameraMarkers.TryGetValue(id, out CameraGeoMarker cm))
                 {
+                    string newImage = "";
+                    if (result.Length == 0)
+                    {
+                        newImage = "data:image/jpeg;base64," + Convert.ToBase64String(noimageresult);
+                        cm.Properties.Reachable = false;
+                    }
+                    else
+                    {
+                        newImage = "data:image/jpeg;base64," + Convert.ToBase64String(result);
+                        cm.Properties.Reachable = true;
+                    }
                     if (cm.Properties.Base64Image != newImage)
                     {
                         cm.Properties.Base64Image = newImage;
                         await _hubServices.Clients.Group($"{cm.Properties.Type}Still").SendAsync($"update{cm.Properties.Type}Still", cm);
-
                     }
                 }
             }
@@ -400,10 +475,26 @@ namespace EIR_9209_2.DataStore
                 _logger.LogError(e, e.Message);
             }
         }
-
-        public Task<Cameras> GetCameraListByIp(string ip)
+        /// <summary>
+        /// Retrieves camera information by IP address.
+        /// </summary>
+        /// <param name="Ip"></param>
+        /// <returns></returns>
+        public async Task<Cameras> GetCameraListByIp(string Ip)
         {
-            return Task.FromResult(_cameraList.Values.Where(y => y.IP == ip).Select(y => y).ToList().FirstOrDefault());
+            try
+            {
+                if (!string.IsNullOrEmpty(Ip))
+                {
+                    return _cameraList?.Values?.Where(y => y.IP == Ip || y.CameraName == Ip).Select(y => y).FirstOrDefault();
+                }
+                return null;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"{e.Message}");
+                return null;
+            }
         }
 
         public Task<bool> ResetCamerasList()
@@ -436,18 +527,26 @@ namespace EIR_9209_2.DataStore
                 return Task.FromResult(true);
             }
         }
-
+        /// <summary>
+        /// Custom contract resolver to ignore and rename properties during JSON serialization.
+        /// </summary>
         public class PropertyRenameAndIgnoreSerializerContractResolver : DefaultContractResolver
         {
             private readonly Dictionary<Type, HashSet<string>> _ignores;
             private readonly Dictionary<Type, Dictionary<string, string>> _renames;
-
+            /// <summary>
+            /// Initializes a new instance of the <see cref="PropertyRenameAndIgnoreSerializerContractResolver"/> class.
+            /// </summary>
             public PropertyRenameAndIgnoreSerializerContractResolver()
             {
                 _ignores = new Dictionary<Type, HashSet<string>>();
                 _renames = new Dictionary<Type, Dictionary<string, string>>();
             }
-
+            /// <summary>
+            /// Ignores the specified JSON property names for the given type.
+            /// </summary>
+            /// <param name="type"></param>
+            /// <param name="jsonPropertyNames"></param>
             public void IgnoreProperty(Type type, params string[] jsonPropertyNames)
             {
                 if (!_ignores.ContainsKey(type))
@@ -460,7 +559,12 @@ namespace EIR_9209_2.DataStore
                     _ = _ignores[type].Add(prop);
                 }
             }
-
+            /// <summary>
+            /// Renames the specified property for the given type.
+            /// </summary>
+            /// <param name="type"></param>
+            /// <param name="propertyName"></param>
+            /// <param name="newJsonPropertyName"></param>
             public void RenameProperty(Type type, string propertyName, string newJsonPropertyName)
             {
                 if (!_renames.ContainsKey(type))
@@ -471,6 +575,12 @@ namespace EIR_9209_2.DataStore
                 _renames[type][propertyName] = newJsonPropertyName;
             }
 
+            /// <summary>
+            /// Creates a JSON property for the given member.
+            /// </summary>
+            /// <param name="member"></param>
+            /// <param name="memberSerialization"></param>
+            /// <returns></returns>
             protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
             {
                 var property = base.CreateProperty(member, memberSerialization);
@@ -488,7 +598,12 @@ namespace EIR_9209_2.DataStore
 
                 return property;
             }
-
+            /// <summary>
+            /// Determines whether the specified property should be ignored for the given type.
+            /// </summary>
+            /// <param name="type"></param>
+            /// <param name="jsonPropertyName"></param>
+            /// <returns></returns>
             private bool IsIgnored(Type type, string jsonPropertyName)
             {
                 if (!_ignores.ContainsKey(type))
@@ -498,7 +613,13 @@ namespace EIR_9209_2.DataStore
 
                 return _ignores[type].Contains(jsonPropertyName);
             }
-
+            /// <summary>
+            /// Determines whether the specified property should be renamed for the given type.
+            /// </summary>
+            /// <param name="type"></param>
+            /// <param name="jsonPropertyName"></param>
+            /// <param name="newJsonPropertyName"></param>
+            /// <returns></returns>
             private bool IsRenamed(Type type, string jsonPropertyName, out string? newJsonPropertyName)
             {
                 Dictionary<string, string> renames;

@@ -1,4 +1,6 @@
-﻿namespace EIR_9209_2.Models;
+﻿using EIR_9209_2.Utilities.Extensions;
+
+namespace EIR_9209_2.Models;
 /// <summary>
 /// Represents a geographic marker for a camera, including its geometry and camera properties.
 /// </summary>
@@ -44,7 +46,7 @@ public class Cameras
     /// <summary>
     /// Gets or sets the unique identifier for the camera.
     /// </summary>
-    public string Id { get; set; } = "";
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
     /// <summary>
     /// Gets or sets the display name of the camera.
@@ -110,7 +112,12 @@ public class Cameras
     /// Gets or sets the name of the camera.
     /// </summary>
     public string CameraName { get; set; } = "";
-
+    
+    /// <summary>
+    /// Gets or sets the id of the camera.
+    /// </summary>
+    public int CameraId { get; set; } = 0;
+    
     /// <summary>
     /// Gets or sets the IP address of the camera.
     /// </summary>
@@ -128,8 +135,10 @@ public class Cameras
 
     /// <summary>
     /// Gets or sets the reachability status of the camera.
+    /// If the incoming JSON has an empty string or null, it will be treated as false.
     /// </summary>
-    public string Reachable { get; set; } = "";
+    [Newtonsoft.Json.JsonConverter(typeof(EmptyStringToBooleanConverter))]
+    public bool Reachable { get; set; } = false;
 
     /// <summary>
     /// Gets or sets the display name of the facility.

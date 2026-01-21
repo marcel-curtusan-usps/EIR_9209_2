@@ -2498,3 +2498,70 @@ div.leaflet-control-layers {
 .text-cyan {
     color: cyan !important;
 }
+/* Keep camera modal columns side-by-side and constrain their content */
+/* target the immediate inner row inside modal-body to avoid affecting other rows */
+#Camera_Modal .modal-body {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0;
+    /* remove bootstrap negative margins */
+    box-sizing: border-box;
+    padding: 0%;
+}
+
+#camera_Infobody {
+    flex: 0 0 30%;
+    overflow: auto;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#camera_modalbody {
+    flex: 1 1 70%;
+    /* rest of space for main content (70%) */
+    max-width: 70%;
+    overflow: auto;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Ensure images and iframes inside columns scale and don't overflow */
+#camera_modalbody img,
+#camera_modalbody iframe,
+#camera_Infobody img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Zero padding for camera info table cells to align content tightly */
+#camera_Infobody .table,
+#camera_Infobody .table td {
+    padding-bottom: 0 !important;
+    padding: 0 !important;
+    line-height: 1.15;
+    max-width: 100%;
+    font-size: small;
+}
+
+/* give th a small separation from td while keeping overall zero padding */
+#camera_Infobody .table th {
+    padding: 6px !important;
+    text-align: left;
+}
+
+/* Responsive fallback: stack columns on small screens */
+@media (max-width: 576px) {
+    #Camera_Modal .modal-body .row {
+        flex-wrap: wrap;
+    }
+
+    #camera_Infobody,
+    #camera_modalbody {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+/*# sourceMappingURL=Site.css.map */

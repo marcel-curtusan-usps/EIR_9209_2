@@ -1,10 +1,10 @@
-﻿$('#UserTag_Modal').on('hidden.bs.modal', function() {
+﻿$('#UserTag_Modal').on('hidden.bs.modal', function () {
   $(this).find('input[type=text],textarea,select').css({ 'border-color': '#D3D3D3' }).val('').prop('disabled', false).end().find('input[type=radio]').prop('disabled', false).prop('checked', false).change().end().find('span[class=text-info]').css('border-color', '#FF0000').val('').text('').end().find('input[type=checkbox]').prop('checked', false).change().end();
   sidebar.open('userprofile');
   $('#personform').css('display', 'none');
 });
-$('#UserTag_Modal').on('shown.bs.modal', function() {
-  $('select[id=tagCraftName_select]').on('change', function() {
+$('#UserTag_Modal').on('shown.bs.modal', function () {
+  $('select[id=tagCraftName_select]').on('change', function () {
     if ($(this).val() === '') {
       $('span[id=error_tagCraftName_select]').text('Pleas select a Category');
     } else {
@@ -14,7 +14,7 @@ $('#UserTag_Modal').on('shown.bs.modal', function() {
 
   // on change of the tagType_select
 
-  $('#tagType_select').on('change', function() {
+  $('#tagType_select').on('change', function () {
     if ($(this).val() === '') {
       $('#error_tagType_select').text('Please select a Category');
     } else {
@@ -51,7 +51,7 @@ connection.on('deleteBadgeTagInfo', async tagdata => {
   }
 });
 let tagsEmployees = new L.GeoJSON(null, {
-  pointToLayer: function(feature, latlng) {
+  pointToLayer: function (feature, latlng) {
     let icon = L.divIcon({
       className: getBadgeMarkerType(feature.properties.craftName),
       iconSize: [10, 10],
@@ -64,14 +64,14 @@ let tagsEmployees = new L.GeoJSON(null, {
       popupOpen: true
     });
   },
-  onEachFeature: function(feature, layer) {
+  onEachFeature: function (feature, layer) {
     layer.markerId = feature.properties.id;
-    layer.on('click', function(e) {
+    layer.on('click', function (e) {
       //makea ajax call to get the employee details
       $.ajax({
         url: SiteURLconstructor(window.location) + '/api/Tag/GetTagByTagId?tagId=' + feature.properties.id,
         type: 'GET',
-        success: function(data) {
+        success: function (data) {
           if ('Message' in data) {
             //display error message
           } else {
@@ -84,13 +84,13 @@ let tagsEmployees = new L.GeoJSON(null, {
             sidebar.open('reports');
           }
         },
-        error: function(error) {
+        error: function (error) {
           console.log(error);
         },
-        faulure: function(fail) {
+        faulure: function (fail) {
           console.log(fail);
         },
-        complete: function(complete) {}
+        complete: function (complete) { }
       });
     });
     layer
@@ -102,7 +102,7 @@ let tagsEmployees = new L.GeoJSON(null, {
       })
       .openTooltip();
   },
-  filter: function(feature, layer) {
+  filter: function (feature, layer) {
     return feature.properties.visible;
   }
 });
@@ -118,7 +118,7 @@ async function hidestafftables() {
 }
 async function findLeafletIds(markerId) {
   return new Promise((resolve, reject) => {
-    tagsEmployees.eachLayer(function(layer) {
+    tagsEmployees.eachLayer(function (layer) {
       if (layer.markerId === markerId) {
         resolve(layer._leaflet_id);
         return false;
@@ -132,21 +132,22 @@ async function init_tags() {
     createStaffingDataTable('staffingtable');
     createTagDataTable('tagInfotable');
 
-    $(document).on('change', '.leaflet-control-layers-selector', function() {
+    $(document).on('change', '.leaflet-control-layers-selector', function () {
       let sp = this.nextElementSibling;
       if (/^badges$/ig.test(sp.innerHTML.trim())) {
         if (this.checked) {
-          connection.invoke('JoinGroup', 'Badge').catch(function(err) {
+          connection.invoke('JoinGroup', 'Badge').catch(function (err) {
             return console.error(err.toString());
           });
         } else {
-          connection.invoke('LeaveGroup', 'Badge').catch(function(err) {
+          connection.invoke('LeaveGroup', 'Badge').catch(function (err) {
             return console.error(err.toString());
           });
         }
       }
     });
-    if (appData.User !== 'USA\\PMCCUser') {
+    // if (appData.User !== 'USA\\PMCCUser') {
+    if (!/PMCCUser$/ig.test(appData.User)) {
       await addGroupToList('Badge');
     }
   } catch (e) {
@@ -160,7 +161,7 @@ async function deleteFeature(data, floorId) {
         //remove from tagsEmployees
         tagsEmployees.removeLayer(leafletIds);
       })
-      .catch(error => {});
+      .catch(error => { });
   } catch (e) {
     throw new Error(e.toString());
   }
@@ -240,7 +241,7 @@ function createTagDataTable(table) {
   ];
   let columns = [];
   let tempc = {};
-  $.each(arrayColums[0], function(key) {
+  $.each(arrayColums[0], function (key) {
     tempc = {};
     if (/INDEX/i.test(key)) {
       tempc = {
@@ -293,7 +294,7 @@ function createTagDataTable(table) {
 function updateTagDataTable(newdata, table) {
   let loadnew = true;
   if ($.fn.dataTable.isDataTable('#' + table)) {
-    $('#' + table).DataTable().rows(function(idx, data, node) {
+    $('#' + table).DataTable().rows(function (idx, data, node) {
       loadnew = false;
       for (const element of newdata) {
         if (data.KEY_NAME === element.KEY_NAME) {
@@ -318,7 +319,7 @@ function createStaffingDataTable(table) {
   ];
   let columns = [];
   let tempc = {};
-  $.each(arrayColums[0], function(key) {
+  $.each(arrayColums[0], function (key) {
     tempc = {};
 
     if (/type/i.test(key)) {
@@ -350,7 +351,7 @@ function createStaffingDataTable(table) {
         title: 'Icon',
         width: '5%',
         mDataProp: key,
-        mRender: function(data, type, full) {
+        mRender: function (data, type, full) {
           return '<i class="leaflet-tooltip ' + getBadgeMarkerType(full.type) + '"></i>';
         }
       };
@@ -374,25 +375,25 @@ function createStaffingDataTable(table) {
     aoColumns: columns,
     columnDefs: [],
     sorting: [[1, 'asc']],
-    rowCallback: function(row, data, index) {
+    rowCallback: function (row, data, index) {
       $(row).find('td:eq(2)').css('text-align', 'center');
       $(row).find('td:eq(3)').css('text-align', 'center');
       $(row).find('td:eq(4)').css('text-align', 'center');
     },
-    footerCallback: function(row, data, start, end, display) {
+    footerCallback: function (row, data, start, end, display) {
       let api = this.api();
       // converting to interger to find total
-      let intVal = function(i) {
+      let intVal = function (i) {
         return typeof i === 'string' ? i.replace(/[$,]/g, '') * 1 : typeof i === 'number' ? i : 0;
       };
       // computing column Total of the complete result
-      let schetotal = api.column(2).data().reduce(function(a, b) {
+      let schetotal = api.column(2).data().reduce(function (a, b) {
         return intVal(a) + intVal(b);
       }, 0);
-      let in_buildingtotal = api.column(3).data().reduce(function(a, b) {
+      let in_buildingtotal = api.column(3).data().reduce(function (a, b) {
         return intVal(a) + intVal(b);
       }, 0);
-      let epacstotal = api.column(4).data().reduce(function(a, b) {
+      let epacstotal = api.column(4).data().reduce(function (a, b) {
         return intVal(a) + intVal(b);
       }, 0);
       // Update footer by showing the total with the reference of the column index
@@ -410,7 +411,7 @@ function loadStaffingDatatable(data, table) {
 function updateStaffingDataTable(newdata, table) {
   let loadnew = true;
   if ($.fn.dataTable.isDataTable('#' + table)) {
-    $('#' + table).DataTable().rows(function(idx, data, node) {
+    $('#' + table).DataTable().rows(function (idx, data, node) {
       loadnew = false;
       for (const element of newdata) {
         if (data.type === element.type) {
@@ -496,20 +497,20 @@ async function tagEditInfo(tagId) {
     $.ajax({
       url: SiteURLconstructor(window.location) + '/api/Tag/GetTagByTagId?tagid=' + id,
       type: 'GET',
-      success: async function(data) {
+      success: async function (data) {
         if ('Message' in data) {
           //
         } else {
           await EditUserInfo(data.properties);
         }
       },
-      error: function(error) {
+      error: function (error) {
         console.log(error);
       },
-      faulure: function(fail) {
+      faulure: function (fail) {
         console.log(fail);
       },
-      complete: function(complete) {}
+      complete: function (complete) { }
     });
   }
 }
@@ -544,7 +545,7 @@ async function EditUserInfo(properties) {
   $('input[name=tag_id]').val(properties.id);
 
   // Set up the click event for the submit button
-  $('button[id=usertagsubmitBtn]').off().on('click', function() {
+  $('button[id=usertagsubmitBtn]').off().on('click', function () {
     try {
       // Disable the submit button to prevent multiple submissions
       $('button[id=usertagsubmitBtn]').prop('disabled', true);
@@ -580,22 +581,22 @@ async function EditUserInfo(properties) {
           type: 'POST',
           data: JSON.stringify(updatedProperties), // Ensure the data is a JSON string
           contentType: 'application/json', // Correct content type
-          success: function(properties) {
+          success: function (properties) {
             $('span[id=error_usertagsubmitBtn]').text('Tag Info has been updated');
-            setTimeout(function() {
+            setTimeout(function () {
               $('#UserTag_Modal').modal('hide');
               sidebar.open('userprofile');
             }, 500);
           },
-          error: function(error) {
+          error: function (error) {
             // Display user-friendly error message on the webpage
             $('span[id=error_usertagsubmitBtn]').text('Error retrieving data: ' + error.responseText);
           },
-          failure: function(response) {
+          failure: function (response) {
             // Display user-friendly error message on the webpage
             $('span[id=error_usertagsubmitBtn]').text('Request failed: ' + response.statusText);
           },
-          complete: function(data) {}
+          complete: function (data) { }
         });
       } else {
         $('span[id=error_usertagsubmitBtn]').text('No Tag Data has been Updated');

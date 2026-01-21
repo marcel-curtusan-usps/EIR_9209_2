@@ -108,18 +108,10 @@ async function init_accessPoints() {
         console.error(err);
       });
 
-    $(document).on('change', '.leaflet-control-layers-selector', function() {
-      let sp = this.nextElementSibling;
-      if (/^(AP)$/ig.test(sp.innerHTML.trim())) {
-        if (this.checked) {
-          connection.invoke('JoinGroup', 'AP').catch(function(err) {
-            return console.error(err.toString());
-          });
-        } else {
-          connection.invoke('LeaveGroup', 'AP').catch(function(err) {
-            return console.error(err.toString());
-          });
-        }
+    $(document).on('change', '.leaflet-control-layers-selector', async function() {
+      let sp = this.nextElementSibling.innerHTML.trim();
+      if (/^(AP)$/ig.test(sp)) {
+        await handleGroupChange(this.checked, sp);
       }
     });
     await addGroupToList('AP');

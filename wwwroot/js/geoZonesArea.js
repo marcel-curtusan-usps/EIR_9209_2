@@ -60,7 +60,7 @@ async function findAreaLeafletIds(zoneId) {
 async function init_geoZoneArea(floorId) {
   try {
     await $.ajax({
-      url: `${SiteURLconstructor(window.location)}/api/Zone/ZonesTypeByFloorId?floorId=${floorId}&type=Area`,
+      url: `${SiteURLconstructor(globalThis.location)}/api/Zone/ZonesTypeByFloorId?floorId=${floorId}&type=Area`,
       contentType: 'application/json',
       type: 'GET',
       success: function(data) {

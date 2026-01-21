@@ -146,7 +146,7 @@ namespace EIR_9209_2.Service
                         _timer = new PeriodicTimer(TimeSpan.FromMilliseconds(_endpointConfig.MillisecondsInterval));
                     }
                     _endpointConfig.LasttimeApiConnected = DateTime.Now;
-                    //_endpointConfig.Status = EWorkerServiceState.Idel;
+                    //_endpointConfig.Status = EWorkerServiceState.Idle;
                     //await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", _endpointConfig, CancellationToken.None).ConfigureAwait(false);
                 }
             }

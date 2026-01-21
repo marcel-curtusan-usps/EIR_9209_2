@@ -107,7 +107,7 @@ namespace EIR_9209_2.Service
                     else
                     {
                         await _loggerService.LogData(JToken.FromObject(result), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
-                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        _endpointConfig.Status = EWorkerServiceState.Idle;
                         var updateCon = _connection.Update(_endpointConfig).Result;
                         if (updateCon != null)
                         {

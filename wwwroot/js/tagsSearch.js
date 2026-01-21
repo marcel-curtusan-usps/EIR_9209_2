@@ -13,7 +13,7 @@ $(function() {
       }
     });
 });
-async function init_TagSearch() {
+async function init_tagsSearch() {
   Promise.all([createTagSearchDataTable(TagSearchtable)]);
 }
 async function startSearch(searchValue) {

@@ -72,15 +72,10 @@ async function init_tagsAGV() {
     createAGVDataTable('vehicleInfoTable');
     $(document).on('change', '.leaflet-control-layers-selector', async function() {
       let sp = this.nextElementSibling;
-      if (/^AGV Vehicles/ig.test(sp.innerHTML.trim())) {
-        if (this.checked) {
-          await addGroupToList('AutonomousVehicle');
-        } else {
-          await removeFromGroupList('AutonomousVehicle');
-        }
+      if (/^AGV Vehicles/ig.test(sp)) {
+        await handleGroupChange(this.checked, sp);
       }
     });
-    await addGroupToList('AutonomousVehicle');
     if (/^(Admin|Maintenance|OIE)/i.test(appData.Role)) {
       $('button[id=vehicleinfoedit]').off().on('click', function() {
         /* close the sidebar */

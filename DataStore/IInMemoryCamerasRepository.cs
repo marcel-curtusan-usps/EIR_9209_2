@@ -17,7 +17,7 @@ public interface IInMemoryCamerasRepository
     /// </summary>
     /// <param name="camera">The <see cref="CameraGeoMarker"/> to add.</param>
     /// <returns>The added <see cref="CameraGeoMarker"/>.</returns>
-    Task<CameraGeoMarker> Add(CameraGeoMarker camera);
+    Task<CameraGeoMarker?> Add(CameraGeoMarker camera);
 
     /// <summary>
     /// Updates an existing camera geo marker in the repository.
@@ -36,7 +36,14 @@ public interface IInMemoryCamerasRepository
     /// Retrieves all camera geo markers from the repository.
     /// </summary>
     /// <returns>A list of all <see cref="CameraGeoMarker"/> objects.</returns>
-    List<CameraGeoMarker> GetAll();
+    Task<List<CameraGeoMarker>> GetAll();
+    
+    /// <summary>
+    /// Retrieves cameras by floor ID and type.
+    /// </summary>
+    /// <param name="floorId">The floor ID to filter cameras.</param>
+    /// <param name="type">The type of cameras to filter.</param>
+    Task<(bool, object?)> GetCameraByFloorId(string floorId, string type);
 
     /// <summary>
     /// Adds camera information to the repository.

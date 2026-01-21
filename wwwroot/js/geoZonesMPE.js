@@ -135,7 +135,7 @@ let geoZoneMPE = new L.GeoJSON(null, {
             }
             else {
                 OSLmap.setView(e.sourceTarget.getCenter(), 4);
-            }  
+            }
             Promise.all([loadMachineData(feature.properties, MPETable)]);
 
         });
@@ -171,48 +171,48 @@ async function findMpeZoneLeafletIds(zoneId) {
     });
 }
 async function init_geoZoneMPE(floorId) {
-  try {
-    //int mpe standard table
-    creatMpeStandardDataTable(StandardTable);
-    for (var touri in tourlist) {
-      createTargetDataTable(TargetTable + tourlist[touri], tourlist[touri]);
-    }
-    //load MPE Zones
-    await $.ajax({
-      url: `${SiteURLconstructor(
-        window.location
-      )}/api/Zone/ZonesTypeByFloorId?floorId=${floorId}&type=MPE`,
-      contentType: "application/json",
-      type: "GET",
-      success: function (data) {
-        for (let i = 0; i < data.length; i++) {
-          Promise.all([addMPEFeature(data[i])]);
+    try {
+        //int mpe standard table
+        creatMpeStandardDataTable(StandardTable);
+        for (var touri in tourlist) {
+            createTargetDataTable(TargetTable + tourlist[touri], tourlist[touri]);
         }
-      },
-    });
-    $(document).on("change", ".leaflet-control-layers-selector", async function (_e) {
-      let sp = this.nextElementSibling.innerHTML.trim();
-      if (/^(MPE Zones)$/ig.test(sp)) {
-              await handleGroupChange(this.checked, sp);
-      }
-    });
-    await addGroupToList('MPE');
-    await addGroupToList('MPETartgets');
-    if (/^(Admin|Maintenance|OIE)/i.test(appData.Role)) {
-      $("button[name=machineinfoedit]")
-        .off()
-        .on("click", function () {
-          /* close the sidebar */
-          sidebar.close();
-          var id = $(this).attr("id");
-          if (checkValue(id)) {
-            Promise.all([Edit_Machine_Info(id)]);
-          }
+        //load MPE Zones
+        await $.ajax({
+            url: `${SiteURLconstructor(
+                window.location
+            )}/api/Zone/ZonesTypeByFloorId?floorId=${floorId}&type=MPE`,
+            contentType: "application/json",
+            type: "GET",
+            success: function (data) {
+                for (let i = 0; i < data.length; i++) {
+                    Promise.all([addMPEFeature(data[i])]);
+                }
+            },
         });
+        $(document).on("change", ".leaflet-control-layers-selector", async function (_e) {
+            let sp = this.nextElementSibling.innerHTML.trim();
+            if (/^(MPE Zones)$/ig.test(sp)) {
+                await handleGroupChange(this.checked, sp);
+            }
+        });
+        await addGroupToList('MPE');
+        await addGroupToList('MPETartgets');
+        if (/^(Admin|Maintenance|OIE)/i.test(appData.Role)) {
+            $("button[name=machineinfoedit]")
+                .off()
+                .on("click", function () {
+                    /* close the sidebar */
+                    sidebar.close();
+                    var id = $(this).attr("id");
+                    if (checkValue(id)) {
+                        Promise.all([Edit_Machine_Info(id)]);
+                    }
+                });
+        }
+    } catch (e) {
+        throw new Error(e.toString());
     }
-  } catch (e) {
-    throw new Error(e.toString());
-  }
 }
 connection.on("addMPEzone", async (zoneDate) => {
     addMPEFeature(zoneDate);
@@ -225,33 +225,33 @@ connection.on("deleteMPEzone", async (zoneDate) => {
 });
 connection.on("updateMPEzone", async (mpeZonedata) => {
     try {
-    await findMpeZoneLeafletIds(mpeZonedata.properties.id)
-        .then(leafletIds => {
-            // Assuming mpeZonedata is the object containing the new properties
-            const newProperties = mpeZonedata.properties;
+        await findMpeZoneLeafletIds(mpeZonedata.properties.id)
+            .then(leafletIds => {
+                // Assuming mpeZonedata is the object containing the new properties
+                const newProperties = mpeZonedata.properties;
 
-            // Loop through the properties and update the values
-            for (const key in newProperties) {
-                if (key !== 'mpeRunPerformance') {
-                    
-                    if (key == 'name') {
-                        // Check if the property name is different and update the tooltip
-                        geoZoneMPE._layers[leafletIds].feature.properties[key] = newProperties[key];
-                        geoZoneMPE._layers[leafletIds].setTooltipContent(
-                            newProperties[key] + "<br/>" +
-                            "Staffing: " +
-                            (geoZoneMPE._layers[leafletIds].feature.properties.hasOwnProperty("CurrentStaff")
-                                ? geoZoneMPE._layers[leafletIds].feature.properties.CurrentStaff
-                                : "0")
-                        );
-                    }
-                    else {
+                // Loop through the properties and update the values
+                for (const key in newProperties) {
+                    if (key !== 'mpeRunPerformance') {
 
-                        geoZoneMPE._layers[leafletIds].feature.properties[key] = newProperties[key];
+                        if (key == 'name') {
+                            // Check if the property name is different and update the tooltip
+                            geoZoneMPE._layers[leafletIds].feature.properties[key] = newProperties[key];
+                            geoZoneMPE._layers[leafletIds].setTooltipContent(
+                                newProperties[key] + "<br/>" +
+                                "Staffing: " +
+                                (geoZoneMPE._layers[leafletIds].feature.properties.hasOwnProperty("CurrentStaff")
+                                    ? geoZoneMPE._layers[leafletIds].feature.properties.CurrentStaff
+                                    : "0")
+                            );
+                        }
+                        else {
+
+                            geoZoneMPE._layers[leafletIds].feature.properties[key] = newProperties[key];
+                        }
                     }
                 }
-            }
-        });
+            });
     }
     catch (e) {
         throw new Error(e.toString());
@@ -272,7 +272,7 @@ connection.on("updateMPEzoneTartgets", async (data) => {
             mpeNumber = $('input[type=text][name=machine_number]').val();
             mpeId = mpeName + "-" + mpeNumber.padStart(3, '0');
         }
-     
+
         if (data[0].mpeId === mpeId) {
             // Update the cell data in the DataTable
             for (var tourNumber in tourlist) {
@@ -339,12 +339,10 @@ function enablezoneSubmit() {
         $('input[type=text][name=machine_number]').hasClass('is-valid')) {
         $('button[id=machinesubmitBtn]').prop('disabled', false);
     }
-    else if ($('input[type=text][name=mpeRejectBins]').hasClass('is-valid') )
-    {
+    else if ($('input[type=text][name=mpeRejectBins]').hasClass('is-valid')) {
         $('button[id=machinesubmitBtn]').prop('disabled', false);
     }
-    else if ($('input[type=text][name=mpeReworkBins]').hasClass('is-valid'))
-    {
+    else if ($('input[type=text][name=mpeReworkBins]').hasClass('is-valid')) {
         $('button[id=machinesubmitBtn]').prop('disabled', false);
     }
     else {
@@ -415,8 +413,8 @@ async function loadMachineData(data, table) {
             let machinetop_Table_Body = machinetop_Table.find('tbody');
             machinetop_Table_Body.empty();
             machinetop_Table_Body.append(machinetop_row_template.supplant(formatmachinetoprow(data)));
-          
-           
+
+
             if (mpeData !== null) {
                 if (mpeData.hasOwnProperty("bin_full_bins")) {
                     if (mpeData.bin_full_bins !== "") {
@@ -483,7 +481,7 @@ async function loadMachineData(data, table) {
                 mpgtrStyle.display = 'none';
             }
         }
-        sidebar.open('home'); 
+        sidebar.open('home');
     }
     catch (e) {
         // handle error
@@ -540,7 +538,7 @@ function formatmachinetoprow(properties) {
             zoneName: properties.name,
             type: properties.type,
             sortPlan: properties.mpeRunPerformance !== null ? Vaildatesortplan(properties.mpeRunPerformance) : "N/A",// ? properties.MPEWatchData.cur_sortplan : "N/A",
-            opNum: properties.mpeRunPerformance !== null ? properties.mpeRunPerformance.curOperationId : 0 ,
+            opNum: properties.mpeRunPerformance !== null ? properties.mpeRunPerformance.curOperationId : 0,
             sortPlanStart: properties.mpeRunPerformance !== null ? VaildateMPEtime(properties.mpeRunPerformance.currentRunStart) : "N/A",
             sortPlanEnd: properties.mpeRunPerformance !== null ? VaildateMPEtime(properties.mpeRunPerformance.currentRunEnd) : "N/A",
             peicesFed: properties.mpeRunPerformance !== null ? properties.mpeRunPerformance.totSortplanVol : 0,
@@ -709,45 +707,45 @@ function padLeft(string, length, paddingCharacter) {
 async function getlistofMPE() {
 
     $.ajax({
-            url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?Type=MPE',
-            contentType: 'application/json',
-            type: 'GET',
-            success: function (mpedata) {
-                if (mpedata.length > 0) {
-                    mpedata.sort();
-                    mpedata.push('**Machine Not Listed');
-           
-                    $('select[id=machine_zone_select_name]').css('display', '');
-                    $('select[id=machine_zone_select_name]').empty();
-                    $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
-                    $('select[id=machine_zone_select_name]').val("");
-                    $.each(mpedata, function () {
-                        $('<option/>').val(this).html(this).appendTo('#machine_zone_select_name');
-                    })
-                }
-                else {
-                    $('select[id=machine_zone_select_name]').empty();
-                    $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
-                    $('#machine_manual_row').css('display', 'block');
-                    $('#machine_select_row').css('display', 'none');
-                    $('select[id=machine_zone_select_name]').css('display', 'none');
+        url: SiteURLconstructor(window.location) + '/api/Zone/GetZoneNameList?Type=MPE',
+        contentType: 'application/json',
+        type: 'GET',
+        success: function (mpedata) {
+            if (mpedata.length > 0) {
+                mpedata.sort();
+                mpedata.push('**Machine Not Listed');
 
-                }
-        
-            },
-            error: function (error) {
-
-                console.log(error);
-                return false;
-            },
-            faulure: function (fail) {
-                console.log(fail);
-                return false;
-            },
-            complete: function (complete) {
-                console.log(complete);
-                return false;
+                $('select[id=machine_zone_select_name]').css('display', '');
+                $('select[id=machine_zone_select_name]').empty();
+                $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
+                $('select[id=machine_zone_select_name]').val("");
+                $.each(mpedata, function () {
+                    $('<option/>').val(this).html(this).appendTo('#machine_zone_select_name');
+                })
             }
+            else {
+                $('select[id=machine_zone_select_name]').empty();
+                $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
+                $('#machine_manual_row').css('display', 'block');
+                $('#machine_select_row').css('display', 'none');
+                $('select[id=machine_zone_select_name]').css('display', 'none');
+
+            }
+
+        },
+        error: function (error) {
+
+            console.log(error);
+            return false;
+        },
+        faulure: function (fail) {
+            console.log(fail);
+            return false;
+        },
+        complete: function (complete) {
+            console.log(complete);
+            return false;
+        }
     });
 }
 async function getlistofMPEGroups() {
@@ -882,7 +880,7 @@ async function Edit_Machine_Info(id) {
                 if ($('select[name=machine_zone_select_name] option:selected').val()) {
                     let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split(/-(?=[^-]*$)/);
                     jsonObject.mpeName = selectedMachine[0];
-                    jsonObject.mpeNumber =  selectedMachine[1];
+                    jsonObject.mpeNumber = selectedMachine[1];
                     jsonObject.name = jsonObject.mpeName + "-" + jsonObject.mpeNumber.padStart(3, '0')
                 }
                 else {
@@ -989,7 +987,7 @@ function loadTargetsHourDataTable(tourNumber, targets) {
     }
     dataArray.push(dataTarget);
     dataArray.push(dataTargetReject);
-    $('#' + (TargetTable + tourNumber)).DataTable().clear().draw(); 
+    $('#' + (TargetTable + tourNumber)).DataTable().clear().draw();
     Promise.all([updateTargetsHourDataTable(dataArray, TargetTable + tourNumber)]);
 }
 //async function Edit_Machine_Info(id) {
@@ -1007,7 +1005,7 @@ function loadTargetsHourDataTable(tourNumber, targets) {
 //                .then(leafletIds => {
 //                    Data = geoZoneMPE._layers[leafletIds].feature.properties;
 //                    MPEwNUMBER = Data.name
-             
+
 
 //                }).then(async () => {
 //                    $('input[id=machine_ip]').val(Data.mpeIpAddress)
@@ -1151,7 +1149,7 @@ $('.targetTour').off().on('click', function () {
                 const hourid = rowdata1[i].getElementById("targethourid");
                 hourid.id = 'hour' + i;
                 $.each(mpeTargetData, function (key, value) {
-                    if (value.hour==tourhours[i]) {
+                    if (value.hour == tourhours[i]) {
                         hourid.value = value.hourlyTargetVol;
                     }
                 });
@@ -1164,7 +1162,7 @@ $('.targetTour').off().on('click', function () {
                 const rejectrateid = rowdata2[i].getElementById("rejectratehourid");
                 rejectrateid.id = 'rejecthour' + i;
                 $.each(mpeTargetData, function (key, value) {
-                    if (value.hour==tourhours[i]) {
+                    if (value.hour == tourhours[i]) {
                         rejectrateid.value = value.hourlyRejectRatePercent;
                     }
                 });
@@ -1184,7 +1182,7 @@ $('.targetTour').off().on('click', function () {
             //console.log(complete);
         }
     });
-    addMPETargets(tourhours.length);           
+    addMPETargets(tourhours.length);
     deleteMPETargets(tourhours.length);
 });
 
@@ -1323,8 +1321,8 @@ function createTargetDataTable(table, tour) {
                     // Get the header text of the clicked cell's column
                     var headerText = $(api.column(columnIndex).header()).text();
                     // Get all data for the clicked column
-                    let columnData = api.column(columnIndex).data().toArray();      
-                    let mpeName = "";  
+                    let columnData = api.column(columnIndex).data().toArray();
+                    let mpeName = "";
                     let mpeNumber = "";
                     if ($('select[name=machine_zone_select_name] option:selected').val() !== '') {
                         let selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split(/-(?=[^-]*$)/);
@@ -1361,7 +1359,7 @@ function createTargetDataTable(table, tour) {
                             type: 'PUT',
                             data: JSON.stringify(jsonObject),
                             success: function (data) {
-                               
+
                                 // Update the cell data in the DataTable
                                 //loadTargetsHourDataTable(tourNumber,data);
                                 setTimeout(function () { $('#Targets_Modal').modal('hide'); }, 500);
@@ -1373,9 +1371,9 @@ function createTargetDataTable(table, tour) {
                             faulure: function (fail) {
                                 console.log(fail);
                             },
-                           
+
                         });
-              
+
                     });
                 });
                 api.on('draw', function () {
@@ -1421,7 +1419,7 @@ function createTargetDataTable(table, tour) {
                                     "mpeName": mpeName,
                                     "mpeNumber": mpeNumber,
                                     "targetHour": headerText,
-                                    "mpeId": mpeName + "-"+ mpeNumber.padStart(3, '0'),
+                                    "mpeId": mpeName + "-" + mpeNumber.padStart(3, '0'),
                                     "hourlyTargetVol": $('input[name="hourlyTargetVol"]').val(),
                                     "hourlyRejectRatePercent": $('input[name="hourlyRejectRatePercent"]').val()
                                 }
@@ -1576,7 +1574,7 @@ function creatMpeStandardDataTable(table) {
         }
         else if (/mpestadarddelete/ig.test(this.name)) {
             sidebar.close();
-          //  Promise.all([Remove_Connection(row.data())]);
+            //  Promise.all([Remove_Connection(row.data())]);
         }
     });
 }
@@ -1678,10 +1676,10 @@ async function GetMachinePerfGraph(dataproperties) {
                                 label: function (context) {
                                     let label = "Time: " + luxon.DateTime.fromJSDate(new Date(context.dataset.data[context.dataIndex].x)).toFormat('L/dd/yyyy T');
                                     return label;
-                                }, 
+                                },
                                 beforeFooter: function (context) {
                                     let label = "";
-                                    label = context[0].dataset.label+": " + parseFloat(context[0].dataset.data[context[0].dataIndex].y).toLocaleString('en-US');
+                                    label = context[0].dataset.label + ": " + parseFloat(context[0].dataset.data[context[0].dataIndex].y).toLocaleString('en-US');
                                     return label;
                                 }
                             }
@@ -1705,7 +1703,7 @@ async function GetMachinePerfGraph(dataproperties) {
                         },
                         ySorted: {
                             beginAtZero: true,
-                            display:false
+                            display: false
                         },
                         yRejected: {
                             beginAtZero: true,
@@ -1714,7 +1712,7 @@ async function GetMachinePerfGraph(dataproperties) {
                     }
                 }
             };
-          
+
             let MpeChart = new Chart("machinechart", MPEconfig)
 
             const SortedIndex = MpeChart.data.datasets.findIndex(dataset => dataset.yAxisID === 'ySorted');

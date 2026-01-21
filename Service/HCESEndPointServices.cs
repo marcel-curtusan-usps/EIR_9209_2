@@ -41,7 +41,7 @@ namespace EIR_9209_2.Service
                     {
                         var result = await queryService.GetHCESData(stoppingToken, "facilityID", siteinfo.FacilityId, _endpointConfig.OAuthClientId);
 
-                        _endpointConfig.Status = EWorkerServiceState.Idel;
+                        _endpointConfig.Status = EWorkerServiceState.Idle;
                         var updateCon = _connection.Update(_endpointConfig).Result;
                         if (updateCon != null)
                         {
