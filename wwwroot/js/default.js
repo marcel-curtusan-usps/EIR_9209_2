@@ -19,6 +19,7 @@ async function initializeOSL() {
     .then(response => response.json())
     .then(data => {
       appData = data;
+      localStorage.setItem('northDirection', appData.NorthDirection);
       document.title = appData.name + ' (' + appData.siteId + ')';
       siteTours = appData.tours;
       ianaTimeZone = getIANATimeZone(getPostalTimeZone(appData.timeZoneAbbr));

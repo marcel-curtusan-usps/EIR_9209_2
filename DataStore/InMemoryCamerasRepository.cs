@@ -200,6 +200,34 @@ namespace EIR_9209_2.DataStore
                 return (false, null);
             }
         }
+        public async Task<(bool, object?)> UpdateCameraDirectionById(string id, int direction)
+        {
+            bool saveToFile = false;
+            try
+            {
+                if (_cameraMarkers.ContainsKey(id) && _cameraMarkers.TryGetValue(id, out CameraGeoMarker camera))
+                {
+                    camera.Properties.CameraDirection = direction.ToString();
+                    _cameraMarkers.TryUpdate(id, camera, camera);
+                    saveToFile = true;
+                    return (true, camera);
+                }
+                return (false, null);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return (false, null);
+            }
+            finally
+            {
+                if (saveToFile)
+                {
+                    await _fileService.WriteConfigurationFile(fileName, CameraMarkersOutPutdata(_cameraMarkers.Select(x => x.Value).ToList()));
+                }
+            }
+        }
+
         /// <summary>
         /// Retrieves all camera properties from the repository.
         /// </summary>

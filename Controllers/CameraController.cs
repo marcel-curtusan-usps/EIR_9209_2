@@ -76,7 +76,47 @@ namespace EIR_9209_2.Controllers
                 return BadRequest(e.Message);
             }
         }
-        
+        /// <summary>
+        /// Update Camera Direction by Id
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("UpdateCameraDirection")]
+        public async Task<object> UpdateCameraDirection(JObject payload)
+        {
+            try
+            {
+                //handle bad requests
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var id = payload["id"]?.ToString();
+                var direction = payload["direction"]?.ToObject<int>() ?? 0;
+
+                if (string.IsNullOrEmpty(id))
+                {
+                    return BadRequest("ID is required.");
+                }
+
+                var (found, cameras) = await _cameras.UpdateCameraDirectionById(id, direction);
+                if (found)
+                {
+                    return Ok(cameras);
+                }
+                else
+                {
+                    return NotFound($"No cameras found for Id: {id}");
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
+
         /// <summary>
         ///  Adds a new camera based on the provided JSON object.
         /// </summary>

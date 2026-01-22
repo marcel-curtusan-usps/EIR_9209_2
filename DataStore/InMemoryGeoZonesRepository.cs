@@ -348,9 +348,9 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
     public Task<object> GetAll()
     {
         try
-        { 
+        {
 
-             // Convert GeoZone list to JArray
+            // Convert GeoZone list to JArray
             JArray geoZones = JArray.FromObject(_geoZoneList.Values.ToList());
             // Convert GeoZoneKiosk list to JArray
             JArray geoZoneKiosk = JArray.FromObject(_geoZonekioskList.Values.ToList());
@@ -376,7 +376,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
                 MergeArrayHandling = MergeArrayHandling.Concat,
 
             });
-             return Task.FromResult((object)geoZones);
+            return Task.FromResult((object)geoZones);
         }
         catch (Exception e)
         {
@@ -1539,7 +1539,7 @@ public class InMemoryGeoZonesRepository : IInMemoryGeoZonesRepository
         try
         {
             var currentTime = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
-            var localTime = new DateTime(currentTime.Year, currentTime.Month, currentTime.Day, (currentTime.Hour + 1), 0, 0);
+            var localTime = new DateTime(currentTime.Year, currentTime.Month, currentTime.Day, currentTime.Hour, 0, 0, currentTime.Kind);
 
             return Enumerable.Range(0, hours)
                              .Select(i => localTime.AddHours(-hours + i))

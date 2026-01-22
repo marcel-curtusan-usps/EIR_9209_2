@@ -11,7 +11,7 @@
 	<div id="map"></div>
 	<!-- Modal Section -->
 
-	<div class="modal fade" id="siteSummaryModal" tabindex="-1" role="dialog" data-backdrop="static"
+	<div class="modal fade" id="siteSummaryModal" tabindex="-1" data-backdrop="static"
 		style="z-index: 12000;" aria-labelledby="siteSummaryModal_Label">
 		<div class="modal-dialog" style="max-width: 95%;">
 			<div class="modal-content bg-white">
@@ -41,7 +41,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="modal fade" id="Email_Modal" tabindex="-1" role="dialog" data-backdrop="static" style="z-index: 12000;"
+	<div class="modal fade" id="Email_Modal" tabindex="-1" data-backdrop="static" style="z-index: 12000;"
 		aria-labelledby="Email_Modal_Label">
 		<div class="modal-dialog modal-xl">
 			<div class="modal-content bg-white">
@@ -433,7 +433,7 @@
 							<input type="text" class="form-control" id="oslName_txt" aria-describedby="BckImageName" />
 						</div>
 					</div>
-					<div id="oslDetailsForm" style="display: none;">
+					<div id="oslDetailsForm">
 						<div class="row flex">
 							<div class="col-6">
 								<label class="control-label" for="BckImageId_txt">Id</label>
@@ -484,7 +484,7 @@
 							</div>
 						</div>
 					</div>
-					<div id="oslindexForm" style="display: none;">
+					<div id="oslindexForm">
 						<div class="form-group col-4">
 							<label for="oslindex" class="control-label">Index</label>
 							<select id="oslindex" class="form-control pb-1" name="oslindex">
@@ -738,7 +738,7 @@
 							<span id="error_condition_type" class="text-danger"></span>
 						</div>
 					</div>
-					<div class="row">
+							<div class="row g-2 align-items-start">
 						<div class="form-group col-6">
 							<div class="d-flex justify-content-center my-2">
 								<div class="w-75">
@@ -856,7 +856,7 @@
 									<span class="text-info" id="error_timezoneValueID"></span>
 								</div>
 							</div>
-							<div class="form-group row value_row_toggle" style="display: none;">
+							<div class="form-group row value_row_toggle">
 								<div class="col-sm text-center">
 									<label class="control-label" for="appsetting_value">Value</label>
 									<input type="checkbox" id="appsetting_value" name="appsetting_value"
@@ -1176,14 +1176,12 @@
 			</div>
 		</div>
 	</div>
-	<div class="modal fade" id="CTS_Details_Modal" tabindex="-1" role="dialog" style="z-index: 12000;"
-		data-backdrop="static">
+	<div class="modal fade" id="CTS_Details_Modal" tabindex="-1" style="z-index: 12000;" data-backdrop="static">
 		<div class="modal-dialog" style="max-width: 97%;">
 			<div class="modal-content bg-white">
-
 				<div class="modal-header">
 					<div class="col-11">
-						<h4 class="modal-title" id="ctsdetailsmodalHeader"><span aria-hidden="true"></span></h4>
+						<h4 class="modal-title" id="ctsdetailsmodalHeader"><span aria-hidden="true">-</span></h4>
 					</div>
 					<button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
@@ -1193,14 +1191,14 @@
 						<div class="modal-preloader_status">
 							<div class="modal-preloader_spinner">
 								<div class="d-flex justify-content-center">
-									<div class="spinner-border" role="status"></div>
+									<div class="spinner-border"></div>
 								</div>
 							</div>
 						</div>
 					</div>
 					<!-- End Preloader -->
 					<div class="table-responsive">
-						<table aria-describedby="" class="table table-striped table-sm table-hover"
+						<table aria-describedby="table" class="table table-striped table-sm table-hover"
 							id="ctsdetailstable">
 							<thead class="table-dark"></thead>
 							<tbody></tbody>
@@ -1218,23 +1216,77 @@
 		</div>
 	</div>
 	<!-- Camera Modal-->
+	<!-- Camera image styles moved to wwwroot/css/Site.scss -->
 	<div class="modal fade" id="Camera_Modal" tabindex="-1" style="z-index: 12000;" data-backdrop="static">
 		<div class="modal-dialog" style="max-width: 65%;">
 			<div class="modal-content bg-white">
-				<div class="modal-header">
-					<div class="col-3">
+				<div class="modal-header py-0">
+					<div class="col-11">
 						<h4 class="modal-title" id="cameramodalHeader"><span aria-hidden="true">-</span></h4>
 					</div>
-					<div class="col-2">
-						<div class="row">
-							<span>Camera Direction:</span>
-							<div class="col">
-								<div id="cameraViewDirectionArrow" class="bi-arrow-up ms-2 col-1"></div>
+					<button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<!-- Left: Camera info -->
+						<div class="col">
+							<h6 class="text-center pb-0 mb-0">Camera Info</h6>
+							<div class="p-1" id="cameraImageInfobody">
 							</div>
-							<span id="cameraViewDirectionNotice">(Not Set)</span>
+							<h6 class="text-center"><small class="text-muted">Camera Direction</small></h6>
+							<div class="d-flex align-items-center justify-content-center w-100 my-2">
+								<button id="cameraViewDirectionArrow" type="button"
+									class="camera-direction-component__button btn btn-outline-primary disabled"
+									aria-label="Camera direction">
+									<span class="camera-direction-component__compass">
+										<span class="compass-label compass-label--n">N</span>
+										<span class="compass-label compass-label--e">E</span>
+										<span class="compass-label compass-label--s">S</span>
+										<span class="compass-label compass-label--w">W</span>
+										<span class="camera-direction-component__needle"></span>
+										<span class="camera-direction-component__pivot"></span>
+									</span>
+								</button>
+							</div>
+							<div class="w-100">
+								<div class="row mx-2">
+									<div class="text-start">
+										<label for="cameraDirectionSlider" class="form-label">Camera Direction:
+											<span id="cameraDirectionValue">0°</span></label>
+										<input id="cameraDirectionSlider" type="range" min="0" max="360" value="0"
+											class="form-range" />
+									</div>
+								</div>
+								<div class="row mx-2 d-none" id="northDirectionRow">
+									<div class="text-start">
+										<label for="northDirectionSlider" class="form-label">North Direction: <span
+												id="northDirectionValue">0°</span></label>
+										<input id="northDirectionSlider" type="range" min="0" max="360" value="0"
+											class="form-range" />
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="pt-2 d-none" id="divImageRefresh">
+							<div class="d-flex align-items-center justify-content-center w-100">
+								<button class="btn btn-success btn-lg float-left" type="button"
+									id="startImageRefresh">Start
+									Image Refresh</button>
+							</div>
 						</div>
 					</div>
-					<div class="col-6">
+
+					<!-- Right: Image (large) with compass/controls to its right -->
+					<div class="col-9">
+						<div id="cameraImageBody" class="mb-2"></div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<div class="col-2">
+						<button class="btn btn-outline-secondary float-left" type="button"
+							data-bs-dismiss="modal">Close</button>
+					</div>
+					<div class="col d-flex align-items-center justify-content-center w-100">
 						<div class="countDown" id="countDownView">
 							<p>Images will stop refreshing in <span id="counter"
 									class="badge badge-info font-weight-bold">0</span> seconds
@@ -1243,25 +1295,9 @@
 						<div class="countDown" id="timeOutView">
 							<p>Image refresh has timed out, Image is not refreshing.</p>
 						</div>
+						<div class="col text-center  d-none"><span class="text-info" id="error_camera"></span></div>
 					</div>
-					<div class="col-1">
-						<button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-					</div>
-				</div>
-				<div class="modal-body">
-					<div class="col px-0">
-						<h6 class="text-center pb-0 mb-0">Camera Info</h6>
-						<div class="col p-1" id="camera_Infobody"></div>
-					</div>
-					<div class="col-10" id="camera_modalbody">
-					</div>
-				</div>
-				<div class="modal-footer">
-					<div class="col">
-						<button class="btn btn-outline-secondary float-left" type="button"
-							data-bs-dismiss="modal">Close</button>
-					</div>
-					<div class="col text-center"><span class="text-info" id="error_camera"></span></div>
+
 				</div>
 			</div>
 		</div>
@@ -1280,7 +1316,7 @@
 					</div>
 					<button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
-				<div class="modal-body pt-0 text-center" id="addedit_camera_modalbody">
+				<div class="modal-body pt-0 text-center" id="addedit_cameraImageBody">
 					<div class="row mb-3">
 						<div class="form-group col-4">
 							<label for="camera_name" class="control-label">Camera Name</label>
@@ -1487,7 +1523,7 @@
 							<span id="errormpeReworkBins" class="text-danger"></span>
 						</div>
 					</div>
-					<div class="row" style="display: none;">
+					<div class="row">
 						<div class="form-group col-md-4">
 							<label for="mpe_group_select" class="control-label">Group</label>
 							<select id="mpe_group_select" title="Select Group Name" class="form-control pb-1"
@@ -1537,7 +1573,7 @@
 							<span id="error_zonePayLocationColor" class="text-danger"></span>
 						</div>
 					</div>
-					<div class="row" style="display: none;">
+					<div class="row">
 						<div class="form-group col-sm-8">
 							<label for="mpeExternalUrl" class="control-label">External URL</label>
 							<input id="mpeExternalUrl" type="text" class="form-control" name="mpeExternalUrl" />
@@ -1862,7 +1898,8 @@
 			<div class="modal-content bg-white">
 				<div class="modal-header">
 					<div class="col-11">
-						<h4 class="modal-title" id="Cube_ModalHeader_ID"><span aria-hidden="true">Edit Cube Info</span>
+						<h4 class="modal-title" id="Cube_ModalHeader_ID"><span aria-hidden="true">Edit Cube
+								Info</span>
 						</h4>
 					</div>
 					<button class="btn-close close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -1987,7 +2024,7 @@
 			<!-- Sidebar panel Home - Zone Selector -->
 			<div class="leaflet-sidebar-pane overflow-auto" id="home">
 				<h1 class="leaflet-sidebar-header">
-					<span id="fotf-site-facility-name"></span>
+					<span id="fotf-site-facility-name">~</span>
 					<span class="leaflet-sidebar-close"><i class="bi-caret-left"></i></span>
 				</h1>
 				<div id="div_zoneSelect">
@@ -2008,7 +2045,7 @@
 							</div>
 						</div>
 					</div>
-					<div id="bullpen_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none;">
+					<div id="bullpen_div" data-id="" class="card bg-white mt-2 pb-1">
 						<div class="card-header pl-1">
 							<h6 class="control-label sectionHeader mb-1">Staging Bullpen Area</h6>
 						</div>
@@ -2024,114 +2061,122 @@
 							</div>
 						</div>
 					</div>
-					<div id="layer_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none;">
-						<div id="div_layerarea">
-							<div class="card">
-								<div class="card-header pl-1">
-									<h6 class="control-label sectionHeader mb-1">Create Layer</h6>
+					<div id="layer_div" data-id="" class="card bg-white mt-2 pb-1">
+						<div class="card-header pl-1">
+							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Create Layer</h6>
+							<div class="row">
+								<div class="form-group col mb-3">
+									<label class="control-label" for="zone_type">Type</label>
+									<select id="zone_type" title="Zone Type" class="form-control" name="zone_type">
+										<option value=""></option>
+										<option value="AGVLocation">AGV Location Zone</option>
+										<option value="Area">Area Zone</option>
+										<option value="Bin">BIN Zone</option>
+										<option value="Camera">Camera</option>
+										<option value="DockDoor">Dock Door Zone</option>
+										<option value="Machine">Machine Zone</option>
+										<option value="Bullpen">Bullpen Zone</option>
+										<option value="ViewPorts">View Ports</option>
+									</select>
+									<span id="error_zone_type" class="text-danger"></span>
 								</div>
-								<div class="card-body pb-0">
-									<div class="row mb-3">
-										<div class="col-6">
-											<label class="control-label" for="zone_type">Type</label>
-											<select id="zone_type" title="Zone Type" class="form-control"
-												name="zone_type">
-												<option value=""></option>
-												<option value="AGVLocation">AGV Location Zone</option>
-												<option value="Area">Area Zone</option>
-												<option value="Bin">BIN Zone</option>
-												<option value="Camera">Camera</option>
-												<option value="DockDoor">Dock Door Zone</option>
-												<option value="Machine">Machine Zone</option>
-												<option value="Bullpen">Bullpen Zone</option>
-												<option value="ViewPorts">View Ports</option>
-											</select>
-											<span id="error_zone_type" class="text-danger"></span>
-										</div>
-										<div class="col-6" id="div_zone_select_name">
-											<label class="control-label" for="zone_select_name">Name</label>
-											<select id="zone_select_name" type="text" title="Zone Name"
-												class="form-control" name="zone_select_name">
-												<option value=""></option>
-											</select>
-											<span id="error_zone_select_name" class="text-danger"></span>
-										</div>
+								<div class="form-group col mb-3" id="div_zone_select_name">
+									<label class="control-label" for="zone_select_name">Name</label>
+									<select id="zone_select_name" type="text" title="Zone Name" class="form-control"
+										name="zone_select_name">
+										<option value=""></option>
+									</select>
+									<span id="error_zone_select_name" class="text-danger"></span>
+								</div>
+							</div>
+						</div>
+						<div id="div_camera">
+							<div class="card-body pb-0">
+								<div class="row gx-2 gy-2 mx-1 mb-3" id="manual_row">
+									<div class="col mb-2" id="manual_namediv">
+										<label class="control-label" for="manual_name">Name</label>
+										<input id="manual_name" type="text" class="form-control mb-2" name="manual_name" />
+										<span id="error_manual_name" class="text-danger d-block mt-1"></span>
 									</div>
-									<div class="row mb-3" id="manual_row" style="display: none;">
-										<div class="col" id="manual_namediv">
-											<label class="control-label" for="manual_name">Name</label>
-											<input id="manual_name" type="text" class="form-control"
-												name="manual_name" />
-											<span id="error_manual_name" class="text-danger"></span>
-										</div>
-										<div class="col" id="manual_numberdiv">
-											<label class="control-label" for="manual_number">Number</label>
-											<input id="manual_number" type="text" class="form-control"
-												name="manual_number" />
-											<span id="error_manual_number" class="text-danger"></span>
-										</div>
-									</div>
-									<div class="row mr-0 ml-0" id="camerainfo" style="display: none;">
-										<div class="row mb-3">
-											<div class="form-group col">
-												<label class="control-label" for="cameraLocation">Camera URL</label>
-												<select id="cameraLocation" class="form-control" name="cameraLocation">
-													<option value=""></option>
-												</select>
-												<span id="error_cameraLocation" class="text-danger"></span>
-											</div>
-										</div>
-										<div class="row mb-3">
-											<div class="form-group col">
-												<label class="control-label" for="cameraDirection">Camera
-													Direction</label>
-												<div class="row ms-1">
-													<div class="col-1 mb-1">
-														<div class="row">
-															<div id="cameraDirectionArrow" class="bi-arrow-up ms-2">
-															</div>
-														</div>
-													</div>
-													<span class="font-weight-bold text-primary ms-2"
-														id="cameraDirectionvalue"></span>
-												</div>
-												<div class="row ms-1">
-													<input type="range" min="0" max="359" value="180" step="1"
-														id="cameraDirection" class="custom-range" />
-												</div>
-												<div class="row ms-1">
-													<span class="control-label">Camera facing direction on page:
-														0&#176;/360&#176; Up | 90&#176; Right | 180&#176; Down |
-														270&#176; Left</span>
-													<span id="error_cameraDirection" class="text-danger"></span>
-												</div>
-											</div>
-										</div>
-									</div>
-									<div class="row mr-0 ml-0" id="binzoneinfo" style="display: none;">
-										<div class="row mb-3">
-											<div class="col">
-												<label class="control-label" for="bin_bins">Bins</label>
-												<textarea id="bin_bins" type="text" rows="3"
-													class="form-control"></textarea>
-												<span id="error_bin_bins" class="text-danger"></span>
-											</div>
-										</div>
+									<div class="col mb-2" id="manual_numberdiv">
+										<label class="control-label" for="manual_number">Number</label>
+										<input id="manual_number" type="text" class="form-control mb-2"
+											name="manual_number" />
+										<span id="error_manual_number" class="text-danger d-block mt-1"></span>
 									</div>
 								</div>
-								<div class="card-footer d-flex justify-content-between align-items-center" role="group">
-									<button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal"
-										aria-label="Close" id="zonecloseBtn">Close</button>
-									<div>
-										<div class="text-center mr-2"><span class="text-info"
-												id="error_zonesubmitBtn"></span></div>
-										<button class="btn btn-primary" type="button" id="zonesubmitBtn">Save</button>
+								<div class="row gx-2 gy-2 mx-1" id="camerainfo">
+									<div class="col-12 mb-3">
+										<div class="form-group mb-0">
+											<label class="control-label" for="cameraLocation">Camera URL</label>
+											<select id="cameraLocation" class="form-control mb-2" name="cameraLocation">
+												<option value=""></option>
+											</select>
+											<span id="error_cameraLocation" class="text-danger d-block mt-1"></span>
+										</div>
+									</div>
+									<div class="col-12 mb-3">
+										<h6 class="text-center mb-2"><small class="text-muted">Camera Direction</small>
+										</h6>
+										<div class="d-flex align-items-center justify-content-center w-100 my-2">
+											<button id="cameraViewDirectionSetupArrow" type="button"
+												class="camera-direction-component__button btn btn-outline-primary disabled mb-2"
+												aria-label="Camera direction">
+												<span class="camera-direction-component__compass">
+													<span class="compass-label compass-label--n">N</span>
+													<span class="compass-label compass-label--e">E</span>
+													<span class="compass-label compass-label--s">S</span>
+													<span class="compass-label compass-label--w">W</span>
+													<span class="camera-direction-component__needle"></span>
+													<span class="camera-direction-component__pivot"></span>
+												</span>
+											</button>
+										</div>
+										<div class="w-100">
+											<div class="row mx-2 mb-3">
+												<div class="text-start col-12">
+													<label for="cameraDirectionSetupSlider" class="form-label">Camera
+														Direction: <span id="cameraDirectionSetupValue">0°</span></label>
+													<input id="cameraDirectionSetupSlider" type="range" min="0" max="360"
+														value="0" class="form-range mb-2" />
+												</div>
+											</div>
+											<div class="row mx-2 mb-3 d-none" id="northDirectionSetupRow">
+												<div class="text-start col-12">
+													<label for="northDirectionSetupSlider" class="form-label">North
+														Direction: <span id="northDirectionSetupValue">0°</span></label>
+													<input id="northDirectionSetupSlider" disabled type="range" min="0" max="360"
+														value="0" class="form-range mb-2" />
+												</div>
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
+						<div id="div_bin">
+							<div class="card-body pb-0">
+								<div class="row gx-2 gy-2 mx-3" id="binzoneinfo">
+									<div class="col-12 mb-3">
+										<label class="control-label" for="bin_bins">Bins</label>
+										<textarea id="bin_bins" type="text" rows="3" class="form-control"></textarea>
+										<span id="error_bin_bins" class="text-danger d-block mt-1"></span>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="card-footer d-flex justify-content-between align-items-center">
+							<button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal"
+								aria-label="Close" id="zonecloseBtn">Close</button>
+							<div>
+								<div class="text-center me-2"><span class="text-info" id="error_zonesubmitBtn"></span>
+								</div>
+								<button class="btn btn-primary" type="button" id="zonesubmitBtn">Save</button>
+							</div>
+						</div>
 					</div>
-					<div id="cubeAssignment_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none;">
+					<div id="cubeAssignment_div" data-id="" class="card bg-white mt-2 pb-1">
 						<div class="card-header pl-1">
 							<h6 class="control-label sectionHeader mb-1 d-flex justify-content-between">Cube Info
 								<span class="d-flex justify-content-between">
@@ -2139,8 +2184,8 @@
 										name="viewcrsKiosk">View</span>
 								</span>
 								<button type="button" class="btn btn-secondary border-0 badge-info badge"
-									style="display: none;" name="editCube" data-id="0" data-toggle="tooltip"
-									data-container="body" data-placement="top">Edit</button>
+									name="editCube" data-id="0" data-toggle="tooltip" data-container="body"
+									data-placement="top">Edit</button>
 							</h6>
 
 						</div>
@@ -2174,7 +2219,7 @@
 							</div>
 						</div>
 					</div>
-					<div id="crsKiosk_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none;">
+					<div id="crsKiosk_div" data-id="" class="card bg-white mt-2 pb-1">
 						<div class="card-header pl-1">
 							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
 								CRS Kiosk Info
@@ -2199,7 +2244,7 @@
 							</div>
 						</div>
 					</div>
-					<div id="machine_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none;">
+					<div id="machine_div" data-id="" class="card bg-white mt-2 pb-1">
 						<div class="card-header pl-1">
 							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
 								Machine Info
@@ -2222,7 +2267,7 @@
 									data-container="body" data-placement="top">Edit</button>
 							</h6>
 						</div>
-						<div class="card-header pl-1" id="div_externalurl" style="display: none;">
+						<div class="card-header pl-1" id="div_externalurl">
 							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
 								<span class="d-flex justify-content-between">
 									<span class="btn btn-secondary border-0 badge-info badge"
@@ -2241,7 +2286,7 @@
 								</div>
 							</div>
 						</div>
-						<div id="div_tsa_machine" class="card bg-white mt-2 pb-1">
+						<div id="div_tsa_machine">
 							<div class="card-header pl-1">
 								<h6 class="control-label sectionHeader ml-1 mb-1">
 									TSA Stats
@@ -2278,8 +2323,7 @@
 							</div>
 						</div>
 					</div>
-
-					<div id="dps_div" class="card bg-white mt-2 pb-1" style="display: none;">
+					<div id="dps_div" class="card bg-white mt-2 pb-1">
 						<div class="card-header pl-1">
 							<h6 class="control-label sectionHeader ml-1 mb-1">DPS Info</h6>
 						</div>
@@ -2294,39 +2338,33 @@
 							</div>
 						</div>
 					</div>
-
-
-					<div id="dockdoor_div" data-id="" style="display: none;">
-						<div class="card bg-white mt-2 pb-1">
-							<div class="card-header pl-1 border-bottom">
-								<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
-									Dock Door
-									<span class="d-flex justify-content-between">
-										<span class="btn btn-secondary border-0 badge-info badge"
-											name="doorview"></span>
-									</span>
-									<span class="btn btn-secondary border-0 badge-info badge"
-										name="doornumberid"></span>
-									<span class="d-flex justify-content-between">
-										Status:
-										<span class="btn btn-secondary border-0 badge-info badge"
-											name="doorstatus"></span>
-									</span>
-								</h6>
-							</div>
-							<div class="card-body pb-0" id="div_dockdoor">
-								<div class="table-responsive">
-									<table aria-describedby="" class="table table-sm table-hover mb-0 border-bottom"
-										id="dockdoortable">
-										<thead class="table-dark" style="display:none"></thead>
-										<tbody></tbody>
-									</table>
-								</div>
+					<div id="dockdoor_div" data-id="" class="card bg-white mt-2 pb-1">
+						<div class="card-header pl-1 border-bottom">
+							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
+								Dock Door
+								<span class="d-flex justify-content-between">
+									<span class="btn btn-secondary border-0 badge-info badge" name="doorview"></span>
+								</span>
+								<span class="btn btn-secondary border-0 badge-info badge" name="doornumberid"></span>
+								<span class="d-flex justify-content-between">
+									Status:
+									<span class="btn btn-secondary border-0 badge-info badge" name="doorstatus"></span>
+								</span>
+							</h6>
+						</div>
+						<div class="card-body pb-0" id="div_dockdoor">
+							<div class="table-responsive">
+								<table aria-describedby="" class="table table-sm table-hover mb-0 border-bottom"
+									id="dockdoortable">
+									<thead class="table-dark" style="display:none"></thead>
+									<tbody></tbody>
+								</table>
 							</div>
 						</div>
-						<div id="dockdoor_tripdiv" class="card bg-white mt-2 pb-1" style="display: none;">
+						<div id="dockdoor_tripdiv">
 							<div class="card-header pl-1 border-bottom">
-								<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Trips
+								<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
+									Trips
 									Assigned To Door</h6>
 							</div>
 							<div class="card-body pb-0">
@@ -2350,7 +2388,8 @@
 								</div>
 							</div>
 							<div class="card-header pl-1 border-bottom">
-								<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Trip
+								<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
+									Trip
 									Selector</h6>
 							</div>
 							<div class="card-body pb-0">
@@ -2369,7 +2408,7 @@
 							</div>
 						</div>
 					</div>
-					<div id="vehicle_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none;">
+					<div id="vehicle_div" data-id="" class="card bg-white mt-2 pb-1">
 						<div class="card-header pl-1 d-flex flex-row">
 							<h6 class="control-label sectionHeader ml-1">Vehicle Info</h6>
 							<div class="custom-control custom-switch ml-3">
@@ -2412,7 +2451,6 @@
 							</div>
 						</div>
 					</div>
-
 					<!-- Trailer Content table template -->
 					<div id="trailer_div" class="card bg-white mt-2 pb-1" style="display: block;">
 						<div class="card-header pl-1">
@@ -2478,8 +2516,7 @@
 						</div>
 					</div>
 					<!-- END -->
-
-					<div id="staff_div" class="card bg-white mt-2 pb-1" style="display: none;">
+					<div id="staff_div" class="card bg-white mt-2 pb-1">
 						<div class="card-header pl-1">
 							<h6 class="control-label sectionHeader ml-1 mb-1">Staffing Info</h6>
 						</div>
@@ -2957,7 +2994,8 @@
 					<div id="div_Vehicle" class="container-fluid">
 						<div class="card w-100">
 							<div class="card-header pl-1">
-								<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Vehicle
+								<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
+									Vehicle
 									Details and Status
 									<button type="button"
 										class="btn btn-secondary border-0 badge-info badge vehicleinfoedit invisable"
@@ -2973,7 +3011,7 @@
 									</table>
 								</div>
 							</div>
-							<div class="card-body pb-0" style="display: none;" id="agvlocation_div" data-id="">
+							<div class="card-body pb-0" id="agvlocation_div" data-id="">
 								<div class="card-header pl-1 border-bottom">
 									<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
 										AGV Location Info
@@ -3072,7 +3110,7 @@
 										<h6 class="pt-2" id="userfullname"></h6>
 										<div id="usertitel" class="pb-2"></div>
 									</div>
-									<div class="col" style="display: none;">
+									<div class="col">
 										<button class="btn btn-sm btn-outline-light btn-block" type="button"
 											id="export_useage_report">Report</button>
 									</div>
@@ -3097,7 +3135,8 @@
 					</div>
 					<div class="card w-100" id="swaggercard">
 						<div class="card-header d-flex justify-content-between">
-							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Swagger API
+							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Swagger
+								API
 							</h6>
 						</div>
 						<div class="card-body">
@@ -3113,7 +3152,8 @@
 					</div>
 					<div class="card w-100">
 						<div class="card-header pl-1 d-flex justify-content-between">
-							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">User Survey
+							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">User
+								Survey
 							</h6>
 						</div>
 						<div class="card-body">
@@ -3130,7 +3170,8 @@
 					</div>
 					<div class="card w-100">
 						<div class="card-header pl-1 d-flex justify-content-between">
-							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">User Guide
+							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">User
+								Guide
 							</h6>
 						</div>
 						<div class="card-body">
@@ -3264,7 +3305,8 @@
 
 				<div class="card w-100">
 					<div class="card-header pl-1 d-flex justify-content-between">
-						<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Endpoint Data
+						<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Endpoint
+							Data
 							Feed</h6>
 						<button type="button" id="connectionbtn" style="display:none"
 							class="btn btn-primary btn-sm float-left mb-2 ml-p5rem" name="connectionbtn"
@@ -3294,7 +3336,8 @@
 				<div class="btn-toolbar" role="toolbar" id="app_setting">
 					<div class="card w-100">
 						<div class="card-header pl-1 d-flex justify-content-between">
-							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Site Info
+							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Site
+								Info
 							</h6>
 						</div>
 						<div class="card-body">
@@ -3311,7 +3354,8 @@
 					</div>
 					<div class="card w-100">
 						<div class="card-header pl-1 d-flex justify-content-between">
-							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Application
+							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
+								Application
 								Setting</h6>
 						</div>
 						<div class="card-body">
@@ -3328,7 +3372,8 @@
 					</div>
 					<div class="card w-100">
 						<div class="card-header pl-1 d-flex justify-content-between">
-							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">User Role
+							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">User
+								Role
 								Groups</h6>
 						</div>
 						<div class="card-body">
@@ -3399,7 +3444,8 @@
 					</div>
 					<div class="card w-100">
 						<div class="card-header pl-1 d-flex justify-content-between">
-							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Connection
+							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
+								Connection
 								Type</h6>
 							<button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem"
 								name="addConnectionType" title="Add New Connection Type">Add</button>
@@ -3420,7 +3466,8 @@
 					</div>
 					<div class="card w-100">
 						<div class="card-header pl-1 d-flex justify-content-between">
-							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Designation
+							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
+								Designation
 								Activity to Craft Type</h6>
 							<button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem"
 								name="dacodebtn">Add</button>
@@ -3512,12 +3559,16 @@
 				<div class="col-7">
 					<h4 class="popover-subheader">Dock Status</h4>
 					<ul class="noBullets mb-2">
-						<li class="alert alert-info px-1 py-3 mb-sm-2 noCorners">Ready for departure - Load is full</li>
-						<li class="alert alert-warning p-sm-1 mb-sm-2 noCorners">15-30 minutes before departure - Load
+						<li class="alert alert-info px-1 py-3 mb-sm-2 noCorners">Ready for departure - Load is full
+						</li>
+						<li class="alert alert-warning p-sm-1 mb-sm-2 noCorners">15-30 minutes before departure -
+							Load
 							NOT full</li>
-						<li class="alert alert-danger p-sm-1 mb-sm-2 noCorners">&lt; 15 minutes before departure - Load
+						<li class="alert alert-danger p-sm-1 mb-sm-2 noCorners">&lt; 15 minutes before departure -
+							Load
 							NOT full</li>
-						<li class="alert alert-dangerX p-sm-1 mb-sm-3 noCorners">Trip Departed - Containers in Close,
+						<li class="alert alert-dangerX p-sm-1 mb-sm-3 noCorners">Trip Departed - Containers in
+							Close,
 							Stage or XDock</li>
 					</ul>
 					<h4 class="popover-subheader mb-2">MPE Performance</h4>
@@ -3560,19 +3611,22 @@
 					<tbody>
 						<tr>
 							<td class="">How do I get the new FOTF updates on my iPad/Tablet?</td>
-							<td class="">On the tablet, press CTRL + F5 to push the updates . For iPads, relaunch the
+							<td class="">On the tablet, press CTRL + F5 to push the updates . For iPads, relaunch
+								the
 								browser to refresh the view.</td>
 							<td class=""></td>
 						</tr>
 						<tr>
 							<td class="">Why won't Mobil Iron download to my device? </td>
-							<td class="">This should be done during the initial tablet/iPad setup. Please contact the
+							<td class="">This should be done during the initial tablet/iPad setup. Please contact
+								the
 								FOTF team if you have questions.</td>
 							<td class=""></td>
 						</tr>
 						<tr>
 							<td class="">Why won't my emails download to my device?</td>
-							<td class="">Access to email is not a primary function of FOTF. It can take 2-3 days for the
+							<td class="">Access to email is not a primary function of FOTF. It can take 2-3 days for
+								the
 								emails to appear on your device. </td>
 							<td class=""></td>
 						</tr>
@@ -3584,7 +3638,8 @@
 						</tr>
 						<tr>
 							<td class="">Why does the "plug" icon change color?</td>
-							<td class="">This plug icon displays the level of Wi-Fi, for that specific tablet/iPad, at
+							<td class="">This plug icon displays the level of Wi-Fi, for that specific tablet/iPad,
+								at
 								that location and time.</td>
 							<td class="text-center bg-USPSPurple text-white border-bottom">
 								<i class="pi-iconPlugOutline"></i>
@@ -3592,7 +3647,8 @@
 						</tr>
 						<tr>
 							<td class="">What do the icons and colors on the map represent?</td>
-							<td class="">Please refer to the legend, located on the lower right of the screen for info
+							<td class="">Please refer to the legend, located on the lower right of the screen for
+								info
 								about icons and color indicators.</td>
 							<td class="text-center bg-USPSPurple text-white border-bottom">
 								<i class="pi-iconLegend"></i>
@@ -3600,7 +3656,8 @@
 						</tr>
 						<tr>
 							<td class="">Where can I view my user profile?</td>
-							<td class="">The Person icon on the left navigation is where you can view your user profile,
+							<td class="">The Person icon on the left navigation is where you can view your user
+								profile,
 								that displays the account info of the current logged-in user.</td>
 							<td class="text-center bg-USPSPurple text-white border-bottom">
 								<i class="pi-iconUserProfile"></i>
@@ -3609,16 +3666,19 @@
 						<tr>
 							<td class="">Where can I see specific information about the employee type and number of
 								personnel in my work zone?</td>
-							<td class="">The Report icon displays info related to craft type and number of badges in a
+							<td class="">The Report icon displays info related to craft type and number of badges in
+								a
 								work zone.</td>
 							<td class="text-center bg-USPSPurple text-white border-bottom">
 								<i class="pi-iconStaffing"></i>
 							</td>
 						</tr>
 						<tr>
-							<td class="">Where can I view floor status by zone? What about staff info and machine info?
+							<td class="">Where can I view floor status by zone? What about staff info and machine
+								info?
 							</td>
-							<td class="">The Floor Status icon allows you to check status by zone, as well as displays
+							<td class="">The Floor Status icon allows you to check status by zone, as well as
+								displays
 								information about current machine and staffing.</td>
 							<td class="text-center bg-USPSPurple text-white border-bottom">
 								<i class="pi-iconMenuOpen"></i>
@@ -3626,7 +3686,8 @@
 						</tr>
 						<tr>
 							<td class="">How do I expand my view to Full Screen?</td>
-							<td class="">Click the Expand Screen icon to view the screen in full screen mode. Clicking
+							<td class="">Click the Expand Screen icon to view the screen in full screen mode.
+								Clicking
 								the icon again will return to original view.</td>
 							<td class="text-center bg-USPSPurple text-white border-bottom px-0">
 								<div class="border-bottom pb-2 mb-2">
@@ -3640,16 +3701,21 @@
 						<tr>
 							<td class="">What is the difference between the Feedback and Suggestions options on the
 								right navigation? </td>
-							<td class="">The Feedback option is intended as a forum for users to express feedback about
-								current functionality and the user experience. By contrast, the Suggestions option is
-								where users can submit recommendations or requests for future features and enhancements.
+							<td class="">The Feedback option is intended as a forum for users to express feedback
+								about
+								current functionality and the user experience. By contrast, the Suggestions option
+								is
+								where users can submit recommendations or requests for future features and
+								enhancements.
 							</td>
 							<td class=""></td>
 						</tr>
 						<tr>
 							<td class="">Can I search for equipment location?</td>
-							<td class="">Yes. From the Profile button, click in the search bar and start typing the name
-								of the equipment (i.e. Mule). Items will change color and halo will appear around them.
+							<td class="">Yes. From the Profile button, click in the search bar and start typing the
+								name
+								of the equipment (i.e. Mule). Items will change color and halo will appear around
+								them.
 							</td>
 							<td class=""></td>
 						</tr>
@@ -3673,8 +3739,8 @@
 			</div>
 		</div>
 	</div>
-	<script src="../lib/jquery/jquery.js"></script>
-	<script src="../lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<script src="../lib/jquery/jquery.min.js"></script>
+	<script src="../lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="../lib/jquery-validation/jquery.validate.js"></script>
 	<script src="../lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
 	<script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>

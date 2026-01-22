@@ -37,7 +37,7 @@ public interface IInMemoryCamerasRepository
     /// </summary>
     /// <returns>A list of all <see cref="CameraGeoMarker"/> objects.</returns>
     Task<List<CameraGeoMarker>> GetAll();
-    
+
     /// <summary>
     /// Retrieves cameras by floor ID and type.
     /// </summary>
@@ -45,6 +45,13 @@ public interface IInMemoryCamerasRepository
     /// <param name="type">The type of cameras to filter.</param>
     Task<(bool, object?)> GetCameraByFloorId(string floorId, string type);
 
+    /// <summary>
+    /// Updates the camera direction by its unique identifier.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="direction"></param>
+    /// <returns></returns>
+    Task<(bool, object?)> UpdateCameraDirectionById(string id, int direction);
     /// <summary>
     /// Adds camera information to the repository.
     /// </summary>

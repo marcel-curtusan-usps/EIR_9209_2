@@ -32,30 +32,43 @@ function startTimer() {
     clearInterval(timer);
   }
   timer = setInterval(function () {
-    (async () => {
-      try {
-        count = count - 1;
-        if (count <= 0) {
-          count = 0;
-          $('#counter').html('0');
-          clearInterval(timer);
-          $('#countDownView').hide();
-          $('#timeOutView').show();
-          $('div[id=Camera_Modal]').attr('data-id', '0');
-          await handleGroupChange(false, 'CamerasStill');
-        } else {
-          $('#counter').html(count);
+    try {
+      count = count - 1;
+      if (count <= 0) {
+        count = 0;
+        $('#counter').html('0');
+        clearInterval(timer);
+        $('#countDownView').hide();
+        $('#divImageRefresh').addClass('d-none');
+        $('#timeOutView').show();
+        $('div[id=cameraImageBody]').removeClass('cameraImageBodyRefreshBorder').addClass('cameraImageBodyTimeOutBorder');
+        handleGroupChange(false, 'CamerasStill').then(() => {
+          $('#divImageRefresh').removeClass('d-none');
+        }).catch(err => console.error(err));
+      } else {
+        $('#counter').html(count);
+        if ($('div[id=cameraImageBody]').hasClass('cameraImageBodyTimeOutBorder')) {
+          $('div[id=cameraImageBody]').removeClass('cameraImageBodyTimeOutBorder').addClass('cameraImageBodyRefreshBorder');
         }
-      } catch (err) {
-        console.error(err);
       }
-    })();
+    } catch (err) {
+      console.error(err);
+    }
   }, 1000);
 }
+// Utility to create the same custom divIcon with cone & cameraDirection
+function getCameraDivIcon(direction) {
+  return L.divIcon({
+    className: 'custom-div-icon',
+    html: "<div style='transform:rotate(" + direction + "deg)' class='marker-camera-cone'></div><div class='marker-pin'></div><i class='bi-camera-fill'></i>",
+    iconSize: [30, 42],
+    iconAnchor: [15, 42]
+  });
+}
+// GeoJSON layer for camera markers (ensure global availability for other scripts)
 let markerCameras = new L.GeoJSON(null, {
   pointToLayer: function (feature, latlng) {
     if (feature.properties.cameraDirection) {
-      //camera cone for markers with a cameraDirection set
       let icon = L.divIcon({
         className: 'custom-div-icon',
         html: "<div style='transform:rotate(" + feature.properties.cameraDirection + "deg)' class='marker-camera-cone'></div><div class='marker-pin'></div><i class='bi-camera-fill'></i>",
@@ -91,9 +104,10 @@ let markerCameras = new L.GeoJSON(null, {
       clearInterval(timer);
       count = defaultTime;
       $('#counter').html(count);
+      $('#counter').html(count);
       setTimeout(startTimer, 300);
 
-      LoadWeb_CameraImage(feature.properties);
+      LoadWeb_CameraImage(feature.properties,layer);
     });
     layer
       .bindTooltip('', {
@@ -112,6 +126,7 @@ let markerCameras = new L.GeoJSON(null, {
 let overlayCameraLayer = L.layerGroup();
 layersControl.addOverlay(overlayCameraLayer, 'Cameras');
 markerCameras.addTo(overlayCameraLayer);
+
 
 // add to the map and layers control
 async function findCameraLeafletIds(markerId) {
@@ -149,6 +164,22 @@ async function init_tagsCamera(floorId) {
         if (/^Cameras$/ig.test(sp)) {
           await handleGroupChange(this.checked, sp);
         }
+      });
+      $('#startImageRefresh').off('click').on('click', function (e) {
+        e.preventDefault();
+        $('#timeOutView').hide();
+        $('#countDownView').show();
+        if (timer) {
+          clearInterval(timer);
+        }
+        count = defaultTime;
+        $('#counter').html(count);
+        handleGroupChange(true, 'CamerasStill').then(() => {
+          startTimer();
+          $('#divImageRefresh').addClass('d-none');
+          $('div[id=cameraImageBody]').addClass('cameraImageBodyRefreshBorder').removeClass('cameraImageBodyTimeOutBorder');
+        }).catch(err => console.error(err));
+
       });
     } else {
       console.info('Camera feature is not available for this user.');
@@ -200,7 +231,7 @@ async function updateCameraStillFeature(data) {
       .then(leafletIds => {
         markerCameras._layers[leafletIds].feature.properties.base64Image = data.properties.base64Image;
         if ($('#Camera_Modal').hasClass('show') && $('div[id=Camera_Modal]').attr('data-id') === data.properties.id) {
-          let camera_modal_body = $('div[id=camera_modalbody]');
+          let camera_modal_body = $('div[id=cameraImageBody]');
           camera_modal_body.empty();
           camera_modal_body.append(ImageLayout.supplant(formatImageLayout(data.properties.base64Image)));
           LoadCameraInfo(data.properties, data.properties.id);
@@ -223,33 +254,109 @@ function formatImageLayout(img) {
   });
 }
 var webCameraViewData = null;
-function LoadWeb_CameraImage(Data) {
+async function LoadWeb_CameraImage(Data, layer) {
   try {
-    LoadCameraInfo(Data, Data.id);
-    $('#cameramodalHeader').text('View Web Camera');
-    let camera_modal_body = $('div[id=camera_modalbody]');
-    camera_modal_body.empty();
-    camera_modal_body.append(ImageLayout.supplant(formatImageLayout(Data.base64Image)));
-    $('div[id=Camera_Modal]').attr('data-id', Data.id);
-    $('#Camera_Modal').modal('show');
+    if (!Data) throw new Error('No camera data provided');
 
-    if (Data.cameraDirection) {
-      document.getElementById('cameraViewDirectionArrow').style.transform = 'rotate(' + Data.cameraDirection + 'deg)';
-      document.getElementById('cameraViewDirectionArrow').style.display = 'block';
-      document.getElementById('cameraViewDirectionNotice').style.display = 'none';
+    webCameraViewData = Data;
+    await LoadCameraInfo(Data, Data.id);
+    $('#cameramodalHeader').text('View Web Camera');
+
+    const $cameraModal = $('#Camera_Modal');
+    const $cameraModalBody = $('#cameraImageBody');
+    $cameraModalBody.empty().append(ImageLayout.supplant(formatImageLayout(Data.base64Image)));
+    $cameraModal.attr('data-id', Data.id).modal('show');
+    $cameraModalBody.removeClass('cameraImageBodyTimeOutBorder').addClass('cameraImageBodyRefreshBorder');
+
+    const $arrowBtn = $('#cameraViewDirectionArrow');
+    const $arrowNeedle = $arrowBtn.find('.camera-direction-component__needle');
+    const $compass = $arrowBtn.find('.camera-direction-component__compass');
+
+
+    // get/set configured north angle (degrees). default 0
+    const configuredNorth = Data.northDirection !== undefined && Data.northDirection !== null
+      ? Number(Data.northDirection)
+      : 0;
+    $arrowBtn.data('north', configuredNorth);
+
+
+
+    // Treat 0 as a valid rotation value (was previously falsy)
+    if (Data.cameraDirection !== undefined && Data.cameraDirection !== null) {
+      const cameraDeg = isNaN(Number(Data.cameraDirection)) ? 0 : Number(Data.cameraDirection);
+
+      // Rotate labels so the 'N' points to configuredNorth, and rotate needle relative to that north
+      await updateCompassLabels($compass, configuredNorth);
+
+      const needleDeg = cameraDeg - configuredNorth;
+      // Ensure needle transform preserves the translate that places its bottom at center
+      $arrowNeedle.css({ transform: 'translate(-50%,-100%) rotate(' + needleDeg + 'deg)', transition: 'transform 200ms ease' });
+      $arrowBtn.show();
+
+      // initialize sliders if present
+      if ($('#cameraDirectionSlider').length) {
+        $('#cameraDirectionSlider').val(Math.round(cameraDeg));
+        $('#cameraDirectionValue').text(Math.round(cameraDeg) + '°');
+        // trigger camera input handler to set needle state
+        $('#cameraDirectionSlider').trigger('input');
+      }
+      if ($('#northDirectionSlider').length) {
+        $('#northDirectionSlider').val(Math.round(configuredNorth));
+        $('#northDirectionValue').text(Math.round(configuredNorth) + '°');
+        // trigger north input handler to position labels (does not move needle)
+        $('#northDirectionSlider').trigger('input');
+      }
+      // Live update icon on slider movement, but only POST on release (change/mouseup)
+      $('#cameraDirectionSlider')
+        .off('input change mouseup')
+        .on('input', function () {
+          let cameraDirection = Number($(this).val());
+          $('#cameraDirectionValue').text(cameraDirection + "°");
+          layer.setIcon(getCameraDivIcon(cameraDirection));
+        })
+        .on('change mouseup', async function () {
+          let cameraDirection = Number($(this).val());
+          try {
+            await postAddData(`${await SiteURLconstructor(globalThis.location)}/api/Camera/UpdateCameraDirection`, {
+              id: Data.id,
+              direction: cameraDirection
+            });
+          } catch (err) {
+            console.error(err);
+          }
+        });
     } else {
-      document.getElementById('cameraViewDirectionArrow').style.display = 'none';
-      document.getElementById('cameraViewDirectionNotice').style.display = 'block';
+      $arrowBtn.hide();
     }
 
     sidebar.close('');
   } catch (e) {
-    $('#error_camera').text(e);
+    $('#error_camera').text(e && e.message ? e.message : e);
   }
 }
-function LoadCameraInfo(Data, id) {
+// update label positions around compass
+async function updateCompassLabels($compassEl, northDeg) {
+  const $labels = {
+    n: $compassEl.find('.compass-label--n'),
+    e: $compassEl.find('.compass-label--e'),
+    s: $compassEl.find('.compass-label--s'),
+    w: $compassEl.find('.compass-label--w')
+  };
+  const w = $compassEl.width();
+  const radius = Math.max((w / 2) + 8, 10);
+  // offsets: place labels around compass (0 = N, 90 = E, 180 = S, 270 = W)
+  const offsets = { n: 0, e: 90, s: 180, w: 270 };
+  Object.keys($labels).forEach(key => {
+    const offset = offsets[key];
+    const angle = (northDeg + offset) % 360;
+    // move label out from center along rotated axis, keep label upright by counter-rotating
+    const transform = 'translate(-50%,-50%) rotate(' + angle + 'deg) translateY(' + (-radius) + 'px) rotate(' + (-angle) + 'deg)';
+    $labels[key].css('transform', transform);
+  });
+}
+async function LoadCameraInfo(Data, id) {
   try {
-    let cameraInfobody = $('div[id=camera_Infobody]');
+    let cameraInfobody = $('div[id=cameraImageInfobody]');
     cameraInfobody.empty();
     let infoTable = '<table class="table table-bordered"><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>';
     infoTable += '<tr><td scope="row">Camera Name</td><td>' + Data.cameraName + '</td></tr>';
@@ -261,4 +368,54 @@ function LoadCameraInfo(Data, id) {
   } catch (e) {
     $('#error_camera').text(e);
   }
+}
+
+
+// initialize handlers immediately (safe to call multiple times)
+$(function () {
+  //bindCompassHandlers();
+  // restore persisted north if present
+  try {
+    const stored = localStorage.getItem('northDirection');
+    if (stored !== null && stored !== undefined) {
+      $('#cameraViewDirectionArrow').data('north', Number(stored));
+    }
+  } catch (ex) { }
+});
+
+// Bind sliders to move needle and set north; updates happen in real time
+function bindSliderHandlers() {
+  if (window._cameraSliderHandlersBound) return;
+  window._cameraSliderHandlersBound = true;
+  // keep track of the needle rotation so north changes don't move it
+  $('#cameraDirectionSlider').on('input', onCameraInput);
+  $('#northDirectionSlider').on('input', onNorthInput);
+}
+
+// initialize slider handlers and bind jQuery click handler for image refresh button
+$(function () {
+  bindSliderHandlers();
+});
+const $btn = $('#cameraViewDirectionArrow');
+const $compass = $btn.find('.camera-direction-component__compass');
+const $needle = $btn.find('.camera-direction-component__needle');
+const $cameraVal = $('#cameraDirectionValue');
+const $northVal = $('#northDirectionValue');
+function onNorthInput() {
+  if (!$btn.length) return;
+  const north = Number($('#northDirectionSlider').val() || 0);
+  $northVal.text(Math.round(north) + '°');
+  // rotate labels only; do NOT change the needle
+  updateCompassLabels($compass, north);
+  $btn.data('north', north);
+}
+let currentNeedleDeg = null;
+function onCameraInput() {
+  if (!$btn.length) return;
+  const cam = Number($('#cameraDirectionSlider').val() || 0);
+  const north = Number($('#northDirectionSlider').val() || $btn.data('north') || 0);
+  $cameraVal.text(Math.round(cam) + '°');
+  // update the needle when camera direction changes
+  currentNeedleDeg = cam - north;
+  $needle.css({ transform: 'translate(-50%,-100%) rotate(' + currentNeedleDeg + 'deg)', transition: 'transform 0ms' });
 }

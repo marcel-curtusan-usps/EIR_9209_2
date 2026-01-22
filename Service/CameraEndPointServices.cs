@@ -119,96 +119,88 @@ namespace EIR_9209_2.Service
         private async Task HandleGetCameraStillsAsync(CancellationToken stoppingToken)
         {
             // process camera list and get pictures
-            foreach (CameraGeoMarker camera in await _camera.GetAll())
+            var cameras = await _camera.GetAll();
+            foreach (CameraGeoMarker camera in cameras)
             {
-                if (camera == null)
-                {
-                    continue;
-                }
-                if (camera.Properties == null)
-                {
-                    continue;
-                }
-                if (string.IsNullOrEmpty(camera.Properties.CameraName))
-                {
-                    continue;
-                }
-
-                var (resolved, ipv4, hostName) = await NslookupAsync(camera.Properties.CameraName);
-                if (!resolved)
-                {
-                    await _loggerService.LogData(JToken.FromObject($"Camera {camera.Properties.CameraName} is not reachable."), "Warning", _endpointConfig.MessageType, _endpointConfig.Url);
-                    await _camera.LoadCameraStills(Array.Empty<byte>(), camera?.Properties?.Id);
-                    continue;
-                }
-                if (!string.IsNullOrEmpty(hostName) && !hostName.StartsWith("AXIS-", StringComparison.OrdinalIgnoreCase))
-                {
-                    //await _camera.Delete(camera.Properties.Id);
-                    continue;
-                }
                 // stop if cancellation requested
                 if (stoppingToken.IsCancellationRequested)
                 {
                     await _loggerService.LogData(JToken.FromObject("Cancellation requested - stopping camera stills fetch loop."), "Information", _endpointConfig.MessageType, _endpointConfig.Url);
                     break;
                 }
-                string FormatUrl = "";
 
-                byte[] ImageResult = Array.Empty<byte>();
-                // capture camera id safely for logging and downstream calls
-                var cameraZoneId = camera?.Properties?.Id ?? string.Empty;
-                string cameraId = camera?.Properties?.CameraId.ToString() ?? "";
-                Dictionary<string, string> UrlParameters = new Dictionary<string, string>();
-
-                if (_endpointConfig.Url.Contains("ServerIpOrHostName"))
+                if (camera == null || camera.Properties == null || string.IsNullOrEmpty(camera.Properties.CameraName))
                 {
-                    UrlParameters.Add("ServerIpOrHostName", hostName);
-                }
-                else
-                {
-                    UrlParameters.Add("0", hostName);
+                    continue;
                 }
 
-                if (_endpointConfig.Url.Contains("CameraId"))
+                await ProcessSingleCameraStillsAsync(camera, stoppingToken);
+            }
+        }
+
+        private async Task ProcessSingleCameraStillsAsync(CameraGeoMarker camera, CancellationToken stoppingToken)
+        {
+            var cameraName = camera.Properties.CameraName;
+            var cameraZoneId = camera?.Properties?.Id ?? string.Empty;
+            byte[] imageResult = Array.Empty<byte>();
+
+            var (resolved, ipv4, hostName) = await NslookupAsync(cameraName);
+            if (!resolved)
+            {
+                await _loggerService.LogData(JToken.FromObject($"Camera {cameraName} is not reachable."), "Warning", _endpointConfig.MessageType, _endpointConfig.Url);
+                await _camera.LoadCameraStills(Array.Empty<byte>(), cameraZoneId);
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(hostName) && !hostName.StartsWith("AXIS-", StringComparison.OrdinalIgnoreCase))
+            {
+                // Non-AXIS device - skip
+                return;
+            }
+
+            string cameraId = camera?.Properties?.CameraId.ToString() ?? "";
+            Dictionary<string, string> urlParameters = new Dictionary<string, string>();
+
+            if (_endpointConfig.Url.Contains("ServerIpOrHostName"))
+                urlParameters.Add("ServerIpOrHostName", hostName);
+            else
+                urlParameters.Add("0", hostName);
+
+            if (_endpointConfig.Url.Contains("CameraId"))
+                urlParameters.Add("CameraId", cameraId);
+            else
+                urlParameters.Add("1", cameraId);
+
+            string formatUrl = BuildUrl(_endpointConfig.Url, urlParameters);
+
+            try
+            {
+                // Use IHttpClientFactory to obtain an HttpClient (do not create per-iteration new instances)
+                var httpClient = _httpClientFactory.CreateClient();
+                httpClient.Timeout = TimeSpan.FromMilliseconds(_endpointConfig.MillisecondsTimeout);
+                var response = await httpClient.GetAsync(formatUrl, stoppingToken);
+                response.EnsureSuccessStatusCode();
+                imageResult = await response.Content.ReadAsByteArrayAsync();
+
+                if (_endpointConfig.LogData)
                 {
-                    UrlParameters.Add("CameraId", cameraId);
-                }
-                else
-                {
-                    UrlParameters.Add("1", cameraId);
+                    _ = Task.Run(() => _loggerService.LogData(imageResult.ToString(),
+                        _endpointConfig.MessageType,
+                        _endpointConfig.Name,
+                        formatUrl), stoppingToken);
                 }
 
-                FormatUrl = BuildUrl(_endpointConfig.Url, UrlParameters);
-                try
-                {
-                    // Use IHttpClientFactory to obtain an HttpClient (do not create per-iteration new instances)
-                    var httpClient = _httpClientFactory.CreateClient();
-                    httpClient.Timeout = TimeSpan.FromMilliseconds(_endpointConfig.MillisecondsTimeout); // Set timeout as per requirement
-                    // Use GetAsync with the cancellation token so the operation can be cancelled
-                    var response = await httpClient.GetAsync(FormatUrl, stoppingToken);
-                    response.EnsureSuccessStatusCode();
-                    ImageResult = await response.Content.ReadAsByteArrayAsync();
-                    if (_endpointConfig.LogData)
-                    {
-                        _ = Task.Run(() => _loggerService.LogData(ImageResult.ToString(),
-                         _endpointConfig.MessageType,
-                         _endpointConfig.Name,
-                         FormatUrl), stoppingToken);
-                    }
-                    await _camera.LoadCameraStills(ImageResult, cameraZoneId);
-                }
-                catch (HttpRequestException hre)
-                {
-                    // network / connection issues - log and continue to next camera
-                    await _loggerService.LogData(JToken.FromObject(hre.Message), "Warning", _endpointConfig.MessageType, FormatUrl);
-                    await _camera.LoadCameraStills(ImageResult, cameraZoneId);
-                }
-                catch (Exception e)
-                {
-                    // unexpected errors - log and continue
-                    await _loggerService.LogData(JToken.FromObject(e.Message), "Error", _endpointConfig.MessageType, FormatUrl);
-                    await _camera.LoadCameraStills(ImageResult, cameraZoneId);
-                }
+                await _camera.LoadCameraStills(imageResult, cameraZoneId);
+            }
+            catch (HttpRequestException hre)
+            {
+                await _loggerService.LogData(JToken.FromObject(hre.Message), "Warning", _endpointConfig.MessageType, formatUrl);
+                await _camera.LoadCameraStills(imageResult, cameraZoneId);
+            }
+            catch (Exception e)
+            {
+                await _loggerService.LogData(JToken.FromObject(e.Message), "Error", _endpointConfig.MessageType, formatUrl);
+                await _camera.LoadCameraStills(imageResult, cameraZoneId);
             }
         }
         private async Task ProcessCameraData(JToken result)
