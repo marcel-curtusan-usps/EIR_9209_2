@@ -709,7 +709,14 @@ function VaildateForm(FormType) {
         $('<option/>').val('').html('').appendTo('select[id=cameraLocation]');
         if (cameradata.length > 0) {
           $.each(cameradata, function () {
-            $('<option/>').val(this.cameraName).html(this.description + ' (' + this.cameraName + ')').appendTo('select[id=cameraLocation]');
+            let reachable = (typeof this.reachable !== 'undefined') ? this.reachable : false;
+            let statusEmoji = reachable ? ' ✅' : ' ❌';
+            let statusTitle = reachable ? 'Reachable' : 'Unreachable';
+            $('<option/>')
+              .val(this.cameraName)
+              .html(this.description + ' (' + this.cameraName + ')' + statusEmoji)
+              .attr('title', statusTitle)
+              .appendTo('select[id=cameraLocation]');
           });
         }
       },

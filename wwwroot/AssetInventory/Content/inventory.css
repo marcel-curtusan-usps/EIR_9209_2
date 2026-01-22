@@ -1,4 +1,4 @@
-@import url("../../lib/bootstrap/css/bootstrap.css");
+@import url("../../lib/bootstrap/dist/css/bootstrap.min.css");
 @import url("../../lib/bootstrap-datepicker/css/bootstrap-datepicker.css");
 @import url("../..//lib/bootstrap-icons/font/bootstrap-icons.css");
 body {
