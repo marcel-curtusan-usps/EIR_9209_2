@@ -145,6 +145,7 @@ namespace EIR_9209_2.Controllers
                     CameraGeoMarker cameraMarker = value.ToObject<CameraGeoMarker>();
 
                     cameraMarker.Properties.ModelNum = cameraFromList.ModelNum;
+                    cameraMarker.Properties.AuthKey = cameraFromList.AuthKey;
                     cameraMarker.Properties.FacilityPhysAddrTxt = cameraFromList.FacilityPhysAddrTxt;
                     cameraMarker.Properties.GeoProcRegionNm = cameraFromList.GeoProcRegionNm;
                     cameraMarker.Properties.FacilitySubtypeDesc = cameraFromList.FacilitySubtypeDesc;

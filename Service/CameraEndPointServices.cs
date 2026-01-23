@@ -6,6 +6,9 @@ using Newtonsoft.Json.Linq;
 using System.Net.NetworkInformation;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using System.Net.Http.Headers;
+using Microsoft.AspNetCore.CookiePolicy;
 
 
 namespace EIR_9209_2.Service
@@ -175,10 +178,31 @@ namespace EIR_9209_2.Service
 
             try
             {
+                string username = "";
+                string userAuth = "";
+                HttpClientHandler handler = new HttpClientHandler();
+                if (!string.IsNullOrEmpty(camera?.Properties?.AuthKey))
+                {
+                    var AuthParse = camera.Properties.AuthKey.Split(':', 2);
+                    if (AuthParse.Length == 2)
+                    {
+                        username = AuthParse[0];
+                        userAuth = AuthParse[1];
+
+                        handler = new HttpClientHandler
+                        {
+                            Credentials = new NetworkCredential(username, userAuth),
+                            PreAuthenticate = false,
+                            AllowAutoRedirect = true
+
+                        };
+                    }
+                }
+
                 // Use IHttpClientFactory to obtain an HttpClient (do not create per-iteration new instances)
-                var httpClient = _httpClientFactory.CreateClient();
+                using var httpClient = new HttpClient(handler, disposeHandler: true);
                 httpClient.Timeout = TimeSpan.FromMilliseconds(_endpointConfig.MillisecondsTimeout);
-                var response = await httpClient.GetAsync(formatUrl, stoppingToken);
+                using var response = await httpClient.GetAsync(formatUrl, stoppingToken);
                 response.EnsureSuccessStatusCode();
                 imageResult = await response.Content.ReadAsByteArrayAsync();
 
@@ -201,6 +225,20 @@ namespace EIR_9209_2.Service
             {
                 await _loggerService.LogData(JToken.FromObject(e.Message), "Error", _endpointConfig.MessageType, formatUrl);
                 await _camera.LoadCameraStills(imageResult, cameraZoneId);
+            }
+        }
+        private static async Task AddAuthHeaderCore(HttpRequestMessage request, string username, string userAuth, CancellationToken ct)
+        {
+            try
+            {
+                var credentials = $"{username}:{userAuth}";
+                var encodedCredentials = Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials));
+                request.Headers.Add("Authorization", $"Basic {encodedCredentials}");
+
+            }
+            catch (Exception e)
+            {
+                await Task.FromException(e);
             }
         }
         private async Task ProcessCameraData(JToken result)
@@ -245,7 +283,7 @@ namespace EIR_9209_2.Service
                     }
                     catch
                     {
-                    
+
                         camerasItem.IP = string.Empty;
                         camerasItem.Reachable = false;
                     }
