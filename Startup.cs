@@ -1,14 +1,13 @@
-﻿using EIR_9209_2.DatabaseCalls.IDS;
-using EIR_9209_2.DataStore;
+﻿using EIR_9209_2.DataStore;
 using EIR_9209_2.Service;
 using EIR_9209_2.Utilities;
-
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Newtonsoft.Json;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System.Reflection;
+using EIR_9209_2.DatabaseCalls.MPE;
 
 public class Startup
 {
@@ -56,7 +55,7 @@ public class Startup
         services.AddSingleton<IInMemoryEmployeesSchedule, InMemoryEmployeesSchedule>();
         services.AddSingleton<IInMemoryCamerasRepository, InMemoryCamerasRepository>();
         services.AddSingleton<IInMemoryInventoryRepository, InMemoryInventoryRepository>();
-        services.AddSingleton<IIDS, IDS>();
+        services.AddSingleton<IMpe, Mpe>();
         services.AddSingleton<ScreenshotService>();
         services.AddSingleton<EmailService>();
         //API Service Worker and IWorker
@@ -188,7 +187,7 @@ public class Startup
         app.ApplicationServices.GetRequiredService<IInMemoryEmployeesSchedule>();
         app.ApplicationServices.GetRequiredService<IInMemoryCamerasRepository>();
         app.ApplicationServices.GetRequiredService<IInMemoryInventoryRepository>();
-        app.ApplicationServices.GetRequiredService<IIDS>();
+        app.ApplicationServices.GetRequiredService<IMpe>();
         // start the MessageProcessingWorker after MpeClientInfo initialization
         var ServiceWorker = app.ApplicationServices.GetRequiredService<Worker>();
         ServiceWorker.SignalWorkerReady();

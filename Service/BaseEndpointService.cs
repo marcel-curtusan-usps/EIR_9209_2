@@ -15,7 +15,7 @@ namespace EIR_9209_2.Service
         protected readonly IHubContext<HubServices> _hubContext;
         protected readonly IInMemoryConnectionRepository _connection;
         protected readonly ILoggerService _loggerService;
-        protected Connection _endpointConfig;
+        public readonly Connection _endpointConfig;
         private CancellationTokenSource _cancellationTokenSource = new();
         private Task? _task = null;
         private PeriodicTimer? _timer = null;
@@ -129,6 +129,11 @@ namespace EIR_9209_2.Service
             }
         }
 
+        /// <summary>
+        /// Runs the main loop for the endpoint service.
+        /// </summary>
+        /// <param name="stoppingToken"></param>
+        /// <returns></returns>
         private async Task RunAsync(CancellationToken stoppingToken)
         {
             try
@@ -163,6 +168,7 @@ namespace EIR_9209_2.Service
                 _timer?.Dispose();
             }
         }
+
         /// <summary>
         /// Fetches data from the endpoint.
         /// </summary>

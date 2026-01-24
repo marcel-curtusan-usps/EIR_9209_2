@@ -43,4 +43,11 @@ public interface IWorker
     /// </summary>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     Task StopAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Ondemand fetch data from spacific message type from a endpoints.
+    /// </summary>
+    /// <param name="message">The identifier of the connection type.</param>
+    /// <returns>Tuple indicating success status and the fetched data object.</returns>
+    Task<(bool, object)> FetchDataOndemand(object message);
 }

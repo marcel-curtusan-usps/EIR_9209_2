@@ -253,7 +253,8 @@ function formatImageLayout(img) {
     image: newimg.outerHTML
   });
 }
-var webCameraViewData = null;
+
+let webCameraViewData = null;
 async function LoadWeb_CameraImage(Data, layer) {
   try {
     if (!Data) throw new Error('No camera data provided');
@@ -313,6 +314,7 @@ async function LoadWeb_CameraImage(Data, layer) {
           let cameraDirection = Number($(this).val());
           $('#cameraDirectionValue').text(cameraDirection + "°");
           layer.setIcon(getCameraDivIcon(cameraDirection));
+          onCameraInput();
         })
         .on('change mouseup', async function () {
           let cameraDirection = Number($(this).val());
@@ -371,36 +373,12 @@ async function LoadCameraInfo(Data, id) {
 }
 
 
-// initialize handlers immediately (safe to call multiple times)
-$(function () {
-  //bindCompassHandlers();
-  // restore persisted north if present
-  try {
-    const stored = localStorage.getItem('northDirection');
-    if (stored !== null && stored !== undefined) {
-      $('#cameraViewDirectionArrow').data('north', Number(stored));
-    }
-  } catch (ex) { }
-});
-
-// Bind sliders to move needle and set north; updates happen in real time
-function bindSliderHandlers() {
-  if (window._cameraSliderHandlersBound) return;
-  window._cameraSliderHandlersBound = true;
-  // keep track of the needle rotation so north changes don't move it
-  $('#cameraDirectionSlider').on('input', onCameraInput);
-  $('#northDirectionSlider').on('input', onNorthInput);
-}
-
-// initialize slider handlers and bind jQuery click handler for image refresh button
-$(function () {
-  bindSliderHandlers();
-});
 const $btn = $('#cameraViewDirectionArrow');
 const $compass = $btn.find('.camera-direction-component__compass');
 const $needle = $btn.find('.camera-direction-component__needle');
 const $cameraVal = $('#cameraDirectionValue');
 const $northVal = $('#northDirectionValue');
+
 function onNorthInput() {
   if (!$btn.length) return;
   const north = Number($('#northDirectionSlider').val() || 0);

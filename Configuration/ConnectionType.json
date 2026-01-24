@@ -108,62 +108,62 @@
   },
   {
     "Id": "38a2bd9a-960d-4cd9-bd68-a7187a72696a",
-    "Name": "IDS",
-    "Description": "IDS Connection",
+    "Name": "MPE",
+    "Description": "MPE DATA Connection",
     "MessageTypes": [
       {
         "Id": "546cae78-4396-4324-bf78-f768f947de2c",
         "Name": "FMPCSPscCount",
-        "Description": "IDS Pieces Count for USS",
-        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+        "Description": "MPE Pieces Count for USS",
+        "BaseURL": "http://{0}/api/MPE/GetMPEData?queryName={1}&startHour={2}&endHour={3}"
       },
       {
         "Id": "cb56f648-bf3b-4950-a204-7783707a4e94",
         "Name": "APPSPscCount",
-        "Description": "IDS Pieces Count for APPS and EPPS",
-        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+        "Description": "MPE Pieces Count for APPS and EPPS",
+        "BaseURL": "http://{0}/api/MPE/GetMPEData?queryName={1}&startHour={2}&endHour={3}"
       },
       {
         "Id": "fb9b1016-296d-4b7c-ade2-add25de23be3",
         "Name": "GENMPPscCount",
-        "Description": "IDS Pieces Count for HOPS",
-        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+        "Description": "MPE Pieces Count for HOPS",
+        "BaseURL": "http://{0}/api/MPE/GetMPEData?queryName={1}&startHour={2}&endHour={3}"
       },
       {
         "Id": "02f2140e-6f56-472c-af97-adf3ea6d0d2c",
         "Name": "FSMMPPscCount",
-        "Description": "IDS Pieces count for AFSM100 ",
-        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+        "Description": "MPE Pieces count for AFSM100 ",
+        "BaseURL": "http://{0}/api/MPE/GetMPEData?queryName={1}&startHour={2}&endHour={3}"
       },
       {
         "Id": "77b5aa99-ddd3-421f-b6d9-33f0962f337a",
         "Name": "BCSMPPscCount",
-        "Description": "IDS Pieces Count for BCDS, DISOSS and CIOSS",
-        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+        "Description": "MPE Pieces Count for BCDS, DISOSS and CIOSS",
+        "BaseURL": "http://{0}/api/MPE/GetMPEData?queryName={1}&startHour={2}&endHour={3}"
       },
       {
         "Id": "4ba953ca-643c-44d1-8634-e94fe5e752a3",
         "Name": "SIPSPscCount",
-        "Description": "IDS Pieces Count for SIPS",
-        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+        "Description": "MPE Pieces Count for SIPS",
+        "BaseURL": "http://{0}/api/MPE/GetMPEData?queryName={1}&startHour={2}&endHour={3}"
       },
       {
         "Id": "0ae3ced7-c264-4667-b1c1-26ebdab7ba40",
         "Name": "LCTSPscCount",
-        "Description": "IDS Pieces Count for LCTS",
-        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+        "Description": "MPE Pieces Count for LCTS",
+        "BaseURL": "http://{0}/api/MPE/GetMPEData?queryName={1}&startHour={2}&endHour={3}"
       },
       {
         "Id": "156f605e-497b-48e9-a0b3-327027d43094",
         "Name": "EquipStatus",
-        "Description": "IDS Equipment Connection Status",
-        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+        "Description": "MPE Equipment Connection Status",
+        "BaseURL": "http://{0}/api/MPE/GetMPEData?queryName={1}&startHour={2}&endHour={3}"
       },
       {
         "Id": "2b394591-970c-4c70-9a2a-a1d96e4dc8fa",
         "Name": "SDUSPscCount",
-        "Description": "SDUS and ADUS",
-        "BaseURL": "http://{0}/api/IDS/GetIDSData?queryName={1}&startHour={2}&endHour={3}"
+        "Description": "MPE Pieces Count for SIPS & ADUS",
+        "BaseURL": "http://{0}/api/MPE/GetMPEData?queryName={1}&startHour={2}&endHour={3}"
       }
     ]
   },

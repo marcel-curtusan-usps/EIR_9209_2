@@ -199,8 +199,7 @@ async function init_geoman_editing() {
       enableZoneSubmit();
     }
   });
-  $('#cameraDirectionSetupSlider').on('input', onSetupCameraInput);
-  $('#northDirectionSetupSlider').on('input', onSetupNorthInput);
+
 }
 function enableBinZoneSubmit() {
   if ($('select[name=zone_type]').hasClass('is-valid') && $('select[id=zone_select_name]').hasClass('is-valid') && $('textarea[id=bin_bins]').hasClass('is-valid')) {
@@ -337,12 +336,12 @@ function CreateZone(newlayer) {
 
    // Set initial slider (if using)
    $('#cameraDirectionSetupSlider').val(cameraDirection);
-   $('#cameraDirectionSetupSliderValue').text(cameraDirection + '°');
+   $('#cameraDirectionSetupValue').text(cameraDirection + '°');
 
    // Live update icon on slider movement
    $('#cameraDirectionSetupSlider').off().on('input', function () {
      cameraDirection = Number($(this).val());
-     $('#cameraDirectionSetupSliderValue').text(cameraDirection + "°");
+     $('#cameraDirectionSetupValue').text(cameraDirection + "°");
      cameraMarker.setIcon(getCameraDivIcon(cameraDirection));
    });
 
@@ -732,6 +731,7 @@ function VaildateForm(FormType) {
     });
     $('#northDirectionSetupSlider').val(localStorage.getItem('northDirection') || 0);
     $('#northDirectionSetupSlider').trigger('input');
+
     enableZoneSubmit();
     $('#camerainfo').css('display', 'block');
     $('#binzoneinfo').css('display', 'none');

@@ -1,7 +1,8 @@
-﻿using EIR_9209_2.DatabaseCalls.IDS;
-using EIR_9209_2.DataStore;
+﻿using EIR_9209_2.DataStore;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
+using Newtonsoft.Json.Linq;
+using EIR_9209_2.DatabaseCalls.MPE;
 
 namespace EIR_9209_2.Service
 {
@@ -44,8 +45,8 @@ namespace EIR_9209_2.Service
         private readonly IInMemoryBackgroundImageRepository _backgroundImage = null!;
         // Service for logging custom events
         private readonly ILoggerService _loggerService = null!;
-        // IDS service for intrusion detection
-        private readonly IIDS _ids = null!;
+        // MPE service for data processing
+        private readonly IMpe _mpe = null!;
         // Service provider for dependency injection scopes
         private readonly IServiceProvider _serviceProvider = null!;
         // Thread-safe dictionary to manage endpoint services by ID
@@ -70,7 +71,7 @@ namespace EIR_9209_2.Service
             IConfiguration configuration,
             IInMemoryBackgroundImageRepository backgroundImage,
             ILoggerService loggerService,
-            IIDS ids,
+            IMpe mpe,
             IInMemoryEmployeesSchedule schedule,
             IServiceProvider serviceProvider)
         {
@@ -87,7 +88,7 @@ namespace EIR_9209_2.Service
             _employees = employees;
             _backgroundImage = backgroundImage;
             _loggerService = loggerService;
-            _ids = ids;
+            _mpe = mpe;
             _schedule = schedule;
             _serviceProvider = serviceProvider;
         }
@@ -155,8 +156,8 @@ namespace EIR_9209_2.Service
                 case "MPEWatch":
                     endpointService = new MPEWatchEndPointServices(_loggerFactory.CreateLogger<MPEWatchEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _geoZones);
                     break;
-                case "IDS":
-                    endpointService = new IDSEndPointServices(_loggerFactory.CreateLogger<IDSEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _geoZones, _ids, _siteInfo);
+                case "MPE":
+                    endpointService = new MPEEndPointServices(_loggerFactory.CreateLogger<MPEEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _geoZones, _mpe, _siteInfo);
                     break;
                 case "Email":
                     endpointService = new EmailEndPointServices(_loggerFactory.CreateLogger<EmailEndPointServices>(), _httpClientFactory, endpointConfig, _configuration, _hubServices, _connections, _loggerService, _email);
@@ -254,6 +255,59 @@ namespace EIR_9209_2.Service
             {
                 _logger.LogError(e.Message);
                 return false;
+            }
+        }
+        /// <summary>
+        /// Ondemand fetch data from spacific message type from a endpoints.
+        /// </summary>
+        /// <param name="message">The identifier of the connection type.</param>
+        /// <returns>Tuple indicating success status and the fetched data object.</returns>
+        public async Task<(bool, object?)> FetchDataOndemand(object message)
+        {
+
+            try
+            {
+                if (message is JObject msg && msg.Type == JTokenType.Object)
+                {
+                    string MessageType = msg["queryName"]?.ToString() ?? string.Empty;
+                    // find the connection by name (containerName)
+                    var connectionId = _endPointServices.Values.FirstOrDefault(s => s._endpointConfig.MessageType.Contains(MessageType))?._endpointConfig.Id;
+                    if (connectionId == null)
+                    {
+                        _logger.LogWarning("Endpoint {Id} not found for FetchDataOndemand.", connectionId);
+                        return (false, new object[] { $"message = Connection {MessageType} not found.", $"connectionId = {MessageType}", $"data = {message}" });
+                    }
+                    // fetch data from the endpoint service
+                    if (_endPointServices.TryGetValue(connectionId, out var MPEDataService) && MPEDataService is MPEEndPointServices mpeService)
+                    {
+                        var (success, result) = await mpeService.FetchDataOndemand<object>(msg);
+                        await Task.CompletedTask;
+                        if (success)
+                        {
+                            return (success, result);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Endpoint {Id} is not of type IDSEndPointServices for FetchDataOndemand.", connectionId);
+                            return (false, new { Error = "Endpoint type mismatch." });
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Endpoint {Id} not found for FetchDataOndemand.", connectionId);
+                        return (false, new { Error = "Endpoint not found." });
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("Invalid message format for FetchDataOndemand.");
+                    return (false, new { Error = "Invalid message format." });
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return (false, new { Error = e.Message });
             }
         }
     }

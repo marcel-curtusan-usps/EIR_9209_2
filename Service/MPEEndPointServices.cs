@@ -1,30 +1,89 @@
 ﻿using EIR_9209_2.DatabaseCalls.IDS;
+using EIR_9209_2.DatabaseCalls.MPE;
 using EIR_9209_2.DataStore;
+using EIR_9209_2.Models;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
 using NuGet.Protocol;
 
 namespace EIR_9209_2.Service
 {
-    internal class IDSEndPointServices : BaseEndpointService
+    internal class MPEEndPointServices : BaseEndpointService
     {
         private readonly IInMemoryGeoZonesRepository _geoZones;
-        private readonly IIDS _ids;
+        private readonly IMpe _mpe;
         private readonly IInMemorySiteInfoRepository _siteInfo;
-        public IDSEndPointServices(ILogger<IDSEndPointServices> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryGeoZonesRepository geozone, IIDS ids, IInMemorySiteInfoRepository siteInfo)
+        public MPEEndPointServices(ILogger<MPEEndPointServices> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService, IInMemoryGeoZonesRepository geozone, IMpe mpe, IInMemorySiteInfoRepository siteInfo)
                 : base(logger, httpClientFactory, endpointConfig, configuration, hubContext, connection, loggerService)
         {
             _geoZones = geozone;
-            _ids = ids;
+            _mpe = mpe;
             _siteInfo = siteInfo;
         }
         protected override async Task FetchDataFromEndpoint(CancellationToken stoppingToken)
         {
             try
             {
+                var (status, result) = await GetResult<JToken>(stoppingToken, null);
+                await Task.CompletedTask;
+                
+                if (result != null && result.HasValues)
+                {
+                    if (result is JObject resultObject && resultObject.ContainsKey("Error"))
+                    {
+                        await _loggerService.LogData(JToken.FromObject(result), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
+                        _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
+                        var updateCon = _connection.Update(_endpointConfig).Result;
+                        if (updateCon != null)
+                        {
+                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                        }
+                    }
+                    else
+                    {
+                        await _loggerService.LogData(JToken.FromObject(result), "Info", "FetchDataFromEndpoint", _endpointConfig.Url);
+                        _endpointConfig.Status = EWorkerServiceState.Idle;
+                        var updateCon = _connection.Update(_endpointConfig).Result;
+                        if (updateCon != null)
+                        {
+                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                        }
+                        await ProcessMpeData(result, stoppingToken);
+                    }
+
+                }
+                else
+                {
+                    await _loggerService.LogData(JToken.FromObject(result), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                await _loggerService.LogData(JToken.FromObject(ex.Message), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
+                _endpointConfig.ApiConnected = false;
+                _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
+                var updateCon = _connection.Update(_endpointConfig).Result;
+                if (updateCon != null)
+                {
+                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
+                }
+            }
+        }
+        private async Task<(bool Success, T? Item)> GetResult<T>( CancellationToken stoppingToken, JObject dataParameter)
+        {
+            try
+            {
                 List<int> datadayList = [];
                 List<int> rejectBinList = [];
                 List<int> reworkBinList = [];
+
+                if(dataParameter != null)
+                {
+                    datadayList = dataParameter.ContainsKey("datadayList") ? dataParameter["datadayList"]?.ToObject<List<int>>() ?? [] : [];
+                    rejectBinList = dataParameter.ContainsKey("rejectBins") ? dataParameter["rejectBins"]?.ToObject<List<int>>() ?? [] : [];
+                    reworkBinList = dataParameter.ContainsKey("reworkBins") ? dataParameter["reworkBins"]?.ToObject<List<int>>() ?? [] : [];
+                }
                 DateTime currentTime = await _siteInfo.GetCurrentTimeInTimeZone(DateTime.Now);
                 int datadayStart = 0;
                 if (_endpointConfig.LasttimeApiConnected.Year == 1 || (DateTime.Now - _endpointConfig.LasttimeApiConnected).TotalHours > 24)
@@ -83,60 +142,32 @@ namespace EIR_9209_2.Service
                 }
                 data["rejectBins"] = new JArray(rejectBinList);
                 data["reworkBins"] = new JArray(reworkBinList);
-                var (status, result) = await _ids.GetOracleIDSData(data);
+                
+                var (status, result) = await _mpe.GetMpeData(data);
+
                 if (_endpointConfig.LogData)
                 {
                     // Start a new thread to handle the logging
-                    _ = Task.Run(() => _loggerService.LogData(result.ToJson(),
+                    _ = Task.Run(() => _loggerService.LogData( result == null ? status.ToJson() : result.ToJson(),
                         _endpointConfig.MessageType,
                         _endpointConfig.Name,
                         data.ToString()), stoppingToken);
                 }
-                if (result.HasValues)
+                if (result != null)
                 {
-                    if (result is JObject resultObject && resultObject.ContainsKey("Error"))
-                    {
-                        await _loggerService.LogData(JToken.FromObject(result), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
-                        _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
-                        var updateCon = _connection.Update(_endpointConfig).Result;
-                        if (updateCon != null)
-                        {
-                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
-                        }
-                    }
-                    else
-                    {
-                        await _loggerService.LogData(JToken.FromObject(result), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
-                        _endpointConfig.Status = EWorkerServiceState.Idle;
-                        var updateCon = _connection.Update(_endpointConfig).Result;
-                        if (updateCon != null)
-                        {
-                            await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
-                        }
-                        await ProcessIDSdata(result, stoppingToken);
-                    }
-
+                    return (true, (T?)result);
                 }
                 else
                 {
-                    await _loggerService.LogData(JToken.FromObject(result), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
+                    return (true, (T?)status);
                 }
             }
-
-            catch (Exception ex)
+            catch (System.Exception)
             {
-                await _loggerService.LogData(JToken.FromObject(ex.Message), "Error", "FetchDataFromEndpoint", _endpointConfig.Url);
-                _endpointConfig.ApiConnected = false;
-                _endpointConfig.Status = EWorkerServiceState.ErrorPullingData;
-                var updateCon = _connection.Update(_endpointConfig).Result;
-                if (updateCon != null)
-                {
-                    await _hubContext.Clients.Group("Connections").SendAsync("updateConnection", updateCon, CancellationToken.None);
-                }
+                return (false, (T?)(object)false);
             }
         }
-
-        private async Task ProcessIDSdata(JToken result, CancellationToken stoppingToken)
+        private async Task ProcessMpeData(JToken result, CancellationToken stoppingToken)
         {
             await _geoZones.ProcessIDSData(result, stoppingToken);
         }
@@ -144,6 +175,18 @@ namespace EIR_9209_2.Service
         {
             //Julian Date from DCS_CNVRT_DATE function in IDS
             return Convert.ToInt32((datadayTime.AddDays(22).AddDays(-7 / 24).ToOADate() + 2415018.5) % 63) == 0 ? 63 : Convert.ToInt32((datadayTime.AddDays(22).AddDays(-7 / 24).ToOADate() + 2415018.5) % 63);
+        }
+        public async Task<(bool Success, T? Item)> FetchDataOndemand<T>(JObject dataParameter)
+        {
+            try
+            {
+                return await GetResult<T>(CancellationToken.None, dataParameter);
+            }
+            catch (Exception ex)
+            {
+                await _loggerService.LogData(JToken.FromObject(ex.Message), "Error", "FetchDataOndemand", _endpointConfig.Url);
+                return (false, default);
+            }
         }
     }
 }

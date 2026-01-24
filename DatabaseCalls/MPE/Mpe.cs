@@ -1,14 +1,14 @@
-﻿using EIR_9209_2.Utilities;
+using EIR_9209_2.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
 
-namespace EIR_9209_2.DatabaseCalls.IDS
+namespace EIR_9209_2.DatabaseCalls.MPE
 {
-    public class IDS(ILogger<IDS> logger, IConfiguration configuration, IFileService fileService, IEncryptDecrypt encryptDecrypt) : IIDS
+    public class Mpe(ILogger<Mpe> logger, IConfiguration configuration, IFileService fileService, IEncryptDecrypt encryptDecrypt) : IMpe
     {
-        private readonly ILogger<IDS> _logger = logger;
+        private readonly ILogger<Mpe> _logger = logger;
         private readonly IConfiguration _configuration = configuration;
         private readonly IFileService _fileService = fileService;
         private readonly IEncryptDecrypt _encryptDecrypt = encryptDecrypt;
@@ -19,7 +19,7 @@ namespace EIR_9209_2.DatabaseCalls.IDS
         /// Array-valued properties (JArray) will be expanded inline (comma-separated) so they work with IN (...) clauses.
         /// Scalar properties will be bound as named parameters to avoid SQL injection and ORA-01008 errors.
         /// </summary>
-        public async Task<(object?,object?)> GetOracleIDSData(JToken data)
+        public async Task<(object?, object?)> GetMpeData(JToken data)
         {
             try
             {
