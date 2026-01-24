@@ -324,7 +324,7 @@ function CreateZone(newlayer) {
   } catch (e) { }
 }
 
- function CreateCamera(newlayer) {
+ async function CreateCamera(newlayer) {
    VaildateForm('Camera');
    sidebar.open('home');
    let cameraMarker = newlayer.layer;
@@ -332,17 +332,17 @@ function CreateZone(newlayer) {
    // (Optional: Set from an existing slider or value)
 
    // Set initial icon
-   cameraMarker.setIcon(getCameraDivIcon(cameraDirection));
+   cameraMarker.setIcon(await getCameraDivIcon(cameraDirection));
 
    // Set initial slider (if using)
    $('#cameraDirectionSetupSlider').val(cameraDirection);
    $('#cameraDirectionSetupValue').text(cameraDirection + '°');
 
    // Live update icon on slider movement
-   $('#cameraDirectionSetupSlider').off().on('input', function () {
+   $('#cameraDirectionSetupSlider').off().on('input', async function () {
      cameraDirection = Number($(this).val());
-     $('#cameraDirectionSetupValue').text(cameraDirection + "°");
-     cameraMarker.setIcon(getCameraDivIcon(cameraDirection));
+     await onSetupCameraInput();
+     cameraMarker.setIcon(await getCameraDivIcon(cameraDirection));
    });
 
    // Remove marker on cancel
@@ -352,7 +352,7 @@ function CreateZone(newlayer) {
    });
 
    // Save all data on submit, including direction
-   $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
+   $('button[id=zonesubmitBtn][type=button]').off().on('click', async function () {
      let togeo = cameraMarker.toGeoJSON();
      togeo.properties = {
        floorId: baselayerid,
@@ -362,7 +362,7 @@ function CreateZone(newlayer) {
        cameraName: $('select[name=cameraLocation] option:selected').val(),
        cameraDirection: cameraDirection
      };
-     $.ajax({
+     await $.ajax({
        url: SiteURLconstructor(window.location) + '/api/Camera/Add',
        data: JSON.stringify(togeo),
        contentType: 'application/json',
@@ -381,7 +381,7 @@ function CreateZone(newlayer) {
      });
    });
 }
-function RemoveZoneItem(removeLayer) {
+async function RemoveZoneItem(removeLayer) {
   try {
     $.ajax({
       url: SiteURLconstructor(window.location) + '/api/Zone/Delete?id=' + removeLayer.layer.feature.properties.id,
@@ -450,7 +450,8 @@ const $setupcompass = $setupbtn.find('.camera-direction-component__compass');
 const $setupneedle = $setupbtn.find('.camera-direction-component__needle');
 const $setupcameraVal = $('#cameraDirectionSetupValue');
 const $setupnorthVal = $('#northDirectionSetupValue');
-function onSetupNorthInput() {
+
+async function onSetupNorthInput() {
   if (!$setupbtn.length) return;
   const north = Number($('#northDirectionSetupSlider').val() || 0);
   $setupnorthVal.text(Math.round(north) + '°');
@@ -458,17 +459,14 @@ function onSetupNorthInput() {
   updateCompassLabels($setupcompass, north);
   $setupbtn.data('north', north);
 }
-function onSetupCameraInput() {
+async function onSetupCameraInput() {
   if (!$setupbtn.length) return;
   const cam = Number($('#cameraDirectionSetupSlider').val() || 0);
-  const north = Number($('#northDirectionSetupSlider').val() || $setupbtn.data('north') || 0);
   $setupcameraVal.text(Math.round(cam) + '°');
-  // update the needle when camera direction changes
-  const currentNeedleDeg = cam - north;
-  $setupneedle.css({ transform: 'translate(-50%,-100%) rotate(' + currentNeedleDeg + 'deg)', transition: 'transform 0ms' });
+  $setupneedle.css({ transform: 'translate(-50%,-100%) rotate(' + cam + 'deg)', transition: 'transform 0ms' });
 }
 
-function VaildateForm(FormType) {
+async function VaildateForm(FormType) {
   $('select[name=zone_select_name]').removeClass('is-valid').addClass('is-invalid');
   $('span[id=error_zone_select_name]').text('Please Select Name');
   $('input[type=text][name=manual_name]').css('border-color', '#FF0000').removeClass('is-valid').addClass('is-invalid');
@@ -730,7 +728,7 @@ function VaildateForm(FormType) {
       }
     });
     $('#northDirectionSetupSlider').val(localStorage.getItem('northDirection') || 0);
-    $('#northDirectionSetupSlider').trigger('input');
+    await onSetupNorthInput();
 
     enableZoneSubmit();
     $('#camerainfo').css('display', 'block');

@@ -57,44 +57,23 @@ function startTimer() {
   }, 1000);
 }
 // Utility to create the same custom divIcon with cone & cameraDirection
-function getCameraDivIcon(direction) {
+async function getCameraDivIcon(direction) {
   return L.divIcon({
     className: 'custom-div-icon',
-    html: "<div style='transform:rotate(" + direction + "deg)' class='marker-camera-cone'></div><div class='marker-pin'></div><i class='bi-camera-fill'></i>",
-    iconSize: [30, 42],
-    iconAnchor: [15, 42]
+    html: direction ? "<div style='transform:rotate(" + direction + "deg)' class='marker-camera-cone'></div><div class='marker-pin'></div><i class='bi-camera-fill'></i>" : "<div class='marker-pin'></div><i class='bi-camera-fill'></i>",
+    iconSize: [42, 42],
+    iconAnchor: [2, 62]
   });
 }
 // GeoJSON layer for camera markers (ensure global availability for other scripts)
 let markerCameras = new L.GeoJSON(null, {
-  pointToLayer: function (feature, latlng) {
-    if (feature.properties.cameraDirection) {
-      let icon = L.divIcon({
-        className: 'custom-div-icon',
-        html: "<div style='transform:rotate(" + feature.properties.cameraDirection + "deg)' class='marker-camera-cone'></div><div class='marker-pin'></div><i class='bi-camera-fill'></i>",
-        iconSize: [30, 42],
-        iconAnchor: [15, 42]
-      });
+  pointToLayer: async function (feature, latlng) {
       return L.marker(latlng, {
-        icon: icon,
+        icon: await getCameraDivIcon(feature.properties.cameraDirection),
         riseOnHover: true,
         bubblingMouseEvents: true,
         popupOpen: true
       });
-    } else {
-      let icon = L.divIcon({
-        className: 'custom-div-icon',
-        html: "<div class='marker-pin'></div><i class='bi-camera-fill'></i>",
-        iconSize: [30, 42],
-        iconAnchor: [15, 42]
-      });
-      return L.marker(latlng, {
-        icon: icon,
-        riseOnHover: true,
-        bubblingMouseEvents: true,
-        popupOpen: true
-      });
-    }
   },
   onEachFeature: function (feature, layer) {
     layer.markerId = feature.properties.id;
