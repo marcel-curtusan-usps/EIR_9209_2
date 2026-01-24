@@ -7,15 +7,27 @@ using Newtonsoft.Json.Linq;
 
 namespace EIR_9209_2.Controllers
 {
+    /// <summary>
+    /// MPE Controller
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    public class MPEController : ControllerBase
+    public class MpeController : ControllerBase
     {
-        private readonly ILogger<MPEController> _logger;
+        private readonly ILogger<MpeController> _logger;
         private readonly IWorker _worker;
         private readonly IMpe _MPE;
         private readonly IInMemoryGeoZonesRepository _geoZones;
-        public MPEController(ILogger<MPEController> logger, IWorker worker, IMpe MPE, IInMemoryGeoZonesRepository geoZones)
+
+        /// <summary>
+        /// MPE Controller
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="worker"></param>
+        /// <param name="MPE"></param>
+        /// <param name="geoZones"></param>
+        /// <returns></returns>
+        public MpeController(ILogger<MpeController> logger, IWorker worker, IMpe MPE, IInMemoryGeoZonesRepository geoZones)
         {
             _logger = logger;
             _worker = worker;
@@ -85,7 +97,7 @@ namespace EIR_9209_2.Controllers
         /// <summary>
         /// Post MPE Data
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="reqBody"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("MPEData")]
@@ -100,7 +112,7 @@ namespace EIR_9209_2.Controllers
             string? parameterQueryName = payload.ContainsKey("queryName") ? payload["queryName"]?.ToString() : queryParmaters.ContainsKey("queryName") ? queryParmaters["queryName"].ToString() : string.Empty;
             int parameterStartHour = payload.ContainsKey("startHour") ? payload["startHour"]?.ToObject<int>() ?? 0 : queryParmaters.ContainsKey("startHour") ? int.Parse(queryParmaters["startHour"]) : 0;
             int parameterEndHour = payload.ContainsKey("endHour") ? payload["endHour"]?.ToObject<int>() ?? 0 : queryParmaters.ContainsKey("endHour") ? int.Parse(queryParmaters["endHour"]) : 0;
-           
+
 
             if (!string.IsNullOrEmpty(parameterQueryName) && parameterStartHour > 0 && parameterStartHour < 24 && parameterEndHour > 0 && parameterEndHour < 24)
             {
@@ -139,6 +151,79 @@ namespace EIR_9209_2.Controllers
             {
                 return BadRequest(new { message = "Invalid Parameters in the Request.", Parameters = new { QueryName = parameterQueryName, StartHour = parameterStartHour, EndHour = parameterEndHour } });
             }
+        }
+
+        /// <summary>
+        /// Get MPE Groups
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("MPEGroups")]
+        public async Task<object> GetByMPEGroupList(string type)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return await Task.FromResult(BadRequest(ModelState));
+                }
+                return Ok(await _geoZones.GetMPEGroupList(type));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+
+        }
+        /// <summary>
+        ///  Get MPE Standards
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("MPEStandard")]
+        public async Task<object> GetByMPEStandardList(string name)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return await Task.FromResult(BadRequest(ModelState));
+                }
+                return Ok(await _geoZones.GetMPEGroupList(name));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+
+        }
+        /// <summary>
+        ///  Get MPE Performance Data by Zone Name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("MPEPerformanceData")]
+        public async Task<object> GetByMPEPerformanceDataByZoneName(string name)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                return Ok(await _geoZones.GetGeoZoneMPEPerformanceData(name));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(e.Message);
+            }
+
         }
     }
 }

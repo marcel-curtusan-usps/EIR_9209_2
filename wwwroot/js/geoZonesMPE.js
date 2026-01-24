@@ -129,14 +129,14 @@ let geoZoneMPE = new L.GeoJSON(null, {
     onEachFeature: function (feature, layer) {
 
         layer.zoneId = feature.properties.id;
-        layer.on('click', function (e) {
+        layer.on('click', async function (e) {
             if (e.sourceTarget.hasOwnProperty("_content")) {
                 OSLmap.setView(e.sourceTarget._latlng, 4);
             }
             else {
                 OSLmap.setView(e.sourceTarget.getCenter(), 4);
             }
-            Promise.all([loadMachineData(feature.properties, MPETable)]);
+            await loadMachineData(feature.properties, MPETable);
 
         });
 
@@ -184,9 +184,9 @@ async function init_geoZoneMPE(floorId) {
             )}/api/Zone/ZonesTypeByFloorId?floorId=${floorId}&type=MPE`,
             contentType: "application/json",
             type: "GET",
-            success: function (data) {
+            success: async function (data) {
                 for (let i = 0; i < data.length; i++) {
-                    Promise.all([addMPEFeature(data[i])]);
+                    await addMPEFeature(data[i]);
                 }
             },
         });
@@ -201,12 +201,12 @@ async function init_geoZoneMPE(floorId) {
         if (/^(Admin|Maintenance|OIE)/i.test(appData.Role)) {
             $("button[name=machineinfoedit]")
                 .off()
-                .on("click", function () {
+                .on("click", async function () {
                     /* close the sidebar */
                     sidebar.close();
                     var id = $(this).attr("id");
                     if (checkValue(id)) {
-                        Promise.all([Edit_Machine_Info(id)]);
+                        await Edit_Machine_Info(id);
                     }
                 });
         }
@@ -215,12 +215,12 @@ async function init_geoZoneMPE(floorId) {
     }
 }
 connection.on("addMPEzone", async (zoneDate) => {
-    addMPEFeature(zoneDate);
+    await addMPEFeature(zoneDate);
 
 });
 connection.on("deleteMPEzone", async (zoneDate) => {
     isMPEZoneRemoved = true;
-    deleteMPEFeature(zoneDate);
+    await deleteMPEFeature(zoneDate);
 
 });
 connection.on("updateMPEzone", async (mpeZonedata) => {
