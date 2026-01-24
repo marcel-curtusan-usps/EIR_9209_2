@@ -202,6 +202,10 @@ namespace EIR_9209_2.Controllers
                     return BadRequest(ModelState);
                 }
                 var connection = await _connectionRepository.Get(id);
+                if(connection == null)
+                {
+                    return NotFound(new { message = $"Connection with Id: {id} not found." });
+                }
                 connection.ActiveConnection = false;
                 if (await _worker.UpdateEndpoint(connection))
                 {
@@ -214,7 +218,9 @@ namespace EIR_9209_2.Controllers
                 }
                 else
                 {
-                    return BadRequest(new JObject { ["Message"] = $"Connection Id:{id} was not Found" });
+                    await _connectionRepository.Remove(id);
+                    await _hubContext.Clients.Group("Connections").SendAsync("DeleteConnection", id);
+                    return Ok(connection);
                 }
             }
             catch (Exception e)

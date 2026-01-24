@@ -57,7 +57,7 @@ function startTimer() {
   }, 1000);
 }
 // Utility to create the same custom divIcon with cone & cameraDirection
-async function getCameraDivIcon(direction) {
+function getCameraDivIcon(direction) {
   return L.divIcon({
     className: 'custom-div-icon',
     html: direction ? "<div style='transform:rotate(" + direction + "deg)' class='marker-camera-cone'></div><div class='marker-pin'></div><i class='bi-camera-fill'></i>" : "<div class='marker-pin'></div><i class='bi-camera-fill'></i>",
@@ -67,35 +67,37 @@ async function getCameraDivIcon(direction) {
 }
 // GeoJSON layer for camera markers (ensure global availability for other scripts)
 let markerCameras = new L.GeoJSON(null, {
-  pointToLayer: async function (feature, latlng) {
-      return L.marker(latlng, {
-        icon: await getCameraDivIcon(feature.properties.cameraDirection),
-        riseOnHover: true,
-        bubblingMouseEvents: true,
-        popupOpen: true
-      });
+  pointToLayer: function (feature, latlng) {
+    return L.marker(latlng, {
+      icon: getCameraDivIcon(feature.properties.cameraDirection),
+      riseOnHover: true,
+      bubblingMouseEvents: true,
+      popupOpen: true
+    });
   },
   onEachFeature: function (feature, layer) {
-    layer.markerId = feature.properties.id;
-    layer.on('click', function (e) {
-      $('#timeOutView').hide();
-      $('#countDownView').show();
-      clearInterval(timer);
-      count = defaultTime;
-      $('#counter').html(count);
-      $('#counter').html(count);
-      setTimeout(startTimer, 300);
+    try {
+      layer.markerId = feature.properties.id;
+      layer.on('click', function (e) {
+        $('#timeOutView').hide();
+        $('#countDownView').show();
+        clearInterval(timer);
+        count = defaultTime;
+        $('#counter').html(count);
+        $('#counter').html(count);
+        setTimeout(startTimer, 300);
 
-      LoadWeb_CameraImage(feature.properties,layer);
-    });
-    layer
-      .bindTooltip('', {
+        LoadWeb_CameraImage(feature.properties, layer);
+      });
+      layer.bindTooltip('', {
         permanent: true,
         interactive: true,
         direction: 'center',
         opacity: 0
-      })
-      .openTooltip();
+      }).openTooltip();
+    } catch (error) {
+      console.error('Error in onEachFeature for camera markers:', error);
+    }
   },
   filter: function (feature, layer) {
     return feature.properties.visible;

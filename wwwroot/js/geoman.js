@@ -332,7 +332,7 @@ function CreateZone(newlayer) {
    // (Optional: Set from an existing slider or value)
 
    // Set initial icon
-   cameraMarker.setIcon(await getCameraDivIcon(cameraDirection));
+   cameraMarker.setIcon(getCameraDivIcon(cameraDirection));
 
    // Set initial slider (if using)
    $('#cameraDirectionSetupSlider').val(cameraDirection);
@@ -342,7 +342,7 @@ function CreateZone(newlayer) {
    $('#cameraDirectionSetupSlider').off().on('input', async function () {
      cameraDirection = Number($(this).val());
      await onSetupCameraInput();
-     cameraMarker.setIcon(await getCameraDivIcon(cameraDirection));
+     cameraMarker.setIcon(getCameraDivIcon(cameraDirection));
    });
 
    // Remove marker on cancel
