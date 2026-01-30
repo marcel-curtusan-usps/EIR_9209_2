@@ -6,6 +6,8 @@ $('#Remove_Layer_Modal').on('hidden.bs.modal', function () {
   $(this).find('input[type=text],textarea,select').css({ 'border-color': '#D3D3D3' }).val('').prop('disabled', false).end().find('input[type=radio]').prop('disabled', false).prop('checked', false).change().end().find('span[class=text]').css('border-color', '#FF0000').val('').text('').end().find('input[type=checkbox]').prop('checked', false).change().end();
 });
 $('#Remove_Layer_Modal').on('shown.bs.modal', function () { });
+let cameraListData = [];
+
 async function init_geoman_editing() {
   let draw_options = {
     position: 'bottomright',
@@ -58,6 +60,12 @@ async function init_geoman_editing() {
     $('button[id=zonecloseBtn][type=button]').off().on('click', function () {
       sidebar.close();
       e.layer.remove();
+      $('#cameraDirectionSetupSlider').val(0);
+      $('#cameraDirectionSetupValue').text('0°');
+      $('#defualtResolution').empty();
+      $('#defualtCameraSource').empty();
+      $('#cameraOptionsDiv').addClass('d-none');
+      $('#cameraDirectionSetupDiv').addClass('d-none');
     });
   });
   OSLmap.on('pm:edit', e => {
@@ -66,32 +74,32 @@ async function init_geoman_editing() {
       e.layer.bindPopup().openPopup();
     }
   });
-  OSLmap.on('pm:remove', e => {
+  OSLmap.on('pm:remove', async e => {
     // suppress any open Bootstrap modals and popups when removing a layer
     try { $('.modal').modal('hide'); } catch (err) { }
     if (e.shape === 'Marker') {
-      VaildateForm('');
+      await VaildateForm('');
       if (e.layer) {
         if (typeof e.layer.closePopup === 'function') { e.layer.closePopup(); }
         if (typeof e.layer.unbindPopup === 'function') { e.layer.unbindPopup(); }
       }
       RemoveMarkerItem(e);
     } else {
-      VaildateForm('');
+      await VaildateForm('');
       RemoveZoneItem(e);
     }
     sidebar.close();
   });
   //zone type
-  $('select[name=zone_type]').on('change', function () {
+  $('select[name=zone_type]').on('change', async function () {
     if (!checkValue($('select[name=zone_type]').val())) {
       $('select[name=zone_type]').removeClass('is-valid').addClass('is-invalid');
       $('span[id=error_zone_type]').text('Please Select Type');
-      VaildateForm('');
+      await VaildateForm('');
     } else {
       $('select[name=zone_type]').removeClass('is-invalid').addClass('is-valid');
       $('span[id=error_zone_type]').text('');
-      VaildateForm($('select[name=zone_type] option:selected').val());
+      await VaildateForm($('select[name=zone_type] option:selected').val());
     }
     if (!checkValue($('select[name=zone_select_name]').val())) {
       $('select[name=zone_select_name]').removeClass('is-valid').addClass('is-invalid');
@@ -101,7 +109,7 @@ async function init_geoman_editing() {
       $('span[id=error_zone_select_name]').text('');
     }
   });
-  $('select[id=zone_select_name]').on('change', function () {
+  $('select[id=zone_select_name]').on('change', async function () {
     if (/^(Cube)$/i.test($('select[name=zone_type] option:selected').val())) {
       $('#manual_row').css('display', 'block');
     } else if (/Not Listed$/.test($('select[name=zone_select_name] option:selected').val())) {
@@ -131,16 +139,16 @@ async function init_geoman_editing() {
       $('select[id=zone_select_name]').removeClass('is-invalid').addClass('is-valid');
       $('span[id=error_zone_select_name]').text('');
       if (/Camera/i.test($('select[name=zone_type] option:selected').val())) {
-        enableCameraSubmit();
+        await enableCameraSubmit();
       } else if (/Bin/i.test($('select[name=zone_type] option:selected').val())) {
-        enableBinZoneSubmit();
+        await enableBinZoneSubmit();
       } else {
-        enableZoneSubmit();
+        await enableZoneSubmit();
       }
     }
   });
   //bins name
-  $('textarea[id=bin_bins]').on('keyup', function () {
+  $('textarea[id=bin_bins]').on('keyup', async function () {
     if (!checkValue($('textarea[id=bin_bins]').val())) {
       $('textarea[id=bin_bins]').removeClass('is-valid').addClass('is-invalid');
       $('span[id=error_bin_bins]').text('Please Enter Bin Numbers');
@@ -148,11 +156,11 @@ async function init_geoman_editing() {
       $('textarea[id=bin_bins]').removeClass('is-invalid').addClass('is-valid');
       $('span[id=error_bin_bins]').text('');
     }
-    enableBinZoneSubmit();
+    await enableBinZoneSubmit();
   });
 
   //Camera URL
-  $('select[name=cameraLocation]').on('change', function () {
+  $('select[name=cameraLocation]').on('change', async function () {
     if (!checkValue($('select[name=cameraLocation]').val())) {
       $('select[name=cameraLocation]').removeClass('is-valid').addClass('is-invalid');
       $('span[id=error_cameraLocation]').text('Please Select Type');
@@ -160,10 +168,32 @@ async function init_geoman_editing() {
       $('select[name=cameraLocation]').removeClass('is-invalid').addClass('is-valid');
       $('span[id=error_cameraLocation]').text('');
     }
-    enableCameraSubmit();
+    await enabelCameraOption($('select[id=' + this.id + '] option:selected').attr('id'));
+    await enableCameraSubmit();
+  });
+  $('select[name=defualtCameraSource]').on('change', async function () {
+    if (!checkValue($('select[name=defualtCameraSource]').val())) {
+      $('select[name=defualtCameraSource]').removeClass('is-valid').addClass('is-invalid');
+      $('span[id=error_defualtCameraSource]').text('Please Select Type');
+    } else {
+      $('select[name=defualtCameraSource]').removeClass('is-invalid').addClass('is-valid');
+      $('span[id=error_defualtCameraSource]').text('');
+    }
+    await enabelCameraDirection($('select[id=' + this.id + '] option:selected').val());
+    await enableCameraSubmit();
+  });
+  $('select[name=defualtResolution]').on('change', async function () {
+    if (!checkValue($('select[name=defualtResolution]').val())) {
+      $('select[name=defualtResolution]').removeClass('is-valid').addClass('is-invalid');
+      $('span[id=error_defualtCameraSource]').text('Please Select Type');
+    } else {
+      $('select[name=defualtResolution]').removeClass('is-invalid').addClass('is-valid');
+      $('span[id=error_defualtCameraSource]').text('');
+    }
+    await enableCameraSubmit();
   });
   //manual type keyup
-  $('input[type=text][name=manual_name]').on('keyup', function () {
+  $('input[type=text][name=manual_name]').on('keyup', async function () {
     if (!checkValue($('input[type=text][name=manual_name]').val())) {
       $('input[type=text][name=manual_name]').css('border-color', '#FF0000').removeClass('is-valid').addClass('is-invalid');
       $('span[id=error_manual_name]').text('Please Enter Name');
@@ -172,18 +202,18 @@ async function init_geoman_editing() {
       $('span[id=error_manual_name]').text('');
     }
     if ($('select[name=zone_type] option:selected').val() === 'Camera') {
-      enableCameraSubmit();
+      await enableCameraSubmit();
     } else if ($('select[name=zone_type] option:selected').val() === 'Bin') {
-      enableBinZoneSubmit();
+      await enableBinZoneSubmit();
     } else if ($('select[name=zone_type] option:selected').val() === 'AGVLocation') {
-      enableAGVLocationSubmit();
+      await enableAGVLocationSubmit();
     } else if ($('select[name=zone_type] option:selected').val() === 'Area') {
-      enableAreaZoneSubmit();
+      await enableAreaZoneSubmit();
     } else {
-      enableZoneSubmit();
+      await enableZoneSubmit();
     }
   });
-  $('input[type=text][name=manual_number]').on('keyup', function () {
+  $('input[type=text][name=manual_number]').on('keyup', async function () {
     if (!checkValue($('input[type=text][name=manual_number]').val())) {
       $('input[type=text][name=manual_number]').css('border-color', '#FF0000').removeClass('is-valid').addClass('is-invalid');
       $('span[id=error_manual_number]').text('Please Enter Name');
@@ -192,30 +222,67 @@ async function init_geoman_editing() {
       $('span[id=error_manual_number]').text('');
     }
     if ($('select[name=zone_type] option:selected').val() === 'Camera') {
-      enableCameraSubmit();
+      await enableCameraSubmit();
     } else if ($('select[name=zone_type] option:selected').val() === 'Bin') {
-      enableBinZoneSubmit();
+      await enableBinZoneSubmit();
     } else {
-      enableZoneSubmit();
+      await enableZoneSubmit();
     }
   });
 
 }
-function enableBinZoneSubmit() {
+
+async function enabelCameraDirection(params) {
+  try {
+    if (params <= 4) {
+      $('#cameraDirectionSetupDiv').removeClass('d-none');
+    } else {
+      $('#cameraDirectionSetupDiv').addClass('d-none');
+      $('#cameraDirectionSetupSlider').val(0);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+async function enabelCameraOption(params) {
+  try {
+    let camerainfo = cameraListData.findIndex(c => c.id === params);
+    if (camerainfo >= 0) {
+      //remove d-none 
+      $('#cameraOptionsDiv').removeClass('d-none');
+      $('#defualtCameraSource').removeClass('d-none');
+      let resolution = cameraListData[camerainfo].resolution.split(',');
+      let source = cameraListData[camerainfo].imageSource;
+      $('#defualtResolution').empty();
+      $.each(resolution, function () {
+        $('<option/>').val(this.trim()).html(this.trim()).appendTo('select[id=defualtResolution]');
+      });
+      $('select[name=defualtResolution]').trigger('change');
+      $('#defualtCameraSource').empty();
+      $.each(source, function () {
+        $('<option/>').val(this.cameraId).html(this.name).appendTo('select[id=defualtCameraSource]');
+      });
+      $('select[name=defualtCameraSource]').trigger('change');
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+async function enableBinZoneSubmit() {
   if ($('select[name=zone_type]').hasClass('is-valid') && $('select[id=zone_select_name]').hasClass('is-valid') && $('textarea[id=bin_bins]').hasClass('is-valid')) {
     $('button[id=zonesubmitBtn]').prop('disabled', false);
   } else {
     $('button[id=zonesubmitBtn]').prop('disabled', true);
   }
 }
-function enableCameraSubmit() {
+async function enableCameraSubmit() {
   if ($('select[name=cameraLocation]').hasClass('is-valid') && $('select[name=zone_type]').hasClass('is-valid')) {
     $('button[id=zonesubmitBtn]').prop('disabled', false);
   } else {
     $('button[id=zonesubmitBtn]').prop('disabled', true);
   }
 }
-function enableZoneSubmit() {
+async function enableZoneSubmit() {
   if ($('select[name=zone_type]').hasClass('is-valid') && /Not Listed$/i.test($('select[name=zone_select_name] option:selected').val()) && $('input[type=text][name=manual_name]').hasClass('is-valid') && $('input[type=text][name=manual_number]').hasClass('is-valid')) {
     $('button[id=zonesubmitBtn]').prop('disabled', false);
   } else if ($('select[name=zone_type]').hasClass('is-valid') && $('select[name=zone_select_name]').hasClass('is-valid') && !/(Not Listed$)/i.test($('select[name=zone_select_name] option:selected').val())) {
@@ -224,7 +291,7 @@ function enableZoneSubmit() {
     $('button[id=zonesubmitBtn]').prop('disabled', true);
   }
 }
-function enableAGVLocationSubmit() {
+async function enableAGVLocationSubmit() {
   if ($('select[name=zone_type]').hasClass('is-valid') && /Not Listed$/i.test($('select[name=zone_select_name] option:selected').val()) && $('input[type=text][name=manual_name]').hasClass('is-valid')) {
     $('button[id=zonesubmitBtn]').prop('disabled', false);
   } else if ($('select[name=zone_type]').hasClass('is-valid') && $('select[name=zone_select_name]').hasClass('is-valid') && !/(Not Listed$)/i.test($('select[name=zone_select_name] option:selected').val())) {
@@ -233,7 +300,7 @@ function enableAGVLocationSubmit() {
     $('button[id=zonesubmitBtn]').prop('disabled', true);
   }
 }
-function enableAreaZoneSubmit() {
+async function enableAreaZoneSubmit() {
   if ($('select[name=zone_type]').hasClass('is-valid') && /Not Listed$/i.test($('select[name=zone_select_name] option:selected').val()) && $('input[type=text][name=manual_name]').hasClass('is-valid')) {
     $('button[id=zonesubmitBtn]').prop('disabled', false);
   } else if ($('select[name=zone_type]').hasClass('is-valid') && $('select[name=zone_select_name]').hasClass('is-valid') && !/(Not Listed$)/i.test($('select[name=zone_select_name] option:selected').val())) {
@@ -242,7 +309,7 @@ function enableAreaZoneSubmit() {
     $('button[id=zonesubmitBtn]').prop('disabled', true);
   }
 }
-function CreateZone(newlayer) {
+async function CreateZone(newlayer) {
   try {
     //map.setView(newlayer.layer._bounds.getCenter());
     var togeo = newlayer.layer.toGeoJSON();
@@ -324,62 +391,58 @@ function CreateZone(newlayer) {
   } catch (e) { }
 }
 
- async function CreateCamera(newlayer) {
-   VaildateForm('Camera');
-   sidebar.open('home');
-   let cameraMarker = newlayer.layer;
-   let cameraDirection = 0; // Default direction to match slider
-   // (Optional: Set from an existing slider or value)
+async function CreateCamera(newlayer) {
+  VaildateForm('Camera');
+  sidebar.open('home');
+  let cameraMarker = newlayer.layer;
+  let cameraDirection = 0; // Default direction to match slider
+  // (Optional: Set from an existing slider or value)
 
-   // Set initial icon
-   cameraMarker.setIcon(getCameraDivIcon(cameraDirection));
+  // Set initial icon
+  cameraMarker.setIcon(getCameraDivIcon(cameraDirection));
 
-   // Set initial slider (if using)
-   $('#cameraDirectionSetupSlider').val(cameraDirection);
-   $('#cameraDirectionSetupValue').text(cameraDirection + '°');
+  // Set initial slider (if using)
+  $('#cameraDirectionSetupSlider').val(cameraDirection);
+  $('#cameraDirectionSetupValue').text(cameraDirection + '°');
 
-   // Live update icon on slider movement
-   $('#cameraDirectionSetupSlider').off().on('input', async function () {
-     cameraDirection = Number($(this).val());
-     await onSetupCameraInput();
-     cameraMarker.setIcon(getCameraDivIcon(cameraDirection));
-   });
+  // Live update icon on slider movement
+  $('#cameraDirectionSetupSlider').off().on('input', async function () {
+    cameraDirection = Number($(this).val());
+    await onSetupCameraInput();
+    cameraMarker.setIcon(getCameraDivIcon(cameraDirection));
+  });
 
-   // Remove marker on cancel
-   $('button[id=zonecloseBtn][type=button]').off().on('click', function () {
-     sidebar.close();
-     cameraMarker.remove();
-   });
-
-   // Save all data on submit, including direction
-   $('button[id=zonesubmitBtn][type=button]').off().on('click', async function () {
-     let togeo = cameraMarker.toGeoJSON();
-     togeo.properties = {
-       floorId: baselayerid,
-       type: 'Cameras',
-       visible: true,
-       ip: $('select[name=cameraLocation] option:selected').val(),
-       cameraName: $('select[name=cameraLocation] option:selected').val(),
-       cameraDirection: cameraDirection
-     };
-     await $.ajax({
-       url: SiteURLconstructor(window.location) + '/api/Camera/Add',
-       data: JSON.stringify(togeo),
-       contentType: 'application/json',
-       type: 'POST',
-       success: function () {
-         cameraMarker.remove();
-         setTimeout(function () { sidebar.close(); }, 500);
-       },
-       error: function (error) {
-         $('span[id=error_zonesubmitBtn]').text(error);
-         $('button[id=zonesubmitBtn]').prop('disabled', false);
-       },
-       complete: function () {
-         cameraMarker.remove();
-       }
-     });
-   });
+  // Save all data on submit, including direction
+  $('button[id=zonesubmitBtn][type=button]').off().on('click', async function () {
+    let togeo = cameraMarker.toGeoJSON();
+    togeo.properties = {
+      floorId: baselayerid,
+      type: 'Cameras',
+      visible: true,
+      ip: $('select[name=cameraLocation] option:selected').val(),
+      cameraName: $('select[name=cameraLocation] option:selected').val(),
+      defaultResolution: $('#defualtResolution option:selected').val() === '' ? '320x240' : $('#defualtResolution option:selected').val(),
+      defaultCameraId: $('#defualtCameraSource option:selected').val() === '' ? "1" : $('#defualtCameraSource option:selected').val(),
+      cameraDirection: cameraDirection
+    };
+    await $.ajax({
+      url: SiteURLconstructor(window.location) + '/api/Camera/Add',
+      data: JSON.stringify(togeo),
+      contentType: 'application/json',
+      type: 'POST',
+      success: function () {
+        cameraMarker.remove();
+        setTimeout(function () { sidebar.close(); }, 500);
+      },
+      error: function (error) {
+        $('span[id=error_zonesubmitBtn]').text(error);
+        $('button[id=zonesubmitBtn]').prop('disabled', false);
+      },
+      complete: function () {
+        cameraMarker.remove();
+      }
+    });
+  });
 }
 async function RemoveZoneItem(removeLayer) {
   try {
@@ -704,18 +767,20 @@ async function VaildateForm(FormType) {
       type: 'GET',
       success: function (cameradata) {
         $('<option/>').val('').html('').appendTo('select[id=cameraLocation]');
-        if (cameradata.length > 0) {
-          $.each(cameradata, function () {
-            let reachable = (typeof this.reachable !== 'undefined') ? this.reachable : false;
-            let statusEmoji = reachable ? ' ✅' : ' ❌';
-            let statusTitle = reachable ? 'Reachable' : 'Unreachable';
-            $('<option/>')
-              .val(this.cameraName)
-              .html(this.description + ' (' + this.cameraName + ')' + statusEmoji)
-              .attr('title', statusTitle)
-              .appendTo('select[id=cameraLocation]');
-          });
-        }
+        cameraListData = cameradata;
+        $.each(cameraListData, function () {
+
+          let reachable = (typeof this.reachable !== 'undefined') ? this.reachable : false;
+          let statusEmoji = reachable ? ' ✅' : ' ❌';
+          let statusTitle = reachable ? 'Reachable' : 'Unreachable';
+          $('<option/>')
+            .val(this.cameraName)
+            .html(this.description + ' (' + this.cameraName + ')' + statusEmoji)
+            .attr('title', statusTitle)
+            .attr('id', this.id)
+            .appendTo('select[id=cameraLocation]');
+        });
+
       },
       error: function (error) {
         console.log(error);
@@ -742,7 +807,7 @@ async function VaildateForm(FormType) {
       $('input[type=text][name=cameraLocation]').css('border-color', '#2eb82e').removeClass('is-invalid').addClass('is-valid');
       $('span[id=error_cameraLocation]').text('');
     }
-    
+
     enableCameraSubmit();
   } else {
     $('div[id=div_zone_select_name]').css('display', 'block');

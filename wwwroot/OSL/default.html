@@ -11,8 +11,8 @@
 	<div id="map"></div>
 	<!-- Modal Section -->
 
-	<div class="modal fade" id="siteSummaryModal" tabindex="-1" data-backdrop="static"
-		style="z-index: 12000;" aria-labelledby="siteSummaryModal_Label">
+	<div class="modal fade" id="siteSummaryModal" tabindex="-1" data-backdrop="static" style="z-index: 12000;"
+		aria-labelledby="siteSummaryModal_Label">
 		<div class="modal-dialog" style="max-width: 95%;">
 			<div class="modal-content bg-white">
 				<div class="modal-header">
@@ -738,7 +738,7 @@
 							<span id="error_condition_type" class="text-danger"></span>
 						</div>
 					</div>
-							<div class="row g-2 align-items-start">
+					<div class="row g-2 align-items-start">
 						<div class="form-group col-6">
 							<div class="d-flex justify-content-center my-2">
 								<div class="w-75">
@@ -2063,7 +2063,8 @@
 					</div>
 					<div id="layer_div" data-id="" class="card bg-white mt-2 pb-1">
 						<div class="card-header pl-1">
-							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Create Layer</h6>
+							<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Create
+								Layer</h6>
 							<div class="row">
 								<div class="form-group col mb-3">
 									<label class="control-label" for="zone_type">Type</label>
@@ -2095,7 +2096,8 @@
 								<div class="row gx-2 gy-2 mx-1 mb-3" id="manual_row">
 									<div class="col mb-2" id="manual_namediv">
 										<label class="control-label" for="manual_name">Name</label>
-										<input id="manual_name" type="text" class="form-control mb-2" name="manual_name" />
+										<input id="manual_name" type="text" class="form-control mb-2"
+											name="manual_name" />
 										<span id="error_manual_name" class="text-danger d-block mt-1"></span>
 									</div>
 									<div class="col mb-2" id="manual_numberdiv">
@@ -2106,7 +2108,7 @@
 									</div>
 								</div>
 								<div class="row gx-2 gy-2 mx-1" id="camerainfo">
-									<div class="col-12 mb-3">
+									<div class="mb-3">
 										<div class="form-group mb-0">
 											<label class="control-label" for="cameraLocation">Camera URL</label>
 											<select id="cameraLocation" class="form-control mb-2" name="cameraLocation">
@@ -2115,7 +2117,31 @@
 											<span id="error_cameraLocation" class="text-danger d-block mt-1"></span>
 										</div>
 									</div>
-									<div class="col-12 mb-3">
+									<div class="mb-3 d-none" id="cameraOptionsDiv">
+										<div class="row">
+											<div class="col form-group mb-0">
+												<label class="control-label" for="defualtResolution">Camera
+													Resolution</label>
+												<select id="defualtResolution" class="form-control mb-2"
+													name="defualtResolution">
+													<option value=""></option>
+												</select>
+												<span id="error_defualtResolution"
+													class="text-danger d-block mt-1"></span>
+											</div>
+											<div class="col form-group mb-0">
+												<label class="control-label" for="defualtCameraSource">Camera
+													Source</label>
+												<select id="defualtCameraSource" class="form-control mb-2"
+													name="defualtCameraSource">
+													<option value=""></option>
+												</select>
+												<span id="error_defualtCameraSource"
+													class="text-danger d-block mt-1"></span>
+											</div>
+										</div>
+									</div>
+									<div class="mb-3 d-none" id="cameraDirectionSetupDiv">
 										<h6 class="text-center mb-2"><small class="text-muted">Camera Direction</small>
 										</h6>
 										<div class="d-flex align-items-center justify-content-center w-100 my-2">
@@ -2136,17 +2162,18 @@
 											<div class="row mx-2 mb-3">
 												<div class="text-start col-12">
 													<label for="cameraDirectionSetupSlider" class="form-label">Camera
-														Direction: <span id="cameraDirectionSetupValue">0°</span></label>
-													<input id="cameraDirectionSetupSlider" type="range" min="0" max="360"
-														value="0" class="form-range mb-2" />
+														Direction: <span
+															id="cameraDirectionSetupValue">0°</span></label>
+													<input id="cameraDirectionSetupSlider" type="range" min="0"
+														max="360" value="0" class="form-range mb-2" />
 												</div>
 											</div>
 											<div class="row mx-2 mb-3 d-none" id="northDirectionSetupRow">
 												<div class="text-start col-12">
 													<label for="northDirectionSetupSlider" class="form-label">North
 														Direction: <span id="northDirectionSetupValue">0°</span></label>
-													<input id="northDirectionSetupSlider" disabled type="range" min="0" max="360"
-														value="0" class="form-range mb-2" />
+													<input id="northDirectionSetupSlider" disabled type="range" min="0"
+														max="360" value="0" class="form-range mb-2" />
 												</div>
 											</div>
 										</div>

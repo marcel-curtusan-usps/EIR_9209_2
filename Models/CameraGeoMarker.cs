@@ -112,12 +112,16 @@ public class Cameras
     /// Gets or sets the name of the camera.
     /// </summary>
     public string CameraName { get; set; } = "";
-    
+
     /// <summary>
     /// Gets or sets the id of the camera.
     /// </summary>
-    public int CameraId { get; set; } = 0;
-    
+    public int BicamCameraId { get; set; } = 0;
+    /// <summary>
+    /// Gets or sets the Compression of the camera image.
+    /// </summary>
+    public int Compression { get; set; } = 25;
+
     /// <summary>
     /// Gets or sets the IP address of the camera.
     /// </summary>
@@ -151,8 +155,25 @@ public class Cameras
     public string Type { get; set; } = "";
 
     /// <summary>
+    ///  Gets or sets the configuration number of the image source.
+    /// </summary>
+    /// <value></value>
+    public string Resolution { get; set; } = "";
+    /// <summary>
+    /// Gets or sets the number of image sources for the camera.
+    /// </summary>
+
+    public int NumberOfSources { get; set; } = 0;
+    /// <summary>
+    /// Gets or sets the list of image sources for the camera.
+    /// </summary>
+    /// <returns></returns>
+
+    public List<CameraImageSource> ImageSource { get; set; } = new();
+    /// <summary>
     /// Gets or sets the floor identifier where the camera is located.
     /// </summary>
+    /// <value></value>
     public string FloorId { get; set; } = "";
 
     /// <summary>
@@ -164,4 +185,51 @@ public class Cameras
     /// Gets or sets the date and time when the camera was created.
     /// </summary>
     public DateTime CreatedDate { get; set; } = DateTime.MinValue;
+}
+
+/// <summary>
+/// Represents the image source configuration for a camera.
+/// </summary>
+public class CameraImageSource
+{
+    /// <summary>
+    /// Gets or sets a value indicating whether the image source is enabled.
+    /// </summary>
+    /// <value></value>
+    public bool Enabled { get; set; } = false;
+    /// <summary>
+    /// Gets or sets the ID of the image source.
+    /// </summary>
+    /// <value></value>
+    public string CameraId { get; set; } = "";
+    /// <summary>
+    /// Gets or sets the name of the image source.
+    /// </summary>
+    /// <value></value>
+    public string Name { get; set; } = "";
+    /// <summary>
+    /// Gets or sets the source number of the image source.
+    /// </summary>
+    /// <value></value>
+    public string Source { get; set; } = "";
+    /// <summary>
+    ///  Gets or sets the configuration number of the image source.
+    /// </summary>
+    /// <value></value>
+    public string Resolution { get; set; } = "";
+    /// <summary>
+    ///  Gets or sets the rotation of the image source.
+    /// </summary>
+    /// <value></value>
+    public int Rotation { get; set; } = 0;
+    /// <summary>
+    /// Gets or sets a value indicating whether MPEG signed video is enabled.
+    /// </summary> 
+    /// <value></value>
+    public string MPEGSignedVideoEnabled { get; set; } = "";
+    /// <summary>
+    ///  Gets or sets the stream duration of the image source.
+    /// </summary>
+    /// <value></value>
+    public string StreamDuration { get; set; } = "";
 }

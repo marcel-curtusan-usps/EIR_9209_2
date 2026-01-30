@@ -97,7 +97,7 @@ public interface IInMemoryCamerasRepository
     /// </summary>
     /// <param name="result">The byte array containing the image data.</param>
     /// <param name="id">The unique identifier of the camera.</param>
-    Task LoadCameraStills(byte[] result, string id);
+    Task LoadCameraStills(string result, string id);
 
     /// <summary>
     /// Resets the cameras list in the repository.

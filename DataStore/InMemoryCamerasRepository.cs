@@ -340,7 +340,7 @@ namespace EIR_9209_2.DataStore
             }
             catch (Exception e)
             {
-                _logger.LogError($"{e.Message}");
+                _logger.LogError(e, $"{e.Message}");
                 return null;
             }
             finally
@@ -374,7 +374,7 @@ namespace EIR_9209_2.DataStore
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e, e.Message);
                 return null;
             }
             finally
@@ -435,14 +435,22 @@ namespace EIR_9209_2.DataStore
                     var exists = _cameraMarkers.Where(cm => cm.Value.Properties.CameraName == camera.CameraName || cm.Value.Properties.IP == camera.IP).Select(cm => cm.Key).FirstOrDefault();
                     if (exists != null && _cameraMarkers.TryGetValue(exists, out CameraGeoMarker? cmaker))
                     {
+                        cmaker.Properties.AuthKey = camera.AuthKey;
+                        cmaker.Properties.Compression = camera.Compression;
+                        cmaker.Properties.FacilityDisplayName = camera.FacilityDisplayName;
+                        cmaker.Properties.ModelNum = camera.ModelNum;
+                        cmaker.Properties.BicamCameraId = camera.BicamCameraId;
                         cmaker.Properties.CameraName = camera.CameraName;
                         cmaker.Properties.Description = camera.Description;
-                        cmaker.Properties.IP = camera.IP;
-                        cmaker.Properties.CameraId = camera.CameraId;
                         cmaker.Properties.Reachable = camera.Reachable;
+                        cmaker.Properties.NumberOfSources = camera.NumberOfSources;
+                        cmaker.Properties.CameraName = camera.CameraName;
+                        cmaker.Properties.ImageSource = camera.ImageSource;
                         _cameraMarkers.TryUpdate(exists, cmaker, cmaker);
                         await _hubServices.Clients.Group(cmaker.Properties.Type).SendAsync($"update{cmaker.Properties.Type}", cmaker);
                     }
+
+                    //update camera info list
                     var cameraListexists = _cameraList.Where(cm => cm.Value.CameraName == camera.CameraName || cm.Value.IP == camera.IP).Select(cm => cm.Key).FirstOrDefault();
                     if (cameraListexists != null && _cameraList.TryGetValue(cameraListexists, out Cameras? cl) && _cameraList.TryUpdate(cameraListexists, camera, cl))
                     {
@@ -457,7 +465,7 @@ namespace EIR_9209_2.DataStore
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e, e.Message);
             }
             finally
             {
@@ -473,7 +481,7 @@ namespace EIR_9209_2.DataStore
         /// <param name="result"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task LoadCameraStills(byte[] result, string id)
+        public async Task LoadCameraStills(string result, string id)
         {
             try
             {
@@ -481,14 +489,13 @@ namespace EIR_9209_2.DataStore
                 if (_cameraMarkers.ContainsKey(id) && _cameraMarkers.TryGetValue(id, out CameraGeoMarker cm))
                 {
                     string newImage = "";
-                    if (result.Length == 0)
+                    if (string.IsNullOrEmpty(result))
                     {
                         newImage = "data:image/jpeg;base64," + Convert.ToBase64String(noimageresult);
                         cm.Properties.Reachable = false;
                     }
                     else
                     {
-                        newImage = "data:image/jpeg;base64," + Convert.ToBase64String(result);
                         cm.Properties.Reachable = true;
                     }
                     if (cm.Properties.Base64Image != newImage)
@@ -520,7 +527,7 @@ namespace EIR_9209_2.DataStore
             }
             catch (Exception e)
             {
-                _logger.LogError($"{e.Message}");
+                _logger.LogError(e, e.Message);
                 return null;
             }
         }
@@ -535,7 +542,7 @@ namespace EIR_9209_2.DataStore
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e, e.Message);
                 return Task.FromResult(true);
             }
         }
