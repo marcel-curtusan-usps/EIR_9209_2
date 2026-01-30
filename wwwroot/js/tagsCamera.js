@@ -11,16 +11,16 @@ $('#Camera_Modal').on('shown.bs.modal', async function () {
   await addGroupToList('CamerasStill');
 });
 connection.on('addCameras', async data => {
-  Promise.all([addCameraFeature(data)]);
+  await Promise.all([addCameraFeature(data)]);
 });
 connection.on('updateCameras', async data => {
-  Promise.all([updateCameraFeature(data)]);
+  await Promise.all([updateCameraFeature(data)]);
 });
 connection.on('deleteCameras', async data => {
-  Promise.all([deleteCameraFeature(data)]);
+  await Promise.all([deleteCameraFeature(data)]);
 });
 connection.on('updateCamerasStill', async data => {
-  Promise.all([updateCameraStillFeature(data)]);
+  await Promise.all([updateCameraStillFeature(data)]);
 });
 
 let defaultTime = 90;
@@ -84,7 +84,6 @@ let markerCameras = new L.GeoJSON(null, {
         clearInterval(timer);
         count = defaultTime;
         $('#counter').html(count);
-        $('#counter').html(count);
         setTimeout(startTimer, 300);
 
         LoadWeb_CameraImage(feature.properties, layer);
@@ -110,6 +109,9 @@ markerCameras.addTo(overlayCameraLayer);
 
 
 // add to the map and layers control
+// Finds a camera layer by its markerId
+// Returns a Promise that resolves with the leaflet_id if found, or rejects if not found
+// Note: Rejection is used intentionally to indicate "not found" state
 async function findCameraLeafletIds(markerId) {
   return new Promise((resolve, reject) => {
     markerCameras.eachLayer(function (layer) {
@@ -137,7 +139,7 @@ async function init_tagsCamera(floorId) {
           }
         })
         .catch(error => {
-          console.info('Error:', error);
+          console.error('Error:', error);
         });
       //load cameras
       $(document).on('change', '.leaflet-control-layers-selector', async function () {
@@ -177,7 +179,7 @@ async function deleteCameraFeature(data) {
         markerCameras.removeLayer(leafletIds);
       })
       .catch(error => {
-        console.info('Error:', error);
+        console.error('Error:', error);
       });
   } catch (e) {
     throw new Error(e.toString());
@@ -194,13 +196,12 @@ async function addCameraFeature(data) {
 }
 async function updateCameraFeature(data) {
   try {
-    let Camera = data;
-    await findCameraLeafletIds(Camera.properties.id)
+    await findCameraLeafletIds(data.properties.id)
       .then(leafletIds => {
         markerCameras._layers[leafletIds].feature.properties = data.properties;
       })
       .catch(error => {
-        console.info('Error:', error);
+        console.error('Error:', error);
       });
   } catch (e) {
     throw new Error(e.toString());
@@ -214,12 +215,14 @@ async function updateCameraStillFeature(data) {
         if ($('#Camera_Modal').hasClass('show') && $('div[id=Camera_Modal]').attr('data-id') === data.properties.id) {
           let camera_modal_body = $('div[id=cameraImageBody]');
           camera_modal_body.empty();
-          camera_modal_body.append(ImageLayout.supplant(formatImageLayout(data.properties.base64Image)));
+          if (data.properties.base64Image) {
+            camera_modal_body.append(ImageLayout.supplant(formatImageLayout(data.properties.base64Image)));
+          }
           LoadCameraInfo(data.properties, data.properties.id);
         }
       })
       .catch(error => {
-        console.info('Error:', error);
+        console.error('Error:', error);
       });
   } catch (e) {
     throw new Error(e.toString());
@@ -268,7 +271,7 @@ async function LoadWeb_CameraImage(Data, layer) {
       const cameraDeg = isNaN(Number(Data.cameraDirection)) ? 0 : Number(Data.cameraDirection);
 
       // Rotate labels so the 'N' points to configuredNorth, and rotate needle relative to that north
-      await updateCompassLabels($compass, configuredNorth);
+      updateCompassLabels($compass, configuredNorth);
 
       const needleDeg = cameraDeg - configuredNorth;
       // Ensure needle transform preserves the translate that places its bottom at center
@@ -318,7 +321,7 @@ async function LoadWeb_CameraImage(Data, layer) {
   }
 }
 // update label positions around compass
-async function updateCompassLabels($compassEl, northDeg) {
+function updateCompassLabels($compassEl, northDeg) {
   const $labels = {
     n: $compassEl.find('.compass-label--n'),
     e: $compassEl.find('.compass-label--e'),
