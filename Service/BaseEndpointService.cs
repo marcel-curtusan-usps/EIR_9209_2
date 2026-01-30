@@ -19,7 +19,16 @@ namespace EIR_9209_2.Service
         private CancellationTokenSource _cancellationTokenSource = new();
         private Task? _task = null;
         private PeriodicTimer? _timer = null;
-
+        /// <summary>
+        /// base class for endpoint services that provides common functionality for managing endpoints.
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="httpClientFactory"></param>
+        /// <param name="endpointConfig"></param>
+        /// <param name="configuration"></param>
+        /// <param name="hubContext"></param>
+        /// <param name="connection"></param>
+        /// <param name="loggerService"></param>
         protected BaseEndpointService(ILogger<BaseEndpointService> logger, IHttpClientFactory httpClientFactory, Connection endpointConfig, IConfiguration configuration, IHubContext<HubServices> hubContext, IInMemoryConnectionRepository connection, ILoggerService loggerService)
         {
             _httpClientFactory = httpClientFactory;
