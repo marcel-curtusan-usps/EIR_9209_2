@@ -11,16 +11,16 @@ $('#Camera_Modal').on('shown.bs.modal', async function () {
   await addGroupToList('CamerasStill');
 });
 connection.on('addCameras', async data => {
-  await Promise.all([addCameraFeature(data)]);
+  await addCameraFeature(data);
 });
 connection.on('updateCameras', async data => {
-  await Promise.all([updateCameraFeature(data)]);
+  await updateCameraFeature(data);
 });
 connection.on('deleteCameras', async data => {
-  await Promise.all([deleteCameraFeature(data)]);
+  await deleteCameraFeature(data);
 });
 connection.on('updateCamerasStill', async data => {
-  await Promise.all([updateCameraStillFeature(data)]);
+  await updateCameraStillFeature(data);
 });
 
 let defaultTime = 90;
@@ -249,7 +249,10 @@ async function LoadWeb_CameraImage(Data, layer) {
 
     const $cameraModal = $('#Camera_Modal');
     const $cameraModalBody = $('#cameraImageBody');
-    $cameraModalBody.empty().append(ImageLayout.supplant(formatImageLayout(Data.base64Image)));
+    $cameraModalBody.empty();
+    if (Data.base64Image) {
+      $cameraModalBody.append(ImageLayout.supplant(formatImageLayout(Data.base64Image)));
+    }
     $cameraModal.attr('data-id', Data.id).modal('show');
     $cameraModalBody.removeClass('cameraImageBodyTimeOutBorder').addClass('cameraImageBodyRefreshBorder');
 
