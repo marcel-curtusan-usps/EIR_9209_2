@@ -63,6 +63,7 @@ async function init_geoman_editing() {
       $('#cameraDirectionSetupSlider').val(0);
       $('#cameraDirectionSetupValue').text('0°');
       $('#defualtResolution').empty();
+      $('#imageCompression').val("0");
       $('#defualtCameraSource').empty();
       $('#cameraOptionsDiv').addClass('d-none');
       $('#cameraDirectionSetupDiv').addClass('d-none');
@@ -185,10 +186,20 @@ async function init_geoman_editing() {
   $('select[name=defualtResolution]').on('change', async function () {
     if (!checkValue($('select[name=defualtResolution]').val())) {
       $('select[name=defualtResolution]').removeClass('is-valid').addClass('is-invalid');
-      $('span[id=error_defualtCameraSource]').text('Please Select Type');
+      $('span[id=error_defualtResolution]').text('Please Select Type');
     } else {
       $('select[name=defualtResolution]').removeClass('is-invalid').addClass('is-valid');
-      $('span[id=error_defualtCameraSource]').text('');
+      $('span[id=error_defualtResolution]').text('');
+    }
+    await enableCameraSubmit();
+  });
+  $('select[name=imageCompression]').on('change', async function () {
+    if (!checkValue($('select[name=imageCompression]').val())) {
+      $('select[name=imageCompression]').removeClass('is-valid').addClass('is-invalid');
+      $('span[id=error_imageCompression]').text('Please Select Type');
+    } else {
+      $('select[name=imageCompression]').removeClass('is-invalid').addClass('is-valid');
+      $('span[id=error_imageCompression]').text('');
     }
     await enableCameraSubmit();
   });
@@ -263,6 +274,7 @@ async function enabelCameraOption(params) {
         $('<option/>').val(this.cameraId).html(this.name).appendTo('select[id=defualtCameraSource]');
       });
       $('select[name=defualtCameraSource]').trigger('change');
+      $('select[name=imageCompression]').trigger('change');
     }
   } catch (error) {
     console.error(error);
@@ -414,17 +426,19 @@ async function CreateCamera(newlayer) {
 
   // Save all data on submit, including direction
   $('button[id=zonesubmitBtn][type=button]').off().on('click', async function () {
+    let camid = $('select[id=cameraLocation] option:selected').val();
+    let camerainfo = cameraListData.findIndex(c => c.cameraName === camid) ?? -1;
     let togeo = cameraMarker.toGeoJSON();
-    togeo.properties = {
-      floorId: baselayerid,
-      type: 'Cameras',
-      visible: true,
-      ip: $('select[name=cameraLocation] option:selected').val(),
-      cameraName: $('select[name=cameraLocation] option:selected').val(),
-      defaultResolution: $('#defualtResolution option:selected').val() === '' ? '320x240' : $('#defualtResolution option:selected').val(),
-      defaultCameraId: $('#defualtCameraSource option:selected').val() === '' ? "1" : $('#defualtCameraSource option:selected').val(),
-      cameraDirection: cameraDirection
-    };
+    togeo.properties = camerainfo === -1 ? {} : cameraListData[camerainfo];
+    togeo.properties['floorId'] = baselayerid;
+    togeo.properties['type'] = 'Cameras';
+    togeo.properties['visible'] = true;
+    togeo.properties['cameraName'] = $('select[name=cameraLocation] option:selected').val();
+    togeo.properties['defaultResolution'] = $('#defualtResolution option:selected').val() === '' ? '320x240' : $('#defualtResolution option:selected').val();
+    togeo.properties['defaultCameraId'] = $('#imageCompression option:selected').val() === '' ? "1" : $('#defualtCameraSource option:selected').val();
+    togeo.properties['compression'] = $('#imageCompression option:selected').val() === '' ? "25" : $('#imageCompression option:selected').val();
+    togeo.properties['cameraDirection'] = cameraDirection
+
     await $.ajax({
       url: SiteURLconstructor(window.location) + '/api/Camera/Add',
       data: JSON.stringify(togeo),

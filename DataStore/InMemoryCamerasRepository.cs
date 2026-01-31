@@ -496,6 +496,7 @@ namespace EIR_9209_2.DataStore
                     }
                     else
                     {
+                        newImage = result;
                         cm.Properties.Reachable = true;
                     }
                     if (cm.Properties.Base64Image != newImage)

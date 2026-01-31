@@ -23,7 +23,7 @@ namespace EIR_9209_2.Controllers
         private readonly IInMemoryCamerasRepository _cameras = cameras;
         private readonly IHubContext<HubServices> _hubContext = hubContext;
         private readonly ILogger<Camera> _logger = logger;
-        
+
 
         /// <summary>
         /// Get list of Cameras
@@ -47,7 +47,7 @@ namespace EIR_9209_2.Controllers
                 _logger.LogError(e.Message);
                 return BadRequest(e.Message);
             }
-          
+
         }
         [HttpGet]
         [Route("CameraByFloorId")]
@@ -133,54 +133,45 @@ namespace EIR_9209_2.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var ipValue = value["properties"]?["ip"]?.ToString();
+                var properties = value["properties"] as JObject;
+                string ipValue = null;
+                if (properties != null)
+                {
+                    if (properties.ContainsKey("ip"))
+                    {
+                        ipValue = properties["ip"]?.ToString();
+                    }
+                    else if (properties.ContainsKey("cameraName"))
+                    {
+                        ipValue = properties["cameraName"]?.ToString();
+                    }
+                }
                 if (string.IsNullOrEmpty(ipValue))
                 {
                     return BadRequest("IP value is missing or invalid.");
                 }
-                var cameraFromList = await _cameras.GetCameraListByIp(ipValue);
-                if (cameraFromList != null)
+                CameraGeoMarker cameraMarker = value.ToObject<CameraGeoMarker>();
+                /// <summary>
+                ///  Sets the CreatedDate to the current date and time.
+                /// </summary>
+                cameraMarker.Properties.CreatedDate = DateTime.Now;
+                var addCamera = await _cameras.Add(cameraMarker);
+                if (addCamera != null)
                 {
-                    //convert the JObject to a Connection object
-                    CameraGeoMarker cameraMarker = value.ToObject<CameraGeoMarker>();
+                    await _hubContext.Clients.Group(addCamera.Properties.Type).SendAsync($"add{addCamera.Properties.Type}", addCamera);
 
-                    cameraMarker.Properties.ModelNum = cameraFromList.ModelNum;
-                    cameraMarker.Properties.AuthKey = cameraFromList.AuthKey;
-                    cameraMarker.Properties.FacilityPhysAddrTxt = cameraFromList.FacilityPhysAddrTxt;
-                    cameraMarker.Properties.GeoProcRegionNm = cameraFromList.GeoProcRegionNm;
-                    cameraMarker.Properties.FacilitySubtypeDesc = cameraFromList.FacilitySubtypeDesc;
-                    cameraMarker.Properties.GeoProcDivisionNm = cameraFromList.GeoProcDivisionNm;
-                    cameraMarker.Properties.FacilityLatitudeNum = cameraFromList.FacilityLatitudeNum;
-                    cameraMarker.Properties.FacilityLongitudeNum = cameraFromList.FacilityLongitudeNum;
-                    cameraMarker.Properties.HostName = cameraFromList.HostName;
-                    cameraMarker.Properties.Description = cameraFromList.Description;
-                    cameraMarker.Properties.Reachable = cameraFromList.Reachable;
-                    cameraMarker.Properties.FacilityDisplayName = cameraFromList.FacilityDisplayName;
-                    //add the connection id
-                    cameraMarker.Properties.Id = Guid.NewGuid().ToString();
-                    cameraMarker.Properties.CreatedDate = DateTime.Now;
-                    var addCamera = await _cameras.Add(cameraMarker);
-                    if (addCamera != null)
-                    {
-                        await _hubContext.Clients.Group(addCamera.Properties.Type).SendAsync($"add{addCamera.Properties.Type}", addCamera);
-
-                        return Ok(addCamera);
-                    }
-                    else
-                    {
-                        return new JObject { ["Message"] = $"CameraMarker Id:{cameraMarker.Properties.Id} was not Found" };
-                    }
+                    return Ok(addCamera);
                 }
                 else
                 {
-                    var ip = value["Properties"]?["IP"]?.ToString();
-                    return new JObject { ["Message"] = $"Camera with IP:{ip ?? "unknown"} was not Found" };
+                    return new JObject { ["Message"] = $"CameraMarker Id:{cameraMarker.Properties.Id} was not Found" };
                 }
+
 
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e, e.Message);
                 return BadRequest(e.Message);
             }
         }

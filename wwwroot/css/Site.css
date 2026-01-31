@@ -2459,28 +2459,38 @@ div.leaflet-control-layers {
 
 /* Keep camera modal columns side-by-side and constrain their content */
 /* target the immediate inner row inside modal-body to avoid affecting other rows */
+/* Camera modal: keep content contained within dialog */
+#Camera_Modal .modal-content {
+  overflow: hidden;
+}
+
+/* Use Bootstrap grid layout; avoid flex on modal-body to prevent overflow */
 #Camera_Modal .modal-body {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  gap: 12px;
   margin: 0;
-  /* remove bootstrap negative margins */
   box-sizing: border-box;
   padding: 0%;
 }
 
+/* Constrain modal height and enable internal scrolling */
+#Camera_Modal .modal-dialog {
+  max-height: 90vh;
+}
+
+#Camera_Modal .modal-body {
+  max-height: calc(90vh - 64px); /* account for header/footer */
+  overflow-y: auto;
+}
+
 #cameraImageInfobody {
-  flex: 0 0 30%;
   overflow: auto;
   padding: 0;
   box-sizing: border-box;
 }
 
 #cameraImageBody {
-  flex: 1 1 100%;
-  /* rest of space for main content (70%) */
   max-width: 100%;
+  /* Prevent vertical overflow beyond the modal */
+  max-height: 70vh;
   overflow: auto;
   padding: 0;
   box-sizing: border-box;
@@ -2491,8 +2501,12 @@ div.leaflet-control-layers {
 #cameraImageBody iframe,
 #cameraImageInfobody img {
   max-width: 100%;
+  /* Keep media within the modal's viewport height */
+  max-height: 68vh;
   height: auto;
   display: block;
+  -o-object-fit: contain;
+     object-fit: contain;
 }
 
 .cameraImageBodyTimeOutBorder {

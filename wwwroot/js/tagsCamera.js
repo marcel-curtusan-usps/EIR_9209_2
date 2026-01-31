@@ -6,9 +6,19 @@
     clearInterval(timer);
     await removeFromGroupList('CamerasStill');
   }
+  // remove resize handler when modal closes
+  $(window).off('resize.cameraModal');
 });
 $('#Camera_Modal').on('shown.bs.modal', async function () {
   await addGroupToList('CamerasStill');
+  // ensure sizing is correct when the modal opens
+  resizeCameraModal();
+  // keep sizing in sync with window resize while modal is open
+  $(window).off('resize.cameraModal').on('resize.cameraModal', function () {
+    if ($('#Camera_Modal').hasClass('show')) {
+      resizeCameraModal();
+    }
+  });
 });
 connection.on('addCameras', async data => {
   await addCameraFeature(data);
@@ -255,6 +265,8 @@ async function LoadWeb_CameraImage(Data, layer) {
     }
     $cameraModal.attr('data-id', Data.id).modal('show');
     $cameraModalBody.removeClass('cameraImageBodyTimeOutBorder').addClass('cameraImageBodyRefreshBorder');
+    // adjust sizes after content is in place
+    resizeCameraModal();
 
     const $arrowBtn = $('#cameraViewDirectionArrow');
     const $arrowNeedle = $arrowBtn.find('.camera-direction-component__needle');
@@ -352,6 +364,9 @@ async function LoadCameraInfo(Data, id) {
     infoTable += '<tr><td scope="row">Description</td><td>' + Data.description + '</td></tr>';
     infoTable += '<tr><td scope="row">IP Address</td><td>' + Data.ip + '</td></tr>';
     infoTable += '<tr><td scope="row">Type</td><td>' + Data.type + '</td></tr>';
+    infoTable += '<tr><td scope="row">Resolution </td><td>' + Data.defaultResolution + '</td></tr>';
+    infoTable += '<tr><td scope="row">CameraId </td><td>' + Data.defaultCameraId + '</td></tr>';
+    infoTable += '<tr><td scope="row">Compression</td><td>' + Data.compression + '</td></tr>';
     infoTable += '</tbody></table>';
     cameraInfobody.append(infoTable);
   } catch (e) {
@@ -383,4 +398,35 @@ function onCameraInput() {
   // update the needle when camera direction changes
   currentNeedleDeg = cam - north;
   $needle.css({ transform: 'translate(-50%,-100%) rotate(' + currentNeedleDeg + 'deg)', transition: 'transform 0ms' });
+}
+
+// Dynamically size the camera image area to the available modal space
+function resizeCameraModal() {
+  try {
+    const $modal = $('#Camera_Modal');
+    if (!$modal.length) return;
+    const $content = $modal.find('.modal-content');
+    const $header = $content.find('.modal-header');
+    const $footer = $content.find('.modal-footer');
+    const $body = $content.find('.modal-body');
+    const $rightCol = $('#cameraImageBody');
+
+    // Compute available height inside the modal content minus header/footer
+    const contentHeight = $content.innerHeight();
+    const headerH = $header.outerHeight(true) || 0;
+    const footerH = $footer.outerHeight(true) || 0;
+    const gap = 12; // small spacing buffer
+    const available = Math.max(contentHeight - headerH - footerH - gap, 200);
+
+    // Apply constraints to the container and media elements
+    $rightCol.css({ 'max-height': available + 'px', 'overflow': 'auto' });
+    $rightCol.find('img, iframe, video, canvas').css({
+      'max-height': (available - 8) + 'px',
+      'width': '100%',
+      'height': 'auto',
+      'object-fit': 'contain'
+    });
+  } catch (err) {
+    console.error('resizeCameraModal error:', err);
+  }
 }

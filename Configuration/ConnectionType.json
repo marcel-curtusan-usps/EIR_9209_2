@@ -312,8 +312,8 @@
       {
         "Id": "7bec51cd-a7ca-45ad-b135-5b8421abfc64",
         "Name": "getCameraStills",
-        "Description": "Camera Pictures",
-        "BaseURL": "http://{ServerIpOrHostName}/axis-cgi/jpg/image.cgi?resolution=1280x720"
+        "Description": "Camera Image Stills",
+        "BaseURL": "http://{ServerIpOrHostName}/axis-cgi/mjpg/video.cgi?resolution={ResolutionValue}&compression={CompressionValue}&camera={CameraId}&nbrofframes=1&duration=1"
       },
       {
         "Id": "a3944e1b-3f07-495f-97b1-3d85438625d9",

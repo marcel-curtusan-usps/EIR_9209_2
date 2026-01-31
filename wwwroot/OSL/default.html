@@ -1274,11 +1274,10 @@
 									Image Refresh</button>
 							</div>
 						</div>
-					</div>
-
-					<!-- Right: Image (large) with compass/controls to its right -->
-					<div class="col-9">
-						<div id="cameraImageBody" class="mb-2"></div>
+						<!-- Right: Image (large) -->
+						<div class="col-9">
+							<div id="cameraImageBody" class="mb-2"></div>
+						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
@@ -2137,6 +2136,20 @@
 													<option value=""></option>
 												</select>
 												<span id="error_defualtCameraSource"
+													class="text-danger d-block mt-1"></span>
+											</div>
+											<div class="col form-group mb-0">
+												<label class="control-label" for="imageCompression">Camera
+													Source</label>
+												<select id="imageCompression" class="form-control mb-2"
+													name="imageCompression">
+													<option value="0">No Compression</option>
+													<option value="25">25% Compression </option>
+													<option value="50">50% Compression</option>
+													<option value="75">75% Compression</option>
+													<option value="100">100% Compression</option>
+												</select>
+												<span id="error_imageCompression"
 													class="text-danger d-block mt-1"></span>
 											</div>
 										</div>
@@ -3064,23 +3077,6 @@
 									</div>
 								</div>
 							</div>
-
-							<!-- <div class="table-responsive fixedHeader variableHeight">
-									<table aria-describedby=""
-										class="table table-sm table-hover table-condensed mb-1 border-bottom"
-										id="vehicletable">
-										<thead class="table-dark">
-											<tr>
-												<th>
-													<span class="ml-p25rem">Condition Name</span>
-												</th>
-												<th>Name</th>
-												<th>Duration</th>
-											</tr>
-										</thead>
-										<tbody></tbody>
-									</table>
-								</div> -->
 						</div>
 					</div>
 				</div>

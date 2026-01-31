@@ -46,7 +46,7 @@ public class Cameras
     /// <summary>
     /// Gets or sets the unique identifier for the camera.
     /// </summary>
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public string Id { get; set; } = "";
 
     /// <summary>
     /// Gets or sets the display name of the camera.
@@ -160,9 +160,16 @@ public class Cameras
     /// <value></value>
     public string Resolution { get; set; } = "";
     /// <summary>
+    /// Gets or sets the host name of the camera.
+    /// </summary>
+    public string DefaultResolution { get; set; } = "";
+    /// <summary>
     /// Gets or sets the number of image sources for the camera.
     /// </summary>
-
+    public string DefaultCameraId { get; set; } = "";
+    /// <summary>
+    /// Gets or sets the number of image sources for the camera.
+    /// </summary>
     public int NumberOfSources { get; set; } = 0;
     /// <summary>
     /// Gets or sets the list of image sources for the camera.

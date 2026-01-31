@@ -163,73 +163,57 @@ namespace EIR_9209_2.Service
                 // Non-AXIS device - skip
                 return;
             }
-            if (cameraProperties.ImageSource.Count == 0)
-            {
-                await _loggerService.LogData(JToken.FromObject($"Camera {cameraName} has no image sources configured."), "Warning", _endpointConfig.MessageType, _endpointConfig.Url);
-                await _camera.LoadCameraStills("", cameraZoneId);
-                return;
-            }
+            Dictionary<string, string> urlParameters = [];
+
+            if (_endpointConfig.Url.Contains("ServerIpOrHostName"))
+                urlParameters.Add("ServerIpOrHostName", hostName);
             else
+                urlParameters.Add("0", hostName);
+
+            if (_endpointConfig.Url.Contains("CameraId"))
+                urlParameters.Add("CameraId", cameraProperties.DefaultCameraId ?? "1");
+            else
+                urlParameters.Add("1", cameraProperties.DefaultCameraId ?? "1");
+            if (_endpointConfig.Url.Contains("ResolutionValue"))
+                urlParameters.Add("ResolutionValue", cameraProperties.DefaultResolution ?? "320x180");
+
+            if (_endpointConfig.Url.Contains("CompressionValue"))
+                urlParameters.Add("CompressionValue", cameraProperties.Compression.ToString());
+
+            string formatUrl = BuildUrl(_endpointConfig.Url, urlParameters);
+
+            try
             {
-                var cameraSource = cameraProperties.ImageSource.FirstOrDefault(s => s.Source?.Contains(':') == true);
-                cameraSource ??= cameraProperties.ImageSource.FirstOrDefault();
 
-                if (cameraSource != null && cameraSource.Enabled)
+                HttpClientHandler handler = await SetAuthHeaderCore(cameraProperties.AuthKey!, stoppingToken);
+                // Use IHttpClientFactory to obtain an HttpClient (do not create per-iteration new instances)
+                using var httpClient = new HttpClient(handler, disposeHandler: true);
+                httpClient.Timeout = TimeSpan.FromMilliseconds(_endpointConfig.MillisecondsTimeout);
+                using var response = await httpClient.GetAsync(formatUrl, stoppingToken);
+                response.EnsureSuccessStatusCode();
+                imageResult = await response.Content.ReadAsByteArrayAsync();
+                if (_endpointConfig.LogData)
                 {
-
-                    Dictionary<string, string> urlParameters = [];
-
-                    if (_endpointConfig.Url.Contains("ServerIpOrHostName"))
-                        urlParameters.Add("ServerIpOrHostName", hostName);
-                    else
-                        urlParameters.Add("0", hostName);
-
-                    if (_endpointConfig.Url.Contains("CameraId"))
-                        urlParameters.Add("CameraId", cameraSource.CameraId.ToString());
-                    else
-                        urlParameters.Add("1", cameraSource.CameraId.ToString());
-                    if (_endpointConfig.Url.Contains("ResolutionValue"))
-                        urlParameters.Add("ResolutionValue", cameraSource.Resolution);
-
-                    if (_endpointConfig.Url.Contains("CompressionValue"))
-                        urlParameters.Add("CompressionValue", cameraProperties.Compression.ToString());
-
-                    string formatUrl = BuildUrl(_endpointConfig.Url, urlParameters);
-
-                    try
-                    {
-
-                        HttpClientHandler handler = await SetAuthHeaderCore(cameraProperties.AuthKey!, stoppingToken);
-                        // Use IHttpClientFactory to obtain an HttpClient (do not create per-iteration new instances)
-                        using var httpClient = new HttpClient(handler, disposeHandler: true);
-                        httpClient.Timeout = TimeSpan.FromMilliseconds(_endpointConfig.MillisecondsTimeout);
-                        using var response = await httpClient.GetAsync(formatUrl, stoppingToken);
-                        response.EnsureSuccessStatusCode();
-                        imageResult = await response.Content.ReadAsByteArrayAsync();
-                        if (_endpointConfig.LogData)
-                        {
-                            _ = Task.Run(() => _loggerService.LogData(JToken.FromObject($"Fetched image from {formatUrl}, size: {imageResult.Length} bytes"),
-                                _endpointConfig.MessageType,
-                                _endpointConfig.Name,
-                                formatUrl), stoppingToken);
-                        }
-
-                        var newImage = "data:image/jpeg;base64," + Convert.ToBase64String(imageResult);
-                        await _camera.LoadCameraStills(newImage, cameraZoneId);
-                    }
-                    catch (HttpRequestException hre)
-                    {
-                        await _loggerService.LogData(JToken.FromObject(hre.Message), "Warning", _endpointConfig.MessageType, formatUrl);
-                        await _camera.LoadCameraStills("", cameraZoneId);
-                    }
-                    catch (Exception e)
-                    {
-                        await _loggerService.LogData(JToken.FromObject(e.Message), "Error", _endpointConfig.MessageType, formatUrl);
-                        await _camera.LoadCameraStills("", cameraZoneId);
-                    }
+                    _ = Task.Run(() => _loggerService.LogData(JToken.FromObject($"Fetched image from {formatUrl}, size: {imageResult.Length} bytes"),
+                        _endpointConfig.MessageType,
+                        _endpointConfig.Name,
+                        formatUrl), stoppingToken);
                 }
 
+                var newImage = "data:image/jpeg;base64," + Convert.ToBase64String(imageResult);
+                await _camera.LoadCameraStills(newImage, cameraZoneId);
             }
+            catch (HttpRequestException hre)
+            {
+                await _loggerService.LogData(JToken.FromObject(hre.Message), "Warning", _endpointConfig.MessageType, formatUrl);
+                await _camera.LoadCameraStills("", cameraZoneId);
+            }
+            catch (Exception e)
+            {
+                await _loggerService.LogData(JToken.FromObject(e.Message), "Error", _endpointConfig.MessageType, formatUrl);
+                await _camera.LoadCameraStills("", cameraZoneId);
+            }
+
         }
         private static async Task<HttpClientHandler> SetAuthHeaderCore(string AuthKey, CancellationToken ct)
         {
@@ -298,6 +282,7 @@ namespace EIR_9209_2.Service
             {
                 var camerasItem = new Cameras
                 {
+                    Id = Guid.NewGuid().ToString(),
                     DisplayName = bicam.FacilityDisplayName,
                     LocaleKey = bicam.LocaleKey,
                     ModelNum = bicam.ModelNum,
@@ -306,8 +291,8 @@ namespace EIR_9209_2.Service
                     FacilitySubtypeDesc = bicam.FacilitySubtypeDesc,
                     GeoProcDivisionNm = bicam.GeoProcDivisionNm,
                     AuthKey = bicam.AuthKey,
-                    FacilityLatitudeNum = bicam.FacilitiyLatitudeNum,
-                    FacilityLongitudeNum = bicam.FacilitiyLongitudeNum,
+                    FacilityLatitudeNum = bicam.FacilityLatitudeNum,
+                    FacilityLongitudeNum = bicam.FacilityLongitudeNum,
                     Description = bicam.Description,
                     BicamCameraId = bicam.BicamCameraId,
                     CameraName = bicam.CameraName,
@@ -352,7 +337,7 @@ namespace EIR_9209_2.Service
                 cam.Resolution = getbasicInfo.Where(kv => kv.Key.StartsWith("root.Properties.Image.Resolution", StringComparison.OrdinalIgnoreCase)).Select(kv => kv.Value).FirstOrDefault() ?? "320x180";
                 // parse number of sources
                 cam.NumberOfSources = getbasicInfo.Where(kv => kv.Key.StartsWith("root.ImageSource.NbrOfSources", StringComparison.OrdinalIgnoreCase)).Select(kv => int.TryParse(kv.Value, out var num) ? num : 0).FirstOrDefault();
-                
+
                 // parse image sources
                 var sources = ParseImageSourcesFromCameraInfo(getbasicInfo
                 .Where(kv => kv.Key.StartsWith("root.Image.I", StringComparison.OrdinalIgnoreCase))
@@ -412,7 +397,7 @@ namespace EIR_9209_2.Service
                     src.StreamDuration = durVal ?? "";
                 if (src.Enabled)
                 {
-                    src.CameraId = (grp.Key+1).ToString();
+                    src.CameraId = (grp.Key + 1).ToString();
                     sources.Add(src);
                 }
             }
@@ -584,10 +569,10 @@ namespace EIR_9209_2.Service
             public string AuthKey { get; set; } = "";
 
             [JsonProperty("FACILITY_LATITUDE_NUM")]
-            public double FacilitiyLatitudeNum { get; set; } = 0.0;
+            public double FacilityLatitudeNum { get; set; } = 0.0;
 
             [JsonProperty("FACILITY_LONGITUDE_NUM")]
-            public double FacilitiyLongitudeNum { get; set; } = 0.0;
+            public double FacilityLongitudeNum { get; set; } = 0.0;
 
             [JsonProperty("DESCRIPTION")]
             public string Description { get; set; } = "";
@@ -598,7 +583,7 @@ namespace EIR_9209_2.Service
             [JsonProperty("CAMERA_ID")]
             public int BicamCameraId { get; set; } = 0;
 
-            [JsonProperty("FACILITY_DISPLAY_NME")]
+            [JsonProperty("FACILITY_DISPLAY_NAME")]
             public string FacilityDisplayName { get; set; } = "";
         }
     }
