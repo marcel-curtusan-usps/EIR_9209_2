@@ -68,12 +68,29 @@ function startTimer() {
 }
 // Utility to create the same custom divIcon with cone & cameraDirection
 function getCameraDivIcon(direction) {
-  return L.divIcon({
-    className: 'custom-div-icon',
-    html: direction ? "<div style='transform:rotate(" + direction + "deg)' class='marker-camera-cone'></div><div class='marker-pin'></div><i class='bi-camera-fill'></i>" : "<div class='marker-pin'></div><i class='bi-camera-fill'></i>",
-    iconSize: [42, 42],
-    iconAnchor: [2, 62]
-  });
+  if (direction >= 359) {
+    return L.divIcon({
+      className: 'custom-div-icon',
+      html: direction ? "<div class='marker-camera-cone' style='transform:rotate(0deg);'></div>" +
+        "<div class='marker-camera-cone' style='transform:rotate(90deg);'></div>" +
+        "<div class='marker-camera-cone' style='transform:rotate(180deg);'></div>" +
+        "<div class='marker-camera-cone' style='transform:rotate(270deg);'></div>" +
+        "<div class='marker-pin'></div><i class='bi-camera-fill'></i>" : "<div class='marker-pin'></div><i class='bi-camera-fill'></i>",
+      iconSize: [42, 42],
+      iconAnchor: [2, 62]
+    });
+  }
+  else {
+    return L.divIcon({
+      className: 'custom-div-icon',
+      html: direction ? "<div style='transform:rotate(" + direction + "deg)' class='marker-camera-cone'></div><div class='marker-pin'></div><i class='bi-camera-fill'></i>" : "<div class='marker-pin'></div><i class='bi-camera-fill'></i>",
+      iconSize: [42, 42],
+      iconAnchor: [2, 62]
+    });
+  }
+}
+function getCameraQuadDivIcon(direction) {
+
 }
 // GeoJSON layer for camera markers (ensure global availability for other scripts)
 let markerCameras = new L.GeoJSON(null, {
@@ -285,6 +302,7 @@ async function LoadWeb_CameraImage(Data, layer) {
     if (Data.cameraDirection !== undefined && Data.cameraDirection !== null) {
       const cameraDeg = isNaN(Number(Data.cameraDirection)) ? 0 : Number(Data.cameraDirection);
 
+
       // Rotate labels so the 'N' points to configuredNorth, and rotate needle relative to that north
       updateCompassLabels($compass, configuredNorth);
 
@@ -292,7 +310,9 @@ async function LoadWeb_CameraImage(Data, layer) {
       // Ensure needle transform preserves the translate that places its bottom at center
       $arrowNeedle.css({ transform: 'translate(-50%,-100%) rotate(' + needleDeg + 'deg)', transition: 'transform 200ms ease' });
       $arrowBtn.show();
-
+      if (cameraDeg <= 359) {
+        $('#cameraDirectionRow').removeClass('d-none');
+      
       // initialize sliders if present
       if ($('#cameraDirectionSlider').length) {
         $('#cameraDirectionSlider').val(Math.round(cameraDeg));
@@ -305,6 +325,9 @@ async function LoadWeb_CameraImage(Data, layer) {
         $('#northDirectionValue').text(Math.round(configuredNorth) + '°');
         // trigger north input handler to position labels (does not move needle)
         $('#northDirectionSlider').trigger('input');
+      }}
+      else {
+        $('#cameraDirectionRow').addClass('d-none');
       }
       // Live update icon on slider movement, but only POST on release (change/mouseup)
       $('#cameraDirectionSlider')
@@ -327,6 +350,7 @@ async function LoadWeb_CameraImage(Data, layer) {
           }
         });
     } else {
+      $('#cameraDirectionRow').addClass('d-none');
       $arrowBtn.hide();
     }
 

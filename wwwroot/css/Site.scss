@@ -55,17 +55,16 @@ body {
 .marker-camera-cone {
     width: 0;
     height: 0;
-    border-left: 40px solid transparent;
-    border-right: 40px solid transparent;
+    border-left: 30px solid transparent;
+    border-right: 30px solid transparent;
     border-bottom: 40px solid transparent;
-    border-top: 40px solid #007bff;
+    border-top: 42px solid #007bff;
     border-radius: 50% 50% 0 0;
     opacity: 0.4;
     position: absolute;
-    margin: -20px 0 0 -20px;
+    margin: -18px 0 0 -10px;
     align-content: center;
 }
-
 // to align icon
 .custom-div-icon i {
     position: absolute;

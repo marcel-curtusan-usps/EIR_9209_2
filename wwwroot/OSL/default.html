@@ -1227,9 +1227,9 @@
 					<button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<div class="row">
+					<div class="row mx-1">
 						<!-- Left: Camera info -->
-						<div class="col">
+						<div class="col-4">
 							<h6 class="text-center pb-0 mb-0">Camera Info</h6>
 							<div class="p-1" id="cameraImageInfobody">
 							</div>
@@ -1249,7 +1249,7 @@
 								</button>
 							</div>
 							<div class="w-100">
-								<div class="row mx-2">
+								<div class="row mx-2 d-none" id="cameraDirectionRow">
 									<div class="text-start">
 										<label for="cameraDirectionSlider" class="form-label">Camera Direction:
 											<span id="cameraDirectionValue">0°</span></label>
@@ -1266,17 +1266,17 @@
 									</div>
 								</div>
 							</div>
-						</div>
-						<div class="pt-2 d-none" id="divImageRefresh">
-							<div class="d-flex align-items-center justify-content-center w-100">
-								<button class="btn btn-success btn-lg float-left" type="button"
-									id="startImageRefresh">Start
-									Image Refresh</button>
+							<div class="pt-2 d-none" id="divImageRefresh">
+								<div class="d-flex align-items-center justify-content-center w-100">
+									<button class="btn btn-success btn-lg float-left" type="button"
+										id="startImageRefresh">Start
+										Image Refresh</button>
+								</div>
 							</div>
 						</div>
 						<!-- Right: Image (large) -->
-						<div class="col-9">
-							<div id="cameraImageBody" class="mb-2"></div>
+						<div class="col d-flex align-items-center justify-content-center">
+							<div id="cameraImageBody" class="mx-4"></div>
 						</div>
 					</div>
 				</div>
